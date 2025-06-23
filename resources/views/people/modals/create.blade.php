@@ -1,0 +1,98 @@
+<div class="modal fade" id="createPersonModal" tabindex="-1" role="dialog" aria-labelledby="createPersonModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createPersonModalLabel">إضافة شخص جديد</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="{{ route('people.store') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="first_name">الاسم الأول</label>
+                                <input type="text" class="form-control" id="first_name" name="first_name" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="last_name">الاسم الأخير</label>
+                                <input type="text" class="form-control" id="last_name" name="last_name">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="birth_date">تاريخ الميلاد</label>
+                                <input type="date" class="form-control" id="birth_date" name="birth_date">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="death_date">تاريخ الوفاة (إن وجد)</label>
+                                <input type="date" class="form-control" id="death_date" name="death_date">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="gender">الجنس</label>
+                                <select class="form-control" id="gender" name="gender" required>
+                                    <option value="male">ذكر</option>
+                                    <option value="female">أنثى</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="parent_id">الأب/الأم</label>
+                                <select class="form-control" id="parent_id" name="parent_id">
+                                    <option value="">-- اختر الأب أو الأم --</option>
+                                    @foreach (App\Models\Person::all() as $parent)
+                                        <option value="{{ $parent->id }}">{{ $parent->full_name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="occupation">المهنة</label>
+                        <input type="text" class="form-control" id="occupation" name="occupation">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="location">المكان</label>
+                        <input type="text" class="form-control" id="location" name="location">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="biography">سيرة ذاتية</label>
+                        <textarea class="form-control" id="biography" name="biography" rows="3"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="photo">صورة الشخص</label>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="photo" name="photo">
+                            <label class="custom-file-label" for="photo">اختر ملف</label>
+                        </div>
+                        <small class="form-text text-muted">الصور المسموح بها: jpeg, png, jpg, gif بحجم أقصى 2MB</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn btn-primary">حفظ الشخص</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
