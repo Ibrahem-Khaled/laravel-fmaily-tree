@@ -25,6 +25,7 @@ return new class extends Migration
 
             // Nested Set Model columns
             $table->unsignedBigInteger('partner_id')->nullable();
+            $table->unsignedBigInteger('mother_id')->nullable();
             $table->nestedSet();
 
             $table->timestamps();
@@ -35,6 +36,8 @@ return new class extends Migration
             $table->index('gender');
 
             $table->foreign('partner_id')->references('id')->on('persons')->onDelete('set null');
+            $table->foreign('mother_id')->references('id')->on('persons')->onDelete('set null');
+
         });
     }
 

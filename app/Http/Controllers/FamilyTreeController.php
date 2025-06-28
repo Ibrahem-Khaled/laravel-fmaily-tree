@@ -18,6 +18,7 @@ class FamilyTreeController extends Controller
     {
         // الحصول على الجذور (الأشخاص الذين ليس لهم والد)
         $roots = Person::whereNull('parent_id')
+            ->where('gender', 'male')
             ->with('children')
             ->orderBy('birth_date')
             ->get();
@@ -62,7 +63,7 @@ class FamilyTreeController extends Controller
     // API لجلب تفاصيل شخص معين
     public function getPersonDetails($id)
     {
-        $person = Person::with('parent')->findOrFail($id);
+        $person = Person::with(['parent', 'mother', 'husband', 'wives'])->findOrFail($id);
 
         return response()->json([
             'success' => true,
@@ -75,12 +76,14 @@ class FamilyTreeController extends Controller
     {
         $data = [
             'id' => $person->id,
-            'parent_id' => $person->parent_id, // إضافة معرف الوالد
+            'parent_id' => $person->parent_id,
+            'mother_id' => $person->mother_id,
+            'mother_name' => $person->mother ? $person->mother->full_name : null,
             'full_name' => $person->full_name,
             'first_name' => $person->first_name,
             'last_name' => $person->last_name,
             'gender' => $person->gender,
-            'photo_url' => $person->photo_url ?  asset('storage/' . $person->photo_url) : null,
+            'photo_url' => $person->photo_url ? asset('storage/' . $person->photo_url) : null,
             'children_count' => $person->children_count ?? $person->children()->count(),
         ];
 
@@ -102,7 +105,30 @@ class FamilyTreeController extends Controller
                 $data['parent_name'] = $person->parent->full_name;
             }
 
-            // يمكنك إضافة المزيد من التفاصيل هنا حسب الحاجة
+            // إضافة معلومات الزوج/الزوجات
+            $spouses = [];
+
+            if ($person->gender === 'male' && $person->wives->isNotEmpty()) {
+                foreach ($person->wives as $wife) {
+                    $spouses[] = [
+                        'id' => $wife->id,
+                        'name' => $wife->full_name,
+                        'gender' => $wife->gender,
+                        'photo' => $wife->photo_url ? asset('storage/' . $wife->photo_url) : null
+                    ];
+                }
+            } elseif ($person->gender === 'female' && $person?->husband?->isNotEmpty()) {
+                foreach ($person->husband as $husband) {
+                    $spouses[] = [
+                        'id' => $husband->id,
+                        'name' => $husband->full_name,
+                        'gender' => $husband->gender,
+                        'photo' => $husband->photo_url ? asset('storage/' . $husband->photo_url) : null
+                    ];
+                }
+            }
+
+            $data['spouses'] = $spouses;
         }
 
         return $data;

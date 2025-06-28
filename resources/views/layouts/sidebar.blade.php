@@ -29,6 +29,11 @@
             <i class="fas fa-fw fa-table"></i>
             <span>الشخصيات</span></a>
     </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{{ route('marriages.index') }}">
+            <i class="fas fa-fw fa-table"></i>
+            <span>الزواجات</span></a>
+    </li>
 
 
     <!-- Divider -->

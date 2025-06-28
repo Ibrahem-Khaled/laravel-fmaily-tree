@@ -9,19 +9,7 @@ use Kalnoy\Nestedset\NodeTrait;
 class Person extends Model
 {
     use HasFactory, NodeTrait;
-    
-    /**
-     * The table associated with the model.
-     *
-     * @var string
-     */
     protected $table = 'persons';
-    
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'first_name',
         'last_name',
@@ -33,60 +21,65 @@ class Person extends Model
         'occupation',
         'location',
         'parent_id',
+        'mother_id',
     ];
-    
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
+
     protected $casts = [
         'birth_date' => 'date',
         'death_date' => 'date',
     ];
-    
-    /**
-     * Get the full name of the person.
-     *
-     * @return string
-     */
     public function getFullNameAttribute(): string
     {
-        return "{$this->first_name} {$this->last_name}";
+        $names = [$this->first_name];
+        $current = $this->parent;
+
+        while ($current) {
+            $names[] = "بن " . $current->first_name;
+            $current = $current->parent;
+        }
+
+        return implode(' ', $names);
     }
-    
-    /**
-     * Get the person's age or age at death.
-     *
-     * @return int|null
-     */
+
     public function getAgeAttribute(): ?int
     {
         if (!$this->birth_date) {
             return null;
         }
-        
+
         $endDate = $this->death_date ?? now();
         return $this->birth_date->diffInYears($endDate);
     }
-    
-    /**
-     * Get all children of this person.
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
+
     public function children()
     {
         return $this->hasMany(Person::class, 'parent_id');
     }
-    
-    /**
-     * Get the parent of this person.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
+
     public function parent()
     {
         return $this->belongsTo(Person::class, 'parent_id');
+    }
+
+    public function mother()
+    {
+        return $this->belongsTo(Person::class, 'mother_id');
+    }
+
+    public function childrenFromMother()
+    {
+        return $this->hasMany(Person::class, 'mother_id');
+    }
+
+
+    public function wives()
+    {
+        return $this->hasManyThrough(Person::class, Marriage::class, 'husband_id', 'id', 'id', 'wife_id');
+    }
+
+    // الزوجة (لها زوج واحد)
+    public function husband()
+    {
+        return $this->hasOneThrough(Person::class, Marriage::class, 'wife_id', 'id', 'id', 'husband_id');
     }
 }

@@ -98,6 +98,7 @@
                                 <th>فترة الحياة</th>
                                 <th>المهنة</th>
                                 <th>المكان</th>
+                                <th>الام</th>
                                 <th>الإجراءات</th>
                             </tr>
                         </thead>
@@ -121,6 +122,11 @@
                                     <td>{{ $person->life_span ?? 'غير معروف' }}</td>
                                     <td>{{ $person->occupation ?? '-' }}</td>
                                     <td>{{ $person->location ?? '-' }}</td>
+                                    <td>
+                                        <a href="#">
+                                            {{ $person->mother ? $person->mother->full_name : 'غير معروف' }}
+                                        </a>
+                                    </td>
                                     <td>
                                         {{-- زر عرض --}}
                                         <button type="button" class="btn btn-sm btn-circle btn-info" data-toggle="modal"
