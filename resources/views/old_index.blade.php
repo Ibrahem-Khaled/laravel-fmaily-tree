@@ -10,14 +10,13 @@
     <link rel="stylesheet" href="{{ asset('css/style.css') }}?v=0.6">
     <link rel="stylesheet" href="{{ asset('css/rtl.css') }}?v=0.6">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.rtl.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Alexandria:wght@100;200;300;400;500;600;700;800;900&family=IBM+Plex+Sans+Arabic:wght@200;300;400;500;600;700&family=Inter:wght@100;200;300;400;500;600;700;800;900&family=Readex+Pro:wght@200;300;400;500;600;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@100..900&display=swap" rel="stylesheet">
 
     <style>
-        /* Your original custom CSS */
+        /* Your original custom CSS remains the same */
         body {
             background: #fff;
         }
@@ -26,24 +25,17 @@
             background: linear-gradient(180deg, #DCF2DD 0%, #FFF 100%);
         }
 
-        #tree {
-            width: 100%;
-            height: 100%;
-            padding-left: 0 !important;
-            padding-right: 0 !important;
-        }
-
-        .accordion-group-item {
+        .accordion-group-item,
+        .accordion-item {
             position: relative;
             max-width: 120px;
+            border: 1px solid #ddd !important;
+            border-radius: 4px;
         }
 
-        .accordion-group-item+.accordion-group-item {
+        .accordion-group-item+.accordion-group-item,
+        .accordion-item+.accordion-item {
             margin-top: 5px;
-        }
-
-        .accordion-body {
-            padding: 0 5px 0 0;
         }
 
         .accordion-collapse {
@@ -56,25 +48,7 @@
         .accordion-button {
             box-shadow: none !important;
             outline: 0 !important;
-            align-items: center !important;
-            padding: 10px 10px;
-        }
-
-        .accordion-button:focus {
-            box-shadow: none;
-        }
-
-        .accordion-button::after {
-            display: none;
-        }
-
-        span.accordion-button>span {
-            color: #37a05c;
-            font-weight: 400;
-        }
-
-        span.accordion-button:not(.collapsed) {
-            background-color: #fff !important;
+            padding: 10px;
         }
 
         .accordion-button:not(.collapsed) {
@@ -82,41 +56,23 @@
             color: white !important;
         }
 
-        .accordion-item {
-            position: relative;
-            min-width: 115px;
+        .accordion-button::after {
+            display: none;
         }
 
-        .profile-link {
-            width: 100%;
-            display: block;
+        .actions-bar {
+            display: flex;
+            justify-content: space-around;
+            padding: 4px;
             border-top: 1px solid #ddd;
-            padding: 8px;
-            text-align: center;
-            font-size: 13px;
-            color: #145147;
             background: #f9f9f9;
-            box-shadow: 0 3px 50px 0 rgba(0, 0, 0, 0.08);
             border-radius: 0 0 4px 4px;
         }
 
-        .accordion-group-item,
-        .accordion-item {
-            border: 1px solid #ddd !important;
-            border-radius: 4px;
-        }
-
-        .accordion-item+.accordion-item {
-            margin-top: 5px;
-        }
-
-        .accordion-button {
-            border-radius: 4px 4px 0 0;
-        }
-
-        .wife>img {
-            width: 50px !important;
-            height: 50px !important;
+        .actions-bar .btn {
+            font-size: 12px;
+            padding: 2px 8px;
+            color: #145147;
         }
 
         .accordion-body .loader {
@@ -125,40 +81,71 @@
             color: #145147;
             font-size: 14px;
         }
+
+        /* Modal Styles */
+        .modal-body .profile-pic {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 3px solid #DCF2DD;
+            object-fit: cover;
+        }
+
+        .detail-row {
+            display: flex;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.03);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .detail-row i {
+            color: #37a05c;
+            width: 30px;
+            text-align: center;
+            font-size: 1.2rem;
+        }
     </style>
 </head>
 
 <body>
     @include('partials.header')
 
-    {{-- This section remains the same --}}
-    @if (!empty($achievements))
-        <section class="achievement d-none" id="achievement">
-            {{-- Your achievements code from the original file --}}
-        </section>
-    @endif
-
     <section class="tree-section position-relative" style="padding-top: 140px;">
         <div class="container">
             <div>
                 <div class="tree-title-sec">
-                    <a href="{{ url()->previous() }}" class="back-btn"><img src="{{ asset('images/back.svg') }}"
-                            alt="back"></a>
                     <h3>تواصل العائلة</h3>
                 </div>
             </div>
-
-            {{-- This is the main container that JavaScript will populate --}}
             <div class="accordion-group p-3" id="familyTreeContainer">
                 <div class="text-center py-5">
-                    <div class="spinner-border text-success" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
+                    <div class="spinner-border text-success" role="status"><span
+                            class="visually-hidden">Loading...</span></div>
                     <p class="mt-2">جاري تحميل شجرة العائلة...</p>
                 </div>
             </div>
         </div>
     </section>
+
+    <div class="modal fade" id="personDetailModal" tabindex="-1" aria-labelledby="personDetailModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="personDetailModalLabel">تفاصيل العضو</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modalBodyContent">
+                    {{-- Person details will be loaded here --}}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     {{-- 📦 Scripts --}}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
@@ -166,52 +153,33 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-
-            const API_BASE_URL = '/api'; // Make sure this is your correct API path
+            const API_BASE_URL = '/api';
             const treeContainer = document.getElementById('familyTreeContainer');
 
-            /**
-             * Fetches data safely from the API
-             */
+            // --- API Fetcher ---
             async function fetchFromAPI(endpoint) {
                 try {
                     const response = await fetch(`${API_BASE_URL}${endpoint}`);
-                    if (!response.ok) {
-                        throw new Error(`API Error: ${response.status}`);
-                    }
+                    if (!response.ok) throw new Error(`API Error: ${response.status}`);
                     return await response.json();
                 } catch (error) {
                     console.error('Failed to fetch from API:', error);
-                    return null; // Return null to handle the error in the calling function
+                    return null;
                 }
             }
 
-            /**
-             * Creates the HTML for a single person in the tree
-             * @param {object} person - The person's data
-             * @param {number} level - The generation level (0 for root, 1 for children, etc.)
-             */
+            // --- Node Creation ---
             function createPersonNode(person, level = 0) {
                 const hasChildren = person.children_count > 0;
-                const isWife = person.gender === 'female'; // Assuming 'female' or similar
                 const uniqueId = `person_${person.id}_level_${level}`;
-                // Use a fixed parent ID for each level to make the accordion work correctly
                 const parentId = `tree_level_${level}`;
                 const itemClass = (level === 0) ? 'accordion-group-item' : 'accordion-item';
 
                 const buttonOrSpan = hasChildren ?
-                    `<button class="accordion-button accordion-group-button d-flex flex-column gap-1 collapsed"
-                             type="button"
-                             data-bs-toggle="collapse"
-                             data-bs-target="#collapse_${uniqueId}"
-                             aria-expanded="false"
-                             aria-controls="collapse_${uniqueId}"
-                             data-person-id="${person.id}"
-                             data-level="${level + 1}"
-                             onclick="loadChildren(this)">
+                    `<button class="accordion-button accordion-group-button d-flex flex-column gap-1 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_${uniqueId}" aria-expanded="false" aria-controls="collapse_${uniqueId}" data-person-id="${person.id}" data-level="${level + 1}" onclick="loadChildren(this)">
                         <img src="${person.photo_url || '/images/male.png'}" width="70" height="70" onerror="this.onerror=null;this.src='/images/male.png';">
                     </button>` :
-                    `<span class="accordion-button accordion-group-button d-flex flex-column gap-1 collapsed ${isWife ? 'wife' : ''}">
+                    `<span class="accordion-button accordion-group-button d-flex flex-column gap-1 collapsed">
                         <img src="${person.photo_url || '/images/male.png'}" width="70" height="70" onerror="this.onerror=null;this.src='/images/male.png';">
                     </span>`;
 
@@ -219,85 +187,109 @@
                     <div class="${itemClass}">
                         <h2 class="accordion-header">
                             ${buttonOrSpan}
-                            <a href="/user-profile?id=${person.id}" class="profile-link">
-                                <img src="/images/link-icon.svg" alt="">
-                                ${person.first_name}
-                            </a>
+                            <div class="actions-bar">
+                                <button class="btn btn-link" onclick="showPersonDetails(${person.id})">التفاصيل</button>
+                                <a href="/user-profile?id=${person.id}" class="btn btn-link">ملف</a>
+                            </div>
                         </h2>
                         ${hasChildren ? `
                                 <div id="collapse_${uniqueId}" class="accordion-collapse collapse" data-bs-parent="#${parentId}">
                                     <div class="accordion-body">
-                                        <div class="accordion" id="tree_level_${level + 1}">
-                                            </div>
+                                        <div class="accordion" id="tree_level_${level + 1}"></div>
                                     </div>
-                                </div>
-                            ` : ''}
-                    </div>
-                `;
+                                </div>` : ''}
+                    </div>`;
                 return nodeHTML;
             }
 
-            /**
-             * Loads children when a person's button is clicked
-             * @param {HTMLElement} buttonElement - The button that was clicked
-             */
+            // --- Load Children Logic ---
             window.loadChildren = async (buttonElement) => {
-                // Prevent re-fetching data
-                if (buttonElement.dataset.loaded === 'true') {
-                    return;
-                }
-
+                if (buttonElement.dataset.loaded === 'true') return;
                 const personId = buttonElement.dataset.personId;
                 const level = parseInt(buttonElement.dataset.level);
                 const collapseTargetId = buttonElement.dataset.bsTarget;
                 const childrenContainer = document.querySelector(`${collapseTargetId} .accordion`);
-
                 if (!childrenContainer) return;
 
-                // Show a loading indicator
-                childrenContainer.innerHTML = `<div class="loader">جاري تحميل الأبناء...</div>`;
-
+                childrenContainer.innerHTML = `<div class="loader">جاري التحميل...</div>`;
                 const data = await fetchFromAPI(`/person/${personId}/children`);
 
                 if (data && data.children && data.children.length > 0) {
-                    childrenContainer.innerHTML = ''; // Clear loader
+                    childrenContainer.innerHTML = '';
                     data.children.forEach(child => {
                         childrenContainer.innerHTML += createPersonNode(child, level);
                     });
                 } else {
-                    childrenContainer.innerHTML = `<div class="loader">لا يوجد أبناء مسجلين.</div>`;
+                    childrenContainer.innerHTML = `<div class="loader">لا يوجد أبناء.</div>`;
                 }
-
-                // Mark as loaded
                 buttonElement.dataset.loaded = 'true';
             };
 
-            /**
-             * Loads the initial (root) level of the family tree on page load
-             */
+            // --- Modal Details Logic ---
+            window.showPersonDetails = async (personId) => {
+                const modalElement = document.getElementById('personDetailModal');
+                const modalBody = document.getElementById('modalBodyContent');
+                const personModal = new bootstrap.Modal(modalElement);
+                personModal.show();
+
+                modalBody.innerHTML =
+                    `<div class="text-center p-5"><div class="spinner-border text-success"></div><p class="mt-2">جاري تحميل التفاصيل...</p></div>`;
+
+                const data = await fetchFromAPI(`/person/${personId}`);
+                if (!data || !data.person) {
+                    modalBody.innerHTML =
+                    `<div class="alert alert-danger">فشل في تحميل بيانات الشخص.</div>`;
+                    return;
+                }
+
+                const person = data.person;
+                const age = person.birth_date && !person.death_date ? new Date().getFullYear() - new Date(
+                    person.birth_date).getFullYear() : null;
+
+                const createDetailRow = (icon, label, value) => !value ? '' : `
+                    <div class="detail-row">
+                        <i class="fas ${icon} fa-fw mx-2"></i>
+                        <div>
+                            <small class="text-muted">${label}</small>
+                            <p class="mb-0 fw-bold">${value}</p>
+                        </div>
+                    </div>`;
+
+                modalBody.innerHTML = `
+                    <div class="row">
+                        <div class="col-md-4 text-center">
+                            <img src="${person.photo_url || '/images/male.png'}" class="profile-pic" onerror="this.onerror=null;this.src='/images/male.png';">
+                            <h4 class="mt-3">${person.full_name}</h4>
+                            <p class="text-muted">${person.parent_name ? `ابن: ${person.parent_name}` : 'الجيل الأول'}</p>
+                        </div>
+                        <div class="col-md-8">
+                            ${createDetailRow('fa-birthday-cake', 'تاريخ الميلاد', person.birth_date)}
+                            ${age ? createDetailRow('fa-calendar-alt', 'العمر', `${age} سنة`) : ''}
+                            ${createDetailRow('fa-briefcase', 'المهنة', person.occupation)}
+                            ${person.death_date ? createDetailRow('fa-dove', 'تاريخ الوفاة', person.death_date) : ''}
+                        </div>
+                    </div>
+                `;
+            };
+
+            // --- Initial Load ---
             async function loadInitialTree() {
                 const data = await fetchFromAPI('/family-tree');
-
                 if (data && data.tree) {
-                    treeContainer.innerHTML = ''; // Clear initial loader
-                    // Set up the container for the first level
                     treeContainer.innerHTML = `<div id="tree_level_0"></div>`;
                     const firstLevelContainer = treeContainer.querySelector('#tree_level_0');
-
                     data.tree.forEach(person => {
                         firstLevelContainer.innerHTML += createPersonNode(person, 0);
                     });
                 } else {
                     treeContainer.innerHTML =
-                        '<div class="alert alert-danger text-center">حدث خطأ أثناء تحميل شجرة العائلة. يرجى المحاولة مرة أخرى.</div>';
+                        '<div class="alert alert-danger text-center">خطأ في تحميل شجرة العائلة.</div>';
                 }
             }
 
-            // Start the process
             loadInitialTree();
         });
     </script>
-
 </body>
 
 </html>
