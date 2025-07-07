@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', [FamilyTreeController::class, 'index'])->name('family-tree');
+Route::get('/old/family-tree', [FamilyTreeController::class, 'oldIndex'])->name('old.family-tree');
 
 Route::prefix('api')->group(function () {
     Route::get('/family-tree', [FamilyTreeController::class, 'getFamilyTree']);

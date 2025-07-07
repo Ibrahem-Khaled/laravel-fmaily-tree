@@ -12,6 +12,10 @@ class FamilyTreeController extends Controller
     {
         return view('index');
     }
+    public function oldIndex()
+    {
+        return view('old_index');
+    }
 
     // API لجلب شجرة العائلة
     public function getFamilyTree()
