@@ -11,7 +11,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
 
     <style>
         :root {
@@ -44,7 +45,8 @@
             font-weight: 700;
         }
 
-        .accordion-group-item, .accordion-item {
+        .accordion-group-item,
+        .accordion-item {
             position: relative;
             width: 130px;
             border: 1px solid var(--border-color) !important;
@@ -53,12 +55,13 @@
             transition: all 0.3s ease;
         }
 
-        /* This rule restores the vertical stacking */
-        .accordion-group-item + .accordion-group-item, .accordion-item + .accordion-item {
+        .accordion-group-item+.accordion-group-item,
+        .accordion-item+.accordion-item {
             margin-top: 10px;
         }
 
-        .accordion-group-item:hover, .accordion-item:hover {
+        .accordion-group-item:hover,
+        .accordion-item:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
         }
@@ -69,6 +72,7 @@
             width: 130px;
             top: 0;
             padding-right: 20px;
+            z-index: 10;
         }
 
         .accordion-button {
@@ -84,8 +88,13 @@
             color: white !important;
         }
 
-        .accordion-button::after { display: none; }
-        .accordion-button:focus { box-shadow: none; }
+        .accordion-button::after {
+            display: none;
+        }
+
+        .accordion-button:focus {
+            box-shadow: none;
+        }
 
         .person-photo-container {
             width: 70px;
@@ -97,11 +106,14 @@
             justify-content: center;
             position: relative;
             border: 2px solid #fff;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .person-photo-container img {
-            width: 100%; height: 100%; object-fit: cover; border-radius: 50%;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
         }
 
         .person-photo-container .icon-placeholder {
@@ -115,7 +127,7 @@
             left: 0;
             width: 24px;
             height: 24px;
-            background-color: rgba(0,0,0,0.6);
+            background-color: rgba(0, 0, 0, 0.6);
             color: #fff;
             border-radius: 50%;
             display: flex;
@@ -130,6 +142,7 @@
             font-weight: 600;
             font-size: 14px;
         }
+
         .accordion-button:not(.collapsed) .person-name {
             color: #fff;
         }
@@ -141,6 +154,7 @@
             background: var(--light-gray);
             border-radius: 0 0 12px 12px;
         }
+
         .actions-bar .btn {
             flex: 1;
             font-size: 12px;
@@ -148,22 +162,84 @@
             color: var(--dark-green);
             border-radius: 0;
         }
-        .actions-bar .btn:hover { background-color: #e9ecef; }
-        .actions-bar .btn:first-child { border-radius: 0 0 11px 0; }
-        .actions-bar .btn:last-child { border-radius: 0 0 0 11px; }
+
+        .actions-bar .btn:hover {
+            background-color: #e9ecef;
+        }
+
+        .actions-bar .btn:first-child {
+            border-radius: 0 0 11px 0;
+        }
+
+        .actions-bar .btn:last-child {
+            border-radius: 0 0 0 11px;
+        }
 
         /* Modal Enhancements */
-        .modal-header { background-color: var(--dark-green); color: #fff; }
-        .modal-header .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
-        .modal-body .profile-pic { width: 120px; height: 120px; border-radius: 50%; border: 4px solid var(--light-green); object-fit: cover; }
-        .modal-body .icon-placeholder-lg { font-size: 5rem; color: var(--primary-color); }
-        .detail-row { display: flex; align-items: center; background-color: var(--light-gray); padding: 12px; border-radius: 8px; margin-bottom: 12px; }
-        .detail-row i { color: var(--primary-color); width: 30px; text-align: center; font-size: 1.2rem; }
-        .spouse-card, .child-card {
-            display: flex; align-items: center; gap: 10px; background-color: #fff; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color);
+        .modal-header {
+            background-color: var(--dark-green);
+            color: #fff;
         }
-        .spouse-card img, .child-card img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
-        .spouse-card .icon-placeholder-sm, .child-card .icon-placeholder-sm { font-size: 1.5rem; color: var(--primary-color); width: 40px; height: 40px; }
+
+        .modal-header .btn-close {
+            filter: invert(1) grayscale(100%) brightness(200%);
+        }
+
+        .modal-body .profile-pic {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid var(--light-green);
+            object-fit: cover;
+        }
+
+        .modal-body .icon-placeholder-lg {
+            font-size: 5rem;
+            color: var(--primary-color);
+        }
+
+        .detail-row {
+            display: flex;
+            align-items: center;
+            background-color: var(--light-gray);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .detail-row i {
+            color: var(--primary-color);
+            width: 30px;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+
+        .spouse-card,
+        .child-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .spouse-card img,
+        .child-card img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .spouse-card .icon-placeholder-sm,
+        .child-card .icon-placeholder-sm {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            width: 40px;
+            height: 40px;
+        }
     </style>
 </head>
 
@@ -172,11 +248,14 @@
 
     <section class="tree-section">
         <div class="container">
-            <div class="tree-title-sec"><h3>شجرة عائلة السريع</h3></div>
+            <div class="tree-title-sec">
+                <h3>شجرة عائلة السريع</h3>
+            </div>
             <div class="p-3">
                 <div class="accordion-group" id="familyTreeContainer">
                     <div class="text-center py-5">
-                        <div class="spinner-border text-success" role="status"><span class="visually-hidden">Loading...</span></div>
+                        <div class="spinner-border text-success" role="status"><span
+                                class="visually-hidden">Loading...</span></div>
                         <p class="mt-2">جاري تحميل شجرة العائلة...</p>
                     </div>
                 </div>
@@ -220,16 +299,26 @@
             // --- Helper to create Photo/Icon HTML ---
             function createPhoto(person, size = 'md') {
                 const sizes = {
-                    sm: { container: '40px', icon: '1.5rem' },
-                    md: { container: '70px', icon: '2.5rem' },
-                    lg: { container: '120px', icon: '5rem' }
+                    sm: {
+                        container: '40px',
+                        icon: '1.5rem'
+                    },
+                    md: {
+                        container: '70px',
+                        icon: '2.5rem'
+                    },
+                    lg: {
+                        container: '120px',
+                        icon: '5rem'
+                    }
                 };
                 const currentSize = sizes[size];
                 const iconClass = person.gender === 'female' ? 'fa-female' : 'fa-male';
 
                 let photoHtml = '';
                 if (person.photo_url) {
-                    photoHtml = `<img src="${person.photo_url}" alt="${person.first_name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">`;
+                    photoHtml =
+                        `<img src="${person.photo_url}" alt="${person.first_name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">`;
                 }
 
                 return `
@@ -275,10 +364,12 @@
                 if (buttonElement.dataset.loaded === 'true') return;
                 const personId = buttonElement.dataset.personId;
                 const level = parseInt(buttonElement.dataset.level);
-                const childrenContainer = document.querySelector(`${buttonElement.dataset.bsTarget} .accordion`);
+                const childrenContainer = document.querySelector(
+                    `${buttonElement.dataset.bsTarget} .accordion`);
                 if (!childrenContainer) return;
 
-                childrenContainer.innerHTML = `<div class="p-2 text-center text-muted small">جاري التحميل...</div>`;
+                childrenContainer.innerHTML =
+                    `<div class="p-2 text-center text-muted small">جاري التحميل...</div>`;
                 const data = await fetchAPI(`/person/${personId}/children`);
 
                 childrenContainer.innerHTML = '';
@@ -287,7 +378,8 @@
                         childrenContainer.innerHTML += createPersonNode(child, level);
                     });
                 } else {
-                    childrenContainer.innerHTML = `<div class="p-2 text-center text-muted small">لا يوجد أبناء.</div>`;
+                    childrenContainer.innerHTML =
+                        `<div class="p-2 text-center text-muted small">لا يوجد أبناء.</div>`;
                 }
                 buttonElement.dataset.loaded = 'true';
             };
@@ -296,7 +388,8 @@
             window.showPersonDetails = async (personId) => {
                 const modalBody = document.getElementById('modalBodyContent');
                 personModal.show();
-                modalBody.innerHTML = `<div class="text-center p-5"><div class="spinner-border text-success"></div><p class="mt-2">جاري تحميل التفاصيل...</p></div>`;
+                modalBody.innerHTML =
+                    `<div class="text-center p-5"><div class="spinner-border text-success"></div><p class="mt-2">جاري تحميل التفاصيل...</p></div>`;
 
                 const data = await fetchAPI(`/person/${personId}`);
                 if (!data || !data.person) {
@@ -305,20 +398,23 @@
                 }
 
                 const person = data.person;
-                const createDetailRow = (icon, label, value) => !value ? '' : `<div class="detail-row"><i class="fas ${icon} fa-fw mx-2"></i><div><small class="text-muted">${label}</small><p class="mb-0 fw-bold">${value}</p></div></div>`;
+                const createDetailRow = (icon, label, value) => !value ? '' :
+                    `<div class="detail-row"><i class="fas ${icon} fa-fw mx-2"></i><div><small class="text-muted">${label}</small><p class="mb-0 fw-bold">${value}</p></div></div>`;
 
                 let spousesHtml = '';
-                if(person.spouses && person.spouses.length > 0) {
+                if (person.spouses && person.spouses.length > 0) {
                     spousesHtml = '<h5>الزوج/الزوجات</h5><div class="row g-2">';
                     person.spouses.forEach(spouse => {
-                        spousesHtml += `<div class="col-md-6"><div class="spouse-card">${createPhoto(spouse, 'sm')} <strong>${spouse.name}</strong></div></div>`;
+                        spousesHtml +=
+                            `<div class="col-md-6"><div class="spouse-card">${createPhoto(spouse, 'sm')} <strong>${spouse.name}</strong></div></div>`;
                     });
                     spousesHtml += '</div><hr>';
                 }
 
                 let childrenHtml = '';
-                if(person.children_count > 0) {
-                    childrenHtml = `<h5>الأبناء (${person.children_count})</h5><div id="modalChildrenList" class="row g-2"></div>`;
+                if (person.children_count > 0) {
+                    childrenHtml =
+                        `<h5>الأبناء (${person.children_count})</h5><div id="modalChildrenList" class="row g-2"></div>`;
                 }
 
                 modalBody.innerHTML = `
@@ -342,23 +438,26 @@
                         </div>
                     </div>`;
 
-                if(person.children_count > 0) {
+                if (person.children_count > 0) {
                     loadModalChildren(person.id);
                 }
             };
 
             async function loadModalChildren(personId) {
                 const childrenContainer = document.getElementById('modalChildrenList');
-                if(!childrenContainer) return;
-                childrenContainer.innerHTML = `<div class="text-center text-muted p-3">جاري تحميل الأبناء...</div>`;
+                if (!childrenContainer) return;
+                childrenContainer.innerHTML =
+                    `<div class="text-center text-muted p-3">جاري تحميل الأبناء...</div>`;
                 const data = await fetchAPI(`/person/${personId}/children`);
                 childrenContainer.innerHTML = '';
-                if(data && data.children && data.children.length > 0) {
+                if (data && data.children && data.children.length > 0) {
                     data.children.forEach(child => {
-                        childrenContainer.innerHTML += `<div class="col-md-6"><div class="child-card">${createPhoto(child, 'sm')} <strong>${child.first_name}</strong></div></div>`;
+                        childrenContainer.innerHTML +=
+                            `<div class="col-md-6"><div class="child-card">${createPhoto(child, 'sm')} <strong>${child.first_name}</strong></div></div>`;
                     });
                 } else {
-                     childrenContainer.innerHTML = `<div class="text-center text-muted p-3">لا يوجد أبناء مسجلين.</div>`;
+                    childrenContainer.innerHTML =
+                        `<div class="text-center text-muted p-3">لا يوجد أبناء مسجلين.</div>`;
                 }
             }
 
@@ -366,18 +465,36 @@
             async function loadInitialTree() {
                 const data = await fetchAPI('/family-tree');
                 if (data && data.tree && data.tree.length > 0) {
-                    // Clear the container and append nodes directly to it to maintain vertical flow
                     treeContainer.innerHTML = '';
                     data.tree.forEach(person => {
                         treeContainer.innerHTML += createPersonNode(person, 0);
                     });
                 } else {
-                    treeContainer.innerHTML = '<div class="alert alert-warning text-center">لا توجد بيانات لعرضها في شجرة العائلة.</div>';
+                    treeContainer.innerHTML =
+                        '<div class="alert alert-warning text-center">لا توجد بيانات لعرضها في شجرة العائلة.</div>';
                 }
             }
+
+            // --- Accordion Auto-Close Logic ---
+            // This code ensures that when you open a new branch, any other open branches will close.
+            treeContainer.addEventListener('show.bs.collapse', (event) => {
+                // Get all open accordions within the main container
+                const openItems = treeContainer.querySelectorAll('.accordion-collapse.show');
+
+                openItems.forEach((item) => {
+                    // Check if the item is a sibling in the DOM or at a different level, and if it's not the one we're opening now
+                    if (item !== event.target) {
+                        const collapseInstance = bootstrap.Collapse.getInstance(item);
+                        if (collapseInstance) {
+                            collapseInstance.hide();
+                        }
+                    }
+                });
+            });
 
             loadInitialTree();
         });
     </script>
 </body>
+
 </html>
