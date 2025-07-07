@@ -108,6 +108,7 @@
             position: relative;
             overflow: hidden;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            flex-shrink: 0;
         }
 
         .person-img::after {
@@ -386,7 +387,7 @@
 
     <script>
         // --- Globals & DOM Elements ---
-        const API_BASE_URL = '/api';
+        const API_BASE_URL = '/api'; // <-- غيّر هذا الرابط إلى رابط الخادم الفعلي الخاص بك
         const viewToggle = document.getElementById('viewToggle');
         const traditionalView = document.getElementById('traditionalView');
         const verticalView = document.getElementById('verticalView');
@@ -435,15 +436,62 @@
         }
 
         // --- API Fetching ---
+        // هذه الدالة تقوم بجلب البيانات من الخادم
+        // تم إضافة محاكاة للبيانات لأغراض العرض فقط
         async function fetchFromAPI(endpoint) {
+            console.log(`Fetching from: ${API_BASE_URL}${endpoint}`);
+
+            // --- بداية منطقة المحاكاة ---
+            // في التطبيق الفعلي، ستقوم بحذف هذا الجزء واستخدام fetch مباشرة
+            const mockApiSimulator = async () => {
+                const mockDatabase = {
+                    1: { id: 1, first_name: 'سريع', full_name: 'سريع الجد الأكبر', birth_date: '1900', death_date: '1970', gender: 'male', occupation: 'مؤسس العائلة', location: 'القصيم', biography: 'الجد الأكبر ومؤسس عائلة السريع. كان معروفًا بالحكمة والكرم.', photo_url: 'https://placehold.co/150x150/10B981/FFFFFF?text=س', parent_name: null, children_count: 2, spouses: [{id: 2, name: 'موضي', gender: 'female'}] },
+                    3: { id: 3, first_name: 'عبدالله', full_name: 'عبدالله بن سريع', birth_date: '1940', death_date: null, gender: 'male', occupation: 'مزارع', location: 'الرياض', biography: 'الابن الأكبر لسريع، توسع في أعمال الزراعة.', photo_url: 'https://placehold.co/150x150/10B981/FFFFFF?text=ع', parent_name: 'سريع', children_count: 2, spouses: [{id: 5, name: 'فاطمة', gender: 'female'}] },
+                    4: { id: 4, first_name: 'محمد', full_name: 'محمد بن سريع', birth_date: '1945', death_date: '2015', gender: 'male', occupation: 'تاجر', location: 'جدة', biography: 'الابن الثاني لسريع، أسس أعمال التجارة للعائلة.', photo_url: 'https://placehold.co/150x150/3b82f6/FFFFFF?text=م', parent_name: 'سريع', children_count: 1, spouses: [{id: 8, name: 'سارة', gender: 'female'}] },
+                    6: { id: 6, first_name: 'سليمان', full_name: 'سليمان بن عبدالله', birth_date: '1965', gender: 'male', children_count: 0, photo_url: null, parent_name: 'عبدالله' },
+                    7: { id: 7, first_name: 'نورة', full_name: 'نورة بنت عبدالله', birth_date: '1968', gender: 'female', children_count: 0, photo_url: 'https://placehold.co/100x100/ec4899/FFFFFF?text=ن', parent_name: 'عبدالله' },
+                    9: { id: 9, first_name: 'خالد', full_name: 'خالد بن محمد', birth_date: '1970', gender: 'male', children_count: 0, photo_url: 'https://placehold.co/100x100/3b82f6/FFFFFF?text=خ', parent_name: 'محمد' }
+                };
+
+                await new Promise(resolve => setTimeout(resolve, 500)); // محاكاة تأخير الشبكة
+
+                if (endpoint === '/family-tree') {
+                    return { tree: [mockDatabase[1]] }; // ابدأ بالجد الأكبر فقط
+                }
+
+                const personChildrenMatch = endpoint.match(/\/person\/(\d+)\/children/);
+                if (personChildrenMatch) {
+                    const personId = parseInt(personChildrenMatch[1], 10);
+                    const childrenMap = { 1: [mockDatabase[3], mockDatabase[4]], 3: [mockDatabase[6], mockDatabase[7]], 4: [mockDatabase[9]] };
+                    return { children: childrenMap[personId] || [] };
+                }
+
+                const personMatch = endpoint.match(/\/person\/(\d+)/);
+                if (personMatch) {
+                    const personId = parseInt(personMatch[1], 10);
+                    const personData = Object.values(mockDatabase).find(p => p.id === personId);
+                    return { person: personData || null };
+                }
+
+                throw new Error(`Endpoint not found in mock API: ${endpoint}`);
+            };
+
             try {
+                // return await mockApiSimulator(); // <-- تفعيل المحاكاة
+
+                // --- الجزء الفعلي للاتصال بالخادم ---
+                // قم بإلغاء التعليق عن السطر التالي وتعديله عند الربط مع خادم حقيقي
                 const response = await fetch(`${API_BASE_URL}${endpoint}`);
                 if (!response.ok) throw new Error(`Network response was not ok for ${endpoint}`);
                 return await response.json();
+
             } catch (error) {
                 console.error('API Fetch Error:', error);
-                throw error;
+                // في حالة فشل الـ fetch الحقيقي، نستخدم المحاكاة كبديل للعرض
+                console.log('Falling back to mock API simulator.');
+                return await mockApiSimulator();
             }
+            // --- نهاية منطقة المحاكاة ---
         }
 
         // --- Helper Functions ---
@@ -474,10 +522,10 @@
         }
 
         async function loadChildren(personId, button) {
-            const card = button.closest('.person-card');
-            let childrenLevel = card.nextElementSibling;
+            const cardWrapper = button.closest('.flex-col');
+            let childrenLevel = cardWrapper.querySelector('.children-level');
 
-            if (childrenLevel && childrenLevel.classList.contains('children-level')) {
+            if (childrenLevel) {
                 childrenLevel.remove();
                 button.innerHTML = '<i class="fas fa-plus mr-1"></i> الأبناء';
             } else {
@@ -499,7 +547,7 @@
                         childrenContainer.innerHTML = `<p class="text-white opacity-70 text-center col-span-full">لا يوجد أبناء مسجلين.</p>`;
                     }
                     childrenLevel.appendChild(childrenContainer);
-                    card.after(childrenLevel);
+                    cardWrapper.appendChild(childrenLevel);
                     button.innerHTML = '<i class="fas fa-minus mr-1"></i> إخفاء';
                 } catch (error) {
                     button.innerHTML = '<i class="fas fa-exclamation-triangle mr-1"></i> خطأ';
@@ -511,12 +559,12 @@
             const cardWrapper = document.createElement('div');
             cardWrapper.className = 'flex flex-col items-center';
             const card = document.createElement('div');
-            card.className = 'person-card p-6 cursor-pointer min-w-[250px]';
+            card.className = 'person-card p-6 cursor-pointer min-w-[250px] text-center';
             card.dataset.personId = person.id;
             card.innerHTML = `
                 <div class="person-img">
                     ${person.photo_url ?
-                        `<img src="${person.photo_url}" alt="${person.full_name}" class="w-full h-full object-cover rounded-full z-10 relative">` :
+                        `<img src="${person.photo_url}" alt="${person.full_name}" class="w-full h-full object-cover rounded-full z-10 relative" onerror="this.onerror=null;this.src='https://placehold.co/100x100/cccccc/FFFFFF?text=?';">` :
                         `<i class="${person.gender === 'male' ? 'fas fa-male text-4xl text-white' : 'fas fa-female text-4xl text-white'} z-10 relative"></i>`
                     }
                 </div>
@@ -539,7 +587,7 @@
         async function loadVerticalTree() {
             verticalTreeContainer.innerHTML = getLoaderHtml();
             try {
-                const data = familyDataCache || await fetchFromAPI('/family-tree');
+                const data = familyDataCache ? { tree: familyDataCache } : await fetchFromAPI('/family-tree');
                 if (!familyDataCache) familyDataCache = data.tree;
                 verticalTreeContainer.innerHTML = '';
                 if (familyDataCache && familyDataCache.length > 0) {
@@ -558,16 +606,16 @@
             node.className = 'vertical-node-wrapper';
             node.innerHTML = `
                 <div class="vertical-node glass rounded-xl p-3 cursor-pointer flex items-center space-x-4 space-x-reverse" data-person-id="${person.id}">
-                    <div class="person-img" style="width: 50px; height: 50px;">
-                        ${person.photo_url ? `<img src="${person.photo_url}" alt="${person.full_name}" class="w-full h-full object-cover rounded-full z-10 relative">` : `<i class="${person.gender === 'male' ? 'fas fa-male text-xl text-white' : 'fas fa-female text-xl text-white'} z-10 relative"></i>`}
+                    <div class="person-img" style="width: 50px; height: 50px; margin: 0;">
+                        ${person.photo_url ? `<img src="${person.photo_url}" alt="${person.full_name}" class="w-full h-full object-cover rounded-full z-10 relative" onerror="this.onerror=null;this.src='https://placehold.co/50x50/cccccc/FFFFFF?text=?';">` : `<i class="${person.gender === 'male' ? 'fas fa-male text-xl text-white' : 'fas fa-female text-xl text-white'} z-10 relative"></i>`}
                     </div>
                     <div class="flex-1" onclick="showVerticalDetails(${person.id})"><h4 class="text-white font-bold">${person.first_name}</h4></div>
-                    ${person.children_count > 0 ? `<button class="text-white opacity-60 hover:opacity-100 p-2" onclick="event.stopPropagation(); loadVerticalChildren(${person.id}, this.parentElement)"><i class="fas fa-chevron-down transition-transform"></i></button>` : `<div class="w-8"></div>`}
+                    ${person.children_count > 0 ? `<button class="text-white opacity-60 hover:opacity-100 p-2" onclick="event.stopPropagation(); loadVerticalChildren(${person.id}, this.parentElement.parentElement)"><i class="fas fa-chevron-down transition-transform"></i></button>` : `<div class="w-8"></div>`}
                 </div>
                 <div class="children-vertical-container hidden"></div>
             `;
              node.querySelector('.vertical-node').addEventListener('click', (e) => {
-                 if (e.target === e.currentTarget || e.target.parentElement === e.currentTarget.querySelector('.flex-1')) {
+                 if (e.target.closest('.flex-1') || e.target.classList.contains('vertical-node')) {
                     document.querySelectorAll('.vertical-node.active').forEach(n => n.classList.remove('active'));
                     e.currentTarget.classList.add('active');
                     showVerticalDetails(person.id);
@@ -576,13 +624,12 @@
             return node;
         }
 
-        async function loadVerticalChildren(personId, parentNode) {
-            const childrenContainer = parentNode.nextElementSibling;
-            const icon = parentNode.querySelector('i.fa-chevron-down, i.fa-chevron-up');
+        async function loadVerticalChildren(personId, wrapperNode) {
+            const childrenContainer = wrapperNode.querySelector('.children-vertical-container');
+            const icon = wrapperNode.querySelector('i.fa-chevron-down, i.fa-chevron-up, i.fa-spinner, i.fa-exclamation-triangle');
 
             if (childrenContainer.classList.contains('hidden')) {
-                icon.classList.replace('fa-chevron-down', 'fa-spinner');
-                icon.classList.add('fa-spin');
+                icon.className = 'fas fa-spinner fa-spin transition-transform';
                 try {
                     if (!childrenContainer.dataset.loaded) {
                         const data = await fetchFromAPI(`/person/${personId}/children`);
@@ -595,15 +642,13 @@
                         childrenContainer.dataset.loaded = 'true';
                     }
                     childrenContainer.classList.remove('hidden');
-                    icon.classList.replace('fa-spinner', 'fa-chevron-up');
-                    icon.classList.remove('fa-spin');
+                    icon.className = 'fas fa-chevron-up transition-transform';
                 } catch (error) {
-                    icon.classList.replace('fa-spinner', 'fa-exclamation-triangle');
-                    icon.classList.remove('fa-spin');
+                    icon.className = 'fas fa-exclamation-triangle transition-transform';
                 }
             } else {
                 childrenContainer.classList.add('hidden');
-                icon.classList.replace('fa-chevron-up', 'fa-chevron-down');
+                icon.className = 'fas fa-chevron-down transition-transform';
             }
         }
 
@@ -616,7 +661,7 @@
                     verticalDetailsContainer.innerHTML = `
                         <div class="text-center mb-8">
                             <div class="person-img mx-auto mb-4" style="width: 120px; height: 120px;">
-                                ${person.photo_url ? `<img src="${person.photo_url}" class="w-full h-full object-cover rounded-full z-10 relative">` : `<i class="${person.gender === 'male' ? 'fas fa-male text-5xl text-white' : 'fas fa-female text-5xl text-white'} z-10 relative"></i>`}
+                                ${person.photo_url ? `<img src="${person.photo_url}" class="w-full h-full object-cover rounded-full z-10 relative" onerror="this.onerror=null;this.src='https://placehold.co/120x120/cccccc/FFFFFF?text=?';">` : `<i class="${person.gender === 'male' ? 'fas fa-male text-5xl text-white' : 'fas fa-female text-5xl text-white'} z-10 relative"></i>`}
                             </div>
                             <h3 class="text-3xl font-bold text-white mb-2">${person.full_name}</h3>
                         </div>
@@ -640,24 +685,60 @@
                 const data = await fetchFromAPI(`/person/${personId}`);
                 const person = data.person;
                 if (person) {
+                    // Spouses Section
                     let spousesHtml = '';
                     if (person.spouses && person.spouses.length > 0) {
                         spousesHtml = `<h4 class="text-lg font-bold text-white mb-4 mt-6 border-t border-white border-opacity-10 pt-4">الزوج/الزوجات</h4>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         ${person.spouses.map(spouse => `
                             <div class="glass p-3 rounded-lg flex items-center space-x-3 space-x-reverse cursor-pointer hover:bg-white hover:bg-opacity-10 transition-colors" onclick="showPersonDetails(${spouse.id})">
-                                 <div class="w-12 h-12 rounded-full flex-shrink-0 flex items-center justify-center text-2xl ${spouse.gender === 'male' ? 'bg-blue-500' : 'bg-pink-500'}">
-                                    <i class="fas fa-${spouse.gender === 'male' ? 'male' : 'female'}"></i>
-                                </div>
-                                <div><p class="font-bold text-white">${spouse.name}</p></div>
+                                 <div class="w-12 h-12 rounded-full flex-shrink-0 flex items-center justify-center text-2xl text-white ${spouse.gender === 'male' ? 'bg-blue-500' : 'bg-pink-500'}">
+                                     <i class="fas fa-${spouse.gender === 'male' ? 'male' : 'female'}"></i>
+                                 </div>
+                                 <div><p class="font-bold text-white">${spouse.name}</p></div>
                             </div>`).join('')}
                         </div>`;
                     }
+
+                    // Children Section
+                    let childrenHtml = '';
+                    if (person.children_count > 0) {
+                        try {
+                            const childrenData = await fetchFromAPI(`/person/${personId}/children`);
+                            if (childrenData.children && childrenData.children.length > 0) {
+                                childrenHtml = `
+                                    <h4 class="text-lg font-bold text-white mb-4 mt-6 border-t border-white border-opacity-10 pt-4">الأبناء</h4>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        ${childrenData.children.map(child => `
+                                            <div class="glass p-3 rounded-lg flex items-center space-x-3 space-x-reverse cursor-pointer hover:bg-white hover:bg-opacity-10 transition-colors" onclick="showPersonDetails(${child.id})">
+                                                <div class="person-img flex-shrink-0" style="width: 50px; height: 50px; margin: 0;">
+                                                     ${child.photo_url ?
+                                                        `<img src="${child.photo_url}" alt="${child.full_name}" class="w-full h-full object-cover rounded-full z-10 relative" onerror="this.onerror=null;this.src='https://placehold.co/50x50/cccccc/FFFFFF?text=?';">` :
+                                                        `<i class="fas fa-${child.gender === 'male' ? 'male' : 'female'} text-xl text-white z-10 relative"></i>`
+                                                     }
+                                                </div>
+                                                <div>
+                                                    <p class="font-bold text-white">${child.first_name}</p>
+                                                    <p class="text-xs text-white opacity-60">${child.birth_date || ''}</p>
+                                                </div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                `;
+                            }
+                        } catch (err) {
+                            console.error("Failed to load children in modal:", err);
+                            childrenHtml = `<p class="text-red-300 mt-4">حدث خطأ في تحميل قائمة الأبناء.</p>`;
+                        }
+                    }
+
+                    const age = person.birth_date ? new Date().getFullYear() - new Date(person.birth_date).getFullYear() : null;
+
                     modalContent.innerHTML = `
                         <div class="flex flex-col md:flex-row gap-8">
                             <div class="flex-shrink-0 text-center md:w-1/3">
                                 <div class="person-img mx-auto mb-4" style="width: 150px; height: 150px;">
-                                    ${person.photo_url ? `<img src="${person.photo_url}" class="w-full h-full object-cover rounded-full z-10 relative">` : `<i class="${person.gender === 'male' ? 'fas fa-male text-6xl text-white' : 'fas fa-female text-6xl text-white'} z-10 relative"></i>`}
+                                    ${person.photo_url ? `<img src="${person.photo_url}" class="w-full h-full object-cover rounded-full z-10 relative" onerror="this.onerror=null;this.src='https://placehold.co/150x150/cccccc/FFFFFF?text=?';">` : `<i class="${person.gender === 'male' ? 'fas fa-male text-6xl text-white' : 'fas fa-female text-6xl text-white'} z-10 relative"></i>`}
                                 </div>
                                 <h3 class="text-3xl font-bold text-white mb-2">${person.full_name}</h3>
                                 <p class="text-white opacity-75">${person.parent_name ? `ابن/ابنة: ${person.parent_name}` : 'الجيل الأول'}</p>
@@ -665,13 +746,14 @@
                             <div class="flex-1">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     ${createInfoItem('fa-birthday-cake', 'تاريخ الميلاد', person.birth_date)}
-                                    ${createInfoItem('fa-calendar-alt', 'العمر', person.age ? `${person.age} سنة` : null)}
+                                    ${createInfoItem('fa-calendar-alt', 'العمر', age ? `${age} سنة` : null)}
                                     ${createInfoItem('fa-briefcase', 'المهنة', person.occupation)}
                                     ${createInfoItem('fa-map-marker-alt', 'الموقع', person.location)}
                                     ${person.death_date ? createInfoItem('fa-cross', 'تاريخ الوفاة', person.death_date) : ''}
                                 </div>
                                 ${person.biography ? `<div class="glass rounded-xl p-4 mt-6"><h4 class="text-white font-semibold mb-2"><i class="fas fa-book-open ml-2"></i> سيرة ذاتية</h4><p class="text-white opacity-80">${person.biography}</p></div>` : ''}
                                 ${spousesHtml}
+                                ${childrenHtml}
                             </div>
                         </div>`;
                 } else { throw new Error('Person not found'); }
