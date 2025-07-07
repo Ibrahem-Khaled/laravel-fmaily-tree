@@ -749,7 +749,7 @@
                                     ${createInfoItem('fa-calendar-alt', 'العمر', age ? `${age} سنة` : null)}
                                     ${createInfoItem('fa-briefcase', 'المهنة', person.occupation)}
                                     ${createInfoItem('fa-map-marker-alt', 'الموقع', person.location)}
-                                    ${person.death_date ? createInfoItem('fa-skull', 'تاريخ الوفاة', person.death_date) : ''}
+                                    ${person.death_date ? createInfoItem('fa-tombstone', 'تاريخ الوفاة', person.death_date) : ''}
                                 </div>
                                 ${person.biography ? `<div class="glass rounded-xl p-4 mt-6"><h4 class="text-white font-semibold mb-2"><i class="fas fa-book-open ml-2"></i> سيرة ذاتية</h4><p class="text-white opacity-80">${person.biography}</p></div>` : ''}
                                 ${spousesHtml}
