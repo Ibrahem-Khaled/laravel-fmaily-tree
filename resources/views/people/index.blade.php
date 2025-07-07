@@ -43,7 +43,7 @@
             </div>
             {{-- عرض الشجرة --}}
             <div class="col-xl-2 col-md-4 mb-4">
-                <a href="{{ route('people.tree') }}" class="btn btn-dark btn-block h-100 py-3">
+                <a href="{{ route('family-tree') }}" class="btn btn-dark btn-block h-100 py-3">
                     <i class="fas fa-tree"></i> عرض شجرة العائلة
                 </a>
             </div>
