@@ -1,14 +1,11 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>شجرة عائلة السريع</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Cairo:wght@200;300;400;600;700;900&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Cairo:wght@200;300;400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -58,17 +55,9 @@
         }
 
         @keyframes gradientShift {
-            0% {
-                background-position: 0% 50%;
-            }
-
-            50% {
-                background-position: 100% 50%;
-            }
-
-            100% {
-                background-position: 0% 50%;
-            }
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         /* Floating Particles */
@@ -92,17 +81,8 @@
         }
 
         @keyframes float {
-
-            0%,
-            100% {
-                transform: translateY(0px);
-                opacity: 1;
-            }
-
-            50% {
-                transform: translateY(-40px);
-                opacity: 0.3;
-            }
+            0%, 100% { transform: translateY(0px); opacity: 1; }
+            50% { transform: translateY(-40px); opacity: 0.3; }
         }
 
         /* Modern Cards */
@@ -149,13 +129,8 @@
         }
 
         @keyframes rotate {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         /* Tree Layout Styles */
@@ -193,7 +168,7 @@
         }
 
         .children-level .tree-level::before {
-            content: '';
+             content: '';
             position: absolute;
             top: -1.5rem;
             left: 0;
@@ -206,8 +181,7 @@
         .tree-vertical {
             display: flex;
             flex-direction: row;
-            height: calc(100vh - 5rem);
-            /* Adjust for header height */
+            height: calc(100vh - 5rem); /* Adjust for header height */
             overflow: hidden;
         }
 
@@ -225,9 +199,8 @@
             transition: all 0.2s ease-in-out;
         }
 
-        .vertical-node.active,
-        .vertical-node:hover {
-            background: rgba(16, 185, 129, 0.2);
+        .vertical-node.active, .vertical-node:hover {
+             background: rgba(16, 185, 129, 0.2);
         }
 
         .children-vertical-container {
@@ -310,9 +283,7 @@
         }
 
         @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
+            to { transform: rotate(360deg); }
         }
 
         /* Modal Styles */
@@ -335,12 +306,10 @@
                 border-left: none;
                 height: 50vh;
             }
-
             .tree-vertical {
                 flex-direction: column;
                 height: auto;
             }
-
             .person-img {
                 width: 80px;
                 height: 80px;
@@ -386,9 +355,7 @@
             <div class="text-center mb-8">
                 <h1 class="text-5xl md:text-6xl font-black text-white mb-4 tracking-wider">عائلة السريع</h1>
                 <p class="text-xl text-white opacity-80">شجرة العائلة التفاعلية</p>
-                <div
-                    class="w-32 h-1 bg-gradient-to-r from-transparent via-green-300 to-transparent mx-auto mt-4 opacity-50">
-                </div>
+                <div class="w-32 h-1 bg-gradient-to-r from-transparent via-green-300 to-transparent mx-auto mt-4 opacity-50"></div>
             </div>
             <div id="familyTreeContainer" class="w-full"></div>
         </div>
@@ -418,8 +385,7 @@
         <div class="modal-content max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center p-6 border-b border-green-300 border-opacity-20">
                 <h3 class="text-2xl font-bold text-white">تفاصيل العضو</h3>
-                <button id="closeModal"
-                    class="text-white hover:text-red-400 text-3xl transition-colors">&times;</button>
+                <button id="closeModal" class="text-white hover:text-red-400 text-3xl transition-colors">&times;</button>
             </div>
             <div id="modalContent" class="p-6"></div>
         </div>
@@ -456,7 +422,7 @@
 
             closeModalBtn.addEventListener('click', () => modal.classList.add('hidden'));
             modal.addEventListener('click', (e) => {
-                if (e.target === modal) modal.classList.add('hidden');
+                if(e.target === modal) modal.classList.add('hidden');
             });
         });
 
@@ -476,189 +442,29 @@
         }
 
         // --- API Fetching ---
-        // هذه الدالة تقوم بجلب البيانات من الخادم
-        // تم إضافة محاكاة للبيانات لأغراض العرض فقط
         async function fetchFromAPI(endpoint) {
             console.log(`Fetching from: ${API_BASE_URL}${endpoint}`);
-
-            // --- بداية منطقة المحاكاة ---
-            // في التطبيق الفعلي، ستقوم بحذف هذا الجزء واستخدام fetch مباشرة
-            const mockApiSimulator = async () => {
-                const mockDatabase = {
-                    1: {
-                        id: 1,
-                        first_name: 'سريع',
-                        full_name: 'سريع الجد الأكبر',
-                        birth_date: '1900',
-                        death_date: '1970',
-                        gender: 'male',
-                        occupation: 'مؤسس العائلة',
-                        location: 'القصيم',
-                        biography: 'الجد الأكبر ومؤسس عائلة السريع. كان معروفًا بالحكمة والكرم.',
-                        photo_url: 'https://placehold.co/150x150/10B981/FFFFFF?text=س',
-                        parent_name: null,
-                        children_count: 2,
-                        spouses: [{
-                            id: 2,
-                            name: 'موضي',
-                            gender: 'female'
-                        }]
-                    },
-                    2: {
-                        id: 2,
-                        first_name: 'موضي',
-                        full_name: 'موضي',
-                        birth_date: '1905',
-                        death_date: '1965',
-                        gender: 'female',
-                        occupation: 'ربة منزل',
-                        location: 'القصيم',
-                        biography: '',
-                        photo_url: 'https://placehold.co/150x150/ec4899/FFFFFF?text=م',
-                        parent_name: null,
-                        children_count: 2,
-                        spouses: [{
-                            id: 1,
-                            name: 'سريع',
-                            gender: 'male'
-                        }]
-                    },
-                    3: {
-                        id: 3,
-                        first_name: 'عبدالله',
-                        full_name: 'عبدالله بن سريع',
-                        birth_date: '1940',
-                        death_date: null,
-                        gender: 'male',
-                        occupation: 'مزارع',
-                        location: 'الرياض',
-                        biography: 'الابن الأكبر لسريع، توسع في أعمال الزراعة.',
-                        photo_url: 'https://placehold.co/150x150/10B981/FFFFFF?text=ع',
-                        parent_name: 'سريع',
-                        children_count: 2,
-                        spouses: [{
-                            id: 5,
-                            name: 'فاطمة',
-                            gender: 'female'
-                        }]
-                    },
-                    4: {
-                        id: 4,
-                        first_name: 'محمد',
-                        full_name: 'محمد بن سريع',
-                        birth_date: '1945',
-                        death_date: '2015',
-                        gender: 'male',
-                        occupation: 'تاجر',
-                        location: 'جدة',
-                        biography: 'الابن الثاني لسريع، أسس أعمال التجارة للعائلة.',
-                        photo_url: 'https://placehold.co/150x150/3b82f6/FFFFFF?text=م',
-                        parent_name: 'سريع',
-                        children_count: 1,
-                        spouses: [{
-                            id: 8,
-                            name: 'سارة',
-                            gender: 'female'
-                        }]
-                    },
-                    6: {
-                        id: 6,
-                        first_name: 'سليمان',
-                        full_name: 'سليمان بن عبدالله',
-                        birth_date: '1965',
-                        death_date: null,
-                        gender: 'male',
-                        children_count: 0,
-                        photo_url: null,
-                        parent_name: 'عبدالله'
-                    },
-                    7: {
-                        id: 7,
-                        first_name: 'نورة',
-                        full_name: 'نورة بنت عبدالله',
-                        birth_date: '1968',
-                        death_date: null,
-                        gender: 'female',
-                        children_count: 0,
-                        photo_url: 'https://placehold.co/100x100/ec4899/FFFFFF?text=ن',
-                        parent_name: 'عبدالله'
-                    },
-                    9: {
-                        id: 9,
-                        first_name: 'خالد',
-                        full_name: 'خالد بن محمد',
-                        birth_date: '1970',
-                        death_date: null,
-                        gender: 'male',
-                        children_count: 0,
-                        photo_url: 'https://placehold.co/100x100/3b82f6/FFFFFF?text=خ',
-                        parent_name: 'محمد'
-                    }
-                };
-
-                await new Promise(resolve => setTimeout(resolve, 500)); // محاكاة تأخير الشبكة
-
-                if (endpoint === '/family-tree') {
-                    return {
-                        tree: [mockDatabase[1]]
-                    }; // ابدأ بالجد الأكبر فقط
-                }
-
-                const personChildrenMatch = endpoint.match(/\/person\/(\d+)\/children/);
-                if (personChildrenMatch) {
-                    const personId = parseInt(personChildrenMatch[1], 10);
-                    const childrenMap = {
-                        1: [mockDatabase[3], mockDatabase[4]],
-                        3: [mockDatabase[6], mockDatabase[7]],
-                        4: [mockDatabase[9]]
-                    };
-                    return {
-                        children: childrenMap[personId] || []
-                    };
-                }
-
-                const personMatch = endpoint.match(/\/person\/(\d+)/);
-                if (personMatch) {
-                    const personId = parseInt(personMatch[1], 10);
-                    const personData = Object.values(mockDatabase).find(p => p.id === personId);
-                    return {
-                        person: personData || null
-                    };
-                }
-
-                throw new Error(`Endpoint not found in mock API: ${endpoint}`);
-            };
-
             try {
-                // --- الجزء الفعلي للاتصال بالخادم ---
-                // قم بإلغاء التعليق عن السطر التالي وتعديله عند الربط مع خادم حقيقي
-                // const response = await fetch(`${API_BASE_URL}${endpoint}`);
-                // if (!response.ok) throw new Error(`Network response was not ok for ${endpoint}`);
-                // return await response.json();
-
-                // للغرض التجريبي، سنستخدم المحاكي دائما
-                return await mockApiSimulator();
-
+                const response = await fetch(`${API_BASE_URL}${endpoint}`);
+                if (!response.ok) {
+                    const errorBody = await response.text();
+                    console.error(`API Error Response for ${endpoint}:`, errorBody);
+                    throw new Error(`Network response was not ok. Status: ${response.status}`);
+                }
+                return await response.json();
             } catch (error) {
                 console.error('API Fetch Error:', error);
-                // في حالة فشل الـ fetch الحقيقي، نستخدم المحاكاة كبديل للعرض
-                console.log('Falling back to mock API simulator.');
-                return await mockApiSimulator();
+                // Re-throw the error so the calling function can handle it and display an error message to the user.
+                throw error;
             }
-            // --- نهاية منطقة المحاكاة ---
         }
 
         // --- Helper Functions ---
-        const getLoaderHtml = (text = 'جاري التحميل...') =>
-            `<div class="text-center py-12"><div class="loading-spinner mx-auto"></div><p class="text-white mt-4 opacity-75">${text}</p></div>`;
-        const getErrorStateHtml = (text) =>
-            `<div class="text-center py-12 text-red-300"><i class="fas fa-exclamation-triangle text-4xl mb-4"></i><p>${text}</p></div>`;
-        const getEmptyStateHtml = (text) =>
-            `<div class="text-center py-12 text-white opacity-60"><i class="fas fa-info-circle text-4xl mb-4"></i><p>${text}</p></div>`;
-        const createInfoItem = (icon, label, value) => !value ? '' :
-            `<div class="glass rounded-xl p-4"><h4 class="text-white font-semibold mb-2"><i class="fas ${icon} ml-2 opacity-70"></i> ${label}</h4><p class="text-white opacity-80">${value}</p></div>`;
-        const createDetailRow = (icon, label, value) => !value ? '' :
-            `<div class="flex items-center text-white bg-white bg-opacity-5 p-3 rounded-lg"><i class="fas ${icon} w-6 text-center text-xl opacity-70 ml-4"></i><div><p class="text-sm opacity-70">${label}</p><p class="font-semibold">${value}</p></div></div>`;
+        const getLoaderHtml = (text = 'جاري التحميل...') => `<div class="text-center py-12"><div class="loading-spinner mx-auto"></div><p class="text-white mt-4 opacity-75">${text}</p></div>`;
+        const getErrorStateHtml = (text) => `<div class="text-center py-12 text-red-300"><i class="fas fa-exclamation-triangle text-4xl mb-4"></i><p>${text}</p></div>`;
+        const getEmptyStateHtml = (text) => `<div class="text-center py-12 text-white opacity-60"><i class="fas fa-info-circle text-4xl mb-4"></i><p>${text}</p></div>`;
+        const createInfoItem = (icon, label, value) => !value ? '' : `<div class="glass rounded-xl p-4"><h4 class="text-white font-semibold mb-2"><i class="fas ${icon} ml-2 opacity-70"></i> ${label}</h4><p class="text-white opacity-80">${value}</p></div>`;
+        const createDetailRow = (icon, label, value) => !value ? '' : `<div class="flex items-center text-white bg-white bg-opacity-5 p-3 rounded-lg"><i class="fas ${icon} w-6 text-center text-xl opacity-70 ml-4"></i><div><p class="text-sm opacity-70">${label}</p><p class="font-semibold">${value}</p></div></div>`;
 
         // --- Traditional Tree Functions ---
         async function loadFamilyTree() {
@@ -703,8 +509,7 @@
                             childrenContainer.appendChild(childCard);
                         });
                     } else {
-                        childrenContainer.innerHTML =
-                            `<p class="text-white opacity-70 text-center col-span-full">لا يوجد أبناء مسجلين.</p>`;
+                        childrenContainer.innerHTML = `<p class="text-white opacity-70 text-center col-span-full">لا يوجد أبناء مسجلين.</p>`;
                     }
                     childrenLevel.appendChild(childrenContainer);
                     cardWrapper.appendChild(childrenLevel);
@@ -748,9 +553,7 @@
         async function loadVerticalTree() {
             verticalTreeContainer.innerHTML = getLoaderHtml();
             try {
-                const data = familyDataCache ? {
-                    tree: familyDataCache
-                } : await fetchFromAPI('/family-tree');
+                const data = familyDataCache ? { tree: familyDataCache } : await fetchFromAPI('/family-tree');
                 if (!familyDataCache) familyDataCache = data.tree;
                 verticalTreeContainer.innerHTML = '';
                 if (familyDataCache && familyDataCache.length > 0) {
@@ -778,20 +581,19 @@
                 </div>
                 <div class="children-vertical-container hidden"></div>
             `;
-            node.querySelector('.vertical-node').addEventListener('click', (e) => {
-                if (e.target.closest('.flex-1') || e.target.classList.contains('vertical-node')) {
+             node.querySelector('.vertical-node').addEventListener('click', (e) => {
+                 if (e.target.closest('.flex-1') || e.target.classList.contains('vertical-node')) {
                     document.querySelectorAll('.vertical-node.active').forEach(n => n.classList.remove('active'));
                     e.currentTarget.classList.add('active');
                     showVerticalDetails(person.id);
-                }
+                 }
             });
             return node;
         }
 
         async function loadVerticalChildren(personId, wrapperNode) {
             const childrenContainer = wrapperNode.querySelector('.children-vertical-container');
-            const icon = wrapperNode.querySelector(
-                'i.fa-chevron-down, i.fa-chevron-up, i.fa-spinner, i.fa-exclamation-triangle');
+            const icon = wrapperNode.querySelector('i.fa-chevron-down, i.fa-chevron-up, i.fa-spinner, i.fa-exclamation-triangle');
 
             if (childrenContainer.classList.contains('hidden')) {
                 icon.className = 'fas fa-spinner fa-spin transition-transform';
@@ -802,8 +604,7 @@
                         if (data.children && data.children.length > 0) {
                             data.children.forEach(child => childrenContainer.appendChild(createVerticalNode(child)));
                         } else {
-                            childrenContainer.innerHTML =
-                                `<p class="text-white opacity-60 text-center text-sm p-2">لا يوجد أبناء</p>`;
+                             childrenContainer.innerHTML = `<p class="text-white opacity-60 text-center text-sm p-2">لا يوجد أبناء</p>`;
                         }
                         childrenContainer.dataset.loaded = 'true';
                     }
@@ -839,9 +640,7 @@
                             ${createDetailRow('fa-users', 'عدد الأبناء', person.children_count > 0 ? person.children_count : 'لا يوجد')}
                             ${person.death_date ? createDetailRow('fa-dove', 'تاريخ الوفاة', person.death_date) : ''}
                         </div>`;
-                } else {
-                    throw new Error('Person not found');
-                }
+                } else { throw new Error('Person not found'); }
             } catch (error) {
                 verticalDetailsContainer.innerHTML = getErrorStateHtml('فشل تحميل التفاصيل.');
             }
@@ -861,12 +660,12 @@
                         spousesHtml = `<h4 class="text-lg font-bold text-white mb-4 mt-6 border-t border-white border-opacity-10 pt-4">الزوج/الزوجات</h4>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         ${person.spouses.map(spouse => `
-                                <div class="glass p-3 rounded-lg flex items-center space-x-3 space-x-reverse cursor-pointer hover:bg-white hover:bg-opacity-10 transition-colors" onclick="showPersonDetails(${spouse.id})">
-                                     <div class="w-12 h-12 rounded-full flex-shrink-0 flex items-center justify-center text-2xl text-white ${spouse.gender === 'male' ? 'bg-blue-500' : 'bg-pink-500'}">
-                                         <i class="fas fa-${spouse.gender === 'male' ? 'male' : 'female'}"></i>
-                                     </div>
-                                     <div><p class="font-bold text-white">${spouse.name}</p></div>
-                                </div>`).join('')}
+                            <div class="glass p-3 rounded-lg flex items-center space-x-3 space-x-reverse cursor-pointer hover:bg-white hover:bg-opacity-10 transition-colors" onclick="showPersonDetails(${spouse.id})">
+                                 <div class="w-12 h-12 rounded-full flex-shrink-0 flex items-center justify-center text-2xl text-white ${spouse.gender === 'male' ? 'bg-blue-500' : 'bg-pink-500'}">
+                                     <i class="fas fa-${spouse.gender === 'male' ? 'male' : 'female'}"></i>
+                                 </div>
+                                 <div><p class="font-bold text-white">${spouse.name}</p></div>
+                            </div>`).join('')}
                         </div>`;
                     }
 
@@ -880,20 +679,20 @@
                                     <h4 class="text-lg font-bold text-white mb-4 mt-6 border-t border-white border-opacity-10 pt-4">الأبناء</h4>
                                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                         ${childrenData.children.map(child => `
-                                                <div class="glass p-3 rounded-lg flex items-center space-x-3 space-x-reverse cursor-pointer hover:bg-white hover:bg-opacity-10 transition-colors" onclick="showPersonDetails(${child.id})">
-                                                    <div class="person-img flex-shrink-0 ${child.death_date ? 'grayscale' : ''}" style="width: 50px; height: 50px; margin: 0;">
-                                                         ${child.photo_url ?
-                                                            `<img src="${child.photo_url}" alt="${child.full_name}" class="w-full h-full object-cover rounded-full z-10 relative" onerror="this.onerror=null;this.src='https://placehold.co/50x50/cccccc/FFFFFF?text=?';">` :
-                                                            `<i class="fas fa-${child.gender === 'male' ? 'male' : 'female'} text-xl text-white z-10 relative"></i>`
-                                                         }
-                                                         ${child.death_date ? '<div class="absolute bottom-0 right-0 bg-black bg-opacity-60 rounded-full p-1 flex items-center justify-center w-5 h-5"><i class="fas fa-dove text-white text-xs"></i></div>' : ''}
-                                                    </div>
-                                                    <div>
-                                                        <p class="font-bold text-white">${child.first_name}</p>
-                                                        <p class="text-xs text-white opacity-60">${child.birth_date || ''}</p>
-                                                    </div>
+                                            <div class="glass p-3 rounded-lg flex items-center space-x-3 space-x-reverse cursor-pointer hover:bg-white hover:bg-opacity-10 transition-colors" onclick="showPersonDetails(${child.id})">
+                                                <div class="person-img flex-shrink-0 ${child.death_date ? 'grayscale' : ''}" style="width: 50px; height: 50px; margin: 0;">
+                                                     ${child.photo_url ?
+                                                        `<img src="${child.photo_url}" alt="${child.full_name}" class="w-full h-full object-cover rounded-full z-10 relative" onerror="this.onerror=null;this.src='https://placehold.co/50x50/cccccc/FFFFFF?text=?';">` :
+                                                        `<i class="fas fa-${child.gender === 'male' ? 'male' : 'female'} text-xl text-white z-10 relative"></i>`
+                                                     }
+                                                     ${child.death_date ? '<div class="absolute bottom-0 right-0 bg-black bg-opacity-60 rounded-full p-1 flex items-center justify-center w-5 h-5"><i class="fas fa-dove text-white text-xs"></i></div>' : ''}
                                                 </div>
-                                            `).join('')}
+                                                <div>
+                                                    <p class="font-bold text-white">${child.first_name}</p>
+                                                    <p class="text-xs text-white opacity-60">${child.birth_date || ''}</p>
+                                                </div>
+                                            </div>
+                                        `).join('')}
                                     </div>
                                 `;
                             }
@@ -903,8 +702,7 @@
                         }
                     }
 
-                    const age = person.birth_date && !person.death_date ? new Date().getFullYear() - new Date(person
-                        .birth_date).getFullYear() : null;
+                    const age = person.birth_date && !person.death_date ? new Date().getFullYear() - new Date(person.birth_date).getFullYear() : null;
 
                     modalContent.innerHTML = `
                         <div class="flex flex-col md:flex-row gap-8">
@@ -929,9 +727,7 @@
                                 ${childrenHtml}
                             </div>
                         </div>`;
-                } else {
-                    throw new Error('Person not found');
-                }
+                } else { throw new Error('Person not found'); }
             } catch (error) {
                 modalContent.innerHTML = getErrorStateHtml('فشل تحميل تفاصيل الشخص.');
             }
@@ -943,5 +739,4 @@
         window.showVerticalDetails = showVerticalDetails;
     </script>
 </body>
-
 </html>
