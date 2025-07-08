@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Person;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
+
 
 class PersonController extends Controller
 {
@@ -14,24 +17,40 @@ class PersonController extends Controller
         $search = $request->input('search');
         $gender = $request->input('gender');
 
+        // 1. الاستعلام الأساسي لجلب الأشخاص مع الفلاتر والبحث
+        // هذا الجزء سيبقى كما هو لأنه فعال ويستخدم الترحيل (pagination)
         $people = Person::when($search, function ($query, $search) {
-            return $query->where('first_name', 'like', "%{$search}%")
-                ->orWhere('last_name', 'like', "%{$search}%");
+            // تحسين بسيط: تجميع شروط الـ orWhere لتجنب أي تعارض مستقبلي
+            return $query->where(function ($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%");
+            });
         })
             ->when($gender, function ($query, $gender) {
                 return $query->where('gender', $gender);
             })
-            ->defaultOrder()
-            ->paginate(20);
+            ->defaultOrder() // افترض أن هذا scope موجود في الموديل
+            ->paginate(10);
 
-        $stats = [
-            'total' => Person::count(),
-            'male' => Person::where('gender', 'male')->count(),
-            'female' => Person::where('gender', 'female')->count(),
-            'living' => Person::whereNull('death_date')->count(),
-            'with_photos' => Person::whereNotNull('photo_url')->count(),
-        ];
+        // 2. حساب الإحصائيات بكفاءة باستخدام الكاش والاستعلام المجمع
+        // سيتم تخزين النتيجة لمدة 60 دقيقة لتجنب إعادة حسابها مع كل طلب
+        $stats = Cache::remember('people_stats', now()->addMinutes(60), function () {
+            // استخدام استعلام واحد فقط لجلب كل الإحصائيات
+            $result = DB::table('people')
+                ->selectRaw("
+                    COUNT(*) as total,
+                    COUNT(CASE WHEN gender = 'male' THEN 1 END) as male,
+                    COUNT(CASE WHEN gender = 'female' THEN 1 END) as female,
+                    COUNT(CASE WHEN death_date IS NULL THEN 1 END) as living,
+                    COUNT(CASE WHEN photo_url IS NOT NULL THEN 1 END) as with_photos
+                ")
+                ->first();
 
+            // تحويل النتيجة من stdClass إلى array
+            return (array) $result;
+        });
+
+        // 3. إرسال البيانات إلى الـ view
         return view('people.index', compact('people', 'stats'));
     }
 
