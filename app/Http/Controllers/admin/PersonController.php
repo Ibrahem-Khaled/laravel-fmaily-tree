@@ -36,7 +36,7 @@ class PersonController extends Controller
         // سيتم تخزين النتيجة لمدة 60 دقيقة لتجنب إعادة حسابها مع كل طلب
         $stats = Cache::remember('people_stats', now()->addMinutes(60), function () {
             // استخدام استعلام واحد فقط لجلب كل الإحصائيات
-            $result = DB::table('people')
+            $result = DB::table('persons')
                 ->selectRaw("
                     COUNT(*) as total,
                     COUNT(CASE WHEN gender = 'male' THEN 1 END) as male,
