@@ -51,6 +51,18 @@ class Person extends Model
         return $this->birth_date->diffInYears($endDate);
     }
 
+    public function getAvatarAttribute(): ?string
+    {
+        if ($this->photo_url) {
+            return asset('storage/' . $this->photo_url);
+        }
+
+        // استخدام صورة افتراضية إذا لم يكن هناك صورة
+        return $this->gender == 'male' ? asset('assets/img/avatar-male.png') : asset('assets/img/avatar-female.png');
+    }
+
+    // Relationships
+
     public function children()
     {
         return $this->hasMany(Person::class, 'parent_id');

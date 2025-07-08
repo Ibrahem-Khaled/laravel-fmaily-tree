@@ -31,7 +31,8 @@ class PersonController extends Controller
             })
             ->defaultOrder() // افترض أن هذا scope موجود في الموديل
             ->paginate(10);
-
+        $males = Person::where('gender', 'male')->get(['id', 'first_name', 'last_name']);
+        $females = Person::where('gender', 'female')->get(['id', 'first_name', 'last_name']);
         // 2. حساب الإحصائيات بكفاءة باستخدام الكاش والاستعلام المجمع
         // سيتم تخزين النتيجة لمدة 60 دقيقة لتجنب إعادة حسابها مع كل طلب
         $stats = Cache::remember('people_stats', now()->addMinutes(60), function () {
@@ -51,7 +52,7 @@ class PersonController extends Controller
         });
 
         // 3. إرسال البيانات إلى الـ view
-        return view('people.index', compact('people', 'stats'));
+        return view('people.index', compact('people', 'stats', 'males', 'females'));
     }
 
     public function store(Request $request)
@@ -67,6 +68,7 @@ class PersonController extends Controller
             'occupation' => 'nullable|string|max:100',
             'location' => 'nullable|string|max:100',
             'parent_id' => 'nullable|exists:persons,id',
+            'mother_id' => 'nullable|exists:persons,id', // إذا كنت تريد استخدام هذا الحقل
         ]);
 
         if ($request->hasFile('photo')) {
@@ -98,6 +100,7 @@ class PersonController extends Controller
             'occupation' => 'nullable|string|max:100',
             'location' => 'nullable|string|max:100',
             'parent_id' => 'nullable|exists:persons,id',
+            'mother_id' => 'nullable|exists:persons,id', // إذا كنت تريد استخدام هذا الحقل
         ]);
 
         if ($request->hasFile('photo')) {
@@ -127,9 +130,30 @@ class PersonController extends Controller
         return redirect()->route('people.index')->with('success', 'تم حذف الشخص بنجاح');
     }
 
-    public function tree()
+    public function search(Request $request)
     {
-        $tree = Person::defaultOrder()->withDepth()->get()->toTree();
-        return view('people.tree', compact('tree'));
+        $searchTerm = $request->input('term', '');
+
+        // نقوم بالبحث فقط إذا أدخل المستخدم حرفين على الأقل
+        if (strlen($searchTerm) < 2) {
+            return response()->json(['results' => []]);
+        }
+
+        // بناء الاستعلام للبحث في الاسم الأول والأخير
+        // استخدام CONCAT لجعل البحث أكثر كفاءة في قاعدة البيانات
+        $people = Person::query()
+            ->select(
+                'id',
+                DB::raw("CONCAT(first_name, ' ', last_name) as text") // تجهيز النص للعرض في Select2
+            )
+            ->where(function ($query) use ($searchTerm) {
+                $query->where('first_name', 'LIKE', "%{$searchTerm}%")
+                    ->orWhere('last_name', 'LIKE', "%{$searchTerm}%");
+            })
+            ->limit(20) // نحدد عدد النتائج لتجنب إغراق المتصفح
+            ->get();
+
+        // إرجاع النتائج بالصيغة المطلوبة لمكتبة Select2
+        return response()->json(['results' => $people]);
     }
 }

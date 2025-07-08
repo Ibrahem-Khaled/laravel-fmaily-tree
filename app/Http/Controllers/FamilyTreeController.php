@@ -87,7 +87,7 @@ class FamilyTreeController extends Controller
             'first_name' => $person->first_name,
             'last_name' => $person->last_name,
             'gender' => $person->gender,
-            'photo_url' => $person->photo_url ? asset('storage/' . $person->photo_url) : null,
+            'photo_url' => $person->avatar,
             'children_count' => $person->children_count ?? $person->children()->count(),
         ];
 

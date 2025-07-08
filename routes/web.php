@@ -34,7 +34,7 @@ Route::group([], function () {
 
 
     Route::resource('people', PersonController::class);
-    Route::get('people/tree', [PersonController::class, 'tree'])->name('people.tree');
+    Route::get('/people/search', [PersonController::class, 'search'])->name('people.search');
 
     Route::resource('marriages', MarriageController::class)->except(['show']);
 });

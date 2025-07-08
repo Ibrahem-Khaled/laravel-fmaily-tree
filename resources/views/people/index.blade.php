@@ -93,12 +93,12 @@
                         <thead class="thead-light">
                             <tr>
                                 <th>الاسم</th>
+                                <th>الام</th>
                                 <th>الجنس</th>
                                 <th>العمر</th>
                                 <th>فترة الحياة</th>
                                 <th>المهنة</th>
                                 <th>المكان</th>
-                                <th>الام</th>
                                 <th>الإجراءات</th>
                             </tr>
                         </thead>
@@ -107,11 +107,16 @@
                                 <tr>
                                     <td>
                                         <div class="d-flex align-items-center">
-                                            <img src="{{ $person->photo_url ? asset('storage/' . $person->photo_url) : ($person->gender == 'male' ? asset('img/male-avatar.png') : asset('img/female-avatar.png')) }}"
+                                            <img src="{{ $person->avatar }}"
                                                 alt="{{ $person->full_name }}" class="rounded-circle mr-2" width="40"
                                                 height="40">
                                             {{ $person->full_name }}
                                         </div>
+                                    </td>
+                                    <td>
+                                        <a href="#">
+                                            {{ $person->mother ? $person->mother->full_name : 'غير معروف' }}
+                                        </a>
                                     </td>
                                     <td>
                                         <span class="badge badge-{{ $person->gender == 'male' ? 'primary' : 'pink' }}">
@@ -123,16 +128,6 @@
                                     <td>{{ $person->occupation ?? '-' }}</td>
                                     <td>{{ $person->location ?? '-' }}</td>
                                     <td>
-                                        <a href="#">
-                                            {{ $person->mother ? $person->mother->full_name : 'غير معروف' }}
-                                        </a>
-                                    </td>
-                                    <td>
-                                        {{-- زر عرض --}}
-                                        <button type="button" class="btn btn-sm btn-circle btn-info" data-toggle="modal"
-                                            data-target="#showPersonModal{{ $person->id }}" title="عرض">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
 
                                         {{-- زر تعديل --}}
                                         <button type="button" class="btn btn-sm btn-circle btn-primary" data-toggle="modal"
@@ -147,7 +142,6 @@
                                         </button>
 
                                         {{-- تضمين المودالات لكل شخص --}}
-                                        @include('people.modals.show', ['person' => $person])
                                         @include('people.modals.edit', ['person' => $person])
                                         @include('people.modals.delete', ['person' => $person])
                                     </td>
