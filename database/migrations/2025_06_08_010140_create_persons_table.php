@@ -18,6 +18,7 @@ return new class extends Migration
             $table->date('birth_date')->nullable();
             $table->date('death_date')->nullable();
             $table->enum('gender', ['male', 'female'])->default('male');
+            $table->boolean('from_outside_the_family')->default(false);
             $table->string('photo_url')->nullable();
             $table->text('biography')->nullable();
             $table->string('occupation')->nullable();
@@ -34,10 +35,8 @@ return new class extends Migration
             $table->index(['first_name', 'last_name']);
             $table->index('birth_date');
             $table->index('gender');
-
             $table->foreign('partner_id')->references('id')->on('persons')->onDelete('set null');
             $table->foreign('mother_id')->references('id')->on('persons')->onDelete('set null');
-
         });
     }
 

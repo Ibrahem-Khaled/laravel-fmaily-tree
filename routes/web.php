@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\admin\MarriageController;
+use App\Http\Controllers\admin\OutsideFamilyPersonController;
 use App\Http\Controllers\admin\PersonController;
 use App\Http\Controllers\FamilyTreeController;
 use Illuminate\Support\Facades\Route;
@@ -35,6 +36,9 @@ Route::group([], function () {
 
     Route::resource('people', PersonController::class);
     Route::get('/people/search', [PersonController::class, 'search'])->name('people.search');
+
+    Route::post('/persons/store-outside', [OutsideFamilyPersonController::class, 'store'])->name('persons.store.outside');
+
 
     Route::resource('marriages', MarriageController::class)->except(['show']);
 });

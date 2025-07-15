@@ -56,6 +56,7 @@
                 <button class="btn btn-primary" data-toggle="modal" data-target="#createPersonModal">
                     <i class="fas fa-plus"></i> إضافة شخص
                 </button>
+
             </div>
             <div class="card-body">
                 {{-- تبويب الجنس --}}
@@ -107,9 +108,8 @@
                                 <tr>
                                     <td>
                                         <div class="d-flex align-items-center">
-                                            <img src="{{ $person->avatar }}"
-                                                alt="{{ $person->full_name }}" class="rounded-circle mr-2" width="40"
-                                                height="40">
+                                            <img src="{{ $person->avatar }}" alt="{{ $person->full_name }}"
+                                                class="rounded-circle mr-2" width="40" height="40">
                                             {{ $person->full_name }}
                                         </div>
                                     </td>

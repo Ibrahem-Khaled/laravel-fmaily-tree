@@ -31,8 +31,8 @@ class PersonController extends Controller
             })
             ->defaultOrder() // افترض أن هذا scope موجود في الموديل
             ->paginate(10);
-        $males = Person::where('gender', 'male')->get(['id', 'first_name', 'last_name']);
-        $females = Person::where('gender', 'female')->get(['id', 'first_name', 'last_name']);
+        $males = Person::where('gender', 'male')->get();
+        $females = Person::where('gender', 'female')->get();
         // 2. حساب الإحصائيات بكفاءة باستخدام الكاش والاستعلام المجمع
         // سيتم تخزين النتيجة لمدة 60 دقيقة لتجنب إعادة حسابها مع كل طلب
         $stats = Cache::remember('people_stats', now()->addMinutes(60), function () {

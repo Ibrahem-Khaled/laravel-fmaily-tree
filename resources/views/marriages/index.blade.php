@@ -46,6 +46,9 @@
                 <button class="btn btn-primary" data-toggle="modal" data-target="#createMarriageModal">
                     <i class="fas fa-plus"></i> إضافة سجل زواج
                 </button>
+                <button class="btn btn-primary ml-2" data-toggle="modal" data-target="#addPersonsOutsideTheFamilyTreeModal">
+                    <i class="fas fa-plus"></i> إضافة شخص خارج شجرة العائلة
+                </button>
             </div>
             <div class="card-body">
                 {{-- تبويب الحالات --}}
@@ -215,6 +218,8 @@
 
     {{-- مودال إضافة سجل زواج (ثابت) --}}
     @include('marriages.modals.create')
+    @include('people.modals.add-outside-the-family')
+
 @endsection
 
 @push('scripts')

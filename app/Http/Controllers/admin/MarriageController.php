@@ -19,6 +19,9 @@ class MarriageController extends Controller
             ->join('persons as husband', 'husband.id', '=', 'marriages.husband_id')
             ->join('persons as wife', 'wife.id', '=', 'marriages.wife_id');
 
+        $males = Person::where('gender', 'male')->get();
+        $females = Person::where('gender', 'female')->get();
+
         // التصفية حسب الحالة
         $status = $request->input('status', 'all');
 
@@ -76,7 +79,9 @@ class MarriageController extends Controller
             'activeMarriages',
             'divorcedMarriages',
             'unknownStatusMarriages',
-            'persons'
+            'persons',
+            'males',
+            'females'
         ));
     }
 

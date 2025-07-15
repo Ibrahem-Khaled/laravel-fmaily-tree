@@ -23,22 +23,47 @@ class Person extends Model
         'parent_id',
         'mother_id',
     ];
-
+    protected $appends = ['full_name'];
     protected $casts = [
         'birth_date' => 'date',
         'death_date' => 'date',
     ];
     public function getFullNameAttribute(): string
     {
-        $names = [$this->first_name];
-        $current = $this->parent;
+        // ابدأ بالاسم الأول للشخص نفسه
+        $nameParts = [$this->first_name];
 
-        while ($current) {
-            $names[] = "بن " . $current->first_name;
-            $current = $current->parent;
+        // ابدأ من الشخص الحالي وتتبع سلالة الأب
+        $currentPerson = $this;
+        $ancestor = $this->parent;
+
+        // استمر في الصعود في شجرة النسب طالما يوجد أب
+        while ($ancestor) {
+            // === بداية التعديل ===
+            // تحقق من أن الجد ذكر لمواصلة سلسلة النسب الذكورية
+            if ($ancestor->gender == 'male') {
+
+                // تحديد كلمة النسب بناءً على جنس الابن/الابنة في هذه العلاقة
+                // إذا كان الشخص الحالي في الحلقة أنثى، استخدم "بنت"
+                // إذا كان ذكرًا، استخدم "بن"
+                $relationWord = ($currentPerson->gender === 'female') ? 'بنت' : 'بن';
+
+                // أضف كلمة النسب واسم الجد
+                $nameParts[] = $relationWord . ' ' . $ancestor->first_name;
+            } else {
+                // إذا كان الجد أنثى، فإن سلسلة النسب الذكورية تنقطع هنا
+                break;
+            }
+            // === نهاية التعديل ===
+
+            // انتقل إلى الجد الذي يليه، وقم بتحديث الشخص الحالي إلى الجد السابق
+            // لتحديد كلمة النسب الصحيحة في الحلقة التالية
+            $currentPerson = $ancestor;
+            $ancestor = $ancestor->parent;
         }
 
-        return implode(' ', $names);
+        // ادمج أجزاء الاسم مع مسافات بينها للحصول على الاسم الكامل
+        return implode(' ', $nameParts);
     }
 
     public function getAgeAttribute(): ?int
