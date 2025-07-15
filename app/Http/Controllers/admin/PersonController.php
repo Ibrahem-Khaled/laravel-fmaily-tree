@@ -17,26 +17,26 @@ class PersonController extends Controller
         $search = $request->input('search');
         $gender = $request->input('gender');
 
-        // 1. الاستعلام الأساسي لجلب الأشخاص مع الفلاتر والبحث
-        // هذا الجزء سيبقى كما هو لأنه فعال ويستخدم الترحيل (pagination)
+        // 1. الاستعلام الأساسي مع إضافة ->withQueryString()
+        // هذا هو التعديل الرئيسي في هذا الملف
         $people = Person::when($search, function ($query, $search) {
-            // تحسين بسيط: تجميع شروط الـ orWhere لتجنب أي تعارض مستقبلي
             return $query->where(function ($q) use ($search) {
                 $q->where('first_name', 'like', "%{$search}%")
-                    ->orWhere('last_name', 'like', "%{$search}%");
+                  ->orWhere('last_name', 'like', "%{$search}%");
             });
         })
-            ->when($gender, function ($query, $gender) {
-                return $query->where('gender', $gender);
-            })
-            ->defaultOrder() // افترض أن هذا scope موجود في الموديل
-            ->paginate(10);
+        ->when($gender, function ($query, $gender) {
+            return $query->where('gender', $gender);
+        })
+        ->defaultOrder()
+        ->paginate(10)
+        ->withQueryString(); // <-- ✅  هذا هو السطر المضاف لحل المشكلة
+
         $males = Person::where('gender', 'male')->get();
         $females = Person::where('gender', 'female')->get();
-        // 2. حساب الإحصائيات بكفاءة باستخدام الكاش والاستعلام المجمع
-        // سيتم تخزين النتيجة لمدة 60 دقيقة لتجنب إعادة حسابها مع كل طلب
+
+        // 2. حساب الإحصائيات (الكود الخاص بك يعمل بكفاءة هنا)
         $stats = Cache::remember('people_stats', now()->addMinutes(60), function () {
-            // استخدام استعلام واحد فقط لجلب كل الإحصائيات
             $result = DB::table('persons')
                 ->selectRaw("
                     COUNT(*) as total,
@@ -46,8 +46,6 @@ class PersonController extends Controller
                     COUNT(CASE WHEN photo_url IS NOT NULL THEN 1 END) as with_photos
                 ")
                 ->first();
-
-            // تحويل النتيجة من stdClass إلى array
             return (array) $result;
         });
 

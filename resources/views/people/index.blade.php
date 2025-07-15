@@ -21,27 +21,22 @@
 
         {{-- إحصائيات الأشخاص --}}
         <div class="row mb-4">
-            {{-- إجمالي الأشخاص --}}
+            {{-- البطاقات الإحصائية --}}
             <div class="col-xl-2 col-md-4 mb-4">
                 <x-stats-card icon="fas fa-users" title="إجمالي الأشخاص" :value="$stats['total']" color="primary" />
             </div>
-            {{-- عدد الذكور --}}
             <div class="col-xl-2 col-md-4 mb-4">
                 <x-stats-card icon="fas fa-male" title="عدد الذكور" :value="$stats['male']" color="info" />
             </div>
-            {{-- عدد الإناث --}}
             <div class="col-xl-2 col-md-4 mb-4">
                 <x-stats-card icon="fas fa-female" title="عدد الإناث" :value="$stats['female']" color="pink" />
             </div>
-            {{-- عدد الأحياء --}}
             <div class="col-xl-2 col-md-4 mb-4">
                 <x-stats-card icon="fas fa-heart" title="عدد الأحياء" :value="$stats['living']" color="success" />
             </div>
-            {{-- عدد الصور --}}
             <div class="col-xl-2 col-md-4 mb-4">
                 <x-stats-card icon="fas fa-camera" title="أشخاص لديهم صور" :value="$stats['with_photos']" color="warning" />
             </div>
-            {{-- عرض الشجرة --}}
             <div class="col-xl-2 col-md-4 mb-4">
                 <a href="{{ route('family-tree') }}" class="btn btn-dark btn-block h-100 py-3">
                     <i class="fas fa-tree"></i> عرض شجرة العائلة
@@ -56,27 +51,29 @@
                 <button class="btn btn-primary" data-toggle="modal" data-target="#createPersonModal">
                     <i class="fas fa-plus"></i> إضافة شخص
                 </button>
-
             </div>
             <div class="card-body">
-                {{-- تبويب الجنس --}}
+                {{-- ✅ تعديل تبويبات الجنس: إضافة قيمة البحث الحالية إلى الروابط --}}
                 <ul class="nav nav-tabs mb-4">
                     <li class="nav-item">
-                        <a class="nav-link {{ request('gender') === null ? 'active' : '' }}"
-                            href="{{ route('people.index') }}">الكل</a>
+                        <a class="nav-link {{ !request('gender') ? 'active' : '' }}"
+                            href="{{ route('people.index', ['search' => request('search')]) }}">الكل</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {{ request('gender') === 'male' ? 'active' : '' }}"
-                            href="{{ route('people.index', ['gender' => 'male']) }}">الذكور</a>
+                            href="{{ route('people.index', ['gender' => 'male', 'search' => request('search')]) }}">الذكور</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {{ request('gender') === 'female' ? 'active' : '' }}"
-                            href="{{ route('people.index', ['gender' => 'female']) }}">الإناث</a>
+                            href="{{ route('people.index', ['gender' => 'female', 'search' => request('search')]) }}">الإناث</a>
                     </li>
                 </ul>
 
-                {{-- نموذج البحث --}}
+                {{-- ✅ تعديل نموذج البحث: إضافة حقل خفي للجنس للحفاظ على الفلتر --}}
                 <form action="{{ route('people.index') }}" method="GET" class="mb-4">
+                    @if (request('gender'))
+                        <input type="hidden" name="gender" value="{{ request('gender') }}">
+                    @endif
                     <div class="input-group">
                         <input type="text" name="search" class="form-control"
                             placeholder="ابحث بالاسم الأول أو الأخير..." value="{{ request('search') }}">
@@ -128,27 +125,21 @@
                                     <td>{{ $person->occupation ?? '-' }}</td>
                                     <td>{{ $person->location ?? '-' }}</td>
                                     <td>
-
-                                        {{-- زر تعديل --}}
                                         <button type="button" class="btn btn-sm btn-circle btn-primary" data-toggle="modal"
                                             data-target="#editPersonModal{{ $person->id }}" title="تعديل">
                                             <i class="fas fa-edit"></i>
                                         </button>
-
-                                        {{-- زر حذف --}}
                                         <button type="button" class="btn btn-sm btn-circle btn-danger" data-toggle="modal"
                                             data-target="#deletePersonModal{{ $person->id }}" title="حذف">
                                             <i class="fas fa-trash"></i>
                                         </button>
-
-                                        {{-- تضمين المودالات لكل شخص --}}
                                         @include('people.modals.edit', ['person' => $person])
                                         @include('people.modals.delete', ['person' => $person])
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="text-center">لا يوجد أشخاص مسجلين</td>
+                                    <td colspan="8" class="text-center">لا يوجد أشخاص مطابقين لنتيجة البحث</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -157,6 +148,7 @@
 
                 {{-- الترقيم --}}
                 <div class="d-flex justify-content-center">
+                    {{-- لم نعد بحاجة إلى appends() هنا لأننا استخدمنا withQueryString() في المتحكم --}}
                     {{ $people->links() }}
                 </div>
             </div>
@@ -168,14 +160,11 @@
 @endsection
 
 @push('scripts')
-    {{-- عرض اسم الملف المختار في حقول upload --}}
     <script>
         $('.custom-file-input').on('change', function() {
             var fileName = $(this).val().split('\\').pop();
             $(this).next('.custom-file-label').html(fileName);
         });
-
-        {{-- تفعيل التولتيب الافتراضي --}}
         $('[data-toggle="tooltip"]').tooltip();
     </script>
 @endpush
