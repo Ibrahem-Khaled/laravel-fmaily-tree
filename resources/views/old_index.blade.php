@@ -335,7 +335,6 @@
             function createPersonNode(person, level = 0) {
                 const hasChildren = person.children_count > 0;
                 const uniqueId = `person_${person.id}_level_${level}`;
-                const parentId = `tree_level_${level}`;
                 const itemClass = (level === 0) ? 'accordion-group-item' : 'accordion-item';
 
                 const buttonOrSpan = hasChildren ?
@@ -348,6 +347,7 @@
                         <span class="person-name">${person.first_name}</span>
                     </div>`;
 
+                // ✅ **التعديل هنا**: تمت إزالة data-bs-parent للسماح بفتح عدة فروع
                 return `
                     <div class="${itemClass}">
                         <h2 class="accordion-header">${buttonOrSpan}</h2>
@@ -355,7 +355,7 @@
                             <button class="btn btn-sm" onclick="showPersonDetails(${person.id})">التفاصيل</button>
                             <a href="/user-profile?id=${person.id}" class="btn btn-sm">ملف</a>
                         </div>
-                        ${hasChildren ? `<div id="collapse_${uniqueId}" class="accordion-collapse collapse" data-bs-parent="#${parentId}"><div class="accordion-body p-0"><div class="accordion" id="tree_level_${level + 1}"></div></div></div>` : ''}
+                        ${hasChildren ? `<div id="collapse_${uniqueId}" class="accordion-collapse collapse"><div class="accordion-body p-0"><div class="accordion" id="tree_level_${level + 1}"></div></div></div>` : ''}
                     </div>`;
             }
 
@@ -475,22 +475,7 @@
                 }
             }
 
-            // --- Accordion Auto-Close Logic ---
-            // This code ensures that when you open a new branch, any other open branches will close.
-            treeContainer.addEventListener('show.bs.collapse', (event) => {
-                // Get all open accordions within the main container
-                const openItems = treeContainer.querySelectorAll('.accordion-collapse.show');
-
-                openItems.forEach((item) => {
-                    // Check if the item is a sibling in the DOM or at a different level, and if it's not the one we're opening now
-                    if (item !== event.target) {
-                        const collapseInstance = bootstrap.Collapse.getInstance(item);
-                        if (collapseInstance) {
-                            collapseInstance.hide();
-                        }
-                    }
-                });
-            });
+            // ✅ **التعديل هنا**: تم حذف كود الإغلاق التلقائي بالكامل
 
             loadInitialTree();
         });
