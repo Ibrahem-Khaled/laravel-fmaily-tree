@@ -16,6 +16,7 @@ class Person extends Model
         'birth_date',
         'death_date',
         'gender',
+        'from_outside_the_family',
         'photo_url',
         'biography',
         'occupation',
