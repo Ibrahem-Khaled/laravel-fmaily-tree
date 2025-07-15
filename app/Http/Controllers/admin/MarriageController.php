@@ -94,14 +94,32 @@ class MarriageController extends Controller
             'divorced_at' => 'nullable|date|after_or_equal:married_at',
         ]);
 
-        // التحقق من عدم وجود زواج سابق بين نفس الشخصين
-        $existingMarriage = Marriage::where(function ($query) use ($request) {
-            $query->where('husband_id', $request->husband_id)
-                ->where('wife_id', $request->wife_id);
-        })->orWhere(function ($query) use ($request) {
-            $query->where('husband_id', $request->wife_id)
-                ->where('wife_id', $request->husband_id);
-        })->exists();
+        // =================== بداية منطق التحقق الجديد ===================
+
+        // 1. التحقق مما إذا كانت الزوجة لديها زواج حالي نشط
+        $activeMarriage = Marriage::where('wife_id', $request->wife_id)
+            ->whereNull('divorced_at') // الزواج لم ينتهِ بالطلاق
+            ->first();
+
+        if ($activeMarriage) {
+            // 2. إذا كان هناك زواج نشط، تحقق من حالة الزوج السابق
+            $previousHusband = Person::find($activeMarriage->husband_id);
+
+            // إذا كان الزوج السابق موجودًا وعلى قيد الحياة (ليس له تاريخ وفاة)
+            if ($previousHusband && is_null($previousHusband->death_date)) {
+                return redirect()->back()
+                    ->withErrors(['error' => 'لا يمكن إتمام الزواج. الزوجة مرتبطة بزواج آخر لم ينتهِ بعد (بالطلاق أو بوفاة الزوج).'])
+                    ->withInput();
+            }
+        }
+
+        // =================== نهاية منطق التحقق الجديد ===================
+
+
+        // التحقق من عدم وجود سجل زواج مكرر لنفس الشخصين
+        $existingMarriage = Marriage::where('husband_id', $request->husband_id)
+            ->where('wife_id', $request->wife_id)
+            ->exists();
 
         if ($existingMarriage) {
             return redirect()->back()->withErrors(['error' => 'هذا الزواج مسجل بالفعل!'])->withInput();
@@ -118,7 +136,6 @@ class MarriageController extends Controller
             return redirect()->back()->withErrors(['error' => 'حدث خطأ أثناء حفظ البيانات: ' . $e->getMessage()])->withInput();
         }
     }
-
     public function show(Marriage $marriage)
     {
         return view('marriages.show', compact('marriage'));
