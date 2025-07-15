@@ -23,7 +23,7 @@ class FamilyTreeController extends Controller
         // الحصول على الجذور (الأشخاص الذين ليس لهم والد)
         $roots = Person::whereNull('parent_id')
             ->where('from_outside_the_family', false)
-            ->where('gender', 'male')
+            // ->where('gender', 'male')
             ->with('children')
             ->orderBy('birth_date')
             ->get();
