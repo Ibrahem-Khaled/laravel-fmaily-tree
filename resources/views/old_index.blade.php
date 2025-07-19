@@ -48,7 +48,8 @@
         .accordion-group-item,
         .accordion-item {
             position: relative;
-            width: 130px;
+            /* ✅ تعديل: زيادة عرض الكارت */
+            width: 160px;
             border: 1px solid var(--border-color) !important;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
@@ -69,7 +70,8 @@
         .accordion-collapse {
             position: absolute;
             right: 100%;
-            width: 130px;
+            /* ✅ تعديل: مطابقة عرض الأبناء مع العرض الجديد للكارت */
+            width: 160px;
             top: 0;
             padding-right: 20px;
             z-index: 10;
@@ -77,10 +79,11 @@
 
         .accordion-button {
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
             padding: 10px;
             background-color: #fff;
             border-radius: 12px 12px 0 0 !important;
+            align-items: center;
         }
 
         .accordion-button:not(.collapsed) {
@@ -97,27 +100,24 @@
         }
 
         .person-photo-container {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
             background-color: var(--light-green);
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
-            border: 2px solid #fff;
+            border: 3px solid #fff;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            border-radius: 50%;
         }
 
         .person-photo-container img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            border-radius: 50%;
         }
 
         .person-photo-container .icon-placeholder {
-            font-size: 2.5rem;
             color: var(--primary-color);
         }
 
@@ -140,7 +140,9 @@
         .person-name {
             color: #333;
             font-weight: 600;
-            font-size: 14px;
+            /* ✅ تعديل: زيادة حجم الخط قليلاً */
+            font-size: 15px;
+            text-align: center;
         }
 
         .accordion-button:not(.collapsed) .person-name {
@@ -252,7 +254,7 @@
                 <h3>شجرة عائلة السريع</h3>
             </div>
             <div class="p-3">
-                <div class="accordion-group" id="familyTreeContainer">
+                <div class="accordion" id="tree_level_0">
                     <div class="text-center py-5">
                         <div class="spinner-border text-success" role="status"><span
                                 class="visually-hidden">Loading...</span></div>
@@ -281,7 +283,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const API_BASE_URL = '/api';
-            const treeContainer = document.getElementById('familyTreeContainer');
+            const treeContainer = document.getElementById('tree_level_0');
             const personModal = new bootstrap.Modal(document.getElementById('personDetailModal'));
 
             // --- API Fetcher ---
@@ -303,9 +305,10 @@
                         container: '40px',
                         icon: '1.5rem'
                     },
+                    // ✅ تعديل: زيادة حجم الصورة في الكرت الأساسي
                     md: {
-                        container: '70px',
-                        icon: '2.5rem'
+                        container: '80px',
+                        icon: '3rem'
                     },
                     lg: {
                         container: '120px',
@@ -336,6 +339,7 @@
                 const hasChildren = person.children_count > 0;
                 const uniqueId = `person_${person.id}_level_${level}`;
                 const itemClass = (level === 0) ? 'accordion-group-item' : 'accordion-item';
+                const parentSelector = `#tree_level_${level}`;
 
                 const buttonOrSpan = hasChildren ?
                     `<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_${uniqueId}" onclick="loadChildren(this)" data-person-id="${person.id}" data-level="${level + 1}">
@@ -347,14 +351,13 @@
                         <span class="person-name">${person.first_name}</span>
                     </div>`;
 
-                // ✅ **التعديل هنا**: تمت إزالة data-bs-parent للسماح بفتح عدة فروع
                 return `
                     <div class="${itemClass}">
                         <h2 class="accordion-header">${buttonOrSpan}</h2>
                         <div class="actions-bar">
                             <button class="btn btn-sm" onclick="showPersonDetails(${person.id})">التفاصيل</button>
                         </div>
-                        ${hasChildren ? `<div id="collapse_${uniqueId}" class="accordion-collapse collapse"><div class="accordion-body p-0"><div class="accordion" id="tree_level_${level + 1}"></div></div></div>` : ''}
+                        ${hasChildren ? `<div id="collapse_${uniqueId}" class="accordion-collapse collapse" data-bs-parent="${parentSelector}"><div class="accordion-body p-0"><div class="accordion" id="tree_level_${level + 1}"></div></div></div>` : ''}
                     </div>`;
             }
 
@@ -473,8 +476,6 @@
                         '<div class="alert alert-warning text-center">لا توجد بيانات لعرضها في شجرة العائلة.</div>';
                 }
             }
-
-            // ✅ **التعديل هنا**: تم حذف كود الإغلاق التلقائي بالكامل
 
             loadInitialTree();
         });
