@@ -2,12 +2,11 @@
 
 @section('content')
     <div class="container-fluid">
-        {{-- عنوان الصفحة ومسار التنقل --}}
+        {{-- عنوان الصفحة وزر إضافة ابن/ابنة --}}
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800">ملف {{ $person->full_name }}</h1>
-            {{-- زر إضافة شخص جديد --}}
-            <button class="btn btn-primary" data-toggle="modal" data-target="#createPersonModal">
-                <i class="fas fa-plus"></i> إضافة شخص جديد
+            <button class="btn btn-success" data-toggle="modal" data-target="#addChildModal">
+                <i class="fas fa-child"></i> إضافة ابن/ابنة
             </button>
         </div>
 
@@ -196,8 +195,8 @@
 
     </div>
 
-    {{-- مودال إضافة شخص جديد --}}
-    @include('people.modals.create')
+    {{-- مودال إضافة ابن/ابنة جديد --}}
+    @include('people.modals.add_child')
 
     {{-- تضمين مودالات التعديل لكل الأشخاص المعروضين في الصفحة --}}
     @include('people.modals.edit', ['person' => $person])
