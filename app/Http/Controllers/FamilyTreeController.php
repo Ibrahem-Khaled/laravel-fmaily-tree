@@ -122,15 +122,16 @@ class FamilyTreeController extends Controller
                         'photo' => $wife->photo_url ? asset('storage/' . $wife->photo_url) : null
                     ];
                 }
-            } elseif ($person->gender === 'female' && $person?->husband?->isNotEmpty()) {
-                foreach ($person->husband as $husband) {
-                    $spouses[] = [
-                        'id' => $husband->id,
-                        'name' => $husband->full_name,
-                        'gender' => $husband->gender,
-                        'photo' => $husband->photo_url ? asset('storage/' . $husband->photo_url) : null
-                    ];
-                }
+            } elseif ($person->gender === 'female' && is_object($person->husband)) {
+                // The 'husband' relationship returns a single object, not a collection.
+                // So we don't need a foreach loop.
+                $husband = $person->husband;
+                $spouses[] = [
+                    'id' => $husband->id,
+                    'name' => $husband->full_name,
+                    'gender' => $husband->gender,
+                    'photo' => $husband->photo_url ? asset('storage/' . $husband->photo_url) : null
+                ];
             }
 
             $data['spouses'] = $spouses;

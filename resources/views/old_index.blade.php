@@ -353,7 +353,6 @@
                         <h2 class="accordion-header">${buttonOrSpan}</h2>
                         <div class="actions-bar">
                             <button class="btn btn-sm" onclick="showPersonDetails(${person.id})">التفاصيل</button>
-                            <a href="/user-profile?id=${person.id}" class="btn btn-sm">ملف</a>
                         </div>
                         ${hasChildren ? `<div id="collapse_${uniqueId}" class="accordion-collapse collapse"><div class="accordion-body p-0"><div class="accordion" id="tree_level_${level + 1}"></div></div></div>` : ''}
                     </div>`;
