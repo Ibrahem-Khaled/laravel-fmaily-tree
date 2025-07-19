@@ -52,10 +52,24 @@ class FamilyTreeController extends Controller
     }
 
     // API لجلب أبناء شخص معين
-    public function getChildren($id)
+     public function getChildren($id)
     {
         $person = Person::findOrFail($id);
-        $children = $person->children()->withCount('children')->get();
+        $childrenQuery = Person::query();
+
+        // التحقق من جنس الشخص لتحديد كيفية البحث عن الأبناء
+        if ($person->gender === 'female') {
+            // إذا كان الشخص أنثى، يتم البحث عن الأبناء عن طريق mother_id
+            $childrenQuery->where('mother_id', $person->id);
+        } else {
+            // إذا كان الشخص ذكر، يتم البحث عن طريق parent_id (الأب)
+            $childrenQuery->where('parent_id', $person->id);
+        }
+
+        // جلب الأبناء مع عدد أبنائهم (للجيل التالي) وترتيبهم حسب تاريخ الميلاد
+        $children = $childrenQuery->withCount('children')
+                                  ->orderBy('birth_date')
+                                  ->get();
 
         return response()->json([
             'success' => true,
@@ -77,8 +91,24 @@ class FamilyTreeController extends Controller
     }
 
     // تنسيق بيانات الشخص للاستجابة
-    private function formatPersonData(Person $person, $fullDetails = false)
+     private function formatPersonData(Person $person, $fullDetails = false)
     {
+        // --- حساب عدد الأبناء بناءً على الجنس ---
+        // ملاحظة: هذا قد يسبب مشاكل في الأداء (مشكلة N+1) عند تحميل عدد كبير من الأشخاص.
+        // الحل الأفضل هو تعريف accessor في موديل Person لجلب العدد بشكل محسن.
+        if (isset($person->children_count)) {
+            // استخدم العدد إذا تم تحميله مسبقًا (باستخدام withCount)
+            $children_count = $person->children_count;
+        } else {
+            // إذا لم يتم تحميل العدد، قم بحسابه الآن
+            if ($person->gender === 'female') {
+                $children_count = Person::where('mother_id', $person->id)->count();
+            } else {
+                // الافتراضي هو الأب
+                $children_count = $person->children()->count();
+            }
+        }
+
         $data = [
             'id' => $person->id,
             'parent_id' => $person->parent_id,
@@ -89,7 +119,7 @@ class FamilyTreeController extends Controller
             'last_name' => $person->last_name,
             'gender' => $person->gender,
             'photo_url' => $person->avatar,
-            'children_count' => $person->children_count ?? $person->children()->count(),
+            'children_count' => $children_count, // استخدام العدد المحسوب
         ];
 
         if ($person->birth_date) {
@@ -123,8 +153,6 @@ class FamilyTreeController extends Controller
                     ];
                 }
             } elseif ($person->gender === 'female' && is_object($person->husband)) {
-                // The 'husband' relationship returns a single object, not a collection.
-                // So we don't need a foreach loop.
                 $husband = $person->husband;
                 $spouses[] = [
                     'id' => $husband->id,
