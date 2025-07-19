@@ -82,7 +82,7 @@ class PersonController extends Controller
             $person->appendToNode($parent)->save();
         }
 
-        return redirect()->route('people.index')->with('success', 'تمت إضافة الشخص بنجاح');
+        return redirect()->back()->with('success', 'تمت إضافة الشخص بنجاح');
     }
 
     public function update(Request $request, Person $person)
@@ -115,7 +115,7 @@ class PersonController extends Controller
             $person->appendToNode($parent)->save();
         }
 
-        return redirect()->route('people.index')->with('success', 'تم تحديث بيانات الشخص بنجاح');
+        return redirect()->back()->with('success', 'تم تحديث بيانات الشخص بنجاح');
     }
 
     public function destroy(Person $person)
@@ -125,7 +125,7 @@ class PersonController extends Controller
         }
 
         $person->delete();
-        return redirect()->route('people.index')->with('success', 'تم حذف الشخص بنجاح');
+        return redirect()->back()->with('success', 'تم حذف الشخص بنجاح');
     }
 
     public function search(Request $request)
