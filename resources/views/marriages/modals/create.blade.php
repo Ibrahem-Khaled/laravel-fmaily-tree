@@ -18,7 +18,7 @@
                                     <option value="">اختر الزوج</option>
                                     @foreach($persons->where('gender', 'male') as $person)
                                         <option value="{{ $person->id }}" {{ old('husband_id') == $person->id ? 'selected' : '' }}>
-                                            {{ $person->full_name }} ({{ $person->birth_date }})
+                                            {{ $person->full_name }} ({{ $person->age }})
                                         </option>
                                     @endforeach
                                 </select>
@@ -31,7 +31,7 @@
                                     <option value="">اختر الزوجة</option>
                                     @foreach($persons->where('gender', 'female') as $person)
                                         <option value="{{ $person->id }}" {{ old('wife_id') == $person->id ? 'selected' : '' }}>
-                                            {{ $person->full_name }} ({{ $person->birth_date }})
+                                            {{ $person->full_name }} ({{ $person->age }})
                                         </option>
                                     @endforeach
                                 </select>

@@ -22,15 +22,15 @@ class PersonController extends Controller
         $people = Person::when($search, function ($query, $search) {
             return $query->where(function ($q) use ($search) {
                 $q->where('first_name', 'like', "%{$search}%")
-                  ->orWhere('last_name', 'like', "%{$search}%");
+                    ->orWhere('last_name', 'like', "%{$search}%");
             });
         })
-        ->when($gender, function ($query, $gender) {
-            return $query->where('gender', $gender);
-        })
-        ->defaultOrder()
-        ->paginate(10)
-        ->withQueryString(); // <-- ✅  هذا هو السطر المضاف لحل المشكلة
+            ->when($gender, function ($query, $gender) {
+                return $query->where('gender', $gender);
+            })
+            ->defaultOrder()
+            ->paginate(10)
+            ->withQueryString(); // <-- ✅  هذا هو السطر المضاف لحل المشكلة
 
         $males = Person::where('gender', 'male')->get();
         $females = Person::where('gender', 'female')->get();
@@ -153,5 +153,37 @@ class PersonController extends Controller
 
         // إرجاع النتائج بالصيغة المطلوبة لمكتبة Select2
         return response()->json(['results' => $people]);
+    }
+
+    public function show(Person $person)
+    {
+        // جلب قوائم الذكور والإناث اللازمة لمودال التعديل
+        $males = Person::where('gender', 'male')->get();
+        $females = Person::where('gender', 'female')->get();
+
+        // جلب الأبناء بناءً على جنس الشخص
+        if ($person->gender === 'female') {
+            $children = Person::where('mother_id', $person->id)->orderBy('birth_date')->get();
+        } else {
+            // علاقة 'children' تفترض البحث بـ parent_id
+            $children = $person->children()->orderBy('birth_date')->get();
+        }
+
+        // جلب الزوجات أو الزوج
+        $spouses = collect(); // إنشاء collection فارغة
+        if ($person->gender === 'male') {
+            $spouses = $person->wives;
+        } elseif (is_object($person->husband)) {
+            $spouses = collect([$person->husband]);
+        }
+
+        // تمرير كل البيانات اللازمة إلى الـ view
+        return view('people.show', [
+            'person'   => $person,
+            'children' => $children,
+            'spouses'  => $spouses,
+            'males'    => $males,    // <-- إضافة قائمة الذكور
+            'females'  => $females,  // <-- إضافة قائمة الإناث
+        ]);
     }
 }

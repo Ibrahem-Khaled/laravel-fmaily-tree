@@ -107,7 +107,9 @@
                                         <div class="d-flex align-items-center">
                                             <img src="{{ $person->avatar }}" alt="{{ $person->full_name }}"
                                                 class="rounded-circle mr-2" width="40" height="40">
-                                            {{ $person->full_name }}
+                                            <a href="{{ route('people.show', $person->id) }}">
+                                                {{ $person->full_name }}
+                                            </a>
                                         </div>
                                     </td>
                                     <td>
