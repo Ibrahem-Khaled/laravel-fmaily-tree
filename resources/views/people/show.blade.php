@@ -2,12 +2,9 @@
 
 @section('content')
     <div class="container-fluid">
-        {{-- عنوان الصفحة وزر إضافة ابن/ابنة --}}
+        {{-- عنوان الصفحة --}}
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800">ملف {{ $person->full_name }}</h1>
-            <button class="btn btn-success" data-toggle="modal" data-target="#addChildModal">
-                <i class="fas fa-child"></i> إضافة ابن/ابنة
-            </button>
         </div>
 
         <nav aria-label="breadcrumb">
@@ -95,15 +92,18 @@
         </div>
 
         {{-- بطاقة الزوجات/الزوج --}}
-        @if ($spouses->isNotEmpty())
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-venus-mars"></i>
-                        {{ $person->gender == 'male' ? 'الزوجات' : 'الزوج' }}
-                    </h6>
-                </div>
-                <div class="card-body">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-venus-mars"></i>
+                    {{ $person->gender == 'male' ? 'الزوجات' : 'الزوج' }}
+                </h6>
+                <button class="btn btn-info btn-sm" data-toggle="modal" data-target="#addMarriageModal">
+                    <i class="fas fa-plus"></i> إضافة زواج
+                </button>
+            </div>
+            <div class="card-body">
+                @if ($spouses->isNotEmpty())
                     <div class="table-responsive">
                         <table class="table table-bordered table-hover">
                             <thead class="thead-light">
@@ -135,21 +135,28 @@
                             </tbody>
                         </table>
                     </div>
-                </div>
+                @else
+                    <div class="text-center p-3">
+                        <p class="mb-0">لا يوجد سجلات زواج حالياً. يمكنك إضافة سجل باستخدام الزر أعلاه.</p>
+                    </div>
+                @endif
             </div>
-        @endif
+        </div>
 
 
         {{-- بطاقة الأبناء --}}
-        @if ($children->isNotEmpty())
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-child"></i>
-                        الأبناء ({{ $children->count() }})
-                    </h6>
-                </div>
-                <div class="card-body">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-child"></i>
+                    الأبناء ({{ $children->count() }})
+                </h6>
+                <button class="btn btn-success btn-sm" data-toggle="modal" data-target="#addChildModal">
+                    <i class="fas fa-plus"></i> إضافة ابن/ابنة
+                </button>
+            </div>
+            <div class="card-body">
+                @if ($children->isNotEmpty())
                     <div class="table-responsive">
                         <table class="table table-bordered table-hover">
                             <thead class="thead-light">
@@ -189,14 +196,21 @@
                             </tbody>
                         </table>
                     </div>
-                </div>
+                @else
+                    <div class="text-center p-3">
+                        <p class="mb-0">لا يوجد أبناء حالياً. يمكنك إضافة ابن/ابنة باستخدام الزر أعلاه.</p>
+                    </div>
+                @endif
             </div>
-        @endif
+        </div>
 
     </div>
 
     {{-- مودال إضافة ابن/ابنة جديد --}}
     @include('people.modals.add_child')
+
+    {{-- مودال إضافة زواج جديد --}}
+    @include('people.modals.add_marriage')
 
     {{-- تضمين مودالات التعديل لكل الأشخاص المعروضين في الصفحة --}}
     @include('people.modals.edit', ['person' => $person])
