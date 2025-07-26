@@ -33,7 +33,7 @@
             padding-top: 120px;
             padding-bottom: 50px;
             min-height: 100vh;
-            overflow-x: hidden;
+            overflow-x: auto;
         }
 
         .tree-title-sec {
@@ -93,7 +93,6 @@
             box-shadow: none;
         }
 
-        /* --- Styles for Photo Background Cards --- */
         .accordion-button.photo-bg {
             background-size: cover;
             background-position: center;
@@ -136,7 +135,6 @@
             background-color: rgba(0, 0, 0, 0.7);
         }
 
-        /* --- Styles for standard cards (no photo) --- */
         .accordion-button:not(.photo-bg) {
             flex-direction: column;
             gap: 10px;
@@ -148,7 +146,6 @@
             font-weight: 600;
         }
 
-        /* --- States (Collapsed / Not Collapsed) --- */
         .accordion-button:not(.collapsed) {
              color: white !important;
         }
@@ -270,7 +267,8 @@
         }
 
         .spouse-card,
-        .child-card {
+        .child-card,
+        .parent-card {
             display: flex;
             align-items: center;
             gap: 12px;
@@ -281,20 +279,22 @@
             transition: all 0.2s ease-in-out;
         }
 
-        .child-card.clickable {
+        .child-card.clickable,
+        .parent-card.clickable {
             cursor: pointer;
         }
 
-        .child-card.clickable:hover {
+        .child-card.clickable:hover,
+        .parent-card.clickable:hover {
             background-color: var(--light-green);
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.05);
             border-color: var(--primary-color);
         }
 
-
         .spouse-card img,
-        .child-card img {
+        .child-card img,
+        .parent-card img {
             width: 45px;
             height: 45px;
             border-radius: 50%;
@@ -302,7 +302,8 @@
         }
 
         .spouse-card .icon-placeholder-sm,
-        .child-card .icon-placeholder-sm {
+        .child-card .icon-placeholder-sm,
+        .parent-card .icon-placeholder-sm {
             font-size: 1.5rem;
             color: var(--primary-color);
             width: 45px;
@@ -314,7 +315,6 @@
             align-items: center;
         }
 
-        /* --- Image Zoom Modal --- */
         #imageZoomModal .modal-content {
             background-color: rgba(0,0,0,0.85);
         }
@@ -374,7 +374,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="modalBodyContent">
-                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -382,7 +382,7 @@
     <div class="modal fade" id="imageZoomModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-fullscreen">
             <div class="modal-content">
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 <div class="modal-body d-flex align-items-center justify-content-center overflow-hidden">
                     <img src="" id="zoomableImage" class="img-fluid">
                 </div>
@@ -411,8 +411,6 @@
             const zoomOutBtn = document.getElementById('zoomOutBtn');
             let currentScale = 1;
 
-
-            // --- API Fetcher ---
             async function fetchAPI(endpoint) {
                 try {
                     const response = await fetch(`${API_BASE_URL}${endpoint}`);
@@ -424,7 +422,6 @@
                 }
             }
 
-            // --- Helper to create Photo/Icon HTML ---
             function createPhoto(person, size = 'md') {
                 const sizes = {
                     sm: { container: '45px', icon: '1.5rem' },
@@ -455,7 +452,6 @@
                     </div>`;
             }
 
-            // --- Node Creation ---
             function createPersonNode(person, level = 0) {
                 const hasChildren = person.children_count > 0;
                 const uniqueId = `person_${person.id}_level_${level}`;
@@ -489,7 +485,6 @@
                     </div>`;
             }
 
-            // --- Load Children Logic ---
             window.loadChildren = async (buttonElement) => {
                 if (buttonElement.dataset.loaded === 'true') return;
                 const personId = buttonElement.dataset.personId;
@@ -511,7 +506,6 @@
                 buttonElement.dataset.loaded = 'true';
             };
 
-            // --- Modal Details Logic ---
             window.showPersonDetails = async (personId) => {
                 const modalBody = document.getElementById('modalBodyContent');
                 personModal.show();
@@ -525,6 +519,38 @@
                 const person = data.person;
                 const createDetailRow = (icon, label, value) => !value ? '' :
                     `<div class="detail-row"><i class="fas ${icon} fa-fw mx-2"></i><div><small class="text-muted">${label}</small><p class="mb-0 fw-bold">${value}</p></div></div>`;
+
+                let parentsHtml = '';
+                if (person.parent || person.mother) {
+                    parentsHtml = '<h5>الوالدين</h5><div class="row g-2">';
+                    if (person.parent) {
+                        parentsHtml += `
+                            <div class="col-md-6">
+                                <div class="parent-card clickable" onclick="showPersonDetails(${person.parent.id})">
+                                    ${createPhoto(person.parent, 'sm')}
+                                    <div>
+                                        <strong>${person.parent.first_name}</strong>
+                                        <small class="d-block text-muted">الأب</small>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    if (person.mother) {
+                        parentsHtml += `
+                            <div class="col-md-6">
+                                <div class="parent-card clickable" onclick="showPersonDetails(${person.mother.id})">
+                                    ${createPhoto(person.mother, 'sm')}
+                                    <div>
+                                        <strong>${person.mother.first_name}</strong>
+                                        <small class="d-block text-muted">الأم</small>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    parentsHtml += '</div><hr class="my-4">';
+                }
 
                 let spousesHtml = '';
                 if (person.spouses && person.spouses.length > 0) {
@@ -552,10 +578,10 @@
                         <div class="col-lg-8">
                             ${createDetailRow('fa-birthday-cake', 'تاريخ الميلاد', person.birth_date)}
                             ${person.age ? createDetailRow('fa-calendar-alt', 'العمر', `${person.age} سنة`) : ''}
-                            ${createDetailRow('fa-user', 'الأم', person.mother_name)}
                             ${createDetailRow('fa-briefcase', 'المهنة', person.occupation)}
                             ${createDetailRow('fa-map-marker-alt', 'مكان الإقامة', person.location)}
                             <hr class="my-4">
+                            ${parentsHtml}
                             ${spousesHtml}
                             ${person.biography ? `<h5>سيرة ذاتية</h5><p style="white-space: pre-wrap;">${person.biography}</p><hr class="my-4">` : ''}
                             ${childrenHtml}
@@ -591,7 +617,6 @@
                 }
             }
 
-            // --- Initial Load ---
             async function loadInitialTree() {
                 const data = await fetchAPI('/family-tree');
                 if (data && data.tree && data.tree.length > 0) {
@@ -604,7 +629,6 @@
                 }
             }
 
-            // --- Image Zoom Logic ---
             window.zoomImage = (container) => {
                 const img = container.querySelector('img');
                 if (img && img.src) {
@@ -631,7 +655,18 @@
                 zoomableImage.src = '';
             });
 
-            // Start the application
+            document.addEventListener('shown.bs.collapse', function (event) {
+                if (!event.target.closest('.tree-section')) return;
+                const newColumn = event.target;
+                setTimeout(() => {
+                    newColumn.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'nearest',
+                        inline: 'start'
+                    });
+                }, 50);
+            });
+
             loadInitialTree();
         });
     </script>
