@@ -74,7 +74,7 @@
                                         disabled>
                                 @else
                                     {{-- Allow selecting a father --}}
-                                    <select class="form-control" id="child_parent_id" name="parent_id">
+                                    <select class="form-control js-father-select" id="child_parent_id" name="parent_id">
                                         <option value="">-- اختر الأب --</option>
                                         @foreach ($males as $father)
                                             <option value="{{ $father->id }}" @selected(old('parent_id') == $father->id)>
@@ -95,7 +95,7 @@
                                         disabled>
                                 @else
                                     {{-- Allow selecting a mother --}}
-                                    <select class="form-control" id="child_mother_id" name="mother_id">
+                                    <select class="form-control js-mother-select" id="child_mother_id" name="mother_id">
                                         <option value="">-- اختر الأم --</option>
                                         @foreach ($females as $mother)
                                             <option value="{{ $mother->id }}" @selected(old('mother_id') == $mother->id)>
