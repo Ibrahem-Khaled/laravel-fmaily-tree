@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Database\Eloquent\Builder; // ✅ تأكد من وجود هذا السطر
 
 
 class PersonController extends Controller
@@ -17,25 +18,40 @@ class PersonController extends Controller
         $search = $request->input('search');
         $gender = $request->input('gender');
 
-        // 1. الاستعلام الأساسي مع إضافة ->withQueryString()
-        // هذا هو التعديل الرئيسي في هذا الملف
-        $people = Person::when($search, function ($query, $search) {
-            return $query->where(function ($q) use ($search) {
+        $people = Person::when($search, function (Builder $query, $search) {
+            // البحث في أجزاء الاسم المكونة للاسم الكامل
+            $query->where(function (Builder $q) use ($search) {
+
+                // 1. البحث في الاسم الأول والأخير للشخص نفسه
                 $q->where('first_name', 'like', "%{$search}%")
                     ->orWhere('last_name', 'like', "%{$search}%");
+
+                // 2. البحث في اسم الأب (مستوى واحد لأعلى)
+                $q->orWhereHas('parent', function (Builder $parentQuery) use ($search) {
+                    $parentQuery->where('first_name', 'like', "%{$search}%");
+                });
+
+                // 3. البحث في اسم الجد (مستويين لأعلى)
+                $q->orWhereHas('parent.parent', function (Builder $grandparentQuery) use ($search) {
+                    $grandparentQuery->where('first_name', 'like', "%{$search}%");
+                });
+
+                // 4. يمكنك إضافة المزيد من المستويات بنفس الطريقة إذا أردت
+                $q->orWhereHas('parent.parent.parent', function (Builder $ggpQuery) use ($search) {
+                    $ggpQuery->where('first_name', 'like', "%{$search}%");
+                });
             });
         })
-            ->when($gender, function ($query, $gender) {
+            ->when($gender, function (Builder $query, $gender) {
                 return $query->where('gender', $gender);
             })
             ->defaultOrder()
             ->paginate(10)
-            ->withQueryString(); // <-- ✅  هذا هو السطر المضاف لحل المشكلة
+            ->withQueryString();
 
         $males = Person::where('gender', 'male')->get();
         $females = Person::where('gender', 'female')->get();
 
-        // 2. حساب الإحصائيات (الكود الخاص بك يعمل بكفاءة هنا)
         $stats = Cache::remember('people_stats', now()->addMinutes(60), function () {
             $result = DB::table('persons')
                 ->selectRaw("
@@ -49,7 +65,6 @@ class PersonController extends Controller
             return (array) $result;
         });
 
-        // 3. إرسال البيانات إلى الـ view
         return view('people.index', compact('people', 'stats', 'males', 'females'));
     }
 
@@ -185,5 +200,14 @@ class PersonController extends Controller
             'males'    => $males,    // <-- إضافة قائمة الذكور
             'females'  => $females,  // <-- إضافة قائمة الإناث
         ]);
+    }
+
+    public function getWives(Person $father)
+    {
+        // استخدام العلاقة 'wives' الموجودة في موديل Person لجلب الزوجات
+        $wives = $father->wives()->get();
+
+        // إرجاع قائمة الزوجات كـ JSON
+        return response()->json($wives);
     }
 }

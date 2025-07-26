@@ -226,11 +226,6 @@
     <script>
         $(document).ready(function() {
             // تفعيل select2
-            $('.select2').select2({
-                theme: 'bootstrap4',
-                placeholder: 'اختر...',
-                allowClear: true
-            });
 
             // تفعيل date range picker
             $('#date_range').daterangepicker({

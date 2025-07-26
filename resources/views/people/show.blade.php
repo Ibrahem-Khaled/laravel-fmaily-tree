@@ -5,6 +5,10 @@
         {{-- عنوان الصفحة --}}
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800">ملف {{ $person->full_name }}</h1>
+            {{-- ✅ الزر الجديد لفتح النافذة المنبثقة --}}
+            <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#addPersonsOutsideTheFamilyTreeModal">
+                <i class="fas fa-user-plus"></i> إضافة شخص من خارج العائلة
+            </button>
         </div>
 
         <nav aria-label="breadcrumb">
@@ -212,6 +216,9 @@
     {{-- مودال إضافة زواج جديد --}}
     @include('people.modals.add_marriage')
 
+    {{-- ✅ تضمين المودال الجديد الذي أنشأناه --}}
+    @include('people.modals.add-outside-the-family')
+
     {{-- تضمين مودالات التعديل لكل الأشخاص المعروضين في الصفحة --}}
     @include('people.modals.edit', ['person' => $person])
     @foreach ($spouses as $spouse)
@@ -229,6 +236,56 @@
         $('.custom-file-input').on('change', function() {
             var fileName = $(this).val().split('\\').pop();
             $(this).next('.custom-file-label').html(fileName);
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // استهداف جميع قوائم الآباء في الصفحة
+            const allFatherSelects = document.querySelectorAll('.js-father-select');
+
+            allFatherSelects.forEach(fatherSelect => {
+                fatherSelect.addEventListener('change', function() {
+                    const fatherId = this.value;
+
+                    // البحث عن قائمة الأم المرتبطة بنفس النافذة
+                    const modal = this.closest('.modal-content');
+                    const motherSelect = modal.querySelector('.js-mother-select');
+
+                    // إذا لم يتم العثور على قائمة أم، توقف
+                    if (!motherSelect) return;
+
+                    motherSelect.innerHTML = '<option value="">-- جار التحميل --</option>';
+
+                    if (!fatherId) {
+                        motherSelect.innerHTML = '<option value="">-- اختر الأم --</option>';
+                        return;
+                    }
+
+                    // إرسال الطلب بنفس الطريقة السابقة
+                    fetch(`{{ url('/people') }}/${fatherId}/wives`)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then(wives => {
+                            motherSelect.innerHTML =
+                                '<option value="">-- اختر الأم --</option>';
+                            wives.forEach(wife => {
+                                const option = document.createElement('option');
+                                option.value = wife.id;
+                                option.textContent = wife.full_name;
+                                motherSelect.appendChild(option);
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Error fetching wives:', error);
+                            motherSelect.innerHTML = '<option value="">-- حدث خطأ --</option>';
+                        });
+                });
+            });
         });
     </script>
 @endpush

@@ -169,4 +169,53 @@
         });
         $('[data-toggle="tooltip"]').tooltip();
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // استهداف جميع قوائم الآباء في الصفحة
+            const allFatherSelects = document.querySelectorAll('.js-father-select');
+
+            allFatherSelects.forEach(fatherSelect => {
+                fatherSelect.addEventListener('change', function() {
+                    const fatherId = this.value;
+
+                    // البحث عن قائمة الأم المرتبطة بنفس النافذة
+                    const modal = this.closest('.modal-content');
+                    const motherSelect = modal.querySelector('.js-mother-select');
+
+                    // إذا لم يتم العثور على قائمة أم، توقف
+                    if (!motherSelect) return;
+
+                    motherSelect.innerHTML = '<option value="">-- جار التحميل --</option>';
+
+                    if (!fatherId) {
+                        motherSelect.innerHTML = '<option value="">-- اختر الأم --</option>';
+                        return;
+                    }
+
+                    // إرسال الطلب بنفس الطريقة السابقة
+                    fetch(`{{ url('/people') }}/${fatherId}/wives`)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then(wives => {
+                            motherSelect.innerHTML =
+                            '<option value="">-- اختر الأم --</option>';
+                            wives.forEach(wife => {
+                                const option = document.createElement('option');
+                                option.value = wife.id;
+                                option.textContent = wife.full_name;
+                                motherSelect.appendChild(option);
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Error fetching wives:', error);
+                            motherSelect.innerHTML = '<option value="">-- حدث خطأ --</option>';
+                        });
+                });
+            });
+        });
+    </script>
 @endpush

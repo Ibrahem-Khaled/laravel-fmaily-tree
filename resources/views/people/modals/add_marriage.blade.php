@@ -25,7 +25,7 @@
                                     <input type="text" class="form-control" value="{{ $person->full_name }}" disabled>
                                 @else
                                     {{-- Allow selecting a husband from the list of males --}}
-                                    <select name="husband_id" id="marriage_husband_id" class="form-control" required>
+                                    <select name="husband_id" id="marriage_husband_id" class="form-control select2-searchable" required>
                                         <option value="">اختر الزوج</option>
                                         @foreach($males as $male)
                                             <option value="{{ $male->id }}">
@@ -45,7 +45,7 @@
                                     <input type="text" class="form-control" value="{{ $person->full_name }}" disabled>
                                 @else
                                     {{-- Allow selecting a wife from the list of females --}}
-                                    <select name="wife_id" id="marriage_wife_id" class="form-control" required>
+                                    <select name="wife_id" id="marriage_wife_id" class="form-control select2-searchable" required>
                                         <option value="">اختر الزوجة</option>
                                         @foreach($females as $female)
                                             <option value="{{ $female->id }}">

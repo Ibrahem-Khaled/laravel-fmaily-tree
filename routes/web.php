@@ -36,6 +36,7 @@ Route::group([], function () {
 
     Route::resource('people', PersonController::class);
     Route::get('/people/search', [PersonController::class, 'search'])->name('people.search');
+    Route::get('/people/{father}/wives', [PersonController::class, 'getWives'])->name('people.getWives');
 
     Route::post('/persons/store-outside', [OutsideFamilyPersonController::class, 'store'])->name('persons.store.outside');
 

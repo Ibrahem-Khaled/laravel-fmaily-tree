@@ -16,6 +16,12 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&family=Tajawal:wght@200;300;400;500;700;800;900&display=swap"
         rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
     <style>
         body {
             font-family: "Tajawal", sans-serif !important;
@@ -84,7 +90,33 @@
 
     <!-- Custom scripts for all pages-->
     <script src="{{ asset('assets/js/sb-admin-2.min.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // استهداف جميع قوائم <select> ما عدا التي تحمل الكلاس .no-search
+            $('select:not(.no-search)').each(function() {
+                var currentSelect = $(this);
+                var parentModal = currentSelect.closest('.modal');
+
+                // تجهيز الإعدادات الافتراضية
+                var select2Options = {
+                    theme: "bootstrap-4",
+                };
+
+                // ✅ إذا كانت القائمة داخل نافذة منبثقة، قم بتعيين النافذة كحاوية
+                // // هذا يضمن عمل البحث بشكل سليم داخل الـ Modals
+                if (parentModal.length) {
+                    select2Options.dropdownParent = parentModal;
+                }
+
+                // تفعيل Select2 بالإعدادات المجهزة
+                currentSelect.select2(select2Options);
+            });
+        });
+    </script>
     {{-- This is where scripts pushed from child pages will be rendered --}}
     @stack('scripts')
 

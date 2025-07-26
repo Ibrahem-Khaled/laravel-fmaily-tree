@@ -74,7 +74,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="parent_id_edit{{ $person->id }}">الأب</label>
-                                <select class="form-control" id="parent_id_edit{{ $person->id }}" name="parent_id">
+                                <select class="form-control js-father-select" id="parent_id_edit{{ $person->id }}" name="parent_id">
                                     <option value="">-- اختر الأب --</option>
                                     {{-- Loop through males passed from controller, excluding the person being edited --}}
                                     @foreach ($males->where('id', '!=', $person->id) as $father)
@@ -88,7 +88,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="mother_id_edit{{ $person->id }}">الأم</label>
-                                <select class="form-control" id="mother_id_edit{{ $person->id }}" name="mother_id">
+                                <select class="form-control js-mother-select" id="mother_id_edit{{ $person->id }}" name="mother_id">
                                     <option value="">-- اختر الأم --</option>
                                     {{-- Loop through females passed from controller --}}
                                     @foreach ($females as $mother)

@@ -1,4 +1,3 @@
-
 <div class="modal fade" id="addPersonsOutsideTheFamilyTreeModal" tabindex="-1" role="dialog"
     aria-labelledby="addPersonsOutsideModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
@@ -51,7 +50,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="outside_gender">الجنس</label>
-                                <select class="form-control" id="outside_gender" name="gender" required>
+                                <select class="form-control no-search" id="outside_gender" name="gender" required>
                                     <option value="">-- اختر الجنس --</option>
                                     <option value="male">ذكر</option>
                                     <option value="female">أنثى</option>
@@ -108,11 +107,11 @@
     const males = @json($males ?? []);
     const females = @json($females ?? []);
 
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
         const genderSelect = document.getElementById('outside_gender');
         const partnerSelect = document.getElementById('marrying_person_id');
 
-        genderSelect.addEventListener('change', function () {
+        genderSelect.addEventListener('change', function() {
             const selectedGender = this.value;
 
             // Clear current options
@@ -132,18 +131,20 @@
                 // If the new person is female, show males as potential partners
                 optionsList = males;
             } else {
-                 // If no gender is selected, reset the placeholder text
+                // If no gender is selected, reset the placeholder text
                 defaultOption.textContent = '-- اختر أولاً جنس الشخص الجديد --';
             }
 
             // Populate the partner dropdown
-            optionsList.forEach(function (person) {
+            optionsList.forEach(function(person) {
                 const option = document.createElement('option');
                 option.value = person.id;
                 // This relies on the `full_name` accessor in your Person model
                 option.textContent = person.full_name;
                 partnerSelect.appendChild(option);
             });
+            $('#marrying_person_id').trigger('change');
+
         });
     });
 </script>

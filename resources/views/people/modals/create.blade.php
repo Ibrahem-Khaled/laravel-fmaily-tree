@@ -71,7 +71,7 @@
                             <div class="form-group">
                                 <label for="parent_id">الأب</label>
                                 {{-- The $males variable is passed from PersonController --}}
-                                <select class="form-control" id="parent_id" name="parent_id">
+                                <select class="form-control js-father-select" id="parent_id" name="parent_id">
                                     <option value="">-- اختر الأب --</option>
                                     @foreach ($males as $father)
                                         <option value="{{ $father->id }}" @selected(old('parent_id') == $father->id)>
@@ -85,13 +85,15 @@
                             <div class="form-group">
                                 <label for="mother_id">الأم</label>
                                 {{-- The $females variable is passed from PersonController --}}
-                                <select class="form-control" id="mother_id" name="mother_id">
+                                <select class="form-control js-mother-select" id="mother_id" name="mother_id">
                                     <option value="">-- اختر الأم --</option>
-                                    @foreach ($females as $mother)
-                                        <option value="{{ $mother->id }}" @selected(old('mother_id') == $mother->id)>
-                                            {{ $mother->full_name }}
-                                        </option>
-                                    @endforeach
+                                    @if ($person->parent)
+                                        @foreach ($person->parent->wives as $wife)
+                                            <option value="{{ $wife->id }}" @selected(old('mother_id', $person->mother_id) == $wife->id)>
+                                                {{ $wife->full_name }}
+                                            </option>
+                                        @endforeach
+                                    @endif
                                 </select>
                             </div>
                         </div>
