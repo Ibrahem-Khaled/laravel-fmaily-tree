@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [FamilyTreeController::class, 'index'])->name('family-tree');
 Route::get('/old/family-tree', [FamilyTreeController::class, 'oldIndex'])->name('old.family-tree');
+Route::get('/add-self', [FamilyTreeController::class, 'addSelf'])->name('add.self');
 
 Route::prefix('api')->group(function () {
     Route::get('/family-tree', [FamilyTreeController::class, 'getFamilyTree']);
@@ -27,7 +28,7 @@ Route::prefix('api')->group(function () {
 });
 
 
-Route::group([], function () {
+Route::group(['middleware' => ['auth',]], function () {
 
     Route::get('/dashboard', function () {
         return view('dashboard');

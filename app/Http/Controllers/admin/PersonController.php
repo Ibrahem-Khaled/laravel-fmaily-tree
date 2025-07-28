@@ -55,6 +55,7 @@ class PersonController extends Controller
 
     public function store(Request $request)
     {
+        // أضفنا source_page إلى التحقق
         $validated = $request->validate([
             'first_name' => 'required|string|max:100',
             'last_name' => 'nullable|string|max:100',
@@ -66,23 +67,35 @@ class PersonController extends Controller
             'occupation' => 'nullable|string|max:100',
             'location' => 'nullable|string|max:100',
             'parent_id' => 'nullable|exists:persons,id',
-            'mother_id' => 'nullable|exists:persons,id', // إذا كنت تريد استخدام هذا الحقل
+            'mother_id' => 'nullable|exists:persons,id',
+            'source_page' => 'nullable|string', // للتحقق من مصدر الطلب
         ]);
 
+        // تأكد من أن اسم الحقل في قاعدة البيانات هو 'photo'
         if ($request->hasFile('photo')) {
-            $validated['photo_url'] = $request->file('photo')->store('people-photos', 'public');
+            $validated['photo'] = $request->file('photo')->store('people-photos', 'public');
         }
 
-        // ✨ فصل الإنشاء عن ترتيب الشجرة
-        $person = new Person($validated);
-        $person->save();
+        // استخدام create لإنشاء الشخص مباشرة
+        $person = Person::create($validated);
 
+        // ربط الشخص بوالده إذا تم اختياره
         if (!empty($validated['parent_id'])) {
             $parent = Person::find($validated['parent_id']);
-            $person->appendToNode($parent)->save();
+            if ($parent) {
+                $person->appendToNode($parent)->save();
+            }
         }
 
-        return redirect()->back()->with('success', 'تمت إضافة الشخص بنجاح');
+        // ✨ التحقق من مصدر الطلب لتحديد وجهة إعادة التوجيه
+        if ($request->input('source_page') === 'add_self') {
+            // إذا كان الطلب من صفحة "إضافة نفسك"، وجهه إلى صفحة عرض الشخص الجديد
+            return redirect()->route('people.show', $person->id)
+                ->with('success', 'تمت إضافة بياناتك بنجاح! مرحباً بك في شجرة العائلة.');
+        } else {
+            // إذا كان الطلب من أي مكان آخر (مثل المودال)، أعده إلى الصفحة السابقة
+            return redirect()->back()->with('success', 'تمت إضافة الشخص بنجاح');
+        }
     }
 
     public function update(Request $request, Person $person)

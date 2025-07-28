@@ -37,6 +37,16 @@ class FamilyTreeController extends Controller
         ]);
     }
 
+    public function addSelf()
+    {
+        $males = Person::where('gender', 'male')->get();
+        $females = Person::where('gender', 'female')->get();
+        return view('add-self', [
+            'males' => $males,
+            'females' => $females,
+        ]);
+    }
+
     private function buildTree($people)
     {
         return $people->map(function ($person) {
@@ -52,7 +62,7 @@ class FamilyTreeController extends Controller
     }
 
     // API لجلب أبناء شخص معين
-     public function getChildren($id)
+    public function getChildren($id)
     {
         $person = Person::findOrFail($id);
         $childrenQuery = Person::query();
@@ -68,8 +78,8 @@ class FamilyTreeController extends Controller
 
         // جلب الأبناء مع عدد أبنائهم (للجيل التالي) وترتيبهم حسب تاريخ الميلاد
         $children = $childrenQuery->withCount('children')
-                                  ->orderBy('birth_date')
-                                  ->get();
+            ->orderBy('birth_date')
+            ->get();
 
         return response()->json([
             'success' => true,
@@ -91,7 +101,7 @@ class FamilyTreeController extends Controller
     }
 
     // تنسيق بيانات الشخص للاستجابة
-     private function formatPersonData(Person $person, $fullDetails = false)
+    private function formatPersonData(Person $person, $fullDetails = false)
     {
         // --- حساب عدد الأبناء بناءً على الجنس ---
         // ملاحظة: هذا قد يسبب مشاكل في الأداء (مشكلة N+1) عند تحميل عدد كبير من الأشخاص.
