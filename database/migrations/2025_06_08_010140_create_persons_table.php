@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('persons', function (Blueprint $table) {
             $table->id();
+            $table->integer('display_order')->default(0); // ترتيب الشخص في الشجرة العائلية
             $table->string('first_name');
             $table->string('last_name')->nullable();
             $table->date('birth_date')->nullable();
@@ -23,7 +24,6 @@ return new class extends Migration
             $table->text('biography')->nullable();
             $table->string('occupation')->nullable();
             $table->string('location')->nullable();
-
             // Nested Set Model columns
             $table->unsignedBigInteger('partner_id')->nullable();
             $table->unsignedBigInteger('mother_id')->nullable();

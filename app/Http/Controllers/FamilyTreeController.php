@@ -25,7 +25,6 @@ class FamilyTreeController extends Controller
             ->where('from_outside_the_family', false)
             // ->where('gender', 'male')
             ->with('children')
-            ->orderBy('birth_date')
             ->get();
 
         // تنظيم البيانات بشكل شجري
@@ -78,7 +77,6 @@ class FamilyTreeController extends Controller
 
         // جلب الأبناء مع عدد أبنائهم (للجيل التالي) وترتيبهم حسب تاريخ الميلاد
         $children = $childrenQuery->withCount('children')
-            ->orderBy('birth_date')
             ->get();
 
         return response()->json([

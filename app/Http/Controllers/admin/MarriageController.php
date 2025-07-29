@@ -72,7 +72,7 @@ class MarriageController extends Controller
         // قائمة الأشخاص للبحث
         $persons = Person::orderBy('first_name')->get();
 
-        return view('marriages.index', compact(
+        return view('dashboard.marriages.index', compact(
             'marriages',
             'status',
             'totalMarriages',
@@ -138,7 +138,7 @@ class MarriageController extends Controller
     }
     public function show(Marriage $marriage)
     {
-        return view('marriages.show', compact('marriage'));
+        return view('dashboard.marriages.show', compact('marriage'));
     }
 
     public function update(Request $request, Marriage $marriage)

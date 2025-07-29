@@ -211,21 +211,21 @@
     </div>
 
     {{-- مودال إضافة ابن/ابنة جديد --}}
-    @include('people.modals.add_child')
+    @include('dashboard.people.modals.add_child')
 
     {{-- مودال إضافة زواج جديد --}}
-    @include('people.modals.add_marriage')
+    @include('dashboard.people.modals.add_marriage')
 
     {{-- ✅ تضمين المودال الجديد الذي أنشأناه --}}
-    @include('people.modals.add-outside-the-family')
+    @include('dashboard.people.modals.add-outside-the-family')
 
     {{-- تضمين مودالات التعديل لكل الأشخاص المعروضين في الصفحة --}}
-    @include('people.modals.edit', ['person' => $person])
+    @include('dashboard.people.modals.edit', ['person' => $person])
     @foreach ($spouses as $spouse)
-        @include('people.modals.edit', ['person' => $spouse])
+        @include('dashboard.people.modals.edit', ['person' => $spouse])
     @endforeach
     @foreach ($children as $child)
-        @include('people.modals.edit', ['person' => $child])
+        @include('dashboard.people.modals.edit', ['person' => $child])
     @endforeach
 
 @endsection

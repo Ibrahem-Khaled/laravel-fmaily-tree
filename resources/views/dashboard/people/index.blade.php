@@ -90,6 +90,8 @@
                     <table class="table table-bordered table-hover">
                         <thead class="thead-light">
                             <tr>
+                                {{-- ✅ الخطوة 3: إضافة عمود للترتيب --}}
+                                <th style="width: 50px;">ترتيب</th>
                                 <th>الاسم</th>
                                 <th>الام</th>
                                 <th>الجنس</th>
@@ -100,9 +102,15 @@
                                 <th>الإجراءات</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        {{-- ✅ الخطوة 2: إضافة `id` و `data-url` لجسم الجدول --}}
+                        <tbody id="people-sortable" data-url="{{ route('people.reorder') }}">
                             @forelse($people as $person)
-                                <tr>
+                                {{-- ✅ إضافة `data-id` لكل صف --}}
+                                <tr data-id="{{ $person->id }}">
+                                    {{-- ✅ إضافة أيقونة السحب --}}
+                                    <td class="text-center" style="cursor: move;">
+                                        <i class="fas fa-arrows-alt"></i>
+                                    </td>
                                     <td>
                                         <div class="d-flex align-items-center">
                                             <img src="{{ $person->avatar }}" alt="{{ $person->full_name }}"
@@ -135,13 +143,13 @@
                                             data-target="#deletePersonModal{{ $person->id }}" title="حذف">
                                             <i class="fas fa-trash"></i>
                                         </button>
-                                        @include('people.modals.edit', ['person' => $person])
-                                        @include('people.modals.delete', ['person' => $person])
+                                        @include('dashboard.people.modals.edit', ['person' => $person])
+                                        @include('dashboard.people.modals.delete', ['person' => $person])
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="8" class="text-center">لا يوجد أشخاص مطابقين لنتيجة البحث</td>
+                                    <td colspan="9" class="text-center">لا يوجد أشخاص مطابقين لنتيجة البحث</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -158,10 +166,13 @@
     </div>
 
     {{-- مودال إضافة شخص (ثابت) --}}
-    @include('people.modals.create')
+    @include('dashboard.people.modals.create')
 @endsection
 
 @push('scripts')
+    {{-- ✅ الخطوة 1: تضمين مكتبة SortableJS --}}
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+
     <script>
         $('.custom-file-input').on('change', function() {
             var fileName = $(this).val().split('\\').pop();
@@ -217,5 +228,52 @@
                 });
             });
         });
+    </script>
+
+    {{-- ✅ الخطوة 4: كود JavaScript الخاص بـ SortableJS --}}
+    <script>
+        const el = document.getElementById('people-sortable');
+
+        // التحقق من وجود العنصر قبل تهيئة SortableJS
+        if (el) {
+            const sortable = Sortable.create(el, {
+                animation: 150, // سرعة الحركة بالمللي ثانية
+                handle: '.fa-arrows-alt', // تحديد الأيقونة كمقبض للسحب
+                onEnd: function (evt) {
+                    // الحصول على الترتيب الجديد للصفوف
+                    const order = Array.from(evt.to.children).map((row, index) => {
+                        return {
+                            id: row.dataset.id,
+                            order: index + 1
+                        };
+                    });
+
+                    // إرسال الترتيب الجديد إلى الخادم
+                    updateOrder(order);
+                }
+            });
+        }
+
+        function updateOrder(order) {
+            const url = document.getElementById('people-sortable').dataset.url;
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}' // مهم جدا للأمان في Laravel
+                },
+                body: JSON.stringify({ order: order })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                // يمكنك إضافة رسالة نجاح هنا إذا أردت
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                // يمكنك إضافة رسالة خطأ هنا
+            });
+        }
     </script>
 @endpush

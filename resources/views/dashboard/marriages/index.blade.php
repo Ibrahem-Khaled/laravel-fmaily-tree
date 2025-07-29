@@ -194,9 +194,9 @@
                                         </button>
 
                                         {{-- تضمين المودالات لكل سجل زواج --}}
-                                        @include('marriages.modals.show', ['marriage' => $marriage])
-                                        @include('marriages.modals.edit', ['marriage' => $marriage])
-                                        @include('marriages.modals.delete', ['marriage' => $marriage])
+                                        @include('dashboard.marriages.modals.show', ['marriage' => $marriage])
+                                        @include('dashboard.marriages.modals.edit', ['marriage' => $marriage])
+                                        @include('dashboard.marriages.modals.delete', ['marriage' => $marriage])
                                     </td>
                                 </tr>
                             @empty
@@ -217,8 +217,8 @@
     </div>
 
     {{-- مودال إضافة سجل زواج (ثابت) --}}
-    @include('marriages.modals.create')
-    @include('people.modals.add-outside-the-family')
+    @include('dashboard.marriages.modals.create')
+    @include('dashboard.people.modals.add-outside-the-family')
 
 @endsection
 

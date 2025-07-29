@@ -5,12 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Kalnoy\Nestedset\NodeTrait;
+use App\Models\Scopes\OrderedScope;
 
 class Person extends Model
 {
     use HasFactory, NodeTrait;
     protected $table = 'persons';
     protected $fillable = [
+        'display_order', // أضف هذا الحقل
         'first_name',
         'last_name',
         'birth_date',
@@ -29,6 +31,13 @@ class Person extends Model
         'birth_date' => 'date',
         'death_date' => 'date',
     ];
+    protected static function booted()
+    {
+        // ✅ الخطوة 2: تطبيق الـ Scope بشكل دائم على الموديل
+        static::addGlobalScope(new OrderedScope);
+    }
+
+
     public function getFullNameAttribute(): string
     {
         // ابدأ بالاسم الأول للشخص نفسه

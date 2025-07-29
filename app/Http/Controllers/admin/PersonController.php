@@ -28,7 +28,6 @@ class PersonController extends Controller
             ->when($gender, function ($query, $gender) {
                 return $query->where('gender', $gender);
             })
-            ->defaultOrder()
             ->paginate(10)
             ->withQueryString(); // <-- ✅  هذا هو السطر المضاف لحل المشكلة
 
@@ -50,7 +49,7 @@ class PersonController extends Controller
         });
 
         // 3. إرسال البيانات إلى الـ view
-        return view('people.index', compact('people', 'stats', 'males', 'females'));
+        return view('dashboard.people.index', compact('people', 'stats', 'males', 'females'));
     }
 
     public function store(Request $request)
@@ -141,6 +140,27 @@ class PersonController extends Controller
         return redirect()->back()->with('success', 'تم حذف الشخص بنجاح');
     }
 
+    public function reorder(Request $request)
+    {
+        $request->validate([
+            'order' => 'required|array',
+            'order.*.id' => 'required|integer|exists:persons,id',
+            'order.*.order' => 'required|integer',
+        ]);
+
+        try {
+            DB::transaction(function () use ($request) {
+                foreach ($request->order as $personData) {
+                    Person::where('id', $personData['id'])->update(['display_order' => $personData['order']]);
+                }
+            });
+
+            return response()->json(['status' => 'success', 'message' => 'تم تحديث الترتيب بنجاح.']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'حدث خطأ أثناء تحديث الترتيب.'], 500);
+        }
+    }
+
     public function search(Request $request)
     {
         $searchTerm = $request->input('term', '');
@@ -191,7 +211,7 @@ class PersonController extends Controller
         }
 
         // تمرير كل البيانات اللازمة إلى الـ view
-        return view('people.show', [
+        return view('dashboard.people.show', [
             'person'   => $person,
             'children' => $children,
             'spouses'  => $spouses,
