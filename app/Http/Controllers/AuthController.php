@@ -18,7 +18,7 @@ class AuthController extends Controller
      */
     public function profile()
     {
-        return view('Auth.profile');
+        return view('auth.profile');
     }
 
     /**
@@ -88,7 +88,7 @@ class AuthController extends Controller
         if (Auth::check()) {
             return redirect()->route('dashboard');
         }
-        return view('Auth.login');
+        return view('auth.login');
     }
 
     /**
@@ -131,7 +131,7 @@ class AuthController extends Controller
         if (Auth::check()) {
             return redirect()->route('dashboard');
         }
-        return view('Auth.register');
+        return view('auth.register');
     }
 
     /**
@@ -205,7 +205,7 @@ class AuthController extends Controller
      */
     public function forgetPassword()
     {
-        return view('Auth.forgetPassword');
+        return view('auth.forgetPassword');
     }
 
     /**
