@@ -416,7 +416,7 @@
     <section class="tree-section">
         <div class="container">
             <div class="tree-title-sec">
-                <h3>شجرة عائلة السريع</h3>
+                <h3>تواصل عائلة السريع</h3>
             </div>
 
             <div class="p-3">
