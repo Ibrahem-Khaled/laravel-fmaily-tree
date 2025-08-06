@@ -471,6 +471,25 @@
             const zoomOutBtn = document.getElementById('zoomOutBtn');
             let currentScale = 1;
 
+
+            // حل مشكلة إغلاق الأكورديونات المفتوحة
+            const handleAccordion = (button) => {
+                const parentId = button.getAttribute('data-bs-parent');
+                const currentCollapseId = button.getAttribute('data-bs-target');
+
+                if (!parentId || !currentCollapseId) return;
+
+                // إغلاق جميع الأكورديونات المفتوحة في نفس المستوى
+                document.querySelectorAll(`${parentId} .accordion-collapse.show`).forEach(openCollapse => {
+                    if (openCollapse.id !== currentCollapseId.replace('#', '')) {
+                        const bsCollapse = bootstrap.Collapse.getInstance(openCollapse);
+                        if (bsCollapse) {
+                            bsCollapse.hide();
+                        }
+                    }
+                });
+            };
+
             async function fetchAPI(endpoint) {
                 try {
                     const response = await fetch(`${API_BASE_URL}${endpoint}`);
@@ -550,15 +569,22 @@
 
             window.loadChildren = async (buttonElement) => {
                 if (buttonElement.dataset.loaded === 'true') return;
+
+                // إدارة فتح/إغلاق الأكورديون
+                handleAccordion(buttonElement);
+
                 const personId = buttonElement.dataset.personId;
                 const level = parseInt(buttonElement.dataset.level);
                 const childrenContainer = document.querySelector(
                     `${buttonElement.dataset.bsTarget} .accordion`);
+
                 if (!childrenContainer) return;
+
                 childrenContainer.innerHTML =
                     `<div class="p-2 text-center text-muted small">جاري التحميل...</div>`;
                 const data = await fetchAPI(`/person/${personId}/children`);
                 childrenContainer.innerHTML = '';
+
                 if (data && data.children && data.children.length > 0) {
                     data.children.forEach(child => {
                         childrenContainer.innerHTML += createPersonNode(child, level);
@@ -567,8 +593,10 @@
                     childrenContainer.innerHTML =
                         `<div class="p-2 text-center text-muted small">لا يوجد أبناء.</div>`;
                 }
+
                 buttonElement.dataset.loaded = 'true';
             };
+
 
             window.showPersonDetails = async (personId) => {
                 const modalBody = document.getElementById('modalBodyContent');
@@ -708,6 +736,13 @@
                         behavior: 'smooth'
                     });
                 }, 50);
+            });
+
+            document.addEventListener('click', (e) => {
+                const accordionButton = e.target.closest('.accordion-button');
+                if (accordionButton && accordionButton.dataset.bsToggle === 'collapse') {
+                    handleAccordion(accordionButton);
+                }
             });
 
             loadInitialTree();
