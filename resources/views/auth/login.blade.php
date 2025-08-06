@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>شجرة العائلة - تسجيل الدخول</title>
+    <title>تواصل العائلة - تسجيل الدخول</title>
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.3.2/mdb.min.css" rel="stylesheet" />
@@ -259,7 +259,7 @@
                                             "معرفة تاريخنا هي معرفة أنفسنا."
                                         </h4>
                                         <p>
-                                            شجرة العائلة هي أكثر من مجرد أسماء وتواريخ، إنها قصة الأجيال، روابط المحبة،
+                                            تواصل العائلة هي أكثر من مجرد أسماء وتواريخ، إنها قصة الأجيال، روابط المحبة،
                                             والتراث الذي يجمعنا. ابدأ اليوم رحلتك في توثيق هذه القصة الخالدة.
                                         </p>
                                     </div>

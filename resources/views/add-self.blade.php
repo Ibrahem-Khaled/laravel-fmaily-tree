@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إضافة نفسك إلى شجرة العائلة</title>
+    <title>إضافة نفسك إلى تواصل العائلة</title>
 
     <!-- Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -172,7 +172,7 @@
         <!-- Form Header -->
         <div class="text-center mb-8">
             <i class="fas fa-tree text-4xl text-blue-600 mb-2"></i>
-            <h1 class="text-3xl font-bold text-gray-800">أضف نفسك إلى شجرة العائلة</h1>
+            <h1 class="text-3xl font-bold text-gray-800">أضف نفسك إلى تواصل العائلة</h1>
             <p class="text-gray-500 mt-2">املأ الحقول التالية لإضافة بياناتك وتحديد مكانك في العائلة.</p>
         </div>
 

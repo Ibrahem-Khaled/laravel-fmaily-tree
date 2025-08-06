@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>شجرة العائلة - إنشاء حساب جديد</title>
+    <title>تواصل العائلة - إنشاء حساب جديد</title>
 
     <!-- MDB & Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
@@ -252,7 +252,7 @@
                                     </div>
 
                                     <div class="text-center mb-4">
-                                        <h2 class="welcome-text">انضم إلى شجرة العائلة</h2>
+                                        <h2 class="welcome-text">انضم إلى تواصل العائلة</h2>
                                         <p class="subtitle">أنشئ حسابك لتبدأ في بناء شجرتك الخاصة</p>
                                     </div>
 
@@ -314,7 +314,7 @@
                                             "معرفة تاريخنا هي معرفة أنفسنا."
                                         </h4>
                                         <p>
-                                            شجرة العائلة هي أكثر من مجرد أسماء وتواريخ، إنها قصة الأجيال، روابط المحبة، والتراث الذي يجمعنا. ابدأ اليوم رحلتك في توثيق هذه القصة الخالدة.
+                                            تواصل العائلة هي أكثر من مجرد أسماء وتواريخ، إنها قصة الأجيال، روابط المحبة، والتراث الذي يجمعنا. ابدأ اليوم رحلتك في توثيق هذه القصة الخالدة.
                                         </p>
                                     </div>
                                 </div>

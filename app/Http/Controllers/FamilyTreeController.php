@@ -7,17 +7,17 @@ use Illuminate\Http\Request;
 
 class FamilyTreeController extends Controller
 {
-    // عرض شجرة العائلة الرئيسية
+    // عرض تواصل العائلة الرئيسية
     public function index()
-    {
-        return view('index');
-    }
-    public function oldIndex()
     {
         return view('old_index');
     }
+    public function newIndex()
+    {
+        return view('new_index');
+    }
 
-    // API لجلب شجرة العائلة
+    // API لجلب تواصل العائلة
     public function getFamilyTree()
     {
         // الحصول على الجذور (الأشخاص الذين ليس لهم والد)

@@ -107,7 +107,7 @@
                     </a>
                      <a href="{{-- route('family-tree') --}}" class="btn btn-success btn-icon-split mx-2">
                         <span class="icon text-white-50"><i class="fas fa-tree"></i></span>
-                        <span class="text">عرض شجرة العائلة</span>
+                        <span class="text">عرض تواصل العائلة</span>
                     </a>
                  </div>
             </div>

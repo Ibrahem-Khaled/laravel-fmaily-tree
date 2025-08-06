@@ -90,7 +90,7 @@ class PersonController extends Controller
         if ($request->input('source_page') === 'add_self') {
             // إذا كان الطلب من صفحة "إضافة نفسك"، وجهه إلى صفحة عرض الشخص الجديد
             return redirect()->route('people.show', $person->id)
-                ->with('success', 'تمت إضافة بياناتك بنجاح! مرحباً بك في شجرة العائلة.');
+                ->with('success', 'تمت إضافة بياناتك بنجاح! مرحباً بك في تواصل العائلة.');
         } else {
             // إذا كان الطلب من أي مكان آخر (مثل المودال)، أعده إلى الصفحة السابقة
             return redirect()->back()->with('success', 'تمت إضافة الشخص بنجاح');
