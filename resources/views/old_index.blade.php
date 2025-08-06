@@ -458,89 +458,629 @@
     {{-- 📦 Scripts --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    document.addEventListener('DOMContentLoaded', () => {
-    const API_BASE_URL = '/api';
-    const treeContainer = document.getElementById('tree_level_0');
-    const personDetailModalEl = document.getElementById('personDetailModal');
-    const personModal = new bootstrap.Modal(personDetailModalEl);
-    const imageZoomModalEl = document.getElementById('imageZoomModal');
-    const imageZoomModal = new bootstrap.Modal(imageZoomModalEl);
-    const zoomableImage = document.getElementById('zoomableImage');
-    const zoomInBtn = document.getElementById('zoomInBtn');
-    const zoomOutBtn = document.getElementById('zoomOutBtn');
-    let currentScale = 1;
+    <script>
+        < !DOCTYPE html >
+            <
+            html lang = "ar"
+        dir = "rtl" >
 
-    // وظيفة مساعدة لجلب البيانات من API
-    async function fetchAPI(endpoint) {
-    try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`);
-    if (!response.ok) throw new Error(`API Error: ${response.status}`);
-    return await response.json();
-    } catch (error) {
-    console.error('API Fetch Error:', error);
-    return null;
-    }
-    }
+            <
+            head >
+            <
+            meta charset = "UTF-8" >
+            <
+            meta name = "viewport"
+        content = "width=device-width, initial-scale=1.0" >
+            <
+            title > تواصل عائلة السريع < /title>
 
-    // إنشاء عنصر الصورة
-    function createPhoto(person, size = 'md') {
-    const sizes = {
-    sm: { container: '45px', icon: '1.5rem' },
-    md: { container: '80px', icon: '3rem' },
-    lg: { container: '150px', icon: '6rem' }
-    };
-    const currentSize = sizes[size];
-    const iconClass = person.gender === 'female' ? 'fa-female' : 'fa-male';
-    const iconContainerClass = size === 'sm' ? 'icon-placeholder-sm' : 'icon-placeholder';
+        {{-- 🎨 Stylesheets --}}
+            <
+            link rel = "stylesheet"
+        href = "https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.rtl.min.css" >
+            <
+            link rel = "stylesheet"
+        href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" >
+            <
+            link rel = "preconnect"
+        href = "https://fonts.googleapis.com" >
+            <
+            link rel = "preconnect"
+        href = "https://fonts.gstatic.com"
+        crossorigin >
+            <
+            link href = "https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700&display=swap"
+        rel = "stylesheet" >
 
-    let photoHtml = '';
-    if (person.photo_url) {
-    photoHtml = `<img src="${person.photo_url}" alt="${person.first_name}"
+            <
+            style >
+            : root {
+                --primary - color: #37a05c;
+                --light-green: # DCF2DD;
+                --dark - green: #145147;
+                --light-gray: # f8f9fa;
+                --border - color: #dee2e6;
+            }
+
+        body {
+            background: var (--light - gray);
+            font - family: 'Alexandria',
+            sans - serif;
+        }
+
+        .tree - section {
+                background: linear - gradient(180 deg,
+                    var (--light - green) 0 % , #FFF 100 % );
+                padding - top: 120 px;
+                padding - bottom: 50 px;
+                min - height: 100 vh;
+                overflow - x: auto;
+            }
+
+            .tree - title - sec {
+                margin - bottom: 2 rem;
+                text - align: center;
+            }
+
+            .tree - title - sec h3 {
+                color: var (--dark - green);
+                font - weight: 700;
+            }
+
+            .accordion - group - item,
+            .accordion - item {
+                position: relative;
+                width: 200 px;
+                border: 1 px solid
+                var (--border - color) !important;
+                border - radius: 12 px;
+                box - shadow: 0 4 px 12 px rgba(0, 0, 0, 0.05);
+                transition: all 0.3 s ease;
+                background - color: #fff;
+            }
+
+            .accordion - group - item + .accordion - group - item,
+            .accordion - item + .accordion - item {
+                margin - top: 10 px;
+            }
+
+            .accordion - group - item: hover,
+            .accordion - item: hover {
+                transform: translateY(-5 px);
+                box - shadow: 0 8 px 20 px rgba(0, 0, 0, 0.08);
+            }
+
+            .accordion - collapse {
+                position: absolute;
+                right: 100 % ;
+                width: 200 px;
+                top: 0;
+                padding - right: 25 px;
+                z - index: 10;
+            }
+
+            .accordion - button {
+                border - radius: 12 px 12 px 0 0!important;
+                align - items: center;
+                justify - content: center;
+                text - align: center;
+                padding: 10 px;
+            }
+
+            .accordion - button::after {
+                display: none;
+            }
+
+            .accordion - button: focus {
+                box - shadow: none;
+            }
+
+            .accordion - button.photo - bg {
+                background - size: cover;
+                background - position: center;
+                position: relative;
+                display: flex;
+                flex - direction: column;
+                justify - content: flex - end;
+                min - height: 180 px;
+                padding: 0.75 rem;
+                color: #fff!important;
+                text - shadow: 1 px 1 px 3 px rgba(0, 0, 0, 0.8);
+            }
+
+            .accordion - button.photo - bg::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: linear - gradient(to top, rgba(0, 0, 0, 0.9) 0 % , rgba(0, 0, 0, 0.1) 60 % );
+                border - radius: inherit;
+                z - index: 1;
+                transition: background 0.3 s ease;
+            }
+
+            .accordion - button.photo - bg.person - name {
+                font - weight: 600;
+                z - index: 2;
+                color: #fff!important;
+                margin - top: auto;
+            }
+
+            .accordion - button.photo - bg.person - photo - container {
+                display: none;
+            }
+
+            .accordion - button.photo - bg.deceased - icon {
+                position: absolute;
+                top: 8 px;
+                left: 8 px;
+                z - index: 2;
+                background - color: rgba(0, 0, 0, 0.7);
+            }
+
+            .accordion - button: not(.photo - bg) {
+                flex - direction: column;
+                gap: 10 px;
+                background - color: #fff;
+            }
+
+            .accordion - button.person - photo - container {
+                width: 120 px!important;
+                height: 120 px!important;
+                margin - bottom: 10 px;
+            }
+
+            .accordion - button.person - photo - container.icon - placeholder {
+                font - size: 5 rem!important;
+            }
+
+            .accordion - button: not(.photo - bg).person - name {
+                color: #333;
+                font-weight: 600;
+            }
+
+            .accordion-button:not(.collapsed) {
+                color: white !important;
+            }
+
+            .accordion-button.photo-bg:not(.collapsed) {
+                box-shadow: inset 0 0 0 3px var(--dark-green);
+                background-color: transparent !important;
+            }
+
+            .accordion-button:not(.photo-bg):not(.collapsed) {
+                background-color: var(--dark-green) !important;
+            }
+
+            .accordion-button:not(.photo-bg):not(.collapsed) .person-name {
+                color: # fff;
+            }
+
+            .person - photo - container {
+                background - color: var (--light - green);
+                display: flex;
+                align - items: center;
+                justify - content: center;
+                position: relative;
+                border: 3 px solid #fff;
+                box - shadow: 0 2 px 4 px rgba(0, 0, 0, 0.1);
+                overflow: hidden;
+                border - radius: 50 % ;
+            }
+
+            .person - photo - container img {
+                width: 100 % ;
+                height: 100 % ;
+                object - fit: cover;
+            }
+
+            .person - photo - container.icon - placeholder {
+                color: var (--primary - color);
+            }
+
+            .deceased - icon {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: 24 px;
+                height: 24 px;
+                background - color: rgba(0, 0, 0, 0.6);
+                color: #fff;
+                border - radius: 50 % ;
+                display: flex;
+                align - items: center;
+                justify - content: center;
+                font - size: 12 px;
+                border: 1 px solid #fff;
+            }
+
+            .actions - bar {
+                width: 100 % ;
+                display: flex;
+                border - top: 1 px solid
+                var (--border - color);
+                background: var (--light - gray);
+                border - radius: 0 0 12 px 12 px;
+            }
+
+            .actions - bar.btn {
+                flex: 1;
+                font - size: 13 px;
+                padding: 8 px 4 px;
+                color: var (--dark - green);
+                border - radius: 0;
+            }
+
+            .actions - bar.btn: hover {
+                background - color: #e9ecef;
+            }
+
+            .actions - bar.btn: first - child {
+                border - radius: 0 0 11 px 0;
+            }
+
+            .actions - bar.btn: last - child {
+                border - radius: 0 0 0 11 px;
+            }
+
+            .modal - header {
+                background - color: var (--dark - green);
+                color: #fff;
+            }
+
+            .modal - header.btn - close {
+                filter: invert(1) grayscale(100 % ) brightness(200 % );
+            }
+
+        #personDetailModal.person - photo - container {
+                border - radius: 12 px;
+                cursor: zoom - in;
+                border: 4 px solid
+                var (--light - green);
+            }
+
+            .modal - body.icon - placeholder - lg {
+                font - size: 5 rem;
+                color: var (--primary - color);
+            }
+
+            .detail - row {
+                display: flex;
+                align - items: center;
+                background - color: var (--light - gray);
+                padding: 12 px;
+                border - radius: 8 px;
+                margin - bottom: 12 px;
+            }
+
+            .detail - row i {
+                color: var (--primary - color);
+                width: 30 px;
+                text - align: center;
+                font - size: 1.2 rem;
+            }
+
+            .spouse - card,
+            .child - card,
+            .parent - card {
+                display: flex;
+                align - items: center;
+                gap: 12 px;
+                background - color: #fff;
+                padding: 10 px;
+                border - radius: 8 px;
+                border: 1 px solid
+                var (--border - color);
+                transition: all 0.2 s ease - in - out;
+            }
+
+            .child - card.clickable,
+            .parent - card.clickable {
+                cursor: pointer;
+            }
+
+            .child - card.clickable: hover,
+            .parent - card.clickable: hover {
+                background - color: var (--light - green);
+                transform: translateY(-2 px);
+                box - shadow: 0 4 px 8 px rgba(0, 0, 0, 0.05);
+                border - color: var (--primary - color);
+            }
+
+            .spouse - card img,
+            .child - card img,
+            .parent - card img {
+                width: 45 px;
+                height: 45 px;
+                border - radius: 50 % ;
+                object - fit: cover;
+            }
+
+            .spouse - card.icon - placeholder - sm,
+            .child - card.icon - placeholder - sm,
+            .parent - card.icon - placeholder - sm {
+                font - size: 1.5 rem;
+                color: var (--primary - color);
+                width: 45 px;
+                height: 45 px;
+                background - color: var (--light - gray);
+                border - radius: 50 % ;
+                display: flex;
+                justify - content: center;
+                align - items: center;
+            }
+
+        #imageZoomModal.modal - content {
+            background - color: rgba(0, 0, 0, 0.85);
+        }
+
+        #imageZoomModal.btn - close {
+            position: absolute;
+            top: 20 px;
+            right: 20 px;
+            z - index: 1060;
+            font - size: 1.5 rem;
+        }
+
+        #zoomableImage {
+            transition: transform 0.2 s ease;
+            max - width: 90 vw;
+            max - height: 80 vh;
+        }
+
+        .zoom - controls {
+            position: absolute;
+            bottom: 30 px;
+            left: 50 % ;
+            transform: translateX(-50 % );
+            z - index: 1060;
+        }
+
+        @media(max - width: 767 px) {
+                .tree - section {
+                        padding - top: 90 px;
+                        padding - left: 5 px;
+                        padding - right: 5 px;
+                    }
+
+                    .accordion - group - item,
+                    .accordion - item {
+                        width: 105 px;
+                    }
+
+                    .accordion - collapse {
+                        width: 105 px;
+                        padding - right: 10 px;
+                    }
+
+                    .accordion - button.person - photo - container {
+                        width: 70 px!important;
+                        height: 70 px!important;
+                        margin - bottom: 8 px;
+                    }
+
+                    .accordion - button.person - photo - container.icon - placeholder {
+                        font - size: 2.8 rem!important;
+                    }
+
+                    .accordion - button.photo - bg {
+                        min - height: 140 px;
+                    }
+
+                    .accordion - button {
+                        padding: 8 px;
+                    }
+
+                    .accordion - button.person - name {
+                        font - size: 12 px;
+                        line - height: 1.3;
+                        white - space: normal;
+                    }
+
+                    .actions - bar.btn {
+                        font - size: 10 px;
+                        padding: 5 px 2 px;
+                    }
+            } <
+            /style> <
+            /head>
+
+            <
+            body >
+            @include('partials.header')
+
+            <
+            section class = "tree-section" >
+            <
+            div class = "container" >
+            <
+            div class = "tree-title-sec" >
+            <
+            h3 > تواصل عائلة السريع < /h3> <
+            /div>
+
+            <
+            div class = "p-3" >
+            <
+            div class = "accordion"
+        id = "tree_level_0" >
+            <
+            div class = "text-center py-5" >
+            <
+            div class = "spinner-border text-success"
+        style = "width: 3rem; height: 3rem;"
+        role = "status" >
+            <
+            span class = "visually-hidden" > Loading... < /span> <
+            /div> <
+            p class = "mt-3 text-muted" > جاري تحميل تواصل العائلة... < /p> <
+            /div> <
+            /div> <
+            /div> <
+            /div> <
+            /section>
+
+        {{-- Modals remain the same --}}
+            <
+            div class = "modal fade"
+        id = "personDetailModal"
+        tabindex = "-1"
+        aria - hidden = "true" >
+            <
+            div class = "modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" >
+            <
+            div class = "modal-content" >
+            <
+            div class = "modal-header" >
+            <
+            h5 class = "modal-title" > تفاصيل العضو < /h5> <
+            button type = "button"
+        class = "btn-close"
+        data - bs - dismiss = "modal"
+        aria - label = "Close" > < /button> <
+            /div> <
+            div class = "modal-body"
+        id = "modalBodyContent" > < /div> <
+            /div> <
+            /div> <
+            /div> <
+            div class = "modal fade"
+        id = "imageZoomModal"
+        tabindex = "-1"
+        aria - hidden = "true" >
+            <
+            div class = "modal-dialog modal-dialog-centered modal-fullscreen" >
+            <
+            div class = "modal-content" >
+            <
+            button type = "button"
+        class = "btn-close btn-close-white"
+        data - bs - dismiss = "modal"
+        aria - label = "Close" > < /button> <
+            div class = "modal-body d-flex align-items-center justify-content-center overflow-hidden" >
+            <
+            img src = ""
+        id = "zoomableImage"
+        class = "img-fluid" >
+        <
+        /div> <
+        div class = "zoom-controls" >
+        <
+        button id = "zoomOutBtn"
+        class = "btn btn-outline-light rounded-circle mx-1" > < i
+        class = "fas fa-search-minus" > < /i></button >
+        <
+        button id = "zoomInBtn"
+        class = "btn btn-outline-light rounded-circle mx-1" > < i
+        class = "fas fa-search-plus" > < /i></button >
+        <
+        /div> <
+        /div> <
+        /div> <
+        /div>
+
+
+        {{-- 📦 Scripts --}}
+            <
+            script src = "https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" >
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const API_BASE_URL = '/api';
+            const treeContainer = document.getElementById('tree_level_0');
+            const personDetailModalEl = document.getElementById('personDetailModal');
+            const personModal = new bootstrap.Modal(personDetailModalEl);
+            const imageZoomModalEl = document.getElementById('imageZoomModal');
+            const imageZoomModal = new bootstrap.Modal(imageZoomModalEl);
+            const zoomableImage = document.getElementById('zoomableImage');
+            const zoomInBtn = document.getElementById('zoomInBtn');
+            const zoomOutBtn = document.getElementById('zoomOutBtn');
+            let currentScale = 1;
+
+            // وظيفة مساعدة لجلب البيانات من API
+            async function fetchAPI(endpoint) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}${endpoint}`);
+                    if (!response.ok) throw new Error(`API Error: ${response.status}`);
+                    return await response.json();
+                } catch (error) {
+                    console.error('API Fetch Error:', error);
+                    return null;
+                }
+            }
+
+            // إنشاء عنصر الصورة
+            function createPhoto(person, size = 'md') {
+                const sizes = {
+                    sm: {
+                        container: '45px',
+                        icon: '1.5rem'
+                    },
+                    md: {
+                        container: '80px',
+                        icon: '3rem'
+                    },
+                    lg: {
+                        container: '150px',
+                        icon: '6rem'
+                    }
+                };
+                const currentSize = sizes[size];
+                const iconClass = person.gender === 'female' ? 'fa-female' : 'fa-male';
+                const iconContainerClass = size === 'sm' ? 'icon-placeholder-sm' : 'icon-placeholder';
+
+                let photoHtml = '';
+                if (person.photo_url) {
+                    photoHtml = `<img src="${person.photo_url}" alt="${person.first_name}"
         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">`;
-    }
+                }
 
-    const iconHtml = `
+                const iconHtml = `
     <div class="${iconContainerClass}"
         style="font-size:${currentSize.icon}; display:${person.photo_url ? 'none' : 'flex'};">
         <i class="fas ${iconClass}"></i>
     </div>`;
 
-    const deceasedIconHtml = person.death_date ? `<div class="deceased-icon"><i class="fas fa-dove"></i></div>` : '';
+                const deceasedIconHtml = person.death_date ?
+                    `<div class="deceased-icon"><i class="fas fa-dove"></i></div>` : '';
 
-    return `
+                return `
     <div class="person-photo-container" style="width:${currentSize.container}; height:${currentSize.container};">
         ${photoHtml}
         ${iconHtml}
         ${deceasedIconHtml}
     </div>`;
-    }
+            }
 
-    // إنشاء عقدة شخص في الشجرة
-    function createPersonNode(person, level = 0) {
-    const hasChildren = person.children_count > 0;
-    const uniqueId = `person_${person.id}_level_${level}`;
-    const itemClass = (level === 0) ? 'accordion-group-item' : 'accordion-item';
-    const parentSelector = `#tree_level_${level}`;
-    const hasPhoto = person.photo_url;
-    const bgClass = hasPhoto ? 'photo-bg' : '';
-    const bgStyle = hasPhoto ? `style="background-image: url('${person.photo_url}')"` : '';
+            // إنشاء عقدة شخص في الشجرة
+            function createPersonNode(person, level = 0) {
+                const hasChildren = person.children_count > 0;
+                const uniqueId = `person_${person.id}_level_${level}`;
+                const itemClass = (level === 0) ? 'accordion-group-item' : 'accordion-item';
+                const parentSelector = `#tree_level_${level}`;
+                const hasPhoto = person.photo_url;
+                const bgClass = hasPhoto ? 'photo-bg' : '';
+                const bgStyle = hasPhoto ? `style="background-image: url('${person.photo_url}')"` : '';
 
-    const buttonContent = `
+                const buttonContent = `
     ${createPhoto(person, 'md')}
     <span class="person-name">${person.first_name}</span>
     `;
 
-    const buttonOrDiv = hasChildren ?
-    `<button class="accordion-button collapsed ${bgClass}" type="button" data-bs-toggle="collapse"
+                const buttonOrDiv = hasChildren ?
+                    `<button class="accordion-button collapsed ${bgClass}" type="button" data-bs-toggle="collapse"
         data-bs-target="#collapse_${uniqueId}" data-bs-parent="${parentSelector}" onclick="loadChildren(this)"
         data-person-id="${person.id}" data-level="${level + 1}" ${bgStyle}>
         ${buttonContent}
     </button>` :
-    `<div class="accordion-button collapsed ${bgClass}" ${bgStyle}>
+                    `<div class="accordion-button collapsed ${bgClass}" ${bgStyle}>
         ${buttonContent}
     </div>`;
 
-    return `
+                return `
     <div class="${itemClass}" id="node_${person.id}">
         <h2 class="accordion-header">${buttonOrDiv}</h2>
         <div class="actions-bar">
@@ -548,138 +1088,141 @@
                 التفاصيل</button>
         </div>
         ${hasChildren ? `
-        <div id="collapse_${uniqueId}" class="accordion-collapse collapse" data-bs-parent="${parentSelector}">
-            <div class="accordion-body p-0">
-                <div class="accordion" id="tree_level_${level + 1}"></div>
-            </div>
-        </div>` : ''}
+            <div id="collapse_${uniqueId}" class="accordion-collapse collapse" data-bs-parent="${parentSelector}">
+                <div class="accordion-body p-0">
+                    <div class="accordion" id="tree_level_${level + 1}"></div>
+                </div>
+            </div>` : ''}
     </div>`;
-    }
+            }
 
-    // إدارة فتح/إغلاق الأكورديون
-    function handleAccordion(button) {
-    const parentSelector = button.getAttribute('data-bs-parent');
-    const currentCollapseId = button.getAttribute('data-bs-target');
+            // إدارة فتح/إغلاق الأكورديون
+            function handleAccordion(button) {
+                const parentSelector = button.getAttribute('data-bs-parent');
+                const currentCollapseId = button.getAttribute('data-bs-target');
 
-    if (!parentSelector || !currentCollapseId) return;
+                if (!parentSelector || !currentCollapseId) return;
 
-    // إغلاق جميع الأكورديونات المفتوحة في نفس المستوى
-    const parentAccordion = document.querySelector(parentSelector);
-    if (parentAccordion) {
-    const openCollapses = parentAccordion.querySelectorAll('.accordion-collapse.show');
-    openCollapses.forEach(openCollapse => {
-    if (openCollapse.id !== currentCollapseId.replace('#', '')) {
-    const bsCollapse = bootstrap.Collapse.getInstance(openCollapse);
-    if (bsCollapse) {
-    bsCollapse.hide();
-    }
-    }
-    });
-    }
-    }
+                // إغلاق جميع الأكورديونات المفتوحة في نفس المستوى
+                const parentAccordion = document.querySelector(parentSelector);
+                if (parentAccordion) {
+                    const openCollapses = parentAccordion.querySelectorAll('.accordion-collapse.show');
+                    openCollapses.forEach(openCollapse => {
+                        if (openCollapse.id !== currentCollapseId.replace('#', '')) {
+                            const bsCollapse = bootstrap.Collapse.getInstance(openCollapse);
+                            if (bsCollapse) {
+                                bsCollapse.hide();
+                            }
+                        }
+                    });
+                }
+            }
 
-    // تحميل الأبناء
-    window.loadChildren = async function(buttonElement) {
-    if (buttonElement.dataset.loaded === 'true') return;
+            // تحميل الأبناء
+            window.loadChildren = async function(buttonElement) {
+                if (buttonElement.dataset.loaded === 'true') return;
 
-    // إدارة فتح/إغلاق الأكورديون
-    handleAccordion(buttonElement);
+                // إدارة فتح/إغلاق الأكورديون
+                handleAccordion(buttonElement);
 
-    const personId = buttonElement.dataset.personId;
-    const level = parseInt(buttonElement.dataset.level);
-    const childrenContainer = document.querySelector(`${buttonElement.dataset.bsTarget} .accordion`);
+                const personId = buttonElement.dataset.personId;
+                const level = parseInt(buttonElement.dataset.level);
+                const childrenContainer = document.querySelector(
+                    `${buttonElement.dataset.bsTarget} .accordion`);
 
-    if (!childrenContainer) return;
+                if (!childrenContainer) return;
 
-    childrenContainer.innerHTML = `<div class="p-2 text-center text-muted small">جاري التحميل...</div>`;
-    const data = await fetchAPI(`/person/${personId}/children`);
-    childrenContainer.innerHTML = '';
+                childrenContainer.innerHTML =
+                    `<div class="p-2 text-center text-muted small">جاري التحميل...</div>`;
+                const data = await fetchAPI(`/person/${personId}/children`);
+                childrenContainer.innerHTML = '';
 
-    if (data && data.children && data.children.length > 0) {
-    data.children.forEach(child => {
-    childrenContainer.innerHTML += createPersonNode(child, level);
-    });
-    } else {
-    childrenContainer.innerHTML = `<div class="p-2 text-center text-muted small">لا يوجد أبناء.</div>`;
-    }
+                if (data && data.children && data.children.length > 0) {
+                    data.children.forEach(child => {
+                        childrenContainer.innerHTML += createPersonNode(child, level);
+                    });
+                } else {
+                    childrenContainer.innerHTML =
+                        `<div class="p-2 text-center text-muted small">لا يوجد أبناء.</div>`;
+                }
 
-    buttonElement.dataset.loaded = 'true';
-    };
+                buttonElement.dataset.loaded = 'true';
+            };
 
-    // عرض تفاصيل الشخص
-    window.showPersonDetails = async function(personId) {
-    const modalBody = document.getElementById('modalBodyContent');
-    personModal.show();
-    modalBody.innerHTML = `<div class="text-center p-5">
+            // عرض تفاصيل الشخص
+            window.showPersonDetails = async function(personId) {
+                const modalBody = document.getElementById('modalBodyContent');
+                personModal.show();
+                modalBody.innerHTML = `<div class="text-center p-5">
         <div class="spinner-border text-success" style="width: 3rem; height: 3rem;"></div>
         <p class="mt-3">جاري تحميل التفاصيل...</p>
     </div>`;
 
-    const data = await fetchAPI(`/person/${personId}`);
-    if (!data || !data.person) {
-    modalBody.innerHTML = `<div class="alert alert-danger">فشل تحميل البيانات.</div>`;
-    return;
-    }
+                const data = await fetchAPI(`/person/${personId}`);
+                if (!data || !data.person) {
+                    modalBody.innerHTML = `<div class="alert alert-danger">فشل تحميل البيانات.</div>`;
+                    return;
+                }
 
-    const person = data.person;
+                const person = data.person;
 
-    const createDetailRow = (icon, label, value) => !value ? '' :
-    `<div class="detail-row"><i class="fas ${icon} fa-fw mx-2"></i>
+                const createDetailRow = (icon, label, value) => !value ? '' :
+                    `<div class="detail-row"><i class="fas ${icon} fa-fw mx-2"></i>
         <div><small class="text-muted">${label}</small>
             <p class="mb-0 fw-bold">${value}</p>
         </div>
     </div>`;
 
-    let parentsHtml = '';
-    if (person.parent || person.mother) {
-    parentsHtml = '<h5>الوالدين</h5><div class="row g-2">';
-    if (person.parent) {
-    parentsHtml += `<div class="col-md-6">
+                let parentsHtml = '';
+                if (person.parent || person.mother) {
+                    parentsHtml = '<h5>الوالدين</h5><div class="row g-2">';
+                    if (person.parent) {
+                        parentsHtml += `<div class="col-md-6">
         <div class="parent-card clickable" onclick="showPersonDetails(${person.parent.id})">
             ${createPhoto(person.parent, 'sm')}<div><strong>${person.parent.first_name}</strong><small
                     class="d-block text-muted">الأب</small></div>
         </div>
     </div>`;
-    }
-    if (person.mother) {
-    parentsHtml += `<div class="col-md-6">
+                    }
+                    if (person.mother) {
+                        parentsHtml += `<div class="col-md-6">
         <div class="parent-card clickable" onclick="showPersonDetails(${person.mother.id})">
             ${createPhoto(person.mother, 'sm')}<div><strong>${person.mother.first_name}</strong><small
                     class="d-block text-muted">الأم</small></div>
         </div>
     </div>`;
-    }
-    parentsHtml += '</div>
-    <hr class="my-4">';
-    }
+                    }
+                    parentsHtml += '</div> <
+                        hr class = "my-4" > ';
+                }
 
-    let spousesHtml = '';
-    if (person.spouses && person.spouses.length > 0) {
-    spousesHtml = '<h5>الزوج/الزوجات</h5><div class="row g-2">';
-    person.spouses.forEach(spouse => {
-    spousesHtml += `<div class="col-md-6">
+                let spousesHtml = '';
+                if (person.spouses && person.spouses.length > 0) {
+                    spousesHtml = '<h5>الزوج/الزوجات</h5><div class="row g-2">';
+                    person.spouses.forEach(spouse => {
+                        spousesHtml += `<div class="col-md-6">
         <div class="spouse-card">${createPhoto(spouse, 'sm')}<div><strong>${spouse.name}</strong></div>
         </div>
     </div>`;
-    });
-    spousesHtml += '</div>
-    <hr class="my-4">';
-    }
+                    });
+                    spousesHtml += '</div> <
+                        hr class = "my-4" > ';
+                }
 
-    let childrenHtml = '';
-    if (person.children_count > 0) {
-    childrenHtml = `<h5>الأبناء (${person.children_count})</h5>
+                let childrenHtml = '';
+                if (person.children_count > 0) {
+                    childrenHtml = `<h5>الأبناء (${person.children_count})</h5>
     <div id="modalChildrenList" class="row g-2"></div>`;
-    }
+                }
 
-    modalBody.innerHTML = `
+                modalBody.innerHTML = `
     <div class="row g-4">
         <div class="col-lg-4 text-center">
             <div class="d-inline-block" onclick="zoomImage(this)">${createPhoto(person, 'lg')}</div>
             <h4 class="mt-3 mb-1">${person.full_name}</h4>
             <p class="text-muted">${person.parent_name ? `ابن/ابنة: ${person.parent_name}` : 'الجيل الأول'}</p>
             ${person.death_date ? `<p class="text-danger fw-bold"><i class="fas fa-dove"></i> متوفى</p>` : `<p
-                class="text-success fw-bold"><i class="fas fa-heart"></i> على قيد الحياة</p>`}
+                    class="text-success fw-bold"><i class="fas fa-heart"></i> على قيد الحياة</p>`}
         </div>
         <div class="col-lg-8">
             ${createDetailRow('fa-birthday-cake', 'تاريخ الميلاد', person.birth_date)}
@@ -690,29 +1233,30 @@
             ${parentsHtml}
             ${spousesHtml}
             ${person.biography ? `<h5>سيرة ذاتية</h5>
-            <p style="white-space: pre-wrap;">${person.biography}</p>
-            <hr class="my-4">` : ''}
+                <p style="white-space: pre-wrap;">${person.biography}</p>
+                <hr class="my-4">` : ''}
             ${childrenHtml}
         </div>
     </div>`;
 
-    if (person.children_count > 0) {
-    loadModalChildren(person.id);
-    }
-    };
+                if (person.children_count > 0) {
+                    loadModalChildren(person.id);
+                }
+            };
 
-    // تحميل الأبناء في المودال
-    async function loadModalChildren(personId) {
-    const childrenContainer = document.getElementById('modalChildrenList');
-    if (!childrenContainer) return;
+            // تحميل الأبناء في المودال
+            async function loadModalChildren(personId) {
+                const childrenContainer = document.getElementById('modalChildrenList');
+                if (!childrenContainer) return;
 
-    childrenContainer.innerHTML = `<div class="col-12 text-center text-muted p-3">جاري تحميل الأبناء...</div>`;
-    const data = await fetchAPI(`/person/${personId}/children`);
-    childrenContainer.innerHTML = '';
+                childrenContainer.innerHTML =
+                    `<div class="col-12 text-center text-muted p-3">جاري تحميل الأبناء...</div>`;
+                const data = await fetchAPI(`/person/${personId}/children`);
+                childrenContainer.innerHTML = '';
 
-    if (data && data.children && data.children.length > 0) {
-    data.children.forEach(child => {
-    childrenContainer.innerHTML += `
+                if (data && data.children && data.children.length > 0) {
+                    data.children.forEach(child => {
+                        childrenContainer.innerHTML += `
     <div class="col-md-6">
         <div class="child-card clickable" onclick="showPersonDetails(${child.id})">
             ${createPhoto(child, 'sm')}
@@ -723,65 +1267,68 @@
             </div>
         </div>
     </div>`;
-    });
-    } else {
-    childrenContainer.innerHTML = `<div class="col-12 text-center text-muted p-3">لا يوجد أبناء مسجلين.</div>`;
-    }
-    }
+                    });
+                } else {
+                    childrenContainer.innerHTML =
+                        `<div class="col-12 text-center text-muted p-3">لا يوجد أبناء مسجلين.</div>`;
+                }
+            }
 
-    // تكبير الصورة
-    window.zoomImage = function(container) {
-    const img = container.querySelector('img');
-    if (img && img.src) {
-    zoomableImage.src = img.src;
-    imageZoomModal.show();
-    }
-    };
+            // تكبير الصورة
+            window.zoomImage = function(container) {
+                const img = container.querySelector('img');
+                if (img && img.src) {
+                    zoomableImage.src = img.src;
+                    imageZoomModal.show();
+                }
+            };
 
-    // التحكم في تكبير/تصغير الصورة
-    zoomInBtn.addEventListener('click', () => {
-    currentScale += 0.2;
-    zoomableImage.style.transform = `scale(${currentScale})`;
-    });
+            // التحكم في تكبير/تصغير الصورة
+            zoomInBtn.addEventListener('click', () => {
+                currentScale += 0.2;
+                zoomableImage.style.transform = `scale(${currentScale})`;
+            });
 
-    zoomOutBtn.addEventListener('click', () => {
-    if (currentScale > 0.4) {
-    currentScale -= 0.2;
-    zoomableImage.style.transform = `scale(${currentScale})`;
-    }
-    });
+            zoomOutBtn.addEventListener('click', () => {
+                if (currentScale > 0.4) {
+                    currentScale -= 0.2;
+                    zoomableImage.style.transform = `scale(${currentScale})`;
+                }
+            });
 
-    // إعادة تعيين حجم الصورة عند إغلاق المودال
-    imageZoomModalEl.addEventListener('hidden.bs.modal', function () {
-    currentScale = 1;
-    zoomableImage.style.transform = 'scale(1)';
-    zoomableImage.src = '';
-    });
+            // إعادة تعيين حجم الصورة عند إغلاق المودال
+            imageZoomModalEl.addEventListener('hidden.bs.modal', function() {
+                currentScale = 1;
+                zoomableImage.style.transform = 'scale(1)';
+                zoomableImage.src = '';
+            });
 
-    // معالجة النقر على أي زر أكورديون في الصفحة
-    document.addEventListener('click', (e) => {
-    const accordionButton = e.target.closest('.accordion-button[data-bs-toggle="collapse"]');
-    if (accordionButton) {
-    handleAccordion(accordionButton);
-    }
-    });
+            // معالجة النقر على أي زر أكورديون في الصفحة
+            document.addEventListener('click', (e) => {
+                const accordionButton = e.target.closest('.accordion-button[data-bs-toggle="collapse"]');
+                if (accordionButton) {
+                    handleAccordion(accordionButton);
+                }
+            });
 
-    // تحميل الشجرة الأولية
-    async function loadInitialTree() {
-    const data = await fetchAPI('/family-tree');
-    if (data && data.tree && data.tree.length > 0) {
-    treeContainer.innerHTML = '';
-    data.tree.forEach(person => {
-    treeContainer.innerHTML += createPersonNode(person, 0);
-    });
-    } else {
-    treeContainer.innerHTML = '<div class="alert alert-warning text-center">لا توجد بيانات لعرضها في تواصل العائلة.</div>';
-    }
-    }
+            // تحميل الشجرة الأولية
+            async function loadInitialTree() {
+                const data = await fetchAPI('/family-tree');
+                if (data && data.tree && data.tree.length > 0) {
+                    treeContainer.innerHTML = '';
+                    data.tree.forEach(person => {
+                        treeContainer.innerHTML += createPersonNode(person, 0);
+                    });
+                } else {
+                    treeContainer.innerHTML =
+                        '<div class="alert alert-warning text-center">لا توجد بيانات لعرضها في تواصل العائلة.</div>';
+                }
+            }
 
-    // بدء التحميل
-    loadInitialTree();
-    });
+            // بدء التحميل
+            loadInitialTree();
+        });
+    </script>
 </body>
 
 </html>
