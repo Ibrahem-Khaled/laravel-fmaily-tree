@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\admin\ArticleController;
+use App\Http\Controllers\admin\CategoryController;
 use App\Http\Controllers\admin\DashboardController;
 use App\Http\Controllers\admin\MarriageController;
 use App\Http\Controllers\admin\OutsideFamilyPersonController;
@@ -33,8 +35,6 @@ Route::group(['middleware' => ['auth',]], function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-
-
     Route::resource('people', PersonController::class);
     Route::post('/people/reorder', [PersonController::class, 'reorder'])->name('people.reorder');
     Route::get('/people/search', [PersonController::class, 'search'])->name('people.search');
@@ -43,6 +43,12 @@ Route::group(['middleware' => ['auth',]], function () {
     Route::post('/persons/store-outside', [OutsideFamilyPersonController::class, 'store'])->name('persons.store.outside');
 
     Route::resource('marriages', MarriageController::class)->except(['show']);
+
+    Route::resource('articles', ArticleController::class);
+    // راوت مخصص لإنشاء الفئات عبر AJAX من داخل مودال المقالات
+    Route::post('categories/store-ajax', [CategoryController::class, 'storeAjax'])->name('categories.store.ajax');
+
+
 });
 
 require __DIR__ . '/auth.php';
