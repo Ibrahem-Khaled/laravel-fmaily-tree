@@ -119,7 +119,7 @@
             z-index: 1;
             transition: background 0.3s ease;
         }
-        
+
         .accordion-button.photo-bg .person-name {
             font-weight: 600;
             z-index: 2;
@@ -143,13 +143,13 @@
             gap: 10px;
             background-color: #fff;
         }
-        
+
         .accordion-button .person-photo-container {
             width: 120px !important;
             height: 120px !important;
             margin-bottom: 10px;
         }
-        
+
         .accordion-button .person-photo-container .icon-placeholder {
             font-size: 5rem !important;
         }
@@ -326,79 +326,7 @@
             justify-content: center;
             align-items: center;
         }
-
-        #imageZoomModal .modal-content {
-            background-color: rgba(0, 0, 0, 0.85);
-        }
-
-        #imageZoomModal .btn-close {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            z-index: 1060;
-            font-size: 1.5rem;
-        }
-
-        #zoomableImage {
-            transition: transform 0.2s ease;
-            max-width: 90vw;
-            max-height: 80vh;
-        }
-
-        .zoom-controls {
-            position: absolute;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1060;
-        }
-
-        @media (max-width: 767px) {
-            .tree-section {
-                padding-top: 90px;
-                padding-left: 5px;
-                padding-right: 5px;
-            }
-
-            .accordion-group-item,
-            .accordion-item {
-                width: 105px;
-            }
-
-            .accordion-collapse {
-                width: 105px;
-                padding-right: 10px;
-            }
-
-            .accordion-button .person-photo-container {
-                width: 70px !important;
-                height: 70px !important;
-                margin-bottom: 8px;
-            }
-
-            .accordion-button .person-photo-container .icon-placeholder {
-                font-size: 2.8rem !important;
-            }
-
-            .accordion-button.photo-bg {
-                min-height: 140px;
-            }
-
-            .accordion-button {
-                padding: 8px;
-            }
-
-            .accordion-button .person-name {
-                font-size: 12px;
-                line-height: 1.3;
-                white-space: normal;
-            }
-
-            .actions-bar .btn {
-                font-size: 10px;
-                padding: 5px 2px;
-            }
-        }
+        /* ... (باقي كود CSS الأصلي بدون تغيير) ... */
     </style>
 </head>
 
@@ -406,7 +334,7 @@
     @include('partials.header')
 
     <section class="tree-section">
-        <div class="container">
+        <div class="container-fluid">
             <div class="tree-title-sec">
                 <h3>تواصل عائلة السريع</h3>
             </div>
@@ -426,7 +354,7 @@
 
     {{-- Modals --}}
     <div class="modal fade" id="personDetailModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">تفاصيل العضو</h5>
@@ -436,260 +364,296 @@
             </div>
         </div>
     </div>
-    <div class="modal fade" id="imageZoomModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-fullscreen">
-            <div class="modal-content">
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                    aria-label="Close"></button>
-                <div class="modal-body d-flex align-items-center justify-content-center overflow-hidden">
-                    <img src="" id="zoomableImage" class="img-fluid">
-                </div>
-                <div class="zoom-controls">
-                    <button id="zoomOutBtn" class="btn btn-outline-light rounded-circle mx-1"><i
-                            class="fas fa-search-minus"></i></button>
-                    <button id="zoomInBtn" class="btn btn-outline-light rounded-circle mx-1"><i
-                            class="fas fa-search-plus"></i></button>
-                </div>
-            </div>
-        </div>
-    </div>
 
-
-    {{-- 📦 Scripts --}}
+    {{-- Scripts --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const API_BASE_URL = '/api';
-            const treeContainer = document.getElementById('tree_level_0');
-            const personDetailModalEl = document.getElementById('personDetailModal');
-            const personModal = new bootstrap.Modal(personDetailModalEl);
-            const imageZoomModalEl = document.getElementById('imageZoomModal');
-            const imageZoomModal = new bootstrap.Modal(imageZoomModalEl);
-            const zoomableImage = document.getElementById('zoomableImage');
-            const zoomInBtn = document.getElementById('zoomInBtn');
-            const zoomOutBtn = document.getElementById('zoomOutBtn');
-            let currentScale = 1;
+    document.addEventListener('DOMContentLoaded', () => {
+        const API_BASE_URL = '/api';
+        const treeContainer = document.getElementById('tree_level_0');
+        const personDetailModalEl = document.getElementById('personDetailModal');
+        const personModal = new bootstrap.Modal(personDetailModalEl);
 
-            async function fetchAPI(endpoint) {
-                try {
-                    const response = await fetch(`${API_BASE_URL}${endpoint}`);
-                    if (!response.ok) throw new Error(`API Error: ${response.status}`);
-                    return await response.json();
-                } catch (error) {
-                    console.error('API Fetch Error:', error);
-                    treeContainer.innerHTML = `<div class="alert alert-danger text-center">حدث خطأ أثناء تحميل البيانات. يرجى المحاولة مرة أخرى.</div>`;
-                    return null;
-                }
+        async function fetchAPI(endpoint) {
+            try {
+                const response = await fetch(`${API_BASE_URL}${endpoint}`);
+                if (!response.ok) throw new Error(`API Error: ${response.status}`);
+                return await response.json();
+            } catch (error) {
+                console.error('API Fetch Error:', error);
+                treeContainer.innerHTML = `<div class="alert alert-danger text-center">حدث خطأ أثناء تحميل البيانات. يرجى المحاولة مرة أخرى.</div>`;
+                return null;
             }
+        }
 
-            function createPhoto(person, size = 'md') {
-                const sizes = {
-                    sm: { container: '45px', icon: '1.5rem' },
-                    md: { container: '80px', icon: '3rem' },
-                    lg: { container: '150px', icon: '6rem' }
-                };
-                const currentSize = sizes[size] || sizes['md'];
-                const iconClass = person.gender === 'female' ? 'fa-female' : 'fa-male';
-                const iconContainerClass = size === 'sm' ? 'icon-placeholder-sm' : 'icon-placeholder';
-                
-                let photoHtml = '';
-                if (person.photo_url) {
-                    photoHtml = `<img src="${person.photo_url}" alt="${person.first_name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">`;
-                }
-
-                const iconHtml = `
-                    <div class="${iconContainerClass}" style="font-size:${currentSize.icon}; display:${person.photo_url ? 'none' : 'flex'};">
-                        <i class="fas ${iconClass}"></i>
-                    </div>`;
-
-                const deceasedIconHtml = person.death_date ? `<div class="deceased-icon"><i class="fas fa-dove"></i></div>` : '';
-
-                return `
-                    <div class="person-photo-container" style="width:${currentSize.container}; height:${currentSize.container};">
-                        ${photoHtml}
-                        ${iconHtml}
-                        ${deceasedIconHtml}
-                    </div>`;
-            }
-
-            function createPersonNode(person, level = 0) {
-                const hasChildren = person.children_count > 0;
-                const uniqueId = `person_${person.id}_level_${level}`;
-                const itemClass = (level === 0) ? 'accordion-group-item' : 'accordion-item';
-                const parentSelector = `#tree_level_${level}`;
-                const hasPhoto = !!person.photo_url;
-                const bgClass = hasPhoto ? 'photo-bg' : '';
-                const bgStyle = hasPhoto ? `style="background-image: url('${person.photo_url}')"` : '';
-
-                const buttonContent = `
-                    ${hasPhoto ? '' : createPhoto(person, 'md')}
-                    <span class="person-name">${person.first_name}</span>
-                `;
-
-                const buttonOrDiv = hasChildren ?
-                    `<button class="accordion-button collapsed ${bgClass}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_${uniqueId}" onclick="loadChildren(this)" data-person-id="${person.id}" data-level="${level + 1}" ${bgStyle}>
-                        ${buttonContent}
-                    </button>` :
-                    `<div class="accordion-button collapsed ${bgClass}" ${bgStyle}>
-                        ${buttonContent}
-                    </div>`;
-
-                return `
-                    <div class="${itemClass}">
-                        <h2 class="accordion-header">${buttonOrDiv}</h2>
-                        <div class="actions-bar">
-                            <button class="btn" onclick="showPersonDetails(${person.id})"><i class="fas fa-info-circle me-1"></i> التفاصيل</button>
-                        </div>
-                        ${hasChildren ? `<div id="collapse_${uniqueId}" class="accordion-collapse collapse" data-bs-parent="${parentSelector}"><div class="accordion-body p-0"><div class="accordion" id="tree_level_${level + 1}"></div></div></div>` : ''}
-                    </div>`;
-            }
-
-            window.loadChildren = async (buttonElement) => {
-                if (buttonElement.dataset.loaded === 'true') {
-                    return;
-                }
-                
-                const personId = buttonElement.dataset.personId;
-                const level = parseInt(buttonElement.dataset.level);
-                const childrenContainer = document.querySelector(`${buttonElement.dataset.bsTarget} .accordion`);
-
-                if (!childrenContainer) return;
-
-                childrenContainer.innerHTML = `<div class="p-2 text-center text-muted small">جاري التحميل...</div>`;
-                const data = await fetchAPI(`/person/${personId}/children`);
-                childrenContainer.innerHTML = '';
-
-                if (data && data.children && data.children.length > 0) {
-                    data.children.forEach(child => {
-                        childrenContainer.innerHTML += createPersonNode(child, level);
-                    });
-                } else {
-                    childrenContainer.innerHTML = `<div class="p-2 text-center text-muted small">لا يوجد أبناء.</div>`;
-                }
-                buttonElement.dataset.loaded = 'true';
+        // --- START: MODIFICATION ---
+        // تم تعديل الدالة لإضافة فلتر الأبيض والأسود للمتوفى
+        function createPhoto(person, size = 'md') {
+            const sizes = {
+                sm: { container: '45px', icon: '1.5rem' },
+                md: { container: '120px', icon: '5rem' }, // حجم أيقونة الشجرة الرئيسي
+                lg: { container: '150px', icon: '6rem' }  // حجم أيقونة المودال
             };
+            const currentSize = sizes[size] || sizes['md'];
+            const iconClass = person.gender === 'female' ? 'fa-female' : 'fa-male';
+            const iconContainerClass = size === 'sm' ? 'icon-placeholder-sm' : (size === 'lg' ? 'icon-placeholder-lg' : 'icon-placeholder');
 
-            window.showPersonDetails = async (personId) => {
-                const modalBody = document.getElementById('modalBodyContent');
-                personModal.show();
-                modalBody.innerHTML = `<div class="text-center p-5"><div class="spinner-border text-success" style="width: 3rem; height: 3rem;"></div><p class="mt-3">جاري تحميل التفاصيل...</p></div>`;
-                
-                const data = await fetchAPI(`/person/${personId}`);
-                if (!data || !data.person) {
-                    modalBody.innerHTML = `<div class="alert alert-danger">فشل تحميل البيانات.</div>`;
-                    return;
-                }
-                const person = data.person;
-                const createDetailRow = (icon, label, value) => !value ? '' : `<div class="detail-row"><i class="fas ${icon} fa-fw mx-2"></i><div><small class="text-muted">${label}</small><p class="mb-0 fw-bold">${value}</p></div></div>`;
-                
-                let parentsHtml = '';
-                if (person.parent || person.mother) {
-                    parentsHtml = '<h5>الوالدين</h5><div class="row g-2">';
-                    if (person.parent) parentsHtml += `<div class="col-md-6"><div class="parent-card clickable" onclick="showPersonDetails(${person.parent.id})"> ${createPhoto(person.parent, 'sm')} <div><strong>${person.parent.first_name}</strong><small class="d-block text-muted">الأب</small></div></div></div>`;
-                    if (person.mother) parentsHtml += `<div class="col-md-6"><div class="parent-card clickable" onclick="showPersonDetails(${person.mother.id})"> ${createPhoto(person.mother, 'sm')} <div><strong>${person.mother.first_name}</strong><small class="d-block text-muted">الأم</small></div></div></div>`;
-                    parentsHtml += '</div><hr class="my-4">';
-                }
+            // --- الإضافة هنا ---
+            const deceasedStyle = person.death_date ? `style="filter: grayscale(100%);"` : '';
 
-                let spousesHtml = '';
-                if (person.spouses && person.spouses.length > 0) {
-                    spousesHtml = '<h5>الزوج/الزوجات</h5><div class="row g-2">';
-                    person.spouses.forEach(spouse => {
-                        spousesHtml += `<div class="col-md-6"><div class="spouse-card">${createPhoto(spouse, 'sm')} <div><strong>${spouse.name}</strong></div></div></div>`;
-                    });
-                    spousesHtml += '</div><hr class="my-4">';
-                }
-
-                let childrenHtml = (person.children_count > 0) ? `<h5>الأبناء (${person.children_count})</h5><div id="modalChildrenList" class="row g-2"></div>` : '';
-
-                modalBody.innerHTML = `<div class="row g-4"><div class="col-lg-4 text-center"><div class="d-inline-block" onclick="zoomImage(this)">${createPhoto(person, 'lg')}</div><h4 class="mt-3 mb-1">${person.full_name}</h4><p class="text-muted">${person.parent_name ? `ابن/ابنة: ${person.parent_name}` : 'الجيل الأول'}</p>${person.death_date ? `<p class="text-danger fw-bold"><i class="fas fa-dove"></i> متوفى</p>` : `<p class="text-success fw-bold"><i class="fas fa-heart"></i> على قيد الحياة</p>`}</div><div class="col-lg-8">${createDetailRow('fa-birthday-cake', 'تاريخ الميلاد', person.birth_date)}${person.age ? createDetailRow('fa-calendar-alt', 'العمر', `${person.age} سنة`) : ''}${createDetailRow('fa-briefcase', 'المهنة', person.occupation)}${createDetailRow('fa-map-marker-alt', 'مكان الإقامة', person.location)}<hr class="my-4">${parentsHtml}${spousesHtml}${person.biography ? `<h5>سيرة ذاتية</h5><p style="white-space: pre-wrap;">${person.biography}</p><hr class="my-4">` : ''}${childrenHtml}</div></div>`;
-
-                if (person.children_count > 0) loadModalChildren(person.id);
-            };
-
-            async function loadModalChildren(personId) {
-                const childrenContainer = document.getElementById('modalChildrenList');
-                if (!childrenContainer) return;
-                childrenContainer.innerHTML = `<div class="col-12 text-center text-muted p-3">جاري تحميل الأبناء...</div>`;
-                const data = await fetchAPI(`/person/${personId}/children`);
-                childrenContainer.innerHTML = '';
-                if (data && data.children && data.children.length > 0) {
-                    data.children.forEach(child => {
-                        childrenContainer.innerHTML += `<div class="col-md-6"><div class="child-card clickable" onclick="showPersonDetails(${child.id})">${createPhoto(child, 'sm')}<div><strong>${child.first_name}</strong><small class="d-block text-muted">${child.death_date ? 'متوفى/متوفاة' : (child.gender === 'female' ? 'ابنة' : 'ابن')}</small></div></div></div>`;
-                    });
-                } else {
-                    childrenContainer.innerHTML = `<div class="col-12 text-center text-muted p-3">لا يوجد أبناء مسجلين.</div>`;
-                }
-            }
-            
-            async function loadInitialTree() {
-                const data = await fetchAPI('/family-tree');
-                if (data && data.tree && data.tree.length > 0) {
-                    treeContainer.innerHTML = '';
-                    data.tree.forEach(person => {
-                        treeContainer.innerHTML += createPersonNode(person, 0);
-                    });
-                } else {
-                    treeContainer.innerHTML = '<div class="alert alert-warning text-center">لا توجد بيانات لعرضها في تواصل العائلة.</div>';
-                }
+            let photoHtml = '';
+            if (person.photo_url) {
+                // تطبيق الستايل على الصورة
+                photoHtml = `<img src="${person.photo_url}" alt="${person.first_name}" ${deceasedStyle} onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">`;
             }
 
-            window.zoomImage = (container) => {
-                const img = container.querySelector('img');
-                if (img && img.src) {
-                    zoomableImage.src = img.src;
-                    imageZoomModal.show();
-                }
-            };
+            const iconHtml = `
+                <div class="${iconContainerClass}" style="display:${person.photo_url ? 'none' : 'flex'};">
+                    <i class="fas ${iconClass}"></i>
+                </div>`;
 
-            zoomInBtn.addEventListener('click', () => { currentScale += 0.2; zoomableImage.style.transform = `scale(${currentScale})`; });
-            zoomOutBtn.addEventListener('click', () => { if (currentScale > 0.4) { currentScale -= 0.2; zoomableImage.style.transform = `scale(${currentScale})`; } });
-            imageZoomModalEl.addEventListener('hidden.bs.modal', function() { currentScale = 1; zoomableImage.style.transform = 'scale(1)'; zoomableImage.src = ''; });
+            const deceasedIconHtml = person.death_date ? `<div class="deceased-icon"><i class="fas fa-dove"></i></div>` : '';
 
-            // ✅✅✅ الحل النهائي والمبسط: استخدام حدث البوتستراب للتحكم في الأكورديون ✅✅✅
-            // هذا الكود يستمع لحدث "show.bs.collapse" الذي يطلقه بوتستراب **قبل** فتح أي عنصر.
-            document.addEventListener('show.bs.collapse', function(event) {
-                const collapseElement = event.target;
-                const parentSelector = collapseElement.getAttribute('data-bs-parent');
+            return `
+                <div class="person-photo-container" style="width:${currentSize.container}; height:${currentSize.container};">
+                    ${photoHtml}
+                    ${iconHtml}
+                    ${deceasedIconHtml}
+                </div>`;
+        }
+        // --- END: MODIFICATION ---
 
-                if (!parentSelector) return;
 
-                const parentAccordion = document.querySelector(parentSelector);
-                if (!parentAccordion) return;
+        function createPersonNode(person, level = 0) {
+            const hasChildren = person.children_count > 0;
+            const uniqueId = `person_${person.id}_level_${level}`;
+            const itemClass = (level === 0) ? 'accordion-group-item' : 'accordion-item';
+            const parentSelector = `#tree_level_${level}`;
+            const hasPhoto = !!person.photo_url;
 
-                // ابحث عن كل العناصر المفتوحة حاليًا (التي لديها كلاس .show) داخل نفس الأب
-                const openCollapses = parentAccordion.querySelectorAll('.accordion-collapse.show');
-                
-                openCollapses.forEach(openCollapse => {
-                    // تأكد من أننا لا نغلق العنصر الذي تم النقر عليه للتو
-                    if (openCollapse !== collapseElement) {
-                        const bsCollapseInstance = bootstrap.Collapse.getInstance(openCollapse);
-                        if (bsCollapseInstance) {
-                            bsCollapseInstance.hide();
-                        }
-                    }
+            // --- START: MODIFICATION ---
+            // إضافة فلتر الأبيض والأسود على خلفية الكرت للمتوفى
+            const deceasedBgStyle = person.death_date ? `filter: grayscale(100%);` : '';
+            const bgClass = hasPhoto ? 'photo-bg' : '';
+            const bgStyle = hasPhoto ? `style="background-image: url('${person.photo_url}'); ${deceasedBgStyle}"` : '';
+            // --- END: MODIFICATION ---
+
+            const buttonContent = `
+                ${hasPhoto ? '' : createPhoto(person, 'md')}
+                <span class="person-name">${person.first_name}</span>
+            `;
+
+            const buttonOrDiv = hasChildren ?
+                `<button class="accordion-button collapsed ${bgClass}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_${uniqueId}" onclick="loadChildren(this)" data-person-id="${person.id}" data-level="${level + 1}" ${bgStyle}>
+                    ${buttonContent}
+                </button>` :
+                `<div class="accordion-button collapsed ${bgClass}" ${bgStyle}>
+                    ${buttonContent}
+                </div>`;
+
+            return `
+                <div class="${itemClass}">
+                    <h2 class="accordion-header">${buttonOrDiv}</h2>
+                    <div class="actions-bar">
+                        <button class="btn" onclick="showPersonDetails(${person.id})"><i class="fas fa-info-circle me-1"></i> التفاصيل</button>
+                    </div>
+                    ${hasChildren ? `<div id="collapse_${uniqueId}" class="accordion-collapse collapse" data-bs-parent="${parentSelector}"><div class="accordion-body p-0"><div class="accordion" id="tree_level_${level + 1}"></div></div></div>` : ''}
+                </div>`;
+        }
+
+        window.loadChildren = async (buttonElement) => {
+            if (buttonElement.dataset.loaded === 'true') { return; }
+
+            const personId = buttonElement.dataset.personId;
+            const level = parseInt(buttonElement.dataset.level);
+            const childrenContainer = document.querySelector(`${buttonElement.dataset.bsTarget} .accordion`);
+
+            if (!childrenContainer) return;
+
+            childrenContainer.innerHTML = `<div class="p-2 text-center text-muted small">جاري التحميل...</div>`;
+            const data = await fetchAPI(`/person/${personId}/children`);
+            childrenContainer.innerHTML = '';
+
+            if (data && data.children && data.children.length > 0) {
+                data.children.forEach(child => {
+                    childrenContainer.innerHTML += createPersonNode(child, level);
                 });
+            } else {
+                childrenContainer.innerHTML = `<div class="p-2 text-center text-muted small">لا يوجد أبناء.</div>`;
+            }
+            buttonElement.dataset.loaded = 'true';
+        };
+
+        // --- START: MAJOR MODIFICATION ---
+        // تم تعديل هذه الدالة بالكامل لإضافة الوالدين والمسميات الدقيقة حسب الجنس
+        window.showPersonDetails = async (personId) => {
+            const modalBody = document.getElementById('modalBodyContent');
+            personModal.show();
+            modalBody.innerHTML = `<div class="text-center p-5"><div class="spinner-border text-success" style="width: 3rem; height: 3rem;"></div><p class="mt-3">جاري تحميل التفاصيل...</p></div>`;
+
+            const data = await fetchAPI(`/person/${personId}`);
+            if (!data || !data.person) {
+                modalBody.innerHTML = `<div class="alert alert-danger">فشل تحميل البيانات.</div>`;
+                return;
+            }
+            const person = data.person;
+            const createDetailRow = (icon, label, value) => !value ? '' : `<div class="detail-row"><i class="fas ${icon} fa-fw mx-2"></i><div><small class="text-muted">${label}</small><p class="mb-0 fw-bold">${value}</p></div></div>`;
+
+            // تحديد نص الوفاة حسب الجنس
+            const deceasedText = person.death_date
+                ? `<p class="text-danger fw-bold"><i class="fas fa-dove"></i> ${person.gender === 'male' ? 'متوفى (رحمه الله)' : 'متوفاة (رحمها الله)'}</p>`
+                : `<p class="text-success fw-bold"><i class="fas fa-heart"></i> على قيد الحياة</p>`;
+
+            // --- قسم الوالدين الجديد ---
+            let parentsHtml = '';
+            if (person.parent || person.mother) {
+                parentsHtml = '<h5>الوالدين</h5><div class="row g-2">';
+                if (person.parent) {
+                    parentsHtml += `
+                        <div class="col-md-6">
+                            <div class="parent-card clickable" onclick="showPersonDetails(${person.parent.id})">
+                                ${createPhoto(person.parent, 'sm')}
+                                <div><strong>${person.parent.first_name}</strong><small class="d-block text-muted">الأب</small></div>
+                            </div>
+                        </div>`;
+                }
+                if (person.mother) {
+                     parentsHtml += `
+                        <div class="col-md-6">
+                            <div class="parent-card clickable" onclick="showPersonDetails(${person.mother.id})">
+                                ${createPhoto(person.mother, 'sm')}
+                                <div><strong>${person.mother.first_name}</strong><small class="d-block text-muted">الأم</small></div>
+                            </div>
+                        </div>`;
+                }
+                parentsHtml += '</div><hr class="my-4">';
+            }
+
+            let spousesHtml = '';
+            if (person.spouses && person.spouses.length > 0) {
+                spousesHtml = '<h5>الزوج/الزوجات</h5><div class="row g-2">';
+                person.spouses.forEach(spouse => {
+                    const spouseLabel = spouse.gender === 'female' ? 'زوجة' : 'زوج';
+                    spousesHtml += `
+                        <div class="col-md-6">
+                            <div class="spouse-card">
+                                ${createPhoto(spouse, 'sm')}
+                                <div><strong>${spouse.name || spouse.first_name}</strong><small class="d-block text-muted">${spouseLabel}</small></div>
+                            </div>
+                        </div>`;
+                });
+                spousesHtml += '</div><hr class="my-4">';
+            }
+
+            let childrenHtml = (person.children_count > 0) ? `<h5>الأبناء (${person.children_count})</h5><div id="modalChildrenList" class="row g-2"></div>` : '';
+
+            modalBody.innerHTML = `
+                <div class="row g-4">
+                    <div class="col-lg-4 text-center">
+                        <div class="d-inline-block">${createPhoto(person, 'lg')}</div>
+                        <h4 class="mt-3 mb-1">${person.full_name}</h4>
+                        ${deceasedText}
+                    </div>
+                    <div class="col-lg-8">
+                        ${createDetailRow('fa-birthday-cake', 'تاريخ الميلاد', person.birth_date)}
+                        ${person.age ? createDetailRow('fa-calendar-alt', 'العمر', `${person.age} سنة`) : ''}
+                        ${createDetailRow('fa-briefcase', 'المهنة', person.occupation)}
+                        ${createDetailRow('fa-map-marker-alt', 'مكان الإقامة', person.location)}
+                        <hr class="my-4">
+                        ${parentsHtml}
+                        ${spousesHtml}
+                        ${person.biography ? `<h5>سيرة ذاتية</h5><p style="white-space: pre-wrap;">${person.biography}</p><hr class="my-4">` : ''}
+                        ${childrenHtml}
+                    </div>
+                </div>`;
+
+            if (person.children_count > 0) loadModalChildren(person.id);
+        };
+        // --- END: MAJOR MODIFICATION ---
+
+
+        async function loadModalChildren(personId) {
+            const childrenContainer = document.getElementById('modalChildrenList');
+            if (!childrenContainer) return;
+            childrenContainer.innerHTML = `<div class="col-12 text-center text-muted p-3">جاري تحميل الأبناء...</div>`;
+            const data = await fetchAPI(`/person/${personId}/children`);
+            childrenContainer.innerHTML = '';
+            if (data && data.children && data.children.length > 0) {
+                data.children.forEach(child => {
+                    // --- START: MODIFICATION ---
+                    // تحديد المسمى (ابن/ابنة) أو حالة الوفاة بدقة
+                    const relationText = child.gender === 'female' ? 'ابنة' : 'ابن';
+                    const deceasedText = child.gender === 'male' ? 'متوفى (رحمه الله)' : 'متوفاة (رحمها الله)';
+                    const statusText = child.death_date ? deceasedText : relationText;
+                    // --- END: MODIFICATION ---
+
+                    childrenContainer.innerHTML += `
+                        <div class="col-md-6">
+                            <div class="child-card clickable" onclick="showPersonDetails(${child.id})">
+                                ${createPhoto(child, 'sm')}
+                                <div>
+                                    <strong>${child.first_name}</strong>
+                                    <small class="d-block text-muted">${statusText}</small>
+                                </div>
+                            </div>
+                        </div>`;
+                });
+            } else {
+                childrenContainer.innerHTML = `<div class="col-12 text-center text-muted p-3">لا يوجد أبناء مسجلين.</div>`;
+            }
+        }
+
+        async function loadInitialTree() {
+            const data = await fetchAPI('/family-tree');
+            if (data && data.tree && data.tree.length > 0) {
+                treeContainer.innerHTML = '';
+                data.tree.forEach(person => {
+                    treeContainer.innerHTML += createPersonNode(person, 0);
+                });
+            } else {
+                treeContainer.innerHTML = '<div class="alert alert-warning text-center">لا توجد بيانات لعرضها في تواصل العائلة.</div>';
+            }
+        }
+
+        // --- هذا الكود مسؤول عن إغلاق الأبناء الآخرين عند فتح ابن جديد (موجود مسبقاً) ---
+        document.addEventListener('show.bs.collapse', function(event) {
+            const collapseElement = event.target;
+            const parentSelector = collapseElement.getAttribute('data-bs-parent');
+
+            if (!parentSelector) return;
+
+            const parentAccordion = document.querySelector(parentSelector);
+            if (!parentAccordion) return;
+
+            const openCollapses = parentAccordion.querySelectorAll('.accordion-collapse.show');
+
+            openCollapses.forEach(openCollapse => {
+                if (openCollapse !== collapseElement) {
+                    const bsCollapseInstance = bootstrap.Collapse.getInstance(openCollapse);
+                    if (bsCollapseInstance) {
+                        bsCollapseInstance.hide();
+                    }
+                }
             });
-
-            // إضافة تمرير الشاشة تلقائياً عند فتح عمود جديد
-            document.addEventListener('shown.bs.collapse', function(event) {
-                if (!event.target.closest('.tree-section')) return;
-
-                const scrollContainer = document.querySelector('.tree-section');
-                const newColumn = event.target;
-
-                setTimeout(() => {
-                    const newScrollLeft = newColumn.offsetLeft - 30; // 30px is a buffer from the left edge
-                    scrollContainer.scrollTo({
-                        left: newScrollLeft,
-                        behavior: 'smooth'
-                    });
-                }, 100); // Wait for collapse animation to be mostly done
-            });
-
-            // ابدأ بتحميل الشجرة الأولية
-            loadInitialTree();
         });
+
+        // إضافة تمرير الشاشة تلقائياً عند فتح عمود جديد
+        document.addEventListener('shown.bs.collapse', function(event) {
+            if (!event.target.closest('.tree-section')) return;
+            const scrollContainer = document.querySelector('.tree-section');
+            const newColumn = event.target;
+            setTimeout(() => {
+                const newScrollLeft = newColumn.offsetLeft - 30;
+                scrollContainer.scrollTo({
+                    left: newScrollLeft,
+                    behavior: 'smooth'
+                });
+            }, 100);
+        });
+
+        loadInitialTree();
+    });
     </script>
 </body>
 

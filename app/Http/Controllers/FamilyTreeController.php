@@ -90,29 +90,26 @@ class FamilyTreeController extends Controller
     // API لجلب تفاصيل شخص معين
     public function getPersonDetails($id)
     {
+        // Eager load relationships to prevent N+1 query problem
         $person = Person::with(['parent', 'mother', 'husband', 'wives'])->findOrFail($id);
 
         return response()->json([
             'success' => true,
-            'person' => $this->formatPersonData($person, true)
+            'person' => $this->formatPersonData($person, true) // Request full details
         ]);
     }
 
     // تنسيق بيانات الشخص للاستجابة
     private function formatPersonData(Person $person, $fullDetails = false)
     {
-        // --- حساب عدد الأبناء بناءً على الجنس ---
-        // ملاحظة: هذا قد يسبب مشاكل في الأداء (مشكلة N+1) عند تحميل عدد كبير من الأشخاص.
-        // الحل الأفضل هو تعريف accessor في موديل Person لجلب العدد بشكل محسن.
+        // Calculate children count based on gender
         if (isset($person->children_count)) {
-            // استخدم العدد إذا تم تحميله مسبقًا (باستخدام withCount)
             $children_count = $person->children_count;
         } else {
-            // إذا لم يتم تحميل العدد، قم بحسابه الآن
+             // If not preloaded with withCount, calculate it now.
             if ($person->gender === 'female') {
                 $children_count = Person::where('mother_id', $person->id)->count();
             } else {
-                // الافتراضي هو الأب
                 $children_count = $person->children()->count();
             }
         }
@@ -121,23 +118,15 @@ class FamilyTreeController extends Controller
             'id' => $person->id,
             'parent_id' => $person->parent_id,
             'mother_id' => $person->mother_id,
-            'mother_name' => $person->mother ? $person->mother->full_name : null,
             'full_name' => $person->full_name,
             'first_name' => $person->first_name,
-            'last_name' => $person->last_name,
             'gender' => $person->gender,
-            'photo_url' => $person->avatar,
-            'children_count' => $children_count, // استخدام العدد المحسوب
+            'photo_url' => $person->avatar, // Assuming 'avatar' is the attribute for photo url
+            'children_count' => $children_count,
+            'birth_date' => optional($person->birth_date)->format('Y/m/d'),
+            'death_date' => optional($person->death_date)->format('Y/m/d'), // Send death date to frontend
+            'age' => $person->age,
         ];
-
-        if ($person->birth_date) {
-            $data['birth_date'] = $person->birth_date->format('Y/m/d');
-            $data['age'] = $person->age;
-        }
-
-        if ($person->death_date) {
-            $data['death_date'] = $person->death_date->format('Y/m/d');
-        }
 
         if ($fullDetails) {
             $data['occupation'] = $person->occupation;
@@ -145,32 +134,29 @@ class FamilyTreeController extends Controller
             $data['biography'] = $person->biography;
 
             if ($person->parent) {
+                // To display father's name under main person's name
                 $data['parent_name'] = $person->parent->full_name;
+                // Add full father object for details card, formatted with basic details
+                $data['parent'] = $this->formatPersonData($person->parent, false);
             }
 
-            // إضافة معلومات الزوج/الزوجات
-            $spouses = [];
+            if ($person->mother) {
+                // Add full mother object for details card, formatted with basic details
+                $data['mother'] = $this->formatPersonData($person->mother, false);
+            }
 
+            // Format spouses
+            $spouses = collect();
             if ($person->gender === 'male' && $person->wives->isNotEmpty()) {
-                foreach ($person->wives as $wife) {
-                    $spouses[] = [
-                        'id' => $wife->id,
-                        'name' => $wife->full_name,
-                        'gender' => $wife->gender,
-                        'photo' => $wife->photo_url ? asset('storage/' . $wife->photo_url) : null
-                    ];
-                }
-            } elseif ($person->gender === 'female' && is_object($person->husband)) {
-                $husband = $person->husband;
-                $spouses[] = [
-                    'id' => $husband->id,
-                    'name' => $husband->full_name,
-                    'gender' => $husband->gender,
-                    'photo' => $husband->photo_url ? asset('storage/' . $husband->photo_url) : null
-                ];
+                $spouses = $person->wives;
+            } elseif ($person->gender === 'female' && $person->husband) {
+                $spouses->push($person->husband);
             }
 
-            $data['spouses'] = $spouses;
+            $data['spouses'] = $spouses->map(function ($spouse) {
+                 // Format spouse using basic details to avoid deep nesting
+                return $this->formatPersonData($spouse, false);
+            });
         }
 
         return $data;

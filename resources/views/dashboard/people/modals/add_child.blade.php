@@ -35,24 +35,6 @@
                         </div>
                     </div>
 
-                    {{-- Birth and Death Dates --}}
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="child_birth_date">تاريخ الميلاد</label>
-                                <input type="date" class="form-control" id="child_birth_date" name="birth_date"
-                                    value="{{ old('birth_date') }}">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="child_death_date">تاريخ الوفاة (إن وجد)</label>
-                                <input type="date" class="form-control" id="child_death_date" name="death_date"
-                                    value="{{ old('death_date') }}">
-                            </div>
-                        </div>
-                    </div>
-
                     {{-- Gender --}}
                     <div class="form-group">
                         <label for="child_gender">الجنس</label>
@@ -73,7 +55,7 @@
                                     <input type="text" class="form-control" value="{{ $person->full_name }}"
                                         disabled>
                                 @else
-                                    {{-- Allow selecting a father --}}
+                                    {{-- Allow selecting a father (triggers the JS) --}}
                                     <select class="form-control js-father-select" id="child_parent_id" name="parent_id">
                                         <option value="">-- اختر الأب --</option>
                                         @foreach ($males as $father)
@@ -94,21 +76,34 @@
                                     <input type="text" class="form-control" value="{{ $person->full_name }}"
                                         disabled>
                                 @else
-                                    {{-- Allow selecting a mother --}}
-                                    <select class="form-control js-mother-select" id="child_mother_id" name="mother_id">
-                                        <option value="">-- اختر الأم --</option>
-                                        @foreach ($females as $mother)
-                                            <option value="{{ $mother->id }}" @selected(old('mother_id') == $mother->id)>
-                                                {{ $mother->full_name }}
+                                    {{--
+                                        ### BEGIN: MODIFIED SECTION ###
+                                        If the person is male, HE is the father.
+                                        Therefore, this dropdown should list HIS wives.
+                                    --}}
+                                    <select class="form-control js-mother-select" id="child_mother_id" name="mother_id"
+                                        required>
+                                        <option value="">-- اختر الأم (من زوجات الأب) --</option>
+                                        {{-- We iterate over the current person's wives --}}
+                                        @foreach ($person->wives as $wife)
+                                            <option value="{{ $wife->id }}" @selected(old('mother_id') == $wife->id)>
+                                                {{ $wife->full_name }}
                                             </option>
                                         @endforeach
                                     </select>
+                                    {{-- ### END: MODIFIED SECTION ### --}}
                                 @endif
                             </div>
                         </div>
                     </div>
 
-                    {{-- Photo Upload --}}
+                    {{-- Other fields like birth date, photo etc. remain the same --}}
+                    <div class="form-group">
+                        <label for="child_birth_date">تاريخ الميلاد</label>
+                        <input type="date" class="form-control" id="child_birth_date" name="birth_date"
+                            value="{{ old('birth_date') }}">
+                    </div>
+
                     <div class="form-group">
                         <label for="child_photo">صورة الشخص</label>
                         <div class="custom-file">

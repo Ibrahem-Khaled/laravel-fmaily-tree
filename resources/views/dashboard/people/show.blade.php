@@ -5,7 +5,6 @@
         {{-- عنوان الصفحة --}}
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800">ملف {{ $person->full_name }}</h1>
-            {{-- ✅ الزر الجديد لفتح النافذة المنبثقة --}}
             <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#addPersonsOutsideTheFamilyTreeModal">
                 <i class="fas fa-user-plus"></i> إضافة شخص من خارج العائلة
             </button>
@@ -22,7 +21,6 @@
                 <li class="breadcrumb-item active" aria-current="page">ملف الشخص</li>
             </ol>
         </nav>
-
 
         @include('components.alerts')
 
@@ -147,8 +145,7 @@
             </div>
         </div>
 
-
-        {{-- بطاقة الأبناء --}}
+        {{-- بطاقة الأبناء (مع تطبيق إعادة الترتيب) --}}
         <div class="card shadow mb-4">
             <div class="card-header py-3 d-flex justify-content-between align-items-center">
                 <h6 class="m-0 font-weight-bold text-primary">
@@ -165,15 +162,23 @@
                         <table class="table table-bordered table-hover">
                             <thead class="thead-light">
                                 <tr>
+                                    {{-- ✅ الخطوة 3: إضافة عمود للترتيب --}}
+                                    <th style="width: 50px;">ترتيب</th>
                                     <th>الاسم</th>
                                     <th>الجنس</th>
                                     <th>العمر</th>
                                     <th>الإجراءات</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            {{-- ✅ الخطوة 2: إضافة `id` و `data-url` لجسم الجدول باستخدام نفس المسار المطلوب --}}
+                            <tbody id="children-sortable" data-url="{{ route('people.reorder') }}">
                                 @foreach ($children as $child)
-                                    <tr>
+                                    {{-- ✅ إضافة `data-id` لكل صف --}}
+                                    <tr data-id="{{ $child->id }}">
+                                        {{-- ✅ إضافة أيقونة السحب --}}
+                                        <td class="text-center" style="cursor: move;">
+                                            <i class="fas fa-arrows-alt"></i>
+                                        </td>
                                         <td>
                                             <div class="d-flex align-items-center">
                                                 <img src="{{ $child->avatar }}" alt="{{ $child->full_name }}"
@@ -207,7 +212,6 @@
                 @endif
             </div>
         </div>
-
     </div>
 
     {{-- مودال إضافة ابن/ابنة جديد --}}
@@ -231,14 +235,17 @@
 @endsection
 
 @push('scripts')
+    {{-- ✅ الخطوة 1: تضمين مكتبة SortableJS --}}
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+
     <script>
         // Script لتحديث اسم الملف عند اختياره في مودالات التعديل والإضافة
         $('.custom-file-input').on('change', function() {
             var fileName = $(this).val().split('\\').pop();
             $(this).next('.custom-file-label').html(fileName);
         });
+        $('[data-toggle="tooltip"]').tooltip();
     </script>
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // استهداف جميع قوائم الآباء في الصفحة
@@ -252,7 +259,6 @@
                     const modal = this.closest('.modal-content');
                     const motherSelect = modal.querySelector('.js-mother-select');
 
-                    // إذا لم يتم العثور على قائمة أم، توقف
                     if (!motherSelect) return;
 
                     motherSelect.innerHTML = '<option value="">-- جار التحميل --</option>';
@@ -262,7 +268,6 @@
                         return;
                     }
 
-                    // إرسال الطلب بنفس الطريقة السابقة
                     fetch(`{{ url('/people') }}/${fatherId}/wives`)
                         .then(response => {
                             if (!response.ok) {
@@ -287,5 +292,51 @@
                 });
             });
         });
+    </script>
+
+    {{-- ✅ الخطوة 4: كود JavaScript الخاص بـ SortableJS (يعمل مع أي جدول بنفس الطريقة) --}}
+    <script>
+        const sortableElement = document.getElementById('children-sortable');
+
+        // التحقق من وجود العنصر قبل تهيئة SortableJS
+        if (sortableElement) {
+            const sortable = Sortable.create(sortableElement, {
+                animation: 150,
+                handle: '.fa-arrows-alt', // المقبض
+                onEnd: function (evt) {
+                    const order = Array.from(evt.to.children).map((row, index) => ({
+                        id: row.dataset.id,
+                        order: index + 1
+                    }));
+                    // استدعاء دالة الإرسال
+                    updateOrder(order, sortableElement.dataset.url);
+                }
+            });
+        }
+
+        function updateOrder(order, url) {
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ order: order })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('فشل تحديث الترتيب');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Success:', data);
+                // يمكنك إظهار رسالة نجاح للمستخدم هنا
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                // يمكنك إظهار رسالة خطأ للمستخدم هنا
+            });
+        }
     </script>
 @endpush

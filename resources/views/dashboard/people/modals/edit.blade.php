@@ -55,7 +55,7 @@
                         </div>
                     </div>
 
-                    {{-- Gender and Parents --}}
+                    {{-- Gender --}}
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
@@ -69,7 +69,7 @@
                         </div>
                     </div>
 
-                    {{-- CORRECTED PARENT SELECTION --}}
+                    {{-- PARENT SELECTION (WITH DYNAMIC MOTHER LIST) --}}
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
@@ -88,15 +88,24 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="mother_id_edit{{ $person->id }}">الأم</label>
+                                {{--
+                                    ### BEGIN: MODIFIED SECTION ###
+                                    This select dropdown is now populated correctly on initial load.
+                                    The JavaScript code you provided will handle dynamic changes.
+                                --}}
                                 <select class="form-control js-mother-select" id="mother_id_edit{{ $person->id }}" name="mother_id">
-                                    <option value="">-- اختر الأم --</option>
-                                    {{-- Loop through females passed from controller --}}
-                                    @foreach ($females as $mother)
-                                        <option value="{{ $mother->id }}" @selected(old('mother_id', $person->mother_id) == $mother->id)>
-                                            {{ $mother->full_name }}
-                                        </option>
-                                    @endforeach
+                                    <option value="">-- اختر الأب أولاً --</option>
+
+                                    {{-- If the person already has a father selected, list his wives --}}
+                                    @if ($person->parent)
+                                        @foreach ($person->parent->wives as $wife)
+                                            <option value="{{ $wife->id }}" @selected(old('mother_id', $person->mother_id) == $wife->id)>
+                                                {{ $wife->full_name }}
+                                            </option>
+                                        @endforeach
+                                    @endif
                                 </select>
+                                {{-- ### END: MODIFIED SECTION ### --}}
                             </div>
                         </div>
                     </div>
@@ -146,3 +155,59 @@
         </div>
     </div>
 </div>
+
+{{--
+    ==================================================================
+    IMPORTANT: This JavaScript code should be placed in a global JS file
+    or at the bottom of your main layout file, NOT inside the loop.
+    The code you provided is correct and does not need changes.
+    ==================================================================
+--}}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // This code block should only be included ONCE on the page.
+        const allFatherSelects = document.querySelectorAll('.js-father-select');
+
+        allFatherSelects.forEach(fatherSelect => {
+            fatherSelect.addEventListener('change', function() {
+                const fatherId = this.value;
+
+                // Find the mother's select list within the same modal
+                const modal = this.closest('.modal-content');
+                const motherSelect = modal.querySelector('.js-mother-select');
+
+                if (!motherSelect) return;
+
+                motherSelect.innerHTML = '<option value="">-- جار التحميل --</option>';
+
+                if (!fatherId) {
+                    motherSelect.innerHTML = '<option value="">-- اختر الأب أولاً --</option>';
+                    return;
+                }
+
+                // Fetch the wives for the selected father
+                fetch(`{{ url('/people') }}/${fatherId}/wives`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(wives => {
+                        motherSelect.innerHTML =
+                            '<option value="">-- اختر الأم --</option>';
+                        wives.forEach(wife => {
+                            const option = document.createElement('option');
+                            option.value = wife.id;
+                            option.textContent = wife.full_name;
+                            motherSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error fetching wives:', error);
+                        motherSelect.innerHTML = '<option value="">-- حدث خطأ --</option>';
+                    });
+            });
+        });
+    });
+</script>

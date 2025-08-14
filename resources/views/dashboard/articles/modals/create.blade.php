@@ -47,6 +47,17 @@
                         </div>
                     </div>
 
+                    {{-- add persons --}}
+                    <div class="form-group">
+                        <label for="person_id">اضافة شخص</label>
+                        <select class="form-control" name="person_id" id="person_id">
+                            <option value="">-- اختر شخص --</option>
+                            @foreach ($persons as $person)
+                                <option value="{{ $person->id }}">{{ $person->full_name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
                     {{-- Image Uploader --}}
                     <div class="form-group">
                         <label>صور المقال</label>

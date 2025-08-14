@@ -48,6 +48,19 @@
                         </div>
                     </div>
 
+                    {{-- Person Selection --}}
+                    <div class="form-group">
+                        <label for="person_id">الشخص</label>
+                        <select class="form-control" name="person_id">
+                            <option value="">-- اختر شخص --</option>
+                            @foreach ($persons as $person)
+                                <option value="{{ $person->id }}"
+                                    {{ $article->person_id == $person->id ? 'selected' : '' }}>
+                                    {{ $person->full_name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
                     {{-- Image Uploader --}}
                     <div class="form-group">
                         <label>إضافة صور جديدة</label>

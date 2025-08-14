@@ -7,6 +7,7 @@ use App\Http\Controllers\admin\MarriageController;
 use App\Http\Controllers\admin\OutsideFamilyPersonController;
 use App\Http\Controllers\admin\PersonController;
 use App\Http\Controllers\FamilyTreeController;
+use App\Http\Controllers\GalleryController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -24,6 +25,9 @@ Route::get('/', [FamilyTreeController::class, 'index'])->name('old.family-tree')
 Route::get('/family-tree', [FamilyTreeController::class, 'newIndex'])->name('family-tree');
 Route::get('/add-self', [FamilyTreeController::class, 'addSelf'])->name('add.self');
 
+Route::get('/gallery', [GalleryController::class, 'index'])->name('gallery.index');
+
+
 Route::prefix('api')->group(function () {
     Route::get('/family-tree', [FamilyTreeController::class, 'getFamilyTree']);
     Route::get('/person/{id}', [FamilyTreeController::class, 'getPersonDetails']);
@@ -31,7 +35,7 @@ Route::prefix('api')->group(function () {
 });
 
 
-Route::group(['middleware' => ['auth',]], function () {
+Route::group(['middleware' => ['auth']], function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -47,8 +51,6 @@ Route::group(['middleware' => ['auth',]], function () {
     Route::resource('articles', ArticleController::class);
     // راوت مخصص لإنشاء الفئات عبر AJAX من داخل مودال المقالات
     Route::post('categories/store-ajax', [CategoryController::class, 'storeAjax'])->name('categories.store.ajax');
-
-
 });
 
 require __DIR__ . '/auth.php';

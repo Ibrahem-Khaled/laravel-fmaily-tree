@@ -129,4 +129,9 @@ class Person extends Model
     {
         return $this->hasOneThrough(Person::class, Marriage::class, 'wife_id', 'id', 'id', 'husband_id');
     }
+
+    public function articles()
+    {
+        return $this->hasMany(Article::class);
+    }
 }
