@@ -26,11 +26,48 @@
         body {
             background: var(--light-gray);
             font-family: 'Alexandria', sans-serif;
+            /* لا حاجة لإضافة padding هنا لأن .tree-section يحتوي على padding-top كافية */
         }
 
+        /* --- START: NEW HEADER STYLES --- */
+        .navbar {
+            background-color: var(--dark-green);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding-top: 0.75rem;
+            padding-bottom: 0.75rem;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+        }
+
+        .nav-link {
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.8) !important;
+            transition: color 0.3s ease;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #fff !important;
+            font-weight: 600;
+        }
+
+        .dashboard-btn {
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        .dashboard-btn:hover {
+            background-color: #fff;
+            color: var(--dark-green) !important;
+        }
+        /* --- END: NEW HEADER STYLES --- */
+
+        /* --- الكود الأصلي الخاص بك (بدون تغيير) --- */
         .tree-section {
             background: linear-gradient(180deg, var(--light-green) 0%, #FFF 100%);
-            padding-top: 120px;
+            padding-top: 120px; /* هذه المساحة كافية جداً للهيدر الثابت */
             padding-bottom: 50px;
             min-height: 100vh;
             overflow-x: auto;
@@ -326,31 +363,75 @@
             justify-content: center;
             align-items: center;
         }
-        /* ... (باقي كود CSS الأصلي بدون تغيير) ... */
     </style>
 </head>
 
 <body>
-    @include('partials.header')
 
-    <section class="tree-section">
-        <div class="container-fluid">
-            <div class="tree-title-sec">
-                <h3>تواصل عائلة السريع</h3>
-            </div>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">
+                    <i class="fas fa-tree me-2"></i>
+                    تواصل عائلة السريع
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false"
+                    aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="mainNavbar">
+                    <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">الرئيسية</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="#">تواصل العائلة</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('family-tree') }}">العرض الجديد</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('gallery.index') }}">المعرض</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">المقالات</a>
+                        </li>
+                         <li class="nav-item">
+                            <a class="nav-link" href="#">عن العائلة</a>
+                        </li>
+                    </ul>
 
-            <div class="p-3">
-                <div class="accordion" id="tree_level_0">
-                    <div class="text-center py-5">
-                        <div class="spinner-border text-success" style="width: 3rem; height: 3rem;" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                        <p class="mt-3 text-muted">جاري تحميل تواصل العائلة...</p>
+                    <div class="d-flex">
+                        <a href="{{ route('dashboard') }}" class="btn btn-outline-light btn-sm dashboard-btn">
+                            <i class="fas fa-tachometer-alt me-1"></i>
+                            لوحة التحكم
+                        </a>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </nav>
+    </header>
+    <main>
+        <section class="tree-section">
+            <div class="container-fluid">
+                <div class="tree-title-sec">
+                    <h3>تواصل عائلة السريع</h3>
+                </div>
+
+                <div class="p-3">
+                    <div class="accordion" id="tree_level_0">
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-success" style="width: 3rem; height: 3rem;" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-3 text-muted">جاري تحميل تواصل العائلة...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
 
     {{-- Modals --}}
     <div class="modal fade" id="personDetailModal" tabindex="-1" aria-hidden="true">
@@ -369,291 +450,266 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const API_BASE_URL = '/api';
-        const treeContainer = document.getElementById('tree_level_0');
-        const personDetailModalEl = document.getElementById('personDetailModal');
-        const personModal = new bootstrap.Modal(personDetailModalEl);
+        // ... (كل كود الجافاسكريبت الأصلي الخاص بك يوضع هنا بدون أي تغيير) ...
+        document.addEventListener('DOMContentLoaded', () => {
+            const API_BASE_URL = '/api';
+            const treeContainer = document.getElementById('tree_level_0');
+            const personDetailModalEl = document.getElementById('personDetailModal');
+            const personModal = new bootstrap.Modal(personDetailModalEl);
 
-        async function fetchAPI(endpoint) {
-            try {
-                const response = await fetch(`${API_BASE_URL}${endpoint}`);
-                if (!response.ok) throw new Error(`API Error: ${response.status}`);
-                return await response.json();
-            } catch (error) {
-                console.error('API Fetch Error:', error);
-                treeContainer.innerHTML = `<div class="alert alert-danger text-center">حدث خطأ أثناء تحميل البيانات. يرجى المحاولة مرة أخرى.</div>`;
-                return null;
+            async function fetchAPI(endpoint) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}${endpoint}`);
+                    if (!response.ok) throw new Error(`API Error: ${response.status}`);
+                    return await response.json();
+                } catch (error) {
+                    console.error('API Fetch Error:', error);
+                    treeContainer.innerHTML = `<div class="alert alert-danger text-center">حدث خطأ أثناء تحميل البيانات. يرجى المحاولة مرة أخرى.</div>`;
+                    return null;
+                }
             }
-        }
 
-        // --- START: MODIFICATION ---
-        // تم تعديل الدالة لإضافة فلتر الأبيض والأسود للمتوفى
-        function createPhoto(person, size = 'md') {
-            const sizes = {
-                sm: { container: '45px', icon: '1.5rem' },
-                md: { container: '120px', icon: '5rem' }, // حجم أيقونة الشجرة الرئيسي
-                lg: { container: '150px', icon: '6rem' }  // حجم أيقونة المودال
+            function createPhoto(person, size = 'md') {
+                const sizes = {
+                    sm: { container: '45px', icon: '1.5rem' },
+                    md: { container: '120px', icon: '5rem' },
+                    lg: { container: '150px', icon: '6rem' }
+                };
+                const currentSize = sizes[size] || sizes['md'];
+                const iconClass = person.gender === 'female' ? 'fa-female' : 'fa-male';
+                const iconContainerClass = size === 'sm' ? 'icon-placeholder-sm' : (size === 'lg' ? 'icon-placeholder-lg' : 'icon-placeholder');
+                const deceasedStyle = person.death_date ? `style="filter: grayscale(100%);"` : '';
+
+                let photoHtml = '';
+                if (person.photo_url) {
+                    photoHtml = `<img src="${person.photo_url}" alt="${person.first_name}" ${deceasedStyle} onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">`;
+                }
+
+                const iconHtml = `
+                    <div class="${iconContainerClass}" style="display:${person.photo_url ? 'none' : 'flex'};">
+                        <i class="fas ${iconClass}"></i>
+                    </div>`;
+
+                const deceasedIconHtml = person.death_date ? `<div class="deceased-icon"><i class="fas fa-dove"></i></div>` : '';
+
+                return `
+                    <div class="person-photo-container" style="width:${currentSize.container}; height:${currentSize.container};">
+                        ${photoHtml}
+                        ${iconHtml}
+                        ${deceasedIconHtml}
+                    </div>`;
+            }
+
+            function createPersonNode(person, level = 0) {
+                const hasChildren = person.children_count > 0;
+                const uniqueId = `person_${person.id}_level_${level}`;
+                const itemClass = (level === 0) ? 'accordion-group-item' : 'accordion-item';
+                const parentSelector = `#tree_level_${level}`;
+                const hasPhoto = !!person.photo_url;
+                const deceasedBgStyle = person.death_date ? `filter: grayscale(100%);` : '';
+                const bgClass = hasPhoto ? 'photo-bg' : '';
+                const bgStyle = hasPhoto ? `style="background-image: url('${person.photo_url}'); ${deceasedBgStyle}"` : '';
+
+                const buttonContent = `
+                    ${hasPhoto ? '' : createPhoto(person, 'md')}
+                    <span class="person-name">${person.first_name}</span>
+                `;
+
+                const buttonOrDiv = hasChildren ?
+                    `<button class="accordion-button collapsed ${bgClass}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_${uniqueId}" onclick="loadChildren(this)" data-person-id="${person.id}" data-level="${level + 1}" ${bgStyle}>
+                        ${buttonContent}
+                    </button>` :
+                    `<div class="accordion-button collapsed ${bgClass}" ${bgStyle}>
+                        ${buttonContent}
+                    </div>`;
+
+                return `
+                    <div class="${itemClass}">
+                        <h2 class="accordion-header">${buttonOrDiv}</h2>
+                        <div class="actions-bar">
+                            <button class="btn" onclick="showPersonDetails(${person.id})"><i class="fas fa-info-circle me-1"></i> التفاصيل</button>
+                        </div>
+                        ${hasChildren ? `<div id="collapse_${uniqueId}" class="accordion-collapse collapse" data-bs-parent="${parentSelector}"><div class="accordion-body p-0"><div class="accordion" id="tree_level_${level + 1}"></div></div></div>` : ''}
+                    </div>`;
+            }
+
+            window.loadChildren = async (buttonElement) => {
+                if (buttonElement.dataset.loaded === 'true') { return; }
+
+                const personId = buttonElement.dataset.personId;
+                const level = parseInt(buttonElement.dataset.level);
+                const childrenContainer = document.querySelector(`${buttonElement.dataset.bsTarget} .accordion`);
+
+                if (!childrenContainer) return;
+
+                childrenContainer.innerHTML = `<div class="p-2 text-center text-muted small">جاري التحميل...</div>`;
+                const data = await fetchAPI(`/person/${personId}/children`);
+                childrenContainer.innerHTML = '';
+
+                if (data && data.children && data.children.length > 0) {
+                    data.children.forEach(child => {
+                        childrenContainer.innerHTML += createPersonNode(child, level);
+                    });
+                } else {
+                    childrenContainer.innerHTML = `<div class="p-2 text-center text-muted small">لا يوجد أبناء.</div>`;
+                }
+                buttonElement.dataset.loaded = 'true';
             };
-            const currentSize = sizes[size] || sizes['md'];
-            const iconClass = person.gender === 'female' ? 'fa-female' : 'fa-male';
-            const iconContainerClass = size === 'sm' ? 'icon-placeholder-sm' : (size === 'lg' ? 'icon-placeholder-lg' : 'icon-placeholder');
 
-            // --- الإضافة هنا ---
-            const deceasedStyle = person.death_date ? `style="filter: grayscale(100%);"` : '';
+            window.showPersonDetails = async (personId) => {
+                const modalBody = document.getElementById('modalBodyContent');
+                personModal.show();
+                modalBody.innerHTML = `<div class="text-center p-5"><div class="spinner-border text-success" style="width: 3rem; height: 3rem;"></div><p class="mt-3">جاري تحميل التفاصيل...</p></div>`;
 
-            let photoHtml = '';
-            if (person.photo_url) {
-                // تطبيق الستايل على الصورة
-                photoHtml = `<img src="${person.photo_url}" alt="${person.first_name}" ${deceasedStyle} onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">`;
-            }
-
-            const iconHtml = `
-                <div class="${iconContainerClass}" style="display:${person.photo_url ? 'none' : 'flex'};">
-                    <i class="fas ${iconClass}"></i>
-                </div>`;
-
-            const deceasedIconHtml = person.death_date ? `<div class="deceased-icon"><i class="fas fa-dove"></i></div>` : '';
-
-            return `
-                <div class="person-photo-container" style="width:${currentSize.container}; height:${currentSize.container};">
-                    ${photoHtml}
-                    ${iconHtml}
-                    ${deceasedIconHtml}
-                </div>`;
-        }
-        // --- END: MODIFICATION ---
-
-
-        function createPersonNode(person, level = 0) {
-            const hasChildren = person.children_count > 0;
-            const uniqueId = `person_${person.id}_level_${level}`;
-            const itemClass = (level === 0) ? 'accordion-group-item' : 'accordion-item';
-            const parentSelector = `#tree_level_${level}`;
-            const hasPhoto = !!person.photo_url;
-
-            // --- START: MODIFICATION ---
-            // إضافة فلتر الأبيض والأسود على خلفية الكرت للمتوفى
-            const deceasedBgStyle = person.death_date ? `filter: grayscale(100%);` : '';
-            const bgClass = hasPhoto ? 'photo-bg' : '';
-            const bgStyle = hasPhoto ? `style="background-image: url('${person.photo_url}'); ${deceasedBgStyle}"` : '';
-            // --- END: MODIFICATION ---
-
-            const buttonContent = `
-                ${hasPhoto ? '' : createPhoto(person, 'md')}
-                <span class="person-name">${person.first_name}</span>
-            `;
-
-            const buttonOrDiv = hasChildren ?
-                `<button class="accordion-button collapsed ${bgClass}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_${uniqueId}" onclick="loadChildren(this)" data-person-id="${person.id}" data-level="${level + 1}" ${bgStyle}>
-                    ${buttonContent}
-                </button>` :
-                `<div class="accordion-button collapsed ${bgClass}" ${bgStyle}>
-                    ${buttonContent}
-                </div>`;
-
-            return `
-                <div class="${itemClass}">
-                    <h2 class="accordion-header">${buttonOrDiv}</h2>
-                    <div class="actions-bar">
-                        <button class="btn" onclick="showPersonDetails(${person.id})"><i class="fas fa-info-circle me-1"></i> التفاصيل</button>
-                    </div>
-                    ${hasChildren ? `<div id="collapse_${uniqueId}" class="accordion-collapse collapse" data-bs-parent="${parentSelector}"><div class="accordion-body p-0"><div class="accordion" id="tree_level_${level + 1}"></div></div></div>` : ''}
-                </div>`;
-        }
-
-        window.loadChildren = async (buttonElement) => {
-            if (buttonElement.dataset.loaded === 'true') { return; }
-
-            const personId = buttonElement.dataset.personId;
-            const level = parseInt(buttonElement.dataset.level);
-            const childrenContainer = document.querySelector(`${buttonElement.dataset.bsTarget} .accordion`);
-
-            if (!childrenContainer) return;
-
-            childrenContainer.innerHTML = `<div class="p-2 text-center text-muted small">جاري التحميل...</div>`;
-            const data = await fetchAPI(`/person/${personId}/children`);
-            childrenContainer.innerHTML = '';
-
-            if (data && data.children && data.children.length > 0) {
-                data.children.forEach(child => {
-                    childrenContainer.innerHTML += createPersonNode(child, level);
-                });
-            } else {
-                childrenContainer.innerHTML = `<div class="p-2 text-center text-muted small">لا يوجد أبناء.</div>`;
-            }
-            buttonElement.dataset.loaded = 'true';
-        };
-
-        // --- START: MAJOR MODIFICATION ---
-        // تم تعديل هذه الدالة بالكامل لإضافة الوالدين والمسميات الدقيقة حسب الجنس
-        window.showPersonDetails = async (personId) => {
-            const modalBody = document.getElementById('modalBodyContent');
-            personModal.show();
-            modalBody.innerHTML = `<div class="text-center p-5"><div class="spinner-border text-success" style="width: 3rem; height: 3rem;"></div><p class="mt-3">جاري تحميل التفاصيل...</p></div>`;
-
-            const data = await fetchAPI(`/person/${personId}`);
-            if (!data || !data.person) {
-                modalBody.innerHTML = `<div class="alert alert-danger">فشل تحميل البيانات.</div>`;
-                return;
-            }
-            const person = data.person;
-            const createDetailRow = (icon, label, value) => !value ? '' : `<div class="detail-row"><i class="fas ${icon} fa-fw mx-2"></i><div><small class="text-muted">${label}</small><p class="mb-0 fw-bold">${value}</p></div></div>`;
-
-            // تحديد نص الوفاة حسب الجنس
-            const deceasedText = person.death_date
-                ? `<p class="text-danger fw-bold"><i class="fas fa-dove"></i> ${person.gender === 'male' ? 'متوفى (رحمه الله)' : 'متوفاة (رحمها الله)'}</p>`
-                : `<p class="text-success fw-bold"><i class="fas fa-heart"></i> على قيد الحياة</p>`;
-
-            // --- قسم الوالدين الجديد ---
-            let parentsHtml = '';
-            if (person.parent || person.mother) {
-                parentsHtml = '<h5>الوالدين</h5><div class="row g-2">';
-                if (person.parent) {
-                    parentsHtml += `
-                        <div class="col-md-6">
-                            <div class="parent-card clickable" onclick="showPersonDetails(${person.parent.id})">
-                                ${createPhoto(person.parent, 'sm')}
-                                <div><strong>${person.parent.first_name}</strong><small class="d-block text-muted">الأب</small></div>
-                            </div>
-                        </div>`;
+                const data = await fetchAPI(`/person/${personId}`);
+                if (!data || !data.person) {
+                    modalBody.innerHTML = `<div class="alert alert-danger">فشل تحميل البيانات.</div>`;
+                    return;
                 }
-                if (person.mother) {
-                     parentsHtml += `
-                        <div class="col-md-6">
-                            <div class="parent-card clickable" onclick="showPersonDetails(${person.mother.id})">
-                                ${createPhoto(person.mother, 'sm')}
-                                <div><strong>${person.mother.first_name}</strong><small class="d-block text-muted">الأم</small></div>
-                            </div>
-                        </div>`;
-                }
-                parentsHtml += '</div><hr class="my-4">';
-            }
+                const person = data.person;
+                const createDetailRow = (icon, label, value) => !value ? '' : `<div class="detail-row"><i class="fas ${icon} fa-fw mx-2"></i><div><small class="text-muted">${label}</small><p class="mb-0 fw-bold">${value}</p></div></div>`;
 
-            let spousesHtml = '';
-            if (person.spouses && person.spouses.length > 0) {
-                spousesHtml = '<h5>الزوج/الزوجات</h5><div class="row g-2">';
-                person.spouses.forEach(spouse => {
-                    const spouseLabel = spouse.gender === 'female' ? 'زوجة' : 'زوج';
-                    spousesHtml += `
-                        <div class="col-md-6">
-                            <div class="spouse-card">
-                                ${createPhoto(spouse, 'sm')}
-                                <div><strong>${spouse.name || spouse.first_name}</strong><small class="d-block text-muted">${spouseLabel}</small></div>
-                            </div>
-                        </div>`;
-                });
-                spousesHtml += '</div><hr class="my-4">';
-            }
+                const deceasedText = person.death_date
+                    ? `<p class="text-danger fw-bold"><i class="fas fa-dove"></i> ${person.gender === 'male' ? 'متوفى (رحمه الله)' : 'متوفاة (رحمها الله)'}</p>`
+                    : `<p class="text-success fw-bold"><i class="fas fa-heart"></i> على قيد الحياة</p>`;
 
-            let childrenHtml = (person.children_count > 0) ? `<h5>الأبناء (${person.children_count})</h5><div id="modalChildrenList" class="row g-2"></div>` : '';
-
-            modalBody.innerHTML = `
-                <div class="row g-4">
-                    <div class="col-lg-4 text-center">
-                        <div class="d-inline-block">${createPhoto(person, 'lg')}</div>
-                        <h4 class="mt-3 mb-1">${person.full_name}</h4>
-                        ${deceasedText}
-                    </div>
-                    <div class="col-lg-8">
-                        ${createDetailRow('fa-birthday-cake', 'تاريخ الميلاد', person.birth_date)}
-                        ${person.age ? createDetailRow('fa-calendar-alt', 'العمر', `${person.age} سنة`) : ''}
-                        ${createDetailRow('fa-briefcase', 'المهنة', person.occupation)}
-                        ${createDetailRow('fa-map-marker-alt', 'مكان الإقامة', person.location)}
-                        <hr class="my-4">
-                        ${parentsHtml}
-                        ${spousesHtml}
-                        ${person.biography ? `<h5>سيرة ذاتية</h5><p style="white-space: pre-wrap;">${person.biography}</p><hr class="my-4">` : ''}
-                        ${childrenHtml}
-                    </div>
-                </div>`;
-
-            if (person.children_count > 0) loadModalChildren(person.id);
-        };
-        // --- END: MAJOR MODIFICATION ---
-
-
-        async function loadModalChildren(personId) {
-            const childrenContainer = document.getElementById('modalChildrenList');
-            if (!childrenContainer) return;
-            childrenContainer.innerHTML = `<div class="col-12 text-center text-muted p-3">جاري تحميل الأبناء...</div>`;
-            const data = await fetchAPI(`/person/${personId}/children`);
-            childrenContainer.innerHTML = '';
-            if (data && data.children && data.children.length > 0) {
-                data.children.forEach(child => {
-                    // --- START: MODIFICATION ---
-                    // تحديد المسمى (ابن/ابنة) أو حالة الوفاة بدقة
-                    const relationText = child.gender === 'female' ? 'ابنة' : 'ابن';
-                    const deceasedText = child.gender === 'male' ? 'متوفى (رحمه الله)' : 'متوفاة (رحمها الله)';
-                    const statusText = child.death_date ? deceasedText : relationText;
-                    // --- END: MODIFICATION ---
-
-                    childrenContainer.innerHTML += `
-                        <div class="col-md-6">
-                            <div class="child-card clickable" onclick="showPersonDetails(${child.id})">
-                                ${createPhoto(child, 'sm')}
-                                <div>
-                                    <strong>${child.first_name}</strong>
-                                    <small class="d-block text-muted">${statusText}</small>
+                let parentsHtml = '';
+                if (person.parent || person.mother) {
+                    parentsHtml = '<h5>الوالدين</h5><div class="row g-2">';
+                    if (person.parent) {
+                        parentsHtml += `
+                            <div class="col-md-6">
+                                <div class="parent-card clickable" onclick="showPersonDetails(${person.parent.id})">
+                                    ${createPhoto(person.parent, 'sm')}
+                                    <div><strong>${person.parent.first_name}</strong><small class="d-block text-muted">الأب</small></div>
                                 </div>
-                            </div>
-                        </div>`;
-                });
-            } else {
-                childrenContainer.innerHTML = `<div class="col-12 text-center text-muted p-3">لا يوجد أبناء مسجلين.</div>`;
-            }
-        }
-
-        async function loadInitialTree() {
-            const data = await fetchAPI('/family-tree');
-            if (data && data.tree && data.tree.length > 0) {
-                treeContainer.innerHTML = '';
-                data.tree.forEach(person => {
-                    treeContainer.innerHTML += createPersonNode(person, 0);
-                });
-            } else {
-                treeContainer.innerHTML = '<div class="alert alert-warning text-center">لا توجد بيانات لعرضها في تواصل العائلة.</div>';
-            }
-        }
-
-        // --- هذا الكود مسؤول عن إغلاق الأبناء الآخرين عند فتح ابن جديد (موجود مسبقاً) ---
-        document.addEventListener('show.bs.collapse', function(event) {
-            const collapseElement = event.target;
-            const parentSelector = collapseElement.getAttribute('data-bs-parent');
-
-            if (!parentSelector) return;
-
-            const parentAccordion = document.querySelector(parentSelector);
-            if (!parentAccordion) return;
-
-            const openCollapses = parentAccordion.querySelectorAll('.accordion-collapse.show');
-
-            openCollapses.forEach(openCollapse => {
-                if (openCollapse !== collapseElement) {
-                    const bsCollapseInstance = bootstrap.Collapse.getInstance(openCollapse);
-                    if (bsCollapseInstance) {
-                        bsCollapseInstance.hide();
+                            </div>`;
                     }
+                    if (person.mother) {
+                        parentsHtml += `
+                            <div class="col-md-6">
+                                <div class="parent-card clickable" onclick="showPersonDetails(${person.mother.id})">
+                                    ${createPhoto(person.mother, 'sm')}
+                                    <div><strong>${person.mother.first_name}</strong><small class="d-block text-muted">الأم</small></div>
+                                </div>
+                            </div>`;
+                    }
+                    parentsHtml += '</div><hr class="my-4">';
                 }
-            });
-        });
 
-        // إضافة تمرير الشاشة تلقائياً عند فتح عمود جديد
-        document.addEventListener('shown.bs.collapse', function(event) {
-            if (!event.target.closest('.tree-section')) return;
-            const scrollContainer = document.querySelector('.tree-section');
-            const newColumn = event.target;
-            setTimeout(() => {
-                const newScrollLeft = newColumn.offsetLeft - 30;
-                scrollContainer.scrollTo({
-                    left: newScrollLeft,
-                    behavior: 'smooth'
+                let spousesHtml = '';
+                if (person.spouses && person.spouses.length > 0) {
+                    spousesHtml = '<h5>الزوج/الزوجات</h5><div class="row g-2">';
+                    person.spouses.forEach(spouse => {
+                        const spouseLabel = spouse.gender === 'female' ? 'زوجة' : 'زوج';
+                        spousesHtml += `
+                            <div class="col-md-6">
+                                <div class="spouse-card">
+                                    ${createPhoto(spouse, 'sm')}
+                                    <div><strong>${spouse.name || spouse.first_name}</strong><small class="d-block text-muted">${spouseLabel}</small></div>
+                                </div>
+                            </div>`;
+                    });
+                    spousesHtml += '</div><hr class="my-4">';
+                }
+
+                let childrenHtml = (person.children_count > 0) ? `<h5>الأبناء (${person.children_count})</h5><div id="modalChildrenList" class="row g-2"></div>` : '';
+
+                modalBody.innerHTML = `
+                    <div class="row g-4">
+                        <div class="col-lg-4 text-center">
+                            <div class="d-inline-block">${createPhoto(person, 'lg')}</div>
+                            <h4 class="mt-3 mb-1">${person.full_name}</h4>
+                            ${deceasedText}
+                        </div>
+                        <div class="col-lg-8">
+                            ${createDetailRow('fa-birthday-cake', 'تاريخ الميلاد', person.birth_date)}
+                            ${person.age ? createDetailRow('fa-calendar-alt', 'العمر', `${person.age} سنة`) : ''}
+                            ${createDetailRow('fa-briefcase', 'المهنة', person.occupation)}
+                            ${createDetailRow('fa-map-marker-alt', 'مكان الإقامة', person.location)}
+                            <hr class="my-4">
+                            ${parentsHtml}
+                            ${spousesHtml}
+                            ${person.biography ? `<h5>سيرة ذاتية</h5><p style="white-space: pre-wrap;">${person.biography}</p><hr class="my-4">` : ''}
+                            ${childrenHtml}
+                        </div>
+                    </div>`;
+
+                if (person.children_count > 0) loadModalChildren(person.id);
+            };
+
+            async function loadModalChildren(personId) {
+                const childrenContainer = document.getElementById('modalChildrenList');
+                if (!childrenContainer) return;
+                childrenContainer.innerHTML = `<div class="col-12 text-center text-muted p-3">جاري تحميل الأبناء...</div>`;
+                const data = await fetchAPI(`/person/${personId}/children`);
+                childrenContainer.innerHTML = '';
+                if (data && data.children && data.children.length > 0) {
+                    data.children.forEach(child => {
+                        const relationText = child.gender === 'female' ? 'ابنة' : 'ابن';
+                        const deceasedText = child.gender === 'male' ? 'متوفى (رحمه الله)' : 'متوفاة (رحمها الله)';
+                        const statusText = child.death_date ? deceasedText : relationText;
+
+                        childrenContainer.innerHTML += `
+                            <div class="col-md-6">
+                                <div class="child-card clickable" onclick="showPersonDetails(${child.id})">
+                                    ${createPhoto(child, 'sm')}
+                                    <div>
+                                        <strong>${child.first_name}</strong>
+                                        <small class="d-block text-muted">${statusText}</small>
+                                    </div>
+                                </div>
+                            </div>`;
+                    });
+                } else {
+                    childrenContainer.innerHTML = `<div class="col-12 text-center text-muted p-3">لا يوجد أبناء مسجلين.</div>`;
+                }
+            }
+
+            async function loadInitialTree() {
+                const data = await fetchAPI('/family-tree');
+                if (data && data.tree && data.tree.length > 0) {
+                    treeContainer.innerHTML = '';
+                    data.tree.forEach(person => {
+                        treeContainer.innerHTML += createPersonNode(person, 0);
+                    });
+                } else {
+                    treeContainer.innerHTML = '<div class="alert alert-warning text-center">لا توجد بيانات لعرضها في تواصل العائلة.</div>';
+                }
+            }
+
+            document.addEventListener('show.bs.collapse', function(event) {
+                const collapseElement = event.target;
+                const parentSelector = collapseElement.getAttribute('data-bs-parent');
+                if (!parentSelector) return;
+                const parentAccordion = document.querySelector(parentSelector);
+                if (!parentAccordion) return;
+                const openCollapses = parentAccordion.querySelectorAll('.accordion-collapse.show');
+                openCollapses.forEach(openCollapse => {
+                    if (openCollapse !== collapseElement) {
+                        const bsCollapseInstance = bootstrap.Collapse.getInstance(openCollapse);
+                        if (bsCollapseInstance) {
+                            bsCollapseInstance.hide();
+                        }
+                    }
                 });
-            }, 100);
-        });
+            });
 
-        loadInitialTree();
-    });
+            document.addEventListener('shown.bs.collapse', function(event) {
+                if (!event.target.closest('.tree-section')) return;
+                const scrollContainer = document.querySelector('.tree-section');
+                const newColumn = event.target;
+                setTimeout(() => {
+                    const newScrollLeft = newColumn.offsetLeft - 30;
+                    scrollContainer.scrollTo({
+                        left: newScrollLeft,
+                        behavior: 'smooth'
+                    });
+                }, 100);
+            });
+
+            loadInitialTree();
+        });
     </script>
 </body>
 
