@@ -237,7 +237,6 @@
 
 <body class="text-gray-800 relative overflow-x-hidden">
 
-    <!-- عناصر زخرفية في الخلفية -->
     <div class="bg-pattern top-10 left-10 w-96 h-96 float-animation hidden lg:block">
         <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
             <path fill="#22c55e" d="M44.9,-76.6C59.3,-69.5,72.8,-59.9,80.3,-46.7C87.8,-33.5,89.3,-16.8,88.3,-0.6C87.3,15.6,83.8,31.2,76.3,44.5C68.8,57.8,57.3,68.8,43.3,75.3C29.3,81.8,14.7,83.8,-0.6,84.8C-15.9,85.8,-31.8,85.8,-45.8,79.3C-59.8,72.8,-71.9,59.8,-79.3,44.5C-86.7,29.2,-89.3,11.6,-88.3,-5.9C-87.3,-23.4,-82.7,-46.8,-71.3,-64.3C-59.9,-81.8,-41.7,-93.4,-22.8,-95.8C-3.9,-98.2,15.7,-91.4,34.1,-82.3C52.5,-73.2,69.7,-61.8,44.9,-76.6Z" transform="translate(100 100)"/>
@@ -252,7 +251,6 @@
 
     <div class="container mx-auto px-4 py-4 lg:py-8 relative z-10">
 
-        <!-- الهيدر المبدع -->
         <header class="text-center mb-8 lg:mb-16 relative">
             <div class="inline-block relative">
                 <h1 class="text-3xl sm:text-5xl md:text-7xl font-bold gradient-text mb-2 lg:mb-4 drop-shadow-2xl">
@@ -268,11 +266,9 @@
             </p>
         </header>
 
-        <!-- شريط البحث والأدوات -->
         <div class="mb-8">
             <div class="glass-effect p-4 lg:p-6 rounded-3xl green-glow">
                 <div class="flex flex-col lg:flex-row gap-4">
-                    <!-- شريط البحث -->
                     <div class="flex-1">
                         <div class="search-bar relative">
                             <input type="text"
@@ -289,9 +285,7 @@
                         </div>
                     </div>
 
-                    <!-- أزرار العرض والفلترة -->
                     <div class="flex gap-2 lg:gap-3">
-                        <!-- أزرار نمط العرض -->
                         <div class="flex bg-white/70 rounded-xl p-1">
                             <button onclick="setViewMode('grid')"
                                     id="gridViewBtn"
@@ -309,7 +303,6 @@
                             </button>
                         </div>
 
-                        <!-- زر الفلترة للموبايل -->
                         <button onclick="toggleFilter()"
                                 class="lg:hidden px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white
                                        font-bold rounded-xl shadow-lg flex items-center gap-2">
@@ -322,7 +315,6 @@
                     </div>
                 </div>
 
-                <!-- الفلاتر السريعة -->
                 <div class="mt-4 flex flex-wrap gap-2">
                     <button onclick="filterByCategory('all')"
                             class="filter-chip px-4 py-2 bg-white/70 rounded-full text-sm font-medium hover:bg-green-50
@@ -347,14 +339,12 @@
 
         <div class="flex flex-col lg:flex-row gap-8">
 
-            <!-- الشريط الجانبي (مخفي افتراضياً على الموبايل) -->
             <aside class="w-full lg:w-1/4">
                 <div id="filterPanel" class="fixed inset-0 z-50 lg:relative lg:inset-auto hidden lg:block">
                     <div class="absolute inset-0 bg-black/50 lg:hidden" onclick="toggleFilter()"></div>
                     <div class="slide-panel absolute right-0 top-0 h-full w-80 max-w-[85vw] lg:relative lg:w-full
                                 bg-white lg:bg-transparent p-4 lg:p-0 overflow-y-auto lg:overflow-visible">
                         <div class="glass-effect p-4 lg:p-6 rounded-3xl green-glow">
-                            <!-- رأس الشريط الجانبي -->
                             <div class="flex items-center justify-between mb-4 lg:mb-6 border-b border-green-200 pb-4">
                                 <h3 class="text-xl lg:text-2xl font-bold gradient-text">التصنيفات</h3>
                                 <button onclick="toggleFilter()"
@@ -366,7 +356,6 @@
                                 </button>
                             </div>
 
-                            <!-- قائمة التصنيفات -->
                             <div class="space-y-2">
                                 <a href="{{ url('/articles') }}"
                                    class="block px-3 lg:px-4 py-2 lg:py-3 rounded-xl lg:rounded-2xl transition-all duration-300
@@ -401,7 +390,6 @@
                                 @endforeach
                             </div>
 
-                            <!-- الكتّاب الأكثر نشاطاً -->
                             <div class="mt-8">
                                 <h4 class="text-lg font-bold text-gray-700 mb-4 flex items-center gap-2">
                                     <span class="w-2 h-2 bg-green-500 rounded-full"></span>
@@ -426,7 +414,6 @@
                                 </div>
                             </div>
 
-                            <!-- إحصائيات سريعة -->
                             <div class="mt-8 p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-2xl">
                                 <h4 class="text-lg font-bold text-gray-700 mb-3">إحصائيات المكتبة</h4>
                                 <div class="space-y-2 text-sm">
@@ -449,15 +436,12 @@
                 </div>
             </aside>
 
-            <!-- المحتوى الرئيسي -->
             <main class="w-full lg:w-3/4">
                 @if($articles->count() > 0)
-                    <!-- عرض المقالات -->
                     <div id="articlesContainer" class="grid-view">
                         @foreach($articles as $article)
                         <article class="article-card glass-effect rounded-2xl lg:rounded-3xl overflow-hidden green-glow-hover">
                             <a href="{{ url('/article/' . $article->id) }}" class="block">
-                                <!-- صورة المقال -->
                                 <div class="relative h-48 lg:h-56 overflow-hidden bg-gradient-to-br from-green-100 to-green-200">
                                     @if($article->images->first())
                                     <img src="{{ asset('storage/' . $article->images->first()->path) }}"
@@ -472,7 +456,6 @@
                                     </div>
                                     @endif
 
-                                    <!-- شارة القسم -->
                                     @if($article->category)
                                     <div class="absolute top-3 right-3">
                                         <span class="px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-xs font-medium text-green-700">
@@ -481,8 +464,161 @@
                                     </div>
                                     @endif
 
-                                    <!-- عدد الصور -->
                                     @if($article->images->count() > 0)
                                     <div class="absolute bottom-3 left-3 flex items-center gap-1 px-2 py-1 bg-black/50 backdrop-blur-sm rounded-full">
                                         <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                                             <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
+                                        </svg>
+                                        <span class="text-white text-xs font-bold">{{ $article->images->count() }}</span>
+                                    </div>
+                                    @endif
+                                </div>
+
+                                <div class="p-4 lg:p-6 flex flex-col justify-between" style="min-height: 220px;">
+                                    <div>
+                                        <h2 class="text-xl lg:text-2xl font-bold text-gray-800 mb-2 hover:text-green-600 transition-colors duration-300">
+                                            {{ $article->title }}
+                                        </h2>
+
+                                        <div class="flex items-center text-xs lg:text-sm text-gray-500 mb-4">
+                                            <span>بواسطة {{ $article?->person?->name ?? 'غير معروف' }}</span>
+                                            <span class="mx-2">·</span>
+                                            <span>{{ $article->created_at->diffForHumans() }}</span>
+                                        </div>
+
+                                        <p class="text-sm lg:text-base text-gray-600 leading-relaxed max-h-24 overflow-hidden">
+                                            {{ Str::limit(strip_tags($article->content), 150) }}
+                                        </p>
+                                    </div>
+
+                                    <div class="mt-4 text-right">
+                                        <span class="inline-flex items-center gap-2 text-sm font-bold text-green-600 group">
+                                            اقرأ المزيد
+                                            <svg class="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                                            </svg>
+                                        </span>
+                                    </div>
+                                </div>
+                            </a>
+                        </article>
+                        @endforeach
+                    </div>
+
+                    <div class="mt-8 lg:mt-12">
+                        {{ $articles->links() }}
+                    </div>
+
+                @else
+                    <div class="text-center glass-effect p-8 lg:p-16 rounded-3xl green-glow">
+                        <svg class="mx-auto h-16 w-16 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <h3 class="mt-4 text-2xl font-bold text-gray-800">لا توجد مقالات لعرضها</h3>
+                        <p class="mt-2 text-base text-gray-600">
+                            يبدو أنه لا توجد مقالات تطابق معايير البحث الحالية.
+                        </p>
+                        <a href="{{ url('/articles') }}" class="mt-6 inline-block bg-gradient-to-r from-green-500 to-green-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all">
+                            عرض جميع المقالات
+                        </a>
+                    </div>
+                @endif
+            </main>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const articlesContainer = document.getElementById('articlesContainer');
+            const gridViewBtn = document.getElementById('gridViewBtn');
+            const listViewBtn = document.getElementById('listViewBtn');
+            const searchInput = document.getElementById('searchInput');
+            const filterPanel = document.getElementById('filterPanel');
+            const slidePanel = filterPanel.querySelector('.slide-panel');
+            const filterChips = document.querySelectorAll('.filter-chip');
+
+            // 1. نظام العرض (Grid/List)
+            window.setViewMode = function (mode) {
+                if (articlesContainer) {
+                    if (mode === 'grid') {
+                        articlesContainer.classList.remove('list-view');
+                        articlesContainer.classList.add('grid-view');
+                        gridViewBtn.classList.add('active-filter');
+                        listViewBtn.classList.remove('active-filter');
+                    } else {
+                        articlesContainer.classList.remove('grid-view');
+                        articlesContainer.classList.add('list-view');
+                        listViewBtn.classList.add('active-filter');
+                        gridViewBtn.classList.remove('active-filter');
+                    }
+                }
+            };
+
+            // 2. لوحة الفلترة (Mobile)
+            window.toggleFilter = function () {
+                filterPanel.classList.toggle('hidden');
+                setTimeout(() => {
+                    slidePanel.classList.toggle('closed');
+                }, 10);
+            };
+
+            // 3. البحث (بناء رابط وإعادة توجيه)
+            searchInput.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    const searchVal = e.target.value.trim();
+                    const url = new URL(window.location.href);
+                    if (searchVal) {
+                        url.searchParams.set('search', searchVal);
+                    } else {
+                        url.searchParams.delete('search');
+                    }
+                    window.location.href = url.toString();
+                }
+            });
+
+            // 4. الفلاتر السريعة (بناء رابط وإعادة توجيه)
+            window.filterByCategory = function (categoryId) {
+                const url = new URL(window.location.origin + '/articles');
+                if (categoryId !== 'all') {
+                    url.searchParams.set('category', categoryId);
+                }
+                const currentUrlParams = new URLSearchParams(window.location.search);
+                if (currentUrlParams.has('search')) {
+                     url.searchParams.set('search', currentUrlParams.get('search'));
+                }
+                window.location.href = url.toString();
+            };
+
+            // 5. تحديث حالة الفلتر السريع النشط
+            const currentCategory = new URLSearchParams(window.location.search).get('category');
+            filterChips.forEach(chip => {
+                chip.classList.remove('active-filter');
+                const chipCategory = chip.getAttribute('onclick').match(/'([^']+)'/)[1];
+                if ((!currentCategory && chipCategory === 'all') || currentCategory === chipCategory) {
+                    chip.classList.add('active-filter');
+                }
+            });
+
+            // 6. تأثير ظهور البطاقات عند التمرير
+            const articleCards = document.querySelectorAll('.article-card');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry, index) => {
+                    if (entry.isIntersecting) {
+                        setTimeout(() => {
+                            entry.target.classList.add('visible');
+                        }, index * 100);
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, {
+                rootMargin: '0px 0px -100px 0px'
+            });
+
+            articleCards.forEach(card => {
+                observer.observe(card);
+            });
+        });
+    </script>
+
+</body>
+</html>
