@@ -366,6 +366,36 @@
             justify-content: center;
             align-items: center;
         }
+
+        /* --- START: CSS CODE FOR ARTICLE CARDS IN MODAL --- */
+        .article-card {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background-color: var(--light-gray);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease-in-out;
+            text-decoration: none;
+            color: var(--dark-green);
+            margin-bottom: 10px;
+            /* لإضافة مسافة بين المقالات إذا كانت متعددة */
+        }
+
+        .article-card:hover {
+            background-color: var(--light-green);
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            color: var(--dark-green);
+        }
+
+        .article-card i {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+        /* --- END: CSS CODE FOR ARTICLE CARDS IN MODAL --- */
     </style>
 </head>
 
@@ -452,7 +482,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // ... (كل كود الجافاسكريبت الأصلي الخاص بك يوضع هنا بدون أي تغيير) ...
         document.addEventListener('DOMContentLoaded', () => {
             const API_BASE_URL = '/api';
             const treeContainer = document.getElementById('tree_level_0');
@@ -500,19 +529,19 @@
                 }
 
                 const iconHtml = `
-                    <div class="${iconContainerClass}" style="display:${person.photo_url ? 'none' : 'flex'};">
-                        <i class="fas ${iconClass}"></i>
-                    </div>`;
+                <div class="${iconContainerClass}" style="display:${person.photo_url ? 'none' : 'flex'};">
+                    <i class="fas ${iconClass}"></i>
+                </div>`;
 
                 const deceasedIconHtml = person.death_date ?
                     `<div class="deceased-icon"><i class="fas fa-dove"></i></div>` : '';
 
                 return `
-                    <div class="person-photo-container" style="width:${currentSize.container}; height:${currentSize.container};">
-                        ${photoHtml}
-                        ${iconHtml}
-                        ${deceasedIconHtml}
-                    </div>`;
+                <div class="person-photo-container" style="width:${currentSize.container}; height:${currentSize.container};">
+                    ${photoHtml}
+                    ${iconHtml}
+                    ${deceasedIconHtml}
+                </div>`;
             }
 
             function createPersonNode(person, level = 0) {
@@ -577,6 +606,7 @@
                 buttonElement.dataset.loaded = 'true';
             };
 
+            // --- START: THE FULLY MODIFIED showPersonDetails FUNCTION ---
             window.showPersonDetails = async (personId) => {
                 const modalBody = document.getElementById('modalBodyContent');
                 personModal.show();
@@ -595,6 +625,24 @@
                 const deceasedText = person.death_date ?
                     `<p class="text-danger fw-bold"><i class="fas fa-dove"></i> ${person.gender === 'male' ? ' (رحمه الله)' : ' (رحمها الله)'}</p>` :
                     `<p class="text-success fw-bold"><i class="fas fa-heart"></i> على قيد الحياة</p>`;
+
+                let articlesHtml = '';
+                if (person.articles && person.articles.length > 0) {
+                    articlesHtml = `<h5>السيرة الذاتية والمقالات</h5>`;
+                    person.articles.forEach(article => {
+                        const articleUrl = `/article/${article.id}`;
+                        articlesHtml += `
+                            <a href="${articleUrl}" class="article-card">
+                                <i class="fas fa-book-open"></i>
+                                <div>
+                                    <strong>${article.title}</strong>
+                                    <small class="d-block text-muted">اضغط لعرض المقال</small>
+                                </div>
+                            </a>
+                        `;
+                    });
+                    articlesHtml += '<hr class="my-4">';
+                }
 
                 let parentsHtml = '';
                 if (person.parent || person.mother) {
@@ -622,7 +670,6 @@
 
                 let spousesHtml = '';
                 if (person.spouses && person.spouses.length > 0) {
-
                     spousesHtml = `
                         <h5>${person.gender === 'female' ? 'الزوج' : 'الزوجات'}</h5>
                         <div class="row g-2">
@@ -632,12 +679,12 @@
                         spousesHtml += `
                             <div class="col-md-6">
                                <div class="spouse-card clickable" onclick="showPersonDetails(${spouse.id})">
-                                        ${createPhoto(spouse, 'sm')}
-                                        <div>
-                                            <strong>${spouse.name || spouse.full_name}</strong>
-                                            <small class="d-block text-muted">${spouseLabel}</small>
-                                        </div>
+                                    ${createPhoto(spouse, 'sm')}
+                                    <div>
+                                        <strong>${spouse.name || spouse.full_name}</strong>
+                                        <small class="d-block text-muted">${spouseLabel}</small>
                                     </div>
+                                </div>
                             </div>`;
                     });
                     spousesHtml += '</div><hr class="my-4">';
@@ -660,6 +707,7 @@
                             ${createDetailRow('fa-briefcase', 'المهنة', person.occupation)}
                             ${createDetailRow('fa-map-marker-alt', 'مكان الإقامة', person.location)}
                             <hr class="my-4">
+                            ${articlesHtml}
                             ${parentsHtml}
                             ${spousesHtml}
                             ${person.biography ? `<h5>نبذة عن</h5><p style="white-space: pre-wrap;">${person.biography}</p><hr class="my-4">` : ''}
@@ -669,6 +717,8 @@
 
                 if (person.children_count > 0) loadModalChildren(person.id);
             };
+            // --- END: THE FULLY MODIFIED showPersonDetails FUNCTION ---
+
 
             async function loadModalChildren(personId) {
                 const childrenContainer = document.getElementById('modalChildrenList');

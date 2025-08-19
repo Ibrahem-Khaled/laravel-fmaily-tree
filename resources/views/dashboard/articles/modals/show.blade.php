@@ -14,7 +14,7 @@
                 <hr>
                 <p><strong>الفئة:</strong> {{ $article->category->name ?? 'غير محدد' }}</p>
                 @if ($article->person)
-                    <p><strong>الكاتب:</strong> {{ $article->person->name }}</p>
+                    <p><strong>الكاتب:</strong> {{ $article->person->first_name }}</p>
                 @endif
                 <hr>
                 <div>

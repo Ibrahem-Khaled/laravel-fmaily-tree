@@ -91,7 +91,7 @@ class FamilyTreeController extends Controller
     public function getPersonDetails($id)
     {
         // Eager load relationships to prevent N+1 query problem
-        $person = Person::with(['parent', 'mother', 'husband', 'wives'])->findOrFail($id);
+        $person = Person::with(['parent', 'mother', 'husband', 'wives', 'articles'])->findOrFail($id);
 
         return response()->json([
             'success' => true,
@@ -106,7 +106,7 @@ class FamilyTreeController extends Controller
         if (isset($person->children_count)) {
             $children_count = $person->children_count;
         } else {
-             // If not preloaded with withCount, calculate it now.
+            // If not preloaded with withCount, calculate it now.
             if ($person->gender === 'female') {
                 $children_count = Person::where('mother_id', $person->id)->count();
             } else {
@@ -145,6 +145,17 @@ class FamilyTreeController extends Controller
                 $data['mother'] = $this->formatPersonData($person->mother, false);
             }
 
+            if ($person->relationLoaded('articles')) {
+                $data['articles'] = $person->articles->map(function ($article) {
+                    // نختار فقط الحقول التي نحتاجها في الواجهة الأمامية
+                    return [
+                        'id' => $article->id,
+                        'title' => $article->title,
+                        // يمكنك إضافة حقول أخرى إذا احتجتها
+                    ];
+                });
+            }
+
             // Format spouses
             $spouses = collect();
             if ($person->gender === 'male' && $person->wives->isNotEmpty()) {
@@ -154,7 +165,7 @@ class FamilyTreeController extends Controller
             }
 
             $data['spouses'] = $spouses->map(function ($spouse) {
-                 // Format spouse using basic details to avoid deep nesting
+                // Format spouse using basic details to avoid deep nesting
                 return $this->formatPersonData($spouse, false);
             });
         }

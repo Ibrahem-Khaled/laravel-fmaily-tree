@@ -26,7 +26,11 @@ class Person extends Model
         'parent_id',
         'mother_id',
     ];
-    protected $appends = ['full_name'];
+    protected $appends = [
+        'full_name',
+        'articles_count',
+        'first_article_id'
+    ];
     protected $casts = [
         'birth_date' => 'date',
         'death_date' => 'date',
@@ -133,5 +137,28 @@ class Person extends Model
     public function articles()
     {
         return $this->hasMany(Article::class);
+    }
+
+
+
+    // Accessor لجلب عدد المقالات
+    public function getArticlesCountAttribute()
+    {
+        // نستخدم الخاصية المحملة مسبقًا إذا كانت موجودة لتجنب استعلامات إضافية
+        if ($this->relationLoaded('articles')) {
+            return $this->articles->count();
+        }
+        // هذا يعمل كحل بديل إذا لم يتم تحميل العلاقة
+        return $this->articles()->count();
+    }
+
+    // Accessor لجلب ID أول مقال
+    public function getFirstArticleIdAttribute()
+    {
+        if ($this->relationLoaded('articles') && $this->articles->isNotEmpty()) {
+            return $this->articles->first()->id;
+        }
+        // هذا يعمل كحل بديل إذا لم يتم تحميل العلاقة
+        return optional($this->articles()->first())->id;
     }
 }

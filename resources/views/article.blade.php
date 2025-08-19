@@ -352,11 +352,11 @@
 
         <!-- زر الرجوع -->
         <div class="mb-6">
-            <a href="{{ url('/gallery') }}" class="inline-flex items-center gap-2 px-4 py-2 glass-effect rounded-full hover:bg-white/95 transition-all duration-300 group">
+            <a href="{{ url()->previous() }}" class="inline-flex items-center gap-2 px-4 py-2 glass-effect rounded-full hover:bg-white/95 transition-all duration-300 group">
                 <svg class="w-5 h-5 text-green-600 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                 </svg>
-                <span class="text-gray-700 font-medium">العودة للمعرض</span>
+                <span class="text-gray-700 font-medium">العودة للخلف</span>
             </a>
         </div>
 
@@ -493,11 +493,11 @@
                         </div>
                     </div>
 
-                    <a href="{{ url('/gallery') }}" class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-full hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-lg transform hover:scale-105">
+                    <a href="{{ url()->previous() }}" class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-full hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-lg transform hover:scale-105">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18"></path>
                         </svg>
-                        العودة للمعرض
+                        العودة للخلف
                     </a>
                 </div>
             </footer>
