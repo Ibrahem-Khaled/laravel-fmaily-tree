@@ -634,7 +634,7 @@
                                <div class="spouse-card clickable" onclick="showPersonDetails(${spouse.id})">
                                         ${createPhoto(spouse, 'sm')}
                                         <div>
-                                            <strong>${spouse.name || spouse.first_name}</strong>
+                                            <strong>${spouse.name || spouse.full_name}</strong>
                                             <small class="d-block text-muted">${spouseLabel}</small>
                                         </div>
                                     </div>
