@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Article;
 use App\Models\Category;
 use App\Models\Image;
 use App\Models\Person;
@@ -48,5 +49,68 @@ class GalleryController extends Controller
             'currentCategory' => $request->category, // لإظهار الفلتر الحالي
             'currentAuthor' => $request->person,     // لإظهار الفلتر الحالي
         ]);
+    }
+
+    public function show($id)
+    {
+        $article = Article::with(['images', 'person', 'category'])->findOrFail($id);
+
+        // جلب المقالات ذات الصلة (نفس القسم)
+        $relatedArticles = Article::where('category_id', $article->category_id)
+            ->where('id', '!=', $id)
+            ->with('images')
+            ->limit(3)
+            ->get();
+
+        return view('article', compact('article', 'relatedArticles'));
+    }
+
+    public function articles(Request $request)
+    {
+        $query = Article::with(['images', 'person', 'category']);
+
+        // فلترة حسب القسم
+        if ($request->has('category')) {
+            $query->where('category_id', $request->category);
+        }
+
+        // فلترة حسب الكاتب
+        if ($request->has('author')) {
+            $query->where('person_id', $request->author);
+        }
+
+        // البحث
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('content', 'like', "%{$search}%");
+            });
+        }
+
+        $articles = $query->latest()->paginate(12);
+
+        // جلب التصنيفات مع عدد المقالات
+        $categories = Category::withCount('articles')->get();
+
+        // جلب الكتّاب الأكثر نشاطاً
+        $topAuthors = Person::withCount('articles')
+            ->orderBy('articles_count', 'desc')
+            ->limit(5)
+            ->get();
+
+        // الإحصائيات
+        $totalArticles = Article::count();
+        $totalAuthors = Person::has('articles')->count();
+        $totalImages = Image::count();
+
+        return view('articles', compact(
+            'articles',
+            'categories',
+            'topAuthors',
+            'totalArticles',
+            'totalAuthors',
+            'totalImages'
+        ));
     }
 }

@@ -26,19 +26,24 @@
     <!-- Nav Item - Tables -->
     <li class="nav-item">
         <a class="nav-link" href="{{ route('people.index') }}">
-            <i class="fas fa-fw fa-table"></i>
+            <i class="fas fa-fw fa-users"></i>
             <span>الشخصيات</span></a>
     </li>
     <li class="nav-item">
         <a class="nav-link" href="{{ route('marriages.index') }}">
-            <i class="fas fa-fw fa-table"></i>
+            <i class="fas fa-fw fa-heart"></i>
             <span>الزواج</span></a>
     </li>
     <li class="nav-item">
         <a class="nav-link" href="{{ route('articles.index') }}">
-            <i class="fas fa-fw fa-table"></i>
+            <i class="fas fa-fw fa-book"></i>
             <span>
                 المقالات ومعرض الصور</span></a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{{ route('roles.index') }}">
+            <i class="fas fa-fw fa-users"></i>
+            <span>الادوار</span></a>
     </li>
 
 

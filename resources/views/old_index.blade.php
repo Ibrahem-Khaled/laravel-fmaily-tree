@@ -395,7 +395,7 @@
                             <a class="nav-link" href="{{ route('gallery.index') }}">المعرض</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">المقالات</a>
+                            <a class="nav-link" href="{{ route('gallery.articles') }}">المقالات</a>
                         </li>
                          <li class="nav-item">
                             <a class="nav-link" href="#">عن العائلة</a>
