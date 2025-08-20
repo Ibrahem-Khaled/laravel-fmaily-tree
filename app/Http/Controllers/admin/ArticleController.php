@@ -90,7 +90,7 @@ class ArticleController extends Controller
     public function update(Request $request, Article $article)
     {
 
-        dd($request->all()); // <-- أضف هذا السطر
+        // dd($request->all()); // <-- أضف هذا السطر
 
         $request->validate([
             'title' => 'required|string|max:255',
