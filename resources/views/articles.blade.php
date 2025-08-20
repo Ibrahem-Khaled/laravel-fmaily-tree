@@ -481,7 +481,7 @@
                                         </h2>
 
                                         <div class="flex items-center text-xs lg:text-sm text-gray-500 mb-4">
-                                            <span>بواسطة {{ $article?->person?->name ?? 'غير معروف' }}</span>
+                                            <span>بواسطة {{ $article?->person?->first_name ?? 'غير معروف' }}</span>
                                             <span class="mx-2">·</span>
                                             <span>{{ $article->created_at->diffForHumans() }}</span>
                                         </div>

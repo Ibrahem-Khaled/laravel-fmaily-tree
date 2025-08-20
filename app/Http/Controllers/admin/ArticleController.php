@@ -8,7 +8,9 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Models\Article;
 use App\Models\Category;
+use App\Models\Image;
 use App\Models\Person;
+use Illuminate\Support\Facades\DB;
 
 
 
@@ -87,35 +89,57 @@ class ArticleController extends Controller
 
     public function update(Request $request, Article $article)
     {
+
+        dd($request->all()); // <-- أضف هذا السطر
+
         $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'category_id' => 'required|exists:categories,id',
             'person_id' => 'nullable|exists:persons,id',
             'images' => 'nullable|array',
-            'images.*.file' => 'sometimes|required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            // نستخدم 'file' كقاعدة للتحقق من وجود الصورة
+            'images.*.file' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'images.*.name' => 'nullable|string|max:255',
         ]);
 
-        $article->update($request->only('title', 'content', 'category_id', 'person_id'));
+        try {
+            // 1. استخدام Transactions لضمان سلامة البيانات
+            DB::beginTransaction();
 
-        if ($request->has('images')) {
-            foreach ($request->images as $imageData) {
-                if (isset($imageData['file'])) {
-                    $path = $imageData['file']->store('articles/' . Str::slug($article->title), 'public');
-                    $article->images()->create([
-                        'name' => $imageData['name'],
-                        'path' => $path,
-                    ]);
+            $article->update($request->only('title', 'content', 'category_id', 'person_id'));
+
+            if ($request->hasFile('images')) {
+                // $key هو الفهرس الفريد الذي أنشأناه (Date.now())
+                foreach ($request->file('images') as $key => $fileData) {
+                    // 2. التحقق من الملف بطريقة Laravel الصحيحة
+                    if (isset($fileData['file'])) {
+                        $file = $fileData['file'];
+                        // 3. تنظيم أفضل لمجلدات التخزين
+                        $path = $file->store('articles/' . $article->id, 'public');
+
+                        $imageName = $request->input("images.{$key}.name", null); // الحصول على الاسم الاختياري
+
+                        $article->images()->create([
+                            'name' => $imageName,
+                            'path' => $path,
+                        ]);
+                    }
                 }
             }
+
+            DB::commit(); // تم كل شيء بنجاح، قم بتثبيت التغييرات
+
+            return back()->with('success', 'تم تحديث المقال بنجاح!');
+        } catch (\Exception $e) {
+            DB::rollBack(); // حدث خطأ، تراجع عن كل التغييرات
+
+            // يمكنك تسجيل الخطأ للمراجعة لاحقاً
+            // Log::error($e->getMessage());
+
+            return back()->with('error', 'حدث خطأ غير متوقع أثناء تحديث المقال.');
         }
-
-        // يمكنك إضافة منطق لحذف الصور القديمة هنا إذا لزم الأمر
-
-        return back()->with('success', 'تم تحديث المقال بنجاح!');
     }
-
     public function destroy(Article $article)
     {
         // حذف الصور من الـ storage
@@ -126,5 +150,21 @@ class ArticleController extends Controller
         $article->delete(); // الحذف من قاعدة البيانات سيحذف الصور المرتبطة بسبب cascade
 
         return back()->with('success', 'تم حذف المقال بنجاح!');
+    }
+
+
+    public function deleteImage($id)
+    {
+        $image = Image::findOrFail($id);
+
+        // حذف الصورة من التخزين
+        if (Storage::exists($image->path)) {
+            Storage::delete($image->path);
+        }
+
+        // حذف السجل من قاعدة البيانات
+        $image->delete();
+
+        return response()->json(['success' => true]);
     }
 }

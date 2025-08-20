@@ -606,7 +606,6 @@
                 buttonElement.dataset.loaded = 'true';
             };
 
-            // --- START: THE FULLY MODIFIED showPersonDetails FUNCTION ---
             window.showPersonDetails = async (personId) => {
                 const modalBody = document.getElementById('modalBodyContent');
                 personModal.show();
@@ -628,11 +627,12 @@
 
                 let articlesHtml = '';
                 if (person.articles && person.articles.length > 0) {
+                    // تم إزالة الفاصل العلوي من هنا
                     articlesHtml = `<h5>السيرة الذاتية والمقالات</h5>`;
                     person.articles.forEach(article => {
-                        const articleUrl = `/article/${article.id}`;
+                        const articleUrl = `/articles/${article.id}`; // تأكد من أن هذا الرابط صحيح
                         articlesHtml += `
-                            <a href="${articleUrl}" class="article-card">
+                            <a href="${articleUrl}" target="_blank" class="article-card">
                                 <i class="fas fa-book-open"></i>
                                 <div>
                                     <strong>${article.title}</strong>
@@ -641,7 +641,7 @@
                             </a>
                         `;
                     });
-                    articlesHtml += '<hr class="my-4">';
+                     // لا يوجد فاصل سفلي هنا بعد الآن
                 }
 
                 let parentsHtml = '';
@@ -691,9 +691,10 @@
                 }
 
                 let childrenHtml = (person.children_count > 0) ?
-                    `<h5>الأبناء (${person.children_count})</h5><div id="modalChildrenList" class="row g-2"></div>` :
+                    `<h5>الأبناء (${person.children_count})</h5><div id="modalChildrenList" class="row g-2"></div><hr class="my-4">` :
                     '';
 
+                // --- START: MODIFIED MODAL BODY STRUCTURE ---
                 modalBody.innerHTML = `
                     <div class="row g-4">
                         <div class="col-lg-4 text-center">
@@ -707,18 +708,17 @@
                             ${createDetailRow('fa-briefcase', 'المهنة', person.occupation)}
                             ${createDetailRow('fa-map-marker-alt', 'مكان الإقامة', person.location)}
                             <hr class="my-4">
-                            ${articlesHtml}
                             ${parentsHtml}
                             ${spousesHtml}
                             ${person.biography ? `<h5>نبذة عن</h5><p style="white-space: pre-wrap;">${person.biography}</p><hr class="my-4">` : ''}
                             ${childrenHtml}
+                            ${articlesHtml}
                         </div>
                     </div>`;
+                // --- END: MODIFIED MODAL BODY STRUCTURE ---
 
                 if (person.children_count > 0) loadModalChildren(person.id);
             };
-            // --- END: THE FULLY MODIFIED showPersonDetails FUNCTION ---
-
 
             async function loadModalChildren(personId) {
                 const childrenContainer = document.getElementById('modalChildrenList');
