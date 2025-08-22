@@ -50,8 +50,10 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::resource('marriages', MarriageController::class)->except(['show']);
 
-    Route::resource('articles', ArticleController::class);
+    Route::resource('articles', ArticleController::class)->except(['show', 'update']);
+    Route::post('articles/{article}', [ArticleController::class, 'update'])->name('articles.update');
     Route::delete('/articles/image/{id}', [ArticleController::class, 'deleteImage'])->name('articles.image.delete');
+    Route::post('/articles/add-images', [ArticleController::class, 'storeImages'])->name('articles.images.store');
 
     // راوت مخصص لإنشاء الفئات عبر AJAX من داخل مودال المقالات
     Route::post('categories/store-ajax', [CategoryController::class, 'storeAjax'])->name('categories.store.ajax');

@@ -61,9 +61,11 @@
                     {{-- Image Uploader --}}
                     <div class="form-group">
                         <label>صور المقال</label>
-                        <div id="image-uploader-container">
+                        {{-- تم تغيير id إلى class --}}
+                        <div class="image-uploader-container">
                         </div>
-                        <button type="button" class="btn btn-sm btn-success mt-2" id="add-image-btn">
+                        {{-- تم تغيير id إلى class --}}
+                        <button type="button" class="btn btn-sm btn-success mt-2 add-image-btn">
                             <i class="fas fa-plus"></i> إضافة صورة أخرى
                         </button>
                     </div>

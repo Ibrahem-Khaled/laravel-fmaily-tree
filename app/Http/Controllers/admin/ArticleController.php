@@ -27,6 +27,7 @@ class ArticleController extends Controller
         $selectedCategory = $request->get('category');
 
         $articlesQuery = Article::with('category', 'images')->latest();
+        $allArticlesForModal = Article::orderBy('title')->get();
 
         // فلترة بالبحث
         if ($request->has('search')) {
@@ -48,6 +49,7 @@ class ArticleController extends Controller
         return view('dashboard.articles.index', compact(
             'articles',
             'articlesCount',
+            'allArticlesForModal',
             'categoriesCount',
             'mainCategories',
             'selectedCategory',
@@ -89,40 +91,31 @@ class ArticleController extends Controller
 
     public function update(Request $request, Article $article)
     {
-
-        // dd($request->all()); // <-- أضف هذا السطر
-
         $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'category_id' => 'required|exists:categories,id',
             'person_id' => 'nullable|exists:persons,id',
             'images' => 'nullable|array',
-            // نستخدم 'file' كقاعدة للتحقق من وجود الصورة
-            'images.*.file' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'images.*.file' => 'sometimes|required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'images.*.name' => 'nullable|string|max:255',
         ]);
 
+        // return response()->json(['success' => $request->all()]);
+
         try {
-            // 1. استخدام Transactions لضمان سلامة البيانات
             DB::beginTransaction();
 
             $article->update($request->only('title', 'content', 'category_id', 'person_id'));
 
-            if ($request->hasFile('images')) {
-                // $key هو الفهرس الفريد الذي أنشأناه (Date.now())
-                foreach ($request->file('images') as $key => $fileData) {
-                    // 2. التحقق من الملف بطريقة Laravel الصحيحة
-                    if (isset($fileData['file'])) {
-                        $file = $fileData['file'];
-                        // 3. تنظيم أفضل لمجلدات التخزين
-                        $path = $file->store('articles/' . $article->id, 'public');
-
-                        $imageName = $request->input("images.{$key}.name", null); // الحصول على الاسم الاختياري
-
+            // معالجة الصور الجديدة
+            if ($request->has('images')) {
+                foreach ($request->images as $img) {
+                    if (isset($img['file'])) {
+                        $path = $img['file']->store('articles', 'public');
                         $article->images()->create([
-                            'name' => $imageName,
                             'path' => $path,
+                            'name' => $img['name'] ?? null,
                         ]);
                     }
                 }
@@ -134,8 +127,8 @@ class ArticleController extends Controller
         } catch (\Exception $e) {
             DB::rollBack(); // حدث خطأ، تراجع عن كل التغييرات
 
-            // يمكنك تسجيل الخطأ للمراجعة لاحقاً
-            // Log::error($e->getMessage());
+            // للـ debugging، يمكنك عرض الخطأ
+            // return back()->with('error', $e->getMessage());
 
             return back()->with('error', 'حدث خطأ غير متوقع أثناء تحديث المقال.');
         }
@@ -166,5 +159,30 @@ class ArticleController extends Controller
         $image->delete();
 
         return response()->json(['success' => true]);
+    }
+
+
+    public function storeImages(Request $request)
+    {
+        $request->validate([
+            'article_id' => 'required|exists:articles,id',
+            'images' => 'required|array|min:1',
+            'images.*.file' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:4096',
+            'images.*.name' => 'nullable|string|max:255',
+        ]);
+
+        $article = Article::findOrFail($request->article_id);
+
+        foreach ($request->file('images') as $key => $imageData) {
+            if (isset($imageData['file']) && $imageData['file']->isValid()) {
+                $file = $imageData['file'];
+                $imageName = $request->input("images.{$key}.name") ?? pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                $path = $file->store('articles', 'public');
+                $article->images()->create(['name' => $imageName, 'path' => $path]);
+            }
+        }
+
+        // هنا نستخدم redirect()->back() ليعود إلى نفس الصفحة (صفحة المقالات)
+        return redirect()->back()->with('success', 'تم إضافة الصور للمقال "' . $article->title . '" بنجاح.');
     }
 }

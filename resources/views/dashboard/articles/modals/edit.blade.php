@@ -2,9 +2,9 @@
     aria-labelledby="editArticleModalLabel{{ $article->id }}" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
-            <form action="{{ route('articles.update', $article->id) }}" method="POST" enctype="multipart/form-data" >
+            <form action="{{ route('articles.update', $article->id) }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                @method('PUT')
+                {{-- @method('PUT') --}}
                 <div class="modal-header">
                     <h5 class="modal-title" id="editArticleModalLabel{{ $article->id }}">تعديل المقال</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -62,18 +62,15 @@
                     <hr>
 
                     {{-- Image Uploader --}}
-                    <div class="form-group">
+                    {{-- <div class="form-group">
                         <label>إضافة صور جديدة</label>
-                        {{-- استخدمنا "class" هنا بدلاً من "id" --}}
                         <div class="image-uploader-container">
-                           {{-- سيتم إضافة حقول الصور هنا بواسطة JavaScript --}}
                         </div>
-                        {{-- استخدمنا "class" هنا بدلاً من "id" --}}
                         <button type="button" class="btn btn-sm btn-outline-primary mt-2 add-image-btn">
                             <i class="fas fa-plus"></i> إضافة صورة أخرى
                         </button>
                         <p class="text-muted small">سيتم إضافة الصور الجديدة إلى الصور الحالية.</p>
-                    </div>
+                    </div> --}}
 
                     {{-- Existing Images --}}
                     @if ($article->images->count() > 0)

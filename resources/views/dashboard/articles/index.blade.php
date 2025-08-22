@@ -32,11 +32,18 @@
 
         {{-- بطاقة قائمة المقالات --}}
         <div class="card shadow mb-4">
-            <div class="card-header py-3 d-flex justify-content-between">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
                 <h6 class="m-0 font-weight-bold text-primary">قائمة المقالات</h6>
-                <button class="btn btn-primary" data-toggle="modal" data-target="#createArticleModal">
-                    <i class="fas fa-plus"></i> إضافة مقال
-                </button>
+                <div>
+                    {{-- ===== الزر الجديد لفتح مودال إضافة الصور ===== --}}
+                    <button type="button" class="btn btn-info" data-toggle="modal" data-target="#addImagesModal">
+                        <i class="fas fa-images"></i> إضافة صور لمقال
+                    </button>
+
+                    <button class="btn btn-primary" data-toggle="modal" data-target="#createArticleModal">
+                        <i class="fas fa-plus"></i> إضافة مقال جديد
+                    </button>
+                </div>
             </div>
             <div class="card-body">
                 {{-- تبويب الفئات --}}
@@ -107,6 +114,10 @@
     @include('dashboard.articles.modals.create')
     {{-- مودال إضافة فئة (ثابت) --}}
     @include('dashboard.articles.modals.create_category')
+
+    {{-- ===== تضمين مودال إضافة الصور الجديد ===== --}}
+    @include('dashboard.articles.modals.add_images')
+
 @endsection
 
 @push('scripts')

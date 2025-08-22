@@ -396,6 +396,37 @@
             color: var(--primary-color);
         }
         /* --- END: CSS CODE FOR ARTICLE CARDS IN MODAL --- */
+
+        /* --- START: Biography 'Read More' Styles --- */
+        .biography-wrapper {
+            position: relative;
+        }
+
+        .biography-text {
+            white-space: pre-wrap;
+            margin-bottom: 0;
+            transition: max-height 0.4s ease-out;
+            overflow: hidden;
+        }
+
+        .biography-text.collapsed {
+            max-height: 88px; /* تقريباً 4 أسطر. بافتراض أن ارتفاع السطر 22px */
+            /* إضافة تأثير التلاشي التدريجي في الأسفل */
+            -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+            mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+        }
+
+        .read-more-btn {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-weight: bold;
+            cursor: pointer;
+            padding: 5px 0;
+            margin-top: 5px;
+            display: none; /* مخفي بشكل افتراضي */
+        }
+        /* --- END: Biography 'Read More' Styles --- */
     </style>
 </head>
 
@@ -503,18 +534,9 @@
 
             function createPhoto(person, size = 'md') {
                 const sizes = {
-                    sm: {
-                        container: '45px',
-                        icon: '1.5rem'
-                    },
-                    md: {
-                        container: '120px',
-                        icon: '5rem'
-                    },
-                    lg: {
-                        container: '150px',
-                        icon: '6rem'
-                    }
+                    sm: { container: '45px', icon: '1.5rem' },
+                    md: { container: '120px', icon: '5rem' },
+                    lg: { container: '150px', icon: '6rem' }
                 };
                 const currentSize = sizes[size] || sizes['md'];
                 const iconClass = person.gender === 'female' ? 'fa-female' : 'fa-male';
@@ -606,6 +628,34 @@
                 buttonElement.dataset.loaded = 'true';
             };
 
+            // --- START: NEW FUNCTIONS FOR BIOGRAPHY ---
+            window.toggleBiography = (btn) => {
+                const wrapper = btn.closest('.biography-wrapper');
+                const textElement = wrapper.querySelector('.biography-text');
+                textElement.classList.toggle('collapsed');
+
+                if (textElement.classList.contains('collapsed')) {
+                    btn.textContent = 'عرض المزيد';
+                } else {
+                    btn.textContent = 'عرض أقل';
+                }
+            };
+
+            function setupBiography() {
+                const textElement = document.getElementById('biographyText');
+                if (!textElement) return;
+
+                const btnElement = document.getElementById('readMoreBtn');
+                const collapsedHeight = 88; // يجب أن تتطابق مع قيمة max-height في CSS
+
+                // التحقق مما إذا كان ارتفاع المحتوى الفعلي أكبر من الحد المسموح به
+                if (textElement.scrollHeight > collapsedHeight) {
+                    textElement.classList.add('collapsed');
+                    btnElement.style.display = 'inline-block';
+                }
+            }
+            // --- END: NEW FUNCTIONS FOR BIOGRAPHY ---
+
             window.showPersonDetails = async (personId) => {
                 const modalBody = document.getElementById('modalBodyContent');
                 personModal.show();
@@ -627,10 +677,9 @@
 
                 let articlesHtml = '';
                 if (person.articles && person.articles.length > 0) {
-                    // تم إزالة الفاصل العلوي من هنا
-                    articlesHtml = `<h5>السيرة الذاتية والمقالات</h5>`;
+                    articlesHtml = `<h5>المقالات</h5>`;
                     person.articles.forEach(article => {
-                        const articleUrl = `/articles/${article.id}`; // تأكد من أن هذا الرابط صحيح
+                        const articleUrl = `/articles/${article.id}`;
                         articlesHtml += `
                             <a href="${articleUrl}" target="_blank" class="article-card">
                                 <i class="fas fa-book-open"></i>
@@ -641,7 +690,6 @@
                             </a>
                         `;
                     });
-                     // لا يوجد فاصل سفلي هنا بعد الآن
                 }
 
                 let parentsHtml = '';
@@ -690,11 +738,23 @@
                     spousesHtml += '</div><hr class="my-4">';
                 }
 
+                // --- START: MODIFIED BIOGRAPHY HTML GENERATION ---
+                let biographyHtml = '';
+                if (person.biography && person.biography.trim() !== '') {
+                    biographyHtml = `
+                        <div class="biography-wrapper">
+                            <h5>نبذة عن</h5>
+                            <p id="biographyText" class="biography-text">${person.biography}</p>
+                            <button id="readMoreBtn" class="read-more-btn" onclick="toggleBiography(this)">عرض المزيد</button>
+                        </div>
+                        <hr class="my-4">`;
+                }
+                // --- END: MODIFIED BIOGRAPHY HTML GENERATION ---
+
                 let childrenHtml = (person.children_count > 0) ?
                     `<h5>الأبناء (${person.children_count})</h5><div id="modalChildrenList" class="row g-2"></div><hr class="my-4">` :
                     '';
 
-                // --- START: MODIFIED MODAL BODY STRUCTURE ---
                 modalBody.innerHTML = `
                     <div class="row g-4">
                         <div class="col-lg-4 text-center">
@@ -710,12 +770,14 @@
                             <hr class="my-4">
                             ${parentsHtml}
                             ${spousesHtml}
-                            ${person.biography ? `<h5>نبذة عن</h5><p style="white-space: pre-wrap;">${person.biography}</p><hr class="my-4">` : ''}
+                            ${biographyHtml}
                             ${childrenHtml}
                             ${articlesHtml}
                         </div>
                     </div>`;
-                // --- END: MODIFIED MODAL BODY STRUCTURE ---
+
+                // --- CALL THE NEW SETUP FUNCTION AFTER RENDERING HTML ---
+                setupBiography();
 
                 if (person.children_count > 0) loadModalChildren(person.id);
             };
