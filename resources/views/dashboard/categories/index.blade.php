@@ -70,11 +70,22 @@
                     </div>
                 </form>
 
+                {{-- ================================================ --}}
+                {{-- تنبيه مهم لتعطيل الترتيب عند البحث أو الفلترة --}}
+                {{-- ================================================ --}}
+                @if(request('search') || $selectedParent !== 'all')
+                <div class="alert alert-info">
+                    <b>ملاحظة:</b> لا يمكن إعادة الترتيب أثناء تفعيل البحث أو فلترة الأقسام. يرجى اختيار "الكل" لإعادة الترتيب.
+                </div>
+                @endif
+
                 {{-- جدول الأقسام --}}
                 <div class="table-responsive">
                     <table class="table table-bordered table-hover">
                         <thead class="thead-light">
                             <tr>
+                                {{-- 1. عمود جديد لمقبض السحب --}}
+                                <th style="width: 50px; text-align: center; vertical-align: middle;"><i class="fas fa-arrows-alt"></i></th>
                                 <th>الصورة</th>
                                 <th>الاسم</th>
                                 <th>القسم الرئيسي</th>
@@ -82,23 +93,27 @@
                                 <th>الإجراءات</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        {{-- 2. إضافة id و data-url للـ tbody --}}
+                        <tbody id="sortable-categories" data-url="{{ route('categories.updateOrder') }}">
                             @forelse($categories as $category)
-                                <tr>
-                                    <td>
+                                {{-- 3. إضافة data-id لكل صف --}}
+                                <tr data-id="{{ $category->id }}">
+                                    {{-- 4. أيقونة السحب مع تغيير شكل المؤشر --}}
+                                    <td class="text-center" style="cursor: grab; vertical-align: middle;"><i class="fas fa-bars"></i></td>
+                                    <td style="vertical-align: middle;">
                                         <img src="{{ $category->image ? asset('storage/' . $category->image) : asset('img/default-image.png') }}"
                                             alt="{{ $category->name }}" class="img-fluid rounded" width="60">
                                     </td>
-                                    <td>{{ $category->name }}</td>
-                                    <td>
+                                    <td style="vertical-align: middle;">{{ $category->name }}</td>
+                                    <td style="vertical-align: middle;">
                                         @if ($category->parent)
                                             <span class="badge badge-info">{{ $category->parent->name }}</span>
                                         @else
                                             <span class="badge badge-success">قسم رئيسي</span>
                                         @endif
                                     </td>
-                                    <td>{{ Str::limit($category->description, 50) ?? '-' }}</td>
-                                    <td>
+                                    <td style="vertical-align: middle;">{{ Str::limit($category->description, 50) ?? '-' }}</td>
+                                    <td style="vertical-align: middle;">
                                         <button type="button" class="btn btn-sm btn-circle btn-info" data-toggle="modal"
                                             data-target="#showCategoryModal{{ $category->id }}" title="عرض">
                                             <i class="fas fa-eye"></i>
@@ -113,21 +128,14 @@
                                         </button>
 
                                         {{-- تضمين المودالات لكل قسم --}}
-                                        @include('dashboard.categories.modals.show', [
-                                            'category' => $category,
-                                        ])
-                                        @include('dashboard.categories.modals.edit', [
-                                            'category' => $category,
-                                            'mainCategories' => $mainCategories,
-                                        ])
-                                        @include('dashboard.categories.modals.delete', [
-                                            'category' => $category,
-                                        ])
+                                        @include('dashboard.categories.modals.show', ['category' => $category])
+                                        @include('dashboard.categories.modals.edit', ['category' => $category, 'mainCategories' => $mainCategories])
+                                        @include('dashboard.categories.modals.delete', ['category' => $category])
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="text-center">لا توجد أقسام لعرضها.</td>
+                                    <td colspan="6" class="text-center">لا توجد أقسام لعرضها.</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -136,7 +144,10 @@
 
                 {{-- الترقيم --}}
                 <div class="d-flex justify-content-center">
-                    {{ $categories->appends(request()->query())->links() }}
+                    {{-- عرض الترقيم فقط إذا لم يكن هناك بحث أو فلترة --}}
+                    @if(!request('search') && $selectedParent === 'all')
+                      {{ $categories->appends(request()->query())->links() }}
+                    @endif
                 </div>
             </div>
         </div>
@@ -147,7 +158,7 @@
 @endsection
 
 @push('scripts')
-    {{-- سكربت لعرض اسم الملف المختار في حقول رفع الصور --}}
+    {{-- سكربت لعرض اسم الملف المختار --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             $('.custom-file-input').on('change', function() {
@@ -156,4 +167,64 @@
             });
         });
     </script>
+
+    {{-- ======================================================= --}}
+    {{-- 5. السكربت الكامل والنهائي لإعادة الترتيب --}}
+    {{-- ======================================================= --}}
+
+    {{-- تفعيل السكربت فقط إذا لم يكن هناك بحث أو فلترة --}}
+    @if(!request('search') && $selectedParent === 'all')
+
+        <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const sortableTable = document.getElementById('sortable-categories');
+
+                // التأكد من وجود العنصر قبل تفعيل المكتبة
+                if (sortableTable) {
+                    const updateOrderUrl = sortableTable.dataset.url;
+
+                    new Sortable(sortableTable, {
+                        animation: 150,
+                        handle: 'td:first-child', // السحب من الخلية الأولى فقط
+
+                        // الدالة التي تعمل بعد انتهاء السحب
+                        onEnd: function (evt) {
+                            const rows = Array.from(sortableTable.children);
+                            const categoryIds = rows.map(row => row.dataset.id);
+
+                            // إرسال الترتيب الجديد للسيرفر
+                            fetch(updateOrderUrl, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                                },
+                                body: JSON.stringify({ categoryIds: categoryIds })
+                            })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('Network response was not ok');
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                if (data.success) {
+                                    console.log(data.message);
+                                    // يمكنك هنا إضافة رسالة جميلة للمستخدم باستخدام مكتبة مثل SweetAlert2
+                                    // مثال: Swal.fire('نجاح!', 'تم تحديث الترتيب بنجاح.', 'success');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                // هنا يمكنك إظهار رسالة خطأ
+                                // مثال: Swal.fire('خطأ!', 'حدث مشكلة أثناء تحديث الترتيب.', 'error');
+                            });
+                        }
+                    });
+                }
+            });
+        </script>
+    @endif
 @endpush

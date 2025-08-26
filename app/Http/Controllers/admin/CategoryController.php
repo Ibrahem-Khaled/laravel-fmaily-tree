@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\Category;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB; // استيراد DB facade
 
 class CategoryController extends Controller
 {
@@ -34,7 +35,11 @@ class CategoryController extends Controller
 
     public function index(Request $request)
     {
-        $query = Category::with('parent')->latest();
+        $query = Category::with('parent');
+
+        if (!$request->has('search') && !$request->has('parent_id')) {
+            $query->orderBy('sort_order', 'asc');
+        }
 
         // فلترة حسب القسم الرئيسي
         $selectedParent = 'all';
@@ -122,5 +127,25 @@ class CategoryController extends Controller
         $category->delete();
 
         return redirect()->route('categories.index')->with('success', 'تم حذف القسم بنجاح.');
+    }
+
+    public function updateOrder(Request $request)
+    {
+        $request->validate([
+            'categoryIds' => 'required|array',
+            'categoryIds.*' => 'integer|exists:categories,id',
+        ]);
+
+        // استخدام Transaction لضمان تنفيذ كل التحديثات معًا
+        DB::transaction(function () use ($request) {
+            foreach ($request->categoryIds as $index => $categoryId) {
+                Category::where('id', $categoryId)->update(['sort_order' => $index]);
+            }
+        });
+
+        return response()->json([
+            'success' => true,
+            'message' => 'تم تحديث ترتيب الأقسام بنجاح.'
+        ]);
     }
 }

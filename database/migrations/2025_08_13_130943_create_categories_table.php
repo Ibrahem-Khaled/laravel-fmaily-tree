@@ -17,6 +17,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->string('image')->nullable();
             $table->foreignId('parent_id')->nullable()->constrained('categories')->onDelete('set null');
+            $table->bigInteger('sort_order')->index()->default(0);
             $table->timestamps();
         });
     }

@@ -1,129 +1,246 @@
 {{-- ====================================================================== --}}
-{{-- |     ملف الهيدر المنفصل (resources/views/partials/main-header.blade.php)      | --}}
+{{-- | ملف الهيدر المنفصل (كود مخصص بالكامل بدون Bootstrap) | --}}
 {{-- ====================================================================== --}}
 
 <style>
-    /* --- START: CUSTOM HEADER STYLES --- */
-    .main-header {
-        background: var(--dark-green);
-        border-bottom: 2px solid var(--primary-color);
-        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
-        padding-top: 0;
-        padding-bottom: 0;
-        transition: all 0.3s ease;
+    /* --- المتغيرات الأساسية --- */
+    :root {
+        --header-bg: #145147;
+        --header-accent: #37a05c;
+        --header-text: rgba(255, 255, 255, 0.8);
+        --header-text-hover: #ffffff;
+        --header-height: 70px; /* ارتفاع الهيدر */
     }
 
-    .main-header .navbar-brand {
-        font-size: 1.4rem;
-        color: #fff;
-        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
-    }
-
-    .main-header .nav-link {
-        color: rgba(255, 255, 255, 0.75) !important;
-        font-weight: 500;
-        padding: 1.5rem 1rem;
+    /* --- الهيكل العام للهيدر --- */
+    .custom-header {
+        background-color: var(--header-bg);
+        height: var(--header-height);
+        width: 100%;
         position: relative;
-        text-transform: uppercase;
-        font-size: 0.9rem;
-        letter-spacing: 0.5px;
-        transition: all 0.3s ease;
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
+        border-bottom: 2px solid var(--header-accent);
     }
 
-    .main-header .nav-link:hover {
-        color: #fff !important;
-        background-color: rgba(255, 255, 255, 0.05);
+    .header-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 100%;
+        padding: 0 2rem; /* مساحة على الأطراف */
+        max-width: 1400px;
+        margin: 0 auto;
     }
 
-    .main-header .nav-link::after {
+    /* --- الشعار --- */
+    .header-brand {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--header-text-hover);
+        text-decoration: none;
+    }
+
+    .header-brand i {
+        font-size: 1.5rem;
+    }
+
+    /* --- قائمة الروابط الرئيسية --- */
+    .header-nav {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .header-nav-list {
+        display: flex;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        gap: 0.5rem;
+    }
+
+    .header-nav .nav-link {
+        display: block;
+        padding: 0 1rem;
+        height: var(--header-height);
+        line-height: var(--header-height);
+        color: var(--header-text);
+        text-decoration: none;
+        font-weight: 500;
+        position: relative;
+        transition: color 0.3s ease;
+    }
+
+    .header-nav .nav-link:hover {
+        color: var(--header-text-hover);
+    }
+
+    /* --- حركة الخط السفلي --- */
+    .header-nav .nav-link::after {
         content: '';
         position: absolute;
         bottom: 0;
-        right: 50%;
-        transform: translateX(50%);
+        left: 50%;
+        transform: translateX(-50%);
         width: 0;
         height: 3px;
-        background-color: var(--primary-color);
+        background-color: var(--header-accent);
         transition: width 0.3s ease;
     }
 
-    .main-header .nav-link:hover::after,
-    .main-header .nav-link.active::after {
+    .header-nav .nav-link:hover::after,
+    .header-nav .nav-link.active::after {
         width: 60%;
     }
 
-    .main-header .nav-link.active {
-        color: #fff !important;
+    .header-nav .nav-link.active {
+        color: var(--header-text-hover);
         font-weight: 700;
     }
 
-    .main-header .navbar-toggler {
-        border: 1px solid rgba(255, 255, 255, 0.3);
+    /* --- أزرار الإجراءات (لوحة التحكم) --- */
+    .header-actions {
+        display: flex;
+        align-items: center;
     }
 
-    .main-header .navbar-toggler-icon {
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.8%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    .dashboard-link {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        color: var(--header-text);
+        border-radius: 6px;
+        text-decoration: none;
+        transition: all 0.3s ease;
     }
 
-    .dashboard-btn {
-        border-color: rgba(255, 255, 255, 0.5);
-    }
-
-    .dashboard-btn:hover {
+    .dashboard-link:hover {
         background-color: #fff;
-        color: var(--dark-green) !important;
+        color: var(--header-bg);
     }
 
-    /* --- END: CUSTOM HEADER STYLES --- */
+    /* --- زر قائمة الجوال --- */
+    .mobile-menu-toggle {
+        display: none; /* مخفي في الشاشات الكبيرة */
+        background: none;
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 5px;
+        padding: 0.5rem;
+        cursor: pointer;
+    }
+    .mobile-menu-toggle .icon-bar {
+        display: block;
+        width: 22px;
+        height: 2px;
+        background-color: var(--header-text-hover);
+        margin: 4px 0;
+    }
+
+    /* --- التجاوب مع شاشات الجوال (Responsive) --- */
+    @media (max-width: 992px) {
+        .header-nav, .header-actions {
+            display: none; /* إخفاء القائمة والأزرار */
+        }
+        .mobile-menu-toggle {
+            display: block; /* إظهار زر القائمة */
+        }
+        .header-container {
+            padding: 0 1rem;
+        }
+
+        /* تنسيقات القائمة المنسدلة للجوال */
+        .header-nav.is-open {
+            display: flex;
+            flex-direction: column;
+            position: absolute;
+            top: var(--header-height);
+            left: 0;
+            right: 0;
+            background-color: var(--header-bg);
+            box-shadow: 0 10px 15px rgba(0,0,0,0.2);
+            padding: 1rem 0;
+            border-top: 1px solid var(--header-accent);
+        }
+        .header-nav.is-open .header-nav-list {
+            flex-direction: column;
+            width: 100%;
+            align-items: center;
+        }
+        .header-nav.is-open .nav-link {
+            height: auto;
+            line-height: 1;
+            padding: 1rem;
+            width: 100%;
+            text-align: center;
+        }
+        .header-nav.is-open .nav-link::after {
+            bottom: 5px; /* تعديل مكان الخط */
+        }
+        .header-nav.is-open .header-actions {
+            display: block;
+            margin-top: 1rem;
+        }
+    }
 </style>
 
-<header>
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top main-header">
-        <div class="container-fluid">
-            {{-- افترض أن راوت الصفحة الرئيسية هو 'home' --}}
-            <a class="navbar-brand" href="{{ route('old.family-tree') }}">
-                <i class="fas fa-tree me-2"></i>
-                تواصل عائلة السريع
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
-                aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="mainNavbar">
-                <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('old.family-tree') ? 'active' : '' }}"
-                            href="{{ route('old.family-tree') }}">الرئيسية</a>
-                    </li>
-                    {{-- <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('family-tree') ? 'active' : '' }}" aria-current="page"
-                            href="{{ route('family-tree') }}">تواصل العائلة</a>
-                    </li> --}}
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('family-tree') ? 'active' : '' }}"
-                            href="{{ route('family-tree') }}">العرض الجديد</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('gallery.*') ? 'active' : '' }}"
-                            href="{{ route('gallery.index') }}">المعرض</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('gallery.articles') ? 'active' : '' }}"
-                            href="{{ route('gallery.articles') }}">شهادات و أبحاث</a>
-                    </li>
-                    {{-- <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('about') ? 'active' : '' }}"
-                            href="{{ route('about') }}">عن العائلة</a>
-                    </li> --}}
-                </ul>
+<header class="custom-header">
+    <div class="header-container">
 
-                <div class="d-flex">
-                    <a href="{{ route('dashboard') }}" class="btn btn-outline-light btn-sm dashboard-btn">
-                        <i class="fas fa-tachometer-alt me-1"></i>
-                        لوحة التحكم
-                    </a>
-                </div>
+        <a class="header-brand" href="{{ route('old.family-tree') }}">
+            <i class="fas fa-tree"></i>
+            <span>تواصل عائلة السريع</span>
+        </a>
+
+        <nav class="header-nav" id="main-nav">
+            <ul class="header-nav-list">
+                <li>
+                    <a class="nav-link {{ request()->routeIs('old.family-tree') ? 'active' : '' }}" href="{{ route('old.family-tree') }}">الرئيسية</a>
+                </li>
+                <li>
+                    <a class="nav-link {{ request()->routeIs('family-tree') ? 'active' : '' }}" href="{{ route('family-tree') }}">العرض الجديد</a>
+                </li>
+                <li>
+                    <a class="nav-link {{ request()->routeIs('gallery.*') ? 'active' : '' }}" href="{{ route('gallery.index') }}">المعرض</a>
+                </li>
+                <li>
+                    <a class="nav-link {{ request()->routeIs('gallery.articles') ? 'active' : '' }}" href="{{ route('gallery.articles') }}">شهادات و أبحاث</a>
+                </li>
+                <li>
+                    <a class="nav-link {{ request()->routeIs('about') ? 'active' : '' }}" href="#">عن العائلة</a>
+                </li>
+            </ul>
+            <div class="header-actions">
+                <a href="{{ route('dashboard') }}" class="dashboard-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>لوحة التحكم</span>
+                </a>
             </div>
-        </div>
-    </nav>
+        </nav>
+
+        <button class="mobile-menu-toggle" id="mobile-menu-btn" aria-label="Toggle navigation">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+
+    </div>
 </header>
+
+<script>
+    // جافاسكريبت بسيط لتشغيل القائمة في وضع الجوال
+    document.addEventListener('DOMContentLoaded', function () {
+        const mobileMenuButton = document.getElementById('mobile-menu-btn');
+        const mainNav = document.getElementById('main-nav');
+
+        if (mobileMenuButton && mainNav) {
+            mobileMenuButton.addEventListener('click', function () {
+                mainNav.classList.toggle('is-open');
+            });
+        }
+    });
+</script>
