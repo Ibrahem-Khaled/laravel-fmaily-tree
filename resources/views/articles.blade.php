@@ -236,6 +236,7 @@
 </head>
 
 <body class="text-gray-800 relative overflow-x-hidden">
+    @include('partials.main-header')
 
     <div class="bg-pattern top-10 left-10 w-96 h-96 float-animation hidden lg:block">
         <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
@@ -374,7 +375,7 @@
                                 </a>
 
                                 @foreach($categories as $category)
-                                <a href="{{ url('/articles?category=' . $category->id) }}"
+                                <a href="{{ url('/gallery/articles?category=' . $category->id) }}"
                                    class="block px-3 lg:px-4 py-2 lg:py-3 rounded-xl lg:rounded-2xl transition-all duration-300
                                           font-medium text-sm lg:text-base
                                           {{ request('category') == $category->id ? 'bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg scale-105' : 'bg-white/70 hover:bg-green-50 hover:scale-105 hover:shadow-md' }}">
@@ -390,7 +391,7 @@
                                 @endforeach
                             </div>
 
-                            <div class="mt-8">
+                            {{-- <div class="mt-8">
                                 <h4 class="text-lg font-bold text-gray-700 mb-4 flex items-center gap-2">
                                     <span class="w-2 h-2 bg-green-500 rounded-full"></span>
                                     الكتّاب الأكثر نشاطاً
@@ -412,7 +413,7 @@
                                     </a>
                                     @endforeach
                                 </div>
-                            </div>
+                            </div> --}}
 
                             <div class="mt-8 p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-2xl">
                                 <h4 class="text-lg font-bold text-gray-700 mb-3">إحصائيات المكتبة</h4>

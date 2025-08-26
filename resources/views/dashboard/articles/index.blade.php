@@ -43,6 +43,10 @@
                     <button class="btn btn-primary" data-toggle="modal" data-target="#createArticleModal">
                         <i class="fas fa-plus"></i> إضافة مقال جديد
                     </button>
+
+                    <a href="{{ route('categories.index') }}" class="btn btn-secondary">
+                        <i class="fas fa-list"></i> إدارة الفئات
+                    </a>
                 </div>
             </div>
             <div class="card-body">
@@ -117,7 +121,6 @@
 
     {{-- ===== تضمين مودال إضافة الصور الجديد ===== --}}
     @include('dashboard.articles.modals.add_images')
-
 @endsection
 
 @push('scripts')

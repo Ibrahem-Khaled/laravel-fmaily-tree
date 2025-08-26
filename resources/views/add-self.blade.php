@@ -166,6 +166,7 @@
     </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4" dir="rtl">
+    @include('partials.main-header')
 
     <div class="form-container w-full max-w-3xl p-6 sm:p-10">
 

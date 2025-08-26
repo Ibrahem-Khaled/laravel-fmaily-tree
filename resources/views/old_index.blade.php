@@ -1,3 +1,7 @@
+{{-- ====================================================================== --}}
+{{-- |    الملف الرئيسي للعرض (resources/views/family-tree.blade.php)     | --}}
+{{-- ====================================================================== --}}
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
@@ -26,47 +30,11 @@
         body {
             background: var(--light-gray);
             font-family: 'Alexandria', sans-serif;
-            /* لا حاجة لإضافة padding هنا لأن .tree-section يحتوي على padding-top كافية */
         }
 
-        /* --- START: NEW HEADER STYLES --- */
-        .navbar {
-            background-color: var(--dark-green);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            padding-top: 0.75rem;
-            padding-bottom: 0.75rem;
-        }
+        /* تم نقل كل تنسيقات الهيدر إلى الملف المنفصل */
 
-        .navbar-brand {
-            font-weight: 700;
-        }
-
-        .nav-link {
-            font-weight: 500;
-            color: rgba(255, 255, 255, 0.8) !important;
-            transition: color 0.3s ease;
-            padding-left: 1rem;
-            padding-right: 1rem;
-        }
-
-        .nav-link:hover,
-        .nav-link.active {
-            color: #fff !important;
-            font-weight: 600;
-        }
-
-        .dashboard-btn {
-            border-color: rgba(255, 255, 255, 0.5);
-        }
-
-        .dashboard-btn:hover {
-            background-color: #fff;
-            color: var(--dark-green) !important;
-        }
-
-        /* --- END: NEW HEADER STYLES --- */
-
-        /* --- الكود الأصلي الخاص بك (بدون تغيير) --- */
+        /* --- START: Tree View Styles --- */
         .tree-section {
             background: linear-gradient(180deg, var(--light-green) 0%, #FFF 100%);
             padding-top: 120px;
@@ -367,7 +335,6 @@
             align-items: center;
         }
 
-        /* --- START: CSS CODE FOR ARTICLE CARDS IN MODAL --- */
         .article-card {
             display: flex;
             align-items: center;
@@ -380,7 +347,6 @@
             text-decoration: none;
             color: var(--dark-green);
             margin-bottom: 10px;
-            /* لإضافة مسافة بين المقالات إذا كانت متعددة */
         }
 
         .article-card:hover {
@@ -395,9 +361,7 @@
             font-size: 1.5rem;
             color: var(--primary-color);
         }
-        /* --- END: CSS CODE FOR ARTICLE CARDS IN MODAL --- */
 
-        /* --- START: Biography 'Read More' Styles --- */
         .biography-wrapper {
             position: relative;
         }
@@ -410,8 +374,7 @@
         }
 
         .biography-text.collapsed {
-            max-height: 88px; /* تقريباً 4 أسطر. بافتراض أن ارتفاع السطر 22px */
-            /* إضافة تأثير التلاشي التدريجي في الأسفل */
+            max-height: 88px;
             -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
             mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
         }
@@ -424,62 +387,53 @@
             cursor: pointer;
             padding: 5px 0;
             margin-top: 5px;
-            display: none; /* مخفي بشكل افتراضي */
+            display: none;
         }
-        /* --- END: Biography 'Read More' Styles --- */
+        /* --- END: Tree View Styles --- */
 
 
-        /* --- START: Mobile Responsive Styles (THE ADDED CODE) --- */
-         @media (max-width: 768px) {
-            /* تقليل المساحة الفارغة حول الشجرة لتوفير مساحة أكبر */
+        /* --- START: Mobile Responsive Styles (UPDATED FOR 3 COLUMNS) --- */
+        @media (max-width: 768px) {
             .tree-section {
-                padding-top: 90px; /* مساحة أقل للهيدر */
+                padding-top: 90px;
                 padding-left: 2px;
                 padding-right: 2px;
             }
 
-            /* تصغير عرض كل بطاقة (عمود) في الشجرة بشكل أكبر */
             .accordion-group-item,
             .accordion-item {
-                width: 110px; /* تم تصغير العرض من 150px إلى 110px */
+                width: 110px;
             }
 
-            /* تعديل موضع وحجم عمود الأبناء ليتناسب مع العرض الجديد */
             .accordion-collapse {
-                width: 110px; /* يجب أن يكون نفس عرض البطاقة */
-                padding-right: 10px; /* تقليل المسافة بين الأعمدة بشكل أكبر */
+                width: 110px;
+                padding-right: 10px;
             }
 
-            /* تصغير حجم الصورة الشخصية داخل البطاقة */
             .accordion-button:not(.photo-bg) .person-photo-container {
-                width: 60px !important; /* أصغر */
-                height: 60px !important; /* أصغر */
-                margin-bottom: 5px; /* تقليل المسافة أسفل الصورة */
+                width: 60px !important;
+                height: 60px !important;
+                margin-bottom: 5px;
             }
 
-            /* تصغير أيقونة الشخص الافتراضية */
             .accordion-button .person-photo-container .icon-placeholder {
-                font-size: 2.2rem !important; /* أصغر */
+                font-size: 2.2rem !important;
             }
 
-            /* تعديل حجم البطاقة التي تستخدم صورة كخلفية */
             .accordion-button.photo-bg {
-                min-height: 120px; /* تصغير الارتفاع */
+                min-height: 120px;
             }
 
-            /* تصغير حجم الخط لاسم الشخص بشكل أكبر */
             .accordion-button .person-name {
-                font-size: 0.75rem; /* أصغر */
-                line-height: 1.2; /* لتحسين عرض الأسماء الطويلة */
+                font-size: 0.75rem;
+                line-height: 1.2;
             }
 
-            /* تصغير أزرار الإجراءات (التفاصيل) بشكل أكبر */
             .actions-bar .btn {
-                font-size: 9px; /* أصغر */
-                padding: 4px 2px; /* تصغير المساحة الداخلية */
+                font-size: 9px;
+                padding: 4px 2px;
             }
 
-            /* تصغير أيقونة المتوفى لتناسب الحجم الجديد */
             .deceased-icon {
                 width: 18px;
                 height: 18px;
@@ -495,49 +449,9 @@
 
 <body>
 
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="#">
-                    <i class="fas fa-tree me-2"></i>
-                    تواصل عائلة السريع
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
-                    aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="mainNavbar">
-                    <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">الرئيسية</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="#">تواصل العائلة</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('family-tree') }}">العرض الجديد</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('gallery.index') }}">المعرض</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('gallery.articles') }}">المقالات</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">عن العائلة</a>
-                        </li>
-                    </ul>
+    {{-- تضمين الهيدر من الملف المنفصل (partials/main-header.blade.php) --}}
+    @include('partials.main-header')
 
-                    <div class="d-flex">
-                        <a href="{{ route('dashboard') }}" class="btn btn-outline-light btn-sm dashboard-btn">
-                            <i class="fas fa-tachometer-alt me-1"></i>
-                            لوحة التحكم
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </nav>
-    </header>
     <main>
         <section class="tree-section">
             <div class="container-fluid">
@@ -691,7 +605,6 @@
                 buttonElement.dataset.loaded = 'true';
             };
 
-            // --- START: NEW FUNCTIONS FOR BIOGRAPHY ---
             window.toggleBiography = (btn) => {
                 const wrapper = btn.closest('.biography-wrapper');
                 const textElement = wrapper.querySelector('.biography-text');
@@ -709,15 +622,13 @@
                 if (!textElement) return;
 
                 const btnElement = document.getElementById('readMoreBtn');
-                const collapsedHeight = 88; // يجب أن تتطابق مع قيمة max-height في CSS
+                const collapsedHeight = 88;
 
-                // التحقق مما إذا كان ارتفاع المحتوى الفعلي أكبر من الحد المسموح به
                 if (textElement.scrollHeight > collapsedHeight) {
                     textElement.classList.add('collapsed');
                     btnElement.style.display = 'inline-block';
                 }
             }
-            // --- END: NEW FUNCTIONS FOR BIOGRAPHY ---
 
             window.showPersonDetails = async (personId) => {
                 const modalBody = document.getElementById('modalBodyContent');
@@ -801,7 +712,6 @@
                     spousesHtml += '</div><hr class="my-4">';
                 }
 
-                // --- START: MODIFIED BIOGRAPHY HTML GENERATION ---
                 let biographyHtml = '';
                 if (person.biography && person.biography.trim() !== '') {
                     biographyHtml = `
@@ -812,7 +722,6 @@
                         </div>
                         <hr class="my-4">`;
                 }
-                // --- END: MODIFIED BIOGRAPHY HTML GENERATION ---
 
                 let childrenHtml = (person.children_count > 0) ?
                     `<h5>الأبناء (${person.children_count})</h5><div id="modalChildrenList" class="row g-2"></div><hr class="my-4">` :
@@ -839,7 +748,6 @@
                         </div>
                     </div>`;
 
-                // --- CALL THE NEW SETUP FUNCTION AFTER RENDERING HTML ---
                 setupBiography();
 
                 if (person.children_count > 0) loadModalChildren(person.id);

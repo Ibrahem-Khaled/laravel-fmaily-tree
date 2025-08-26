@@ -181,6 +181,7 @@
 </head>
 
 <body class="text-gray-800 relative overflow-x-hidden">
+    @include('partials.main-header')
 
     <!-- عناصر زخرفية في الخلفية (مخفية على الموبايل) -->
     <div class="bg-pattern top-10 left-10 w-96 h-96 float-animation hidden lg:block">

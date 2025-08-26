@@ -57,6 +57,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
 
     // راوت مخصص لإنشاء الفئات عبر AJAX من داخل مودال المقالات
     Route::post('categories/store-ajax', [CategoryController::class, 'storeAjax'])->name('categories.store.ajax');
+    Route::resource('categories', CategoryController::class);
 
     // this route is for the admin panel
     Route::resource('roles', RoleController::class);
