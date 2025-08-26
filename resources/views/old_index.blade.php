@@ -430,52 +430,62 @@
 
 
         /* --- START: Mobile Responsive Styles (THE ADDED CODE) --- */
-        @media (max-width: 768px) {
+         @media (max-width: 768px) {
             /* تقليل المساحة الفارغة حول الشجرة لتوفير مساحة أكبر */
             .tree-section {
-                padding-top: 100px; /* مساحة أقل للهيدر */
-                padding-left: 5px;
-                padding-right: 5px;
+                padding-top: 90px; /* مساحة أقل للهيدر */
+                padding-left: 2px;
+                padding-right: 2px;
             }
 
-            /* تصغير عرض كل بطاقة (عمود) في الشجرة */
+            /* تصغير عرض كل بطاقة (عمود) في الشجرة بشكل أكبر */
             .accordion-group-item,
             .accordion-item {
-                width: 150px; /* تم تصغير العرض من 200px إلى 150px */
+                width: 110px; /* تم تصغير العرض من 150px إلى 110px */
             }
 
             /* تعديل موضع وحجم عمود الأبناء ليتناسب مع العرض الجديد */
             .accordion-collapse {
-                width: 150px; /* يجب أن يكون نفس عرض البطاقة */
-                padding-right: 15px; /* تقليل المسافة بين الأعمدة */
+                width: 110px; /* يجب أن يكون نفس عرض البطاقة */
+                padding-right: 10px; /* تقليل المسافة بين الأعمدة بشكل أكبر */
             }
 
             /* تصغير حجم الصورة الشخصية داخل البطاقة */
             .accordion-button:not(.photo-bg) .person-photo-container {
-                width: 80px !important;
-                height: 80px !important;
-                margin-bottom: 8px;
+                width: 60px !important; /* أصغر */
+                height: 60px !important; /* أصغر */
+                margin-bottom: 5px; /* تقليل المسافة أسفل الصورة */
             }
 
             /* تصغير أيقونة الشخص الافتراضية */
             .accordion-button .person-photo-container .icon-placeholder {
-                font-size: 3rem !important;
+                font-size: 2.2rem !important; /* أصغر */
             }
 
             /* تعديل حجم البطاقة التي تستخدم صورة كخلفية */
             .accordion-button.photo-bg {
-                min-height: 160px;
+                min-height: 120px; /* تصغير الارتفاع */
             }
 
-            /* تصغير حجم الخط لاسم الشخص */
+            /* تصغير حجم الخط لاسم الشخص بشكل أكبر */
             .accordion-button .person-name {
-                font-size: 0.9rem;
+                font-size: 0.75rem; /* أصغر */
+                line-height: 1.2; /* لتحسين عرض الأسماء الطويلة */
             }
 
-            /* تصغير أزرار الإجراءات (التفاصيل) */
+            /* تصغير أزرار الإجراءات (التفاصيل) بشكل أكبر */
             .actions-bar .btn {
-                font-size: 11px;
-                padding: 6px 3px;
+                font-size: 9px; /* أصغر */
+                padding: 4px 2px; /* تصغير المساحة الداخلية */
+            }
+
+            /* تصغير أيقونة المتوفى لتناسب الحجم الجديد */
+            .deceased-icon {
+                width: 18px;
+                height: 18px;
+                font-size: 10px;
+                bottom: 2px;
+                left: 2px;
             }
         }
         /* --- END: Mobile Responsive Styles --- */
