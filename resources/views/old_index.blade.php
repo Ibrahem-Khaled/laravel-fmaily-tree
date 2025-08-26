@@ -389,6 +389,7 @@
             margin-top: 5px;
             display: none;
         }
+
         /* --- END: Tree View Styles --- */
 
 
@@ -442,8 +443,8 @@
                 left: 2px;
             }
         }
-        /* --- END: Mobile Responsive Styles --- */
 
+        /* --- END: Mobile Responsive Styles --- */
     </style>
 </head>
 
@@ -511,9 +512,18 @@
 
             function createPhoto(person, size = 'md') {
                 const sizes = {
-                    sm: { container: '45px', icon: '1.5rem' },
-                    md: { container: '120px', icon: '5rem' },
-                    lg: { container: '150px', icon: '6rem' }
+                    sm: {
+                        container: '45px',
+                        icon: '1.5rem'
+                    },
+                    md: {
+                        container: '120px',
+                        icon: '5rem'
+                    },
+                    lg: {
+                        container: '150px',
+                        icon: '6rem'
+                    }
                 };
                 const currentSize = sizes[size] || sizes['md'];
                 const iconClass = person.gender === 'female' ? 'fa-female' : 'fa-male';
@@ -814,17 +824,21 @@
                 });
             });
 
-            document.addEventListener('shown.bs.collapse', function(event) {
-                if (!event.target.closest('.tree-section')) return;
-                const scrollContainer = document.querySelector('.tree-section');
-                const newColumn = event.target;
-                setTimeout(() => {
-                    const newScrollLeft = newColumn.offsetLeft - 30;
-                    scrollContainer.scrollTo({
-                        left: newScrollLeft,
-                        behavior: 'smooth'
-                    });
-                }, 100);
+            document.addEventListener('show.bs.collapse', function(event) {
+                const collapseElement = event.target;
+                const parentAccordion = collapseElement.closest('.accordion');
+
+                if (!parentAccordion) return;
+
+                // اقفل أي collapse آخر مفتوح في نفس المستوى
+                parentAccordion.querySelectorAll('.accordion-collapse.show').forEach(openCollapse => {
+                    if (openCollapse !== collapseElement) {
+                        const bsCollapse = bootstrap.Collapse.getInstance(openCollapse);
+                        if (bsCollapse) {
+                            bsCollapse.hide();
+                        }
+                    }
+                });
             });
 
             loadInitialTree();

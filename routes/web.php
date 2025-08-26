@@ -3,6 +3,7 @@
 use App\Http\Controllers\admin\ArticleController;
 use App\Http\Controllers\admin\CategoryController;
 use App\Http\Controllers\admin\DashboardController;
+use App\Http\Controllers\admin\ImageController;
 use App\Http\Controllers\admin\MarriageController;
 use App\Http\Controllers\admin\OutsideFamilyPersonController;
 use App\Http\Controllers\admin\PersonController;
@@ -62,6 +63,8 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
 
     // this route is for the admin panel
     Route::resource('roles', RoleController::class);
+
+    Route::resource('images', ImageController::class)->except(['show', 'create', 'edit']);
 });
 
 require __DIR__ . '/auth.php';

@@ -205,7 +205,7 @@
                     <a class="nav-link {{ request()->routeIs('family-tree') ? 'active' : '' }}" href="{{ route('family-tree') }}">العرض الجديد</a>
                 </li>
                 <li>
-                    <a class="nav-link {{ request()->routeIs('gallery.*') ? 'active' : '' }}" href="{{ route('gallery.index') }}">المعرض</a>
+                    <a class="nav-link {{ request()->routeIs('gallery.index') ? 'active' : '' }}" href="{{ route('gallery.index') }}">المعرض</a>
                 </li>
                 <li>
                     <a class="nav-link {{ request()->routeIs('gallery.articles') ? 'active' : '' }}" href="{{ route('gallery.articles') }}">شهادات و أبحاث</a>

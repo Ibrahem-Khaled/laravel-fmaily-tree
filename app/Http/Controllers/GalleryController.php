@@ -15,39 +15,39 @@ class GalleryController extends Controller
      */
     public function index(Request $request)
     {
-        // الاستعلام الأساسي لجلب الصور مع علاقاتها لتجنب مشكلة N+1
-        $query = Image::with(['article.category', 'article.person']);
+        // الخطوة 1: الاستعلام الأساسي مع تحميل العلاقات المطلوبة للعرض
+        // - 'category': العلاقة المباشرة لعرض اسم القسم
+        // - 'article.person': العلاقة المتداخلة لعرض اسم المؤلف
+        $query = Image::with(['category', 'article.person']);
 
-        // 1. الفلترة بناءً على الفئة (Category)
-        $query->when($request->category, function ($q, $categoryId) {
-            return $q->whereHas('article', function ($subQ) use ($categoryId) {
-                $subQ->where('category_id', $categoryId);
+        // الخطوة 2: الفلترة بناءً على القسم (Category) مباشرة
+        // الآن نستخدم "where" بسيط لأن العلاقة مباشرة (Image->Category)
+        $query->when($request->filled('category'), function ($q) use ($request) {
+            return $q->where('category_id', $request->category);
+        });
+
+        // الخطوة 3: الفلترة بناءً على الشخص المساهم (Author) لا تزال عبر المقال
+        // هذا الجزء يبقى كما هو لأن العلاقة غير مباشرة (Image->Article->Person)
+        $query->when($request->filled('person'), function ($q) use ($request) {
+            return $q->whereHas('article', function ($subQ) use ($request) {
+                $subQ->where('person_id', $request->person);
             });
         });
 
-        // 2. الفلترة بناءً على الشخص المساهم (Author)
-        $query->when($request->person, function ($q, $personId) {
-            return $q->whereHas('article', function ($subQ) use ($personId) {
-                $subQ->where('person_id', $personId);
-            });
-        });
+        // جلب النتائج النهائية مع الترتيب والترقيم
+        $images = $query->latest()->paginate(24)->withQueryString();
 
-        // جلب الصور مع الترتيب من الأحدث للأقدم + الترقيم (Pagination)
-        $images = $query->latest()->paginate(24);
-
-        // جلب الفئات الرئيسية مع الفئات الفرعية التابعة لها
-        $categories = Category::whereNull('parent_id')->with('children')->get();
-
-        // جلب الأشخاص الذين لديهم مقالات فقط لعرضهم في قائمة الفلترة
+        // جلب البيانات اللازمة لقوائم الفلترة في الواجهة
+        $categories = Category::whereNull('parent_id')->with('children')->whereHas('images')->get();
         $authors = Person::whereHas('articles')->get();
 
-        // إرسال كل البيانات إلى الـ View
+        // إرسال البيانات إلى الـ View
         return view('gallery', [
             'images' => $images,
             'categories' => $categories,
             'authors' => $authors,
-            'currentCategory' => $request->category, // لإظهار الفلتر الحالي
-            'currentAuthor' => $request->person,     // لإظهار الفلتر الحالي
+            'currentCategory' => $request->category, // << أضف هذا السطر مجدداً
+            'currentAuthor' => $request->person,     // << وأضف هذا السطر أيضاً
         ]);
     }
 
@@ -91,7 +91,9 @@ class GalleryController extends Controller
         $articles = $query->latest()->paginate(12);
 
         // جلب التصنيفات مع عدد المقالات
-        $categories = Category::withCount('articles')->get();
+        $categories = Category::withCount('articles')
+            ->whereHas('articles')
+            ->get();
 
         // جلب الكتّاب الأكثر نشاطاً
         $topAuthors = Person::withCount('articles')

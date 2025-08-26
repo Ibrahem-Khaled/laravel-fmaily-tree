@@ -38,7 +38,13 @@
         <a class="nav-link" href="{{ route('articles.index') }}">
             <i class="fas fa-fw fa-book"></i>
             <span>
-                المقالات ومعرض الصور</span></a>
+                المقالات</span></a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{{ route('images.index') }}">
+            <i class="fas fa-fw fa-images"></i>
+            <span>
+                مكتبة الصور</span></a>
     </li>
     <li class="nav-item">
         <a class="nav-link" href="{{ route('roles.index') }}">

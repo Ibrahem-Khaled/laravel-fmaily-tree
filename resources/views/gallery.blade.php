@@ -202,7 +202,7 @@
 
     <div class="container mx-auto px-4 py-4 lg:py-8 relative z-10">
 
-        <!-- الهيدر المبدع (محسّن للموبايل) -->
+        {{-- <!-- الهيدر المبدع (محسّن للموبايل) -->
         <header class="text-center mb-8 lg:mb-16 relative">
             <div class="inline-block relative">
                 <h1 class="text-3xl sm:text-5xl md:text-7xl font-bold gradient-text mb-2 lg:mb-4 drop-shadow-2xl">
@@ -220,7 +220,7 @@
                     ✨ ذكرياتنا الجميلة في مكان واحد ✨
                 </span>
             </p>
-        </header>
+        </header> --}}
 
         <!-- زر الفلترة للموبايل -->
         <div class="lg:hidden mb-4">
@@ -308,7 +308,7 @@
                                 </div>
 
                                 <!-- المساهم -->
-                                <div class="mb-6">
+                                {{-- <div class="mb-6">
                                     <label for="person"
                                         class="flex items-center gap-2 text-base lg:text-lg font-semibold mb-3 lg:mb-4 text-gray-700">
                                         <span class="w-2 h-2 bg-green-500 rounded-full"></span>
@@ -326,7 +326,7 @@
                                             </option>
                                         @endforeach
                                     </select>
-                                </div>
+                                </div> --}}
 
                                 <!-- أزرار الفلترة -->
                                 <div class="flex flex-col space-y-3">

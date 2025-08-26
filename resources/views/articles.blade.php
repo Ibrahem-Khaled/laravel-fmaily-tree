@@ -252,7 +252,7 @@
 
     <div class="container mx-auto px-4 py-4 lg:py-8 relative z-10">
 
-        <header class="text-center mb-8 lg:mb-16 relative">
+        {{-- <header class="text-center mb-8 lg:mb-16 relative">
             <div class="inline-block relative">
                 <h1 class="text-3xl sm:text-5xl md:text-7xl font-bold gradient-text mb-2 lg:mb-4 drop-shadow-2xl">
                     مكتبة المقالات
@@ -265,7 +265,7 @@
                     📚 اكتشف قصصنا وذكرياتنا المكتوبة 📚
                 </span>
             </p>
-        </header>
+        </header> --}}
 
         <div class="mb-8">
             <div class="glass-effect p-4 lg:p-6 rounded-3xl green-glow">
@@ -320,7 +320,7 @@
                     <button onclick="filterByCategory('all')"
                             class="filter-chip px-4 py-2 bg-white/70 rounded-full text-sm font-medium hover:bg-green-50
                                    transition-all duration-300 active-filter">
-                        جميع المقالات
+                        الكل
                     </button>
                     @foreach($categories as $category)
                     <button onclick="filterByCategory('{{ $category->id }}')"
@@ -358,7 +358,7 @@
                             </div>
 
                             <div class="space-y-2">
-                                <a href="{{ url('/articles') }}"
+                                <a href="{{ url('/gallery/articles') }}"
                                    class="block px-3 lg:px-4 py-2 lg:py-3 rounded-xl lg:rounded-2xl transition-all duration-300
                                           font-medium text-sm lg:text-base
                                           {{ !request('category') ? 'bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg scale-105' : 'bg-white/70 hover:bg-green-50 hover:scale-105 hover:shadow-md' }}">
@@ -368,7 +368,7 @@
                                                 <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
                                                 <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 1 1 0 000 2H4a1 1 0 00-1 1v7a1 1 0 001 1h12a1 1 0 001-1V6a1 1 0 00-1-1h-2a1 1 0 100-2 2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V5z" clip-rule="evenodd"/>
                                             </svg>
-                                            جميع المقالات
+                                            الكل
                                         </span>
                                         <span class="count-badge">{{ $totalArticles }}</span>
                                     </span>
@@ -519,8 +519,8 @@
                         <p class="mt-2 text-base text-gray-600">
                             يبدو أنه لا توجد مقالات تطابق معايير البحث الحالية.
                         </p>
-                        <a href="{{ url('/articles') }}" class="mt-6 inline-block bg-gradient-to-r from-green-500 to-green-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all">
-                            عرض جميع المقالات
+                        <a href="{{ url('/gallery/articles') }}" class="mt-6 inline-block bg-gradient-to-r from-green-500 to-green-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all">
+                            عرض الكل
                         </a>
                     </div>
                 @endif
@@ -579,7 +579,7 @@
 
             // 4. الفلاتر السريعة (بناء رابط وإعادة توجيه)
             window.filterByCategory = function (categoryId) {
-                const url = new URL(window.location.origin + '/articles');
+                const url = new URL(window.location.origin + '/gallery/articles');
                 if (categoryId !== 'all') {
                     url.searchParams.set('category', categoryId);
                 }
