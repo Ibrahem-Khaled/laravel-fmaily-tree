@@ -93,6 +93,7 @@ class GalleryController extends Controller
         // جلب التصنيفات مع عدد المقالات
         $categories = Category::withCount('articles')
             ->whereHas('articles')
+            ->orderBy('sort_order', 'desc')
             ->get();
 
         // جلب الكتّاب الأكثر نشاطاً
