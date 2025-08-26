@@ -37,9 +37,9 @@ Route::prefix('api')->group(function () {
 });
 
 
-Route::group(['middleware' => ['auth']], function () {
+Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
 
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::resource('people', PersonController::class);
     Route::post('/people/reorder', [PersonController::class, 'reorder'])->name('people.reorder');
