@@ -427,6 +427,59 @@
             display: none; /* مخفي بشكل افتراضي */
         }
         /* --- END: Biography 'Read More' Styles --- */
+
+
+        /* --- START: Mobile Responsive Styles (THE ADDED CODE) --- */
+        @media (max-width: 768px) {
+            /* تقليل المساحة الفارغة حول الشجرة لتوفير مساحة أكبر */
+            .tree-section {
+                padding-top: 100px; /* مساحة أقل للهيدر */
+                padding-left: 5px;
+                padding-right: 5px;
+            }
+
+            /* تصغير عرض كل بطاقة (عمود) في الشجرة */
+            .accordion-group-item,
+            .accordion-item {
+                width: 150px; /* تم تصغير العرض من 200px إلى 150px */
+            }
+
+            /* تعديل موضع وحجم عمود الأبناء ليتناسب مع العرض الجديد */
+            .accordion-collapse {
+                width: 150px; /* يجب أن يكون نفس عرض البطاقة */
+                padding-right: 15px; /* تقليل المسافة بين الأعمدة */
+            }
+
+            /* تصغير حجم الصورة الشخصية داخل البطاقة */
+            .accordion-button:not(.photo-bg) .person-photo-container {
+                width: 80px !important;
+                height: 80px !important;
+                margin-bottom: 8px;
+            }
+
+            /* تصغير أيقونة الشخص الافتراضية */
+            .accordion-button .person-photo-container .icon-placeholder {
+                font-size: 3rem !important;
+            }
+
+            /* تعديل حجم البطاقة التي تستخدم صورة كخلفية */
+            .accordion-button.photo-bg {
+                min-height: 160px;
+            }
+
+            /* تصغير حجم الخط لاسم الشخص */
+            .accordion-button .person-name {
+                font-size: 0.9rem;
+            }
+
+            /* تصغير أزرار الإجراءات (التفاصيل) */
+            .actions-bar .btn {
+                font-size: 11px;
+                padding: 6px 3px;
+            }
+        }
+        /* --- END: Mobile Responsive Styles --- */
+
     </style>
 </head>
 
