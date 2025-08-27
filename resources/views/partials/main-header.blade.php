@@ -17,6 +17,7 @@
         background-color: var(--header-bg);
         height: var(--header-height);
         width: 100%;
+        z-index: 1000;
         position: relative;
         box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
         border-bottom: 2px solid var(--header-accent);

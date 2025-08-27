@@ -91,8 +91,7 @@ class GalleryController extends Controller
         $articles = $query->latest()->paginate(12);
 
         // جلب التصنيفات مع عدد المقالات
-        $categories = Category::withCount('articles')
-            ->whereHas('articles')
+        $categories = Category::whereHas('articles')
             ->orderBy('sort_order', 'desc')
             ->get();
 
