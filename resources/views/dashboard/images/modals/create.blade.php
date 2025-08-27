@@ -17,9 +17,11 @@
                             value="{{ old('name') }}">
                     </div>
                     <div class="form-group">
-                        <label for="category_id">القسم</label>
-                        <select class="form-control" id="category_id" name="category_id">
-                            <option value="">-- اختر قسماً --</option>
+                        <label for="category_selection">القسم</label>
+                        {{-- تم تعديل name و id --}}
+                        <select class="form-control" id="category_selection" name="category_selection"
+                            style="width: 100%;">
+                            <option></option> {{-- Select2 يستخدم هذا الخيار الفارغ لعرض الـ placeholder --}}
                             @foreach ($categories as $category)
                                 <option value="{{ $category->id }}">{{ $category->name }}</option>
                             @endforeach

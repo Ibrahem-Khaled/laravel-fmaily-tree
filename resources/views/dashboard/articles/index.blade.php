@@ -44,8 +44,8 @@
                         <i class="fas fa-plus"></i> إضافة مقال جديد
                     </button>
 
-                    <a href="{{ route('categories.index') }}" class="btn btn-secondary">
-                        <i class="fas fa-list"></i> إدارة الفئات
+                    <a href="{{ route('categories.index', ['type' => 'articles']) }}" class="btn btn-secondary">
+                        <i class="fas fa-list"></i> إدارة فئات المقالات
                     </a>
                 </div>
             </div>

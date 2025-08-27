@@ -23,7 +23,9 @@ class ArticleController extends Controller
         $categoriesCount = Category::count();
 
         // لجلب الفئات الرئيسية فقط للتبويبات
-        $mainCategories = Category::whereNull('parent_id')->get();
+        $mainCategories = Category::whereNull('parent_id')
+            ->whereHas('articles') // فقط الفئات التي تحتوي على مقالات
+            ->get();
         $selectedCategory = $request->get('category');
 
         $articlesQuery = Article::with('category', 'images')->latest();
@@ -43,7 +45,9 @@ class ArticleController extends Controller
         $articles = $articlesQuery->paginate(10);
 
         // لجلب كل الفئات لعرضها في مودال الإنشاء/التعديل
-        $categories = Category::with('children')->whereNull('parent_id')->get();
+        $categories = Category::with('children')
+            ->whereHas('articles')
+            ->whereNull('parent_id')->get();
         $persons = Person::all(); // افترض أنك تريد ربط المقال بشخص
 
         return view('dashboard.articles.index', compact(

@@ -40,6 +40,9 @@
                 <button class="btn btn-primary" data-toggle="modal" data-target="#createImageModal">
                     <i class="fas fa-plus"></i> إضافة صورة
                 </button>
+                <a href="{{ route('categories.index', ['type' => 'images']) }}" class="btn btn-secondary">
+                    <i class="fas fa-list"></i> إدارة فئات الصور
+                </a>
             </div>
             <div class="card-body">
                 {{-- تبويب الأقسام --}}
@@ -153,6 +156,21 @@
         $('.custom-file-input').on('change', function() {
             var fileName = $(this).val().split('\\').pop();
             $(this).next('.custom-file-label').html(fileName);
+        });
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            // تفعيل Select2 على حقل اختيار القسم
+            $('#category_selection').select2({
+                // هذه الخاصية ضرورية لكي يعمل البحث داخل مودال البوتستراب
+                dropdownParent: $('#createImageModal'),
+
+                // هذه الخاصية تسمح للمستخدم بإضافة عناصر جديدة غير موجودة في القائمة
+                tags: true,
+
+                placeholder: 'اختر قسماً أو أضف واحداً جديداً',
+            });
         });
     </script>
 @endpush

@@ -29,7 +29,7 @@ class ImageController extends Controller
         }
 
         $images = $query->paginate(10);
-        $categories = Category::all();
+        $categories = Category::whereHas('images')->get();
         $selectedCategory = $request->category ?? 'all';
 
         // الإحصائيات
@@ -55,15 +55,31 @@ class ImageController extends Controller
         $request->validate([
             'name' => 'nullable|string|max:255',
             'path' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
-            'category_id' => 'nullable|exists:categories,id',
+            'category_selection' => 'required', // تم تغيير اسم الحقل هنا
         ]);
 
+        $categoryId = null;
+        $categorySelection = $request->input('category_selection');
+
+        // التحقق مما إذا كانت القيمة المُدخلة رقماً (ID موجود) أم نصاً (قسم جديد)
+        if (is_numeric($categorySelection)) {
+            // إذا كانت رقماً، استخدمها مباشرة كـ ID
+            $categoryId = $categorySelection;
+        } else {
+            // إذا كانت نصاً، قم بإنشاء قسم جديد بهذا الاسم
+            // firstOrCreate تضمن عدم إنشاء قسم مكرر بنفس الاسم
+            $newCategory = Category::firstOrCreate(['name' => $categorySelection]);
+            $categoryId = $newCategory->id;
+        }
+
+        // رفع الصورة وتخزينها
         $path = $request->file('path')->store('public/images');
 
+        // إنشاء سجل الصورة بالـ category_id الصحيح
         Image::create([
             'name' => $request->name,
-            'path' => str_replace('public/', '', $path), // إزالة 'public/' من المسار
-            'category_id' => $request->category_id,
+            'path' => str_replace('public/', '', $path),
+            'category_id' => $categoryId,
         ]);
 
         return back()->with('success', 'تمت إضافة الصورة بنجاح.');

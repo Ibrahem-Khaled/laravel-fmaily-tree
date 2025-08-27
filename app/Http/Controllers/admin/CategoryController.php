@@ -35,35 +35,66 @@ class CategoryController extends Controller
 
     public function index(Request $request)
     {
+
+        // ابدأ الاستعلام الأساسي مع تحميل العلاقة لتجنب مشكلة N+1
         $query = Category::with('parent');
 
+        // **الجديد: الفلترة بناءً على نوع المحتوى (صور أو مقالات)**
+        // نستخدم when لتطبيق الفلتر فقط في حال وجود باراميتر 'type'
+        $query->when($request->input('type'), function ($q, $type) {
+            if ($type === 'images') {
+                // جلب الأقسام التي تحتوي على صورة واحدة على الأقل
+                return $q->whereHas('images');
+            }
+            if ($type === 'articles') {
+                // جلب الأقسام التي تحتوي على مقال واحد على الأقل
+                return $q->whereHas('articles');
+            }
+        });
+
+        // ترتيب افتراضي في حالة عدم وجود بحث أو فلترة
         if (!$request->has('search') && !$request->has('parent_id')) {
             $query->orderBy('sort_order', 'asc');
         }
 
-        // فلترة حسب القسم الرئيسي
+        // فلترة حسب القسم الرئيسي (تبقى كما هي)
         $selectedParent = 'all';
         if ($request->has('parent_id') && $request->parent_id != 'all') {
             $query->where('parent_id', $request->parent_id);
             $selectedParent = $request->parent_id;
         }
 
-        // بحث
+        // **تحسين البحث: وضع شروط البحث داخل مجموعة لضمان عدم تعارضها مع الفلاتر الأخرى**
         if ($request->filled('search')) {
-            $query->where('name', 'like', '%' . $request->search . '%')
-                ->orWhere('description', 'like', '%' . $request->search . '%');
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                    ->orWhere('description', 'like', '%' . $request->search . '%');
+            });
         }
 
-        $categories = $query->paginate(10);
+        // **تحديث الترقيم: إضافة withQueryString للحفاظ على كل الفلاتر عند التنقل بين الصفحات**
+        $categories = $query->paginate(10)->withQueryString();
 
-        // بيانات الإحصائيات
+        // **تحديث الإحصائيات: لتعكس الفلاتر المطبقة**
+        // سنبني استعلاماً جديداً للإحصائيات يطابق الفلترة الأساسية
+        $statsQuery = Category::query();
+        $statsQuery->when($request->input('type'), function ($q, $type) {
+            if ($type === 'images') {
+                return $q->whereHas('images');
+            }
+            if ($type === 'articles') {
+                return $q->whereHas('articles');
+            }
+        });
+
         $stats = [
-            'total' => Category::count(),
-            'main' => Category::whereNull('parent_id')->count(),
-            'sub' => Category::whereNotNull('parent_id')->count(),
+            'total' => $statsQuery->clone()->count(), // نستخدم clone() لأن count() تنهي الاستعلام
+            'main'  => $statsQuery->clone()->whereNull('parent_id')->count(),
+            'sub'   => $statsQuery->clone()->whereNotNull('parent_id')->count(),
         ];
 
-        $mainCategories = Category::whereNull('parent_id')->get(); // لجلب الأقسام الرئيسية للتبويبات
+        // هذا الجزء لجلب كل الأقسام الرئيسية لعرضها في قائمة الفلترة (يبقى كما هو)
+        $mainCategories = Category::whereNull('parent_id')->get();
 
         return view('dashboard.categories.index', compact('categories', 'stats', 'mainCategories', 'selectedParent'));
     }
