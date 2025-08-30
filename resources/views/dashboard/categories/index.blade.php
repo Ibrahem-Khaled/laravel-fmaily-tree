@@ -36,9 +36,9 @@
         <div class="card shadow mb-4">
             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                 <h6 class="m-0 font-weight-bold text-primary">قائمة الأقسام</h6>
-                <button class="btn btn-primary" data-toggle="modal" data-target="#createCategoryModal">
+                {{-- <button class="btn btn-primary" data-toggle="modal" data-target="#createCategoryModal">
                     <i class="fas fa-plus"></i> إضافة قسم
-                </button>
+                </button> --}}
             </div>
             <div class="card-body">
                 {{-- تبويب الأقسام الرئيسية للفلترة --}}

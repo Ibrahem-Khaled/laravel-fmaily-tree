@@ -219,7 +219,6 @@
             border-radius: 0.5rem;
         }
 
-        /* أزرار التنقل في Lightbox */
         .lightbox-nav {
             position: absolute;
             top: 50%;
@@ -275,7 +274,6 @@
             transform: rotate(90deg);
         }
 
-        /* عداد الصور */
         .image-counter {
             position: absolute;
             bottom: 2rem;
@@ -325,6 +323,124 @@
         .share-button:hover {
             transform: translateY(-3px);
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* شارات/أوسمة - تصميم خاص */
+        .badge-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .badge-ribbon {
+            position: absolute;
+            top: 0.75rem;
+            left: -2.5rem;
+            transform: rotate(-30deg);
+            color: white;
+            padding: 0.35rem 3rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .tier-gold {
+            background: linear-gradient(135deg, #f59e0b, #fbbf24, #f59e0b);
+        }
+
+        .tier-silver {
+            background: linear-gradient(135deg, #9ca3af, #d1d5db, #9ca3af);
+        }
+
+        .tier-bronze {
+            background: linear-gradient(135deg, #b45309, #d97706, #b45309);
+        }
+
+        .tier-chip {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.6rem;
+            border-radius: 9999px;
+            font-weight: 700;
+        }
+
+        .tier-chip.gold {
+            background: #fff7ed;
+            color: #b45309;
+            border: 1px solid #fdba74;
+        }
+
+        .tier-chip.silver {
+            background: #f8fafc;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+        }
+
+        .tier-chip.bronze {
+            background: #fffbeb;
+            color: #92400e;
+            border: 1px solid #fcd34d;
+        }
+
+        .grade-chip {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.6rem;
+            border-radius: 0.75rem;
+            font-weight: 800;
+        }
+
+        .grade-S {
+            background: #ecfeff;
+            color: #0e7490;
+            border: 1px solid #a5f3fc;
+        }
+
+        .grade-A {
+            background: #ecfccb;
+            color: #3f6212;
+            border: 1px solid #bef264;
+        }
+
+        .grade-B {
+            background: #fef9c3;
+            color: #854d0e;
+            border: 1px solid #fde68a;
+        }
+
+        .badge-icon {
+            filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.1));
+        }
+
+        /* حلقة تقدم دائرية */
+        .ring {
+            --val: 0;
+            width: 76px;
+            height: 76px;
+            padding: 8px;
+            border-radius: 9999px;
+            background:
+                radial-gradient(closest-side, white 66%, transparent 67% 100%),
+                conic-gradient(#22c55e calc(var(--val) * 1%), #e5e7eb 0);
+        }
+
+        .ring-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: #16a34a;
+        }
+
+        /* أدوات التصفية */
+        .filter-btn {
+            border: 1px solid #d1fae5;
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(90deg, #22c55e, #16a34a);
+            color: #fff;
+            border-color: transparent;
         }
 
         /* تحسينات الموبايل */
@@ -449,39 +565,149 @@
                         </div>
                     @endif
                 </div>
-
-                <!-- أزرار المشاركة -->
-                <div class="flex items-center gap-3 mt-6">
-                    <span class="text-gray-600 text-sm font-medium">شارك:</span>
-                    <button onclick="shareOnFacebook()" class="share-button bg-blue-50 hover:bg-blue-100">
-                        <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-                            <path
-                                d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                        </svg>
-                    </button>
-                    <button onclick="shareOnTwitter()" class="share-button bg-sky-50 hover:bg-sky-100">
-                        <svg class="w-5 h-5 text-sky-500" fill="currentColor" viewBox="0 0 24 24">
-                            <path
-                                d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
-                        </svg>
-                    </button>
-                    <button onclick="shareOnWhatsApp()" class="share-button bg-green-50 hover:bg-green-100">
-                        <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 24 24">
-                            <path
-                                d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.149-.67.149-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" />
-                            <path
-                                d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 16.546c-.24.69-.718 1.266-1.363 1.644-.618.362-1.346.544-2.087.544-1.034 0-2.055-.337-2.917-.977l-3.254.855.869-3.174c-.705-.915-1.081-2.025-1.081-3.162 0-2.908 2.368-5.276 5.276-5.276 1.41 0 2.735.549 3.73 1.544a5.244 5.244 0 011.545 3.73c0 .977-.267 1.922-.718 2.732z" />
-                        </svg>
-                    </button>
-                    <button onclick="copyLink()" class="share-button bg-gray-50 hover:bg-gray-100">
-                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3">
-                            </path>
-                        </svg>
-                    </button>
-                </div>
             </header>
+
+            <!-- قسم الأوسمة المبهِر -->
+            @php
+                // لو مفيش أوسمة جاية من الكنترولر، هنحط مجموعة وهمية بشكل ذكي
+                $badges = isset($badges)
+                    ? collect($badges)
+                    : collect([
+                        [
+                            'title' => 'مُصوِّر العائلة المُبدع',
+                            'tier' => 'gold', // gold | silver | bronze
+                            'level' => 85, // 0..100
+                            'graded' => true,
+                            'grade' => 'A', // S | A | B
+                            'desc' => 'إسهام مميز في توثيق لحظات العائلة بلقطات إبداعية ذات جودة عالية.',
+                        ],
+                        [
+                            'title' => 'حافظ الذكريات',
+                            'tier' => 'silver',
+                            'level' => 60,
+                            'graded' => false,
+                            'desc' => 'تنظيم ورفع الأرشيف القديم وإضافة وصف وصناديق معلومات لكل صورة.',
+                        ],
+                        [
+                            'title' => 'مُنسِّق الألبومات',
+                            'tier' => 'bronze',
+                            'level' => 45,
+                            'graded' => false,
+                            'desc' => 'إنشاء ألبومات موضوعية وربطها بالأماكن والأشخاص والتواريخ.',
+                        ],
+                        [
+                            'title' => 'سفير التراث',
+                            'tier' => 'gold',
+                            'level' => 90,
+                            'graded' => true,
+                            'grade' => 'S',
+                            'desc' => 'الحفاظ على قصص العائلة القديمة ومشاركتها بأسلوب جذاب.',
+                        ],
+                        [
+                            'title' => 'خبير التلوين',
+                            'tier' => 'silver',
+                            'level' => 72,
+                            'graded' => true,
+                            'grade' => 'B',
+                            'desc' => 'ترميم الصور بالأبيض والأسود وتلوينها بشكل احترافي.',
+                        ],
+                    ]);
+            @endphp
+
+            <section
+                class="px-6 lg:px-10 py-8 bg-gradient-to-t from-green-50/40 to-transparent border-t border-green-100">
+                <div class="flex items-center justify-between gap-4 mb-6">
+                    <h2 class="text-2xl lg:text-3xl font-bold gradient-text flex items-center gap-3">
+                        <svg class="w-8 h-8" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                            <path
+                                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0H9m6 0v1a3 3 0 11-6 0v-1" />
+                        </svg>
+                        أوسمة وإنجازات
+                    </h2>
+
+                    <!-- أدوات التصفية -->
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button class="filter-btn active px-3 py-1 rounded-full text-sm" data-filter="all">الكل</button>
+                        <button class="filter-btn px-3 py-1 rounded-full text-sm" data-filter="gold">ذهبي</button>
+                        <button class="filter-btn px-3 py-1 rounded-full text-sm" data-filter="silver">فضي</button>
+                        <button class="filter-btn px-3 py-1 rounded-full text-sm" data-filter="bronze">برونزي</button>
+                        <button class="filter-btn px-3 py-1 rounded-full text-sm" data-filter="graded">بدرجات</button>
+                    </div>
+                </div>
+
+                <div id="badgesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    @foreach ($badges as $b)
+                        @php
+                            $tier = $b['tier'];
+                            $tierName = ['gold' => 'ذهبي', 'silver' => 'فضي', 'bronze' => 'برونزي'][$tier] ?? 'مستوى';
+                            $tierChip = ['gold' => 'gold', 'silver' => 'silver', 'bronze' => 'bronze'][$tier] ?? 'gold';
+                            $level = max(0, min(100, (int) ($b['level'] ?? 0)));
+                            $graded = (bool) ($b['graded'] ?? false);
+                            $grade = $b['grade'] ?? null;
+                        @endphp
+
+                        <div class="badge-card glass-effect rounded-2xl p-5 green-glow-hover"
+                            data-tier="{{ $tier }}" data-graded="{{ $graded ? 'true' : 'false' }}">
+
+                            <!-- شريط شريطي مائل بالرُتبة -->
+                            <div
+                                class="badge-ribbon {{ $tier === 'gold' ? 'tier-gold' : ($tier === 'silver' ? 'tier-silver' : 'tier-bronze') }}">
+                                {{ $tierName }}
+                            </div>
+
+                            <div class="flex items-start gap-4">
+                                <!-- أيقونة وسام (إكليل/كأس) -->
+                                <div class="shrink-0">
+                                    <div
+                                        class="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center">
+                                        <svg class="w-10 h-10 text-green-600 badge-icon" viewBox="0 0 24 24"
+                                            fill="currentColor">
+                                            <path
+                                                d="M5 3a1 1 0 00-1 1v3a5 5 0 004 4.9V14H6a2 2 0 100 4h12a2 2 0 100-4h-2v-2.1A5 5 0 0020 7V4a1 1 0 00-1-1H5zm1 2h12v2a3 3 0 11-6 0H6V5z" />
+                                        </svg>
+                                    </div>
+                                </div>
+
+                                <!-- بيانات الوسام -->
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <h3 class="text-lg font-extrabold text-gray-800">{{ $b['title'] }}</h3>
+                                        <span class="tier-chip {{ $tierChip }}">{{ $tierName }}</span>
+                                        @if ($graded && $grade)
+                                            <span class="grade-chip grade-{{ $grade }}">درجة
+                                                {{ $grade }}</span>
+                                        @endif
+                                    </div>
+                                    <p class="text-gray-600 mt-1 text-sm">{{ $b['desc'] ?? '' }}</p>
+
+                                    <!-- تقدم المستوى -->
+                                    <div class="mt-4 flex items-center justify-between">
+                                        <div class="ring" style="--val: {{ $level }}">
+                                            <div class="ring-inner">{{ $level }}%</div>
+                                        </div>
+
+                                        <!-- نجوم بسيطة حسب المستوى -->
+                                        @php $stars = (int) round($level/33); @endphp
+                                        <div class="flex items-center gap-1" aria-label="تقييم تقريبي">
+                                            @for ($i = 1; $i <= 3; $i++)
+                                                <svg class="w-5 h-5 {{ $i <= $stars ? 'text-yellow-400' : 'text-gray-300' }}"
+                                                    viewBox="0 0 20 20" fill="currentColor">
+                                                    <path
+                                                        d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.802 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.802-2.034a1 1 0 00-1.175 0l-2.802 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                                </svg>
+                                            @endfor
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+                <!-- ملاحظة صغيرة -->
+                <p class="text-xs text-gray-500 mt-4">* الأوسمة المعروضة افتراضية لعرض التصميم ويمكن استبدالها ببيانات
+                    حقيقية من قاعدة البيانات.</p>
+            </section>
 
             <!-- محتوى المقال -->
             @if ($article->content)
@@ -507,7 +733,8 @@
 
                     <div class="image-grid">
                         @foreach ($article->images as $index => $image)
-                            <div class="image-container glass-effect p-2" onclick="openLightbox({{ $index }})">
+                            <div class="image-container glass-effect p-2"
+                                onclick="openLightbox({{ $index }})">
                                 <div class="aspect-square overflow-hidden rounded-lg">
                                     <img src="{{ asset('storage/' . $image->path) }}"
                                         alt="{{ $image->name ?? 'صورة من المقال' }}"
@@ -525,24 +752,6 @@
             <!-- تذييل المقال -->
             <footer class="p-6 lg:p-10 bg-gradient-to-r from-green-50 to-green-100/50 border-t border-green-200">
                 <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <div class="text-center sm:text-right">
-                        <p class="text-gray-600 mb-2">هل أعجبك هذا المقال؟</p>
-                        <div class="flex gap-2 justify-center sm:justify-start">
-                            <button
-                                class="px-4 py-2 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors flex items-center gap-2">
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                    <path
-                                        d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
-                                </svg>
-                                أعجبني
-                            </button>
-                            <button
-                                class="px-4 py-2 bg-gray-200 text-gray-700 rounded-full hover:bg-gray-300 transition-colors">
-                                تعليق
-                            </button>
-                        </div>
-                    </div>
-
                     <a href="{{ url()->previous() }}"
                         class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-full hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-lg transform hover:scale-105">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -599,4 +808,87 @@
             </section>
         @endif
     </div>
-    </main>
+
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox">
+        <div class="lightbox-content">
+            <img class="lightbox-image" id="lightboxImage" alt="الصور">
+            <button class="lightbox-nav lightbox-prev" onclick="prevImage()" aria-label="السابق">&#8249;</button>
+            <button class="lightbox-nav lightbox-next" onclick="nextImage()" aria-label="التالي">&#8250;</button>
+            <button class="lightbox-close" onclick="closeLightbox()" aria-label="إغلاق">✕</button>
+            <div class="image-counter" id="imageCounter">1 / 1</div>
+        </div>
+    </div>
+
+    <script>
+        // شريط التقدم للقراءة
+        const progress = document.getElementById('readingProgress');
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const percentage = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+            progress.style.width = percentage + '%';
+        });
+
+        // Lightbox
+        const images = [
+            @if ($article->images && $article->images->count() > 0)
+                @foreach ($article->images as $im)
+                    "{{ asset('storage/' . $im->path) }}",
+                @endforeach
+            @endif
+        ];
+        let currentIndex = 0;
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightboxImage');
+        const imageCounter = document.getElementById('imageCounter');
+
+        function openLightbox(i) {
+            currentIndex = i;
+            updateLightbox();
+            lightbox.classList.add('active');
+        }
+
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+        }
+
+        function prevImage() {
+            currentIndex = (currentIndex - 1 + images.length) % images.length;
+            updateLightbox();
+        }
+
+        function nextImage() {
+            currentIndex = (currentIndex + 1) % images.length;
+            updateLightbox();
+        }
+
+        function updateLightbox() {
+            lightboxImg.src = images[currentIndex];
+            imageCounter.textContent = `${currentIndex + 1} / ${images.length}`;
+        }
+
+        // تصفية الأوسمة
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const badgesGrid = document.getElementById('badgesGrid');
+        const badgeCards = badgesGrid ? Array.from(badgesGrid.children) : [];
+
+        filterButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const f = btn.getAttribute('data-filter');
+                badgeCards.forEach(card => {
+                    const tier = card.getAttribute('data-tier');
+                    const graded = card.getAttribute('data-graded') === 'true';
+                    let show = true;
+                    if (f === 'graded') show = graded;
+                    else if (f !== 'all') show = (tier === f);
+                    card.style.display = show ? '' : 'none';
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

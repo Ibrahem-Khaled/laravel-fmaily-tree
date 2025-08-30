@@ -38,7 +38,7 @@
         .tree-section {
             background: linear-gradient(180deg, var(--light-green) 0%, #FFF 100%);
             padding-top: 120px;
-            /* هذه المساحة كافية جداً للهيدر الثابت */
+            /* مساحة كافية للهيدر الثابت */
             padding-bottom: 50px;
             min-height: 100vh;
             overflow-x: auto;
@@ -118,10 +118,7 @@
         .accordion-button.photo-bg::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            inset: 0;
             background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.1) 60%);
             border-radius: inherit;
             z-index: 1;
@@ -343,7 +340,7 @@
             padding: 12px;
             border-radius: 8px;
             border: 1px solid var(--border-color);
-            transition: all 0.2s ease-in-out;
+            transition: all 0.2s;
             text-decoration: none;
             color: var(--dark-green);
             margin-bottom: 10px;
@@ -353,7 +350,6 @@
             background-color: var(--light-green);
             border-color: var(--primary-color);
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
             color: var(--dark-green);
         }
 
@@ -390,10 +386,7 @@
             display: none;
         }
 
-        /* --- END: Tree View Styles --- */
-
-
-        /* --- START: Mobile Responsive Styles (UPDATED FOR 3 COLUMNS) --- */
+        /* --- START: Mobile Responsive Styles --- */
         @media (max-width: 768px) {
             .tree-section {
                 padding-top: 90px;
@@ -450,7 +443,7 @@
 
 <body>
 
-    {{-- تضمين الهيدر من الملف المنفصل (partials/main-header.blade.php) --}}
+    {{-- تضمين الهيدر من الملف المنفصل --}}
     @include('partials.main-header')
 
     <main>
@@ -479,6 +472,10 @@
         <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
+                    {{-- زر رجوع داخل نفس المودال --}}
+                    <button type="button" id="modalBackBtn" class="btn btn-light btn-sm me-2 d-none">
+                        <i class="fa-solid fa-arrow-right"></i> رجوع
+                    </button>
                     <h5 class="modal-title">تفاصيل العضو</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -496,6 +493,18 @@
             const treeContainer = document.getElementById('tree_level_0');
             const personDetailModalEl = document.getElementById('personDetailModal');
             const personModal = new bootstrap.Modal(personDetailModalEl);
+            const modalBackBtn = document.getElementById('modalBackBtn');
+
+            // ====== ستاك للتاريخ داخل نفس المودال ======
+            const modalHistory = [];
+
+            function updateBackBtn() {
+                if (modalHistory.length > 1) {
+                    modalBackBtn.classList.remove('d-none');
+                } else {
+                    modalBackBtn.classList.add('d-none');
+                }
+            }
 
             async function fetchAPI(endpoint) {
                 try {
@@ -533,31 +542,37 @@
 
                 let photoHtml = '';
                 if (person.photo_url) {
-                    photoHtml =
-                        `<img src="${person.photo_url}" alt="${person.first_name}" ${deceasedStyle} onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">`;
+                    photoHtml = `<img src="${person.photo_url}" alt="${person.first_name}" ${deceasedStyle}
+                                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">`;
                 }
 
                 const iconHtml = `
-                <div class="${iconContainerClass}" style="display:${person.photo_url ? 'none' : 'flex'};">
-                    <i class="fas ${iconClass}"></i>
-                </div>`;
+                    <div class="${iconContainerClass}" style="display:${person.photo_url ? 'none' : 'flex'};">
+                        <i class="fas ${iconClass}"></i>
+                    </div>`;
 
                 const deceasedIconHtml = person.death_date ?
                     `<div class="deceased-icon"><i class="fas fa-dove"></i></div>` : '';
 
                 return `
-                <div class="person-photo-container" style="width:${currentSize.container}; height:${currentSize.container};">
-                    ${photoHtml}
-                    ${iconHtml}
-                    ${deceasedIconHtml}
-                </div>`;
+                    <div class="person-photo-container" style="width:${currentSize.container}; height:${currentSize.container};">
+                        ${photoHtml}
+                        ${iconHtml}
+                        ${deceasedIconHtml}
+                    </div>`;
             }
 
-            function createPersonNode(person, level = 0) {
+            function createPersonNode(person, level = 0, groupKey = 'root') {
                 const hasChildren = person.children_count > 0;
+
+                // معرّف الـAccordion الحاضن للعناصر في هذا المستوى
+                // المستوى 0 له حاضن موجود مسبقًا (#tree_level_0)
+                const parentSelector = (level === 0) ?
+                    `#tree_level_0` :
+                    `#tree_level_${level}_${groupKey}`;
+
                 const uniqueId = `person_${person.id}_level_${level}`;
                 const itemClass = (level === 0) ? 'accordion-group-item' : 'accordion-item';
-                const parentSelector = `#tree_level_${level}`;
                 const hasPhoto = !!person.photo_url;
                 const deceasedBgStyle = person.death_date ? `filter: grayscale(100%);` : '';
                 const bgClass = hasPhoto ? 'photo-bg' : '';
@@ -565,48 +580,67 @@
                     `style="background-image: url('${person.photo_url}'); ${deceasedBgStyle}"` : '';
 
                 const buttonContent = `
-                    ${hasPhoto ? '' : createPhoto(person, 'md')}
-                    <span class="person-name">${person.first_name}</span>
-                `;
+        ${hasPhoto ? '' : createPhoto(person, 'md')}
+        <span class="person-name">${person.first_name}</span>
+    `;
+
+                // المعرّف الفريد لحاضن أبناء هذا الشخص
+                const childrenAccordionId = `tree_level_${level + 1}_${person.id}`;
 
                 const buttonOrDiv = hasChildren ?
-                    `<button class="accordion-button collapsed ${bgClass}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_${uniqueId}" onclick="loadChildren(this)" data-person-id="${person.id}" data-level="${level + 1}" ${bgStyle}>
-                        ${buttonContent}
-                    </button>` :
+                    `<button class="accordion-button collapsed ${bgClass}" type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#collapse_${uniqueId}"
+                    onclick="loadChildren(this)"
+                    data-person-id="${person.id}"
+                    data-level="${level + 1}"
+                    data-group-key="${person.id}"
+                    ${bgStyle}>
+                ${buttonContent}
+           </button>` :
                     `<div class="accordion-button collapsed ${bgClass}" ${bgStyle}>
-                        ${buttonContent}
-                    </div>`;
+                ${buttonContent}
+           </div>`;
 
                 return `
-                    <div class="${itemClass}">
-                        <h2 class="accordion-header">${buttonOrDiv}</h2>
-                        <div class="actions-bar">
-                            <button class="btn" onclick="showPersonDetails(${person.id})"><i class="fas fa-info-circle me-1"></i> التفاصيل</button>
-                        </div>
-                        ${hasChildren ? `<div id="collapse_${uniqueId}" class="accordion-collapse collapse" data-bs-parent="${parentSelector}"><div class="accordion-body p-0"><div class="accordion" id="tree_level_${level + 1}"></div></div></div>` : ''}
-                    </div>`;
+        <div class="${itemClass}">
+            <h2 class="accordion-header">${buttonOrDiv}</h2>
+            <div class="actions-bar">
+                <button class="btn" onclick="showPersonDetails(${person.id})">
+                    <i class="fas fa-info-circle me-1"></i> التفاصيل
+                </button>
+            </div>
+            ${hasChildren ? `
+                        <div id="collapse_${uniqueId}" class="accordion-collapse collapse" data-bs-parent="${parentSelector}">
+                            <div class="accordion-body p-0">
+                                <!-- ملاحظة: هنا بننشئ حاضن فريد لأبناء هذا الأب -->
+                                <div class="accordion" id="${childrenAccordionId}"></div>
+                            </div>
+                        </div>` : ''}
+        </div>`;
             }
 
             window.loadChildren = async (buttonElement) => {
-                if (buttonElement.dataset.loaded === 'true') {
-                    return;
-                }
+                if (buttonElement.dataset.loaded === 'true') return;
 
                 const personId = buttonElement.dataset.personId;
-                const level = parseInt(buttonElement.dataset.level);
-                const childrenContainer = document.querySelector(
-                    `${buttonElement.dataset.bsTarget} .accordion`);
+                const level = parseInt(buttonElement.dataset.level, 10);
+                const groupKey = buttonElement.dataset.groupKey; // = parentId الحالي
 
+                // الحاضن الفريد لأبناء هذا الأب (أنشأناه في createPersonNode)
+                const childrenAccordionId = `tree_level_${level}_${groupKey}`;
+                const childrenContainer = document.getElementById(childrenAccordionId);
                 if (!childrenContainer) return;
 
                 childrenContainer.innerHTML =
-                    `<div class="p-2 text-center text-muted small">جاري التحميل...</div>`;
+                    `<div class="p-2 text-center text-muted small">جارٍ التحميل...</div>`;
                 const data = await fetchAPI(`/person/${personId}/children`);
                 childrenContainer.innerHTML = '';
 
                 if (data && data.children && data.children.length > 0) {
                     data.children.forEach(child => {
-                        childrenContainer.innerHTML += createPersonNode(child, level);
+                        // نمرر groupKey = هذا الأب (علشان إخوة نفس الأب يقفلوا بعضهم)
+                        childrenContainer.innerHTML += createPersonNode(child, level, groupKey);
                     });
                 } else {
                     childrenContainer.innerHTML =
@@ -615,36 +649,47 @@
                 buttonElement.dataset.loaded = 'true';
             };
 
+
             window.toggleBiography = (btn) => {
                 const wrapper = btn.closest('.biography-wrapper');
                 const textElement = wrapper.querySelector('.biography-text');
                 textElement.classList.toggle('collapsed');
-
-                if (textElement.classList.contains('collapsed')) {
-                    btn.textContent = 'عرض المزيد';
-                } else {
-                    btn.textContent = 'عرض أقل';
-                }
+                btn.textContent = textElement.classList.contains('collapsed') ? 'عرض المزيد' : 'عرض أقل';
             };
 
             function setupBiography() {
                 const textElement = document.getElementById('biographyText');
                 if (!textElement) return;
-
                 const btnElement = document.getElementById('readMoreBtn');
                 const collapsedHeight = 88;
-
                 if (textElement.scrollHeight > collapsedHeight) {
                     textElement.classList.add('collapsed');
                     btnElement.style.display = 'inline-block';
                 }
             }
 
-            window.showPersonDetails = async (personId) => {
+            // ====== نسخة تدعم Stack + History API ======
+            window.showPersonDetails = async (personId, {
+                push = true
+            } = {}) => {
                 const modalBody = document.getElementById('modalBodyContent');
+
+                // إدارة التاريخ داخل المودال
+                if (push) {
+                    modalHistory.push(personId);
+                    history.pushState({
+                        personId
+                    }, '', `#person-${personId}`);
+                }
+
                 personModal.show();
-                modalBody.innerHTML =
-                    `<div class="text-center p-5"><div class="spinner-border text-success" style="width: 3rem; height: 3rem;"></div><p class="mt-3">جاري تحميل التفاصيل...</p></div>`;
+                updateBackBtn();
+
+                modalBody.innerHTML = `
+                    <div class="text-center p-5">
+                        <div class="spinner-border text-success" style="width: 3rem; height: 3rem;"></div>
+                        <p class="mt-3">جاري تحميل التفاصيل...</p>
+                    </div>`;
 
                 const data = await fetchAPI(`/person/${personId}`);
                 if (!data || !data.person) {
@@ -652,8 +697,12 @@
                     return;
                 }
                 const person = data.person;
+
                 const createDetailRow = (icon, label, value) => !value ? '' :
-                    `<div class="detail-row"><i class="fas ${icon} fa-fw mx-2"></i><div><small class="text-muted">${label}</small><p class="mb-0 fw-bold">${value}</p></div></div>`;
+                    `<div class="detail-row">
+                        <i class="fas ${icon} fa-fw mx-2"></i>
+                        <div><small class="text-muted">${label}</small><p class="mb-0 fw-bold">${value}</p></div>
+                    </div>`;
 
                 const deceasedText = person.death_date ?
                     `<p class="text-danger fw-bold"><i class="fas fa-dove"></i> ${person.gender === 'male' ? ' (رحمه الله)' : ' (رحمها الله)'}</p>` :
@@ -671,8 +720,7 @@
                                     <strong>${article.title}</strong>
                                     <small class="d-block text-muted">اضغط لعرض المقال</small>
                                 </div>
-                            </a>
-                        `;
+                            </a>`;
                     });
                 }
 
@@ -704,13 +752,12 @@
                 if (person.spouses && person.spouses.length > 0) {
                     spousesHtml = `
                         <h5>${person.gender === 'female' ? 'الزوج' : 'الزوجات'}</h5>
-                        <div class="row g-2">
-                    `;
+                        <div class="row g-2">`;
                     person.spouses.forEach(spouse => {
                         const spouseLabel = spouse.gender === 'female' ? 'زوجة' : 'زوج';
                         spousesHtml += `
                             <div class="col-md-6">
-                               <div class="spouse-card clickable" onclick="showPersonDetails(${spouse.id})">
+                                <div class="spouse-card clickable" onclick="showPersonDetails(${spouse.id})">
                                     ${createPhoto(spouse, 'sm')}
                                     <div>
                                         <strong>${spouse.name || spouse.full_name}</strong>
@@ -737,7 +784,7 @@
                     `<h5>الأبناء (${person.children_count})</h5><div id="modalChildrenList" class="row g-2"></div><hr class="my-4">` :
                     '';
 
-                modalBody.innerHTML = `
+                document.getElementById('modalBodyContent').innerHTML = `
                     <div class="row g-4">
                         <div class="col-lg-4 text-center">
                             <div class="d-inline-block">${createPhoto(person, 'lg')}</div>
@@ -759,7 +806,6 @@
                     </div>`;
 
                 setupBiography();
-
                 if (person.children_count > 0) loadModalChildren(person.id);
             };
 
@@ -799,7 +845,8 @@
                 if (data && data.tree && data.tree.length > 0) {
                     treeContainer.innerHTML = '';
                     data.tree.forEach(person => {
-                        treeContainer.innerHTML += createPersonNode(person, 0);
+                        // المستوى 0 يستخدم الحاضن الموجود #tree_level_0، ونعدّي groupKey='root'
+                        treeContainer.innerHTML += createPersonNode(person, 0, 'root');
                     });
                 } else {
                     treeContainer.innerHTML =
@@ -807,6 +854,7 @@
                 }
             }
 
+            // إغلاق أي collapse مفتوح في نفس المستوى عند فتح آخر (حفاظًا على الاتساق)
             document.addEventListener('show.bs.collapse', function(event) {
                 const collapseElement = event.target;
                 const parentSelector = collapseElement.getAttribute('data-bs-parent');
@@ -817,28 +865,61 @@
                 openCollapses.forEach(openCollapse => {
                     if (openCollapse !== collapseElement) {
                         const bsCollapseInstance = bootstrap.Collapse.getInstance(openCollapse);
-                        if (bsCollapseInstance) {
-                            bsCollapseInstance.hide();
-                        }
+                        if (bsCollapseInstance) bsCollapseInstance.hide();
                     }
                 });
             });
 
-            document.addEventListener('show.bs.collapse', function(event) {
-                const collapseElement = event.target;
-                const parentAccordion = collapseElement.closest('.accordion');
+            // ====== زر الرجوع داخل المودال ======
+            modalBackBtn.addEventListener('click', () => {
+                if (modalHistory.length > 1) {
+                    // احذف الحالي
+                    modalHistory.pop();
+                    const prevId = modalHistory[modalHistory.length - 1];
+                    // ارجع خطوة في History ليبقى السلوك متسقًا مع زر Back
+                    history.back();
+                    // أعرض السابق بدون push جديد
+                    window.showPersonDetails(prevId, {
+                        push: false
+                    });
+                    updateBackBtn();
+                } else {
+                    personModal.hide();
+                }
+            });
 
-                if (!parentAccordion) return;
+            // ====== تنظيف التاريخ عند غلق المودال ======
+            personDetailModalEl.addEventListener('hidden.bs.modal', () => {
+                modalHistory.length = 0;
+                updateBackBtn();
+                // امسح الهاش إن وُجد
+                if (location.hash.startsWith('#person-')) {
+                    history.replaceState(null, '', location.pathname + location.search);
+                }
+            });
 
-                // اقفل أي collapse آخر مفتوح في نفس المستوى
-                parentAccordion.querySelectorAll('.accordion-collapse.show').forEach(openCollapse => {
-                    if (openCollapse !== collapseElement) {
-                        const bsCollapse = bootstrap.Collapse.getInstance(openCollapse);
-                        if (bsCollapse) {
-                            bsCollapse.hide();
-                        }
+            // ====== دعم زر Back/Forward في المتصفح/الموبايل للتنقل داخل المودال ======
+            window.addEventListener('popstate', (event) => {
+                const state = event.state;
+                if (state && state.personId) {
+                    // لو في state يبقى إحنا جوّا تسلسل المودال
+                    if (modalHistory.length === 0 || modalHistory[modalHistory.length - 1] !== state
+                        .personId) {
+                        personModal.show();
+                        window.showPersonDetails(state.personId, {
+                            push: false
+                        });
                     }
-                });
+                    // مزامنة الـ stack
+                    const idx = modalHistory.lastIndexOf(state.personId);
+                    if (idx !== -1) modalHistory.splice(idx + 1);
+                    updateBackBtn();
+                } else {
+                    // لا يوجد state → اقفل المودال لو مفتوح
+                    if (document.body.classList.contains('modal-open')) {
+                        personModal.hide();
+                    }
+                }
             });
 
             loadInitialTree();
