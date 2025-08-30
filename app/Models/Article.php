@@ -4,27 +4,56 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Article extends Model
 {
     use HasFactory;
-    protected $fillable = ['title', 'content', 'category_id', 'person_id'];
+    protected $fillable = [
+        'title',
+        'content',
+        'category_id',
+        'person_id',
+        'status'
+    ];
 
-    // علاقة لجلب الفئة التي ينتمي إليها المقال
-    public function category()
+    protected $attributes = [
+        'status' => 'draft'
+    ];
+
+    public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
 
-    // علاقة لجلب الشخص المرتبط بالمقال (إذا وجد)
-    public function person()
+    public function person(): BelongsTo
     {
-        return $this->belongsTo(Person::class); // افترض أن لديك موديل Person
+        return $this->belongsTo(Person::class);
     }
 
-    // علاقة لجلب كل صور المقال
-    public function images()
+    public function images(): HasMany
     {
         return $this->hasMany(Image::class);
+    }
+
+    // سكوبات
+    public function scopeSearch($q, ?string $term)
+    {
+        if (!$term) return $q;
+        return $q->where(function ($qq) use ($term) {
+            $qq->where('title', 'like', "%$term%")
+                ->orWhere('content', 'like', "%$term%");
+        });
+    }
+    public function scopeStatus($q, ?string $status)
+    {
+        if (!$status || !in_array($status, ['published', 'draft'])) return $q;
+        return $q->where('status', $status);
+    }
+    public function scopeInCategory($q, $categoryId)
+    {
+        if (!$categoryId) return $q;
+        return $q->where('category_id', $categoryId);
     }
 }

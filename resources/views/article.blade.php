@@ -568,7 +568,7 @@
             </header>
 
             <!-- قسم الأوسمة المبهِر -->
-            @php
+            {{-- @php
                 // لو مفيش أوسمة جاية من الكنترولر، هنحط مجموعة وهمية بشكل ذكي
                 $badges = isset($badges)
                     ? collect($badges)
@@ -612,9 +612,9 @@
                             'desc' => 'ترميم الصور بالأبيض والأسود وتلوينها بشكل احترافي.',
                         ],
                     ]);
-            @endphp
+            @endphp --}}
 
-            <section
+            {{-- <section
                 class="px-6 lg:px-10 py-8 bg-gradient-to-t from-green-50/40 to-transparent border-t border-green-100">
                 <div class="flex items-center justify-between gap-4 mb-6">
                     <h2 class="text-2xl lg:text-3xl font-bold gradient-text flex items-center gap-3">
@@ -707,7 +707,7 @@
                 <!-- ملاحظة صغيرة -->
                 <p class="text-xs text-gray-500 mt-4">* الأوسمة المعروضة افتراضية لعرض التصميم ويمكن استبدالها ببيانات
                     حقيقية من قاعدة البيانات.</p>
-            </section>
+            </section> --}}
 
             <!-- محتوى المقال -->
             @if ($article->content)

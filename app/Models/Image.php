@@ -4,22 +4,24 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Image extends Model
 {
     use HasFactory;
-    protected $fillable = ['name', 'path', 'article_id', 'category_id'];
+    protected $fillable = [
+        'name',
+        'path',
+        'article_id',
+        'category_id'
+    ];
 
-    // علاقة لجلب المقال الذي تنتمي إليه الصورة
-    public function article()
+    public function article(): BelongsTo
     {
         return $this->belongsTo(Article::class);
     }
 
-    /**
-     * Get the category that owns the image.
-     */
-    public function category()
+    public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }

@@ -41,7 +41,7 @@
                 المقالات</span></a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" href="{{ route('images.index') }}">
+        <a class="nav-link" href="{{ route('dashboard.images.index') }}">
             <i class="fas fa-fw fa-images"></i>
             <span>
                 مكتبة الصور</span></a>

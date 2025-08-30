@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="container-fluid">
-        {{-- عنوان الصفحة ومسار التنقل --}}
+        {{-- العنوان والمسار --}}
         <div class="row">
             <div class="col-12">
                 <h1 class="h3 mb-0 text-gray-800">إدارة المقالات</h1>
@@ -17,112 +17,204 @@
 
         @include('components.alerts')
 
-        {{-- إحصائيات المقالات --}}
+        {{-- إحصائيات --}}
         <div class="row mb-4">
-            <div class="col-xl-4 col-md-6 mb-4">
-                <x-stats-card icon="fas fa-file-alt" title="إجمالي المقالات" :value="$articlesCount" color="primary" />
+            <div class="col-xl-3 col-md-6 mb-4">
+                <x-stats-card icon="fas fa-newspaper" title="إجمالي المقالات" :value="$articlesCount" color="primary" />
             </div>
-            <div class="col-xl-4 col-md-6 mb-4">
-                <x-stats-card icon="fas fa-folder" title="إجمالي الفئات" :value="$categoriesCount" color="success" />
+            <div class="col-xl-3 col-md-6 mb-4">
+                <x-stats-card icon="fas fa-check-circle" title="المنشورة" :value="$publishedCount" color="success" />
             </div>
-            <div class="col-xl-4 col-md-6 mb-4">
-                {{-- يمكنك إضافة إحصائية ثالثة هنا --}}
+            <div class="col-xl-3 col-md-6 mb-4">
+                <x-stats-card icon="fas fa-pencil-alt" title="المسودات" :value="$draftCount" color="warning" />
+            </div>
+            <div class="col-xl-3 col-md-6 mb-4">
+                <x-stats-card icon="fas fa-folder-tree" title="عدد الفئات" :value="$categoriesCount" color="info" />
             </div>
         </div>
 
-        {{-- بطاقة قائمة المقالات --}}
+        {{-- بطاقة القائمة --}}
         <div class="card shadow mb-4">
             <div class="card-header py-3 d-flex justify-content-between align-items-center">
                 <h6 class="m-0 font-weight-bold text-primary">قائمة المقالات</h6>
-                <div>
-                    {{-- ===== الزر الجديد لفتح مودال إضافة الصور ===== --}}
-                    <button type="button" class="btn btn-info" data-toggle="modal" data-target="#addImagesModal">
-                        <i class="fas fa-images"></i> إضافة صور لمقال
-                    </button>
-
-                    <button class="btn btn-primary" data-toggle="modal" data-target="#createArticleModal">
-                        <i class="fas fa-plus"></i> إضافة مقال جديد
-                    </button>
-
-                    <a href="{{ route('categories.index', ['type' => 'articles']) }}" class="btn btn-secondary">
-                        <i class="fas fa-list"></i> إدارة فئات المقالات
-                    </a>
-                </div>
+                <button class="btn btn-primary" data-toggle="modal" data-target="#createArticleModal">
+                    <i class="fas fa-plus"></i> إضافة مقال
+                </button>
             </div>
             <div class="card-body">
-                {{-- تبويب الفئات --}}
+                {{-- تبويبات الحالة --}}
                 <ul class="nav nav-tabs mb-4">
-                    <li class="nav-item">
-                        <a class="nav-link {{ !$selectedCategory || $selectedCategory === 'all' ? 'active' : '' }}"
-                            href="{{ route('articles.index') }}">الكل</a>
-                    </li>
-                    @foreach ($mainCategories as $category)
+                    @php $tabs = ['all'=>'الكل','published'=>'منشورة','draft'=>'مسودات']; @endphp
+                    @foreach ($tabs as $key => $label)
                         <li class="nav-item">
-                            <a class="nav-link {{ $selectedCategory == $category->id ? 'active' : '' }}"
-                                href="{{ route('articles.index', ['category' => $category->id]) }}">
-                                {{ $category->name }}
+                            <a class="nav-link {{ $status === $key ? 'active' : '' }}"
+                                href="{{ route('articles.index', array_merge(request()->except('page'), ['status' => $key])) }}">
+                                {{ $label }}
                             </a>
                         </li>
                     @endforeach
                 </ul>
 
-                {{-- جدول المقالات --}}
+                {{-- فلاتر فئات (فقط الفئات التي لديها مقالات via whereHas) --}}
+                <div class="mb-3">
+                    <div class="d-flex flex-wrap align-items-center">
+                        <a class="badge badge-{{ !$categoryId ? 'primary' : 'light' }} mr-2 mb-2"
+                            href="{{ route('articles.index', array_merge(request()->except(['page', 'category_id']), ['category_id' => null])) }}">
+                            كل الفئات
+                        </a>
+                        @foreach ($categories as $cat)
+                            <a class="badge badge-{{ (int) $categoryId === $cat->id ? 'primary' : 'light' }} mr-2 mb-2"
+                                href="{{ route('articles.index', array_merge(request()->except('page'), ['category_id' => $cat->id])) }}">
+                                {{ $cat->name }} <small class="text-muted">({{ $cat->articles_count }})</small>
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+
+                {{-- البحث --}}
+                <form action="{{ route('articles.index') }}" method="GET" class="mb-4">
+                    <div class="input-group">
+                        <input type="text" name="search" class="form-control" placeholder="ابحث بالعنوان أو المحتوى..."
+                            value="{{ $search }}">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-search"></i> بحث
+                            </button>
+                        </div>
+                    </div>
+                    <input type="hidden" name="status" value="{{ $status }}">
+                    @if ($categoryId)
+                        <input type="hidden" name="category_id" value="{{ $categoryId }}">
+                    @endif
+                </form>
+
+                {{-- الجدول --}}
                 <div class="table-responsive">
                     <table class="table table-bordered table-hover">
                         <thead class="thead-light">
                             <tr>
                                 <th>العنوان</th>
+                                <th>الحالة</th>
                                 <th>الفئة</th>
-                                <th>عدد الصور</th>
-                                <th>تاريخ الإنشاء</th>
-                                <th>الإجراءات</th>
+                                <th>الكاتب</th>
+                                <th>الصور</th>
+                                <th style="width: 170px;">الإجراءات</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($articles as $article)
                                 <tr>
                                     <td>{{ $article->title }}</td>
-                                    <td>{{ $article->category->name ?? '-' }}</td>
-                                    <td><span class="badge badge-info">{{ $article->images->count() }}</span></td>
-                                    <td>{{ $article->created_at->format('Y-m-d') }}</td>
                                     <td>
-                                        <button type="button" class="btn btn-sm btn-circle btn-info" data-toggle="modal"
-                                            data-target="#showArticleModal{{ $article->id }}" title="عرض"><i
-                                                class="fas fa-eye"></i></button>
-                                        <button type="button" class="btn btn-sm btn-circle btn-primary" data-toggle="modal"
-                                            data-target="#editArticleModal{{ $article->id }}" title="تعديل"><i
-                                                class="fas fa-edit"></i></button>
-                                        <button type="button" class="btn btn-sm btn-circle btn-danger" data-toggle="modal"
-                                            data-target="#deleteArticleModal{{ $article->id }}" title="حذف"><i
-                                                class="fas fa-trash"></i></button>
+                                        <span
+                                            class="badge badge-{{ $article->status === 'published' ? 'success' : 'secondary' }}">
+                                            {{ $article->status === 'published' ? 'منشورة' : 'مسودة' }}
+                                        </span>
+                                    </td>
+                                    <td>{{ optional($article->category)->name ?? '-' }}</td>
+                                    <td>{{ optional($article->person)->name ?? '-' }}</td>
+                                    <td>
+                                        <span class="badge badge-info">{{ $article->images()->count() }}</span>
+                                        <button class="btn btn-sm btn-outline-secondary ml-2" data-toggle="modal"
+                                            data-target="#imagesModal{{ $article->id }}">إدارة الصور</button>
+                                    </td>
+                                    <td class="text-center">
+                                        <button class="btn btn-sm btn-circle btn-info" data-toggle="modal"
+                                            data-target="#showArticleModal{{ $article->id }}" title="عرض">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-circle btn-primary" data-toggle="modal"
+                                            data-target="#editArticleModal{{ $article->id }}" title="تعديل">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-circle btn-danger" data-toggle="modal"
+                                            data-target="#deleteArticleModal{{ $article->id }}" title="حذف">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+
+                                        @include('dashboard.articles.modals.show', ['article' => $article])
+                                        @include('dashboard.articles.modals.edit', [
+                                            'article' => $article,
+                                            'categories' => $categories,
+                                        ])
+                                        @include('dashboard.articles.modals.delete', [
+                                            'article' => $article,
+                                        ])
+                                        @include('dashboard.articles.modals.images', [
+                                            'article' => $article,
+                                        ])
                                     </td>
                                 </tr>
-                                {{-- تضمين المودالات لكل مقال --}}
-                                @include('dashboard.articles.modals.show')
-                                @include('dashboard.articles.modals.edit')
-                                @include('dashboard.articles.modals.delete')
                             @empty
                                 <tr>
-                                    <td colspan="5" class="text-center">لا توجد مقالات لعرضها.</td>
+                                    <td colspan="6" class="text-center">لا توجد مقالات</td>
                                 </tr>
                             @endforelse
                         </tbody>
                     </table>
                 </div>
-                {{ $articles->links() }}
+
+                <div class="d-flex justify-content-center">
+                    {{ $articles->links() }}
+                </div>
             </div>
         </div>
     </div>
 
-    {{-- مودال إضافة مقال (ثابت) --}}
-    @include('dashboard.articles.modals.create')
-    {{-- مودال إضافة فئة (ثابت) --}}
-    @include('dashboard.articles.modals.create_category')
+    {{-- مودال إنشاء مقال --}}
+    @include('dashboard.articles.modals.create', ['categories' => $categories])
 
-    {{-- ===== تضمين مودال إضافة الصور الجديد ===== --}}
-    @include('dashboard.articles.modals.add_images')
+    {{-- مودال إنشاء فئة سريع --}}
+    @include('dashboard.articles.modals.quick-category')
 @endsection
 
 @push('scripts')
-    @include('dashboard.articles.scripts')
+    <script>
+        // عرض أسماء الملفات المختارة
+        $('.custom-file-input').on('change', function() {
+            const names = Array.from(this.files || []).map(f => f.name).join(', ');
+            $(this).next('.custom-file-label').html(names || 'اختر ملفات...');
+        });
+
+        // تفعيل التولتيب
+        $('[data-toggle="tooltip"]').tooltip();
+
+        // إنشاء فئة سريع via AJAX
+        $('#quickCategoryForm').on('submit', function(e) {
+            e.preventDefault();
+            const form = this;
+            const fd = new FormData(form);
+            const btn = $('#quickCategorySubmit');
+            btn.prop('disabled', true).text('جارٍ الحفظ...');
+
+            $.ajax({
+                url: "{{ route('categories.quick-store') }}",
+                method: "POST",
+                data: fd,
+                contentType: false,
+                processData: false,
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                success: function(resp) {
+                    if (resp.ok && resp.category) {
+                        // أضف الفئة الجديدة لقائمة فئات إنشاء المقال وحدّث الاختيار
+                        const $selects = $('select[name="category_id"]');
+                        $selects.each(function() {
+                            $(this).append(new Option(resp.category.name, resp.category.id,
+                                true, true));
+                        });
+                        $('#quickCategoryModal').modal('hide');
+                        form.reset();
+                    }
+                },
+                error: function(xhr) {
+                    alert('تعذر إنشاء الفئة. تحقق من المدخلات.');
+                },
+                complete: function() {
+                    btn.prop('disabled', false).text('حفظ الفئة');
+                }
+            });
+        });
+    </script>
 @endpush

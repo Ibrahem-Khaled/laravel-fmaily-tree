@@ -51,20 +51,20 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
 
     Route::resource('marriages', MarriageController::class)->except(['show']);
 
-    Route::resource('articles', ArticleController::class)->except(['show', 'update']);
-    Route::post('articles/{article}', [ArticleController::class, 'update'])->name('articles.update');
-    Route::delete('/articles/image/{id}', [ArticleController::class, 'deleteImage'])->name('articles.image.delete');
-    Route::post('/articles/add-images', [ArticleController::class, 'storeImages'])->name('articles.images.store');
+    Route::resource('articles', ArticleController::class)->only(['index', 'store', 'update', 'destroy']);
 
-    // راوت مخصص لإنشاء الفئات عبر AJAX من داخل مودال المقالات
-    Route::post('categories/store-ajax', [CategoryController::class, 'storeAjax'])->name('categories.store.ajax');
-    Route::resource('categories', CategoryController::class);
-    Route::post('/categories/update-order', [CategoryController::class, 'updateOrder'])->name('categories.updateOrder');
+    // معرض الصور
+    Route::get('images/index',        [ImageController::class, 'index'])->name('dashboard.images.index');
+    Route::post('gallery/upload', [ImageController::class, 'store'])->name('gallery.store');
+    Route::delete('images/{image}', [ImageController::class, 'destroy'])->name('images.destroy');
+    Route::delete('images',         [ImageController::class, 'bulkDestroy'])->name('images.bulk-destroy');
+
+    Route::post('articles/{article}/images', [ImageController::class, 'storeForArticle'])->name('articles.images.store');
+    // إنشاء فئة سريع (AJAX)
+    Route::post('categories/quick-store', [CategoryController::class, 'store'])->name('categories.quick-store');
 
     // this route is for the admin panel
     Route::resource('roles', RoleController::class);
-
-    Route::resource('images', ImageController::class)->except(['show', 'create', 'edit']);
 });
 
 require __DIR__ . '/auth.php';

@@ -3,126 +3,115 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Article;
 use App\Models\Category;
 use App\Models\Image;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class ImageController extends Controller
 {
-    /**
-     * عرض صفحة إدارة الصور مع الفلترة والبحث.
-     */
+
     public function index(Request $request)
     {
-        // استعلام أساسي للصور مع علاقة القسم
-        $query = Image::with('category')->latest();
+        $search     = $request->get('search');
+        $categoryId = $request->get('category_id');
 
-        // فلترة حسب القسم المحدد
-        if ($request->filled('category')) {
-            $query->where('category_id', $request->category);
+        // إحصائيات
+        $imagesCount          = Image::whereNotNull('category_id')->count();
+        $categoriesWithImages = Category::whereHas('images')->count();
+
+        // فئات لديها صور فقط
+        $categories = Category::whereHas('images')
+            ->withCount('images')
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+
+        // صور المعرض (خاص بالفئات فقط)
+        $imagesQ = Image::with('category')
+            ->whereNotNull('category_id')
+            ->when($search, fn($q) => $q->where('name', 'like', "%{$search}%"));
+
+        if ($categoryId) {
+            $imagesQ->where('category_id', $categoryId);
         }
 
-        // بحث بالاسم
-        if ($request->filled('search')) {
-            $query->where('name', 'like', '%' . $request->search . '%');
-        }
+        $images = $imagesQ->latest('id')->paginate(24)->withQueryString();
 
-        $images = $query->paginate(10);
-        $categories = Category::whereHas('images')->get();
-        $selectedCategory = $request->category ?? 'all';
-
-        // الإحصائيات
-        $imagesCount = Image::count();
-        $categoriesCount = $categories->count();
-        $mostImagesCategory = Category::withCount('images')->orderBy('images_count', 'desc')->first();
-
-        return view('dashboard.images.index', compact(
+        return view('dashboard.gallery.index', compact(
+            'search',
+            'categoryId',
             'images',
-            'categories',
-            'selectedCategory',
             'imagesCount',
-            'categoriesCount',
-            'mostImagesCategory'
+            'categoriesWithImages',
+            'categories'
         ));
     }
 
-    /**
-     * تخزين صورة جديدة.
-     */
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'nullable|string|max:255',
-            'path' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
-            'category_selection' => 'required', // تم تغيير اسم الحقل هنا
+            'category_id' => ['required', 'exists:categories,id'],
+            'images.*'    => ['required', 'image', 'max:4096'],
         ]);
 
-        $categoryId = null;
-        $categorySelection = $request->input('category_selection');
-
-        // التحقق مما إذا كانت القيمة المُدخلة رقماً (ID موجود) أم نصاً (قسم جديد)
-        if (is_numeric($categorySelection)) {
-            // إذا كانت رقماً، استخدمها مباشرة كـ ID
-            $categoryId = $categorySelection;
-        } else {
-            // إذا كانت نصاً، قم بإنشاء قسم جديد بهذا الاسم
-            // firstOrCreate تضمن عدم إنشاء قسم مكرر بنفس الاسم
-            $newCategory = Category::firstOrCreate(['name' => $categorySelection]);
-            $categoryId = $newCategory->id;
+        foreach ($request->file('images', []) as $file) {
+            $path = $file->store('categories', 'public');
+            Image::create([
+                'name'        => $file->getClientOriginalName(),
+                'path'        => $path,
+                'category_id' => $request->category_id,
+            ]);
         }
 
-        // رفع الصورة وتخزينها
-        $path = $request->file('path')->store('public/images');
-
-        // إنشاء سجل الصورة بالـ category_id الصحيح
-        Image::create([
-            'name' => $request->name,
-            'path' => str_replace('public/', '', $path),
-            'category_id' => $categoryId,
-        ]);
-
-        return back()->with('success', 'تمت إضافة الصورة بنجاح.');
+        return back()->with('success', 'تم رفع الصور للفئة.');
     }
 
-    /**
-     * تحديث بيانات صورة موجودة.
-     */
-    public function update(Request $request, Image $image)
+    public function bulkDestroy(Request $request)
     {
-        $request->validate([
-            'name' => 'nullable|string|max:255',
-            'path' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048', // اختياري
-            'category_id' => 'nullable|exists:categories,id',
-        ]);
+        $request->validate(['ids' => ['required', 'array']]);
 
-        $data = $request->only('name', 'category_id');
+        $ids = $request->input('ids', []);
+        $images = Image::whereIn('id', $ids)
+            ->whereNotNull('category_id') // تأكيد أنها ضمن المعرض
+            ->get();
 
-        if ($request->hasFile('path')) {
-            // حذف الصورة القديمة
-            Storage::delete('public/' . $image->path);
+        DB::transaction(function () use ($images) {
+            foreach ($images as $image) {
+                if ($image->path && Storage::disk('public')->exists($image->path)) {
+                    Storage::disk('public')->delete($image->path);
+                }
+                $image->delete();
+            }
+        });
 
-            // تخزين الصورة الجديدة
-            $path = $request->file('path')->store('public/images');
-            $data['path'] = str_replace('public/', '', $path);
-        }
-
-        $image->update($data);
-
-        return back()->with('success', 'تم تحديث الصورة بنجاح.');
+        return back()->with('success', 'تم حذف الصور المحددة.');
     }
 
-    /**
-     * حذف صورة.
-     */
+
+    public function storeForArticle(Request $request, Article $article)
+    {
+        $request->validate(['images.*' => ['required', 'image', 'max:4096']]);
+
+        foreach ($request->file('images', []) as $file) {
+            $path = $file->store('articles', 'public');
+            Image::create([
+                'name'       => $file->getClientOriginalName(),
+                'path'       => $path,
+                'article_id' => $article->id,
+            ]);
+        }
+        return back()->with('success', 'تم رفع الصور للمقال.');
+    }
+
     public function destroy(Image $image)
     {
-        // حذف الملف من التخزين
-        Storage::delete('public/' . $image->path);
-
-        // حذف السجل من قاعدة البيانات
+        if ($image->path && Storage::disk('public')->exists($image->path)) {
+            Storage::disk('public')->delete($image->path);
+        }
         $image->delete();
-
-        return back()->with('success', 'تم حذف الصورة بنجاح.');
+        return back()->with('success', 'تم حذف الصورة.');
     }
 }

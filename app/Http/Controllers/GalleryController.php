@@ -17,8 +17,7 @@ class GalleryController extends Controller
     {
         // الخطوة 1: الاستعلام الأساسي مع تحميل العلاقات المطلوبة للعرض
         // - 'category': العلاقة المباشرة لعرض اسم القسم
-        // - 'article.person': العلاقة المتداخلة لعرض اسم المؤلف
-        $query = Image::with(['category', 'article.person']);
+        $query = Image::whereHas('category')->with(['category']);
 
         // الخطوة 2: الفلترة بناءً على القسم (Category) مباشرة
         // الآن نستخدم "where" بسيط لأن العلاقة مباشرة (Image->Category)
@@ -54,10 +53,10 @@ class GalleryController extends Controller
     public function show($id)
     {
         $article = Article::with(['images', 'person', 'category'])->findOrFail($id);
-        $badges = [
-            ['title' => 'مؤرّخ العائلة', 'tier' => 'gold', 'level' => 92, 'graded' => true, 'grade' => 'S', 'desc' => 'جمع وتأريخ الصور القديمة.'],
-            ['title' => 'منسّق المعارض', 'tier' => 'silver', 'level' => 68, 'graded' => false, 'desc' => 'تنسيق المعارض حسب السنوات.'],
-        ];
+        // $badges = [
+        //     ['title' => 'مؤرّخ العائلة', 'tier' => 'gold', 'level' => 92, 'graded' => true, 'grade' => 'S', 'desc' => 'جمع وتأريخ الصور القديمة.'],
+        //     ['title' => 'منسّق المعارض', 'tier' => 'silver', 'level' => 68, 'graded' => false, 'desc' => 'تنسيق المعارض حسب السنوات.'],
+        // ];
         // جلب المقالات ذات الصلة (نفس القسم)
         $relatedArticles = Article::where('category_id', $article->category_id)
             ->where('id', '!=', $id)
@@ -65,7 +64,7 @@ class GalleryController extends Controller
             ->limit(3)
             ->get();
 
-        return view('article', compact('article', 'relatedArticles', 'badges'));
+        return view('article', compact('article', 'relatedArticles'));
     }
 
     public function articles(Request $request)

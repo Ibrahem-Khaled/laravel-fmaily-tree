@@ -4,11 +4,22 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasMany};
 
 class Category extends Model
 {
     use HasFactory;
-    protected $fillable = ['name', 'description', 'image', 'sort_order', 'parent_id'];
+    protected $fillable = [
+        'name',
+        'description',
+        'image',
+        'parent_id',
+        'sort_order',
+    ];
+
+    protected $casts = [
+        'sort_order' => 'integer',
+    ];
 
     protected static function booted()
     {
@@ -26,26 +37,34 @@ class Category extends Model
         });
     }
 
-    // علاقة لجلب الفئة الأب
-    public function parent()
+    // العلاقات
+    public function parent(): BelongsTo
     {
         return $this->belongsTo(Category::class, 'parent_id');
     }
 
-    // علاقة لجلب الفئات الفرعية
-    public function children()
+    public function children(): HasMany
     {
         return $this->hasMany(Category::class, 'parent_id');
     }
 
-    // علاقة لجلب كل المقالات التابعة لهذه الفئة
-    public function articles()
+    public function articles(): HasMany
     {
         return $this->hasMany(Article::class);
     }
 
-    public function images()
+    public function images(): HasMany
     {
         return $this->hasMany(Image::class);
+    }
+
+    // سكوبات
+    public function scopeRoots($q)
+    {
+        return $q->whereNull('parent_id');
+    }
+    public function scopeOrdered($q)
+    {
+        return $q->orderBy('sort_order')->orderBy('name');
     }
 }
