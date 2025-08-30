@@ -130,6 +130,8 @@
             transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             opacity: 0;
             transform: translateY(20px);
+            display: flex;
+            /* تمت الإضافة لضمان امتداد الرابط الداخلي */
         }
 
         .article-card.visible {
@@ -200,22 +202,38 @@
             transform: scale(1.05);
         }
 
-        /* ========== التعديل هنا ========== */
-        /* تحسينات الموبايل */
+        /* ================== تعديلات عرض الهاتف المطلوبة ================== */
         @media (max-width: 768px) {
             .bg-pattern {
                 display: none;
             }
 
             .grid-view {
+                /* هذا هو الجزء المسؤول عن عرض مقالين جنبًا إلى جنب على الهاتف */
                 grid-template-columns: repeat(2, 1fr);
-                /* عرض مقالين اثنين */
                 gap: 1rem;
-                /* تقليل المسافة بين المقالات لتناسب الشاشة الصغيرة */
+                /* تقليل المسافة بين المقالات */
+            }
+
+            /* تصغير حجم الخطوط في البطاقات على الشاشات الصغيرة لتحسين العرض */
+            .article-card h2 {
+                font-size: 1rem;
+                /* حجم خط العنوان */
+                line-height: 1.4;
+            }
+
+            .article-card p {
+                font-size: 0.8rem;
+                /* حجم خط المحتوى المختصر */
+            }
+
+            .article-card .text-xs {
+                font-size: 0.7rem;
+                /* حجم خط معلومات الكاتب والتاريخ */
             }
         }
 
-        /* ========== نهاية التعديل ========== */
+        /* ================== نهاية التعديلات ================== */
 
         /* شريحة الفلترة المنزلقة */
         .slide-panel {
@@ -294,20 +312,8 @@
 
     <div class="container mx-auto px-4 py-4 lg:py-8 relative z-10">
 
-        {{-- <header class="text-center mb-8 lg:mb-16 relative">
-            <div class="inline-block relative">
-                <h1 class="text-3xl sm:text-5xl md:text-7xl font-bold gradient-text mb-2 lg:mb-4 drop-shadow-2xl">
-                    مكتبة المقالات
-                </h1>
-                <div class="absolute -top-4 lg:-top-8 -right-4 lg:-right-8 w-8 lg:w-16 h-8 lg:h-16 bg-green-400 rounded-full opacity-30 float-animation"></div>
-                <div class="absolute -bottom-2 lg:-bottom-4 -left-4 lg:-left-8 w-6 lg:w-12 h-6 lg:h-12 bg-green-500 rounded-full opacity-30 pulse-animation"></div>
-            </div>
-            <p class="text-base sm:text-xl text-gray-600 mt-2 lg:mt-4 font-light">
-                <span class="inline-block px-4 lg:px-6 py-1 lg:py-2 glass-effect rounded-full">
-                    📚 اكتشف قصصنا وذكرياتنا المكتوبة 📚
-                </span>
-            </p>
-        </header> --}}
+        {{-- رأس الصفحة --}}
+        {{-- <header>...</header> --}}
 
         <div class="mb-8">
             <div class="glass-effect p-4 lg:p-6 rounded-3xl green-glow">
@@ -316,8 +322,8 @@
                         <div class="search-bar relative">
                             <input type="text" id="searchInput" placeholder="ابحث عن مقال..."
                                 class="w-full px-4 lg:px-6 py-3 lg:py-4 pr-12 lg:pr-14 bg-white/70 border-2 border-green-200 rounded-2xl
-                                          text-sm lg:text-base focus:ring-4 focus:ring-green-300 focus:border-green-500
-                                          transition-all duration-300 hover:border-green-400">
+                                       text-sm lg:text-base focus:ring-4 focus:ring-green-300 focus:border-green-500
+                                       transition-all duration-300 hover:border-green-400">
                             <svg class="absolute right-3 lg:right-4 top-1/2 transform -translate-y-1/2 w-5 lg:w-6 h-5 lg:h-6 text-green-500"
                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -347,7 +353,7 @@
 
                         <button onclick="toggleFilter()"
                             class="lg:hidden px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white
-                                       font-bold rounded-xl shadow-lg flex items-center gap-2">
+                                   font-bold rounded-xl shadow-lg flex items-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4">
@@ -361,7 +367,7 @@
                 <div class="mt-4 flex flex-wrap gap-2">
                     <button onclick="filterByCategory('all')"
                         class="filter-chip px-4 py-2 bg-white/70 rounded-full text-sm font-medium hover:bg-green-50
-                                   transition-all duration-300 active-filter">
+                               transition-all duration-300 active-filter">
                         الكل
                     </button>
                     @foreach ($categories as $category)
@@ -388,7 +394,7 @@
                     <div class="absolute inset-0 bg-black/50 lg:hidden" onclick="toggleFilter()"></div>
                     <div
                         class="slide-panel absolute right-0 top-0 h-full w-80 max-w-[85vw] lg:relative lg:w-full
-                                bg-white lg:bg-transparent p-4 lg:p-0 overflow-y-auto lg:overflow-visible">
+                               bg-white lg:bg-transparent p-4 lg:p-0 overflow-y-auto lg:overflow-visible">
                         <div class="glass-effect p-4 lg:p-6 rounded-3xl green-glow">
                             <div class="flex items-center justify-between mb-4 lg:mb-6 border-b border-green-200 pb-4">
                                 <h3 class="text-xl lg:text-2xl font-bold gradient-text">التصنيفات</h3>
@@ -404,8 +410,8 @@
                             <div class="space-y-2">
                                 <a href="{{ url('/gallery/articles') }}"
                                     class="block px-3 lg:px-4 py-2 lg:py-3 rounded-xl lg:rounded-2xl transition-all duration-300
-                                          font-medium text-sm lg:text-base
-                                          {{ !request('category') ? 'bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg scale-105' : 'bg-white/70 hover:bg-green-50 hover:scale-105 hover:shadow-md' }}">
+                                           font-medium text-sm lg:text-base
+                                           {{ !request('category') ? 'bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg scale-105' : 'bg-white/70 hover:bg-green-50 hover:scale-105 hover:shadow-md' }}">
                                     <span class="flex items-center justify-between">
                                         <span class="flex items-center gap-2">
                                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -423,8 +429,8 @@
                                 @foreach ($categories as $category)
                                     <a href="{{ url('/gallery/articles?category=' . $category->id) }}"
                                         class="block px-3 lg:px-4 py-2 lg:py-3 rounded-xl lg:rounded-2xl transition-all duration-300
-                                          font-medium text-sm lg:text-base
-                                          {{ request('category') == $category->id ? 'bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg scale-105' : 'bg-white/70 hover:bg-green-50 hover:scale-105 hover:shadow-md' }}">
+                                               font-medium text-sm lg:text-base
+                                               {{ request('category') == $category->id ? 'bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg scale-105' : 'bg-white/70 hover:bg-green-50 hover:scale-105 hover:shadow-md' }}">
                                         <span class="flex items-center justify-between">
                                             {{ $category->name }}
                                             @if ($category->articles_count > 0)
@@ -437,30 +443,6 @@
                                     </a>
                                 @endforeach
                             </div>
-
-                            {{-- <div class="mt-8">
-                                <h4 class="text-lg font-bold text-gray-700 mb-4 flex items-center gap-2">
-                                    <span class="w-2 h-2 bg-green-500 rounded-full"></span>
-                                    الكتّاب الأكثر نشاطاً
-                                </h4>
-                                <div class="space-y-3">
-                                    @foreach ($topAuthors as $author)
-                                    <a href="{{ url('/articles?author=' . $author->id) }}"
-                                       class="flex items-center gap-3 p-3 bg-white/50 rounded-xl hover:bg-green-50
-                                              transition-all duration-300 group">
-                                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600
-                                                      flex items-center justify-center text-white font-bold
-                                                      group-hover:scale-110 transition-transform">
-                                            {{ mb_substr($author->name, 0, 1) }}
-                                        </div>
-                                        <div class="flex-1">
-                                            <p class="font-semibold text-gray-800">{{ $author->name }}</p>
-                                            <p class="text-xs text-gray-500">{{ $author->articles_count }} مقال</p>
-                                        </div>
-                                    </a>
-                                    @endforeach
-                                </div>
-                            </div> --}}
 
                             <div class="mt-8 p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-2xl">
                                 <h4 class="text-lg font-bold text-gray-700 mb-3">إحصائيات المكتبة</h4>
@@ -490,16 +472,16 @@
                         @foreach ($articles as $article)
                             <article
                                 class="article-card glass-effect rounded-2xl lg:rounded-3xl overflow-hidden green-glow-hover">
-                                <a href="{{ url('/article/' . $article->id) }}" class="block">
+                                <a href="{{ url('/article/' . $article->id) }}" class="block w-full flex flex-col">
                                     <div
-                                        class="relative h-48 lg:h-56 overflow-hidden bg-gradient-to-br from-green-100 to-green-200">
+                                        class="relative h-32 md:h-48 lg:h-56 overflow-hidden bg-gradient-to-br from-green-100 to-green-200">
                                         @if ($article->images->first())
                                             <img src="{{ asset('storage/' . $article->images->first()->path) }}"
                                                 alt="{{ $article->title }}"
                                                 class="article-image w-full h-full object-cover">
                                         @else
                                             <div class="w-full h-full flex items-center justify-center">
-                                                <svg class="w-20 h-20 text-green-400" fill="currentColor"
+                                                <svg class="w-16 h-16 text-green-400" fill="currentColor"
                                                     viewBox="0 0 20 20">
                                                     <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
                                                     <path fill-rule="evenodd"
@@ -533,22 +515,21 @@
                                         @endif
                                     </div>
 
-                                    <div class="p-4 lg:p-6 flex flex-col justify-between" style="min-height: 220px;">
-                                        <div>
+                                    <div class="p-4 flex flex-col flex-grow">
+                                        <div class="flex-grow">
                                             <h2
-                                                class="text-xl lg:text-2xl font-bold text-gray-800 mb-2 hover:text-green-600 transition-colors duration-300">
+                                                class="text-lg lg:text-xl font-bold text-gray-800 mb-2 hover:text-green-600 transition-colors duration-300">
                                                 {{ $article->title }}
                                             </h2>
 
-                                            <div class="flex items-center text-xs lg:text-sm text-gray-500 mb-4">
+                                            <div class="flex items-center text-xs text-gray-500 mb-3">
                                                 <span>بواسطة {{ $article?->person?->first_name ?? 'غير معروف' }}</span>
                                                 <span class="mx-2">·</span>
                                                 <span>{{ $article->created_at->diffForHumans() }}</span>
                                             </div>
 
-                                            <p
-                                                class="text-sm lg:text-base text-gray-600 leading-relaxed max-h-24 overflow-hidden">
-                                                {{ Str::limit(strip_tags($article->content), 150) }}
+                                            <p class="text-sm text-gray-600 leading-relaxed max-h-24 overflow-hidden">
+                                                {{ Str::limit(strip_tags($article->content), 90) }}
                                             </p>
                                         </div>
 
