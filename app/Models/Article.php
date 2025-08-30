@@ -56,4 +56,9 @@ class Article extends Model
         if (!$categoryId) return $q;
         return $q->where('category_id', $categoryId);
     }
+    // (اختياري) سكوب للفلترة بحسب الناشر
+    public function scopeByPerson($q, $personId)
+    {
+        return $personId ? $q->where('person_id', $personId) : $q;
+    }
 }

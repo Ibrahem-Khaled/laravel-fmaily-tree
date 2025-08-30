@@ -41,6 +41,7 @@
                     <i class="fas fa-plus"></i> إضافة مقال
                 </button>
             </div>
+
             <div class="card-body">
                 {{-- تبويبات الحالة --}}
                 <ul class="nav nav-tabs mb-4">
@@ -114,7 +115,12 @@
                                     <td>{{ optional($article->category)->name ?? '-' }}</td>
                                     <td>{{ optional($article->person)->name ?? '-' }}</td>
                                     <td>
-                                        <span class="badge badge-info">{{ $article->images()->count() }}</span>
+                                        {{-- إن كنت تستخدم withCount('images') في الكنترولر: --}}
+                                        @if (isset($article->images_count))
+                                            <span class="badge badge-info">{{ $article->images_count }}</span>
+                                        @else
+                                            <span class="badge badge-info">{{ $article->images()->count() }}</span>
+                                        @endif
                                         <button class="btn btn-sm btn-outline-secondary ml-2" data-toggle="modal"
                                             data-target="#imagesModal{{ $article->id }}">إدارة الصور</button>
                                     </td>
@@ -133,10 +139,14 @@
                                         </button>
 
                                         @include('dashboard.articles.modals.show', ['article' => $article])
+
+                                        {{-- مرّر $people لمودال التعديل لو كان يحتاجه داخل include --}}
                                         @include('dashboard.articles.modals.edit', [
                                             'article' => $article,
                                             'categories' => $categories,
+                                            'people' => $people ?? null,
                                         ])
+
                                         @include('dashboard.articles.modals.delete', [
                                             'article' => $article,
                                         ])
@@ -161,8 +171,11 @@
         </div>
     </div>
 
-    {{-- مودال إنشاء مقال --}}
-    @include('dashboard.articles.modals.create', ['categories' => $categories])
+    {{-- مودال إنشاء مقال: مرّر أيضاً $people ليستفيد من قائمة الناشرين --}}
+    @include('dashboard.articles.modals.create', [
+        'categories' => $categories,
+        'people' => $people ?? null,
+    ])
 
     {{-- مودال إنشاء فئة سريع --}}
     @include('dashboard.articles.modals.quick-category')
@@ -198,7 +211,6 @@
                 },
                 success: function(resp) {
                     if (resp.ok && resp.category) {
-                        // أضف الفئة الجديدة لقائمة فئات إنشاء المقال وحدّث الاختيار
                         const $selects = $('select[name="category_id"]');
                         $selects.each(function() {
                             $(this).append(new Option(resp.category.name, resp.category.id,
@@ -208,7 +220,7 @@
                         form.reset();
                     }
                 },
-                error: function(xhr) {
+                error: function() {
                     alert('تعذر إنشاء الفئة. تحقق من المدخلات.');
                 },
                 complete: function() {

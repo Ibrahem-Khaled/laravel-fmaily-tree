@@ -4,43 +4,69 @@
         <form action="{{ route('articles.update', $article) }}" method="POST" enctype="multipart/form-data"
             class="modal-content">
             @csrf @method('PUT')
+
             <div class="modal-header">
                 <h5 class="modal-title">تعديل مقال: {{ $article->title }}</h5>
                 <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
             </div>
+
             <div class="modal-body">
+                {{-- العنوان --}}
                 <div class="form-group">
                     <label>العنوان</label>
                     <input type="text" name="title" class="form-control" required maxlength="255"
-                        value="{{ $article->title }}">
+                        value="{{ old('title', $article->title) }}">
                 </div>
 
+                {{-- المحتوى --}}
                 <div class="form-group">
                     <label>المحتوى</label>
-                    <textarea name="content" class="form-control" rows="5">{{ $article->content }}</textarea>
+                    <textarea name="content" class="form-control" rows="5">{{ old('content', $article->content) }}</textarea>
                 </div>
 
                 <div class="form-row">
-                    <div class="form-group col-md-6">
+                    {{-- الفئة --}}
+                    <div class="form-group col-md-4">
                         <label>الفئة</label>
                         <select name="category_id" class="form-control" required>
                             @foreach ($categories as $cat)
                                 <option value="{{ $cat->id }}"
-                                    {{ $article->category_id == $cat->id ? 'selected' : '' }}>{{ $cat->name }}
+                                    {{ old('category_id', $article->category_id) == $cat->id ? 'selected' : '' }}>
+                                    {{ $cat->name }}
                                 </option>
                             @endforeach
                         </select>
                     </div>
-                    <div class="form-group col-md-6">
+
+                    {{-- الحالة --}}
+                    <div class="form-group col-md-4">
                         <label>الحالة</label>
                         <select name="status" class="form-control" required>
-                            <option value="draft" {{ $article->status === 'draft' ? 'selected' : '' }}>مسودة</option>
-                            <option value="published" {{ $article->status === 'published' ? 'selected' : '' }}>منشورة
-                            </option>
+                            <option value="draft" {{ old('status', $article->status) === 'draft' ? 'selected' : '' }}>
+                                مسودة</option>
+                            <option value="published"
+                                {{ old('status', $article->status) === 'published' ? 'selected' : '' }}>منشورة</option>
+                        </select>
+                    </div>
+
+                    {{-- الناشر (الشخص) --}}
+                    <div class="form-group col-md-4">
+                        <label>الناشر</label>
+                        <select name="person_id" class="form-control">
+                            <option value="">— بدون ناشر —</option>
+                            @isset($people)
+                                @foreach ($people as $p)
+                                    <option value="{{ $p->id }}"
+                                        {{ (int) old('person_id', $article->person_id) === $p->id ? 'selected' : '' }}>
+                                        {{ $p->full_name }}
+                                    </option>
+                                @endforeach
+                            @endisset
                         </select>
                     </div>
                 </div>
 
+                {{-- إضافة صور جديدة --}}
                 <div class="form-group">
                     <label>إضافة صور جديدة (اختياري)</label>
                     <div class="custom-file">
@@ -51,6 +77,7 @@
                     </div>
                 </div>
 
+                {{-- عرض الصور الحالية --}}
                 <div>
                     <label class="d-block">صور حالية:</label>
                     <div class="d-flex flex-wrap">
@@ -58,8 +85,7 @@
                             <div class="border rounded p-1 mr-2 mb-2 text-center">
                                 <img src="{{ asset('storage/' . $img->path) }}"
                                     style="width:100px; height:75px; object-fit:cover;">
-                                <form action="{{ route('images.destroy', $img) }}" method="POST"
-                                    class="mt-1">
+                                <form action="{{ route('images.destroy', $img) }}" method="POST" class="mt-1">
                                     @csrf @method('DELETE')
                                     <button class="btn btn-sm btn-outline-danger">حذف</button>
                                 </form>
@@ -69,8 +95,8 @@
                         @endforelse
                     </div>
                 </div>
-
             </div>
+
             <div class="modal-footer">
                 <button class="btn btn-secondary" type="button" data-dismiss="modal">إغلاق</button>
                 <button class="btn btn-primary" type="submit"><i class="fas fa-save"></i> حفظ</button>
