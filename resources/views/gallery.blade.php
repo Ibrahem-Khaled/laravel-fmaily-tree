@@ -207,12 +207,32 @@
 
     <div class="container mx-auto px-4 py-4 lg:py-8 relative z-10">
 
+        <div class="flex items-center justify-between mb-4 lg:hidden">
+            <h2 class="text-xl font-bold gradient-text">المعرض</h2>
+            <button id="toggle-filters-btn"
+                class="bg-white/80 p-2 rounded-full shadow-md hover:bg-white transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-700" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M3 4h13M3 8h9m-9 4h6m4 0l4 4m0 0l4-4m-4 4v-8" />
+                </svg>
+            </button>
+        </div>
         <div class="flex flex-col lg:flex-row gap-8">
 
-            <aside class="w-full lg:w-1/4">
-                <div class="glass-effect p-4 lg:p-6 rounded-3xl green-glow lg:card-hover">
-                    <h3 class="text-xl lg:text-2xl font-bold gradient-text border-b border-green-200 pb-4 mb-4">الأقسام
-                    </h3>
+            <div id="filters-backdrop" class="fixed inset-0 bg-black/40 z-20 hidden lg:hidden"></div>
+            <aside id="filters-sidebar"
+                class="fixed lg:static inset-y-0 right-0 z-30 w-full max-w-sm lg:max-w-none lg:w-1/4 h-full lg:h-auto bg-white/50 lg:bg-transparent backdrop-blur-lg lg:backdrop-blur-none p-4 lg:p-0 transform transition-transform duration-300 ease-in-out translate-x-full lg:translate-x-0">
+                <div class="glass-effect p-4 lg:p-6 rounded-3xl green-glow h-full lg:card-hover">
+                    <div class="flex items-center justify-between lg:block border-b border-green-200 pb-4 mb-4">
+                        <h3 class="text-xl lg:text-2xl font-bold gradient-text">الأقسام</h3>
+                         <button id="close-filters-btn" class="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition lg:hidden">
+                             <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                             </svg>
+                         </button>
+                    </div>
+
                     <ul class="space-y-2">
                         <li>
                             <a href="javascript:void(0);" onclick="showFolderView()"
@@ -238,7 +258,6 @@
                     </ul>
                 </div>
             </aside>
-
             <main class="w-full lg:w-3/4">
 
                 <div id="folder-view-container">
@@ -368,6 +387,44 @@
         const imageGrid = document.getElementById('image-grid');
         const categoryTitle = document.getElementById('category-title');
         const noImagesMessage = document.getElementById('no-images-message');
+
+
+        // ===== التعديل 4: إضافة كود JavaScript جديد للتحكم في القائمة الجانبية =====
+        document.addEventListener('DOMContentLoaded', function () {
+            const sidebar = document.getElementById('filters-sidebar');
+            const backdrop = document.getElementById('filters-backdrop');
+            const openBtn = document.getElementById('toggle-filters-btn');
+            const closeBtn = document.getElementById('close-filters-btn');
+
+            function openSidebar() {
+                sidebar.classList.remove('translate-x-full');
+                backdrop.classList.remove('hidden');
+                document.body.style.overflow = 'hidden'; // لمنع التمرير في الخلفية
+            }
+
+            function closeSidebar() {
+                sidebar.classList.add('translate-x-full');
+                backdrop.classList.add('hidden');
+                document.body.style.overflow = ''; // استعادة التمرير
+            }
+
+            // عند الضغط على زر الفتح
+            if(openBtn) {
+                 openBtn.addEventListener('click', openSidebar);
+            }
+
+            // عند الضغط على زر الإغلاق
+            if(closeBtn) {
+                closeBtn.addEventListener('click', closeSidebar);
+            }
+
+            // عند الضغط على الخلفية المعتمة
+            if(backdrop) {
+                backdrop.addEventListener('click', closeSidebar);
+            }
+        });
+        // ===== نهاية التعديل 4 =====
+
 
         // دالة لإنشاء كود HTML لبطاقة الصورة
         function createImageCard(image) {
