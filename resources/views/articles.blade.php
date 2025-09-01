@@ -351,7 +351,7 @@
                             </button>
                         </div>
 
-                        <button onclick="toggleFilter()"
+                        {{-- <button onclick="toggleFilter()"
                             class="lg:hidden px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white
                                    font-bold rounded-xl shadow-lg flex items-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -360,7 +360,7 @@
                                 </path>
                             </svg>
                             <span>فلتر</span>
-                        </button>
+                        </button> --}}
                     </div>
                 </div>
 

@@ -43,6 +43,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::resource('people', PersonController::class);
+    Route::delete('/people/{person}/photo', [PersonController::class, 'removePhoto'])->name('people.removePhoto');
     Route::post('/people/reorder', [PersonController::class, 'reorder'])->name('people.reorder');
     Route::get('/people/search', [PersonController::class, 'search'])->name('people.search');
     Route::get('/people/{father}/wives', [PersonController::class, 'getWives'])->name('people.getWives');

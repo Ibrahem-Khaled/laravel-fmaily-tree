@@ -44,10 +44,11 @@
         font-weight: 700;
         color: var(--header-text-hover);
         text-decoration: none;
-    }
-
-    .header-brand i {
-        font-size: 1.5rem;
+        border: 2px solid var(--header-text);
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+        border-color: #ffffff59;
     }
 
     /* --- قائمة الروابط الرئيسية --- */
@@ -208,7 +209,6 @@
     <div class="header-container">
 
         <a class="header-brand" href="{{ route('old.family-tree') }}">
-            <i class="fas fa-tree"></i>
             <span>تواصل عائلة السريع</span>
         </a>
 

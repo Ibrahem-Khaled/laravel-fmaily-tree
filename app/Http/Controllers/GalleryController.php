@@ -15,38 +15,27 @@ class GalleryController extends Controller
      */
     public function index(Request $request)
     {
-        // الخطوة 1: الاستعلام الأساسي مع تحميل العلاقات المطلوبة للعرض
-        // - 'category': العلاقة المباشرة لعرض اسم القسم
-        $query = Image::whereHas('category')->with(['category']);
+        // 1. جلب الفئات الرئيسية لعرضها كمجلدات مع أول 4 صور للمعاينة
+        $categoriesForView = Category::whereHas('images')
+            ->whereNull('parent_id')
+            ->with(['images' => function ($query) {
+                $query->select('id', 'path', 'article_id')->latest()->take(4);
+            }])
+            ->withCount('images') // لحساب عدد الصور في كل مجلد
+            ->get();
 
-        // الخطوة 2: الفلترة بناءً على القسم (Category) مباشرة
-        // الآن نستخدم "where" بسيط لأن العلاقة مباشرة (Image->Category)
-        $query->when($request->filled('category'), function ($q) use ($request) {
-            return $q->where('category_id', $request->category);
-        });
+        // 2. جلب نفس الفئات ولكن مع كل الصور والمعلومات المرتبطة بها لتمريرها إلى JavaScript
+        $categoriesForJs = Category::whereNull('parent_id')
+            ->with([
+                'images.article:id,title,person_id,category_id', // اختر الحقول التي تحتاجها فقط لتحسين الأداء
+                'images.article.person:id,name',
+                'images.article.category:id,name'
+            ])
+            ->get();
 
-        // الخطوة 3: الفلترة بناءً على الشخص المساهم (Author) لا تزال عبر المقال
-        // هذا الجزء يبقى كما هو لأن العلاقة غير مباشرة (Image->Article->Person)
-        $query->when($request->filled('person'), function ($q) use ($request) {
-            return $q->whereHas('article', function ($subQ) use ($request) {
-                $subQ->where('person_id', $request->person);
-            });
-        });
-
-        // جلب النتائج النهائية مع الترتيب والترقيم
-        $images = $query->latest()->paginate(24)->withQueryString();
-
-        // جلب البيانات اللازمة لقوائم الفلترة في الواجهة
-        $categories = Category::whereNull('parent_id')->with('children')->whereHas('images')->get();
-        $authors = Person::whereHas('articles')->get();
-
-        // إرسال البيانات إلى الـ View
         return view('gallery', [
-            'images' => $images,
-            'categories' => $categories,
-            'authors' => $authors,
-            'currentCategory' => $request->category, // << أضف هذا السطر مجدداً
-            'currentAuthor' => $request->person,     // << وأضف هذا السطر أيضاً
+            'categories' => $categoriesForView, // للاستخدام في عرض المجلدات
+            'categoriesWithImages' => $categoriesForJs, // للاستخدام في JavaScript
         ]);
     }
 

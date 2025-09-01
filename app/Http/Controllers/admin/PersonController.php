@@ -140,6 +140,16 @@ class PersonController extends Controller
         return redirect()->back()->with('success', 'تم حذف الشخص بنجاح');
     }
 
+    public function removePhoto(Person $person)
+    {
+        if ($person->photo_url) {
+            Storage::disk('public')->delete($person->photo_url);
+            $person->update(['photo_url' => null]);
+        }
+
+        return redirect()->back()->with('success', 'تم حذف صورة الشخص بنجاح');
+    }
+
     public function reorder(Request $request)
     {
         $request->validate([

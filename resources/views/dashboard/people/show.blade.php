@@ -5,7 +5,8 @@
         {{-- عنوان الصفحة --}}
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800">ملف {{ $person->full_name }}</h1>
-            <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#addPersonsOutsideTheFamilyTreeModal">
+            <button type="button" class="btn btn-warning btn-sm" data-toggle="modal"
+                data-target="#addPersonsOutsideTheFamilyTreeModal">
                 <i class="fas fa-user-plus"></i> إضافة شخص من خارج العائلة
             </button>
         </div>
@@ -41,6 +42,17 @@
                     <div class="col-md-3 text-center">
                         <img src="{{ $person->avatar }}" alt="{{ $person->full_name }}"
                             class="img-fluid rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+
+                        @if ($person->photo_url)
+                            <form action="{{ route('people.removePhoto', $person->id) }}" method="POST"
+                                onsubmit="return confirm('هل أنت متأكد أنك تريد حذف الصورة؟');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger btn-sm mt-2">
+                                    <i class="fas fa-trash"></i> حذف الصورة
+                                </button>
+                            </form>
+                        @endif
                     </div>
                     <div class="col-md-9">
                         <table class="table table-bordered">
@@ -303,7 +315,7 @@
             const sortable = Sortable.create(sortableElement, {
                 animation: 150,
                 handle: '.fa-arrows-alt', // المقبض
-                onEnd: function (evt) {
+                onEnd: function(evt) {
                     const order = Array.from(evt.to.children).map((row, index) => ({
                         id: row.dataset.id,
                         order: index + 1
@@ -316,27 +328,29 @@
 
         function updateOrder(order, url) {
             fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({ order: order })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('فشل تحديث الترتيب');
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Success:', data);
-                // يمكنك إظهار رسالة نجاح للمستخدم هنا
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-                // يمكنك إظهار رسالة خطأ للمستخدم هنا
-            });
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        order: order
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('فشل تحديث الترتيب');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Success:', data);
+                    // يمكنك إظهار رسالة نجاح للمستخدم هنا
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    // يمكنك إظهار رسالة خطأ للمستخدم هنا
+                });
         }
     </script>
 @endpush
