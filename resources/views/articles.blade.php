@@ -312,9 +312,6 @@
 
     <div class="container mx-auto px-4 py-4 lg:py-8 relative z-10">
 
-        {{-- رأس الصفحة --}}
-        {{-- <header>...</header> --}}
-
         <div class="mb-8">
             <div class="glass-effect p-4 lg:p-6 rounded-3xl green-glow">
                 <div class="flex flex-col lg:flex-row gap-4">
@@ -491,15 +488,6 @@
                                             </div>
                                         @endif
 
-                                        @if ($article->category)
-                                            <div class="absolute top-3 right-3">
-                                                <span
-                                                    class="px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-xs font-medium text-green-700">
-                                                    {{ $article->category->name }}
-                                                </span>
-                                            </div>
-                                        @endif
-
                                         @if ($article->images->count() > 0)
                                             <div
                                                 class="absolute bottom-3 left-3 flex items-center gap-1 px-2 py-1 bg-black/50 backdrop-blur-sm rounded-full">
@@ -521,13 +509,6 @@
                                                 class="text-lg lg:text-xl font-bold text-gray-800 mb-2 hover:text-green-600 transition-colors duration-300">
                                                 {{ $article->title }}
                                             </h2>
-
-                                            <div class="flex items-center text-xs text-gray-500 mb-3">
-                                                <span>بواسطة {{ $article?->person?->first_name ?? 'غير معروف' }}</span>
-                                                <span class="mx-2">·</span>
-                                                <span>{{ $article->created_at->diffForHumans() }}</span>
-                                            </div>
-
                                             <p class="text-sm text-gray-600 leading-relaxed max-h-24 overflow-hidden">
                                                 {{ Str::limit(strip_tags($article->content), 90) }}
                                             </p>
