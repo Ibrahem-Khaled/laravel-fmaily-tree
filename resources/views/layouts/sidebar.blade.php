@@ -47,6 +47,12 @@
                 مكتبة الصور</span></a>
     </li>
     <li class="nav-item">
+        <a class="nav-link" href="{{ route('categories.index') }}">
+            <i class="fas fa-fw fa-tags"></i>
+            <span>
+                الفئات للكل </span></a>
+    </li>
+    <li class="nav-item">
         <a class="nav-link" href="{{ route('roles.index') }}">
             <i class="fas fa-fw fa-users"></i>
             <span>الادوار</span></a>

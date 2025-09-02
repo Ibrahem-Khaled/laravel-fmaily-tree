@@ -62,6 +62,9 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
 
     Route::post('articles/{article}/images', [ImageController::class, 'storeForArticle'])->name('articles.images.store');
     // إنشاء فئة سريع (AJAX)
+    Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
+    Route::put('/categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
+    Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
     Route::post('categories/quick-store', [CategoryController::class, 'store'])->name('categories.quick-store');
 
     // this route is for the admin panel

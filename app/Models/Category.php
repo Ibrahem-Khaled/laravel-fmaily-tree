@@ -67,4 +67,48 @@ class Category extends Model
     {
         return $q->orderBy('sort_order')->orderBy('name');
     }
+    public function scopeHasArticles($query)
+    {
+        return $query->whereHas('articles');
+    }
+
+
+    public function scopeNoArticles($query)
+    {
+        return $query->whereDoesntHave('articles');
+    }
+
+
+    public function scopeHasImages($query)
+    {
+        return $query->whereHas('images');
+    }
+
+
+    public function scopeNoImages($query)
+    {
+        return $query->whereDoesntHave('images');
+    }
+
+
+    public function scopeParents($query)
+    {
+        return $query->whereNull('parent_id');
+    }
+
+
+    public function scopeChildren($query)
+    {
+        return $query->whereNotNull('parent_id');
+    }
+
+
+    public function scopeSearch($query, ?string $term)
+    {
+        if (!$term) return $query;
+        return $query->where(function ($q) use ($term) {
+            $q->where('name', 'like', "%{$term}%")
+                ->orWhere('description', 'like', "%{$term}%");
+        });
+    }
 }
