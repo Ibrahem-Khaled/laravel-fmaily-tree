@@ -11,23 +11,21 @@
             </div>
 
             <div class="modal-body">
-                {{-- العنوان --}}
-                <div class="form-group">
-                    <label>العنوان</label>
+                {{-- معلومات أساسية --}}
+                <div class="form-group mb-3">
+                    <label class="mb-1">العنوان</label>
                     <input type="text" name="title" class="form-control" required maxlength="255"
                         value="{{ old('title', $article->title) }}">
                 </div>
 
-                {{-- المحتوى --}}
-                <div class="form-group">
-                    <label>المحتوى</label>
+                <div class="form-group mb-4">
+                    <label class="mb-1">المحتوى</label>
                     <textarea name="content" class="form-control" rows="5">{{ old('content', $article->content) }}</textarea>
                 </div>
 
-                <div class="form-row">
-                    {{-- الفئة --}}
+                <div class="form-row mb-4">
                     <div class="form-group col-md-4">
-                        <label>الفئة</label>
+                        <label class="mb-1">الفئة</label>
                         <select name="category_id" class="form-control" required>
                             @foreach ($categories as $cat)
                                 <option value="{{ $cat->id }}"
@@ -38,9 +36,8 @@
                         </select>
                     </div>
 
-                    {{-- الحالة --}}
                     <div class="form-group col-md-4">
-                        <label>الحالة</label>
+                        <label class="mb-1">الحالة</label>
                         <select name="status" class="form-control" required>
                             <option value="draft" {{ old('status', $article->status) === 'draft' ? 'selected' : '' }}>
                                 مسودة</option>
@@ -49,9 +46,8 @@
                         </select>
                     </div>
 
-                    {{-- الناشر (الشخص) --}}
                     <div class="form-group col-md-4">
-                        <label>الناشر</label>
+                        <label class="mb-1">الناشر</label>
                         <select name="person_id" class="form-control">
                             <option value="">— بدون ناشر —</option>
                             @isset($people)
@@ -66,33 +62,88 @@
                     </div>
                 </div>
 
-                {{-- إضافة صور جديدة --}}
-                <div class="form-group">
-                    <label>إضافة صور جديدة (اختياري)</label>
-                    <div class="custom-file">
-                        <input type="file" name="images[]" class="custom-file-input"
-                            id="editArticleImages{{ $article->id }}" multiple>
-                        <label class="custom-file-label" for="editArticleImages{{ $article->id }}">اختر
-                            ملفات...</label>
+                {{-- إدارة الصور --}}
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header py-2 d-flex justify-content-between align-items-center">
+                        <strong>الصور</strong>
+                        <span class="badge badge-info">{{ $article->images->count() }}</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group mb-3">
+                            <label class="mb-1 d-block">إضافة صور جديدة (اختياري)</label>
+                            <div class="custom-file">
+                                <input type="file" name="images[]" class="custom-file-input"
+                                    id="editArticleImages{{ $article->id }}" multiple>
+                                <label class="custom-file-label" for="editArticleImages{{ $article->id }}">اختر
+                                    ملفات...</label>
+                            </div>
+                            <small class="text-muted d-block mt-1">حد أقصى 4MB للصورة (تطبَّق عبر الـ
+                                FormRequest).</small>
+                        </div>
+
+                        {{-- شبكة الصور الحالية --}}
+                        <div class="thumbs-grid">
+                            @forelse($article->images as $img)
+                                <div class="thumb-card">
+                                    <img src="{{ asset('storage/' . $img->path) }}" alt="صورة" class="thumb-img">
+                                    {{-- زر الحذف يربط بنموذج حذف مستقل خارج المودال --}}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger btn-block mt-2"
+                                        form="img-del-{{ $img->id }}">
+                                        <i class="fas fa-trash-alt"></i> حذف
+                                    </button>
+                                </div>
+                            @empty
+                                <span class="text-muted">لا توجد صور</span>
+                            @endforelse
+                        </div>
                     </div>
                 </div>
 
-                {{-- عرض الصور الحالية --}}
-                <div>
-                    <label class="d-block">صور حالية:</label>
-                    <div class="d-flex flex-wrap">
-                        @forelse($article->images as $img)
-                            <div class="border rounded p-1 mr-2 mb-2 text-center">
-                                <img src="{{ asset('storage/' . $img->path) }}"
-                                    style="width:100px; height:75px; object-fit:cover;">
-                                <form action="{{ route('images.destroy', $img) }}" method="POST" class="mt-1">
-                                    @csrf @method('DELETE')
-                                    <button class="btn btn-sm btn-outline-danger">حذف</button>
-                                </form>
+                {{-- إدارة المرفقات --}}
+                <div class="card mb-2 shadow-sm">
+                    <div class="card-header py-2 d-flex justify-content-between align-items-center">
+                        <strong>المرفقات</strong>
+                        <span class="badge badge-secondary">{{ $article->attachments->count() }}</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group mb-3">
+                            <label class="mb-1 d-block">إضافة مرفقات جديدة (اختياري)</label>
+                            <div class="custom-file">
+                                <input type="file" name="attachments[]" class="custom-file-input"
+                                    id="editArticleAttachments{{ $article->id }}" multiple
+                                    accept=".pdf,.doc,.docx,.xls,.xlsx,.zip">
+                                <label class="custom-file-label" for="editArticleAttachments{{ $article->id }}">اختر
+                                    ملفات...</label>
                             </div>
-                        @empty
-                            <span class="text-muted">لا توجد صور</span>
-                        @endforelse
+                            <small class="text-muted d-block mt-1">
+                                الصيغ المسموحة: PDF, DOC/DOCX, XLS/XLSX, ZIP — حد أقصى 10MB لكل ملف.
+                            </small>
+                        </div>
+
+                        <div class="attach-list">
+                            @forelse($article->attachments as $att)
+                                <div class="attach-row">
+                                    <div class="attach-icon"><i class="fas fa-paperclip"></i></div>
+                                    <div class="attach-meta">
+                                        <div class="attach-name">{{ $att->file_name }}</div>
+                                        <div class="attach-type text-muted small">{{ $att->mime_type }}</div>
+                                    </div>
+                                    <div class="attach-actions">
+                                        <a href="{{ route('attachments.download', $att) }}"
+                                            class="btn btn-sm btn-outline-info">
+                                            <i class="fas fa-download"></i> تنزيل
+                                        </a>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                                            form="att-del-{{ $att->id }}"
+                                            onclick="return confirm('حذف هذا المرفق؟');">
+                                            <i class="fas fa-trash-alt"></i> حذف
+                                        </button>
+                                    </div>
+                                </div>
+                            @empty
+                                <span class="text-muted">لا توجد مرفقات</span>
+                            @endforelse
+                        </div>
                     </div>
                 </div>
             </div>
@@ -104,3 +155,18 @@
         </form>
     </div>
 </div>
+
+{{-- نماذج حذف "مستقلة" خارج المودال لتفادي تداخل النماذج --}}
+@foreach ($article->images as $img)
+    <form id="img-del-{{ $img->id }}" action="{{ route('images.destroy', $img) }}" method="POST"
+        class="d-none">
+        @csrf @method('DELETE')
+    </form>
+@endforeach
+
+@foreach ($article->attachments as $att)
+    <form id="att-del-{{ $att->id }}" action="{{ route('attachments.destroy', $att) }}" method="POST"
+        class="d-none">
+        @csrf @method('DELETE')
+    </form>
+@endforeach

@@ -53,6 +53,10 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::resource('marriages', MarriageController::class)->except(['show']);
 
     Route::resource('articles', ArticleController::class)->only(['index', 'store', 'update', 'destroy']);
+    Route::delete('/attachments/{attachment}', [ArticleController::class, 'destroyAttachment'])
+        ->name('attachments.destroy');
+    Route::get('/attachments/{attachment}/download', [ArticleController::class, 'downloadAttachment'])
+        ->name('attachments.download');
 
     // معرض الصور
     Route::get('images/index',        [ImageController::class, 'index'])->name('dashboard.images.index');

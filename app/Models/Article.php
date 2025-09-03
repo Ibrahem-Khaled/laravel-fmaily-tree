@@ -37,6 +37,11 @@ class Article extends Model
         return $this->hasMany(Image::class);
     }
 
+    public function attachments()
+    {
+        return $this->morphMany(Attachment::class, 'attachable');
+    }
+
     // سكوبات
     public function scopeSearch($q, ?string $term)
     {

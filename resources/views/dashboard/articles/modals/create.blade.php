@@ -1,8 +1,7 @@
 <div class="modal fade" id="createArticleModal" tabindex="-1" role="dialog" aria-labelledby="createArticleModalLabel"
     aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
-        <form action="{{ route('articles.store') }}" method="POST" enctype="multipart/form-data"
-              class="modal-content">
+        <form action="{{ route('articles.store') }}" method="POST" enctype="multipart/form-data" class="modal-content">
             @csrf
             <div class="modal-header">
                 <h5 class="modal-title" id="createArticleModalLabel">إضافة مقال</h5>
@@ -13,7 +12,8 @@
                 {{-- العنوان --}}
                 <div class="form-group">
                     <label>العنوان <span class="text-danger">*</span></label>
-                    <input type="text" name="title" class="form-control" required maxlength="255" value="{{ old('title') }}">
+                    <input type="text" name="title" class="form-control" required maxlength="255"
+                        value="{{ old('title') }}">
                 </div>
 
                 {{-- المحتوى --}}
@@ -29,13 +29,15 @@
                         <div class="input-group">
                             <select name="category_id" class="form-control" required>
                                 @foreach ($categories as $cat)
-                                    <option value="{{ $cat->id }}" {{ old('category_id') == $cat->id ? 'selected' : '' }}>
+                                    <option value="{{ $cat->id }}"
+                                        {{ old('category_id') == $cat->id ? 'selected' : '' }}>
                                         {{ $cat->name }} ({{ $cat->articles_count }})
                                     </option>
                                 @endforeach
                             </select>
                             <div class="input-group-append">
-                                <button class="btn btn-outline-secondary" type="button" data-toggle="modal" data-target="#quickCategoryModal">
+                                <button class="btn btn-outline-secondary" type="button" data-toggle="modal"
+                                    data-target="#quickCategoryModal">
                                     <i class="fas fa-plus"></i> فئة جديدة
                                 </button>
                             </div>
@@ -47,8 +49,10 @@
                     <div class="form-group col-md-3">
                         <label>الحالة</label>
                         <select name="status" class="form-control" required>
-                            <option value="draft" {{ old('status','draft') === 'draft' ? 'selected' : '' }}>مسودة</option>
-                            <option value="published" {{ old('status') === 'published' ? 'selected' : '' }}>منشورة</option>
+                            <option value="draft" {{ old('status', 'draft') === 'draft' ? 'selected' : '' }}>مسودة
+                            </option>
+                            <option value="published" {{ old('status') === 'published' ? 'selected' : '' }}>منشورة
+                            </option>
                         </select>
                     </div>
 
@@ -73,11 +77,26 @@
                 <div class="form-group">
                     <label>صور المقال (متعددة)</label>
                     <div class="custom-file">
-                        <input type="file" name="images[]" class="custom-file-input" id="createArticleImages" multiple>
+                        <input type="file" name="images[]" class="custom-file-input" id="createArticleImages"
+                            multiple>
                         <label class="custom-file-label" for="createArticleImages">اختر ملفات...</label>
                     </div>
                     <small class="text-muted d-block mt-1">يمكن رفع عدة صور، بحد أقصى 4MB للصورة.</small>
                 </div>
+
+                <div class="form-group">
+                    <label>مرفقات المقال (متعددة)</label>
+                    <div class="custom-file">
+                        <input type="file" name="attachments[]" class="custom-file-input"
+                            id="createArticleAttachments" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.zip">
+                        <label class="custom-file-label" for="createArticleAttachments">اختر ملفات...</label>
+                    </div>
+                    <small class="text-muted d-block mt-1">
+                        الصيغ المسموحة: PDF, DOC/DOCX, XLS/XLSX, ZIP — وبحد أقصى 10MB لكل ملف (طبقناها في الـ
+                        FormRequest).
+                    </small>
+                </div>
+
             </div>
 
             <div class="modal-footer">
