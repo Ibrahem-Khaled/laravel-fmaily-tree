@@ -162,7 +162,7 @@
                                 {{ mb_substr($article->person->full_name, 0, 1) }}
                             </div>
                             <div>
-                                <p class="font-semibold text-gray-800">{{ $article->person->full_name }}</p>
+                                <p class="font-semibold text-gray-800">{{ $article->person->full_name ?? 'غير معروف' }}</p>
                                 <p class="text-xs text-gray-500">المساهم</p>
                             </div>
                         </div>
