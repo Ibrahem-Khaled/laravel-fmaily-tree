@@ -509,11 +509,16 @@
                                                 class="text-lg lg:text-xl font-bold text-gray-800 mb-2 hover:text-green-600 transition-colors duration-300">
                                                 {{ $article->title }}
                                             </h2>
-                                            <p class="text-sm text-gray-600 leading-relaxed max-h-24 overflow-hidden">
+                                            {{-- <p class="text-sm text-gray-600 leading-relaxed max-h-24 overflow-hidden">
                                                 {{ Str::limit(strip_tags($article->content), 90) }}
-                                            </p>
+                                            </p> --}}
                                         </div>
-
+                                        <div class="text-xs text-gray-500 mt-2">
+                                            من  <span
+                                                class="font-bold text-gray-700">{{ $article->person->full_name }}</span>
+                                            {{-- في
+                                            {{ $article?->created_at?->format('d M Y') }} --}}
+                                        </div>
                                         <div class="mt-4 text-right">
                                             <span
                                                 class="inline-flex items-center gap-2 text-sm font-bold text-green-600 group">
