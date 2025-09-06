@@ -213,29 +213,29 @@
                                                 title="تعديل">
                                                 <i class="fas fa-edit"></i>
                                             </button>
+                                            {{-- داخل حلقة الأبناء --}}
                                             <button type="button" class="btn btn-sm btn-circle btn-danger"
                                                 data-toggle="modal"
                                                 data-target="#deletePersonModal{{ $child->getKey() }}" title="حذف">
                                                 <i class="fas fa-trash"></i>
                                             </button>
 
-                                            <div class="modal fade" id="deletePersonModal{{ $person->getKey() }}"
+                                            <div class="modal fade" id="deletePersonModal{{ $child->getKey() }}"
                                                 tabindex="-1" role="dialog"
-                                                aria-labelledby="deletePersonModalLabel{{ $person->getKey() }}"
+                                                aria-labelledby="deletePersonModalLabel{{ $child->getKey() }}"
                                                 aria-hidden="true">
                                                 <div class="modal-dialog" role="document">
                                                     <div class="modal-content">
                                                         <div class="modal-header bg-danger text-white">
                                                             <h5 class="modal-title"
-                                                                id="deletePersonModalLabel{{ $person->getKey() }}">تأكيد
+                                                                id="deletePersonModalLabel{{ $child->getKey() }}">تأكيد
                                                                 الحذف</h5>
                                                             <button type="button" class="close" data-dismiss="modal"
-                                                                aria-label="Close">
-                                                                <span aria-hidden="true">&times;</span>
-                                                            </button>
+                                                                aria-label="Close"><span
+                                                                    aria-hidden="true">&times;</span></button>
                                                         </div>
 
-                                                        <form action="{{ route('people.destroy', $person->getKey()) }}"
+                                                        <form action="{{ route('people.destroy', $child->getKey()) }}"
                                                             method="POST">
                                                             @csrf
                                                             @method('DELETE')
@@ -244,15 +244,12 @@
                                                                     <i
                                                                         class="fas fa-exclamation-triangle fa-4x text-danger mb-3"></i>
                                                                     <h4>هل أنت متأكد من حذف هذا الشخص؟</h4>
-                                                                    <p class="lead">{{ $person->full_name }}</p>
-
-                                                                    @if (($person->children_count ?? $person->children()->count()) > 0)
+                                                                    <p class="lead">{{ $child->full_name }}</p>
+                                                                    @if (($child->children_count ?? $child->children()->count()) > 0)
                                                                         <div class="alert alert-warning">
-                                                                            <strong>تحذير!</strong>
-                                                                            هذا الشخص لديه
-                                                                            {{ $person->children_count ?? $person->children()->count() }}
-                                                                            أبناء. سيتم
-                                                                            حذفهم أيضاً.
+                                                                            <strong>تحذير!</strong> هذا الشخص لديه
+                                                                            {{ $child->children_count ?? $child->children()->count() }}
+                                                                            أبناء. سيتم حذفهم أيضاً.
                                                                         </div>
                                                                     @endif
                                                                 </div>
@@ -268,6 +265,7 @@
                                                     </div>
                                                 </div>
                                             </div>
+
 
                                         </td>
                                     </tr>
