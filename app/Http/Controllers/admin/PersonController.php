@@ -14,41 +14,46 @@ class PersonController extends Controller
 {
     public function index(Request $request)
     {
-        $search = $request->input('search');
+        $search = trim((string) $request->input('search'));
         $gender = $request->input('gender');
 
-        // 1. الاستعلام الأساسي مع إضافة ->withQueryString()
-        // هذا هو التعديل الرئيسي في هذا الملف
-        $people = Person::when($search, function ($query, $search) {
-            return $query->where(function ($q) use ($search) {
-                $q->where('first_name', 'like', "%{$search}%")
-                    ->orWhere('last_name', 'like', "%{$search}%");
-            });
-        })
-            ->when($gender, function ($query, $gender) {
-                return $query->where('gender', $gender);
+        $people = Person::query()
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('first_name', 'like', "%{$search}%")
+                        ->orWhere('last_name', 'like', "%{$search}%")
+                        // الأب المباشر
+                        ->orWhereHas('parent', function ($p) use ($search) {
+                            $p->where('first_name', 'like', "%{$search}%")
+                                ->orWhere('last_name', 'like', "%{$search}%");
+                        })
+                        // جدّ الأب (اختياري إن كانت العلاقة متوفرة):
+                        ->orWhereHas('parent.parent', function ($gp) use ($search) {
+                            $gp->where('first_name', 'like', "%{$search}%")
+                                ->orWhere('last_name', 'like', "%{$search}%");
+                        });
+                });
             })
+            ->when($gender, fn($q) => $q->where('gender', $gender))
             ->paginate(10)
-            ->withQueryString(); // <-- ✅  هذا هو السطر المضاف لحل المشكلة
+            ->withQueryString();
+
+        // لو جدولك الحقيقي اسمه "persons" فثبّت اسم الجدول في الموديل:
+        // protected $table = 'persons';
 
         $males = Person::where('gender', 'male')->get();
         $females = Person::where('gender', 'female')->get();
 
-        // 2. حساب الإحصائيات (الكود الخاص بك يعمل بكفاءة هنا)
         $stats = Cache::remember('people_stats', now()->addMinutes(60), function () {
-            $result = DB::table('persons')
-                ->selectRaw("
-                    COUNT(*) as total,
-                    COUNT(CASE WHEN gender = 'male' THEN 1 END) as male,
-                    COUNT(CASE WHEN gender = 'female' THEN 1 END) as female,
-                    COUNT(CASE WHEN death_date IS NULL THEN 1 END) as living,
-                    COUNT(CASE WHEN photo_url IS NOT NULL THEN 1 END) as with_photos
-                ")
-                ->first();
-            return (array) $result;
+            return (array) DB::table('persons')->selectRaw("
+            COUNT(*) as total,
+            COUNT(CASE WHEN gender = 'male' THEN 1 END) as male,
+            COUNT(CASE WHEN gender = 'female' THEN 1 END) as female,
+            COUNT(CASE WHEN death_date IS NULL THEN 1 END) as living,
+            COUNT(CASE WHEN photo_url IS NOT NULL THEN 1 END) as with_photos
+        ")->first();
         });
 
-        // 3. إرسال البيانات إلى الـ view
         return view('dashboard.people.index', compact('people', 'stats', 'males', 'females'));
     }
 

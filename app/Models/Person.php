@@ -138,7 +138,11 @@ class Person extends Model
     {
         return $this->hasMany(Article::class);
     }
-
+    public function padges()
+    {
+        return $this->belongsToMany(Padge::class, 'person_padges')->withTimestamps()
+            ->withPivot('is_active');
+    }
 
 
     // Accessor لجلب عدد المقالات
