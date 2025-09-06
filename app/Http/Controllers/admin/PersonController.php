@@ -211,10 +211,10 @@ class PersonController extends Controller
 
         // جلب الأبناء بناءً على جنس الشخص
         if ($person->gender === 'female') {
-            $children = Person::where('mother_id', $person->id)->orderBy('birth_date')->get();
+            $children = Person::where('mother_id', $person->id)->get();
         } else {
             // علاقة 'children' تفترض البحث بـ parent_id
-            $children = $person->children()->orderBy('birth_date')->get();
+            $children = $person->children()->get();
         }
 
         // جلب الزوجات أو الزوج

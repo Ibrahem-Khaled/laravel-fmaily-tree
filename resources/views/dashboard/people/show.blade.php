@@ -179,6 +179,7 @@
                                     <th>الاسم</th>
                                     <th>الجنس</th>
                                     <th>العمر</th>
+                                    <th>رقم الترتيب لتجربة</th>
                                     <th>الإجراءات</th>
                                 </tr>
                             </thead>
@@ -205,12 +206,69 @@
                                             </span>
                                         </td>
                                         <td>{{ $child->age ?? 'غير معروف' }}</td>
+                                        <td>{{ $child->display_order ?? '-' }}</td>
                                         <td>
                                             <button type="button" class="btn btn-sm btn-circle btn-primary"
                                                 data-toggle="modal" data-target="#editPersonModal{{ $child->id }}"
                                                 title="تعديل">
                                                 <i class="fas fa-edit"></i>
                                             </button>
+                                            <button type="button" class="btn btn-sm btn-circle btn-danger"
+                                                data-toggle="modal"
+                                                data-target="#deletePersonModal{{ $child->getKey() }}" title="حذف">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+
+                                            <div class="modal fade" id="deletePersonModal{{ $person->getKey() }}"
+                                                tabindex="-1" role="dialog"
+                                                aria-labelledby="deletePersonModalLabel{{ $person->getKey() }}"
+                                                aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header bg-danger text-white">
+                                                            <h5 class="modal-title"
+                                                                id="deletePersonModalLabel{{ $person->getKey() }}">تأكيد
+                                                                الحذف</h5>
+                                                            <button type="button" class="close" data-dismiss="modal"
+                                                                aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+
+                                                        <form action="{{ route('people.destroy', $person->getKey()) }}"
+                                                            method="POST">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <div class="modal-body">
+                                                                <div class="text-center">
+                                                                    <i
+                                                                        class="fas fa-exclamation-triangle fa-4x text-danger mb-3"></i>
+                                                                    <h4>هل أنت متأكد من حذف هذا الشخص؟</h4>
+                                                                    <p class="lead">{{ $person->full_name }}</p>
+
+                                                                    @if (($person->children_count ?? $person->children()->count()) > 0)
+                                                                        <div class="alert alert-warning">
+                                                                            <strong>تحذير!</strong>
+                                                                            هذا الشخص لديه
+                                                                            {{ $person->children_count ?? $person->children()->count() }}
+                                                                            أبناء. سيتم
+                                                                            حذفهم أيضاً.
+                                                                        </div>
+                                                                    @endif
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary"
+                                                                    data-dismiss="modal">إلغاء</button>
+                                                                <button type="submit" class="btn btn-danger">نعم،
+                                                                    احذف</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+
                                         </td>
                                     </tr>
                                 @endforeach
