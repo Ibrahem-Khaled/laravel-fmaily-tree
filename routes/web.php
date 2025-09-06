@@ -6,6 +6,7 @@ use App\Http\Controllers\admin\DashboardController;
 use App\Http\Controllers\admin\ImageController;
 use App\Http\Controllers\admin\MarriageController;
 use App\Http\Controllers\admin\OutsideFamilyPersonController;
+use App\Http\Controllers\admin\PadgeController;
 use App\Http\Controllers\admin\PersonController;
 use App\Http\Controllers\admin\RoleController;
 use App\Http\Controllers\FamilyTreeController;
@@ -73,6 +74,9 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
 
     // this route is for the admin panel
     Route::resource('roles', RoleController::class);
+
+    // Badges (Padges) routes
+    Route::resource('padges', PadgeController::class);
 });
 
 require __DIR__ . '/auth.php';

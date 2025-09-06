@@ -53,6 +53,12 @@
                 الفئات للكل </span></a>
     </li>
     <li class="nav-item">
+        <a class="nav-link" href="{{ route('padges.index') }}">
+            <i class="fas fa-fw fa-medal"></i>
+            <span>
+                الشارات</span></a>
+    </li>
+    <li class="nav-item">
         <a class="nav-link" href="{{ route('roles.index') }}">
             <i class="fas fa-fw fa-users"></i>
             <span>الادوار</span></a>

@@ -179,7 +179,7 @@
                                     <th>الاسم</th>
                                     <th>الجنس</th>
                                     <th>العمر</th>
-                                    <th>رقم الترتيب لتجربة</th>
+                                    {{-- <th>رقم الترتيب لتجربة</th> --}}
                                     <th>الإجراءات</th>
                                 </tr>
                             </thead>
@@ -206,7 +206,7 @@
                                             </span>
                                         </td>
                                         <td>{{ $child->age ?? 'غير معروف' }}</td>
-                                        <td>{{ $child->display_order ?? '-' }}</td>
+                                        {{-- <td>{{ $child->display_order ?? '-' }}</td> --}}
                                         <td>
                                             <button type="button" class="btn btn-sm btn-circle btn-primary"
                                                 data-toggle="modal" data-target="#editPersonModal{{ $child->id }}"

@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class Padge extends Model
 {
     use HasFactory;
-
     protected $fillable = [
         'name',
         'description',
@@ -16,6 +15,9 @@ class Padge extends Model
         'color',
         'sort_order',
         'is_active',
+    ];
+    protected $casts = [
+        'is_active' => 'boolean',
     ];
     public function people()
     {
