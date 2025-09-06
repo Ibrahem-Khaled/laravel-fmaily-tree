@@ -96,7 +96,7 @@
                                     </td>
                                 </tr>
                                 {{-- تضمين المودالات لكل شارة --}}
-                                @include('dashboard.padges.modals.show', ['padge' => $padge])
+                                {{-- @include('dashboard.padges.modals.show', ['padge' => $padge]) --}}
                                 @include('dashboard.padges.modals.edit', ['padge' => $padge])
                                 @include('dashboard.padges.modals.delete', ['padge' => $padge])
                             @empty
