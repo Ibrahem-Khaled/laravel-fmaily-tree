@@ -7,7 +7,7 @@
             <h1 class="h3 mb-0 text-gray-800">إدارة الشارات (Badges)</h1>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ route('home.dashboard') }}">لوحة التحكم</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">لوحة التحكم</a></li>
                     <li class="breadcrumb-item active" aria-current="page">الشارات</li>
                 </ol>
             </nav>
