@@ -14,12 +14,13 @@ return new class extends Migration
         Schema::create('padges', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('description')->nullable();
+            $table->text('description')->nullable();
             $table->string('image')->nullable();
             $table->string('color')->nullable();
             $table->bigInteger('sort_order')->index()->default(0);
             $table->boolean('is_active')->default(true);
             $table->timestamps();
+            $table->unique(['padge_id', 'person_id']);
         });
     }
 

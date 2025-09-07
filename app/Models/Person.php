@@ -140,7 +140,9 @@ class Person extends Model
     }
     public function padges()
     {
-        return $this->belongsToMany(Padge::class, 'person_padges')->withTimestamps()
+        // جدول pivot عندك اسمه person_padges
+        return $this->belongsToMany(Padge::class, 'person_padges', 'person_id', 'padge_id')
+            ->withTimestamps()
             ->withPivot('is_active');
     }
 

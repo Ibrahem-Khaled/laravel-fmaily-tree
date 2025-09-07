@@ -7,6 +7,7 @@ use App\Http\Controllers\admin\ImageController;
 use App\Http\Controllers\admin\MarriageController;
 use App\Http\Controllers\admin\OutsideFamilyPersonController;
 use App\Http\Controllers\admin\PadgeController;
+use App\Http\Controllers\admin\PadgePeopleController;
 use App\Http\Controllers\admin\PersonController;
 use App\Http\Controllers\admin\RoleController;
 use App\Http\Controllers\FamilyTreeController;
@@ -77,6 +78,20 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
 
     // Badges (Padges) routes
     Route::resource('padges', PadgeController::class);
+    Route::get('padges/{padge}/people', [PadgePeopleController::class, 'index'])
+        ->name('padges.people.index');
+
+    // إرفاق أشخاص
+    Route::post('padges/{padge}/people', [PadgePeopleController::class, 'attach'])
+        ->name('padges.people.attach');
+
+    // فصل شخص
+    Route::delete('padges/{padge}/people/{person}', [PadgePeopleController::class, 'detach'])
+        ->name('padges.people.detach');
+
+    // تبديل تفعيل/تعطيل العلاقة على البيفوت
+    Route::patch('padges/{padge}/people/{person}/toggle', [PadgePeopleController::class, 'toggle'])
+        ->name('padges.people.toggle');
 });
 
 require __DIR__ . '/auth.php';

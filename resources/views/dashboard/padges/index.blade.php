@@ -84,9 +84,12 @@
                                     <td>{{ $padge->sort_order }}</td>
                                     <td>
                                         {{-- أزرار الإجراءات --}}
-                                        <button class="btn btn-info btn-sm" data-toggle="modal"
-                                            data-target="#showPadgeModal{{ $padge->id }}" title="عرض"><i
-                                                class="fas fa-eye"></i></button>
+                                        <a class="btn btn-info btn-sm" href="{{ route('padges.people.index', $padge) }}"
+                                            title="عرض الأشخاص">
+                                            <i class="fas fa-users"></i>
+                                        </a>
+
+                                        {{-- مودال الأشخاص --}}
                                         <button class="btn btn-primary btn-sm" data-toggle="modal"
                                             data-target="#editPadgeModal{{ $padge->id }}" title="تعديل"><i
                                                 class="fas fa-edit"></i></button>
@@ -95,8 +98,8 @@
                                                 class="fas fa-trash"></i></button>
                                     </td>
                                 </tr>
+                                {{-- @include('dashboard.padges.modals.people', ['padge' => $padge]) --}}
                                 {{-- تضمين المودالات لكل شارة --}}
-                                {{-- @include('dashboard.padges.modals.show', ['padge' => $padge]) --}}
                                 @include('dashboard.padges.modals.edit', ['padge' => $padge])
                                 @include('dashboard.padges.modals.delete', ['padge' => $padge])
                             @empty

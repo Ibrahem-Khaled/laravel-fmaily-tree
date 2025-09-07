@@ -23,7 +23,7 @@ class OrderedScope implements Scope
 
         $builder->orderByRaw('CASE WHEN display_order = 0 THEN 1 ELSE 0 END ASC')
             ->orderBy('display_order', 'asc')
-            ->orderBy('created_at', 'asc')
+            // ->orderBy('created_at', 'asc')
             ->orderBy('birth_date', 'asc');
     }
 }

@@ -21,7 +21,8 @@ class Padge extends Model
     ];
     public function people()
     {
-        return $this->belongsToMany(Person::class, 'person_padges')->withTimestamps()
+        return $this->belongsToMany(Person::class, 'person_padges', 'padge_id', 'person_id')
+            ->withTimestamps()
             ->withPivot('is_active');
     }
 }
