@@ -12,6 +12,7 @@ use App\Http\Controllers\admin\PersonController;
 use App\Http\Controllers\admin\RoleController;
 use App\Http\Controllers\FamilyTreeController;
 use App\Http\Controllers\GalleryController;
+use App\Http\Controllers\HomePersonController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -38,6 +39,9 @@ Route::prefix('api')->group(function () {
     Route::get('/person/{id}', [FamilyTreeController::class, 'getPersonDetails']);
     Route::get('/person/{id}/children', [FamilyTreeController::class, 'getChildren']);
 });
+
+Route::get('persons/badges', [HomePersonController::class, 'personsWhereHasBadges'])->name('persons.badges');
+Route::get('/people/profile/{person}', [HomePersonController::class, 'show'])->name('people.profile.show');
 
 
 Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
@@ -78,20 +82,12 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
 
     // Badges (Padges) routes
     Route::resource('padges', PadgeController::class);
-    Route::get('padges/{padge}/people', [PadgePeopleController::class, 'index'])
-        ->name('padges.people.index');
+    Route::get('padges/{padge}/people', [PadgePeopleController::class, 'index'])->name('padges.people.index');
+    Route::get('dashboard/padges/{padge}/people/search', [PadgePeopleController::class, 'search'])->name('padges.people.search');
 
-    // إرفاق أشخاص
-    Route::post('padges/{padge}/people', [PadgePeopleController::class, 'attach'])
-        ->name('padges.people.attach');
-
-    // فصل شخص
-    Route::delete('padges/{padge}/people/{person}', [PadgePeopleController::class, 'detach'])
-        ->name('padges.people.detach');
-
-    // تبديل تفعيل/تعطيل العلاقة على البيفوت
-    Route::patch('padges/{padge}/people/{person}/toggle', [PadgePeopleController::class, 'toggle'])
-        ->name('padges.people.toggle');
+    Route::post('padges/{padge}/people', [PadgePeopleController::class, 'attach'])->name('padges.people.attach');
+    Route::delete('padges/{padge}/people/{person}', [PadgePeopleController::class, 'detach'])->name('padges.people.detach');
+    Route::patch('padges/{padge}/people/{person}/toggle', [PadgePeopleController::class, 'toggle'])->name('padges.people.toggle');
 });
 
 require __DIR__ . '/auth.php';

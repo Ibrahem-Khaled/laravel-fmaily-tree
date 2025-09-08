@@ -229,6 +229,11 @@
                     <a class="nav-link {{ request()->routeIs('gallery.articles') ? 'active' : '' }}"
                         href="{{ route('gallery.articles') }}">شهادات و أبحاث</a>
                 </li>
+                <li>
+                    <a class="nav-link {{ request()->routeIs('persons.badges') ? 'active' : '' }}" href="{{ route('persons.badges') }}">
+                        طلاب طموح
+                    </a>
+                </li>
                 {{-- <li>
                     <a class="nav-link {{ request()->routeIs('about') ? 'active' : '' }}" href="#">عن العائلة</a>
                 </li> --}}
