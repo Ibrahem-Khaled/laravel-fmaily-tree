@@ -70,9 +70,7 @@
         </div>
 
         @if ($persons->isNotEmpty())
-            {{-- ======================= بداية التعديل هنا ======================= --}}
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-            {{-- ======================== نهاية التعديل هنا ======================== --}}
                 {{-- المرور على كل شخص في القائمة --}}
                 @foreach ($persons as $person)
                     <div
@@ -88,18 +86,37 @@
                                 </a>
                             </h3>
                         </div>
+
+                        {{-- ======================= بداية التعديل هنا ======================= --}}
                         <div class="p-5 bg-green-50/30 flex-grow">
                             <h4 class="font-semibold text-gray-700 mb-3 text-sm">الأوسمة الحاصل عليها:</h4>
-                            <div class="flex flex-wrap gap-2">
-                                {{-- عرض الأوسمة الخاصة بكل شخص --}}
-                                @foreach ($person->padges as $padge)
-                                    <span
-                                        class="inline-block px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
-                                        {{ $padge->name }}
+                            <div class="flex flex-wrap gap-2 items-center">
+                                {{-- التحقق من عدد الأوسمة --}}
+                                @if ($person->padges->count() > 2)
+                                    {{-- عرض أول وسامين فقط --}}
+                                    @foreach ($person->padges->take(2) as $padge)
+                                        <span
+                                            class="inline-block px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                                            {{ $padge->name }}
+                                        </span>
+                                    @endforeach
+                                    {{-- عرض عدد الأوسمة المتبقية --}}
+                                    <span class="text-xs text-gray-600 font-semibold">
+                                        +{{ $person->padges->count() - 2 }} المزيد
                                     </span>
-                                @endforeach
+                                @else
+                                    {{-- عرض كل الأوسمة لو كانوا 2 أو أقل --}}
+                                    @foreach ($person->padges as $padge)
+                                        <span
+                                            class="inline-block px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                                            {{ $padge->name }}
+                                        </span>
+                                    @endforeach
+                                @endif
                             </div>
                         </div>
+                        {{-- ======================== نهاية التعديل هنا ======================== --}}
+
                     </div>
                 @endforeach
             </div>
