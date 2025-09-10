@@ -70,54 +70,54 @@
         </div>
 
         @if ($persons->isNotEmpty())
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+            {{-- ======================= بداية تعديل الشبكة (Grid) ======================= --}}
+            {{-- تم تغيير grid-cols-2 إلى grid-cols-4 وتقليل الفجوة gap إلى 2 على الشاشات الصغيرة --}}
+            <div class="grid grid-cols-4 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 sm:gap-4">
+            {{-- ======================== نهاية تعديل الشبكة (Grid) ======================== --}}
+
                 {{-- المرور على كل شخص في القائمة --}}
                 @foreach ($persons as $person)
-                    <div
-                        class="bg-white/80 backdrop-blur-md border border-white/30 rounded-2xl overflow-hidden shadow-md hover:shadow-xl hover:shadow-green-500/20 transition-all duration-300 transform hover:-translate-y-2 flex flex-col">
-                        <div class="p-5 text-center border-b border-green-100">
+                    {{-- ======================= بداية تعديل الكرت ليصبح قابلاً للضغط ======================= --}}
+                    {{-- تم استبدال div بـ a وجعل الكرت بأكمله رابطًا --}}
+                    <a href="{{ route('people.profile.show', $person->id) }}"
+                        class="group bg-white/80 backdrop-blur-md border border-white/30 rounded-2xl overflow-hidden shadow-md hover:shadow-xl hover:shadow-green-500/20 transition-all duration-300 transform hover:-translate-y-2 flex flex-col">
+                        {{-- تم تصغير padding من p-5 إلى p-3 --}}
+                        <div class="p-3 text-center border-b border-green-100">
+                            {{-- تم تصغير حجم الصورة من w-24 h-24 إلى w-20 h-20 --}}
                             <img src="{{ $person->avatar }}" alt="{{ $person->first_name }}"
-                                class="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-white shadow-md object-cover">
-                            <h3 class="font-bold font-serif text-xl text-gray-800">
-                                {{-- رابط للملف الشخصي --}}
-                                <a href="{{ route('people.profile.show', $person->id) }}"
-                                    class="hover:text-green-600 transition-colors">
-                                    {{ $person->full_name }}
-                                </a>
+                                class="w-20 h-20 rounded-full mx-auto mb-3 border-4 border-white shadow-md object-cover">
+                            {{-- تم تصغير حجم الخط من text-xl إلى text-lg وإزالة الرابط الداخلي --}}
+                            <h3 class="font-bold font-serif text-lg text-gray-800 group-hover:text-green-600 transition-colors truncate">
+                                {{ $person->full_name }}
                             </h3>
                         </div>
+                        {{-- ======================== نهاية تعديل الكرت ======================== --}}
 
-                        {{-- ======================= بداية التعديل هنا ======================= --}}
-                        <div class="p-5 bg-green-50/30 flex-grow">
-                            <h4 class="font-semibold text-gray-700 mb-3 text-sm">الأوسمة الحاصل عليها:</h4>
-                            <div class="flex flex-wrap gap-2 items-center">
-                                {{-- التحقق من عدد الأوسمة --}}
-                                @if ($person->padges->count() > 2)
-                                    {{-- عرض أول وسامين فقط --}}
-                                    @foreach ($person->padges->take(2) as $padge)
-                                        <span
-                                            class="inline-block px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
-                                            {{ $padge->name }}
-                                        </span>
-                                    @endforeach
-                                    {{-- عرض عدد الأوسمة المتبقية --}}
-                                    <span class="text-xs text-gray-600 font-semibold">
-                                        +{{ $person->padges->count() - 2 }} المزيد
+                        {{-- ======================= بداية تعديل عرض الأوسمة ======================= --}}
+                        {{-- تم تصغير padding من p-5 إلى p-4 --}}
+                        <div class="p-4 bg-green-50/30 flex-grow">
+                            <h4 class="font-semibold text-gray-700 mb-2 text-xs">الأوسمة:</h4>
+                            <div class="flex flex-wrap gap-1 items-center justify-center">
+                                {{-- التحقق من وجود أوسمة --}}
+                                @if ($person->padges->isNotEmpty())
+                                    {{-- عرض أول وسام --}}
+                                    <span class="inline-block px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                                        {{ $person->padges->first()->name }}
                                     </span>
-                                @else
-                                    {{-- عرض كل الأوسمة لو كانوا 2 أو أقل --}}
-                                    @foreach ($person->padges as $padge)
-                                        <span
-                                            class="inline-block px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
-                                            {{ $padge->name }}
+                                    {{-- التحقق إذا كان هناك أكثر من وسام واحد لعرض العدد المتبقي --}}
+                                    @if ($person->padges->count() > 1)
+                                        <span class="text-xs text-gray-600 font-semibold">
+                                            +{{ $person->padges->count() - 1 }}
                                         </span>
-                                    @endforeach
+                                    @endif
+                                @else
+                                     <span class="text-xs text-gray-500">لا يوجد</span>
                                 @endif
                             </div>
                         </div>
-                        {{-- ======================== نهاية التعديل هنا ======================== --}}
+                        {{-- ======================== نهاية تعديل عرض الأوسمة ======================== --}}
 
-                    </div>
+                    </a> {{-- نهاية رابط الكرت --}}
                 @endforeach
             </div>
         @else
