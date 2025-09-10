@@ -71,40 +71,29 @@
 
         @if ($persons->isNotEmpty())
             {{-- ======================= بداية تعديل الشبكة (Grid) ======================= --}}
-            {{-- تم تغيير grid-cols-2 إلى grid-cols-4 وتقليل الفجوة gap إلى 2 على الشاشات الصغيرة --}}
-            <div class="grid grid-cols-4 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 sm:gap-4">
+            {{-- تم تغيير grid-cols-4 إلى grid-cols-3 للهواتف، مع زيادة الفجوة gap إلى 4 --}}
+            <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4">
             {{-- ======================== نهاية تعديل الشبكة (Grid) ======================== --}}
 
                 {{-- المرور على كل شخص في القائمة --}}
                 @foreach ($persons as $person)
-                    {{-- ======================= بداية تعديل الكرت ليصبح قابلاً للضغط ======================= --}}
-                    {{-- تم استبدال div بـ a وجعل الكرت بأكمله رابطًا --}}
                     <a href="{{ route('people.profile.show', $person->id) }}"
                         class="group bg-white/80 backdrop-blur-md border border-white/30 rounded-2xl overflow-hidden shadow-md hover:shadow-xl hover:shadow-green-500/20 transition-all duration-300 transform hover:-translate-y-2 flex flex-col">
-                        {{-- تم تصغير padding من p-5 إلى p-3 --}}
                         <div class="p-3 text-center border-b border-green-100">
-                            {{-- تم تصغير حجم الصورة من w-24 h-24 إلى w-20 h-20 --}}
                             <img src="{{ $person->avatar }}" alt="{{ $person->first_name }}"
                                 class="w-20 h-20 rounded-full mx-auto mb-3 border-4 border-white shadow-md object-cover">
-                            {{-- تم تصغير حجم الخط من text-xl إلى text-lg وإزالة الرابط الداخلي --}}
                             <h3 class="font-bold font-serif text-lg text-gray-800 group-hover:text-green-600 transition-colors truncate">
                                 {{ $person->full_name }}
                             </h3>
                         </div>
-                        {{-- ======================== نهاية تعديل الكرت ======================== --}}
 
-                        {{-- ======================= بداية تعديل عرض الأوسمة ======================= --}}
-                        {{-- تم تصغير padding من p-5 إلى p-4 --}}
                         <div class="p-4 bg-green-50/30 flex-grow">
                             <h4 class="font-semibold text-gray-700 mb-2 text-xs">الأوسمة:</h4>
                             <div class="flex flex-wrap gap-1 items-center justify-center">
-                                {{-- التحقق من وجود أوسمة --}}
                                 @if ($person->padges->isNotEmpty())
-                                    {{-- عرض أول وسام --}}
                                     <span class="inline-block px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
                                         {{ $person->padges->first()->name }}
                                     </span>
-                                    {{-- التحقق إذا كان هناك أكثر من وسام واحد لعرض العدد المتبقي --}}
                                     @if ($person->padges->count() > 1)
                                         <span class="text-xs text-gray-600 font-semibold">
                                             +{{ $person->padges->count() - 1 }}
@@ -115,7 +104,6 @@
                                 @endif
                             </div>
                         </div>
-                        {{-- ======================== نهاية تعديل عرض الأوسمة ======================== --}}
 
                     </a> {{-- نهاية رابط الكرت --}}
                 @endforeach
