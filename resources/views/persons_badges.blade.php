@@ -159,7 +159,7 @@
                                         @foreach($person->padges as $padge)
                                         <li class="flex items-start p-3 bg-green-50/50 rounded-lg border border-green-100">
                                             @if($padge->image)
-                                            <img src="{{ $padge->image }}" alt="{{ $padge->name }}" class="w-12 h-12 rounded-md object-cover mr-4 ml-4">
+                                            <img src="{{ asset('storage/' . $padge->image) }}" alt="{{ $padge->name }}" class="w-12 h-12 rounded-md object-cover mr-4 ml-4">
                                             @else
                                             {{-- أيقونة افتراضية في حال عدم وجود صورة --}}
                                             <div class="w-12 h-12 rounded-md bg-green-100 flex items-center justify-center mr-4 ml-4">
