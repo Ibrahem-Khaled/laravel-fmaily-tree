@@ -71,9 +71,9 @@
 
         @if ($persons->isNotEmpty())
             {{-- ======================= بداية تعديل الشبكة (Grid) ======================= --}}
-            {{-- تم تغيير عدد الأعمدة ليبدأ بـ 4 في شاشات الهاتف، مع تعديل الفجوة لتناسب العرض --}}
-            <div class="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-3">
-                {{-- ======================== نهاية تعديل الشبكة (Grid) ======================== --}}
+            {{-- تم تغيير grid-cols-4 إلى grid-cols-3 للهواتف، مع زيادة الفجوة gap إلى 4 --}}
+            <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4">
+            {{-- ======================== نهاية تعديل الشبكة (Grid) ======================== --}}
 
                 {{-- المرور على كل شخص في القائمة --}}
                 @foreach ($persons as $person)
@@ -82,29 +82,27 @@
                         <div class="p-3 text-center border-b border-green-100">
                             <img src="{{ $person->avatar }}" alt="{{ $person->first_name }}"
                                 class="w-20 h-20 rounded-full mx-auto mb-3 border-4 border-white shadow-md object-cover">
-                            <h3
-                                class="font-bold font-serif text-lg text-gray-800 group-hover:text-green-600 transition-colors truncate">
+                            <h3 class="font-bold font-serif text-lg text-gray-800 group-hover:text-green-600 transition-colors truncate">
                                 {{ $person->full_name }}
                             </h3>
                         </div>
 
-                        <div class="p-4 bg-green-50/30 flex-grow flex flex-col justify-center items-center">
+                        <div class="p-4 bg-green-50/30 flex-grow">
                             <h4 class="font-semibold text-gray-700 mb-2 text-xs">الأوسمة:</h4>
-
-                            {{-- ======================= بداية تعديل عرض الأوسمة ======================= --}}
-                            {{-- تم استخدام حلقة لعرض كل الأوسمة بدلاً من عرض وسام واحد وعداد --}}
-                            {{-- min-h-[45px] يساعد على توحيد ارتفاع الكروت حتى لو لم يكن هناك أوسمة --}}
-                            <div class="flex flex-wrap gap-1.5 items-center justify-center min-h-[45px]">
-                                @forelse ($person->padges as $padge)
-                                    <span
-                                        class="inline-block px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
-                                        {{ $padge->name }}
+                            <div class="flex flex-wrap gap-1 items-center justify-center">
+                                @if ($person->padges->isNotEmpty())
+                                    <span class="inline-block px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                                        {{ $person->padges->first()->name }}
                                     </span>
-                                @empty
-                                    <span class="text-xs text-gray-500">لا يوجد أوسمة</span>
-                                @endforelse
+                                    @if ($person->padges->count() > 1)
+                                        <span class="text-xs text-gray-600 font-semibold">
+                                            +{{ $person->padges->count() - 1 }}
+                                        </span>
+                                    @endif
+                                @else
+                                     <span class="text-xs text-gray-500">لا يوجد</span>
+                                @endif
                             </div>
-                            {{-- ======================== نهاية تعديل عرض الأوسمة ======================== --}}
                         </div>
 
                     </a> {{-- نهاية رابط الكرت --}}
