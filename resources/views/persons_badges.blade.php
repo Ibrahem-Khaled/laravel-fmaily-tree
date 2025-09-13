@@ -6,9 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>قائمة الحاصلين على أوسمة</title>
 
-    {{-- Alpine.js للتحكم في فتح وإغلاق المودال --}}
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-
     {{-- استخدام نفس إعدادات Tailwind والخطوط --}}
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -55,12 +52,6 @@
             background: linear-gradient(180deg, #22c55e, #16a34a);
             border-radius: 5px;
         }
-
-        /* ==== بداية: ستايلات خاصة بالمودال ==== */
-        [x-cloak] {
-            display: none !important;
-        }
-        /* ==== نهاية: ستايلات خاصة بالمودال ==== */
     </style>
 </head>
 
@@ -79,115 +70,42 @@
         </div>
 
         @if ($persons->isNotEmpty())
+            {{-- ======================= بداية تعديل الشبكة (Grid) ======================= --}}
+            {{-- تم تغيير grid-cols-4 إلى grid-cols-3 للهواتف، مع زيادة الفجوة gap إلى 4 --}}
             <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4">
+            {{-- ======================== نهاية تعديل الشبكة (Grid) ======================== --}}
 
+                {{-- المرور على كل شخص في القائمة --}}
                 @foreach ($persons as $person)
-                    {{-- ==== بداية: إضافة Alpine.js للتحكم في حالة المودال ==== --}}
-                    <div x-data="{ showModal: false }" class="flex flex-col">
-                    {{-- ==== نهاية: إضافة Alpine.js ==== --}}
+                    <a href="{{ route('people.profile.show', $person->id) }}"
+                        class="group bg-white/80 backdrop-blur-md border border-white/30 rounded-2xl overflow-hidden shadow-md hover:shadow-xl hover:shadow-green-500/20 transition-all duration-300 transform hover:-translate-y-2 flex flex-col">
+                        <div class="p-3 text-center border-b border-green-100">
+                            <img src="{{ $person->avatar }}" alt="{{ $person->first_name }}"
+                                class="w-20 h-20 rounded-full mx-auto mb-3 border-4 border-white shadow-md object-cover">
+                            <h3 class="font-bold font-serif text-lg text-gray-800 group-hover:text-green-600 transition-colors truncate">
+                                {{ $person->full_name }}
+                            </h3>
+                        </div>
 
-                        {{-- الكرت الحالي --}}
-                        <div
-                            class="group bg-white/80 backdrop-blur-md border border-white/30 rounded-2xl overflow-hidden shadow-md hover:shadow-xl hover:shadow-green-500/20 transition-all duration-300 transform hover:-translate-y-2 flex flex-col flex-grow">
-                            <a href="{{ route('people.profile.show', $person->id) }}" class="block">
-                                <div class="p-3 text-center border-b border-green-100">
-                                    <img src="{{ $person->avatar }}" alt="{{ $person->first_name }}"
-                                        class="w-20 h-20 rounded-full mx-auto mb-3 border-4 border-white shadow-md object-cover">
-                                    <h3 class="font-bold font-serif text-lg text-gray-800 group-hover:text-green-600 transition-colors truncate">
-                                        {{ $person->full_name }}
-                                    </h3>
-                                </div>
-                            </a>
-
-                            <div class="p-4 bg-green-50/30 flex-grow">
-                                <h4 class="font-semibold text-gray-700 mb-2 text-xs">الأوسمة:</h4>
-                                <div class="flex flex-wrap gap-1 items-center justify-center">
-                                    @if ($person->padges->isNotEmpty())
-                                        {{-- عرض أول وسام --}}
-                                        <span class="inline-block px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
-                                            {{ $person->padges->first()->name }}
+                        <div class="p-4 bg-green-50/30 flex-grow">
+                            <h4 class="font-semibold text-gray-700 mb-2 text-xs">الأوسمة:</h4>
+                            <div class="flex flex-wrap gap-1 items-center justify-center">
+                                @if ($person->padges->isNotEmpty())
+                                    <span class="inline-block px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                                        {{ $person->padges->first()->name }}
+                                    </span>
+                                    @if ($person->padges->count() > 1)
+                                        <span class="text-xs text-gray-600 font-semibold">
+                                            +{{ $person->padges->count() - 1 }}
                                         </span>
-                                        {{-- إذا كان هناك أكثر من وسام، اعرض زر فتح المودال --}}
-                                        @if ($person->padges->count() > 1)
-                                            {{-- ==== بداية: تعديل زر عرض باقي الأوسمة ==== --}}
-                                            <button @click.prevent="showModal = true" class="text-xs text-gray-600 font-semibold hover:text-green-600 hover:underline focus:outline-none transition-colors">
-                                                +{{ $person->padges->count() - 1 }}
-                                            </button>
-                                            {{-- ==== نهاية: تعديل الزر ==== --}}
-                                        @endif
-                                    @else
-                                        <span class="text-xs text-gray-500">لا يوجد</span>
                                     @endif
-                                </div>
+                                @else
+                                     <span class="text-xs text-gray-500">لا يوجد</span>
+                                @endif
                             </div>
                         </div>
 
-                        {{-- ==== بداية: كود المودال (النافذة المنبثقة) ==== --}}
-                        <div x-show="showModal" x-cloak
-                             x-transition:enter="transition ease-out duration-300"
-                             x-transition:enter-start="opacity-0"
-                             x-transition:enter-end="opacity-100"
-                             x-transition:leave="transition ease-in duration-200"
-                             x-transition:leave-start="opacity-100"
-                             x-transition:leave-end="opacity-0"
-                             @click.away="showModal = false"
-                             @keydown.escape.window="showModal = false"
-                             class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-
-                             <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden transform transition-all"
-                                  x-show="showModal"
-                                  x-transition:enter="transition ease-out duration-300"
-                                  x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                                  x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
-                                  x-transition:leave="transition ease-in duration-200"
-                                  x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-                                  x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
-
-                                {{-- رأس المودال --}}
-                                <div class="flex items-center justify-between p-4 border-b bg-gray-50">
-                                    <h2 class="text-xl font-bold font-serif text-gray-800">
-                                        أوسمة {{ $person->first_name }}
-                                    </h2>
-                                    <button @click="showModal = false" class="text-gray-400 hover:text-gray-600 transition-colors">
-                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                    </button>
-                                </div>
-
-                                {{-- محتوى المودال (قائمة الأوسمة) --}}
-                                <div class="p-6 max-h-[60vh] overflow-y-auto">
-                                    <ul class="space-y-3">
-                                        @foreach($person->padges as $padge)
-                                        <li class="flex items-start p-3 bg-green-50/50 rounded-lg border border-green-100">
-                                            @if($padge->image)
-                                            <img src="{{ asset('storage/' . $padge->image) }}" alt="{{ $padge->name }}" class="w-12 h-12 rounded-md object-cover mr-4 ml-4">
-                                            @else
-                                            {{-- أيقونة افتراضية في حال عدم وجود صورة --}}
-                                            <div class="w-12 h-12 rounded-md bg-green-100 flex items-center justify-center mr-4 ml-4">
-                                                <svg class="w-6 h-6 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /></svg>
-                                            </div>
-                                            @endif
-                                            <div>
-                                                <h3 class="font-bold text-gray-800" style="color: {{ $padge->color ?? '#16a34a' }};">
-                                                    {{ $padge->name }}
-                                                </h3>
-                                                <p class="text-sm text-gray-600 mt-1">{{ $padge->description }}</p>
-                                            </div>
-                                        </li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-
-                                {{-- ذيل المودال --}}
-                                <div class="p-4 bg-gray-50 border-t text-right">
-                                    <button @click="showModal = false" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                                        إغلاق
-                                    </button>
-                                </div>
-                             </div>
-                        </div>
-                        {{-- ==== نهاية: كود المودال ==== --}}
-
-                    </div>
+                    </a> {{-- نهاية رابط الكرت --}}
                 @endforeach
             </div>
         @else
