@@ -126,16 +126,7 @@
                                     class="flex flex-wrap items-center justify-center sm:justify-start gap-x-6 gap-y-3 text-base text-gray-600">
                                     {{-- العمر --}}
                                     <div class="flex items-center gap-2">
-                                        @if ($person->death_date)
-                                            <span
-                                                class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">متوفى</span>
-                                            <span>(عن عمر {{ $person->age }} عاماً)</span>
-                                        @else
-                                            <span
-                                                class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">على
-                                                قيد الحياة</span>
-                                            <span>(العمر: {{ $person->age }} عاماً)</span>
-                                        @endif
+                                        <span>(العمر: {{ $person->age }} عاماً)</span>
                                     </div>
 
                                     {{-- بداية الإضافة: عرض الجنس --}}
