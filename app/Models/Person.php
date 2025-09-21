@@ -146,6 +146,60 @@ class Person extends Model
             ->withPivot('is_active');
     }
 
+    /**
+     * Get breastfeeding relationships where this person is the nursing mother
+     * العلاقات التي تكون فيها هذه الشخصية هي الأم المرضعة
+     */
+    public function nursingRelationships()
+    {
+        return $this->hasMany(Breastfeeding::class, 'nursing_mother_id');
+    }
+
+    /**
+     * Get breastfeeding relationships where this person is the breastfed child
+     * العلاقات التي تكون فيها هذه الشخصية هي الطفل المرتضع
+     */
+    public function breastfedRelationships()
+    {
+        return $this->hasMany(Breastfeeding::class, 'breastfed_child_id');
+    }
+
+    /**
+     * Get all children that this person has breastfed
+     * جميع الأطفال الذين أرضعتهم هذه الشخصية
+     */
+    public function breastfedChildren()
+    {
+        return $this->hasManyThrough(Person::class, Breastfeeding::class, 'nursing_mother_id', 'id', 'id', 'breastfed_child_id');
+    }
+
+    /**
+     * Get all nursing mothers who have breastfed this person
+     * جميع الأمهات المرضعات اللاتي أرضعن هذه الشخصية
+     */
+    public function nursingMothers()
+    {
+        return $this->hasManyThrough(Person::class, Breastfeeding::class, 'breastfed_child_id', 'id', 'id', 'nursing_mother_id');
+    }
+
+    /**
+     * Get active breastfeeding relationships where this person is the nursing mother
+     * العلاقات النشطة التي تكون فيها هذه الشخصية هي الأم المرضعة
+     */
+    public function activeNursingRelationships()
+    {
+        return $this->nursingRelationships()->active();
+    }
+
+    /**
+     * Get active breastfeeding relationships where this person is the breastfed child
+     * العلاقات النشطة التي تكون فيها هذه الشخصية هي الطفل المرتضع
+     */
+    public function activeBreastfedRelationships()
+    {
+        return $this->breastfedRelationships()->active();
+    }
+
 
     // Accessor لجلب عدد المقالات
     public function getArticlesCountAttribute()

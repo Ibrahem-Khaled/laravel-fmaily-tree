@@ -35,6 +35,11 @@
             <span>الزواج</span></a>
     </li>
     <li class="nav-item">
+        <a class="nav-link" href="{{ route('breastfeeding.index') }}">
+            <i class="fas fa-fw fa-baby"></i>
+            <span>الرضاعة</span></a>
+    </li>
+    <li class="nav-item">
         <a class="nav-link" href="{{ route('articles.index') }}">
             <i class="fas fa-fw fa-book"></i>
             <span>

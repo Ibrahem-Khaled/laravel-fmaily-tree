@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\admin\ArticleController;
+use App\Http\Controllers\admin\BreastfeedingController;
 use App\Http\Controllers\admin\CategoryController;
 use App\Http\Controllers\admin\DashboardController;
 use App\Http\Controllers\admin\ImageController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\admin\PadgeController;
 use App\Http\Controllers\admin\PadgePeopleController;
 use App\Http\Controllers\admin\PersonController;
 use App\Http\Controllers\admin\RoleController;
+use App\Http\Controllers\BreastfeedingPublicController;
 use App\Http\Controllers\FamilyTreeController;
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\HomePersonController;
@@ -42,6 +44,10 @@ Route::prefix('api')->group(function () {
 
 Route::get('persons/badges', [HomePersonController::class, 'personsWhereHasBadges'])->name('persons.badges');
 Route::get('/people/profile/{person}', [HomePersonController::class, 'show'])->name('people.profile.show');
+
+// Public Breastfeeding Routes
+Route::get('/breastfeeding', [BreastfeedingPublicController::class, 'index'])->name('breastfeeding.public.index');
+Route::get('/breastfeeding/{person}', [BreastfeedingPublicController::class, 'show'])->name('breastfeeding.public.show');
 
 
 Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
@@ -88,6 +94,12 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::post('padges/{padge}/people', [PadgePeopleController::class, 'attach'])->name('padges.people.attach');
     Route::delete('padges/{padge}/people/{person}', [PadgePeopleController::class, 'detach'])->name('padges.people.detach');
     Route::patch('padges/{padge}/people/{person}/toggle', [PadgePeopleController::class, 'toggle'])->name('padges.people.toggle');
+
+    // Breastfeeding routes
+    Route::resource('breastfeeding', BreastfeedingController::class);
+    Route::patch('breastfeeding/{breastfeeding}/toggle-status', [BreastfeedingController::class, 'toggleStatus'])->name('breastfeeding.toggle-status');
+    Route::get('breastfeeding/nursing-mothers/search', [BreastfeedingController::class, 'getNursingMothers'])->name('breastfeeding.nursing-mothers.search');
+    Route::get('breastfeeding/breastfed-children/search', [BreastfeedingController::class, 'getBreastfedChildren'])->name('breastfeeding.breastfed-children.search');
 });
 
 require __DIR__ . '/auth.php';

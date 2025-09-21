@@ -8,6 +8,9 @@
             <a href="{{ route('gallery.index') }}" class="view-btn" title="معرض الصور">
                 <i class="fas fa-images fa-fw"></i>
             </a>
+            <a href="{{ route('breastfeeding.public.index') }}" class="view-btn" title="الرضاعة">
+                <i class="fas fa-baby fa-fw"></i>
+            </a>
             <a href="{{ route('dashboard') }}" class="view-btn" title="لوحة التحكم">
                 <i class="fas fa-tachometer-alt fa-fw"></i>
             </a>

@@ -234,6 +234,11 @@
                         طلاب طموح
                     </a>
                 </li>
+                <li>
+                    <a class="nav-link {{ request()->routeIs('breastfeeding.public.*') ? 'active' : '' }}" href="{{ route('breastfeeding.public.index') }}">
+                        <i class="fas fa-baby me-1"></i>الرضاعة
+                    </a>
+                </li>
                 {{-- <li>
                     <a class="nav-link {{ request()->routeIs('about') ? 'active' : '' }}" href="#">عن العائلة</a>
                 </li> --}}

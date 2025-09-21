@@ -280,6 +280,137 @@
                 @endif
             </div>
         </div>
+
+        {{-- بطاقة الرضاعة --}}
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-baby"></i>
+                    علاقات الرضاعة
+                </h6>
+                <a href="{{ route('breastfeeding.index') }}" class="btn btn-info btn-sm">
+                    <i class="fas fa-cog"></i> إدارة الرضاعة
+                </a>
+            </div>
+            <div class="card-body">
+                @php
+                    $nursingRelationships = $person->nursingRelationships()->with('breastfedChild')->get();
+                    $breastfedRelationships = $person->breastfedRelationships()->with('nursingMother')->get();
+                @endphp
+
+                @if($nursingRelationships->isNotEmpty() || $breastfedRelationships->isNotEmpty())
+                    <div class="row">
+                        {{-- إذا كان الشخص أم مرضعة --}}
+                        @if($nursingRelationships->isNotEmpty())
+                            <div class="col-md-6">
+                                <h6 class="text-success mb-3">
+                                    <i class="fas fa-female"></i> كأم مرضعة
+                                </h6>
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-bordered">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th>الطفل المرتضع</th>
+                                                <th>المدة</th>
+                                                <th>الحالة</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($nursingRelationships as $relationship)
+                                                <tr>
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <img src="{{ $relationship->breastfedChild->avatar }}"
+                                                                 alt="{{ $relationship->breastfedChild->first_name }}"
+                                                                 class="rounded-circle mr-2" width="30" height="30">
+                                                            <a href="{{ route('people.show', $relationship->breastfedChild->id) }}">
+                                                                {{ $relationship->breastfedChild->first_name }}
+                                                            </a>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        @if($relationship->duration_in_months)
+                                                            <span class="badge badge-info">{{ $relationship->duration_in_months }} شهر</span>
+                                                        @else
+                                                            <span class="text-muted">غير محدد</span>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        @if($relationship->is_active)
+                                                            <span class="badge badge-success">نشط</span>
+                                                        @else
+                                                            <span class="badge badge-secondary">غير نشط</span>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        @endif
+
+                        {{-- إذا كان الشخص طفل مرتضع --}}
+                        @if($breastfedRelationships->isNotEmpty())
+                            <div class="col-md-6">
+                                <h6 class="text-info mb-3">
+                                    <i class="fas fa-child"></i> كطفل مرتضع
+                                </h6>
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-bordered">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th>الأم المرضعة</th>
+                                                <th>المدة</th>
+                                                <th>الحالة</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($breastfedRelationships as $relationship)
+                                                <tr>
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <img src="{{ $relationship->nursingMother->avatar }}"
+                                                                 alt="{{ $relationship->nursingMother->first_name }}"
+                                                                 class="rounded-circle mr-2" width="30" height="30">
+                                                            <a href="{{ route('people.show', $relationship->nursingMother->id) }}">
+                                                                {{ $relationship->nursingMother->first_name }}
+                                                            </a>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        @if($relationship->duration_in_months)
+                                                            <span class="badge badge-info">{{ $relationship->duration_in_months }} شهر</span>
+                                                        @else
+                                                            <span class="text-muted">غير محدد</span>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        @if($relationship->is_active)
+                                                            <span class="badge badge-success">نشط</span>
+                                                        @else
+                                                            <span class="badge badge-secondary">غير نشط</span>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                @else
+                    <div class="text-center p-3">
+                        <i class="fas fa-baby fa-2x text-muted mb-3"></i>
+                        <p class="mb-0">لا توجد علاقات رضاعة مسجلة لهذا الشخص.</p>
+                        <a href="{{ route('breastfeeding.index') }}" class="btn btn-primary btn-sm mt-2">
+                            <i class="fas fa-plus"></i> إضافة علاقة رضاعة
+                        </a>
+                    </div>
+                @endif
+            </div>
+        </div>
     </div>
 
     {{-- مودال إضافة ابن/ابنة جديد --}}
