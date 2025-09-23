@@ -63,11 +63,20 @@
             <span>
                 الشارات</span></a>
     </li>
+    @can('roles.manage')
     <li class="nav-item">
         <a class="nav-link" href="{{ route('roles.index') }}">
-            <i class="fas fa-fw fa-users"></i>
-            <span>الادوار</span></a>
+            <i class="fas fa-fw fa-user-shield"></i>
+            <span>الأدوار</span></a>
     </li>
+    @endcan
+    @can('users.manage')
+    <li class="nav-item">
+        <a class="nav-link" href="{{ route('users.index') }}">
+            <i class="fas fa-fw fa-user-cog"></i>
+            <span>المستخدمون</span></a>
+    </li>
+    @endcan
 
 
     <!-- Divider -->

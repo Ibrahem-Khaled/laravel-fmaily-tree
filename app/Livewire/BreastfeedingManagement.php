@@ -7,10 +7,11 @@ use App\Models\Person;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class BreastfeedingManagement extends Component
 {
-    use WithPagination, WithFileUploads;
+    use WithPagination, WithFileUploads, AuthorizesRequests;
 
     // Properties for form
     public $nursing_mother_id = '';
@@ -28,6 +29,9 @@ class BreastfeedingManagement extends Component
     public $search = '';
     public $searchNursingMother = '';
     public $searchBreastfedChild = '';
+    // Autocomplete inputs for modals
+    public $motherSearch = '';
+    public $childSearch = '';
     public $statusFilter = 'all'; // all, active, inactive
     public $sortBy = 'created_at';
     public $sortDirection = 'desc';
@@ -111,38 +115,39 @@ class BreastfeedingManagement extends Component
 
         $breastfeedings = $query->paginate($this->perPage);
 
-        // Get persons for dropdowns with search
-        $nursingMothersQuery = Person::where('gender', 'female');
-        if ($this->searchNursingMother) {
-            $nursingMothersQuery->where(function($q) {
-                $q->where('first_name', 'like', '%' . $this->searchNursingMother . '%')
-                  ->orWhere('last_name', 'like', '%' . $this->searchNursingMother . '%');
-            });
-        }
-        $nursingMothers = $nursingMothersQuery->orderBy('first_name')
-            ->limit(100)
-            ->get(['id', 'first_name', 'last_name']);
+        // Suggestions for modal autocomplete (AJAX style)
+        $motherSuggestions = Person::where('gender', 'female')
+            ->when($this->motherSearch, function ($q) {
+                $q->where(function ($sub) {
+                    $sub->where('first_name', 'like', '%' . $this->motherSearch . '%')
+                        ->orWhere('last_name', 'like', '%' . $this->motherSearch . '%');
+                });
+            })
+            ->orderBy('first_name')
+            ->limit(10)
+            ->get();
 
-        $breastfedChildrenQuery = Person::query();
-        if ($this->searchBreastfedChild) {
-            $breastfedChildrenQuery->where(function($q) {
-                $q->where('first_name', 'like', '%' . $this->searchBreastfedChild . '%')
-                  ->orWhere('last_name', 'like', '%' . $this->searchBreastfedChild . '%');
-            });
-        }
-        $breastfedChildren = $breastfedChildrenQuery->orderBy('first_name')
-            ->limit(100)
-            ->get(['id', 'first_name', 'last_name']);
+        $childSuggestions = Person::query()
+            ->when($this->childSearch, function ($q) {
+                $q->where(function ($sub) {
+                    $sub->where('first_name', 'like', '%' . $this->childSearch . '%')
+                        ->orWhere('last_name', 'like', '%' . $this->childSearch . '%');
+                });
+            })
+            ->orderBy('first_name')
+            ->limit(10)
+            ->get();
 
         return view('livewire.breastfeeding-management', [
             'breastfeedings' => $breastfeedings,
-            'nursingMothers' => $nursingMothers,
-            'breastfedChildren' => $breastfedChildren,
+            'motherSuggestions' => $motherSuggestions,
+            'childSuggestions' => $childSuggestions,
         ]);
     }
 
     public function create()
     {
+        $this->authorize('breastfeeding.create');
         $this->validate();
 
         // Check if relationship already exists
@@ -187,12 +192,16 @@ class BreastfeedingManagement extends Component
         $this->end_date = $breastfeeding->end_date?->format('Y-m-d');
         $this->notes = $breastfeeding->notes;
         $this->is_active = $breastfeeding->is_active;
+        // Prefill autocomplete inputs with current selections
+        $this->motherSearch = $breastfeeding->nursingMother?->full_name ?? '';
+        $this->childSearch = $breastfeeding->breastfedChild?->full_name ?? '';
 
         $this->showEditModal = true;
     }
 
     public function update()
     {
+        $this->authorize('breastfeeding.update');
         $this->validate();
 
         $breastfeeding = Breastfeeding::findOrFail($this->editingId);
@@ -237,6 +246,7 @@ class BreastfeedingManagement extends Component
 
     public function confirmDelete()
     {
+        $this->authorize('breastfeeding.delete');
         Breastfeeding::findOrFail($this->deleteId)->delete();
         $this->showDeleteModal = false;
         session()->flash('success', 'تم حذف علاقة الرضاعة بنجاح');
@@ -244,6 +254,7 @@ class BreastfeedingManagement extends Component
 
     public function toggleStatus($id)
     {
+        $this->authorize('breastfeeding.update');
         $breastfeeding = Breastfeeding::findOrFail($id);
         $breastfeeding->update(['is_active' => !$breastfeeding->is_active]);
 
@@ -271,6 +282,8 @@ class BreastfeedingManagement extends Component
         $this->is_active = true;
         $this->editingId = null;
         $this->isEditing = false;
+        $this->motherSearch = '';
+        $this->childSearch = '';
         $this->resetErrorBag();
     }
 
@@ -319,5 +332,31 @@ class BreastfeedingManagement extends Component
         $this->searchNursingMother = '';
         $this->searchBreastfedChild = '';
         $this->resetPage();
+    }
+
+    public function selectNursingMother($personId)
+    {
+        $person = Person::find($personId);
+        if (!$person) {
+            return;
+        }
+        if ($person->gender !== 'female') {
+            $this->addError('nursing_mother_id', 'الأم المرضعة يجب أن تكون أنثى');
+            return;
+        }
+        $this->nursing_mother_id = $person->id;
+        $this->motherSearch = $person->full_name;
+        $this->resetValidation('nursing_mother_id');
+    }
+
+    public function selectBreastfedChild($personId)
+    {
+        $person = Person::find($personId);
+        if (!$person) {
+            return;
+        }
+        $this->breastfed_child_id = $person->id;
+        $this->childSearch = $person->full_name;
+        $this->resetValidation('breastfed_child_id');
     }
 }

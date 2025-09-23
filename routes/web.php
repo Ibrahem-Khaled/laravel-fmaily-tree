@@ -11,6 +11,7 @@ use App\Http\Controllers\admin\PadgeController;
 use App\Http\Controllers\admin\PadgePeopleController;
 use App\Http\Controllers\admin\PersonController;
 use App\Http\Controllers\admin\RoleController;
+use App\Http\Controllers\admin\UserController;
 use App\Http\Controllers\BreastfeedingPublicController;
 use App\Http\Controllers\FamilyTreeController;
 use App\Http\Controllers\GalleryController;
@@ -54,13 +55,13 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
 
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
-    Route::resource('people', PersonController::class);
-    Route::delete('/people/{person}/photo', [PersonController::class, 'removePhoto'])->name('people.removePhoto');
-    Route::post('/people/reorder', [PersonController::class, 'reorder'])->name('people.reorder');
-    Route::get('/people/search', [PersonController::class, 'search'])->name('people.search');
-    Route::get('/people/{father}/wives', [PersonController::class, 'getWives'])->name('people.getWives');
+    Route::resource('people', PersonController::class)->middleware(['permission:people.view|people.create|people.update|people.delete']);
+    Route::delete('/people/{person}/photo', [PersonController::class, 'removePhoto'])->name('people.removePhoto')->middleware(['permission:people.update']);
+    Route::post('/people/reorder', [PersonController::class, 'reorder'])->name('people.reorder')->middleware(['permission:people.update']);
+    Route::get('/people/search', [PersonController::class, 'search'])->name('people.search')->middleware(['permission:people.view']);
+    Route::get('/people/{father}/wives', [PersonController::class, 'getWives'])->name('people.getWives')->middleware(['permission:people.view']);
 
-    Route::post('/persons/store-outside', [OutsideFamilyPersonController::class, 'store'])->name('persons.store.outside');
+    Route::post('/persons/store-outside', [OutsideFamilyPersonController::class, 'store'])->name('persons.store.outside')->middleware(['permission:people.create']);
 
     Route::resource('marriages', MarriageController::class)->except(['show']);
 
@@ -84,7 +85,8 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::post('categories/quick-store', [CategoryController::class, 'store'])->name('categories.quick-store');
 
     // this route is for the admin panel
-    Route::resource('roles', RoleController::class);
+    Route::resource('roles', RoleController::class)->middleware(['permission:roles.manage']);
+    Route::resource('users', UserController::class)->only(['index','store','update','destroy'])->middleware(['permission:users.manage']);
 
     // Badges (Padges) routes
     Route::resource('padges', PadgeController::class);
@@ -96,10 +98,10 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::patch('padges/{padge}/people/{person}/toggle', [PadgePeopleController::class, 'toggle'])->name('padges.people.toggle');
 
     // Breastfeeding routes
-    Route::resource('breastfeeding', BreastfeedingController::class);
-    Route::patch('breastfeeding/{breastfeeding}/toggle-status', [BreastfeedingController::class, 'toggleStatus'])->name('breastfeeding.toggle-status');
-    Route::get('breastfeeding/nursing-mothers/search', [BreastfeedingController::class, 'getNursingMothers'])->name('breastfeeding.nursing-mothers.search');
-    Route::get('breastfeeding/breastfed-children/search', [BreastfeedingController::class, 'getBreastfedChildren'])->name('breastfeeding.breastfed-children.search');
+    Route::resource('breastfeeding', BreastfeedingController::class)->middleware(['permission:breastfeeding.view|breastfeeding.create|breastfeeding.update|breastfeeding.delete']);
+    Route::patch('breastfeeding/{breastfeeding}/toggle-status', [BreastfeedingController::class, 'toggleStatus'])->name('breastfeeding.toggle-status')->middleware(['permission:breastfeeding.update']);
+    Route::get('breastfeeding/nursing-mothers/search', [BreastfeedingController::class, 'getNursingMothers'])->name('breastfeeding.nursing-mothers.search')->middleware(['permission:breastfeeding.view']);
+    Route::get('breastfeeding/breastfed-children/search', [BreastfeedingController::class, 'getBreastfedChildren'])->name('breastfeeding.breastfed-children.search')->middleware(['permission:breastfeeding.view']);
 });
 
 require __DIR__ . '/auth.php';
