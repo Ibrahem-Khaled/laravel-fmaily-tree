@@ -16,21 +16,46 @@
 
     <!-- Filters Section -->
     <div class="row mb-4">
-        <div class="col-md-6">
+        <div class="col-md-4">
             <div class="input-group">
                 <span class="input-group-text">
                     <i class="fas fa-search"></i>
                 </span>
-                <input type="text" wire:model.live="search" class="form-control" placeholder="البحث في الأمهات المرضعات أو الأطفال المرتضعين...">
+                <input type="text" wire:model.live="search" class="form-control" placeholder="البحث العام...">
             </div>
         </div>
         <div class="col-md-3">
-            <select wire:model.live="statusFilter" class="form-select">
-                <option value="all">جميع الحالات</option>
-                <option value="active">نشط</option>
-                <option value="inactive">غير نشط</option>
-            </select>
+            <div class="input-group">
+                <span class="input-group-text">
+                    <i class="fas fa-female"></i>
+                </span>
+                <input type="text" wire:model.live="searchNursingMother" class="form-control" placeholder="البحث في الأمهات...">
+            </div>
         </div>
+        <div class="col-md-3">
+            <div class="input-group">
+                <span class="input-group-text">
+                    <i class="fas fa-child"></i>
+                </span>
+                <input type="text" wire:model.live="searchBreastfedChild" class="form-control" placeholder="البحث في الأطفال...">
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="d-flex gap-2">
+                <select wire:model.live="statusFilter" class="form-select">
+                    <option value="all">جميع الحالات</option>
+                    <option value="active">نشط</option>
+                    <option value="inactive">غير نشط</option>
+                </select>
+                <button wire:click="clearSearch" class="btn btn-outline-secondary btn-sm" title="مسح البحث">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Additional Filters -->
+    <div class="row mb-4">
         <div class="col-md-3">
             <div class="d-flex gap-2">
                 <button wire:click="sortBy('created_at')" class="btn btn-outline-secondary btn-sm">
@@ -40,6 +65,25 @@
                     <i class="fas fa-sort me-1"></i>تاريخ البداية
                 </button>
             </div>
+        </div>
+        <div class="col-md-3">
+            <select wire:model.live="perPage" class="form-select">
+                <option value="10">10 لكل صفحة</option>
+                <option value="15">15 لكل صفحة</option>
+                <option value="25">25 لكل صفحة</option>
+                <option value="50">50 لكل صفحة</option>
+            </select>
+        </div>
+        <div class="col-md-6">
+            @if($search || $searchNursingMother || $searchBreastfedChild)
+                <div class="alert alert-info mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    البحث النشط: 
+                    @if($search) "{{ $search }}" @endif
+                    @if($searchNursingMother) | أم: "{{ $searchNursingMother }}" @endif
+                    @if($searchBreastfedChild) | طفل: "{{ $searchBreastfedChild }}" @endif
+                </div>
+            @endif
         </div>
     </div>
 
@@ -79,10 +123,8 @@
                                                  class="rounded-circle me-2"
                                                  width="32" height="32">
                                             <div>
-                                                <div class="fw-semibold">{{ $breastfeeding->nursingMother->first_name }}</div>
-                                                @if($breastfeeding->nursingMother->last_name)
-                                                    <small class="text-muted">{{ $breastfeeding->nursingMother->last_name }}</small>
-                                                @endif
+                                                <div class="fw-semibold">{{ $breastfeeding->nursingMother->full_name }}</div>
+                                                <small class="text-muted">{{ $breastfeeding->nursingMother->first_name }} {{ $breastfeeding->nursingMother->last_name }}</small>
                                             </div>
                                         </div>
                                     </td>
@@ -92,11 +134,9 @@
                                                  alt="{{ $breastfeeding->breastfedChild->first_name }}"
                                                  class="rounded-circle me-2"
                                                  width="32" height="32">
-<div>
-                                                <div class="fw-semibold">{{ $breastfeeding->breastfedChild->first_name }}</div>
-                                                @if($breastfeeding->breastfedChild->last_name)
-                                                    <small class="text-muted">{{ $breastfeeding->breastfedChild->last_name }}</small>
-                                                @endif
+                                            <div>
+                                                <div class="fw-semibold">{{ $breastfeeding->breastfedChild->full_name }}</div>
+                                                <small class="text-muted">{{ $breastfeeding->breastfedChild->first_name }} {{ $breastfeeding->breastfedChild->last_name }}</small>
                                             </div>
                                         </div>
                                     </td>
@@ -197,7 +237,7 @@
                                     <select wire:model="nursing_mother_id" class="form-select @error('nursing_mother_id') is-invalid @enderror" id="nursing_mother_id">
                                         <option value="">اختر الأم المرضعة</option>
                                         @foreach($nursingMothers as $mother)
-                                            <option value="{{ $mother->id }}">{{ $mother->first_name }} {{ $mother->last_name }}</option>
+                                            <option value="{{ $mother->id }}">{{ $mother->full_name }}</option>
                                         @endforeach
                                     </select>
                                     @error('nursing_mother_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -207,7 +247,7 @@
                                     <select wire:model="breastfed_child_id" class="form-select @error('breastfed_child_id') is-invalid @enderror" id="breastfed_child_id">
                                         <option value="">اختر الطفل المرتضع</option>
                                         @foreach($breastfedChildren as $child)
-                                            <option value="{{ $child->id }}">{{ $child->first_name }} {{ $child->last_name }}</option>
+                                            <option value="{{ $child->id }}">{{ $child->full_name }}</option>
                                         @endforeach
                                     </select>
                                     @error('breastfed_child_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -267,7 +307,7 @@
                                     <select wire:model="nursing_mother_id" class="form-select @error('nursing_mother_id') is-invalid @enderror" id="edit_nursing_mother_id">
                                         <option value="">اختر الأم المرضعة</option>
                                         @foreach($nursingMothers as $mother)
-                                            <option value="{{ $mother->id }}">{{ $mother->first_name }} {{ $mother->last_name }}</option>
+                                            <option value="{{ $mother->id }}">{{ $mother->full_name }}</option>
                                         @endforeach
                                     </select>
                                     @error('nursing_mother_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -277,7 +317,7 @@
                                     <select wire:model="breastfed_child_id" class="form-select @error('breastfed_child_id') is-invalid @enderror" id="edit_breastfed_child_id">
                                         <option value="">اختر الطفل المرتضع</option>
                                         @foreach($breastfedChildren as $child)
-                                            <option value="{{ $child->id }}">{{ $child->first_name }} {{ $child->last_name }}</option>
+                                            <option value="{{ $child->id }}">{{ $child->full_name }}</option>
                                         @endforeach
                                     </select>
                                     @error('breastfed_child_id') <div class="invalid-feedback">{{ $message }}</div> @enderror

@@ -324,7 +324,7 @@
                                                                  alt="{{ $relationship->breastfedChild->first_name }}"
                                                                  class="rounded-circle mr-2" width="30" height="30">
                                                             <a href="{{ route('people.show', $relationship->breastfedChild->id) }}">
-                                                                {{ $relationship->breastfedChild->first_name }}
+                                                                {{ $relationship->breastfedChild->full_name }}
                                                             </a>
                                                         </div>
                                                     </td>
@@ -374,7 +374,7 @@
                                                                  alt="{{ $relationship->nursingMother->first_name }}"
                                                                  class="rounded-circle mr-2" width="30" height="30">
                                                             <a href="{{ route('people.show', $relationship->nursingMother->id) }}">
-                                                                {{ $relationship->nursingMother->first_name }}
+                                                                {{ $relationship->nursingMother->full_name }}
                                                             </a>
                                                         </div>
                                                     </td>

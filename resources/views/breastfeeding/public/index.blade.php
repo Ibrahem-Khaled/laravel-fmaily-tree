@@ -376,6 +376,41 @@
                 <p>تعرف على الأمهات المرضعات والأطفال المرتضعين في العائلة</p>
             </div>
 
+            {{-- Search Section --}}
+            <div class="row mb-4">
+                <div class="col-md-8 mx-auto">
+                    <form method="GET" action="{{ route('breastfeeding.public.index') }}" class="search-form">
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-search"></i>
+                            </span>
+                            <input type="text" name="search" value="{{ request('search') }}" 
+                                   class="form-control form-control-lg" 
+                                   placeholder="البحث في أسماء الأمهات أو الأطفال...">
+                            <button class="btn btn-primary btn-lg" type="submit">
+                                <i class="fas fa-search me-2"></i>بحث
+                            </button>
+                            @if(request('search'))
+                                <a href="{{ route('breastfeeding.public.index') }}" class="btn btn-outline-secondary btn-lg">
+                                    <i class="fas fa-times me-2"></i>مسح
+                                </a>
+                            @endif
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            @if(request('search'))
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            نتائج البحث عن: "<strong>{{ request('search') }}</strong>"
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             {{-- Statistics --}}
             <div class="stats-container">
                 <div class="row">
@@ -433,9 +468,10 @@
                             <div class="mother-header">
                                 <img src="{{ $mother->avatar }}" alt="{{ $mother->first_name }}" class="mother-photo">
                                 <div class="mother-info">
-                                    <h3>{{ $mother->first_name }} {{ $mother->last_name }}</h3>
+                                    <h3>{{ $mother->full_name }}</h3>
                                     <p><i class="fas fa-baby me-1"></i>أرضعت {{ $relationships->count() }} طفل/أطفال</p>
-                                    <a href="{{ route('breastfeeding.public.show', $mother->id) }}"
+                                    <small class="text-muted">{{ $mother->first_name }} {{ $mother->last_name }}</small>
+                                    <a href="{{ route('breastfeeding.public.show', $mother->id) }}" 
                                        class="btn btn-sm btn-outline-success mt-2">
                                         <i class="fas fa-eye me-1"></i>عرض التفاصيل
                                     </a>
@@ -448,7 +484,8 @@
                                         <img src="{{ $relationship->breastfedChild->avatar }}"
                                              alt="{{ $relationship->breastfedChild->first_name }}"
                                              class="child-photo">
-                                        <div class="child-name">{{ $relationship->breastfedChild->first_name }}</div>
+                                        <div class="child-name">{{ $relationship->breastfedChild->full_name }}</div>
+                                        <small class="text-muted">{{ $relationship->breastfedChild->first_name }} {{ $relationship->breastfedChild->last_name }}</small>
 
                                         <a href="{{ route('breastfeeding.public.show', $relationship->breastfedChild->id) }}"
                                            class="btn btn-sm btn-outline-primary mt-2">

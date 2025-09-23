@@ -347,7 +347,7 @@
             {{-- Person Header --}}
             <div class="person-header">
                 <img src="{{ $person->avatar }}" alt="{{ $person->first_name }}" class="person-photo">
-                <h1 class="person-name">{{ $person->first_name }} {{ $person->last_name }}</h1>
+                <h1 class="person-name">{{ $person->full_name }}</h1>
                 <p class="person-role">
                     @if($nursingRelationships->isNotEmpty() && $breastfedRelationships->isNotEmpty())
                         <i class="fas fa-baby me-1"></i>أم مرضعة وطفل مرتضع
@@ -375,7 +375,8 @@
                                      alt="{{ $relationship->breastfedChild->first_name }}"
                                      class="relationship-photo">
                                 <div class="relationship-info">
-                                    <h3>{{ $relationship->breastfedChild->first_name }} {{ $relationship->breastfedChild->last_name }}</h3>
+                                    <h3>{{ $relationship->breastfedChild->full_name }}</h3>
+                                    <small class="text-muted">{{ $relationship->breastfedChild->first_name }} {{ $relationship->breastfedChild->last_name }}</small>
                                     <p><i class="fas fa-child me-1"></i>الطفل المرتضع</p>
                                 </div>
                             </div>
@@ -443,7 +444,8 @@
                                      alt="{{ $relationship->nursingMother->first_name }}"
                                      class="relationship-photo">
                                 <div class="relationship-info">
-                                    <h3>{{ $relationship->nursingMother->first_name }} {{ $relationship->nursingMother->last_name }}</h3>
+                                    <h3>{{ $relationship->nursingMother->full_name }}</h3>
+                                    <small class="text-muted">{{ $relationship->nursingMother->first_name }} {{ $relationship->nursingMother->last_name }}</small>
                                     <p><i class="fas fa-female me-1"></i>الأم المرضعة</p>
                                 </div>
                             </div>

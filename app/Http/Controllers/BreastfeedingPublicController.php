@@ -12,13 +12,26 @@ class BreastfeedingPublicController extends Controller
     /**
      * Display the public breastfeeding page
      */
-    public function index(): View
+    public function index(Request $request): View
     {
-        // Get all active breastfeeding relationships with their related data
-        $breastfeedings = Breastfeeding::with(['nursingMother', 'breastfedChild'])
-            ->where('is_active', true)
-            ->orderBy('start_date', 'desc')
-            ->get();
+        $query = Breastfeeding::with(['nursingMother', 'breastfedChild'])
+            ->where('is_active', true);
+
+        // Apply search filter
+        if ($request->has('search') && $request->search) {
+            $searchTerm = $request->search;
+            $query->where(function($q) use ($searchTerm) {
+                $q->whereHas('nursingMother', function($subQ) use ($searchTerm) {
+                    $subQ->where('first_name', 'like', '%' . $searchTerm . '%')
+                         ->orWhere('last_name', 'like', '%' . $searchTerm . '%');
+                })->orWhereHas('breastfedChild', function($subQ) use ($searchTerm) {
+                    $subQ->where('first_name', 'like', '%' . $searchTerm . '%')
+                         ->orWhere('last_name', 'like', '%' . $searchTerm . '%');
+                });
+            });
+        }
+
+        $breastfeedings = $query->orderBy('start_date', 'desc')->get();
 
         // Group breastfeeding relationships by nursing mother
         $nursingMothers = $breastfeedings->groupBy('nursing_mother_id');

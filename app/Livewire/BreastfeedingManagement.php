@@ -26,9 +26,12 @@ class BreastfeedingManagement extends Component
 
     // Properties for search and filters
     public $search = '';
+    public $searchNursingMother = '';
+    public $searchBreastfedChild = '';
     public $statusFilter = 'all'; // all, active, inactive
     public $sortBy = 'created_at';
     public $sortDirection = 'desc';
+    public $perPage = 15;
 
     // Properties for modals
     public $showCreateModal = false;
@@ -67,14 +70,32 @@ class BreastfeedingManagement extends Component
     {
         $query = Breastfeeding::with(['nursingMother', 'breastfedChild']);
 
-        // Apply search filter
+        // Apply general search filter
         if ($this->search) {
+            $query->where(function($q) {
+                $q->whereHas('nursingMother', function($subQ) {
+                    $subQ->where('first_name', 'like', '%' . $this->search . '%')
+                         ->orWhere('last_name', 'like', '%' . $this->search . '%');
+                })->orWhereHas('breastfedChild', function($subQ) {
+                    $subQ->where('first_name', 'like', '%' . $this->search . '%')
+                         ->orWhere('last_name', 'like', '%' . $this->search . '%');
+                });
+            });
+        }
+
+        // Apply specific nursing mother search
+        if ($this->searchNursingMother) {
             $query->whereHas('nursingMother', function($q) {
-                $q->where('first_name', 'like', '%' . $this->search . '%')
-                  ->orWhere('last_name', 'like', '%' . $this->search . '%');
-            })->orWhereHas('breastfedChild', function($q) {
-                $q->where('first_name', 'like', '%' . $this->search . '%')
-                  ->orWhere('last_name', 'like', '%' . $this->search . '%');
+                $q->where('first_name', 'like', '%' . $this->searchNursingMother . '%')
+                  ->orWhere('last_name', 'like', '%' . $this->searchNursingMother . '%');
+            });
+        }
+
+        // Apply specific breastfed child search
+        if ($this->searchBreastfedChild) {
+            $query->whereHas('breastfedChild', function($q) {
+                $q->where('first_name', 'like', '%' . $this->searchBreastfedChild . '%')
+                  ->orWhere('last_name', 'like', '%' . $this->searchBreastfedChild . '%');
             });
         }
 
@@ -88,14 +109,29 @@ class BreastfeedingManagement extends Component
         // Apply sorting
         $query->orderBy($this->sortBy, $this->sortDirection);
 
-        $breastfeedings = $query->paginate(15);
+        $breastfeedings = $query->paginate($this->perPage);
 
-        // Get persons for dropdowns
-        $nursingMothers = Person::where('gender', 'female')
-            ->orderBy('first_name')
+        // Get persons for dropdowns with search
+        $nursingMothersQuery = Person::where('gender', 'female');
+        if ($this->searchNursingMother) {
+            $nursingMothersQuery->where(function($q) {
+                $q->where('first_name', 'like', '%' . $this->searchNursingMother . '%')
+                  ->orWhere('last_name', 'like', '%' . $this->searchNursingMother . '%');
+            });
+        }
+        $nursingMothers = $nursingMothersQuery->orderBy('first_name')
+            ->limit(100)
             ->get(['id', 'first_name', 'last_name']);
 
-        $breastfedChildren = Person::orderBy('first_name')
+        $breastfedChildrenQuery = Person::query();
+        if ($this->searchBreastfedChild) {
+            $breastfedChildrenQuery->where(function($q) {
+                $q->where('first_name', 'like', '%' . $this->searchBreastfedChild . '%')
+                  ->orWhere('last_name', 'like', '%' . $this->searchBreastfedChild . '%');
+            });
+        }
+        $breastfedChildren = $breastfedChildrenQuery->orderBy('first_name')
+            ->limit(100)
             ->get(['id', 'first_name', 'last_name']);
 
         return view('livewire.breastfeeding-management', [
@@ -259,6 +295,29 @@ class BreastfeedingManagement extends Component
 
     public function updatedStatusFilter()
     {
+        $this->resetPage();
+    }
+
+    public function updatedSearchNursingMother()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedSearchBreastfedChild()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedPerPage()
+    {
+        $this->resetPage();
+    }
+
+    public function clearSearch()
+    {
+        $this->search = '';
+        $this->searchNursingMother = '';
+        $this->searchBreastfedChild = '';
         $this->resetPage();
     }
 }
