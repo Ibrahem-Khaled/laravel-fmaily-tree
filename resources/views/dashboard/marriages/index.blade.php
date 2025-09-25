@@ -31,7 +31,7 @@
             </div>
             {{-- حالات الطلاق --}}
             <div class="col-xl-3 col-md-6 mb-4">
-                <x-stats-card icon="fas fa-heart-broken" title="حالات الطلاق" :value="$divorcedMarriages" color="danger" />
+                <x-stats-card icon="fas fa-heart-broken" title="حالات الانفصال" :value="$divorcedMarriages" color="danger" />
             </div>
             {{-- حالات بدون تاريخ طلاق --}}
             <div class="col-xl-3 col-md-6 mb-4">
@@ -63,7 +63,7 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {{ $status === 'divorced' ? 'active' : '' }}"
-                            href="{{ route('marriages.index', ['status' => 'divorced']) }}">مطلقون</a>
+                            href="{{ route('marriages.index', ['status' => 'divorced']) }}">منفصلون</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {{ $status === 'unknown' ? 'active' : '' }}"
@@ -130,7 +130,7 @@
                                 <th>الزوج</th>
                                 <th>الزوجة</th>
                                 <th>تاريخ الزواج</th>
-                                <th>تاريخ الطلاق</th>
+                                <th>تاريخ الانفصال</th>
                                 <th>الحالة</th>
                                 <th>المدة</th>
                                 <th>الإجراءات</th>
@@ -151,20 +151,20 @@
                                     </td>
                                     <td>{{ $marriage->married_at ? $marriage->married_at->format('Y-m-d') : 'غير معروف' }}
                                     </td>
-                                    <td>{{ $marriage->divorced_at ? $marriage->divorced_at->format('Y-m-d') : '-' }}</td>
+                                    <td>{{ $marriage->divorced_at ? $marriage->divorced_at->format('Y-m-d') : ($marriage->is_divorced ? '✅' : '-') }}</td>
                                     <td>
-                                        @if ($marriage->divorced_at)
-                                            <span class="badge badge-danger">مطلق</span>
+                                        @if ($marriage->isDivorced())
+                                            <span class="badge badge-danger">{{ $marriage->status_text }}</span>
                                         @elseif($marriage->married_at)
-                                            <span class="badge badge-success">نشط</span>
+                                            <span class="badge badge-success">{{ $marriage->status_text }}</span>
                                         @else
-                                            <span class="badge badge-warning">غير محدد</span>
+                                            <span class="badge badge-warning">{{ $marriage->status_text }}</span>
                                         @endif
                                     </td>
                                     <td>
                                         @if ($marriage->married_at)
-                                            @if ($marriage->divorced_at)
-                                                {{ $marriage->married_at->diffInYears($marriage->divorced_at) }} سنة
+                                            @if ($marriage->isDivorced())
+                                                {{ $marriage->married_at->diffInYears($marriage->divorced_at ?? now()) }} سنة
                                             @else
                                                 {{ $marriage->married_at->diffInYears(now()) }} سنة
                                             @endif

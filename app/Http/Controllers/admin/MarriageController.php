@@ -27,9 +27,13 @@ class MarriageController extends Controller
 
         if ($status === 'active') {
             $query->whereNotNull('married_at')
-                ->whereNull('divorced_at');
+                ->whereNull('divorced_at')
+                ->where('is_divorced', false);
         } elseif ($status === 'divorced') {
-            $query->whereNotNull('divorced_at');
+            $query->where(function($q) {
+                $q->whereNotNull('divorced_at')
+                  ->orWhere('is_divorced', true);
+            });
         } elseif ($status === 'unknown') {
             $query->whereNull('married_at');
         }
@@ -65,8 +69,14 @@ class MarriageController extends Controller
 
         // الإحصائيات
         $totalMarriages = Marriage::count();
-        $activeMarriages = Marriage::whereNotNull('married_at')->whereNull('divorced_at')->count();
-        $divorcedMarriages = Marriage::whereNotNull('divorced_at')->count();
+        $activeMarriages = Marriage::whereNotNull('married_at')
+            ->whereNull('divorced_at')
+            ->where('is_divorced', false)
+            ->count();
+        $divorcedMarriages = Marriage::where(function($q) {
+            $q->whereNotNull('divorced_at')
+              ->orWhere('is_divorced', true);
+        })->count();
         $unknownStatusMarriages = Marriage::whereNull('married_at')->count();
 
         // قائمة الأشخاص للبحث
@@ -92,6 +102,7 @@ class MarriageController extends Controller
             'wife_id' => 'required|exists:persons,id|different:husband_id',
             'married_at' => 'nullable|date',
             'divorced_at' => 'nullable|date|after_or_equal:married_at',
+            'is_divorced' => 'nullable|boolean',
         ]);
 
         // =================== بداية منطق التحقق الجديد ===================
@@ -148,6 +159,7 @@ class MarriageController extends Controller
             'wife_id' => 'required|exists:persons,id|different:husband_id',
             'married_at' => 'nullable|date',
             'divorced_at' => 'nullable|date|after_or_equal:married_at',
+            'is_divorced' => 'nullable|boolean',
         ]);
 
         // التحقق من عدم وجود زواج سابق بين نفس الشخصين (باستثناء السجل الحالي)

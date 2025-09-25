@@ -57,13 +57,25 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="divorced_at_edit{{ $marriage->id }}">تاريخ الطلاق</label>
+                                <label for="divorced_at_edit{{ $marriage->id }}">تاريخ الانفصال</label>
                                 <input type="date" name="divorced_at" id="divorced_at_edit{{ $marriage->id }}"
                                     class="form-control"
                                     value="{{ $marriage->divorced_at ? $marriage->divorced_at->format('Y-m-d') : '' }}">
                             </div>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <div class="form-check">
+                                    <input type="checkbox" name="is_divorced" id="is_divorced_edit{{ $marriage->id }}"
+                                           class="form-check-input" value="1" {{ $marriage->is_divorced ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="is_divorced_edit{{ $marriage->id }}">
+                                        منفصل (بدون تاريخ محدد)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">إلغاء</button>

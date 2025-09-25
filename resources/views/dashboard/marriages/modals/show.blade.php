@@ -79,17 +79,17 @@
                                 </p>
                             </div>
                             <div class="col-md-4">
-                                <p><strong>تاريخ الطلاق:</strong>
-                                    {{ $marriage->divorced_at ? $marriage->divorced_at->format('Y-m-d') : '-' }}</p>
+                                <p><strong>تاريخ الانفصال:</strong>
+                                    {{ $marriage->divorced_at ? $marriage->divorced_at->format('Y-m-d') : ($marriage->is_divorced ? '✅ منفصل' : '-') }}</p>
                             </div>
                             <div class="col-md-4">
                                 <p><strong>الحالة:</strong>
-                                    @if ($marriage->divorced_at)
-                                        <span class="badge badge-danger">مطلق</span>
+                                    @if ($marriage->isDivorced())
+                                        <span class="badge badge-danger">{{ $marriage->status_text }}</span>
                                     @elseif($marriage->married_at)
-                                        <span class="badge badge-success">نشط</span>
+                                        <span class="badge badge-success">{{ $marriage->status_text }}</span>
                                     @else
-                                        <span class="badge badge-warning">غير محدد</span>
+                                        <span class="badge badge-warning">{{ $marriage->status_text }}</span>
                                     @endif
                                 </p>
                             </div>
@@ -98,8 +98,8 @@
                             <div class="col-md-12">
                                 <p><strong>مدة الزواج:</strong>
                                     @if ($marriage->married_at)
-                                        @if ($marriage->divorced_at)
-                                            {{ $marriage->married_at->diffForHumans($marriage->divorced_at, true) }}
+                                        @if ($marriage->isDivorced())
+                                            {{ $marriage->married_at->diffForHumans($marriage->divorced_at ?? now(), true) }}
                                         @else
                                             {{ $marriage->married_at->diffForHumans(now(), true) }}
                                         @endif
