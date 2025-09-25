@@ -97,7 +97,7 @@ class Person extends Model
         }
 
         // استخدام صورة افتراضية إذا لم يكن هناك صورة
-        return $this->gender == 'male' ? asset('assets/img/avatar-male.png') : asset('assets/img/avatar-female-hejap.png');
+        return $this->gender == 'male' ? asset('assets/img/avatar-male.png') : asset('assets/img/avatar-female-hejap-1.png');
     }
 
     // Relationships

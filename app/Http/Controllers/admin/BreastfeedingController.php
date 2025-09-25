@@ -193,7 +193,6 @@ class BreastfeedingController extends Controller
                 $q->where('first_name', 'like', "%{$query}%")
                   ->orWhere('last_name', 'like', "%{$query}%");
             })
-            ->limit(10)
             ->get(['id', 'first_name', 'last_name']);
 
         return response()->json($nursingMothers);
@@ -210,7 +209,6 @@ class BreastfeedingController extends Controller
                 $q->where('first_name', 'like', "%{$query}%")
                   ->orWhere('last_name', 'like', "%{$query}%");
             })
-            ->limit(10)
             ->get(['id', 'first_name', 'last_name']);
 
         return response()->json($children);
