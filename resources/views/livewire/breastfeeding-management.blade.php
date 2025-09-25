@@ -23,7 +23,7 @@
                 <span class="input-group-text">
                     <i class="fas fa-search"></i>
                 </span>
-                <input type="text" wire:model.live="search" class="form-control" placeholder="البحث العام...">
+                <input type="text" wire:model.live="search" class="form-control" placeholder="البحث العام بالاسم أو الاسم الكامل...">
             </div>
         </div>
         <div class="col-md-3">
@@ -31,7 +31,7 @@
                 <span class="input-group-text">
                     <i class="fas fa-female"></i>
                 </span>
-                <input type="text" wire:model.live="searchNursingMother" class="form-control" placeholder="البحث في الأمهات...">
+                <input type="text" wire:model.live="searchNursingMother" class="form-control" placeholder="البحث في الأمهات بالاسم أو الاسم الكامل...">
             </div>
         </div>
         <div class="col-md-3">
@@ -39,7 +39,7 @@
                 <span class="input-group-text">
                     <i class="fas fa-child"></i>
                 </span>
-                <input type="text" wire:model.live="searchBreastfedChild" class="form-control" placeholder="البحث في الأطفال...">
+                <input type="text" wire:model.live="searchBreastfedChild" class="form-control" placeholder="البحث في الأطفال بالاسم أو الاسم الكامل...">
             </div>
         </div>
         <div class="col-md-2">
@@ -245,7 +245,7 @@
                                             <span class="input-group-text">
                                                 <i class="fas fa-search"></i>
                                             </span>
-                                            <input type="text" wire:model.live="motherSearch" class="form-control" placeholder="ابحث عن الأم المرضعة بالاسم...">
+                                            <input type="text" wire:model.live="motherSearch" class="form-control" placeholder="ابحث عن الأم المرضعة بالاسم أو الاسم الكامل...">
                                         </div>
                                         @if(strlen($motherSearch) >= 2 && $motherSuggestions->count())
                                             <div class="list-group position-absolute w-100 shadow" style="z-index:1051; max-height: 220px; overflow-y: auto;">
@@ -271,7 +271,7 @@
                                             <span class="input-group-text">
                                                 <i class="fas fa-search"></i>
                                             </span>
-                                            <input type="text" wire:model.live="childSearch" class="form-control" placeholder="ابحث عن الطفل المرتضع بالاسم...">
+                                            <input type="text" wire:model.live="childSearch" class="form-control" placeholder="ابحث عن الطفل المرتضع بالاسم أو الاسم الكامل...">
                                         </div>
                                         @if(strlen($childSearch) >= 2 && $childSuggestions->count())
                                             <div class="list-group position-absolute w-100 shadow" style="z-index:1051; max-height: 220px; overflow-y: auto;">
@@ -347,7 +347,7 @@
                                             <span class="input-group-text">
                                                 <i class="fas fa-search"></i>
                                             </span>
-                                            <input type="text" wire:model.live="motherSearch" class="form-control" placeholder="ابحث عن الأم المرضعة بالاسم...">
+                                            <input type="text" wire:model.live="motherSearch" class="form-control" placeholder="ابحث عن الأم المرضعة بالاسم أو الاسم الكامل...">
                                         </div>
                                         @if(strlen($motherSearch) >= 2 && $motherSuggestions->count())
                                             <div class="list-group position-absolute w-100 shadow" style="z-index:1051; max-height: 220px; overflow-y: auto;">
@@ -373,7 +373,7 @@
                                             <span class="input-group-text">
                                                 <i class="fas fa-search"></i>
                                             </span>
-                                            <input type="text" wire:model.live="childSearch" class="form-control" placeholder="ابحث عن الطفل المرتضع بالاسم...">
+                                            <input type="text" wire:model.live="childSearch" class="form-control" placeholder="ابحث عن الطفل المرتضع بالاسم أو الاسم الكامل...">
                                         </div>
                                         @if(strlen($childSearch) >= 2 && $childSuggestions->count())
                                             <div class="list-group position-absolute w-100 shadow" style="z-index:1051; max-height: 220px; overflow-y: auto;">

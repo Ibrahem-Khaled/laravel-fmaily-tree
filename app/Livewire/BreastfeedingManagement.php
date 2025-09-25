@@ -77,12 +77,11 @@ class BreastfeedingManagement extends Component
         // Apply general search filter
         if ($this->search) {
             $query->where(function($q) {
-                $q->whereHas('nursingMother', function($subQ) {
-                    $subQ->where('first_name', 'like', '%' . $this->search . '%')
-                         ->orWhere('last_name', 'like', '%' . $this->search . '%');
-                })->orWhereHas('breastfedChild', function($subQ) {
-                    $subQ->where('first_name', 'like', '%' . $this->search . '%')
-                         ->orWhere('last_name', 'like', '%' . $this->search . '%');
+                $searchTerm = $this->search;
+                $q->whereHas('nursingMother', function($subQ) use ($searchTerm) {
+                    $subQ->searchByName($searchTerm);
+                })->orWhereHas('breastfedChild', function($subQ) use ($searchTerm) {
+                    $subQ->searchByName($searchTerm);
                 });
             });
         }
@@ -90,16 +89,14 @@ class BreastfeedingManagement extends Component
         // Apply specific nursing mother search
         if ($this->searchNursingMother) {
             $query->whereHas('nursingMother', function($q) {
-                $q->where('first_name', 'like', '%' . $this->searchNursingMother . '%')
-                  ->orWhere('last_name', 'like', '%' . $this->searchNursingMother . '%');
+                $q->searchByName($this->searchNursingMother);
             });
         }
 
         // Apply specific breastfed child search
         if ($this->searchBreastfedChild) {
             $query->whereHas('breastfedChild', function($q) {
-                $q->where('first_name', 'like', '%' . $this->searchBreastfedChild . '%')
-                  ->orWhere('last_name', 'like', '%' . $this->searchBreastfedChild . '%');
+                $q->searchByName($this->searchBreastfedChild);
             });
         }
 
@@ -118,24 +115,18 @@ class BreastfeedingManagement extends Component
         // Suggestions for modal autocomplete (AJAX style)
         $motherSuggestions = Person::where('gender', 'female')
             ->when($this->motherSearch, function ($q) {
-                $q->where(function ($sub) {
-                    $sub->where('first_name', 'like', '%' . $this->motherSearch . '%')
-                        ->orWhere('last_name', 'like', '%' . $this->motherSearch . '%');
-                });
+                $q->searchByName($this->motherSearch);
             })
             ->orderBy('first_name')
-            ->limit(10)
+
             ->get();
 
         $childSuggestions = Person::query()
             ->when($this->childSearch, function ($q) {
-                $q->where(function ($sub) {
-                    $sub->where('first_name', 'like', '%' . $this->childSearch . '%')
-                        ->orWhere('last_name', 'like', '%' . $this->childSearch . '%');
-                });
+                $q->searchByName($this->childSearch);
             })
             ->orderBy('first_name')
-            ->limit(10)
+
             ->get();
 
         return view('livewire.breastfeeding-management', [

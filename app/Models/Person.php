@@ -183,6 +183,25 @@ class Person extends Model
     }
 
     /**
+     * Scope for advanced name search including full name patterns
+     * نطاق البحث المتقدم في الأسماء بما في ذلك أنماط الاسم الكامل
+     */
+    public function scopeSearchByName($query, $searchTerm)
+    {
+        if (empty($searchTerm)) {
+            return $query;
+        }
+
+        return $query->where(function ($q) use ($searchTerm) {
+            $q->where('first_name', 'like', '%' . $searchTerm . '%')
+              ->orWhere('last_name', 'like', '%' . $searchTerm . '%')
+              ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ['%' . $searchTerm . '%'])
+              ->orWhereRaw("CONCAT(first_name, ' بن ', last_name) LIKE ?", ['%' . $searchTerm . '%'])
+              ->orWhereRaw("CONCAT(first_name, ' بنت ', last_name) LIKE ?", ['%' . $searchTerm . '%']);
+        });
+    }
+
+    /**
      * Get active breastfeeding relationships where this person is the nursing mother
      * العلاقات النشطة التي تكون فيها هذه الشخصية هي الأم المرضعة
      */
