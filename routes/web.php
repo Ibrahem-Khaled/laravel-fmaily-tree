@@ -12,6 +12,7 @@ use App\Http\Controllers\admin\PadgePeopleController;
 use App\Http\Controllers\admin\PersonController;
 use App\Http\Controllers\admin\RoleController;
 use App\Http\Controllers\admin\UserController;
+use App\Http\Controllers\admin\ArticleController as AdminArticleController;
 use App\Http\Controllers\BreastfeedingPublicController;
 use App\Http\Controllers\FamilyTreeController;
 use App\Http\Controllers\GalleryController;
@@ -66,6 +67,8 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::resource('marriages', MarriageController::class)->except(['show']);
 
     Route::resource('articles', ArticleController::class)->only(['index', 'store', 'update', 'destroy']);
+    // حذف فيديو من مقال
+    Route::delete('/articles/{article}/videos/{video}', [AdminArticleController::class, 'destroyVideo'])->name('articles.videos.destroy');
     Route::delete('/attachments/{attachment}', [ArticleController::class, 'destroyAttachment'])
         ->name('attachments.destroy');
     Route::get('/attachments/{attachment}/download', [ArticleController::class, 'downloadAttachment'])

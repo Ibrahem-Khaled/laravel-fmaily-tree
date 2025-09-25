@@ -37,9 +37,20 @@ class Article extends Model
         return $this->hasMany(Image::class);
     }
 
+    public function videos(): HasMany
+    {
+        return $this->hasMany(Video::class)->orderBy('sort_order')->orderBy('id');
+    }
+
     public function attachments()
     {
         return $this->morphMany(Attachment::class, 'attachable');
+    }
+
+    public function getFirstYouTubeIdAttribute(): ?string
+    {
+        $video = $this->videos()->first();
+        return $video && $video->provider === 'youtube' ? $video->video_id : null;
     }
 
     // سكوبات

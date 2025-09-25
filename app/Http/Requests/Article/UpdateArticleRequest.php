@@ -32,6 +32,11 @@ class UpdateArticleRequest extends FormRequest
                 'max:10240',
                 'mimetypes:application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/zip'
             ],
+
+            // روابط فيديو (يوتيوب)
+            'videos'       => ['sometimes', 'array', 'max:20'],
+            'videos.*'     => ['nullable', 'string', 'max:255'],
+            'videos_text'  => ['sometimes', 'nullable', 'string', 'max:5000'],
         ];
     }
 }

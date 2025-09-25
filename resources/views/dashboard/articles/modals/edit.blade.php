@@ -146,6 +146,52 @@
                         </div>
                     </div>
                 </div>
+
+                {{-- روابط الفيديو (يوتيوب) --}}
+                <div class="card mb-2 shadow-sm">
+                    <div class="card-header py-2 d-flex justify-content-between align-items-center">
+                        <strong>روابط الفيديو (YouTube)</strong>
+                        <span class="badge badge-secondary">{{ $article->videos->count() }}</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group mb-3">
+                            <label class="mb-1 d-block">أدخل كل رابط في سطر منفصل</label>
+                            <textarea name="videos_text" class="form-control" rows="4" placeholder="https://www.youtube.com/watch?v=XXXXXXXXX&#10;https://youtu.be/YYYYYYYYY">{{ old('videos_text', $article->videos->pluck('url')->implode("\n")) }}</textarea>
+                            <small class="text-muted d-block mt-1">ندعم روابط watch?v= و youtu.be و shorts/</small>
+                        </div>
+                        @if ($article->videos->count())
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>الموفر</th>
+                                            <th>المعرف</th>
+                                            <th>الرابط</th>
+                                            <th>إجراءات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($article->videos as $idx => $v)
+                                            <tr>
+                                                <td>{{ $idx + 1 }}</td>
+                                                <td>{{ strtoupper($v->provider) }}</td>
+                                                <td><code>{{ $v->video_id }}</code></td>
+                                                <td class="text-truncate" style="max-width: 260px"><a href="{{ $v->url }}" target="_blank">{{ $v->url }}</a></td>
+                                                <td>
+                                                    <form method="POST" action="{{ route('articles.videos.destroy', [$article, $v]) }}" onsubmit="return confirm('حذف هذا الفيديو؟');">
+                                                        @csrf @method('DELETE')
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @endif
+                    </div>
+                </div>
             </div>
 
             <div class="modal-footer">

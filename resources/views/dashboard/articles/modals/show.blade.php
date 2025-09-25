@@ -10,6 +10,7 @@
                 <p><strong>الحالة:</strong> <span class="modal-article-status"></span></p>
                 <hr>
                 <div class="modal-article-content"></div>
+        <div class="modal-article-videos mt-3"></div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">إغلاق</button>

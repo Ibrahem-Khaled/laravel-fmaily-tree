@@ -97,6 +97,13 @@
                     </small>
                 </div>
 
+                {{-- روابط فيديو يوتيوب (واحد في كل سطر) --}}
+                <div class="form-group">
+                    <label>روابط الفيديو (YouTube) — ضع كل رابط في سطر منفصل</label>
+                    <textarea name="videos_text" class="form-control" rows="4" placeholder="مثال:\nhttps://www.youtube.com/watch?v=XXXXXXXXX\nhttps://youtu.be/XXXXXXXXX"></textarea>
+                    <small class="text-muted d-block mt-1">ندعم روابط watch?v= و youtu.be و shorts/</small>
+                </div>
+
             </div>
 
             <div class="modal-footer">

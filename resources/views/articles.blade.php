@@ -477,15 +477,21 @@
                                                 alt="{{ $article->title }}"
                                                 class="article-image w-full h-full object-cover">
                                         @else
-                                            <div class="w-full h-full flex items-center justify-center">
-                                                <svg class="w-16 h-16 text-green-400" fill="currentColor"
-                                                    viewBox="0 0 20 20">
-                                                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
-                                                    <path fill-rule="evenodd"
-                                                        d="M4 5a2 2 0 012-2 1 1 0 000 2H4a1 1 0 00-1 1v7a1 1 0 001 1h12a1 1 0 001-1V6a1 1 0 00-1-1h-2a1 1 0 100-2 2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V5z"
-                                                        clip-rule="evenodd" />
-                                                </svg>
-                                            </div>
+                                            @if ($article->person)
+                                                <img src="{{ $article->person->avatar }}"
+                                                    alt="{{ $article->person->full_name }}"
+                                                    class="article-image w-full h-full object-cover">
+                                            @else
+                                                <div class="w-full h-full flex items-center justify-center">
+                                                    <svg class="w-16 h-16 text-green-400" fill="currentColor"
+                                                        viewBox="0 0 20 20">
+                                                        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+                                                        <path fill-rule="evenodd"
+                                                            d="M4 5a2 2 0 012-2 1 1 0 000 2H4a1 1 0 00-1 1v7a1 1 0 001 1h12a1 1 0 001-1V6a1 1 0 00-1-1h-2a1 1 0 100-2 2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V5z"
+                                                            clip-rule="evenodd" />
+                                                    </svg>
+                                                </div>
+                                            @endif
                                         @endif
 
                                         @if ($article->images->count() > 0)

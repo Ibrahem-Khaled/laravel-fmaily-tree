@@ -196,6 +196,41 @@
                 </div>
             @endif
 
+            @if ($article->videos && $article->videos->isNotEmpty())
+                <div class="p-6 pt-0 lg:p-10 lg:pt-0">
+                    <div class="border-t border-green-200/60 pt-8">
+                        <h2
+                            class="text-2xl lg:text-3xl font-bold font-serif mb-6 bg-gradient-to-r from-green-600 to-emerald-500 text-transparent bg-clip-text flex items-center gap-3">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14m-6 2a9 9 0 110-12 9 9 0 010 12z"></path>
+                            </svg>
+                            مقاطع الفيديو
+                            <span class="text-sm font-sans font-normal text-gray-500">({{ $article->videos->count() }}
+                                فيديو)</span>
+                        </h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            @foreach ($article->videos as $video)
+                                @php
+                                    $embedSrc = null;
+                                    if ($video->provider === 'youtube') {
+                                        $embedSrc = 'https://www.youtube.com/embed/' . $video->video_id;
+                                    }
+                                @endphp
+                                @if ($embedSrc)
+                                    <div class="aspect-video rounded-xl overflow-hidden shadow-md bg-black">
+                                        <iframe class="w-full h-full" src="{{ $embedSrc }}" title="YouTube video player"
+                                            frameborder="0"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                            referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                                    </div>
+                                @endif
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             @if ($article->images->isNotEmpty())
                 <div class="p-6 pt-0 lg:p-10 lg:pt-0">
                     <div class="border-t border-green-200/60 pt-8">

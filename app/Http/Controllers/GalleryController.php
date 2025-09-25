@@ -41,7 +41,7 @@ class GalleryController extends Controller
 
     public function show($id)
     {
-        $article = Article::with(['images', 'person', 'category'])->findOrFail($id);
+        $article = Article::with(['images', 'videos', 'person', 'category'])->findOrFail($id);
         // $badges = [
         //     ['title' => 'مؤرّخ العائلة', 'tier' => 'gold', 'level' => 92, 'graded' => true, 'grade' => 'S', 'desc' => 'جمع وتأريخ الصور القديمة.'],
         //     ['title' => 'منسّق المعارض', 'tier' => 'silver', 'level' => 68, 'graded' => false, 'desc' => 'تنسيق المعارض حسب السنوات.'],

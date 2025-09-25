@@ -12,6 +12,7 @@ use App\Models\Category;
 use App\Models\Person;
 use App\Models\Attachment;
 use App\Models\Image;
+use App\Models\Video;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -101,6 +102,15 @@ class ArticleController extends Controller
                     ]);
                 }
             }
+
+            // روابط الفيديو (يوتيوب) - دعم مصفوفة أو نص متعدد الأسطر
+            $videos = (array) $request->input('videos', []);
+            $videosText = (string) $request->input('videos_text', '');
+            if (trim($videosText) !== '') {
+                $videosFromText = preg_split("/~\r?\n|\r/", $videosText) ?: [];
+                $videos = array_merge($videos, $videosFromText);
+            }
+            $this->syncVideos($article, $videos);
         });
 
         return back()->with('success', 'تم إنشاء المقال بنجاح');
@@ -136,6 +146,17 @@ class ArticleController extends Controller
                         'mime_type' => $file->getClientMimeType(),
                     ]);
                 }
+            }
+
+            // تحديث روابط الفيديو
+            if ($request->hasAny(['videos', 'videos_text'])) {
+                $videos = (array) $request->input('videos', []);
+                $videosText = (string) $request->input('videos_text', '');
+                if (trim($videosText) !== '') {
+                    $videosFromText = preg_split("/~\r?\n|\r/", $videosText) ?: [];
+                    $videos = array_merge($videos, $videosFromText);
+                }
+                $this->syncVideos($article, $videos);
             }
         });
 
@@ -176,6 +197,77 @@ class ArticleController extends Controller
             abort(Response::HTTP_NOT_FOUND, 'الملف غير موجود.');
         }
 
-        return Storage::disk('public')->download($attachment->path, $attachment->file_name);
+        $fullPath = storage_path('app/public/' . $attachment->path);
+        if (!file_exists($fullPath)) {
+            abort(Response::HTTP_NOT_FOUND, 'الملف غير موجود.');
+        }
+        return response()->download($fullPath, $attachment->file_name);
+    }
+
+    /**
+     * حذف فيديو محدد من مقال.
+     */
+    public function destroyVideo(Article $article, Video $video)
+    {
+        if ($video->article_id !== $article->id) {
+            abort(Response::HTTP_FORBIDDEN);
+        }
+        $video->delete();
+        return back()->with('success', 'تم حذف الفيديو بنجاح');
+    }
+
+    /**
+     * مزامنة روابط الفيديو مع المقال.
+     */
+    protected function syncVideos(Article $article, array $rawUrls): void
+    {
+        // نظّف الإدخال: إزالة الفراغات، إزالة الفراغات الفارغة وتفريد
+        $urls = collect($rawUrls)
+            ->map(fn ($u) => is_string($u) ? trim($u) : null)
+            ->filter()
+            ->unique()
+            ->values();
+
+        // استخرج بيانات الفيديو
+        $videosData = [];
+        foreach ($urls as $index => $url) {
+            $parsed = $this->parseVideoUrl($url);
+            if (!$parsed) {
+                continue;
+            }
+            $videosData[] = [
+                'provider'   => $parsed['provider'],
+                'video_id'   => $parsed['video_id'],
+                'url'        => $url,
+                'sort_order' => $index,
+            ];
+        }
+
+        // احذف القديمة/أعد الإنشاء بشكل بسيط للحفاظ على الترتيب
+        $article->videos()->delete();
+        foreach ($videosData as $data) {
+            $article->videos()->create($data);
+        }
+    }
+
+    /**
+     * يدعم YouTube: watch?v=، youtu.be/، shorts/.
+     */
+    protected function parseVideoUrl(string $url): ?array
+    {
+        // YouTube watch
+        if (preg_match('~(?:youtube\.com/watch\?v=)([\w-]{6,})~i', $url, $m)) {
+            return ['provider' => 'youtube', 'video_id' => $m[1]];
+        }
+        // YouTube short link
+        if (preg_match('~(?:youtu\.be/)([\w-]{6,})~i', $url, $m)) {
+            return ['provider' => 'youtube', 'video_id' => $m[1]];
+        }
+        // YouTube shorts
+        if (preg_match('~(?:youtube\.com/shorts/)([\w-]{6,})~i', $url, $m)) {
+            return ['provider' => 'youtube', 'video_id' => $m[1]];
+        }
+
+        return null;
     }
 }
