@@ -16,11 +16,253 @@
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <!-- jQuery for Select2 -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Select2 for enhanced dropdowns -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
     <style>
         /* Custom styles to enhance the design */
         body {
             font-family: 'Cairo', sans-serif;
             background-color: #f0f4f8; /* Light blue-gray background */
+        }
+
+        /* Select2 RTL and custom styling - Enhanced */
+        .select2-container--default .select2-selection--single {
+            height: 56px !important;
+            border: 2px solid #e2e8f0 !important;
+            border-radius: 12px !important;
+            background-color: #f8fafc !important;
+            padding: 12px 16px !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .select2-container--default .select2-selection--single:hover {
+            border-color: #cbd5e1 !important;
+            background-color: #ffffff !important;
+        }
+
+        .select2-container--default .select2-selection--single:focus {
+            border-color: #3b82f6 !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 32px !important;
+            padding-right: 0 !important;
+            padding-left: 0 !important;
+            color: #374151 !important;
+            font-size: 16px !important;
+            font-weight: 500 !important;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__placeholder {
+            color: #9ca3af !important;
+            font-size: 16px !important;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 52px !important;
+            right: 12px !important;
+            width: 20px !important;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow b {
+            border-color: #6b7280 transparent transparent transparent !important;
+            border-width: 6px 6px 0 6px !important;
+            margin-top: -3px !important;
+        }
+
+        .select2-dropdown {
+            border: 2px solid #e2e8f0 !important;
+            border-radius: 12px !important;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+            margin-top: 4px !important;
+        }
+
+        .select2-container--default .select2-results__option {
+            padding: 12px 16px !important;
+            font-size: 16px !important;
+            color: #374151 !important;
+            border-bottom: 1px solid #f3f4f6 !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .select2-container--default .select2-results__option:last-child {
+            border-bottom: none !important;
+        }
+
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: #3b82f6 !important;
+            color: white !important;
+        }
+
+        .select2-container--default .select2-results__option[aria-selected=true] {
+            background-color: #eff6ff !important;
+            color: #1d4ed8 !important;
+            font-weight: 600 !important;
+        }
+
+        .select2-search--dropdown {
+            padding: 12px !important;
+            background-color: #f9fafb !important;
+            border-bottom: 1px solid #e5e7eb !important;
+        }
+
+        .select2-search--dropdown .select2-search__field {
+            border: 2px solid #e2e8f0 !important;
+            border-radius: 8px !important;
+            padding: 10px 14px !important;
+            font-size: 16px !important;
+            background-color: white !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .select2-search--dropdown .select2-search__field:focus {
+            border-color: #3b82f6 !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+            outline: none !important;
+        }
+
+        .select2-results__message {
+            padding: 16px !important;
+            text-align: center !important;
+            color: #6b7280 !important;
+            font-size: 16px !important;
+        }
+
+        /* Additional enhancements for better appearance */
+        .select2-container {
+            width: 100% !important;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__clear {
+            color: #6b7280 !important;
+            font-size: 18px !important;
+            font-weight: bold !important;
+            margin-top: -2px !important;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__clear:hover {
+            color: #dc2626 !important;
+        }
+
+        /* Custom styling for the dropdown results */
+        .select2-results {
+            max-height: 300px !important;
+        }
+
+        .select2-results__options {
+            padding: 8px 0 !important;
+        }
+
+        /* Loading state styling */
+        .select2-results__option[role=group] {
+            padding: 8px 16px !important;
+            font-weight: 600 !important;
+            color: #374151 !important;
+            background-color: #f9fafb !important;
+            border-bottom: 1px solid #e5e7eb !important;
+        }
+
+        /* Better focus states */
+        .select2-container--default.select2-container--focus .select2-selection--single {
+            border-color: #3b82f6 !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+        }
+
+        /* Improved mobile responsiveness for Select2 */
+        @media (max-width: 768px) {
+            .select2-container--default .select2-selection--single {
+                height: 52px !important;
+                padding: 10px 14px !important;
+            }
+
+            .select2-container--default .select2-selection--single .select2-selection__rendered {
+                font-size: 15px !important;
+                line-height: 30px !important;
+            }
+
+            .select2-container--default .select2-selection--single .select2-selection__arrow {
+                height: 48px !important;
+                right: 10px !important;
+            }
+
+            .select2-dropdown {
+                border-radius: 10px !important;
+            }
+
+            .select2-container--default .select2-results__option {
+                padding: 10px 14px !important;
+                font-size: 15px !important;
+            }
+        }
+
+        /* Responsive improvements */
+        @media (max-width: 768px) {
+            .form-container {
+                margin: 1rem;
+                padding: 1rem;
+                border-radius: 15px;
+            }
+
+            .progress-bar {
+                margin-bottom: 1.5rem;
+            }
+
+            .progress-step {
+                width: 35px;
+                height: 35px;
+                font-size: 0.9rem;
+            }
+
+            .grid.grid-cols-1.md\\:grid-cols-2 {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .btn-primary, .btn-secondary {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+
+            .form-input {
+                padding: 10px 14px;
+            }
+
+            .upload-area {
+                padding: 1.5rem;
+            }
+
+            #image-preview {
+                width: 100px;
+                height: 100px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .form-container {
+                margin: 0.5rem;
+                padding: 0.75rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .progress-step {
+                width: 30px;
+                height: 30px;
+                font-size: 0.8rem;
+            }
+
+            .btn-primary, .btn-secondary {
+                padding: 8px 16px;
+                font-size: 0.85rem;
+            }
         }
         .form-container {
             background-color: white;
@@ -165,10 +407,11 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4" dir="rtl">
+<body class="bg-gray-100 min-h-screen" dir="rtl">
     @include('partials.main-header')
 
-    <div class="form-container w-full max-w-3xl p-6 sm:p-10">
+    <div class="container mx-auto px-4 py-4 sm:py-8">
+        <div class="form-container w-full max-w-4xl mx-auto p-4 sm:p-6 lg:p-10">
 
         <!-- Form Header -->
         <div class="text-center mb-8">
@@ -229,8 +472,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="flex justify-end mt-8">
-                    <button type="button" class="btn-primary next-btn">التالي <i class="fas fa-arrow-left mr-2"></i></button>
+                <div class="flex justify-end mt-6 sm:mt-8">
+                    <button type="button" class="btn-primary next-btn w-full sm:w-auto">التالي <i class="fas fa-arrow-left mr-2"></i></button>
                 </div>
             </div>
 
@@ -239,10 +482,9 @@
                 <h2 class="text-xl font-bold text-center mb-6 text-gray-700">2. روابط العائلة</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div>
-                        <label for="parent_id" class="form-label">الأب</label>
+                        <label for="parent_id" class="form-label">الأب <span class="text-gray-500">(ذكور فقط)</span></label>
                         <select class="form-input" id="parent_id" name="parent_id">
                             <option value="">-- اختر الأب --</option>
-                            {{-- This part should be populated by Laravel --}}
                             @foreach ($males as $father)
                                 <option value="{{ $father->id }}" @selected(old('parent_id') == $father->id)>
                                     {{ $father->full_name }}
@@ -251,16 +493,15 @@
                         </select>
                     </div>
                     <div>
-                        <label for="mother_id" class="form-label">الأم</label>
+                        <label for="mother_id" class="form-label">الأم <span class="text-gray-500">(إناث فقط)</span></label>
                         <select class="form-input" id="mother_id" name="mother_id">
                             <option value="">-- اختر الأب أولاً --</option>
-                             {{-- This part will be populated by JavaScript --}}
                         </select>
                     </div>
                 </div>
-                <div class="flex justify-between mt-8">
-                    <button type="button" class="btn-secondary prev-btn"><i class="fas fa-arrow-right ml-2"></i> السابق</button>
-                    <button type="button" class="btn-primary next-btn">التالي <i class="fas fa-arrow-left mr-2"></i></button>
+                <div class="flex flex-col sm:flex-row justify-between gap-4 mt-6 sm:mt-8">
+                    <button type="button" class="btn-secondary prev-btn w-full sm:w-auto"><i class="fas fa-arrow-right ml-2"></i> السابق</button>
+                    <button type="button" class="btn-primary next-btn w-full sm:w-auto">التالي <i class="fas fa-arrow-left mr-2"></i></button>
                 </div>
             </div>
 
@@ -281,9 +522,9 @@
                     <label for="biography" class="form-label">سيرة ذاتية</label>
                     <textarea class="form-input" id="biography" name="biography" rows="4" placeholder="اكتب نبذة قصيرة عنك...">{{ old('biography') }}</textarea>
                 </div>
-                <div class="flex justify-between mt-8">
-                    <button type="button" class="btn-secondary prev-btn"><i class="fas fa-arrow-right ml-2"></i> السابق</button>
-                    <button type="button" class="btn-primary next-btn">التالي <i class="fas fa-arrow-left mr-2"></i></button>
+                <div class="flex flex-col sm:flex-row justify-between gap-4 mt-6 sm:mt-8">
+                    <button type="button" class="btn-secondary prev-btn w-full sm:w-auto"><i class="fas fa-arrow-right ml-2"></i> السابق</button>
+                    <button type="button" class="btn-primary next-btn w-full sm:w-auto">التالي <i class="fas fa-arrow-left mr-2"></i></button>
                 </div>
             </div>
 
@@ -304,9 +545,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="flex justify-between mt-8">
-                    <button type="button" class="btn-secondary prev-btn"><i class="fas fa-arrow-right ml-2"></i> السابق</button>
-                    <button type="submit" class="btn-primary">حفظ وإضافة للشجرة <i class="fas fa-check ml-2"></i></button>
+                <div class="flex flex-col sm:flex-row justify-between gap-4 mt-6 sm:mt-8">
+                    <button type="button" class="btn-secondary prev-btn w-full sm:w-auto"><i class="fas fa-arrow-right ml-2"></i> السابق</button>
+                    <button type="submit" class="btn-primary w-full sm:w-auto">حفظ وإضافة للشجرة <i class="fas fa-check ml-2"></i></button>
                 </div>
             </div>
         </form>
@@ -433,6 +674,80 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    // Initialize Select2 for father dropdown with enhanced settings
+    $('#parent_id').select2({
+        placeholder: 'ابحث عن الأب...',
+        allowClear: true,
+        width: '100%',
+        dropdownAutoWidth: true,
+        language: {
+            noResults: function() {
+                return "لا توجد نتائج";
+            },
+            searching: function() {
+                return "جاري البحث...";
+            },
+            inputTooShort: function() {
+                return "اكتب حرف واحد على الأقل للبحث";
+            },
+            inputTooLong: function() {
+                return "النص طويل جداً";
+            },
+            loadingMore: function() {
+                return "جاري تحميل المزيد...";
+            },
+            maximumSelected: function() {
+                return "لا يمكنك اختيار أكثر من عنصر واحد";
+            }
+        },
+        templateResult: function(person) {
+            if (person.loading) {
+                return person.text;
+            }
+            return $('<div class="select2-result-item">' + person.text + '</div>');
+        },
+        templateSelection: function(person) {
+            return $('<div class="select2-selection-item">' + person.text + '</div>');
+        }
+    });
+
+    // Initialize Select2 for mother dropdown with enhanced settings
+    $('#mother_id').select2({
+        placeholder: 'اختر الأب أولاً...',
+        allowClear: true,
+        width: '100%',
+        dropdownAutoWidth: true,
+        language: {
+            noResults: function() {
+                return "لا توجد نتائج";
+            },
+            searching: function() {
+                return "جاري البحث...";
+            },
+            inputTooShort: function() {
+                return "اكتب حرف واحد على الأقل للبحث";
+            },
+            inputTooLong: function() {
+                return "النص طويل جداً";
+            },
+            loadingMore: function() {
+                return "جاري تحميل المزيد...";
+            },
+            maximumSelected: function() {
+                return "لا يمكنك اختيار أكثر من عنصر واحد";
+            }
+        },
+        templateResult: function(person) {
+            if (person.loading) {
+                return person.text;
+            }
+            return $('<div class="select2-result-item">' + person.text + '</div>');
+        },
+        templateSelection: function(person) {
+            return $('<div class="select2-selection-item">' + person.text + '</div>');
+        }
+    });
+
     // =================================================================
     //  START: Wives Fetching Logic (Corrected and Integrated)
     // =================================================================
@@ -444,16 +759,67 @@ document.addEventListener('DOMContentLoaded', function () {
             const fatherId = this.value;
 
             // Reset mother dropdown and show loading state
-            motherSelect.innerHTML = '<option value="">-- جار التحميل --</option>';
+            $('#mother_id').empty().append('<option value="">-- جار التحميل --</option>');
+            $('#mother_id').select2('destroy').select2({
+                placeholder: 'جار التحميل...',
+                allowClear: true,
+                width: '100%',
+                dropdownAutoWidth: true,
+                language: {
+                    noResults: function() {
+                        return "لا توجد نتائج";
+                    },
+                    searching: function() {
+                        return "جاري البحث...";
+                    },
+                    inputTooShort: function() {
+                        return "اكتب حرف واحد على الأقل للبحث";
+                    },
+                    inputTooLong: function() {
+                        return "النص طويل جداً";
+                    },
+                    loadingMore: function() {
+                        return "جاري تحميل المزيد...";
+                    },
+                    maximumSelected: function() {
+                        return "لا يمكنك اختيار أكثر من عنصر واحد";
+                    }
+                }
+            });
 
             if (!fatherId) {
-                motherSelect.innerHTML = '<option value="">-- اختر الأب أولاً --</option>';
+                $('#mother_id').empty().append('<option value="">-- اختر الأب أولاً --</option>');
+                $('#mother_id').select2('destroy').select2({
+                    placeholder: 'اختر الأب أولاً...',
+                    allowClear: true,
+                    width: '100%',
+                    dropdownAutoWidth: true,
+                    language: {
+                        noResults: function() {
+                            return "لا توجد نتائج";
+                        },
+                        searching: function() {
+                            return "جاري البحث...";
+                        },
+                        inputTooShort: function() {
+                            return "اكتب حرف واحد على الأقل للبحث";
+                        },
+                        inputTooLong: function() {
+                            return "النص طويل جداً";
+                        },
+                        loadingMore: function() {
+                            return "جاري تحميل المزيد...";
+                        },
+                        maximumSelected: function() {
+                            return "لا يمكنك اختيار أكثر من عنصر واحد";
+                        }
+                    }
+                });
                 return;
             }
 
-            // Fetch wives for the selected father
-            // Make sure you have a route like: Route::get('/people/{person}/wives', [YourController::class, 'getWives']);
-            fetch(`/people/${fatherId}/wives`)
+            // Fetch wives for the selected father using the correct route
+            fetch(`/api/person/${fatherId}/wives`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok.');
@@ -461,21 +827,81 @@ document.addEventListener('DOMContentLoaded', function () {
                     return response.json();
                 })
                 .then(wives => {
-                    motherSelect.innerHTML = '<option value="">-- اختر الأم --</option>';
+                    $('#mother_id').empty().append('<option value="">-- اختر الأم --</option>');
                     if (wives.length > 0) {
                         wives.forEach(wife => {
-                            const option = document.createElement('option');
-                            option.value = wife.id;
-                            option.textContent = wife.full_name; // Assuming the JSON response has 'id' and 'full_name'
-                            motherSelect.appendChild(option);
+                            $('#mother_id').append(`<option value="${wife.id}">${wife.full_name}</option>`);
                         });
                     } else {
-                        motherSelect.innerHTML = '<option value="">-- لا يوجد زوجات لهذا الأب --</option>';
+                        $('#mother_id').append('<option value="">-- لا يوجد زوجات لهذا الأب --</option>');
                     }
+
+                    // Reinitialize Select2 with new options
+                    $('#mother_id').select2('destroy').select2({
+                        placeholder: 'ابحث عن الأم...',
+                        allowClear: true,
+                        width: '100%',
+                        dropdownAutoWidth: true,
+                        language: {
+                            noResults: function() {
+                                return "لا توجد نتائج";
+                            },
+                            searching: function() {
+                                return "جاري البحث...";
+                            },
+                            inputTooShort: function() {
+                                return "اكتب حرف واحد على الأقل للبحث";
+                            },
+                            inputTooLong: function() {
+                                return "النص طويل جداً";
+                            },
+                            loadingMore: function() {
+                                return "جاري تحميل المزيد...";
+                            },
+                            maximumSelected: function() {
+                                return "لا يمكنك اختيار أكثر من عنصر واحد";
+                            }
+                        },
+                        templateResult: function(person) {
+                            if (person.loading) {
+                                return person.text;
+                            }
+                            return $('<div class="select2-result-item">' + person.text + '</div>');
+                        },
+                        templateSelection: function(person) {
+                            return $('<div class="select2-selection-item">' + person.text + '</div>');
+                        }
+                    });
                 })
                 .catch(error => {
                     console.error('Error fetching wives:', error);
-                    motherSelect.innerHTML = '<option value="">-- حدث خطأ في التحميل --</option>';
+                    $('#mother_id').empty().append('<option value="">-- حدث خطأ في التحميل --</option>');
+                    $('#mother_id').select2('destroy').select2({
+                        placeholder: 'حدث خطأ في التحميل...',
+                        allowClear: true,
+                        width: '100%',
+                        dropdownAutoWidth: true,
+                        language: {
+                            noResults: function() {
+                                return "لا توجد نتائج";
+                            },
+                            searching: function() {
+                                return "جاري البحث...";
+                            },
+                            inputTooShort: function() {
+                                return "اكتب حرف واحد على الأقل للبحث";
+                            },
+                            inputTooLong: function() {
+                                return "النص طويل جداً";
+                            },
+                            loadingMore: function() {
+                                return "جاري تحميل المزيد...";
+                            },
+                            maximumSelected: function() {
+                                return "لا يمكنك اختيار أكثر من عنصر واحد";
+                            }
+                        }
+                    });
                 });
         });
     }
@@ -488,5 +914,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
+        </div>
+    </div>
 </body>
 </html>

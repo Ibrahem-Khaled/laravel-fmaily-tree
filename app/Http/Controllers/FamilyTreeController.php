@@ -81,7 +81,7 @@ class FamilyTreeController extends Controller
 
         return response()->json([
             'success' => true,
-            'children' => $children->map(function ($child) {
+            'children' => $children->map(function (Person $child) {
                 return $this->formatPersonData($child);
             })
         ]);
@@ -97,6 +97,18 @@ class FamilyTreeController extends Controller
             'success' => true,
             'person' => $this->formatPersonData($person, true) // Request full details
         ]);
+    }
+
+    // API لجلب زوجات شخص معين
+    public function getWives($fatherId)
+    {
+        $father = Person::findOrFail($fatherId);
+
+        // استخدام العلاقة 'wives' الموجودة في موديل Person لجلب الزوجات
+        $wives = $father->wives()->get();
+
+        // إرجاع قائمة الزوجات كـ JSON
+        return response()->json($wives);
     }
 
     // تنسيق بيانات الشخص للاستجابة

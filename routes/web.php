@@ -42,6 +42,7 @@ Route::prefix('api')->group(function () {
     Route::get('/family-tree', [FamilyTreeController::class, 'getFamilyTree']);
     Route::get('/person/{id}', [FamilyTreeController::class, 'getPersonDetails']);
     Route::get('/person/{id}/children', [FamilyTreeController::class, 'getChildren']);
+    Route::get('/person/{father}/wives', [FamilyTreeController::class, 'getWives']);
 });
 
 Route::get('persons/badges', [HomePersonController::class, 'personsWhereHasBadges'])->name('persons.badges');
