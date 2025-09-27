@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تواصل عائلة السريع</title>
+    <title>تواصل عائلة السريِّع </title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link
         href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Cairo:wght@200;300;400;600;700;900&display=swap"
@@ -25,7 +25,7 @@
     <main class="pt-20 min-h-screen">
         <div id="traditionalView" class="tree-traditional">
             <div class="text-center mb-8">
-                <h1 class="text-5xl md:text-6xl font-black text-white mb-4 tracking-wider">عائلة السريع</h1>
+                <h1 class="text-5xl md:text-6xl font-black text-white mb-4 tracking-wider">عائلة السريِّع </h1>
                 {{-- <p class="text-xl text-white opacity-80">تواصل العائلة التفاعلية</p> --}}
                 <div
                     class="w-32 h-1 bg-gradient-to-r from-transparent via-green-300 to-transparent mx-auto mt-4 opacity-50">

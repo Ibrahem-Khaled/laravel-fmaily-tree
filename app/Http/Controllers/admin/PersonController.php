@@ -4,6 +4,7 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Person;
+use App\Models\Marriage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
@@ -205,7 +206,7 @@ class PersonController extends Controller
 
     public function show(Person $person)
     {
-        // جلب قوائم الذكور والإناث اللازمة لمودال التعديل
+        // جلب قوائم الذكور والإناث اللازمة لمودال التعديل والنماذج
         $males = Person::where('gender', 'male')->get();
         $females = Person::where('gender', 'female')->get();
 
@@ -217,19 +218,33 @@ class PersonController extends Controller
             $children = $person->children()->get();
         }
 
-        // جلب الزوجات أو الزوج
+        // جلب الزوجات أو الزوج مع تفاصيل الزواج
         $spouses = collect(); // إنشاء collection فارغة
+        $marriages = collect(); // إنشاء collection للزواج
+
         if ($person->gender === 'male') {
-            $spouses = $person->wives;
+            // جلب الزوجات مع تفاصيل الزواج
+            $marriages = Marriage::where('husband_id', $person->id)
+                ->with('wife')
+                ->get();
+            $spouses = $marriages->pluck('wife');
         } elseif (is_object($person->husband)) {
-            $spouses = collect([$person->husband]);
+            // جلب الزوج مع تفاصيل الزواج
+            $marriages = Marriage::where('wife_id', $person->id)
+                ->with('husband')
+                ->get();
+            $spouses = $marriages->pluck('husband');
         }
+
+        $persons = Person::all();
 
         // تمرير كل البيانات اللازمة إلى الـ view
         return view('dashboard.people.show', [
             'person'   => $person,
+            'persons'  => $persons,
             'children' => $children,
             'spouses'  => $spouses,
+            'marriages' => $marriages, // إضافة تفاصيل الزواج
             'males'    => $males,    // <-- إضافة قائمة الذكور
             'females'  => $females,  // <-- إضافة قائمة الإناث
         ]);

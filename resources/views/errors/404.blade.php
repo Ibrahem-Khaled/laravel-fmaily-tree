@@ -408,7 +408,7 @@
                 </div>
             </div>
 
-            <!-- الروابط السريعة -->
+            <!-- الروابط السريِّع ة -->
             <div class="glass-effect p-6 rounded-2xl green-glow mb-8 slide-in" style="animation-delay: 1.2s;">
                 <h3 class="text-xl font-bold gradient-text mb-4">روابط سريعة</h3>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">

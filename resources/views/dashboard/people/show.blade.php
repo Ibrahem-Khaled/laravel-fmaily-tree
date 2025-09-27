@@ -117,31 +117,69 @@
                 </button>
             </div>
             <div class="card-body">
-                @if ($spouses->isNotEmpty())
+                @if ($marriages->isNotEmpty())
                     <div class="table-responsive">
                         <table class="table table-bordered table-hover">
                             <thead class="thead-light">
                                 <tr>
-                                    <th>الاسم</th>
+                                    <th>{{ $person->gender == 'male' ? 'الزوجة' : 'الزوج' }}</th>
+                                    <th>تاريخ الزواج</th>
+                                    <th>تاريخ الانفصال</th>
+                                    <th>الحالة</th>
+                                    <th>المدة</th>
                                     <th>الإجراءات</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($spouses as $spouse)
+                                @foreach ($marriages as $marriage)
+                                    @php
+                                        $spouse = $person->gender == 'male' ? $marriage->wife : $marriage->husband;
+                                    @endphp
                                     <tr>
                                         <td>
                                             <div class="d-flex align-items-center">
                                                 <img src="{{ $spouse->avatar }}" alt="{{ $spouse->full_name }}"
                                                     class="rounded-circle mr-2" width="40" height="40">
-                                                <a
-                                                    href="{{ route('people.show', $spouse->id) }}">{{ $spouse->full_name }}</a>
+                                                <a href="{{ route('people.show', $spouse->id) }}">{{ $spouse->full_name }}</a>
                                             </div>
                                         </td>
+                                        <td>{{ $marriage->married_at ? $marriage->married_at->format('Y-m-d') : 'غير معروف' }}</td>
+                                        <td>{{ $marriage->divorced_at ? $marriage->divorced_at->format('Y-m-d') : ($marriage->is_divorced ? '✅' : '-') }}</td>
                                         <td>
+                                            @if ($marriage->isDivorced())
+                                                <span class="badge badge-danger">{{ $marriage->status_text }}</span>
+                                            @elseif($marriage->married_at)
+                                                <span class="badge badge-success">{{ $marriage->status_text }}</span>
+                                            @else
+                                                <span class="badge badge-warning">{{ $marriage->status_text }}</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if ($marriage->married_at)
+                                                @if ($marriage->isDivorced())
+                                                    {{ $marriage->married_at->diffInYears($marriage->divorced_at ?? now()) }} سنة
+                                                @else
+                                                    {{ $marriage->married_at->diffInYears(now()) }} سنة
+                                                @endif
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-circle btn-info"
+                                                data-toggle="modal" data-target="#showMarriageModal{{ $marriage->id }}"
+                                                title="عرض تفاصيل الزواج">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
                                             <button type="button" class="btn btn-sm btn-circle btn-primary"
-                                                data-toggle="modal" data-target="#editPersonModal{{ $spouse->id }}"
-                                                title="تعديل">
+                                                data-toggle="modal" data-target="#editMarriageModal{{ $marriage->id }}"
+                                                title="تعديل الزواج">
                                                 <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-circle btn-danger"
+                                                data-toggle="modal" data-target="#deleteMarriageModal{{ $marriage->id }}"
+                                                title="حذف الزواج">
+                                                <i class="fas fa-trash"></i>
                                             </button>
                                         </td>
                                     </tr>
@@ -421,6 +459,13 @@
 
     {{-- ✅ تضمين المودال الجديد الذي أنشأناه --}}
     @include('dashboard.people.modals.add-outside-the-family')
+
+    {{-- تضمين نماذج الزواج --}}
+    @foreach ($marriages as $marriage)
+        @include('dashboard.marriages.modals.show', ['marriage' => $marriage])
+        @include('dashboard.marriages.modals.edit', ['marriage' => $marriage])
+        @include('dashboard.marriages.modals.delete', ['marriage' => $marriage])
+    @endforeach
 
     {{-- تضمين مودالات التعديل لكل الأشخاص المعروضين في الصفحة --}}
     @include('dashboard.people.modals.edit', ['person' => $person])

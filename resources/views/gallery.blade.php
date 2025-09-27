@@ -8,7 +8,7 @@
 
     {{-- قم بتضمين ملف Tailwind CSS الخاص بمشروعك --}}
     {{-- مثال: <link href="{{ asset('css/app.css') }}" rel="stylesheet"> --}}
-    <script src="https://cdn.tailwindcss.com"></script> {{-- للاختبار السريع فقط --}}
+    <script src="https://cdn.tailwindcss.com"></script> {{-- للاختبار السريِّع  فقط --}}
 
     {{-- استيراد خطوط جميلة من Google Fonts --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">

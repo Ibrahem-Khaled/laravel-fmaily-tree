@@ -615,7 +615,7 @@
                 }
             });
 
-            // 4. الفلاتر السريعة (بناء رابط وإعادة توجيه)
+            // 4. الفلاتر السريِّع ة (بناء رابط وإعادة توجيه)
             window.filterByCategory = function(categoryId) {
                 const url = new URL(window.location.origin + '/gallery/articles');
                 if (categoryId !== 'all') {
@@ -628,7 +628,7 @@
                 window.location.href = url.toString();
             };
 
-            // 5. تحديث حالة الفلتر السريع النشط
+            // 5. تحديث حالة الفلتر السريِّع  النشط
             const currentCategory = new URLSearchParams(window.location.search).get('category');
             filterChips.forEach(chip => {
                 chip.classList.remove('active-filter');

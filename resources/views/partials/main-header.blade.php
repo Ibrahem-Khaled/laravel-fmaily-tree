@@ -209,7 +209,7 @@
     <div class="header-container">
 
         <a class="header-brand" href="{{ route('old.family-tree') }}">
-            <span>تواصل عائلة السريع</span>
+            <span>تواصل عائلة السريِّع </span>
         </a>
 
         <nav class="header-nav" id="main-nav">
@@ -243,12 +243,12 @@
                     <a class="nav-link {{ request()->routeIs('about') ? 'active' : '' }}" href="#">عن العائلة</a>
                 </li> --}}
             </ul>
-            <div class="header-actions">
+            {{-- <div class="header-actions">
                 <a href="{{ route('dashboard') }}" class="dashboard-link">
                     <i class="fas fa-tachometer-alt"></i>
                     <span>لوحة التحكم</span>
                 </a>
-            </div>
+            </div> --}}
         </nav>
 
         <button class="mobile-menu-toggle" id="mobile-menu-btn" aria-label="Toggle navigation">
