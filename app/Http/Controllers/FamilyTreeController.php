@@ -52,19 +52,11 @@ class FamilyTreeController extends Controller
         return $people->map(function ($person) {
             $data = $this->formatPersonData($person);
 
-            // إذا كان للشخص أبناء، نضيفهم بشكل متداخل مع فلترة النساء المولودات بعد 2005
+            // إذا كان للشخص أبناء، نضيفهم بشكل متداخل
             if ($person->children->isNotEmpty()) {
-                $filteredChildren = $person->children->filter(function ($child) {
-                    // إخفاء النساء المولودات بعد عام 2005
-                    if ($child->gender === 'female' && $child->birth_date && $child->birth_date->year > 2005) {
-                        return false;
-                    }
-                    return true;
-                });
-
-                if ($filteredChildren->isNotEmpty()) {
-                    $data['children'] = $this->buildTree($filteredChildren);
-                }
+                $data['children'] = $this->buildTree($person->children);
+                // تحديث عدد الأبناء (للرجال فقط)
+                $data['children_count'] = $person->gender === 'male' ? $person->children->count() : 0;
             }
 
             return $data;
@@ -90,19 +82,14 @@ class FamilyTreeController extends Controller
         $children = $childrenQuery->withCount('children')
             ->get();
 
-        // فلترة النساء المولودات بعد عام 2005
-        $filteredChildren = $children->filter(function ($child) {
-            if ($child->gender === 'female' && $child->birth_date && $child->birth_date->year > 2005) {
-                return false;
-            }
-            return true;
-        });
-
         return response()->json([
             'success' => true,
-            'children' => $filteredChildren->map(function (Person $child) {
-                return $this->formatPersonData($child);
-            })
+            'children' => array_values($children->map(function (Person $child) {
+                $childData = $this->formatPersonData($child);
+                // عدد الأبناء للرجال فقط
+                $childData['children_count'] = $child->gender === 'male' ? $child->children_count : 0;
+                return $childData;
+            })->toArray())
         ]);
     }
 
@@ -153,7 +140,7 @@ class FamilyTreeController extends Controller
             'first_name' => $person->first_name,
             'gender' => $person->gender,
             'photo_url' => $person->avatar, // Assuming 'avatar' is the attribute for photo url
-            'children_count' => $children_count,
+            'children_count' => $person->gender === 'male' ? $children_count : 0, // للنساء نضع العدد صفر
             'birth_date' => optional($person->birth_date)->format('Y/m/d'),
             'death_date' => optional($person->death_date)->format('Y/m/d'), // Send death date to frontend
             'age' => $person->age,

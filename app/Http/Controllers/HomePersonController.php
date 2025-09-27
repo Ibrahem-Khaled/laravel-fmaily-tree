@@ -15,24 +15,11 @@ class HomePersonController extends Controller
             ->with('padges')
             ->get();
 
-        // فلترة النساء المولودات بعد عام 2005
-        $filteredPersons = $persons->filter(function ($person) {
-            if ($person->gender === 'female' && $person->birth_date && $person->birth_date->year > 2005) {
-                return false;
-            }
-            return true;
-        });
-
-        return view('persons_badges', ['persons' => $filteredPersons]);
+        return view('persons_badges', ['persons' => $persons]);
     }
 
     public function show(Person $person)
     {
-        // التحقق من أن الشخص ليس امرأة مولودة بعد عام 2005
-        if ($person->gender === 'female' && $person->birth_date && $person->birth_date->year > 2005) {
-            abort(404, 'الصفحة غير موجودة');
-        }
-
         // استخدام Route Model Binding يجلب الشخص تلقائيًا
         // نقوم بتحميل العلاقات الأساسية لتحسين الأداء
         $person->load([
