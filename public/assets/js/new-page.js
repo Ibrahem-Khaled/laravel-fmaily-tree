@@ -289,10 +289,11 @@ async function showPersonDetails(personId) {
         const data = await fetchFromAPI(`/person/${personId}`);
         const person = data.person;
         if (person) {
-            // Spouses Section
+            // Spouses Section - للنساء نعرض الزوج الأخير فقط
             let spousesHtml = '';
             if (person.spouses && person.spouses.length > 0) {
-                spousesHtml = `<h4 class="text-lg font-bold text-white mb-4 mt-6 border-t border-white border-opacity-10 pt-4">الزوج/الزوجات</h4>
+                const spouseLabel = person.gender === 'female' ? 'الزوج' : 'الزوجات';
+                spousesHtml = `<h4 class="text-lg font-bold text-white mb-4 mt-6 border-t border-white border-opacity-10 pt-4">${spouseLabel}</h4>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         ${person.spouses.map(spouse => `
                                 <div class="glass p-3 rounded-lg flex items-center space-x-3 space-x-reverse cursor-pointer hover:bg-white hover:bg-opacity-10 transition-colors" onclick="showPersonDetails(${spouse.id})">
@@ -352,8 +353,6 @@ async function showPersonDetails(personId) {
                             </div>
                             <div class="flex-1">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    ${createInfoItem('fa-birthday-cake', 'تاريخ الميلاد', person.birth_date)}
-                                    ${createInfoItem('fa-calendar-alt', 'العمر', age ? `${age} سنة` : null)}
                                     ${createInfoItem('fa-briefcase', 'المهنة', person.occupation)}
                                     ${createInfoItem('fa-map-marker-alt', 'الموقع', person.location)}
                                     ${person.death_date ? createInfoItem('fa-dove', 'تاريخ الوفاة', person.death_date) : ''}

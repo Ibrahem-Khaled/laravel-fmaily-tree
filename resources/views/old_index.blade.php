@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تواصل عائلة السريع</title>
+    <title>تواصل عائلة السريِّع </title>
 
     {{-- 🎨 Stylesheets --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.rtl.min.css">
@@ -336,7 +336,7 @@
         <section class="tree-section">
             <div class="container-fluid">
                 <div class="tree-title-sec">
-                    <h3>تواصل عائلة السريع</h3>
+                    <h3>تواصل عائلة السريِّع </h3>
                 </div>
 
                 <div class="p-3">
@@ -648,18 +648,19 @@
 
                 let spousesHtml = '';
                 if (person.spouses && person.spouses.length > 0) {
+                    const spouseLabel = person.gender === 'female' ? 'الزوج' : 'الزوجات';
                     spousesHtml = `
-                        <h5>${person.gender === 'female' ? 'الزوج' : 'الزوجات'}</h5>
+                        <h5>${spouseLabel}</h5>
                         <div class="row g-2">`;
                     person.spouses.forEach(spouse => {
-                        const spouseLabel = spouse.gender === 'female' ? 'زوجة' : 'زوج';
+                        const spouseLabelText = spouse.gender === 'female' ? 'زوجة' : 'زوج';
                         spousesHtml += `
                             <div class="col-md-6">
                                 <div class="spouse-card clickable" onclick="showPersonDetails(${spouse.id})">
                                     ${createPhoto(spouse, 'sm', false)}
                                     <div>
                                         <strong>${spouse.name || spouse.full_name}</strong>
-                                        <small class="d-block text-muted">${spouseLabel}</small>
+                                        <small class="d-block text-muted">${spouseLabelText}</small>
                                     </div>
                                 </div>
                             </div>`;
@@ -690,8 +691,6 @@
                             <!-- 🚫 لا نص "في ذمة الله" ولا "على قيد الحياة" هنا -->
                         </div>
                         <div class="col-lg-8">
-                            ${createDetailRow('fa-birthday-cake', 'تاريخ الميلاد', person.birth_date)}
-                            ${person.age ? createDetailRow('fa-calendar-alt', 'العمر', `${person.age} سنة`) : ''}
                             ${createDetailRow('fa-briefcase', 'المهنة', person.occupation)}
                             ${createDetailRow('fa-map-marker-alt', 'مكان الإقامة', person.location)}
                             ${person.death_date ? createDetailRow('fa-dove', 'تاريخ الوفاة', person.death_date) : ''}

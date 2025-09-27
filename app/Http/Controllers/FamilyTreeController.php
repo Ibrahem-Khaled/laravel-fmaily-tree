@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Person;
+use App\Models\Marriage;
 use Illuminate\Http\Request;
 
 class FamilyTreeController extends Controller
@@ -51,9 +52,19 @@ class FamilyTreeController extends Controller
         return $people->map(function ($person) {
             $data = $this->formatPersonData($person);
 
-            // إذا كان للشخص أبناء، نضيفهم بشكل متداخل
+            // إذا كان للشخص أبناء، نضيفهم بشكل متداخل مع فلترة النساء المولودات بعد 2005
             if ($person->children->isNotEmpty()) {
-                $data['children'] = $this->buildTree($person->children);
+                $filteredChildren = $person->children->filter(function ($child) {
+                    // إخفاء النساء المولودات بعد عام 2005
+                    if ($child->gender === 'female' && $child->birth_date && $child->birth_date->year > 2005) {
+                        return false;
+                    }
+                    return true;
+                });
+
+                if ($filteredChildren->isNotEmpty()) {
+                    $data['children'] = $this->buildTree($filteredChildren);
+                }
             }
 
             return $data;
@@ -79,9 +90,17 @@ class FamilyTreeController extends Controller
         $children = $childrenQuery->withCount('children')
             ->get();
 
+        // فلترة النساء المولودات بعد عام 2005
+        $filteredChildren = $children->filter(function ($child) {
+            if ($child->gender === 'female' && $child->birth_date && $child->birth_date->year > 2005) {
+                return false;
+            }
+            return true;
+        });
+
         return response()->json([
             'success' => true,
-            'children' => $children->map(function (Person $child) {
+            'children' => $filteredChildren->map(function (Person $child) {
                 return $this->formatPersonData($child);
             })
         ]);
@@ -168,12 +187,23 @@ class FamilyTreeController extends Controller
                 });
             }
 
-            // Format spouses
+            // Format spouses - للنساء نعرض الزوج الأخير فقط (غير مطلق)
             $spouses = collect();
             if ($person->gender === 'male' && $person->wives->isNotEmpty()) {
                 $spouses = $person->wives;
-            } elseif ($person->gender === 'female' && $person->husband) {
-                $spouses->push($person->husband);
+            } elseif ($person->gender === 'female') {
+                // للنساء: نبحث عن الزوج الحالي (غير مطلق) من خلال جدول الزواج
+                $currentMarriage = Marriage::where('wife_id', $person->id)
+                    ->where(function($query) {
+                        $query->where('is_divorced', false)
+                              ->whereNull('divorced_at');
+                    })
+                    ->orderBy('married_at', 'desc')
+                    ->first();
+
+                if ($currentMarriage && $currentMarriage->husband) {
+                    $spouses->push($currentMarriage->husband);
+                }
             }
 
             $data['spouses'] = $spouses->map(function ($spouse) {
