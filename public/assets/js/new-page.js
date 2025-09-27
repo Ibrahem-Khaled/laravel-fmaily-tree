@@ -353,6 +353,8 @@ async function showPersonDetails(personId) {
                             </div>
                             <div class="flex-1">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    ${person.gender === 'male' ? createInfoItem('fa-birthday-cake', 'تاريخ الميلاد', person.birth_date) : ''}
+                                    ${person.gender === 'male' && person.age ? createInfoItem('fa-calendar-alt', 'العمر', `${person.age} سنة`) : ''}
                                     ${createInfoItem('fa-briefcase', 'المهنة', person.occupation)}
                                     ${createInfoItem('fa-map-marker-alt', 'الموقع', person.location)}
                                     ${person.death_date ? createInfoItem('fa-dove', 'تاريخ الوفاة', person.death_date) : ''}

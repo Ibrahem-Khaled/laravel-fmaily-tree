@@ -124,7 +124,12 @@
                                 {{-- حاوية المعلومات المختصرة --}}
                                 <div
                                     class="flex flex-wrap items-center justify-center sm:justify-start gap-x-6 gap-y-3 text-base text-gray-600">
-                                    {{-- تم إخفاء العمر --}}
+                                    {{-- العمر للرجال فقط --}}
+                                    @if ($person->gender === 'male')
+                                        <div class="flex items-center gap-2">
+                                            <span>(العمر: {{ $person->age }} عاماً)</span>
+                                        </div>
+                                    @endif
 
                                     {{-- بداية الإضافة: عرض الجنس --}}
                                     @if ($person->gender)
