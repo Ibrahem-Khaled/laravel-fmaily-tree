@@ -10,13 +10,13 @@ use Illuminate\Support\Facades\Storage;
 class PersonForm extends Component
 {
     use WithFileUploads;
-    
+
     public Person $person;
     public $photo;
     public $parentId;
     public $isEdit = false;
     public $title;
-    
+
     protected function rules()
     {
         return [
@@ -32,7 +32,7 @@ class PersonForm extends Component
             'parentId' => 'nullable|exists:persons,id',
         ];
     }
-    
+
     protected $messages = [
         'person.first_name.required' => 'الاسم الأول مطلوب',
         'person.last_name.required' => 'اسم العائلة مطلوب',
@@ -42,7 +42,7 @@ class PersonForm extends Component
         'photo.max' => 'حجم الصورة يجب أن لا يتجاوز 1 ميجابايت',
         'parentId.exists' => 'الأب/الأم المحدد غير موجود',
     ];
-    
+
     public function mount($person = null)
     {
         if ($person) {
@@ -55,25 +55,25 @@ class PersonForm extends Component
             $this->title = 'إضافة شخص جديد';
         }
     }
-    
+
     public function save()
     {
         $this->validate();
-        
+
         // Handle photo upload
         if ($this->photo) {
             // Delete old photo if exists
             if ($this->person->photo_url) {
                 Storage::delete('public/' . $this->person->photo_url);
             }
-            
+
             $photoPath = $this->photo->store('photos', 'public');
             $this->person->photo_url = $photoPath;
         }
-        
+
         // Save person
         $this->person->save();
-        
+
         // Handle parent relationship
         if ($this->parentId) {
             $parent = Person::find($this->parentId);
@@ -86,16 +86,16 @@ class PersonForm extends Component
                 $this->person->saveAsRoot();
             }
         }
-        
+
         session()->flash('message', $this->isEdit ? 'تم تحديث الشخص بنجاح' : 'تم إضافة الشخص بنجاح');
-        
+
         return redirect()->route('admin.persons.index');
     }
-    
+
     public function render()
     {
         $potentialParents = Person::where('id', '!=', $this->person->id ?? 0)->get();
-        
+
         return view('livewire.person-form', [
             'potentialParents' => $potentialParents,
         ])->layout('layouts.app');

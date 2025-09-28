@@ -9,6 +9,9 @@
                 data-target="#addPersonsOutsideTheFamilyTreeModal">
                 <i class="fas fa-user-plus"></i> إضافة شخص من خارج العائلة
             </button>
+
+            {{-- ✅ تضمين المودال الجديد الذي أنشأناه --}}
+            @include('dashboard.people.modals.add-outside-the-family')
         </div>
 
         <nav aria-label="breadcrumb">
@@ -36,6 +39,8 @@
                     data-target="#editPersonModal{{ $person->id }}" title="تعديل">
                     <i class="fas fa-edit"></i> تعديل
                 </button>
+                @include('dashboard.people.modals.edit', ['person' => $person])
+
             </div>
             <div class="card-body">
                 <div class="row">
@@ -140,11 +145,14 @@
                                             <div class="d-flex align-items-center">
                                                 <img src="{{ $spouse->avatar }}" alt="{{ $spouse->full_name }}"
                                                     class="rounded-circle mr-2" width="40" height="40">
-                                                <a href="{{ route('people.show', $spouse->id) }}">{{ $spouse->full_name }}</a>
+                                                <a
+                                                    href="{{ route('people.show', $spouse->id) }}">{{ $spouse->full_name }}</a>
                                             </div>
                                         </td>
-                                        <td>{{ $marriage->married_at ? $marriage->married_at->format('Y-m-d') : 'غير معروف' }}</td>
-                                        <td>{{ $marriage->divorced_at ? $marriage->divorced_at->format('Y-m-d') : ($marriage->is_divorced ? '✅' : '-') }}</td>
+                                        <td>{{ $marriage->married_at ? $marriage->married_at->format('Y-m-d') : 'غير معروف' }}
+                                        </td>
+                                        <td>{{ $marriage->divorced_at ? $marriage->divorced_at->format('Y-m-d') : ($marriage->is_divorced ? '✅' : '-') }}
+                                        </td>
                                         <td>
                                             @if ($marriage->isDivorced())
                                                 <span class="badge badge-danger">{{ $marriage->status_text }}</span>
@@ -157,7 +165,8 @@
                                         <td>
                                             @if ($marriage->married_at)
                                                 @if ($marriage->isDivorced())
-                                                    {{ $marriage->married_at->diffInYears($marriage->divorced_at ?? now()) }} سنة
+                                                    {{ $marriage->married_at->diffInYears($marriage->divorced_at ?? now()) }}
+                                                    سنة
                                                 @else
                                                     {{ $marriage->married_at->diffInYears(now()) }} سنة
                                                 @endif
@@ -182,6 +191,16 @@
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </td>
+
+                                        @include('dashboard.marriages.modals.show', [
+                                            'marriage' => $marriage,
+                                        ])
+                                        @include('dashboard.marriages.modals.edit', [
+                                            'marriage' => $marriage,
+                                        ])
+                                        @include('dashboard.marriages.modals.delete', [
+                                            'marriage' => $marriage,
+                                        ])
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -304,6 +323,7 @@
                                                 </div>
                                             </div>
 
+                                            @include('dashboard.people.modals.edit', ['person' => $child])
 
                                         </td>
                                     </tr>
@@ -336,10 +356,10 @@
                     $breastfedRelationships = $person->breastfedRelationships()->with('nursingMother')->get();
                 @endphp
 
-                @if($nursingRelationships->isNotEmpty() || $breastfedRelationships->isNotEmpty())
+                @if ($nursingRelationships->isNotEmpty() || $breastfedRelationships->isNotEmpty())
                     <div class="row">
                         {{-- إذا كان الشخص أم مرضعة --}}
-                        @if($nursingRelationships->isNotEmpty())
+                        @if ($nursingRelationships->isNotEmpty())
                             <div class="col-md-6">
                                 <h6 class="text-success mb-3">
                                     <i class="fas fa-female"></i> كأم مرضعة
@@ -354,27 +374,31 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach($nursingRelationships as $relationship)
+                                            @foreach ($nursingRelationships as $relationship)
                                                 <tr>
                                                     <td>
                                                         <div class="d-flex align-items-center">
                                                             <img src="{{ $relationship->breastfedChild->avatar }}"
-                                                                 alt="{{ $relationship->breastfedChild->first_name }}"
-                                                                 class="rounded-circle mr-2" width="30" height="30">
-                                                            <a href="{{ route('people.show', $relationship->breastfedChild->id) }}">
+                                                                alt="{{ $relationship->breastfedChild->first_name }}"
+                                                                class="rounded-circle mr-2" width="30"
+                                                                height="30">
+                                                            <a
+                                                                href="{{ route('people.show', $relationship->breastfedChild->id) }}">
                                                                 {{ $relationship->breastfedChild->full_name }}
                                                             </a>
                                                         </div>
                                                     </td>
                                                     <td>
-                                                        @if($relationship->duration_in_months)
-                                                            <span class="badge badge-info">{{ $relationship->duration_in_months }} شهر</span>
+                                                        @if ($relationship->duration_in_months)
+                                                            <span
+                                                                class="badge badge-info">{{ $relationship->duration_in_months }}
+                                                                شهر</span>
                                                         @else
                                                             <span class="text-muted">غير محدد</span>
                                                         @endif
                                                     </td>
                                                     <td>
-                                                        @if($relationship->is_active)
+                                                        @if ($relationship->is_active)
                                                             <span class="badge badge-success">نشط</span>
                                                         @else
                                                             <span class="badge badge-secondary">غير نشط</span>
@@ -389,7 +413,7 @@
                         @endif
 
                         {{-- إذا كان الشخص طفل مرتضع --}}
-                        @if($breastfedRelationships->isNotEmpty())
+                        @if ($breastfedRelationships->isNotEmpty())
                             <div class="col-md-6">
                                 <h6 class="text-info mb-3">
                                     <i class="fas fa-child"></i> كطفل مرتضع
@@ -404,27 +428,31 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach($breastfedRelationships as $relationship)
+                                            @foreach ($breastfedRelationships as $relationship)
                                                 <tr>
                                                     <td>
                                                         <div class="d-flex align-items-center">
                                                             <img src="{{ $relationship->nursingMother->avatar }}"
-                                                                 alt="{{ $relationship->nursingMother->first_name }}"
-                                                                 class="rounded-circle mr-2" width="30" height="30">
-                                                            <a href="{{ route('people.show', $relationship->nursingMother->id) }}">
+                                                                alt="{{ $relationship->nursingMother->first_name }}"
+                                                                class="rounded-circle mr-2" width="30"
+                                                                height="30">
+                                                            <a
+                                                                href="{{ route('people.show', $relationship->nursingMother->id) }}">
                                                                 {{ $relationship->nursingMother->full_name }}
                                                             </a>
                                                         </div>
                                                     </td>
                                                     <td>
-                                                        @if($relationship->duration_in_months)
-                                                            <span class="badge badge-info">{{ $relationship->duration_in_months }} شهر</span>
+                                                        @if ($relationship->duration_in_months)
+                                                            <span
+                                                                class="badge badge-info">{{ $relationship->duration_in_months }}
+                                                                شهر</span>
                                                         @else
                                                             <span class="text-muted">غير محدد</span>
                                                         @endif
                                                     </td>
                                                     <td>
-                                                        @if($relationship->is_active)
+                                                        @if ($relationship->is_active)
                                                             <span class="badge badge-success">نشط</span>
                                                         @else
                                                             <span class="badge badge-secondary">غير نشط</span>
@@ -457,24 +485,10 @@
     {{-- مودال إضافة زواج جديد --}}
     @include('dashboard.people.modals.add_marriage')
 
-    {{-- ✅ تضمين المودال الجديد الذي أنشأناه --}}
-    @include('dashboard.people.modals.add-outside-the-family')
-
-    {{-- تضمين نماذج الزواج --}}
-    @foreach ($marriages as $marriage)
-        @include('dashboard.marriages.modals.show', ['marriage' => $marriage])
-        @include('dashboard.marriages.modals.edit', ['marriage' => $marriage])
-        @include('dashboard.marriages.modals.delete', ['marriage' => $marriage])
-    @endforeach
-
     {{-- تضمين مودالات التعديل لكل الأشخاص المعروضين في الصفحة --}}
-    @include('dashboard.people.modals.edit', ['person' => $person])
-    @foreach ($spouses as $spouse)
+    {{-- @foreach ($spouses as $spouse)
         @include('dashboard.people.modals.edit', ['person' => $spouse])
-    @endforeach
-    @foreach ($children as $child)
-        @include('dashboard.people.modals.edit', ['person' => $child])
-    @endforeach
+    @endforeach --}}
 
 @endsection
 
