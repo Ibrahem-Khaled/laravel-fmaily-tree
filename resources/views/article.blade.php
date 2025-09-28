@@ -351,17 +351,18 @@
                         <a href="{{ url('/article/' . $related->id) }}"
                             class="group bg-white/60 backdrop-blur-md border border-white/40 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 block">
                             <div class="aspect-video overflow-hidden bg-gradient-to-br from-green-100 to-green-200">
-                                @if ($related->images->first())
-                                    <img src="{{ asset('storage/' . $related->images->first()->path) }}"
+                                @php
+                                    $relatedImage = $related->images->first();
+                                    $fallbackAvatar = $related->person?->avatar;
+                                @endphp
+                                @if ($relatedImage)
+                                    <img src="{{ asset('storage/' . $relatedImage->path) }}"
                                         alt="{{ $related->title }}"
                                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                                 @else
-                                    <div class="flex items-center justify-center h-full"><svg
-                                            class="w-16 h-16 text-green-300" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd"
-                                                d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"
-                                                clip-rule="evenodd" />
-                                        </svg></div>
+                                    <img src="{{ $fallbackAvatar }}"
+                                        alt="{{ $related->person?->full_name ?? $related->title }}"
+                                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                                 @endif
                             </div>
                             <div class="p-4">
@@ -374,7 +375,7 @@
                                             <path fill-rule="evenodd"
                                                 d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
                                                 clip-rule="evenodd" />
-                                        </svg>{{ $related->person->name }}</p>
+                                        </svg>{{ $related->person->full_name }}</p>
                                 @endif
                             </div>
                         </a>

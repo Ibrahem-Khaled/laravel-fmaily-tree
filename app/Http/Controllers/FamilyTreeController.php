@@ -174,19 +174,29 @@ class FamilyTreeController extends Controller
                 });
             }
 
-            // Format spouses - للنساء نعرض الزوج الأخير فقط (غير مطلق)
+            // Format spouses - للنساء نعرض الزوج الحالي فقط وللرجال نستبعد المنفصلات
             $spouses = collect();
-            if ($person->gender === 'male' && $person->wives->isNotEmpty()) {
-                $spouses = $person->wives;
+
+            if ($person->gender === 'male') {
+                $activeMarriages = Marriage::where('husband_id', $person->id)
+                    ->with('wife')
+                    ->orderBy('married_at')
+                    ->get()
+                    ->reject(function (Marriage $marriage) {
+                        return $marriage->isDivorced();
+                    });
+
+                $spouses = $activeMarriages
+                    ->pluck('wife')
+                    ->filter();
             } elseif ($person->gender === 'female') {
-                // للنساء: نبحث عن الزوج الحالي (غير مطلق) من خلال جدول الزواج
                 $currentMarriage = Marriage::where('wife_id', $person->id)
-                    ->where(function($query) {
-                        $query->where('is_divorced', false)
-                              ->whereNull('divorced_at');
-                    })
-                    ->orderBy('married_at', 'desc')
-                    ->first();
+                    ->with('husband')
+                    ->orderByDesc('married_at')
+                    ->get()
+                    ->first(function ($marriage) {
+                        return !$marriage->isDivorced();
+                    });
 
                 if ($currentMarriage && $currentMarriage->husband) {
                     $spouses->push($currentMarriage->husband);

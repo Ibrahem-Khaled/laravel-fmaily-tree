@@ -49,7 +49,7 @@ class GalleryController extends Controller
         // جلب المقالات ذات الصلة (نفس القسم)
         $relatedArticles = Article::where('category_id', $article->category_id)
             ->where('id', '!=', $id)
-            ->with('images')
+            ->with(['images', 'person'])
             ->limit(3)
             ->get();
 

@@ -610,7 +610,7 @@
                 if (person.articles && person.articles.length > 0) {
                     articlesHtml = `<h5>المقالات</h5>`;
                     person.articles.forEach(article => {
-                        const articleUrl = `/articles/${article.id}`;
+                        const articleUrl = `/article/${article.id}`;
                         articlesHtml += `
                             <a href="${articleUrl}" target="_blank" class="article-card">
                                 <i class="fas fa-book-open"></i>
