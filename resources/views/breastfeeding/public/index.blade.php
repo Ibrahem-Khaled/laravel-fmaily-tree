@@ -4,408 +4,525 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>علاقات الرضاعة - معرض صور العائلة</title>
+    <title>علاقات الرضاعة - عائلة السريع</title>
 
-    {{-- قم بتضمين ملف Tailwind CSS الخاص بمشروعك --}}
-    <script src="https://cdn.tailwindcss.com"></script>
-    {{-- إضافة إعدادات Tailwind المخصصة (مهم جدًا) --}}
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        'sans': ['Tajawal', 'sans-serif'],
-                        'serif': ['Amiri', 'serif'],
-                    },
-                    keyframes: {
-                        float: {
-                            '0%, 100%': {
-                                transform: 'translateY(0px) rotate(0deg)'
-                            },
-                            '50%': {
-                                transform: 'translateY(-20px) rotate(5deg)'
-                            },
-                        },
-                        'pulse-soft': {
-                            '0%, 100%': {
-                                opacity: '0.3'
-                            },
-                            '50%': {
-                                opacity: '0.6'
-                            },
-                        },
-                        fadeIn: {
-                            'from': {
-                                opacity: '0',
-                                transform: 'scale(0.95)'
-                            },
-                            'to': {
-                                opacity: '1',
-                                transform: 'scale(1)'
-                            },
-                        },
-                        heartbeat: {
-                            '0%, 100%': {
-                                transform: 'scale(1)'
-                            },
-                            '50%': {
-                                transform: 'scale(1.1)'
-                            },
-                        }
-                    },
-                    animation: {
-                        'float': 'float 8s ease-in-out infinite',
-                        'pulse-soft': 'pulse-soft 4s ease-in-out infinite',
-                        'fade-in': 'fadeIn 0.3s ease-out',
-                        'heartbeat': 'heartbeat 2s ease-in-out infinite',
-                    },
-                    boxShadow: {
-                        'pink-glow': '0 0 40px rgba(236, 72, 153, 0.3)',
-                        'purple-glow': '0 0 40px rgba(147, 51, 234, 0.3)',
-                    },
-                    colors: {
-                        'baby-pink': '#FCE4EC',
-                        'baby-blue': '#E3F2FD',
-                        'soft-purple': '#F3E8FF',
-                        'warm-pink': '#FECACA',
-                    }
-                }
-            }
-        }
-    </script>
-
-    {{-- استيراد خطوط جميلة من Google Fonts --}}
+    {{-- Stylesheets --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.rtl.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Amiri:wght@400;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /*
-            أكواد CSS المتبقية هي التي يصعب تحقيقها بـ Tailwind مباشرة
-            أو تحتاج plugins، مثل شريط التمرير (scrollbar).
-        */
+        :root {
+            --primary-color: #37a05c;
+            --light-green: #DCF2DD;
+            --dark-green: #145147;
+            --light-gray: #f8f9fa;
+            --border-color: #dee2e6;
+            --accent-color: #37a05c;
+            --light-accent: #DCF2DD;
+        }
+
         body {
-            font-family: 'Tajawal', sans-serif;
+            background: var(--light-gray);
+            font-family: 'Alexandria', sans-serif;
         }
 
-        h1,
-        h2,
-        h3,
-        h4 {
-            font-family: 'Amiri', serif;
+        .breastfeeding-section {
+            background: linear-gradient(180deg, var(--light-green) 0%, #FFF 100%);
+            padding-top: 120px;
+            padding-bottom: 50px;
+            min-height: 100vh;
         }
 
-        /* شريط التمرير المخصص */
-        ::-webkit-scrollbar {
-            width: 10px;
+        .section-title {
+            color: var(--dark-green);
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 2rem;
         }
 
-        ::-webkit-scrollbar-track {
-            background: #fdf2f8;
+        .mother-card {
+            background: #fff;
+            border: 2px solid var(--border-color);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
         }
 
-        ::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, #ec4899, #be185d);
-            border-radius: 5px;
+        .mother-card:hover {
+            border-color: var(--accent-color);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(55, 160, 92, 0.15);
         }
 
-        ::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(180deg, #be185d, #9d174d);
+        .mother-card.active {
+            border-color: var(--accent-color);
+            background: var(--light-accent);
+            box-shadow: 0 8px 20px rgba(55, 160, 92, 0.2);
         }
 
-        /* تأثيرات إضافية للبطاقات */
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+        .mother-photo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #fff;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
 
-        .pink-glow-hover {
+        .mother-name {
+            font-weight: 600;
+            color: var(--dark-green);
+            margin-top: 10px;
+            font-size: 1.1rem;
+        }
+
+        .children-count {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: var(--accent-color);
+            color: white;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .children-section {
+            background: #fff;
+            border: 2px solid var(--border-color);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            min-height: 200px;
+            display: none;
+        }
+
+        .children-section.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .child-card {
+            background: var(--light-gray);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
             transition: all 0.3s ease;
         }
 
-        .pink-glow-hover:hover {
-            box-shadow: 0 0 40px rgba(236, 72, 153, 0.3);
+        .child-card:hover {
+            background: var(--light-green);
+            border-color: var(--primary-color);
+            transform: translateX(-5px);
         }
 
-        .purple-glow-hover {
-            transition: all 0.3s ease;
+        .child-card.active {
+            background: var(--light-green);
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 12px rgba(55, 160, 92, 0.2);
         }
 
-        .purple-glow-hover:hover {
-            box-shadow: 0 0 40px rgba(147, 51, 234, 0.3);
+        .child-photo {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .child-name {
+            font-weight: 600;
+            color: var(--dark-green);
+            margin-top: 8px;
+            font-size: 0.95rem;
+        }
+
+        .notes-section {
+            background: #fff;
+            border: 2px solid var(--border-color);
+            border-radius: 15px;
+            padding: 20px;
+            min-height: 200px;
+            display: none;
+        }
+
+        .notes-section.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .notes-title {
+            color: var(--dark-green);
+            font-weight: 600;
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--light-green);
+            padding-bottom: 10px;
+        }
+
+        .notes-content {
+            background: var(--light-gray);
+            border-radius: 10px;
+            padding: 15px;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        .breastfeeding-dates {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .status-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-completed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .search-section {
+            background: #fff;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .stats-section {
+            background: #fff;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            background: var(--light-gray);
+            margin-bottom: 10px;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: var(--accent-color);
+            margin-bottom: 20px;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .breastfeeding-section {
+                padding-top: 90px;
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+
+            .mother-photo {
+                width: 60px;
+                height: 60px;
+            }
+
+            .child-photo {
+                width: 40px;
+                height: 40px;
+            }
+
+            .mother-name, .child-name {
+                font-size: 0.9rem;
+            }
         }
     </style>
 </head>
 
-<body class="bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50 text-gray-800 relative overflow-x-hidden">
+<body>
+    {{-- تضمين الهيدر --}}
     @include('partials.main-header')
 
-    <div id="readingProgress"
-        class="fixed top-0 right-0 h-1 bg-gradient-to-r from-pink-500 to-purple-400 z-50 transition-all duration-300">
-    </div>
+    <main>
+        <section class="breastfeeding-section">
+            <div class="container-fluid">
+                <div class="section-title">
+                    <h2><i class="fas fa-baby text-success"></i> علاقات الرضاعة</h2>
+                </div>
 
-    <!-- خلفية متحركة -->
-    <div class="fixed top-10 left-10 w-96 h-96 opacity-5 z-0 pointer-events-none animate-float hidden lg:block">
-        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-            <path fill="#ec4899"
-                d="M44.9,-76.6C59.3,-69.5,72.8,-59.9,80.3,-46.7C87.8,-33.5,89.3,-16.8,88.3,-0.6C87.3,15.6,83.8,31.2,76.3,44.5C68.8,57.8,57.3,68.8,43.3,75.3C29.3,81.8,14.7,83.8,-0.6,84.8C-15.9,85.8,-31.8,85.8,-45.8,79.3C-59.8,72.8,-71.9,59.8,-79.3,44.5C-86.7,29.2,-89.3,11.6,-88.3,-5.9C-87.3,-23.4,-82.7,-46.8,-71.3,-64.3C-59.9,-81.8,-41.7,-93.4,-22.8,-95.8C-3.9,-98.2,15.7,-91.4,34.1,-82.3C52.5,-73.2,69.7,-61.8,44.9,-76.6Z"
-                transform="translate(100 100)" />
-        </svg>
+                {{-- شريط البحث --}}
+                <div class="search-section">
+                    <form method="GET" action="{{ route('breastfeeding.public.index') }}">
+                        <div class="row">
+                            <div class="col-md-10">
+                                <input type="text" name="search" value="{{ $search }}"
+                                       class="form-control"
+                                       placeholder="البحث في أسماء الأمهات أو الأطفال...">
     </div>
-    <div
-        class="fixed bottom-10 right-10 w-96 h-96 opacity-5 z-0 pointer-events-none animate-pulse-soft hidden lg:block">
-        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-            <path fill="#a855f7"
-                d="M37.5,-65.2C48.7,-57.8,57.8,-47.3,64.3,-35.1C70.8,-22.9,74.7,-9,75.6,5.7C76.5,20.4,74.4,36,67.1,48.6C59.8,61.2,47.3,70.8,33.2,75.7C19.1,80.6,3.4,80.8,-12.1,78.1C-27.6,75.4,-42.9,69.8,-55.3,60.2C-67.7,50.6,-77.2,37,-80.3,21.9C-83.4,6.8,-80.1,-9.8,-74.1,-25.3C-68.1,-40.8,-59.4,-55.2,-47.2,-62.2C-35,-69.2,-19.3,-68.8,-5.4,-60.5C8.5,-52.2,26.3,-72.6,37.5,-65.2Z"
-                transform="translate(100 100)" />
-        </svg>
-    </div>
-
-    <main class="container mx-auto px-4 py-8 lg:py-12 relative z-10 max-w-7xl">
-
-        <!-- العنوان الرئيسي -->
-        <div class="text-center mb-12">
-            <h1
-                class="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 leading-relaxed font-serif bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 text-transparent bg-clip-text">
-                <i class="fas fa-baby text-pink-500 animate-heartbeat"></i> علاقات الرضاعة
-            </h1>
-            <p class="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-                تعرف على الأمهات المرضعات والأطفال المرتضعين في العائلة - نسيج الحب والرعاية
-            </p>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-search"></i> بحث
+                                </button>
         </div>
-
-        <!-- شريط البحث -->
-        @if(request('search'))
-            <div class="mb-8">
-                <div class="glass-effect rounded-2xl p-4 border border-pink-200/50">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <svg class="w-6 h-6 text-pink-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
-                            </svg>
-                            <span class="text-gray-700 font-medium">نتائج البحث عن: "<strong class="text-pink-600">{{ request('search') }}</strong>"</span>
                         </div>
-                        <a href="{{ route('breastfeeding.public.index') }}" class="text-pink-600 hover:text-pink-700 font-medium flex items-center gap-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                            مسح البحث
-                        </a>
-                    </div>
+                    </form>
                 </div>
-            </div>
-        @endif
 
-        <div class="mb-12">
-            <form method="GET" action="{{ route('breastfeeding.public.index') }}" class="max-w-2xl mx-auto">
-                <div class="relative">
-                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                        <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
-                        </svg>
+                {{-- الإحصائيات --}}
+                <div class="stats-section">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="stat-card">
+                                <div class="stat-number">{{ $stats['total_relationships'] }}</div>
+                                <div class="stat-label">إجمالي العلاقات</div>
                     </div>
-                    <input type="text" name="search" value="{{ request('search') }}"
-                        class="w-full pl-4 pr-10 py-4 text-lg border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent bg-white/80 backdrop-blur-md"
-                        placeholder="البحث في أسماء الأمهات أو الأطفال...">
-                    <button type="submit"
-                        class="absolute left-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-pink-500 to-purple-600 text-white px-6 py-2 rounded-xl hover:from-pink-600 hover:to-purple-700 transition-all duration-300 font-medium">
-                        بحث
-                    </button>
                 </div>
-            </form>
+                        <div class="col-md-3">
+                            <div class="stat-card">
+                                <div class="stat-number">{{ $stats['total_nursing_mothers'] }}</div>
+                                <div class="stat-label">الأمهات المرضعات</div>
         </div>
-
-        <!-- الإحصائيات -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
-            <div class="glass-effect rounded-3xl p-6 text-center purple-glow-hover transform hover:scale-105 transition-all duration-300">
-                <div class="text-4xl mb-4">
-                    <i class="fas fa-link text-purple-500"></i>
                 </div>
-                <div class="text-3xl font-bold text-gray-800 mb-2">{{ $stats['total_relationships'] }}</div>
-                <div class="text-gray-600 font-medium">إجمالي العلاقات</div>
+                        <div class="col-md-3">
+                            <div class="stat-card">
+                                <div class="stat-number">{{ $stats['total_breastfed_children'] }}</div>
+                                <div class="stat-label">الأطفال المرتضعين</div>
             </div>
-            <div class="glass-effect rounded-3xl p-6 text-center pink-glow-hover transform hover:scale-105 transition-all duration-300">
-                <div class="text-4xl mb-4">
-                    <i class="fas fa-female text-pink-500"></i>
                 </div>
-                <div class="text-3xl font-bold text-gray-800 mb-2">{{ $stats['total_nursing_mothers'] }}</div>
-                <div class="text-gray-600 font-medium">الأمهات المرضعات</div>
+                        <div class="col-md-3">
+                            <div class="stat-card">
+                                <div class="stat-number">{{ $stats['active_breastfeeding'] }}</div>
+                                <div class="stat-label">رضاعة مستمرة</div>
             </div>
-            <div class="glass-effect rounded-3xl p-6 text-center purple-glow-hover transform hover:scale-105 transition-all duration-300">
-                <div class="text-4xl mb-4">
-                    <i class="fas fa-child text-indigo-500"></i>
                 </div>
-                <div class="text-3xl font-bold text-gray-800 mb-2">{{ $stats['total_breastfed_children'] }}</div>
-                <div class="text-gray-600 font-medium">الأطفال المرتضعين</div>
-            </div>
-            <div class="glass-effect rounded-3xl p-6 text-center pink-glow-hover transform hover:scale-105 transition-all duration-300">
-                <div class="text-4xl mb-4">
-                    <i class="fas fa-clock text-rose-500"></i>
-                </div>
-                <div class="text-3xl font-bold text-gray-800 mb-2">{{ $stats['active_breastfeeding'] }}</div>
-                <div class="text-gray-600 font-medium">رضاعة مستمرة</div>
             </div>
         </div>
 
-        <!-- الأمهات المرضعات -->
-        @if($nursingMothers->isNotEmpty())
-            <div class="mb-12">
-                <h2
-                    class="text-3xl lg:text-4xl font-bold font-serif mb-8 text-center bg-gradient-to-r from-pink-600 to-purple-600 text-transparent bg-clip-text">
-                    <i class="fas fa-female text-pink-500"></i> الأمهات المرضعات
-                </h2>
-
-                <div class="space-y-8">
-                    @foreach($nursingMothers as $motherId => $relationships)
-                        @php
-                            $mother = $relationships->first()->nursingMother;
-                        @endphp
-                        <div class="glass-effect rounded-3xl overflow-hidden shadow-pink-glow pink-glow-hover transition-all duration-500 transform hover:-translate-y-2">
-
-                            <!-- رأس بطاقة الأم -->
-                            <div class="bg-gradient-to-br from-pink-100/50 to-purple-100/50 p-8">
-                                <div class="flex flex-col lg:flex-row items-center gap-6">
-                                    <div class="relative">
-                                        <img src="{{ $mother->avatar }}" alt="{{ $mother->first_name }}"
-                                            class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg">
-                                        <div class="absolute -bottom-2 -right-2 bg-pink-500 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold shadow-lg">
-                                            {{ $relationships->count() }}
-                                        </div>
-                                    </div>
-                                    <div class="text-center lg:text-right flex-grow">
-                                        <h3 class="text-2xl lg:text-3xl font-bold text-gray-800 mb-2 font-serif">{{ $mother->full_name }}</h3>
-                                        <p class="text-gray-600 text-lg mb-4">
-                                            <i class="fas fa-baby text-pink-500"></i> أرضعت {{ $relationships->count() }} {{ $relationships->count() == 1 ? 'طفل' : 'أطفال' }}
-                                        </p>
-                                        <a href="{{ route('breastfeeding.public.show', $mother->id) }}"
-                                            class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-full hover:from-pink-600 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 font-medium">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                                            </svg>
-                                            عرض التفاصيل
-                                        </a>
+                <div class="row">
+                    {{-- قائمة الأمهات (اليمين) --}}
+                    <div class="col-lg-4">
+                        <h4 class="mb-3"><i class="fas fa-female text-success"></i> الأمهات المرضعات</h4>
+                        @if($mothersData->isNotEmpty())
+                            @foreach($mothersData as $mother)
+                                <div class="mother-card" onclick="showChildren({{ $mother['id'] }})"
+                                     data-mother-id="{{ $mother['id'] }}">
+                                    <div class="children-count">{{ count($mother['children']) }}</div>
+                                    <div class="text-center">
+                                        <img src="{{ $mother['avatar'] }}" alt="{{ $mother['name'] }}" class="mother-photo">
+                                        <div class="mother-name">{{ $mother['name'] }}</div>
                                     </div>
                                 </div>
+                            @endforeach
+                        @else
+                            <div class="empty-state">
+                                <i class="fas fa-baby"></i>
+                                <p>لا توجد أمهات مرضعات مسجلة</p>
                             </div>
-
-                            <!-- بطاقات الأطفال -->
-                            <div class="p-8">
-                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                                    @foreach($relationships as $relationship)
-                                        <div class="bg-gradient-to-br from-baby-pink to-warm-pink rounded-2xl p-6 border border-pink-200/50 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
-                                            <div class="text-center">
-                                                <img src="{{ $relationship->breastfedChild->avatar }}"
-                                                    alt="{{ $relationship->breastfedChild->first_name }}"
-                                                    class="w-20 h-20 rounded-full object-cover border-3 border-white shadow-md mx-auto mb-4">
-                                                <h4 class="font-bold text-gray-800 mb-2 font-serif">{{ $relationship->breastfedChild->full_name }}</h4>
-
-                                                <a href="{{ route('breastfeeding.public.show', $relationship->breastfedChild->id) }}"
-                                                    class="inline-flex items-center gap-1 text-sm text-purple-600 hover:text-purple-700 font-medium mb-3">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                                                    </svg>
-                                                    عرض التفاصيل
-                                                </a>
-
-                                                @if($relationship->duration_in_months)
-                                                    <div class="bg-white/70 rounded-full px-3 py-1 text-sm font-medium text-gray-700 mb-3 inline-block">
-                                                        <i class="fas fa-calendar-alt text-pink-500"></i>
-                                                        {{ $relationship->duration_in_months }} شهر
-                                                    </div>
-                                                @endif
-
-                                                <div class="flex justify-center">
-                                                    @if($relationship->end_date)
-                                                        <span class="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
-                                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                                                            </svg>
-                                                            مكتملة
-                                                        </span>
-                                                    @else
-                                                        <span class="inline-flex items-center gap-1 px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium animate-pulse">
-                                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
-                                                            </svg>
-                                                            مستمرة
-                                                        </span>
                                                     @endif
                                                 </div>
 
-                                                @if($relationship->notes)
-                                                    <div class="mt-3">
-                                                        <p class="text-xs text-gray-600 bg-white/50 rounded-lg px-2 py-1">
-                                                            <i class="fas fa-sticky-note text-pink-400"></i>
-                                                            {{ Str::limit($relationship->notes, 50) }}
-                                                        </p>
+                    {{-- قائمة الأبناء (الوسط) --}}
+                    <div class="col-lg-4">
+                        <h4 class="mb-3"><i class="fas fa-child text-success"></i> الأطفال المرتضعون</h4>
+                        <div class="children-section" id="childrenSection">
+                            <div class="empty-state">
+                                <i class="fas fa-hand-pointer"></i>
+                                <p>اختر أمًا لعرض أطفالها</p>
                                                     </div>
-                                                @endif
                                             </div>
                                         </div>
-                                    @endforeach
-                                </div>
+
+                    {{-- الملاحظات (اليسار) --}}
+                    <div class="col-lg-4">
+                        <h4 class="mb-3"><i class="fas fa-sticky-note text-success"></i> الملاحظات</h4>
+                        <div class="notes-section" id="notesSection">
+                            <div class="empty-state">
+                                <i class="fas fa-info-circle"></i>
+                                <p>اختر طفلًا لعرض ملاحظاته</p>
                             </div>
                         </div>
-                    @endforeach
+                    </div>
                 </div>
             </div>
-        @else
-            <!-- حالة فارغة -->
-            <div class="text-center glass-effect p-16 rounded-3xl shadow-pink-glow max-w-2xl mx-auto">
-                <div class="text-6xl text-pink-400 mb-6">
-                    <i class="fas fa-baby animate-heartbeat"></i>
-                </div>
-                <h3 class="text-2xl font-bold text-gray-800 mb-4 font-serif">لا توجد علاقات رضاعة مسجلة</h3>
-                <p class="text-gray-600 text-lg mb-8 leading-relaxed">
-                    لم يتم تسجيل أي علاقات رضاعة في النظام بعد.
-                    <br>كن أول من يوثق هذه العلاقات المهمة في تاريخ العائلة.
-                </p>
-                <a href="{{ route('dashboard') }}"
-                    class="inline-flex items-center gap-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold py-4 px-8 rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                    </svg>
-                    إضافة علاقة رضاعة
-                </a>
-            </div>
-        @endif
+        </section>
     </main>
 
+    {{-- Scripts --}}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
-        // شريط التقدم للقراءة
-        const progress = document.getElementById('readingProgress');
-        window.addEventListener('scroll', () => {
-            const scrollTop = window.scrollY;
-            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-            progress.style.width = docHeight > 0 ? `${(scrollTop / docHeight) * 100}%` : '0%';
-        });
+        // بيانات الأمهات والأطفال
+        const mothersData = @json($mothersData);
+        let selectedMotherId = null;
+        let selectedChildId = null;
 
-        // تأثير تحرك البطاقات عند ظهورها
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
+        function showChildren(motherId) {
+            // إزالة التحديد من جميع الأمهات
+            document.querySelectorAll('.mother-card').forEach(card => {
+                card.classList.remove('active');
+            });
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = 'translateY(0)';
+            // تحديد الأم المختارة
+            const selectedMotherCard = document.querySelector(`[data-mother-id="${motherId}"]`);
+            selectedMotherCard.classList.add('active');
+
+            selectedMotherId = motherId;
+
+            // العثور على بيانات الأم
+            const mother = mothersData.find(m => m.id === motherId);
+            if (!mother) return;
+
+            // عرض الأبناء
+            const childrenSection = document.getElementById('childrenSection');
+            childrenSection.classList.add('show');
+
+            if (mother.children.length > 0) {
+                childrenSection.innerHTML = `
+                    <h5 class="mb-3">أبناء ${mother.name}</h5>
+                    ${mother.children.map(child => `
+                        <div class="child-card" onclick="showNotes(${child.relationship_id})"
+                             data-child-id="${child.relationship_id}">
+                            <div class="d-flex align-items-center">
+                                <img src="${child.avatar}" alt="${child.name}" class="child-photo me-3">
+                                <div class="flex-grow-1">
+                                    <div class="child-name">${child.name}</div>
+                                    <div class="breastfeeding-dates">
+                                        ${child.start_date ? `من: ${child.start_date}` : ''}
+                                        ${child.end_date ? `إلى: ${child.end_date}` : ''}
+                                        ${child.duration_months ? ` (${child.duration_months} شهر)` : ''}
+                                    </div>
+                                </div>
+                                <span class="status-badge ${child.is_active ? 'status-active' : 'status-completed'}">
+                                    ${child.is_active ? 'مستمرة' : 'مكتملة'}
+                                </span>
+                            </div>
+                        </div>
+                    `).join('')}
+                `;
+            } else {
+                childrenSection.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-baby"></i>
+                        <p>لا يوجد أطفال مسجلين لهذه الأم</p>
+                    </div>
+                `;
+            }
+
+            // إخفاء الملاحظات
+            const notesSection = document.getElementById('notesSection');
+            notesSection.classList.remove('show');
+            notesSection.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-info-circle"></i>
+                    <p>اختر طفلًا لعرض ملاحظاته</p>
+                </div>
+            `;
+        }
+
+        function showNotes(relationshipId) {
+            // إزالة التحديد من جميع الأطفال
+            document.querySelectorAll('.child-card').forEach(card => {
+                card.classList.remove('active');
+            });
+
+            // تحديد الطفل المختار
+            const selectedChildCard = document.querySelector(`[data-child-id="${relationshipId}"]`);
+            selectedChildCard.classList.add('active');
+
+            selectedChildId = relationshipId;
+
+            // العثور على بيانات الطفل
+            let selectedChild = null;
+            mothersData.forEach(mother => {
+                const child = mother.children.find(c => c.relationship_id === relationshipId);
+                if (child) {
+                    selectedChild = child;
                 }
             });
-        }, observerOptions);
 
-        // مراقبة جميع البطاقات
-        document.querySelectorAll('.glass-effect').forEach(card => {
-            card.style.opacity = '0';
-            card.style.transform = 'translateY(30px)';
-            card.style.transition = 'all 0.6s ease';
-            observer.observe(card);
+            if (!selectedChild) return;
+
+            // عرض الملاحظات
+            const notesSection = document.getElementById('notesSection');
+            notesSection.classList.add('show');
+
+            if (selectedChild.notes) {
+                notesSection.innerHTML = `
+                    <div class="notes-title">
+                        <i class="fas fa-sticky-note"></i> ملاحظات عن ${selectedChild.name}
+                    </div>
+                    <div class="notes-content">
+                        ${selectedChild.notes}
+                    </div>
+                    <div class="mt-3">
+                        <small class="text-muted">
+                            <i class="fas fa-calendar"></i>
+                            ${selectedChild.start_date ? `تاريخ البداية: ${selectedChild.start_date}` : ''}
+                            ${selectedChild.end_date ? ` | تاريخ النهاية: ${selectedChild.end_date}` : ''}
+                        </small>
+                    </div>
+                `;
+            } else {
+                notesSection.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-sticky-note"></i>
+                        <p>لا توجد ملاحظات مسجلة لهذا الطفل</p>
+                    </div>
+                `;
+            }
+        }
+
+        // تهيئة الصفحة
+        document.addEventListener('DOMContentLoaded', function() {
+            // إذا كان هناك بحث، اعرض النتائج
+            @if($search)
+                // يمكن إضافة منطق لعرض النتائج المفلترة
+            @endif
         });
     </script>
 </body>

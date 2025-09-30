@@ -691,8 +691,8 @@
                             <!-- 🚫 لا نص "في ذمة الله" ولا "على قيد الحياة" هنا -->
                         </div>
                         <div class="col-lg-8">
-                            ${person.gender === 'male' ? createDetailRow('fa-birthday-cake', 'تاريخ الميلاد', person.birth_date) : ''}
-                            ${person.gender === 'male' && person.age ? createDetailRow('fa-calendar-alt', 'العمر', `${person.age} سنة`) : ''}
+                            ${(person.gender === 'male' || (person.gender === 'female' && person.birth_date && new Date(person.birth_date).getFullYear() >= 2005)) ? createDetailRow('fa-birthday-cake', 'تاريخ الميلاد', person.birth_date) : ''}
+                            ${(person.gender === 'male' || (person.gender === 'female' && person.birth_date && new Date(person.birth_date).getFullYear() >= 2005)) && person.age ? createDetailRow('fa-calendar-alt', 'العمر', `${person.age} سنة`) : ''}
                             ${createDetailRow('fa-briefcase', 'المهنة', person.occupation)}
                             ${createDetailRow('fa-map-marker-alt', 'مكان الإقامة', person.location)}
                             ${person.death_date ? createDetailRow('fa-dove', 'تاريخ الوفاة', person.death_date) : ''}
