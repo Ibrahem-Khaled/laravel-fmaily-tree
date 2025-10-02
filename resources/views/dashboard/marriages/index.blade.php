@@ -22,21 +22,17 @@
         {{-- إحصائيات الزواج --}}
         <div class="row mb-4">
             {{-- إجمالي حالات الزواج --}}
-            <div class="col-xl-3 col-md-6 mb-4">
+
                 <x-stats-card icon="fas fa-ring" title="إجمالي حالات الزواج" :value="$totalMarriages" color="primary" />
-            </div>
             {{-- حالات الزواج النشطة --}}
-            <div class="col-xl-3 col-md-6 mb-4">
+
                 <x-stats-card icon="fas fa-heart" title="زواج نشط" :value="$activeMarriages" color="success" />
-            </div>
             {{-- حالات الطلاق --}}
-            <div class="col-xl-3 col-md-6 mb-4">
+
                 <x-stats-card icon="fas fa-heart-broken" title="حالات الانفصال" :value="$divorcedMarriages" color="danger" />
-            </div>
             {{-- حالات بدون تاريخ طلاق --}}
-            <div class="col-xl-3 col-md-6 mb-4">
+
                 <x-stats-card icon="fas fa-question-circle" title="غير محددة الحالة" :value="$unknownStatusMarriages" color="warning" />
-            </div>
         </div>
 
         {{-- بطاقة قائمة الزواج --}}

@@ -227,17 +227,6 @@
             }
         }
 
-        .mobile-children-header {
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        .mobile-children-header h5 {
-            color: var(--dark-green);
-            font-weight: 600;
-            font-size: 1rem;
-            margin: 0;
-        }
 
         .mobile-children-grid {
             display: flex;
@@ -247,42 +236,49 @@
 
         .mobile-child-card {
             background: linear-gradient(135deg, var(--light-gray) 0%, #fff 100%);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 15px;
+            padding: 0;
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
             touch-action: manipulation;
             -webkit-tap-highlight-color: transparent;
+            overflow: hidden;
         }
 
         .mobile-child-card:hover {
             border-color: var(--accent-color);
-            background: var(--light-green);
-            transform: translateX(-3px);
+            background: linear-gradient(135deg, var(--light-green) 0%, #fff 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(55, 160, 92, 0.15);
         }
 
         .mobile-child-card.active {
             border-color: var(--accent-color);
-            background: var(--light-green);
-            box-shadow: 0 4px 12px rgba(55, 160, 92, 0.2);
+            background: linear-gradient(135deg, var(--light-green) 0%, #fff 100%);
+            box-shadow: 0 8px 20px rgba(55, 160, 92, 0.2);
+        }
+
+        /* الأنماط الجديدة للهاتف */
+        .mobile-child-main-info {
+            padding: 15px;
         }
 
         .mobile-child-header {
             display: flex;
             align-items: center;
-            margin-bottom: 8px;
+            margin-bottom: 15px;
         }
 
         .mobile-child-photo {
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             object-fit: cover;
-            border: 2px solid #fff;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-            margin-left: 10px;
+            border: 3px solid #fff;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+            margin-left: 15px;
         }
 
         .mobile-child-info {
@@ -290,50 +286,102 @@
         }
 
         .mobile-child-name {
-            font-weight: 600;
+            font-weight: 700;
             color: var(--dark-green);
-            font-size: 0.9rem;
-            margin-bottom: 3px;
+            font-size: 1rem;
+            margin-bottom: 5px;
         }
 
         .mobile-child-dates {
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             color: #666;
-            line-height: 1.3;
+            line-height: 1.4;
         }
 
         .mobile-status-badge {
             position: absolute;
-            top: 8px;
-            right: 8px;
-            padding: 3px 6px;
-            border-radius: 10px;
-            font-size: 0.65rem;
+            top: 15px;
+            right: 15px;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.7rem;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .mobile-notes-section {
-            margin-top: 10px;
-            padding: 10px;
-            background: var(--light-gray);
-            border-radius: 8px;
-            display: none;
-            animation: fadeIn 0.3s ease;
+        .mobile-notes-toggle {
+            background: var(--light-accent);
+            color: var(--dark-green);
+            padding: 8px 15px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
             border: 1px solid var(--accent-color);
+            user-select: none;
+        }
+
+        .mobile-notes-toggle:hover {
+            background: var(--accent-color);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .mobile-notes-toggle i {
+            margin-left: 5px;
+            transition: transform 0.3s ease;
+        }
+
+        .mobile-child-card.active .mobile-notes-toggle i {
+            transform: rotate(180deg);
+        }
+
+        .mobile-notes-container {
+            background: #fff;
+            border-top: 2px solid var(--accent-color);
+            padding: 20px;
+            animation: slideDown 0.3s ease;
         }
 
         .mobile-notes-title {
-            font-size: 0.85rem;
-            font-weight: 600;
             color: var(--dark-green);
-            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--light-green);
+        }
+
+        .mobile-notes-title i {
+            margin-left: 8px;
         }
 
         .mobile-notes-content {
-            font-size: 0.8rem;
+            background: var(--light-gray);
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 0.85rem;
             color: #555;
-            line-height: 1.4;
+            line-height: 1.6;
+            margin-bottom: 15px;
         }
+
+        .mobile-child-dates-full {
+            text-align: center;
+            padding: 10px;
+            background: var(--light-accent);
+            border-radius: 8px;
+        }
+
+        .mobile-child-dates-full small {
+            color: var(--dark-green);
+            font-weight: 500;
+        }
+
+        /* الأنماط القديمة المحذوفة - يمكن حذفها */
 
         .family-group {
             background: transparent;
@@ -1141,9 +1189,6 @@
 
                                             {{-- عرض الأبناء على الهواتف --}}
                                             <div class="mobile-children-section" id="mobileChildren_{{ $mother['id'] }}" style="display: none;">
-                                                <div class="mobile-children-header">
-                                                    <h5><i class="fas fa-child text-success"></i> أبناء {{ $mother['name'] }}</h5>
-                                                </div>
                                                 <div class="mobile-children-grid" id="mobileChildrenGrid_{{ $mother['id'] }}">
                                                     <!-- سيتم ملؤها بواسطة JavaScript -->
                                                 </div>
@@ -1227,34 +1272,55 @@
             const isMobile = window.innerWidth <= 768;
 
             if (isMobile) {
-                // عرض الأبناء على الهواتف
+                // عرض الأبناء على الهواتف - إعادة هيكلة كاملة
                 const mobileChildrenSection = document.getElementById(`mobileChildren_${motherId}`);
                 const mobileChildrenGrid = document.getElementById(`mobileChildrenGrid_${motherId}`);
 
                 if (mother.children.length > 0) {
                     mobileChildrenGrid.innerHTML = mother.children.map(child => `
-                        <div class="mobile-child-card" onclick="showMobileNotes(${child.relationship_id}, ${motherId})"
-                             data-child-id="${child.relationship_id}">
-                            <div class="mobile-child-header">
-                                <img src="${child.avatar}" alt="${child.name}" class="mobile-child-photo">
-                                <div class="mobile-child-info">
-                                    <div class="mobile-child-name">${child.name}</div>
-                                    <div class="mobile-child-dates">
-                                        ${child.start_date ? `من: ${child.start_date}` : ''}
-                                        ${child.end_date ? `إلى: ${child.end_date}` : ''}
-                                        ${child.duration_months ? ` (${child.duration_months} شهر)` : ''}
+                        <div class="mobile-child-card mobile-child-item"
+                             data-child-id="${child.relationship_id}"
+                             data-mother-id="${motherId}"
+                             data-child-name="${child.name}">
+                            <div class="mobile-child-main-info">
+                                <div class="mobile-child-header">
+                                    <img src="${child.avatar}" alt="${child.name}" class="mobile-child-photo">
+                                    <div class="mobile-child-info">
+                                        <div class="mobile-child-name">${child.name}</div>
+                                        <div class="mobile-child-dates">
+                                            ${child.start_date ? `من: ${child.start_date}` : ''}
+                                            ${child.end_date ? `إلى: ${child.end_date}` : ''}
+                                            ${child.duration_months ? ` (${child.duration_months} شهر)` : ''}
+                                        </div>
                                     </div>
+                                    <span class="mobile-status-badge ${child.is_active ? 'status-active' : 'status-completed'}">
+                                        ${child.is_active ? 'مستمرة' : 'مكتملة'}
+                                    </span>
+                                </div>
+                                <div class="mobile-notes-toggle">
+                                    <i class="fas fa-chevron-down"></i> اضغط لعرض الملاحظات
                                 </div>
                             </div>
-                            <span class="mobile-status-badge ${child.is_active ? 'status-active' : 'status-completed'}">
-                                ${child.is_active ? 'مستمرة' : 'مكتملة'}
-                            </span>
-                            <div class="mobile-notes-section" id="mobileNotes_${child.relationship_id}" style="display: none;">
-                                <div class="mobile-notes-title">ملاحظات:</div>
-                                <div class="mobile-notes-content">${child.notes || 'لا توجد ملاحظات'}</div>
+                            <div class="mobile-notes-container" style="display: none;">
+                                <div class="mobile-notes-title">
+                                    <i class="fas fa-sticky-note"></i> ملاحظات عن ${child.name}
+                                </div>
+                                <div class="mobile-notes-content">
+                                    ${child.notes || 'لا توجد ملاحظات مسجلة'}
+                                </div>
+                                <div class="mobile-child-dates-full">
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar"></i>
+                                        ${child.start_date ? `تاريخ البداية: ${child.start_date}` : ''}
+                                        ${child.end_date ? ` | تاريخ النهاية: ${child.end_date}` : ''}
+                                    </small>
+                                </div>
                             </div>
                         </div>
                     `).join('');
+
+                    // إضافة event listeners مباشرة للأطفال الجدد
+                    attachMobileEventListeners(mobileChildrenGrid);
 
                     console.log('Mobile children grid populated for mother:', motherId);
                     console.log('Children data:', mother.children);
@@ -1303,7 +1369,7 @@
                                 </div>
                             </div>
                             <span class="status-badge ${child.is_active ? 'status-active' : 'status-completed'}">
-                                ${child.is_active ? 'مستمرة' : 'مكتملة'}
+                                ${child.is_active ? '' : 'مكتملة'}
                             </span>
                         </div>
                     `).join('');
@@ -1396,49 +1462,107 @@
             }
         }
 
-        function showMobileNotes(relationshipId, motherId) {
-            console.log('showMobileNotes called with:', relationshipId, motherId);
+        // دالة إضافة event listeners للهواتف
+        function attachMobileEventListeners(container) {
+            const childCards = container.querySelectorAll('.mobile-child-item');
 
-            // التحقق من صحة المعاملات
-            if (!relationshipId || !motherId) {
-                console.error('Invalid parameters:', { relationshipId, motherId });
+            childCards.forEach(card => {
+                card.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    // الحصول على البيانات
+                    const relationshipId = this.getAttribute('data-child-id');
+                    const childName = this.getAttribute('data-child-name');
+
+                    console.log('Mobile child clicked:', { relationshipId, childName });
+
+                    // تبديل حالة الملاحظات
+                    toggleMobileNotes(this);
+
+                    // إخفاء ملاحظات الآخرين
+                    const allChildCards = document.querySelectorAll('.mobile-child-item');
+                    allChildCards.forEach(otherCard => {
+                        if (otherCard !== this) {
+                            hideMobileNotes(otherCard);
+                        }
+                    });
+
+                });
+            });
+        }
+
+        // دالة تبديل عرض الملاحظات
+        function toggleMobileNotes(childCard) {
+            const notesContainer = childCard.querySelector('.mobile-notes-container');
+            const toggleButton = childCard.querySelector('.mobile-notes-toggle');
+            const chevronIcon = toggleButton.querySelector('i');
+
+            if (!notesContainer || !toggleButton) {
+                console.error('Notes container or toggle button not found');
                 return;
             }
 
-            // إزالة التحديد من جميع الأطفال على الهواتف
-            document.querySelectorAll('.mobile-child-card').forEach(card => {
-                if (card) {
-                    card.classList.remove('active');
-                }
-            });
+            // التحقق من الحالة الحالية
+            const isVisible = notesContainer.style.display === 'block';
 
-            // إخفاء جميع الملاحظات على الهواتف
-            document.querySelectorAll('.mobile-notes-section').forEach(section => {
-                if (section) {
-                    section.style.display = 'none';
-                }
-            });
-
-            // تحديد الطفل المختار
-            const selectedChildCard = document.querySelector(`[data-child-id="${relationshipId}"]`);
-            console.log('Selected child card:', selectedChildCard);
-
-            if (selectedChildCard) {
-                selectedChildCard.classList.add('active');
-            }
-
-            // إظهار ملاحظات الطفل المختار
-            const mobileNotesSection = document.getElementById(`mobileNotes_${relationshipId}`);
-            console.log('Mobile notes section:', mobileNotesSection);
-
-            if (mobileNotesSection) {
-                mobileNotesSection.style.display = 'block';
-                console.log('Notes section displayed');
+            if (isVisible) {
+                // إخفاء الملاحظات
+                hideMobileNotes(childCard);
             } else {
-                console.error('Notes section not found for ID:', `mobileNotes_${relationshipId}`);
+                // إظهار الملاحظات
+                showMobileNotes(childCard);
+            }
+        }
+
+        // دالة إخفاء الملاحظات
+        function hideMobileNotes(childCard) {
+            const notesContainer = childCard.querySelector('.mobile-notes-container');
+            const toggleButton = childCard.querySelector('.mobile-notes-toggle');
+            const chevronIcon = toggleButton.querySelector('i');
+
+            if (notesContainer) {
+                notesContainer.style.display = 'none';
             }
 
-            selectedChildId = relationshipId;
+            if (chevronIcon) {
+                chevronIcon.className = 'fas fa-chevron-down';
+            }
+
+            if (toggleButton) {
+                toggleButton.innerHTML = '<i class="fas fa-chevron-down"></i> اضغط لعرض الملاحظات';
+            }
+
+            childCard.classList.remove('active');
+        }
+
+        // دالة إظهار الملاحظات
+        function showMobileNotes(childCard) {
+            const notesContainer = childCard.querySelector('.mobile-notes-container');
+            const toggleButton = childCard.querySelector('.mobile-notes-toggle');
+            const chevronIcon = toggleButton.querySelector('i');
+
+            if (notesContainer) {
+                notesContainer.style.display = 'block';
+
+                // تمرير سلس للملاحظات
+                setTimeout(() => {
+                    notesContainer.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'nearest'
+                    });
+                }, 100);
+            }
+
+            if (chevronIcon) {
+                chevronIcon.className = 'fas fa-chevron-up';
+            }
+
+            if (toggleButton) {
+                toggleButton.innerHTML = '<i class="fas fa-chevron-up"></i> اضغط لإخفاء الملاحظات';
+            }
+
+            childCard.classList.add('active');
         }
 
         // تهيئة الصفحة
@@ -1448,26 +1572,12 @@
                 // يمكن إضافة منطق لعرض النتائج المفلترة
             @endif
 
-            // إضافة event listeners للهواتف
+            // إضافة event listeners للهواتف - مبسطة
             if (window.innerWidth <= 768) {
                 // تحسين الاستجابة للمس على الهواتف
                 document.addEventListener('touchstart', function() {}, {passive: true});
 
-                // إضافة event delegation للبطاقات
-                document.addEventListener('click', function(e) {
-                    if (e.target.closest('.mobile-child-card')) {
-                        const card = e.target.closest('.mobile-child-card');
-                        if (card) {
-                            const relationshipId = card.getAttribute('data-child-id');
-                            const motherCard = card.closest('.mother-card');
-                            const motherId = motherCard ? motherCard.getAttribute('data-mother-id') : null;
-
-                            if (relationshipId && motherId) {
-                                showMobileNotes(parseInt(relationshipId), parseInt(motherId));
-                            }
-                        }
-                    }
-                });
+                console.log('Mobile initialization complete');
             }
         });
 

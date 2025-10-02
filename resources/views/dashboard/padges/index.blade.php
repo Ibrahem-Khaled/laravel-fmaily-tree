@@ -17,15 +17,12 @@
 
         {{-- إحصائيات الشارات --}}
         <div class="row mb-4">
-            <div class="col-xl-4 col-md-6 mb-4">
+
                 <x-stats-card icon="fas fa-medal" title="إجمالي الشارات" :value="$padgesCount" color="primary" />
-            </div>
-            <div class="col-xl-4 col-md-6 mb-4">
+
                 <x-stats-card icon="fas fa-check-circle" title="الشارات النشطة" :value="$activePadgesCount" color="success" />
-            </div>
-            <div class="col-xl-4 col-md-6 mb-4">
+
                 <x-stats-card icon="fas fa-times-circle" title="الشارات غير النشطة" :value="$inactivePadgesCount" color="danger" />
-            </div>
         </div>
 
         {{-- بطاقة قائمة الشارات --}}

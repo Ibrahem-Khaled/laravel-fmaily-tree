@@ -60,6 +60,23 @@
                         </select>
                     </div>
 
+                    {{-- Family Status --}}
+                    <div class="form-group">
+                        <label for="create_family_status">الحالة العائلية</label>
+                        <select class="form-control" id="create_family_status" name="from_outside_the_family">
+                            <option value="0" @selected(old('from_outside_the_family', '0') == '0')>
+                                داخل العائلة
+                            </option>
+                            <option value="1" @selected(old('from_outside_the_family') == '1')>
+                                خارج العائلة
+                            </option>
+                        </select>
+                        <small class="form-text text-muted">
+                            <i class="fas fa-info-circle"></i>
+                            الأشخاص خارج العائلة: الأصدقاء، الجيران، أو أي شخص ليس من أفراد العائلة المباشرين
+                        </small>
+                    </div>
+
                     {{-- PARENT SELECTION --}}
                     <div class="row">
                         <div class="col-md-6">

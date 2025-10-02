@@ -17,6 +17,7 @@ class PersonController extends Controller
     {
         $search = trim((string) $request->input('search'));
         $gender = $request->input('gender');
+        $familyStatus = $request->input('family_status');
 
         $people = Person::query()
             ->when($search !== '', function ($query) use ($search) {
@@ -36,6 +37,16 @@ class PersonController extends Controller
                 });
             })
             ->when($gender, fn($q) => $q->where('gender', $gender))
+            ->when($familyStatus !== null, function ($query) use ($familyStatus) {
+                if ($familyStatus === '1') {
+                    // داخل العائلة
+                    $query->where('from_outside_the_family', false);
+                } elseif ($familyStatus === '0') {
+                    // خارج العائلة
+                    $query->where('from_outside_the_family', true);
+                }
+                // إذا كان الفلتر فارغ، لا نطبق أي شرط
+            })
             ->paginate(10)
             ->withQueryString();
 
@@ -67,6 +78,7 @@ class PersonController extends Controller
             'birth_date' => 'nullable|date',
             'death_date' => 'nullable|date|after_or_equal:birth_date',
             'gender' => 'required|in:male,female',
+            'from_outside_the_family' => 'nullable|boolean',
             'photo' => 'nullable|image|max:2048',
             'biography' => 'nullable|string',
             'occupation' => 'nullable|string|max:100',
@@ -111,6 +123,7 @@ class PersonController extends Controller
             'birth_date' => 'nullable|date',
             'death_date' => 'nullable|date|after_or_equal:birth_date',
             'gender' => 'required|in:male,female',
+            'from_outside_the_family' => 'nullable|boolean',
             'photo' => 'nullable|image|max:2048',
             'biography' => 'nullable|string',
             'occupation' => 'nullable|string|max:100',

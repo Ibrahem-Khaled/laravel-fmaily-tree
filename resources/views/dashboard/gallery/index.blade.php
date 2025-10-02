@@ -19,15 +19,12 @@
 
         {{-- إحصائيات --}}
         <div class="row mb-4">
-            <div class="col-xl-4 col-md-6 mb-4">
+
                 <x-stats-card icon="fas fa-images" title="إجمالي صور المعرض" :value="$imagesCount" color="primary" />
-            </div>
-            <div class="col-xl-4 col-md-6 mb-4">
+
                 <x-stats-card icon="fas fa-folder-tree" title="فئات لديها صور" :value="$categoriesWithImages" color="warning" />
-            </div>
-            <div class="col-xl-4 col-md-6 mb-4">
+
                 <x-stats-card icon="fas fa-upload" title="جاهز للرفع" :value="__('متعدد الصور')" color="info" />
-            </div>
         </div>
 
         {{-- بطاقة المعرض --}}

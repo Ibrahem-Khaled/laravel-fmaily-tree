@@ -57,13 +57,26 @@
 
                     {{-- Gender --}}
                     <div class="row">
-                        <div class="col-md-12">
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label for="gender_edit{{ $person->id }}">الجنس</label>
                                 <select class="form-control" id="gender_edit{{ $person->id }}" name="gender"
                                     required>
                                     <option value="male" @selected(old('gender', $person->gender) == 'male')>ذكر</option>
                                     <option value="female" @selected(old('gender', $person->gender) == 'female')>أنثى</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="family_status_edit{{ $person->id }}">الحالة العائلية</label>
+                                <select class="form-control" id="family_status_edit{{ $person->id }}" name="from_outside_the_family">
+                                    <option value="0" @selected(old('from_outside_the_family', $person->from_outside_the_family) == '0')>
+                                        داخل العائلة
+                                    </option>
+                                    <option value="1" @selected(old('from_outside_the_family', $person->from_outside_the_family) == '1')>
+                                        خارج العائلة
+                                    </option>
                                 </select>
                             </div>
                         </div>

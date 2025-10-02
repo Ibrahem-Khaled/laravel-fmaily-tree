@@ -109,18 +109,14 @@
 
         {{-- إحصائيات --}}
         <div class="row mb-4">
-            <div class="col-xl-3 col-md-6 mb-4">
+
                 <x-stats-card icon="fas fa-newspaper" title="إجمالي المقالات" :value="$articlesCount" color="primary" />
-            </div>
-            <div class="col-xl-3 col-md-6 mb-4">
+
                 <x-stats-card icon="fas fa-check-circle" title="المنشورة" :value="$publishedCount" color="success" />
-            </div>
-            <div class="col-xl-3 col-md-6 mb-4">
+
                 <x-stats-card icon="fas fa-pencil-alt" title="المسودات" :value="$draftCount" color="warning" />
-            </div>
-            <div class="col-xl-3 col-md-6 mb-4">
+
                 <x-stats-card icon="fas fa-folder-tree" title="عدد الفئات" :value="$categoriesCount" color="info" />
-            </div>
         </div>
 
         {{-- بطاقة القائمة --}}
