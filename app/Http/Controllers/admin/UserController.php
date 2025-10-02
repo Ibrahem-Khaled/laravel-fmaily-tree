@@ -67,7 +67,7 @@ class UserController extends Controller
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'roles' => ['required', 'array', 'min:1'],
             'roles.*' => ['string', Rule::exists('roles', 'name')],
-            'email_verified' => ['boolean'],
+            'email_verified' => ['nullable', 'boolean'],
         ], [
             'name.required' => 'الاسم مطلوب',
             'name.max' => 'الاسم لا يمكن أن يتجاوز 255 حرف',
@@ -88,7 +88,7 @@ class UserController extends Controller
                 'name' => $validated['name'],
                 'email' => $validated['email'],
                 'password' => Hash::make($validated['password']),
-                'email_verified_at' => $validated['email_verified'] ? now() : null,
+                'email_verified_at' => (isset($validated['email_verified']) && $validated['email_verified']) ? now() : null,
             ]);
 
             $user->syncRoles($validated['roles']);
@@ -114,7 +114,7 @@ class UserController extends Controller
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
             'roles' => ['required', 'array', 'min:1'],
             'roles.*' => ['string', Rule::exists('roles', 'name')],
-            'email_verified' => ['boolean'],
+            'email_verified' => ['nullable', 'boolean'],
         ], [
             'name.required' => 'الاسم مطلوب',
             'name.max' => 'الاسم لا يمكن أن يتجاوز 255 حرف',
@@ -141,7 +141,7 @@ class UserController extends Controller
             }
 
             // تحديث حالة التفعيل
-            if ($validated['email_verified']) {
+            if (isset($validated['email_verified']) && $validated['email_verified']) {
                 $data['email_verified_at'] = now();
             } else {
                 $data['email_verified_at'] = null;

@@ -103,6 +103,7 @@
                         {{-- تفعيل الحساب --}}
                         <div class="col-12 mb-3">
                             <div class="form-check">
+                                <input type="hidden" name="email_verified" value="0">
                                 <input class="form-check-input" type="checkbox"
                                        name="email_verified" value="1"
                                        id="create_email_verified" checked>
