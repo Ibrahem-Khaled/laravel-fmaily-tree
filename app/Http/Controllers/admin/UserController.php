@@ -36,8 +36,14 @@ class UserController extends Controller
             });
         }
 
-        // ترتيب النتائج
+        // ترتيب النتائج - إعادة تحميل من قاعدة البيانات
         $users = $query->orderBy('created_at', 'desc')->paginate(15);
+
+        // التأكد من تحديث البيانات
+        $users->getCollection()->transform(function ($user) {
+            $user->refresh();
+            return $user;
+        });
 
         // الحصول على جميع الأدوار
         $roles = Role::all();
@@ -232,6 +238,9 @@ class UserController extends Controller
         try {
             DB::beginTransaction();
 
+            // إعادة تحميل المستخدم من قاعدة البيانات للتأكد من أحدث البيانات
+            $user->refresh();
+
             // تبديل حالة التفعيل
             if ($user->email_verified_at) {
                 $user->update(['email_verified_at' => null]);
@@ -243,13 +252,25 @@ class UserController extends Controller
                 $status = 'active';
             }
 
+            // إعادة تحميل المستخدم بعد التحديث
+            $user->refresh();
+
             DB::commit();
+
+            // تسجيل للتأكد من التحديث
+            \Illuminate\Support\Facades\Log::info('User activation status updated', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'email_verified_at' => $user->email_verified_at,
+                'status' => $status
+            ]);
 
             return response()->json([
                 'success' => true,
                 'message' => $message,
                 'status' => $status,
-                'user_id' => $user->id
+                'user_id' => $user->id,
+                'email_verified_at' => $user->email_verified_at
             ]);
 
         } catch (\Exception $e) {

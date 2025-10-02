@@ -26,6 +26,11 @@ class User extends Authenticatable implements AuditableContract
         'name',
         'email',
         'password',
+        'email_verified_at',
+        'phone',
+        'avatar',
+        'address',
+        'status',
     ];
 
     /**
@@ -47,4 +52,9 @@ class User extends Authenticatable implements AuditableContract
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    /**
+     * Disable model caching to ensure fresh data
+     */
+    protected $cacheFor = 0;
 }
