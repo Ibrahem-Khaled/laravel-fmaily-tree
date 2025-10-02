@@ -17,6 +17,7 @@ use App\Http\Controllers\BreastfeedingPublicController;
 use App\Http\Controllers\FamilyTreeController;
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\HomePersonController;
+use App\Http\Controllers\LogsController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -90,7 +91,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
 
     // this route is for the admin panel
     Route::resource('roles', RoleController::class)->middleware(['permission:roles.manage']);
-    Route::resource('users', UserController::class)->only(['index','store','update','destroy'])->middleware(['permission:users.manage']);
+    Route::resource('users', UserController::class)->only(['index', 'store', 'update', 'destroy'])->middleware(['permission:users.manage']);
 
     // Badges (Padges) routes
     Route::resource('padges', PadgeController::class);
@@ -106,6 +107,10 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::patch('breastfeeding/{breastfeeding}/toggle-status', [BreastfeedingController::class, 'toggleStatus'])->name('breastfeeding.toggle-status')->middleware(['permission:breastfeeding.update']);
     Route::get('breastfeeding/nursing-mothers/search', [BreastfeedingController::class, 'getNursingMothers'])->name('breastfeeding.nursing-mothers.search')->middleware(['permission:breastfeeding.view']);
     Route::get('breastfeeding/breastfed-children/search', [BreastfeedingController::class, 'getBreastfedChildren'])->name('breastfeeding.breastfed-children.search')->middleware(['permission:breastfeeding.view']);
+
+    // Logs routes
+    Route::get('logs/activity', [LogsController::class, 'activity'])->name('logs.activity');
+    Route::get('logs/audits',   [LogsController::class, 'audits'])->name('logs.audits');
 });
 
 require __DIR__ . '/auth.php';

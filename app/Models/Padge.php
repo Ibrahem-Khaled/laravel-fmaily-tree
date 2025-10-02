@@ -3,9 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
-class Padge extends Model
+class Padge extends BaseModel
 {
     use HasFactory;
     protected $fillable = [

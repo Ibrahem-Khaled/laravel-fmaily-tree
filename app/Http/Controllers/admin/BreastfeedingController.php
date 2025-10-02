@@ -17,7 +17,7 @@ class BreastfeedingController extends Controller
      */
     public function index(): View
     {
-        return view('admin.breastfeeding.index');
+        return view('dashboard.breastfeeding.index');
     }
 
     /**
@@ -33,7 +33,7 @@ class BreastfeedingController extends Controller
         // Get all persons who can be breastfed children
         $breastfedChildren = Person::orderBy('first_name')->get();
 
-        return view('admin.breastfeeding.create', compact('nursingMothers', 'breastfedChildren'));
+        return view('dashboard.breastfeeding.create', compact('nursingMothers', 'breastfedChildren'));
     }
 
     /**
@@ -89,7 +89,7 @@ class BreastfeedingController extends Controller
     {
         $breastfeeding->load(['nursingMother', 'breastfedChild']);
 
-        return view('admin.breastfeeding.show', compact('breastfeeding'));
+        return view('dashboard.breastfeeding.show', compact('breastfeeding'));
     }
 
     /**
@@ -107,7 +107,7 @@ class BreastfeedingController extends Controller
         // Get all persons who can be breastfed children
         $breastfedChildren = Person::orderBy('first_name')->get();
 
-        return view('admin.breastfeeding.edit', compact('breastfeeding', 'nursingMothers', 'breastfedChildren'));
+        return view('dashboard.breastfeeding.edit', compact('breastfeeding', 'nursingMothers', 'breastfedChildren'));
     }
 
     /**

@@ -20,6 +20,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Admin Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Default admin user configuration for seeding
+    |
+    */
+
+    'admin_email' => env('ADMIN_EMAIL', 'admin@familytree.com'),
+    'admin_password' => env('ADMIN_PASSWORD', 'admin123'),
+    'admin_name' => env('ADMIN_NAME', 'مدير النظام'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Environment
     |--------------------------------------------------------------------------
     |

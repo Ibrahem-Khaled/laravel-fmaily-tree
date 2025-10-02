@@ -12,7 +12,7 @@
     <hr class="sidebar-divider my-0">
 
     <!-- Nav Item - Dashboard -->
-    <li class="nav-item active">
+    <li class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
         <a class="nav-link" href="{{ route('dashboard') }}">
             <i class="fas fa-fw fa-tachometer-alt"></i>
             <span>لوحة التحكم</span></a>
@@ -20,64 +20,110 @@
 
     <!-- Heading -->
     <div class="sidebar-heading">
-        الادارات
+        إدارة العائلة
     </div>
 
-    <!-- Nav Item - Tables -->
-    <li class="nav-item">
-        <a class="nav-link" href="{{ route('people.index') }}">
-            <i class="fas fa-fw fa-users"></i>
-            <span>الشخصيات</span></a>
+    <!-- Nav Item - Family Management Collapse -->
+    <li class="nav-item {{ request()->routeIs(['people.*', 'marriages.*', 'breastfeeding.*']) ? 'active' : '' }}">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseFamily"
+           aria-expanded="{{ request()->routeIs(['people.*', 'marriages.*', 'breastfeeding.*']) ? 'true' : 'false' }}"
+           aria-controls="collapseFamily">
+            <i class="fas fa-fw fa-sitemap"></i>
+            <span>إدارة العائلة</span>
+        </a>
+        <div id="collapseFamily" class="collapse {{ request()->routeIs(['people.*', 'marriages.*', 'breastfeeding.*']) ? 'show' : '' }}"
+             aria-labelledby="headingFamily" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">إدارة العائلة:</h6>
+                <a class="collapse-item {{ request()->routeIs('people.*') ? 'active' : '' }}" href="{{ route('people.index') }}">
+                    <i class="fas fa-fw fa-users"></i> الشخصيات
+                </a>
+                <a class="collapse-item {{ request()->routeIs('marriages.*') ? 'active' : '' }}" href="{{ route('marriages.index') }}">
+                    <i class="fas fa-fw fa-heart"></i> الزواج
+                </a>
+                <a class="collapse-item {{ request()->routeIs('breastfeeding.*') ? 'active' : '' }}" href="{{ route('breastfeeding.index') }}">
+                    <i class="fas fa-fw fa-baby"></i> الرضاعة
+                </a>
+            </div>
+        </div>
     </li>
-    <li class="nav-item">
-        <a class="nav-link" href="{{ route('marriages.index') }}">
-            <i class="fas fa-fw fa-heart"></i>
-            <span>الزواج</span></a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="{{ route('breastfeeding.index') }}">
-            <i class="fas fa-fw fa-baby"></i>
-            <span>الرضاعة</span></a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="{{ route('articles.index') }}">
-            <i class="fas fa-fw fa-book"></i>
-            <span>
-                المقالات</span></a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="{{ route('dashboard.images.index') }}">
-            <i class="fas fa-fw fa-images"></i>
-            <span>
-                مكتبة الصور</span></a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="{{ route('categories.index') }}">
-            <i class="fas fa-fw fa-tags"></i>
-            <span>
-                الفئات للكل </span></a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="{{ route('padges.index') }}">
-            <i class="fas fa-fw fa-medal"></i>
-            <span>
-                الشارات</span></a>
-    </li>
-    @can('roles.manage')
-    <li class="nav-item">
-        <a class="nav-link" href="{{ route('roles.index') }}">
-            <i class="fas fa-fw fa-user-shield"></i>
-            <span>الأدوار</span></a>
-    </li>
-    @endcan
-    @can('users.manage')
-    <li class="nav-item">
-        <a class="nav-link" href="{{ route('users.index') }}">
-            <i class="fas fa-fw fa-user-cog"></i>
-            <span>المستخدمون</span></a>
-    </li>
-    @endcan
 
+    <!-- Heading -->
+    <div class="sidebar-heading">
+        المحتوى والوسائط
+    </div>
+
+    <!-- Nav Item - Content Management Collapse -->
+    <li class="nav-item {{ request()->routeIs(['articles.*', 'categories.*', 'dashboard.images.*']) ? 'active' : '' }}">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseContent"
+           aria-expanded="{{ request()->routeIs(['articles.*', 'categories.*', 'dashboard.images.*']) ? 'true' : 'false' }}"
+           aria-controls="collapseContent">
+            <i class="fas fa-fw fa-folder"></i>
+            <span>المحتوى والوسائط</span>
+        </a>
+        <div id="collapseContent" class="collapse {{ request()->routeIs(['articles.*', 'categories.*', 'dashboard.images.*']) ? 'show' : '' }}"
+             aria-labelledby="headingContent" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">إدارة المحتوى:</h6>
+                <a class="collapse-item {{ request()->routeIs('articles.*') ? 'active' : '' }}" href="{{ route('articles.index') }}">
+                    <i class="fas fa-fw fa-book"></i> المقالات
+                </a>
+                <a class="collapse-item {{ request()->routeIs('categories.*') ? 'active' : '' }}" href="{{ route('categories.index') }}">
+                    <i class="fas fa-fw fa-tags"></i> الفئات
+                </a>
+                <a class="collapse-item {{ request()->routeIs('dashboard.images.*') ? 'active' : '' }}" href="{{ route('dashboard.images.index') }}">
+                    <i class="fas fa-fw fa-images"></i> مكتبة الصور
+                </a>
+            </div>
+        </div>
+    </li>
+
+    <!-- Heading -->
+    <div class="sidebar-heading">
+        النظام والإعدادات
+    </div>
+
+    <!-- Nav Item - System Management Collapse -->
+    <li class="nav-item {{ request()->routeIs(['padges.*', 'roles.*', 'users.*']) ? 'active' : '' }}">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSystem"
+           aria-expanded="{{ request()->routeIs(['padges.*', 'roles.*', 'users.*']) ? 'true' : 'false' }}"
+           aria-controls="collapseSystem">
+            <i class="fas fa-fw fa-cogs"></i>
+            <span>النظام والإعدادات</span>
+        </a>
+        <div id="collapseSystem" class="collapse {{ request()->routeIs(['padges.*', 'roles.*', 'users.*']) ? 'show' : '' }}"
+             aria-labelledby="headingSystem" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">إدارة النظام:</h6>
+                <a class="collapse-item {{ request()->routeIs('padges.*') ? 'active' : '' }}" href="{{ route('padges.index') }}">
+                    <i class="fas fa-fw fa-medal"></i> الشارات
+                </a>
+                @can('roles.manage')
+                    <a class="collapse-item {{ request()->routeIs('roles.*') ? 'active' : '' }}" href="{{ route('roles.index') }}">
+                        <i class="fas fa-fw fa-user-shield"></i> الأدوار
+                    </a>
+                @endcan
+                @can('users.manage')
+                    <a class="collapse-item {{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}">
+                        <i class="fas fa-fw fa-user-cog"></i> المستخدمون
+                    </a>
+                @endcan
+            </div>
+        </div>
+    </li>
+
+    <!-- Heading -->
+    <div class="sidebar-heading">
+        التقارير والسجلات
+    </div>
+
+    <!-- Nav Item - Reports and Logs -->
+    <li class="nav-item {{ request()->routeIs('logs.*') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('logs.audits') }}">
+            <i class="fas fa-fw fa-file-alt"></i>
+            <span>سجلات التدقيق</span>
+        </a>
+    </li>
 
     <!-- Divider -->
     <hr class="sidebar-divider d-none d-md-block">

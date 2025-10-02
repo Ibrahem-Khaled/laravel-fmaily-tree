@@ -17,15 +17,10 @@
 
         {{-- إحصائيات الأدوار --}}
         <div class="row mb-4">
-            <div class="col-xl-4 col-md-6 mb-4">
-                <x-stats-card icon="fas fa-user-tag" title="إجمالي الأدوار" :value="$totalRoles" color="primary" />
-            </div>
-            <div class="col-xl-4 col-md-6 mb-4">
-                <x-stats-card icon="fas fa-check-circle" title="الأدوار النشطة" :value="$activeRoles" color="success" />
-            </div>
-            <div class="col-xl-4 col-md-6 mb-4">
-                <x-stats-card icon="fas fa-times-circle" title="الأدوار غير النشطة" :value="$inactiveRoles" color="danger" />
-            </div>
+            <x-stats-card icon="fas fa-user-tag" title="إجمالي الأدوار" :value="$totalRoles" color="primary" />
+            <x-stats-card icon="fas fa-check-circle" title="الأدوار النشطة" :value="$activeRoles" color="success" />
+
+            <x-stats-card icon="fas fa-times-circle" title="الأدوار غير النشطة" :value="$inactiveRoles" color="danger" />
         </div>
 
         {{-- بطاقة قائمة الأدوار --}}

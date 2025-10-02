@@ -3,11 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Kalnoy\Nestedset\NodeTrait;
 use App\Models\Scopes\OrderedScope;
 
-class Person extends Model
+class Person extends BaseModel
 {
     use HasFactory, NodeTrait;
     protected $table = 'persons';
