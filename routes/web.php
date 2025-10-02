@@ -92,6 +92,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     // this route is for the admin panel
     Route::resource('roles', RoleController::class)->middleware(['permission:roles.manage']);
     Route::resource('users', UserController::class)->only(['index', 'store', 'update', 'destroy'])->middleware(['permission:users.manage']);
+    Route::patch('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status')->middleware(['permission:users.manage']);
 
     // Badges (Padges) routes
     Route::resource('padges', PadgeController::class);

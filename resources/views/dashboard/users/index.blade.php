@@ -118,9 +118,25 @@
                                 <td>{{ $user->email }}</td>
                                 <td>{{ $user->created_at->format('Y-m-d') }}</td>
                                 <td>
-                                    <span class="badge badge-{{ $user->email_verified_at ? 'success' : 'warning' }}">
-                                        {{ $user->email_verified_at ? 'مفعل' : 'غير مفعل' }}
-                                    </span>
+                                    @php
+                                        $userRoles = auth()->user()->roles->pluck('name')->toArray();
+                                        $canToggle = (in_array('admin', $userRoles) || in_array('super_admin', $userRoles)) && $user->id !== auth()->id();
+                                    @endphp
+
+                                    @if($canToggle)
+                                        <button type="button"
+                                                class="btn btn-sm btn-{{ $user->email_verified_at ? 'warning' : 'success' }} toggle-status-btn"
+                                                data-user-id="{{ $user->id }}"
+                                                data-current-status="{{ $user->email_verified_at ? 'active' : 'inactive' }}"
+                                                title="{{ $user->email_verified_at ? 'إلغاء التفعيل' : 'تفعيل الحساب' }}">
+                                            <i class="fas fa-{{ $user->email_verified_at ? 'ban' : 'check' }}"></i>
+                                            {{ $user->email_verified_at ? 'مفعل' : 'غير مفعل' }}
+                                        </button>
+                                    @else
+                                        <span class="badge badge-{{ $user->email_verified_at ? 'success' : 'warning' }}">
+                                            {{ $user->email_verified_at ? 'مفعل' : 'غير مفعل' }}
+                                        </span>
+                                    @endif
                                 </td>
                                 <td>
                                     {{-- زر عرض --}}
@@ -225,5 +241,85 @@
         $(function () {
             $('[data-toggle="tooltip"]').tooltip();
         });
+
+        {{-- معالجة تفعيل/إلغاء تفعيل المستخدم --}}
+        $('.toggle-status-btn').on('click', function() {
+            const button = $(this);
+            const userId = button.data('user-id');
+            const currentStatus = button.data('current-status');
+
+            // تعطيل الزر أثناء المعالجة
+            button.prop('disabled', true);
+
+            // إظهار رسالة تحميل
+            const originalText = button.html();
+            button.html('<i class="fas fa-spinner fa-spin"></i> جاري المعالجة...');
+
+            $.ajax({
+                url: `/dashboard/users/${userId}/toggle-status`,
+                method: 'PATCH',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // تحديث الزر
+                        if (response.status === 'active') {
+                            button.removeClass('btn-success').addClass('btn-warning');
+                            button.data('current-status', 'active');
+                            button.attr('title', 'إلغاء التفعيل');
+                            button.html('<i class="fas fa-ban"></i> مفعل');
+                        } else {
+                            button.removeClass('btn-warning').addClass('btn-success');
+                            button.data('current-status', 'inactive');
+                            button.attr('title', 'تفعيل الحساب');
+                            button.html('<i class="fas fa-check"></i> غير مفعل');
+                        }
+
+                        // إظهار رسالة النجاح
+                        showAlert('success', response.message);
+                    } else {
+                        showAlert('error', response.message);
+                        button.html(originalText);
+                    }
+                },
+                error: function(xhr) {
+                    const response = xhr.responseJSON;
+                    const message = response ? response.message : 'حدث خطأ أثناء معالجة الطلب';
+                    showAlert('error', message);
+                    button.html(originalText);
+                },
+                complete: function() {
+                    // إعادة تفعيل الزر
+                    button.prop('disabled', false);
+                }
+            });
+        });
+
+        {{-- دالة إظهار التنبيهات --}}
+        function showAlert(type, message) {
+            const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+            const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+
+            const alertHtml = `
+                <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+                    <i class="fas ${icon}"></i> ${message}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            `;
+
+            // إزالة التنبيهات السابقة
+            $('.alert').remove();
+
+            // إضافة التنبيه الجديد
+            $('.container-fluid').prepend(alertHtml);
+
+            // إزالة التنبيه تلقائياً بعد 5 ثوان
+            setTimeout(function() {
+                $('.alert').fadeOut();
+            }, 5000);
+        }
     </script>
 @endpush

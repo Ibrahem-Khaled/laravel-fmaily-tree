@@ -111,6 +111,16 @@ class AuthController extends Controller
 
         // *** إصلاح: محاولة تسجيل دخول المستخدم ***
         if (Auth::attempt($credentials, $remember)) {
+            $user = Auth::user();
+
+            // التحقق من تفعيل الحساب
+            if (!$user->email_verified_at) {
+                Auth::logout();
+                return redirect()->back()->withErrors([
+                    'email' => 'حسابك غير مفعل. يرجى التواصل مع المدير لتفعيل الحساب.',
+                ])->onlyInput('email');
+            }
+
             // تجديد جلسة المستخدم لمنع هجمات Session Fixation
             $request->session()->regenerate();
             // توجيه المستخدم إلى الصفحة التي كان يقصدها قبل تسجيل الدخول

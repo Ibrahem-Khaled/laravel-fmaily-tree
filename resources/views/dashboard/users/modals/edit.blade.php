@@ -102,17 +102,11 @@
                             @enderror
                         </div>
 
-                        {{-- تفعيل الحساب --}}
+                        {{-- ملاحظة حول التفعيل --}}
                         <div class="col-12 mb-3">
-                            <div class="form-check">
-                                <input type="hidden" name="email_verified" value="0">
-                                <input class="form-check-input" type="checkbox"
-                                       name="email_verified" value="1"
-                                       id="edit_email_verified_{{ $user->id }}"
-                                       {{ $user->email_verified_at ? 'checked' : '' }}>
-                                <label class="form-check-label" for="edit_email_verified_{{ $user->id }}">
-                                    <i class="fas fa-check-circle text-success"></i> تفعيل الحساب
-                                </label>
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i>
+                                <strong>ملاحظة:</strong> يمكنك تفعيل أو إلغاء تفعيل الحساب من قائمة المستخدمين باستخدام زر التفعيل.
                             </div>
                         </div>
 

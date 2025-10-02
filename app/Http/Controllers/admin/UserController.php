@@ -67,7 +67,6 @@ class UserController extends Controller
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'roles' => ['required', 'array', 'min:1'],
             'roles.*' => ['string', Rule::exists('roles', 'name')],
-            'email_verified' => ['nullable', 'boolean'],
         ], [
             'name.required' => 'الاسم مطلوب',
             'name.max' => 'الاسم لا يمكن أن يتجاوز 255 حرف',
@@ -88,7 +87,7 @@ class UserController extends Controller
                 'name' => $validated['name'],
                 'email' => $validated['email'],
                 'password' => Hash::make($validated['password']),
-                'email_verified_at' => (isset($validated['email_verified']) && $validated['email_verified']) ? now() : null,
+                'email_verified_at' => null, // إنشاء الحساب غير مفعل افتراضياً
             ]);
 
             $user->syncRoles($validated['roles']);
@@ -205,6 +204,60 @@ class UserController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'حدث خطأ أثناء حذف المستخدم: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * تفعيل أو إلغاء تفعيل المستخدم
+     */
+    public function toggleStatus(User $user)
+    {
+        // التحقق من صلاحية التعديل
+        $userRoles = auth()->user()->roles->pluck('name')->toArray();
+        if (!in_array('admin', $userRoles) && !in_array('super_admin', $userRoles)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'ليس لديك صلاحية لتعديل حالة المستخدمين'
+            ], 403);
+        }
+
+        // منع تعديل حالة المستخدم الحالي
+        if ($user->id === auth()->id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'لا يمكنك تعديل حالة حسابك الخاص'
+            ], 403);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            // تبديل حالة التفعيل
+            if ($user->email_verified_at) {
+                $user->update(['email_verified_at' => null]);
+                $message = 'تم إلغاء تفعيل الحساب بنجاح';
+                $status = 'inactive';
+            } else {
+                $user->update(['email_verified_at' => now()]);
+                $message = 'تم تفعيل الحساب بنجاح';
+                $status = 'active';
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'status' => $status,
+                'user_id' => $user->id
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ أثناء تعديل حالة المستخدم: ' . $e->getMessage()
+            ], 500);
         }
     }
 }

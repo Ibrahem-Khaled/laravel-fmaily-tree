@@ -100,16 +100,11 @@
                             @enderror
                         </div>
 
-                        {{-- تفعيل الحساب --}}
+                        {{-- ملاحظة حول التفعيل --}}
                         <div class="col-12 mb-3">
-                            <div class="form-check">
-                                <input type="hidden" name="email_verified" value="0">
-                                <input class="form-check-input" type="checkbox"
-                                       name="email_verified" value="1"
-                                       id="create_email_verified" checked>
-                                <label class="form-check-label" for="create_email_verified">
-                                    <i class="fas fa-check-circle text-success"></i> تفعيل الحساب فوراً
-                                </label>
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i>
+                                <strong>ملاحظة:</strong> سيتم إنشاء الحساب غير مفعل. يمكنك تفعيله لاحقاً من قائمة المستخدمين.
                             </div>
                         </div>
                     </div>
