@@ -79,7 +79,7 @@
         </div>
 
         @if ($persons->isNotEmpty())
-            <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4">
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
 
                 @foreach ($persons as $person)
                     {{-- ==== بداية: إضافة Alpine.js للتحكم في حالة المودال ==== --}}
@@ -93,7 +93,7 @@
                                 <div class="p-3 text-center border-b border-green-100">
                                     <img src="{{ $person->avatar }}" alt="{{ $person->first_name }}"
                                         class="w-20 h-20 rounded-full mx-auto mb-3 border-4 border-white shadow-md object-cover">
-                                    <h3 class="font-bold font-serif text-lg text-gray-800 group-hover:text-green-600 transition-colors truncate">
+                                    <h3 class="font-bold font-serif text-sm sm:text-base text-gray-800 group-hover:text-green-600 transition-colors leading-tight">
                                         {{ $person->full_name }}
                                     </h3>
                                 </div>

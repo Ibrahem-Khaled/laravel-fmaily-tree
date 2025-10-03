@@ -542,9 +542,74 @@
                         @endforeach
                     </div>
 
-                    <div class="mt-8 lg:mt-12">
-                        {{ $articles->links() }}
-                    </div>
+                    @unless($isFiltered ?? false)
+                        <div class="mt-8 lg:mt-12 flex justify-center">
+                            @if($articles->hasPages())
+                                <nav class="flex items-center space-x-1 space-x-reverse" aria-label="التحكم في الصفحات">
+                                    {{-- زر السابق --}}
+                                    @if($articles->onFirstPage())
+                                        <span class="px-3 py-2 rounded-lg text-gray-400 bg-gray-100 cursor-not-allowed">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                                            </svg>
+                                        </span>
+                                    @else
+                                        <a href="{{ $articles->previousPageUrl() }}"
+                                           class="px-3 py-2 rounded-lg text-gray-600 bg-white border border-gray-200 hover:bg-green-50 hover:border-green-200 hover:text-green-600 transition-all duration-300 shadow-sm hover:shadow-md">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                                            </svg>
+                                        </a>
+                                    @endif
+
+                                    {{-- أرقام الصفحات --}}
+                                    @foreach($articles->getUrlRange(1, $articles->lastPage()) as $page => $url)
+                                        @if($page == $articles->currentPage())
+                                            <span class="px-4 py-2 rounded-lg text-white bg-gradient-to-r from-green-500 to-green-600 font-bold shadow-lg">
+                                                {{ $page }}
+                                            </span>
+                                        @elseif($page == 1 || $page == $articles->lastPage() || ($page >= $articles->currentPage() - 1 && $page <= $articles->currentPage() + 1))
+                                            <a href="{{ $url }}"
+                                               class="px-4 py-2 rounded-lg text-gray-600 bg-white border border-gray-200 hover:bg-green-50 hover:border-green-200 hover:text-green-600 transition-all duration-300 shadow-sm hover:shadow-md">
+                                                {{ $page }}
+                                            </a>
+                                        @elseif($page == $articles->currentPage() - 2 || $page == $articles->currentPage() + 2)
+                                            <span class="px-2 text-gray-400">...</span>
+                                        @endif
+                                    @endforeach
+
+                                    {{-- زر التالي --}}
+                                    @if($articles->hasMorePages())
+                                        <a href="{{ $articles->nextPageUrl() }}"
+                                           class="px-3 py-2 rounded-lg text-gray-600 bg-white border border-gray-200 hover:bg-green-50 hover:border-green-200 hover:text-green-600 transition-all duration-300 shadow-sm hover:shadow-md">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                            </svg>
+                                        </a>
+                                    @else
+                                        <span class="px-3 py-2 rounded-lg text-gray-400 bg-gray-100 cursor-not-allowed">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                            </svg>
+                                        </span>
+                                    @endif
+                                </nav>
+
+                                {{-- معلومات الصفحة --}}
+                                <div class="mt-4 text-center">
+                                    <p class="text-sm text-gray-600">
+                                        عرض
+                                        <span class="font-bold text-green-600">{{ $articles->firstItem() }}</span>
+                                        إلى
+                                        <span class="font-bold text-green-600">{{ $articles->lastItem() }}</span>
+                                        من أصل
+                                        <span class="font-bold text-green-600">{{ $articles->total() }}</span>
+                                        مقال
+                                    </p>
+                                </div>
+                            @endif
+                        </div>
+                    @endunless
                 @else
                     <div class="text-center glass-effect p-8 lg:p-16 rounded-3xl green-glow">
                         <svg class="mx-auto h-16 w-16 text-green-400" fill="none" viewBox="0 0 24 24"

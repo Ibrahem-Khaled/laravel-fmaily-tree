@@ -60,14 +60,18 @@ class GalleryController extends Controller
     {
         $query = Article::with(['images', 'person', 'category']);
 
+        $isFiltered = false;
+
         // فلترة حسب القسم
         if ($request->has('category')) {
             $query->where('category_id', $request->category);
+            $isFiltered = true;
         }
 
         // فلترة حسب الكاتب
         if ($request->has('author')) {
             $query->where('person_id', $request->author);
+            $isFiltered = true;
         }
 
         // البحث
@@ -77,9 +81,15 @@ class GalleryController extends Controller
                 $q->where('title', 'like', "%{$search}%")
                     ->orWhere('content', 'like', "%{$search}%");
             });
+            $isFiltered = true;
         }
 
-        $articles = $query->latest()->paginate(12);
+        // إذا كان هناك فلترة، اعرض جميع النتائج بدون باجينيشن
+        if ($isFiltered) {
+            $articles = $query->latest()->get();
+        } else {
+            $articles = $query->latest()->paginate(12);
+        }
 
         // جلب التصنيفات مع عدد المقالات
         $categories = Category::whereHas('articles')
@@ -103,7 +113,8 @@ class GalleryController extends Controller
             'topAuthors',
             'totalArticles',
             'totalAuthors',
-            'totalImages'
+            'totalImages',
+            'isFiltered'
         ));
     }
 }
