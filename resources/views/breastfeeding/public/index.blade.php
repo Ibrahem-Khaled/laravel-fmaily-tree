@@ -1161,7 +1161,6 @@
                         <div class="col-md-3">
                             <div class="stat-card">
                                 <div class="stat-number">{{ $stats['active_breastfeeding'] }}</div>
-                                {{-- <div class="stat-label">رضاعة مستمرة</div> --}}
             </div>
                 </div>
             </div>
@@ -1293,9 +1292,6 @@
                                             ${child.duration_months ? ` (${child.duration_months} شهر)` : ''}
                                         </div>
                                     </div>
-                                    // <span class="mobile-status-badge ${child.is_active ? 'status-active' : 'status-completed'}">
-                                    //     ${child.is_active ? 'مستمرة' : 'مكتملة'}
-                                    // </span>
                                 </div>
                                 <div class="mobile-notes-toggle">
                                     <i class="fas fa-chevron-down"></i> اضغط لعرض الملاحظات
