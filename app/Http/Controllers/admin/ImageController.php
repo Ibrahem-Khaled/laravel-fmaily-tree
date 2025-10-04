@@ -106,6 +106,56 @@ class ImageController extends Controller
         return back()->with('success', 'تم رفع الصور للمقال.');
     }
 
+    public function edit(Image $image)
+    {
+        return response()->json([
+            'success' => true,
+            'image' => [
+                'id' => $image->id,
+                'name' => $image->name,
+                'description' => $image->description,
+                'path' => $image->path,
+                'category_id' => $image->category_id,
+            ]
+        ]);
+    }
+
+    public function update(Request $request, Image $image)
+    {
+        $request->validate([
+            'name' => ['nullable', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+            'category_id' => ['required', 'exists:categories,id'],
+            'image' => ['nullable', 'image', 'max:4096'],
+        ]);
+
+        $data = [
+            'name' => $request->name,
+            'description' => $request->description,
+            'category_id' => $request->category_id,
+        ];
+
+        // إذا تم رفع صورة جديدة
+        if ($request->hasFile('image')) {
+            // حذف الصورة القديمة
+            if ($image->path && Storage::disk('public')->exists($image->path)) {
+                Storage::disk('public')->delete($image->path);
+            }
+
+            // رفع الصورة الجديدة
+            $path = $request->file('image')->store('categories', 'public');
+            $data['path'] = $path;
+            $data['name'] = $data['name'] ?: $request->file('image')->getClientOriginalName();
+        }
+
+        $image->update($data);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'تم تحديث الصورة بنجاح'
+        ]);
+    }
+
     public function destroy(Image $image)
     {
         if ($image->path && Storage::disk('public')->exists($image->path)) {

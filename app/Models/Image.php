@@ -11,6 +11,7 @@ class Image extends BaseModel
     use HasFactory;
     protected $fillable = [
         'name',
+        'description',
         'path',
         'article_id',
         'category_id'

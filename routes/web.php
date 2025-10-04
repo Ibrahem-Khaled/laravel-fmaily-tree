@@ -78,6 +78,8 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
 
     // معرض الصور
     Route::get('images/index',        [ImageController::class, 'index'])->name('dashboard.images.index');
+    Route::get('images/{image}/edit', [ImageController::class, 'edit'])->name('images.edit');
+    Route::put('images/{image}',      [ImageController::class, 'update'])->name('images.update');
     Route::post('gallery/upload', [ImageController::class, 'store'])->name('gallery.store');
     Route::delete('images/{image}', [ImageController::class, 'destroy'])->name('images.destroy');
     Route::delete('images',         [ImageController::class, 'bulkDestroy'])->name('images.bulk-destroy');

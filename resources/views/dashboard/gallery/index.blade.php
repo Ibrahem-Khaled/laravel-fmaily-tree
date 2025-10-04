@@ -31,9 +31,14 @@
         <div class="card shadow mb-4">
             <div class="card-header py-3 d-flex justify-content-between align-items-center">
                 <h6 class="m-0 font-weight-bold text-primary">الصور (مرتبطة بالفئات فقط)</h6>
-                <button class="btn btn-primary" data-toggle="modal" data-target="#uploadImagesModal">
-                    <i class="fas fa-upload"></i> رفع صور
-                </button>
+                <div>
+                    <button class="btn btn-outline-danger mr-2" id="bulkDeleteBtn">
+                        <i class="fas fa-trash"></i> حذف المحدد
+                    </button>
+                    <button class="btn btn-primary" data-toggle="modal" data-target="#uploadImagesModal">
+                        <i class="fas fa-upload"></i> رفع صور
+                    </button>
+                </div>
             </div>
 
             <div class="card-body">
@@ -88,12 +93,9 @@
                                         <td>{{ $img->name ?? '-' }}</td>
                                         <td>{{ optional($img->category)->name ?? '-' }}</td>
                                         <td>
-                                            <form action="{{ route('images.destroy', $img) }}" method="POST"
-                                                onsubmit="return confirm('حذف هذه الصورة؟');" class="d-inline">
-                                                @csrf @method('DELETE')
-                                                <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i>
-                                                    حذف</button>
-                                            </form>
+                                            <button type="button" class="btn btn-sm btn-primary" onclick="editImage({{ $img->id }})">
+                                                <i class="fas fa-edit"></i> تعديل
+                                            </button>
                                         </td>
                                     </tr>
                                 @empty
@@ -110,19 +112,15 @@
                 <div class="d-flex justify-content-center">
                     {{ $images->links() }}
                 </div>
-
-                {{-- زر حذف جماعي --}}
-                <div class="mt-3">
-                    <button class="btn btn-outline-danger" id="bulkDeleteBtn">
-                        <i class="fas fa-trash"></i> حذف المحدد
-                    </button>
-                </div>
             </div>
         </div>
     </div>
 
     {{-- مودال رفع الصور (فئات فقط) --}}
     @include('dashboard.gallery.modals.upload')
+
+    {{-- مودال تعديل الصورة --}}
+    @include('dashboard.gallery.modals.edit')
 
     {{-- مودال إنشاء فئة سريع --}}
     @include('dashboard.gallery.modals.quick-category')
@@ -142,10 +140,91 @@
             }
         });
 
+        // تعديل صورة
+        function editImage(imageId) {
+            // جلب بيانات الصورة عبر AJAX
+            $.ajax({
+                url: `/dashboard/images/${imageId}/edit`,
+                method: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        const image = response.image;
+
+                        // ملء البيانات في المودال
+                        $('#editImageName').val(image.name || '');
+                        $('#editImageCategory').val(image.category_id || '');
+                        $('#editImageDescription').val(image.description || '');
+
+                        // عرض الصورة الحالية
+                        const imageUrl = image.path ? `{{ asset('storage/') }}/${image.path}` : '{{ asset('img/no-image.png') }}';
+                        $('#currentImage').attr('src', imageUrl);
+
+                        // تحديث رابط النموذج
+                        $('#editImageForm').attr('action', `/dashboard/images/${imageId}`);
+
+                        // فتح المودال
+                        $('#editImageModal').modal('show');
+                    } else {
+                        alert('تعذر جلب بيانات الصورة');
+                    }
+                },
+                error: function() {
+                    alert('خطأ في الاتصال بالخادم');
+                }
+            });
+        }
+
         // إظهار أسماء الملفات
         $(document).on('change', '.custom-file-input', function() {
             const names = Array.from(this.files || []).map(f => f.name).join(', ');
             $(this).next('.custom-file-label').html(names || 'اختر ملفات...');
+        });
+
+        // معالج نموذج تعديل الصورة
+        $('#editImageForm').on('submit', function(e) {
+            e.preventDefault();
+            const form = this;
+            const formData = new FormData(form);
+            const submitBtn = $(form).find('button[type="submit"]');
+
+            submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> جارٍ الحفظ...');
+
+            $.ajax({
+                url: $(form).attr('action'),
+                method: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#editImageModal').modal('hide');
+                        location.reload(); // إعادة تحميل الصفحة لعرض التحديثات
+                    } else {
+                        alert(response.message || 'تعذر حفظ التعديلات');
+                    }
+                },
+                error: function(xhr) {
+                    const errors = xhr.responseJSON?.errors;
+                    if (errors) {
+                        let errorMessage = 'يرجى تصحيح الأخطاء التالية:\n';
+                        Object.values(errors).forEach(error => {
+                            errorMessage += '- ' + error[0] + '\n';
+                        });
+                        alert(errorMessage);
+                    } else {
+                        alert('خطأ في الاتصال بالخادم');
+                    }
+                },
+                complete: function() {
+                    submitBtn.prop('disabled', false).html('<i class="fas fa-save"></i> حفظ التعديلات');
+                }
+            });
         });
 
         // إنشاء فئة سريع (AJAX)
