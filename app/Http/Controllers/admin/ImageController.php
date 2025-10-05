@@ -46,10 +46,8 @@ class ImageController extends Controller
         $images = $imagesQ->latest('id')->paginate(24)->withQueryString();
 
         // جلب الأشخاص للمنشن في مودال رفع الصور
-        $people = Person::select('id', 'first_name', 'last_name')
-            ->orderBy('first_name')
-            ->orderBy('last_name')
-            ->get();
+        $people = Person::
+            get();
 
         return view('dashboard.gallery.index', compact(
             'search',
