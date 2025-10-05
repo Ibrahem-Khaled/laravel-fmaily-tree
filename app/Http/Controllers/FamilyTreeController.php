@@ -21,19 +21,42 @@ class FamilyTreeController extends Controller
     // API لجلب تواصل العائلة
     public function getFamilyTree()
     {
-        // الحصول على الجذور (الأشخاص الذين ليس لهم والد)
-        $roots = Person::whereNull('parent_id')
-            ->where('from_outside_the_family', false)
-            // ->where('gender', 'male')
-            ->with('children')
-            ->get();
+        // استخدام cache لتحسين الأداء
+        $cacheKey = 'family_tree_data';
+        $cachedData = cache()->get($cacheKey);
 
-        // تنظيم البيانات بشكل شجري
-        $tree = $this->buildTree($roots);
+        if ($cachedData) {
+            return response()->json([
+                'success' => true,
+                'tree' => $cachedData,
+                'cached' => true
+            ]);
+        }
+
+        // الحصول على الجذور مع تحسين الأداء - تحديد الحقول المطلوبة فقط
+        $roots = Person::select([
+            'id', 'first_name', 'last_name', 'gender', 'birth_date', 'death_date',
+            'photo_url', 'parent_id', 'mother_id', 'from_outside_the_family'
+        ])
+        ->whereNull('parent_id')
+        ->where('from_outside_the_family', false)
+        ->with([
+            'children:id,first_name,last_name,gender,birth_date,death_date,photo_url,parent_id,mother_id',
+            'childrenFromMother:id,first_name,last_name,gender,birth_date,death_date,photo_url,parent_id,mother_id'
+        ])
+        ->withCount('mentionedImages')
+        ->get();
+
+        // تنظيم البيانات بشكل شجري محسن
+        $tree = $this->buildTreeOptimized($roots);
+
+        // حفظ البيانات في cache لمدة 30 دقيقة
+        cache()->put($cacheKey, $tree, 1800);
 
         return response()->json([
             'success' => true,
-            'tree' => $tree
+            'tree' => $tree,
+            'cached' => false
         ]);
     }
 
@@ -47,29 +70,50 @@ class FamilyTreeController extends Controller
         ]);
     }
 
+    private function buildTreeOptimized($people)
+    {
+        return $people->map(function ($person) {
+            $data = $this->formatPersonData($person);
+
+            // حساب عدد الأبناء بناءً على الجنس - استخدام البيانات المحملة مسبقاً
+            $childrenCount = 0;
+            if ($person->gender === 'female') {
+                // للإناث: استخدام العلاقة المحملة مسبقاً
+                $childrenCount = $person->childrenFromMother ? $person->childrenFromMother->count() : 0;
+            } else {
+                // للذكور: استخدام العلاقة المحملة مسبقاً
+                $childrenCount = $person->children ? $person->children->count() : 0;
+            }
+
+            $data['children_count'] = $childrenCount;
+
+            return $data;
+        });
+    }
+
     private function buildTree($people)
     {
         return $people->map(function ($person) {
             $data = $this->formatPersonData($person);
 
-            // حساب عدد الأبناء بناءً على الجنس
+            // حساب عدد الأبناء بناءً على الجنس - استخدام البيانات المحملة مسبقاً
             $childrenCount = 0;
             if ($person->gender === 'female') {
-                // للإناث: البحث عن الأبناء عبر mother_id
-                $childrenCount = Person::where('mother_id', $person->id)->count();
+                // للإناث: استخدام العلاقة المحملة مسبقاً
+                $childrenCount = $person->childrenFromMother ? $person->childrenFromMother->count() : 0;
             } else {
-                // للذكور: استخدام العلاقة children
-                $childrenCount = $person->children->count();
+                // للذكور: استخدام العلاقة المحملة مسبقاً
+                $childrenCount = $person->children ? $person->children->count() : 0;
             }
 
             // إذا كان للشخص أبناء، نضيفهم بشكل متداخل
             if ($childrenCount > 0) {
                 if ($person->gender === 'female') {
-                    // للإناث: جلب الأبناء عبر mother_id
-                    $children = Person::where('mother_id', $person->id)->get();
+                    // للإناث: استخدام البيانات المحملة مسبقاً
+                    $children = $person->childrenFromMother ?: collect();
                 } else {
-                    // للذكور: استخدام العلاقة children
-                    $children = $person->children;
+                    // للذكور: استخدام البيانات المحملة مسبقاً
+                    $children = $person->children ?: collect();
                 }
 
                 $data['children'] = $this->buildTree($children);
@@ -83,8 +127,23 @@ class FamilyTreeController extends Controller
     // API لجلب أبناء شخص معين
     public function getChildren($id)
     {
-        $person = Person::findOrFail($id);
-        $childrenQuery = Person::query();
+        // استخدام cache لتحسين الأداء
+        $cacheKey = "person_children_{$id}";
+        $cachedData = cache()->get($cacheKey);
+
+        if ($cachedData) {
+            return response()->json([
+                'success' => true,
+                'children' => $cachedData,
+                'cached' => true
+            ]);
+        }
+
+        $person = Person::select(['id', 'gender'])->findOrFail($id);
+        $childrenQuery = Person::select([
+            'id', 'first_name', 'last_name', 'gender', 'birth_date', 'death_date',
+            'photo_url', 'parent_id', 'mother_id'
+        ]);
 
         // التحقق من جنس الشخص لتحديد كيفية البحث عن الأبناء
         if ($person->gender === 'female') {
@@ -95,30 +154,70 @@ class FamilyTreeController extends Controller
             $childrenQuery->where('parent_id', $person->id);
         }
 
-        // جلب الأبناء مع عدد أبنائهم (للجيل التالي) وترتيبهم حسب تاريخ الميلاد
-        $children = $childrenQuery->withCount('children')
-            ->get();
+        // جلب الأبناء مع عدد أبنائهم محسن للأداء
+        $children = $childrenQuery->withCount([
+            'children as children_count',
+            'childrenFromMother as children_from_mother_count'
+        ])->get();
+
+        $childrenData = array_values($children->map(function (Person $child) {
+            $childData = $this->formatPersonData($child);
+            // إظهار العدد الصحيح للذكور والإناث
+            if ($child->gender === 'female') {
+                $childData['children_count'] = $child->children_from_mother_count ?? 0;
+            } else {
+                $childData['children_count'] = $child->children_count ?? 0;
+            }
+            return $childData;
+        })->toArray());
+
+        // حفظ البيانات في cache لمدة 15 دقيقة
+        cache()->put($cacheKey, $childrenData, 900);
 
         return response()->json([
             'success' => true,
-            'children' => array_values($children->map(function (Person $child) {
-                $childData = $this->formatPersonData($child);
-                // إظهار العدد الصحيح للذكور والإناث
-                $childData['children_count'] = $child->children_count;
-                return $childData;
-            })->toArray())
+            'children' => $childrenData,
+            'cached' => false
         ]);
     }
 
     // API لجلب تفاصيل شخص معين
     public function getPersonDetails($id)
     {
-        // Eager load relationships to prevent N+1 query problem
-        $person = Person::with(['parent', 'mother', 'husband', 'wives', 'articles'])->findOrFail($id);
+        // استخدام cache لتحسين الأداء
+        $cacheKey = "person_details_{$id}";
+        $cachedData = cache()->get($cacheKey);
+
+        if ($cachedData) {
+            return response()->json([
+                'success' => true,
+                'person' => $cachedData,
+                'cached' => true
+            ]);
+        }
+
+        // Eager load relationships محسن للأداء - تحديد الحقول المطلوبة فقط
+        $person = Person::select([
+            'id', 'first_name', 'last_name', 'gender', 'birth_date', 'death_date',
+            'photo_url', 'biography', 'occupation', 'location', 'parent_id', 'mother_id'
+        ])
+        ->with([
+            'parent:id,first_name,last_name,gender,birth_date,death_date,photo_url',
+            'mother:id,first_name,last_name,gender,birth_date,death_date,photo_url',
+            'articles:id,title,person_id'
+        ])
+        ->withCount('mentionedImages')
+        ->findOrFail($id);
+
+        $personData = $this->formatPersonData($person, true);
+
+        // حفظ البيانات في cache لمدة 20 دقيقة
+        cache()->put($cacheKey, $personData, 1200);
 
         return response()->json([
             'success' => true,
-            'person' => $this->formatPersonData($person, true) // Request full details
+            'person' => $personData,
+            'cached' => false
         ]);
     }
 
@@ -137,9 +236,11 @@ class FamilyTreeController extends Controller
     // تنسيق بيانات الشخص للاستجابة
     private function formatPersonData(Person $person, $fullDetails = false)
     {
-        // Calculate children count based on gender
+        // Calculate children count based on gender - استخدام البيانات المحملة مسبقاً
         if (isset($person->children_count)) {
             $children_count = $person->children_count;
+        } elseif (isset($person->children_from_mother_count)) {
+            $children_count = $person->children_from_mother_count;
         } else {
             // If not preloaded with withCount, calculate it now.
             if ($person->gender === 'female') {
@@ -158,6 +259,7 @@ class FamilyTreeController extends Controller
             'gender' => $person->gender,
             'photo_url' => $person->avatar, // Assuming 'avatar' is the attribute for photo url
             'children_count' => $children_count, // إظهار العدد الصحيح للذكور والإناث
+            'images_count' => $person->mentioned_images_count ?? $person->mentionedImages()->count(), // عدد الصور المرتبطة بالشخص
             'birth_date' => optional($person->birth_date)->format('Y/m/d'),
             'death_date' => optional($person->death_date)->format('Y/m/d'), // Send death date to frontend
             'age' => $person->age,
@@ -191,32 +293,36 @@ class FamilyTreeController extends Controller
                 });
             }
 
-            // Format spouses - للنساء نعرض الزوج الحالي فقط وللرجال نستبعد المنفصلات
+            // Format spouses محسن للأداء - للنساء نعرض الزوج الحالي فقط وللرجال نستبعد المنفصلات
             $spouses = collect();
 
             if ($person->gender === 'male') {
-                $activeMarriages = Marriage::where('husband_id', $person->id)
-                    ->with('wife')
+                $activeMarriages = Marriage::select(['id', 'husband_id', 'wife_id', 'married_at', 'divorced_at'])
+                    ->where('husband_id', $person->id)
+                    ->whereNull('divorced_at') // استخدام whereNull بدلاً من isDivorced()
                     ->orderBy('married_at')
-                    ->get()
-                    ->reject(function (Marriage $marriage) {
-                        return $marriage->isDivorced();
-                    });
+                    ->get();
 
-                $spouses = $activeMarriages
-                    ->pluck('wife')
-                    ->filter();
+                if ($activeMarriages->isNotEmpty()) {
+                    $wifeIds = $activeMarriages->pluck('wife_id');
+                    $wives = Person::select(['id', 'first_name', 'last_name', 'gender', 'birth_date', 'death_date', 'photo_url'])
+                        ->whereIn('id', $wifeIds)
+                        ->get();
+                    $spouses = $wives;
+                }
             } elseif ($person->gender === 'female') {
-                $currentMarriage = Marriage::where('wife_id', $person->id)
-                    ->with('husband')
+                $currentMarriage = Marriage::select(['id', 'husband_id', 'wife_id', 'married_at', 'divorced_at'])
+                    ->where('wife_id', $person->id)
+                    ->whereNull('divorced_at') // استخدام whereNull بدلاً من isDivorced()
                     ->orderByDesc('married_at')
-                    ->get()
-                    ->first(function ($marriage) {
-                        return !$marriage->isDivorced();
-                    });
+                    ->first();
 
-                if ($currentMarriage && $currentMarriage->husband) {
-                    $spouses->push($currentMarriage->husband);
+                if ($currentMarriage && $currentMarriage->husband_id) {
+                    $husband = Person::select(['id', 'first_name', 'last_name', 'gender', 'birth_date', 'death_date', 'photo_url'])
+                        ->find($currentMarriage->husband_id);
+                    if ($husband) {
+                        $spouses->push($husband);
+                    }
                 }
             }
 

@@ -117,4 +117,23 @@ class GalleryController extends Controller
             'isFiltered'
         ));
     }
+
+    /**
+     * عرض معرض صور شخص معين
+     */
+    public function personGallery(Person $person)
+    {
+        // جلب الصور المرتبطة بالشخص مع التفاصيل
+        $images = $person->mentionedImages()
+            ->with(['article:id,title,person_id', 'article.person:id,first_name,last_name'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // إذا لم توجد صور، إرجاع صفحة خطأ أو رسالة
+        if ($images->isEmpty()) {
+            abort(404, 'لا توجد صور مرتبطة بهذا الشخص');
+        }
+
+        return view('person-gallery', compact('person', 'images'));
+    }
 }

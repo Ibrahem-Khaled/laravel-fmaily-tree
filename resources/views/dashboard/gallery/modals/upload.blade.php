@@ -28,6 +28,18 @@
                 </div>
 
                 <div class="form-group">
+                    <label>الأشخاص المذكورين في الصور (اختياري)</label>
+                    <select name="mentioned_persons[]" id="mentionedPersonsSelect" class="form-control" multiple>
+                        @foreach ($people as $person)
+                            <option value="{{ $person->id }}">
+                                {{ $person->full_name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <small class="text-muted d-block mt-1">يمكن اختيار أكثر من شخص للصورة الواحدة.</small>
+                </div>
+
+                <div class="form-group">
                     <label>الصور (متعددة)</label>
                     <div class="custom-file">
                         <input type="file" name="images[]" class="custom-file-input" id="uploadImagesInput" multiple

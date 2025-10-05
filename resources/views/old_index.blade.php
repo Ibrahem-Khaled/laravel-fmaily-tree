@@ -227,6 +227,12 @@
             border-radius: 50%; display: flex; justify-content: center; align-items: center;
         }
 
+        /* تحسين عرض حالة الوفاة */
+        .spouse-card.is-deceased small, .child-card.is-deceased small, .parent-card.is-deceased small {
+            color: #dc3545 !important;
+            font-weight: 600;
+        }
+
         .article-card {
             display: flex; align-items: center; gap: 15px;
             background-color: var(--light-gray);
@@ -403,13 +409,31 @@
 
             async function fetchAPI(endpoint) {
                 try {
-                    const response = await fetch(`${API_BASE_URL}${endpoint}`);
+                    // إضافة timeout للاستعلامات لتجنب الانتظار الطويل
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 ثانية timeout
+
+                    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                        signal: controller.signal,
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                        }
+                    });
+
+                    clearTimeout(timeoutId);
+
                     if (!response.ok) throw new Error(`API Error: ${response.status}`);
                     return await response.json();
                 } catch (error) {
                     console.error('API Fetch Error:', error);
-                    treeContainer.innerHTML =
-                        `<div class="alert alert-danger text-center">حدث خطأ أثناء تحميل البيانات. يرجى المحاولة مرة أخرى.</div>`;
+                    if (error.name === 'AbortError') {
+                        treeContainer.innerHTML =
+                            `<div class="alert alert-warning text-center">استغرق التحميل وقتاً طويلاً. يرجى المحاولة مرة أخرى.</div>`;
+                    } else {
+                        treeContainer.innerHTML =
+                            `<div class="alert alert-danger text-center">حدث خطأ أثناء تحميل البيانات. يرجى المحاولة مرة أخرى.</div>`;
+                    }
                     return null;
                 }
             }
@@ -432,6 +456,7 @@
 
                 const photoHtml = person.photo_url
                     ? `<img src="${person.photo_url}" alt="${person.first_name}"
+                         loading="lazy"
                          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">`
                     : '';
 
@@ -539,15 +564,33 @@
                 const childrenContainer = document.getElementById(childrenAccordionId);
                 if (!childrenContainer) return;
 
-                childrenContainer.innerHTML = `<div class="p-2 text-center text-muted small">جارٍ التحميل...</div>`;
+                // إظهار مؤشر تحميل محسن
+                childrenContainer.innerHTML = `
+                    <div class="p-2 text-center text-muted small">
+                        <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                        جارٍ التحميل...
+                    </div>`;
+
                 const data = await fetchAPI(`/person/${personId}/children`);
                 childrenContainer.innerHTML = '';
 
                 if (data && data.children && data.children.length > 0) {
+                    // استخدام DocumentFragment لتحسين الأداء
+                    const fragment = document.createDocumentFragment();
+
                     data.children.forEach(child => {
-                        childrenContainer.innerHTML += createPersonNode(child, level, groupKey);
+                        const childDiv = document.createElement('div');
+                        childDiv.innerHTML = createPersonNode(child, level, groupKey);
+                        fragment.appendChild(childDiv);
                     });
+
+                    childrenContainer.appendChild(fragment);
                     initTooltips(childrenContainer);
+
+                    // إظهار رسالة نجاح إذا كانت البيانات من cache
+                    if (data.cached) {
+                        console.log(`تم تحميل أبناء الشخص ${personId} من الذاكرة المؤقتة`);
+                    }
                 } else {
                     childrenContainer.innerHTML = `<div class="p-2 text-center text-muted small">لا يوجد أبناء.</div>`;
                 }
@@ -584,10 +627,12 @@
                 personModal.show();
                 updateBackBtn();
 
+                // إظهار مؤشر تحميل محسن
                 modalBody.innerHTML = `
                     <div class="text-center p-5">
                         <div class="spinner-border text-success" style="width: 3rem; height: 3rem;"></div>
                         <p class="mt-3">جاري تحميل التفاصيل...</p>
+                        <small class="text-muted">قد يستغرق هذا بضع ثوانٍ</small>
                     </div>`;
 
                 const data = await fetchAPI(`/person/${personId}`);
@@ -595,6 +640,12 @@
                     modalBody.innerHTML = `<div class="alert alert-danger">فشل تحميل البيانات.</div>`;
                     return;
                 }
+
+                // إظهار رسالة نجاح إذا كانت البيانات من cache
+                if (data.cached) {
+                    console.log(`تم تحميل تفاصيل الشخص ${personId} من الذاكرة المؤقتة`);
+                }
+
                 const person = data.person;
 
                 const createDetailRow = (icon, label, value) => !value ? '' :
@@ -626,20 +677,22 @@
                 if (person.parent || person.mother) {
                     parentsHtml = '<h5>الوالدين</h5><div class="row g-2">';
                     if (person.parent) {
+                        const parentStatusText = person.parent.death_date ? 'متوفي (رحمه الله)' : 'الأب';
                         parentsHtml += `
                             <div class="col-md-6">
-                                <div class="parent-card clickable" onclick="showPersonDetails(${person.parent.id})">
+                                <div class="parent-card clickable ${person.parent.death_date ? 'is-deceased' : ''}" onclick="showPersonDetails(${person.parent.id})">
                                     ${createPhoto(person.parent, 'sm', false)}
-                                    <div><strong>${person.parent.first_name}</strong><small class="d-block text-muted">الأب</small></div>
+                                    <div><strong>${person.parent.first_name}</strong><small class="d-block text-muted">${parentStatusText}</small></div>
                                 </div>
                             </div>`;
                     }
                     if (person.mother) {
+                        const motherStatusText = person.mother.death_date ? 'متوفاه (رحمها الله)' : 'الأم';
                         parentsHtml += `
                             <div class="col-md-6">
-                                <div class="parent-card clickable" onclick="showPersonDetails(${person.mother.id})">
+                                <div class="parent-card clickable ${person.mother.death_date ? 'is-deceased' : ''}" onclick="showPersonDetails(${person.mother.id})">
                                     ${createPhoto(person.mother, 'sm', false)}
-                                    <div><strong>${person.mother.first_name}</strong><small class="d-block text-muted">الأم</small></div>
+                                    <div><strong>${person.mother.first_name}</strong><small class="d-block text-muted">${motherStatusText}</small></div>
                                 </div>
                             </div>`;
                     }
@@ -653,14 +706,20 @@
                         <h5>${spouseLabel}</h5>
                         <div class="row g-2">`;
                     person.spouses.forEach(spouse => {
-                        const spouseLabelText = spouse.gender === 'female' ? 'زوجة' : 'زوج';
+                        let spouseStatusText;
+                        if (spouse.death_date) {
+                            spouseStatusText = spouse.gender === 'female' ? 'متوفاه (رحمها الله)' : 'متوفي (رحمه الله)';
+                        } else {
+                            spouseStatusText = spouse.gender === 'female' ? 'زوجة' : 'زوج';
+                        }
+
                         spousesHtml += `
                             <div class="col-md-6">
-                                <div class="spouse-card clickable" onclick="showPersonDetails(${spouse.id})">
+                                <div class="spouse-card clickable ${spouse.death_date ? 'is-deceased' : ''}" onclick="showPersonDetails(${spouse.id})">
                                     ${createPhoto(spouse, 'sm', false)}
                                     <div>
                                         <strong>${spouse.name || spouse.full_name}</strong>
-                                        <small class="d-block text-muted">${spouseLabelText}</small>
+                                        <small class="d-block text-muted">${spouseStatusText}</small>
                                     </div>
                                 </div>
                             </div>`;
@@ -683,12 +742,21 @@
                     ? `<h5>الأبناء (${person.children_count})</h5><div id="modalChildrenList" class="row g-2"></div><hr class="my-4">`
                     : '';
 
+                let galleryButtonHtml = (person.images_count > 0)
+                    ? `<div class="text-center mb-4">
+                        <button class="btn btn-outline-primary btn-lg" onclick="openPersonGallery(${person.id})">
+                            <i class="fas fa-images me-2"></i> معرض الصور (${person.images_count})
+                        </button>
+                    </div>`
+                    : '';
+
                 document.getElementById('modalBodyContent').innerHTML = `
                     <div class="row g-4">
                         <div class="col-lg-4 text-center">
                             <div class="d-inline-block ${person.death_date ? 'is-deceased' : ''}">${createPhoto(person, 'lg', false)}</div>
                             <h4 class="mt-3 mb-1">${person.full_name}</h4>
                             <!-- 🚫 لا نص "في ذمة الله" ولا "على قيد الحياة" هنا -->
+                            ${galleryButtonHtml}
                         </div>
                         <div class="col-lg-8">
                             ${(person.gender === 'male' || (person.gender === 'female' && person.birth_date && new Date(person.birth_date).getFullYear() >= 2005)) ? createDetailRow('fa-birthday-cake', 'تاريخ الميلاد', person.birth_date) : ''}
@@ -719,9 +787,12 @@
                 childrenContainer.innerHTML = '';
                 if (data && data.children && data.children.length > 0) {
                     data.children.forEach(child => {
-                        const relationText = child.gender === 'female' ? 'ابنة' : 'ابن';
-                        const deceasedText = child.gender === 'male' ? 'متوفى (رحمه الله)' : 'متوفاة (رحمها الله)';
-                        const statusText = child.death_date ? deceasedText : relationText;
+                        let statusText;
+                        if (child.death_date) {
+                            statusText = child.gender === 'male' ? 'متوفي (رحمه الله)' : 'متوفاه (رحمها الله)';
+                        } else {
+                            statusText = child.gender === 'female' ? 'ابنة' : 'ابن';
+                        }
 
                         childrenContainer.innerHTML += `
                             <div class="col-md-6">
@@ -741,13 +812,35 @@
             }
 
             async function loadInitialTree() {
+                // إظهار مؤشر تحميل محسن
+                treeContainer.innerHTML = `
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-success" style="width: 3rem; height: 3rem;" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-3 text-muted">جاري تحميل تواصل العائلة...</p>
+                        <small class="text-muted">قد يستغرق هذا بضع ثوانٍ</small>
+                    </div>`;
+
                 const data = await fetchAPI('/family-tree');
                 if (data && data.tree && data.tree.length > 0) {
-                    treeContainer.innerHTML = '';
+                    // استخدام DocumentFragment لتحسين الأداء
+                    const fragment = document.createDocumentFragment();
+
                     data.tree.forEach(person => {
-                        treeContainer.innerHTML += createPersonNode(person, 0, 'root');
+                        const personDiv = document.createElement('div');
+                        personDiv.innerHTML = createPersonNode(person, 0, 'root');
+                        fragment.appendChild(personDiv);
                     });
+
+                    treeContainer.innerHTML = '';
+                    treeContainer.appendChild(fragment);
                     initTooltips(treeContainer);
+
+                    // إظهار رسالة نجاح إذا كانت البيانات من cache
+                    if (data.cached) {
+                        console.log('تم تحميل البيانات من الذاكرة المؤقتة');
+                    }
                 } else {
                     treeContainer.innerHTML =
                         '<div class="alert alert-warning text-center">لا توجد بيانات لعرضها في تواصل العائلة.</div>';
@@ -809,6 +902,11 @@
                     }
                 }
             });
+
+            // ====== دالة فتح معرض الصور ======
+            window.openPersonGallery = (personId) => {
+                window.open(`/person-gallery/${personId}`, '_blank');
+            };
 
             loadInitialTree();
         });

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Article;
 use App\Models\Category;
 use App\Models\Image;
+use App\Models\Person;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
@@ -17,6 +18,7 @@ class ImageController extends Controller
     {
         $search     = $request->get('search');
         $categoryId = $request->get('category_id');
+        $personSearch = $request->get('person_search');
 
         // إحصائيات
         $imagesCount          = Image::whereNotNull('category_id')->count();
@@ -30,9 +32,12 @@ class ImageController extends Controller
             ->get();
 
         // صور المعرض (خاص بالفئات فقط)
-        $imagesQ = Image::with('category')
+        $imagesQ = Image::with(['category', 'mentionedPersons'])
             ->whereNotNull('category_id')
-            ->when($search, fn($q) => $q->where('name', 'like', "%{$search}%"));
+            ->when($search, fn($q) => $q->where('name', 'like', "%{$search}%"))
+            ->when($personSearch, fn($q) => $q->whereHas('mentionedPersons', function($query) use ($personSearch) {
+                $query->where('person_id', $personSearch);
+            }));
 
         if ($categoryId) {
             $imagesQ->where('category_id', $categoryId);
@@ -40,13 +45,20 @@ class ImageController extends Controller
 
         $images = $imagesQ->latest('id')->paginate(24)->withQueryString();
 
+        // جلب الأشخاص للمنشن في مودال رفع الصور
+        $people = Person::select('id', 'first_name', 'last_name')
+            ->orderBy('first_name')
+            ->orderBy('last_name')
+            ->get();
+
         return view('dashboard.gallery.index', compact(
             'search',
             'categoryId',
             'images',
             'imagesCount',
             'categoriesWithImages',
-            'categories'
+            'categories',
+            'people'
         ));
     }
 
@@ -55,16 +67,25 @@ class ImageController extends Controller
         $request->validate([
             'category_id' => ['required', 'exists:categories,id'],
             'images.*'    => ['required', 'image', 'max:4096'],
+            'mentioned_persons' => ['nullable', 'array'],
+            'mentioned_persons.*' => ['exists:persons,id'],
         ]);
 
-        foreach ($request->file('images', []) as $file) {
-            $path = $file->store('categories', 'public');
-            Image::create([
-                'name'        => $file->getClientOriginalName(),
-                'path'        => $path,
-                'category_id' => $request->category_id,
-            ]);
-        }
+        DB::transaction(function () use ($request) {
+            foreach ($request->file('images', []) as $file) {
+                $path = $file->store('categories', 'public');
+                $image = Image::create([
+                    'name'        => $file->getClientOriginalName(),
+                    'path'        => $path,
+                    'category_id' => $request->category_id,
+                ]);
+
+                // ربط الأشخاص المذكورين بالصورة
+                if ($request->has('mentioned_persons') && is_array($request->mentioned_persons)) {
+                    $image->mentionedPersons()->attach($request->mentioned_persons);
+                }
+            }
+        });
 
         return back()->with('success', 'تم رفع الصور للفئة.');
     }
@@ -108,6 +129,8 @@ class ImageController extends Controller
 
     public function edit(Image $image)
     {
+        $image->load('mentionedPersons');
+
         return response()->json([
             'success' => true,
             'image' => [
@@ -116,6 +139,7 @@ class ImageController extends Controller
                 'description' => $image->description,
                 'path' => $image->path,
                 'category_id' => $image->category_id,
+                'mentioned_persons' => $image->mentionedPersons->pluck('id')->toArray(),
             ]
         ]);
     }
@@ -127,28 +151,39 @@ class ImageController extends Controller
             'description' => ['nullable', 'string'],
             'category_id' => ['required', 'exists:categories,id'],
             'image' => ['nullable', 'image', 'max:4096'],
+            'mentioned_persons' => ['nullable', 'array'],
+            'mentioned_persons.*' => ['exists:persons,id'],
         ]);
 
-        $data = [
-            'name' => $request->name,
-            'description' => $request->description,
-            'category_id' => $request->category_id,
-        ];
+        DB::transaction(function () use ($request, $image) {
+            $data = [
+                'name' => $request->name,
+                'description' => $request->description,
+                'category_id' => $request->category_id,
+            ];
 
-        // إذا تم رفع صورة جديدة
-        if ($request->hasFile('image')) {
-            // حذف الصورة القديمة
-            if ($image->path && Storage::disk('public')->exists($image->path)) {
-                Storage::disk('public')->delete($image->path);
+            // إذا تم رفع صورة جديدة
+            if ($request->hasFile('image')) {
+                // حذف الصورة القديمة
+                if ($image->path && Storage::disk('public')->exists($image->path)) {
+                    Storage::disk('public')->delete($image->path);
+                }
+
+                // رفع الصورة الجديدة
+                $path = $request->file('image')->store('categories', 'public');
+                $data['path'] = $path;
+                $data['name'] = $data['name'] ?: $request->file('image')->getClientOriginalName();
             }
 
-            // رفع الصورة الجديدة
-            $path = $request->file('image')->store('categories', 'public');
-            $data['path'] = $path;
-            $data['name'] = $data['name'] ?: $request->file('image')->getClientOriginalName();
-        }
+            $image->update($data);
 
-        $image->update($data);
+            // تحديث الأشخاص المذكورين
+            if ($request->has('mentioned_persons')) {
+                $image->mentionedPersons()->sync($request->mentioned_persons);
+            } else {
+                $image->mentionedPersons()->detach();
+            }
+        });
 
         return response()->json([
             'success' => true,

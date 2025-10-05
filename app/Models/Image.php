@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Facades\Storage;
 
 class Image extends BaseModel
@@ -25,6 +26,12 @@ class Image extends BaseModel
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function mentionedPersons(): BelongsToMany
+    {
+        return $this->belongsToMany(Person::class, 'image_mentions', 'image_id', 'person_id')
+            ->withTimestamps();
     }
 
     protected static function booted(): void

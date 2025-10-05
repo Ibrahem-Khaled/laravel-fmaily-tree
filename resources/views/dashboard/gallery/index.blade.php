@@ -45,13 +45,20 @@
                 {{-- فلاتر + بحث --}}
                 <form action="{{ route('dashboard.images.index') }}" method="GET" class="mb-4">
                     <div class="form-row align-items-end">
-                        <div class="form-group col-md-6">
+                        <div class="form-group col-md-4">
                             <label>بحث بالاسم</label>
                             <input type="text" name="search" value="{{ $search }}" class="form-control"
                                 placeholder="ابحث باسم الصورة...">
                         </div>
 
-                        <div class="form-group col-md-6">
+                        <div class="form-group col-md-4">
+                            <label>بحث عن شخص مذكور</label>
+                            <select name="person_search" id="personSearchSelect" class="form-control">
+                                <option value="">— اختر شخص —</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group col-md-4">
                             <label>الفئة (فقط الفئات التي لديها صور)</label>
                             <select name="category_id" class="form-control">
                                 <option value="">— الكل —</option>
@@ -79,6 +86,7 @@
                                     <th>المعاينة</th>
                                     <th>الاسم</th>
                                     <th>الفئة</th>
+                                    <th>الأشخاص المذكورين</th>
                                     <th style="width:160px;">الإجراءات</th>
                                 </tr>
                             </thead>
@@ -93,6 +101,15 @@
                                         <td>{{ $img->name ?? '-' }}</td>
                                         <td>{{ optional($img->category)->name ?? '-' }}</td>
                                         <td>
+                                            @if($img->mentionedPersons->count() > 0)
+                                                @foreach($img->mentionedPersons as $person)
+                                                    <span class="badge badge-info mr-1">{{ $person->full_name }}</span>
+                                                @endforeach
+                                            @else
+                                                <span class="text-muted">لا يوجد</span>
+                                            @endif
+                                        </td>
+                                        <td>
                                             <button type="button" class="btn btn-sm btn-primary" onclick="editImage({{ $img->id }})">
                                                 <i class="fas fa-edit"></i> تعديل
                                             </button>
@@ -100,7 +117,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="text-center">لا توجد صور</td>
+                                        <td colspan="6" class="text-center">لا توجد صور</td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -126,8 +143,67 @@
     @include('dashboard.gallery.modals.quick-category')
 @endsection
 
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    select[multiple] {
+        min-height: 100px;
+    }
+
+    .badge {
+        font-size: 0.75em;
+        margin: 2px;
+    }
+
+    .select2-container {
+        width: 100% !important;
+    }
+</style>
+@endpush
+
 @push('scripts')
-    <script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+        // تهيئة Select2 للبحث عن الأشخاص
+        $(document).ready(function() {
+            $('#personSearchSelect').select2({
+                placeholder: 'ابحث عن شخص...',
+                allowClear: true,
+                language: {
+                    noResults: function() {
+                        return "لا توجد نتائج";
+                    },
+                    searching: function() {
+                        return "جاري البحث...";
+                    }
+                },
+                ajax: {
+                    url: "{{ route('people.search') }}",
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                        return {
+                            term: params.term,
+                            page: params.page || 1
+                        };
+                    },
+                    processResults: function (data, params) {
+                        return {
+                            results: data.results,
+                            pagination: {
+                                more: false
+                            }
+                        };
+                    },
+                    cache: true
+                },
+                minimumInputLength: 2,
+                escapeMarkup: function (markup) {
+                    return markup;
+                }
+            });
+        });
+
         // اختيار الكل
         document.getElementById('checkAll').addEventListener('change', function() {
             document.querySelectorAll('input[name="ids[]"]').forEach(cb => cb.checked = this.checked);
@@ -157,6 +233,9 @@
                         $('#editImageName').val(image.name || '');
                         $('#editImageCategory').val(image.category_id || '');
                         $('#editImageDescription').val(image.description || '');
+
+                        // تحديث الأشخاص المذكورين
+                        $('#editMentionedPersons').val(image.mentioned_persons || []);
 
                         // عرض الصورة الحالية
                         const imageUrl = image.path ? `{{ asset('storage/') }}/${image.path}` : '{{ asset('img/no-image.png') }}';

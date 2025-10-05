@@ -46,6 +46,18 @@
                 </div>
 
                 <div class="form-group">
+                    <label>الأشخاص المذكورين في الصورة (اختياري)</label>
+                    <select name="mentioned_persons[]" id="editMentionedPersons" class="form-control" multiple>
+                        @foreach ($people as $person)
+                            <option value="{{ $person->id }}">
+                                {{ $person->full_name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <small class="text-muted d-block mt-1">يمكن اختيار أكثر من شخص للصورة الواحدة.</small>
+                </div>
+
+                <div class="form-group">
                     <label>وصف الصورة (اختياري)</label>
                     <textarea name="description" id="editImageDescription" class="form-control" rows="3"></textarea>
                 </div>

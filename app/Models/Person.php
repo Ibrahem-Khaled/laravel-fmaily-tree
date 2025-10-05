@@ -137,6 +137,12 @@ class Person extends BaseModel
     {
         return $this->hasMany(Article::class);
     }
+
+    public function mentionedImages()
+    {
+        return $this->belongsToMany(Image::class, 'image_mentions', 'person_id', 'image_id')
+            ->withTimestamps();
+    }
     public function padges()
     {
         // جدول pivot عندك اسمه person_padges
