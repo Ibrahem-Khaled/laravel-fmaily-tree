@@ -293,15 +293,20 @@ class FamilyTreeController extends Controller
                 });
             }
 
-            // Format spouses محسن للأداء - للنساء نعرض الزوج الحالي فقط وللرجال نستبعد المنفصلات
+            // Format spouses محسن للأداء - نعرض الزوج/الزوجات النشطين فقط (غير المنفصلين)
+            // نستخدم دالة isDivorced() للتحقق من كلا الشرطين: is_divorced أو divorced_at
             $spouses = collect();
 
             if ($person->gender === 'male') {
-                $activeMarriages = Marriage::select(['id', 'husband_id', 'wife_id', 'married_at', 'divorced_at'])
+                $allMarriages = Marriage::select(['id', 'husband_id', 'wife_id', 'married_at', 'divorced_at', 'is_divorced'])
                     ->where('husband_id', $person->id)
-                    ->whereNull('divorced_at') // استخدام whereNull بدلاً من isDivorced()
                     ->orderBy('married_at')
                     ->get();
+
+                // فلترة الزيجات النشطة فقط (غير المنفصلة)
+                $activeMarriages = $allMarriages->filter(function ($marriage) {
+                    return !$marriage->isDivorced();
+                });
 
                 if ($activeMarriages->isNotEmpty()) {
                     $wifeIds = $activeMarriages->pluck('wife_id');
@@ -311,11 +316,17 @@ class FamilyTreeController extends Controller
                     $spouses = $wives;
                 }
             } elseif ($person->gender === 'female') {
-                $currentMarriage = Marriage::select(['id', 'husband_id', 'wife_id', 'married_at', 'divorced_at'])
+                $allMarriages = Marriage::select(['id', 'husband_id', 'wife_id', 'married_at', 'divorced_at', 'is_divorced'])
                     ->where('wife_id', $person->id)
-                    ->whereNull('divorced_at') // استخدام whereNull بدلاً من isDivorced()
                     ->orderByDesc('married_at')
-                    ->first();
+                    ->get();
+
+                // فلترة الزيجات النشطة فقط (غير المنفصلة)
+                $activeMarriages = $allMarriages->filter(function ($marriage) {
+                    return !$marriage->isDivorced();
+                });
+
+                $currentMarriage = $activeMarriages->first();
 
                 if ($currentMarriage && $currentMarriage->husband_id) {
                     $husband = Person::select(['id', 'first_name', 'last_name', 'gender', 'birth_date', 'death_date', 'photo_url'])
