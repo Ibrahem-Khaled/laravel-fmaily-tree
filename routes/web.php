@@ -84,6 +84,8 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::post('gallery/upload', [ImageController::class, 'store'])->name('gallery.store');
     Route::delete('images/{image}', [ImageController::class, 'destroy'])->name('images.destroy');
     Route::delete('images',         [ImageController::class, 'bulkDestroy'])->name('images.bulk-destroy');
+    Route::delete('images/{image}/remove-person/{person}', [ImageController::class, 'removePerson'])->name('images.remove-person');
+    Route::get('images/{image}/download', [ImageController::class, 'download'])->name('images.download');
 
     Route::post('articles/{article}/images', [ImageController::class, 'storeForArticle'])->name('articles.images.store');
     // إنشاء فئة سريع (AJAX)

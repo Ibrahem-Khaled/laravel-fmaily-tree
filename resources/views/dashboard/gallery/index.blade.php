@@ -103,16 +103,31 @@
                                         <td>
                                             @if($img->mentionedPersons->count() > 0)
                                                 @foreach($img->mentionedPersons as $person)
-                                                    <span class="badge badge-info mr-1">{{ $person->full_name }}</span>
+                                                    <span class="badge badge-info mr-1">
+                                                        {{ $person->full_name }}
+                                                        <button type="button" class="btn btn-sm btn-outline-danger ml-1"
+                                                                onclick="removePersonFromImage({{ $img->id }}, {{ $person->id }})"
+                                                                style="padding: 2px 6px; font-size: 10px; border-radius: 50%;">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                    </span>
                                                 @endforeach
                                             @else
                                                 <span class="text-muted">لا يوجد</span>
                                             @endif
                                         </td>
                                         <td>
-                                            <button type="button" class="btn btn-sm btn-primary" onclick="editImage({{ $img->id }})">
-                                                <i class="fas fa-edit"></i> تعديل
-                                            </button>
+                                            <div class="btn-group" role="group">
+                                                <button type="button" class="btn btn-sm btn-info" onclick="viewImage({{ $img->id }}, '{{ $img->path ? asset('storage/' . $img->path) : asset('img/no-image.png') }}', '{{ $img->name ?? 'صورة' }}')">
+                                                    <i class="fas fa-search-plus"></i> تكبير
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-success" onclick="downloadImage({{ $img->id }}, '{{ $img->name ?? 'صورة' }}')">
+                                                    <i class="fas fa-download"></i> تحميل
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-primary" onclick="editImage({{ $img->id }})">
+                                                    <i class="fas fa-edit"></i> تعديل
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 @empty
@@ -141,6 +156,37 @@
 
     {{-- مودال إنشاء فئة سريع --}}
     @include('dashboard.gallery.modals.quick-category')
+
+    {{-- مودال عرض الصورة مع التكبير --}}
+    <div class="modal fade" id="imageViewerModal" tabindex="-1" role="dialog" aria-labelledby="imageViewerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="imageViewerModalLabel">عرض الصورة</h5>
+                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                </div>
+                <div class="modal-body text-center">
+                    <div class="image-container" style="position: relative; overflow: hidden;">
+                        <img id="viewerImage" src="" alt="" style="max-width: 100%; max-height: 70vh; transition: transform 0.3s ease;">
+                    </div>
+                    <div class="mt-3">
+                        <button type="button" class="btn btn-outline-secondary" onclick="zoomOut()">
+                            <i class="fas fa-search-minus"></i> تصغير
+                        </button>
+                        <button type="button" class="btn btn-outline-primary" onclick="resetZoom()">
+                            <i class="fas fa-expand-arrows-alt"></i> حجم طبيعي
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="zoomIn()">
+                            <i class="fas fa-search-plus"></i> تكبير
+                        </button>
+                        <button type="button" class="btn btn-outline-success" onclick="downloadCurrentImage()">
+                            <i class="fas fa-download"></i> تحميل
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('styles')
@@ -155,8 +201,39 @@
         margin: 2px;
     }
 
+    .badge .btn-outline-danger {
+        margin-left: 5px;
+        padding: 2px 6px;
+        font-size: 10px;
+        border-radius: 50%;
+        line-height: 1;
+    }
+
+    .badge .btn-outline-danger:hover {
+        background-color: #dc3545;
+        border-color: #dc3545;
+        color: white;
+    }
+
     .select2-container {
         width: 100% !important;
+    }
+
+    /* مودال عرض الصورة */
+    .image-container {
+        cursor: grab;
+    }
+
+    .image-container:active {
+        cursor: grabbing;
+    }
+
+    #viewerImage {
+        cursor: zoom-in;
+    }
+
+    .btn-group .btn {
+        margin: 0 2px;
     }
 </style>
 @endpush
@@ -306,6 +383,30 @@
             });
         });
 
+        // حذف شخص من صورة
+        function removePersonFromImage(imageId, personId) {
+            if (confirm('هل تريد حذف هذا الشخص من الصورة؟\nسيتم إزالة العلاقة بين الشخص والصورة فقط.')) {
+                $.ajax({
+                    url: `/dashboard/images/${imageId}/remove-person/${personId}`,
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // إعادة تحميل الصفحة لعرض التحديثات
+                            location.reload();
+                        } else {
+                            alert(response.message || 'تعذر حذف الشخص من الصورة');
+                        }
+                    },
+                    error: function() {
+                        alert('خطأ في الاتصال بالخادم');
+                    }
+                });
+            }
+        }
+
         // إنشاء فئة سريع (AJAX)
         $('#quickCategoryForm').on('submit', function(e) {
             e.preventDefault();
@@ -344,6 +445,122 @@
                     btn.prop('disabled', false).text('حفظ الفئة');
                 }
             });
+        });
+
+        // متغيرات التكبير
+        let currentZoom = 1;
+        let currentImageId = null;
+        let currentImageName = '';
+
+        // عرض الصورة في المودال
+        function viewImage(imageId, imageSrc, imageName) {
+            currentImageId = imageId;
+            currentImageName = imageName;
+            currentZoom = 1;
+
+            $('#viewerImage').attr('src', imageSrc).attr('alt', imageName);
+            $('#imageViewerModalLabel').text('عرض الصورة: ' + imageName);
+            $('#viewerImage').css('transform', 'scale(1)');
+            $('#imageViewerModal').modal('show');
+        }
+
+        // تكبير الصورة
+        function zoomIn() {
+            currentZoom += 0.25;
+            $('#viewerImage').css('transform', `scale(${currentZoom}) translate(${currentX}px, ${currentY}px)`);
+        }
+
+        // تصغير الصورة
+        function zoomOut() {
+            if (currentZoom > 0.25) {
+                currentZoom -= 0.25;
+                $('#viewerImage').css('transform', `scale(${currentZoom}) translate(${currentX}px, ${currentY}px)`);
+            }
+        }
+
+        // إعادة تعيين التكبير
+        function resetZoom() {
+            currentZoom = 1;
+            currentX = 0;
+            currentY = 0;
+            $('#viewerImage').css('transform', 'scale(1)');
+        }
+
+        // تحميل الصورة الحالية
+        function downloadCurrentImage() {
+            if (currentImageId) {
+                downloadImage(currentImageId, currentImageName);
+            }
+        }
+
+        // تحميل الصورة
+        function downloadImage(imageId, imageName) {
+            const link = document.createElement('a');
+            link.href = `/dashboard/images/${imageId}/download`;
+            link.download = imageName || 'صورة';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // تكبير بالماوس
+        $('#viewerImage').on('click', function() {
+            zoomIn();
+        });
+
+        // سحب الصورة
+        let isDragging = false;
+        let startX = 0;
+        let startY = 0;
+        let currentX = 0;
+        let currentY = 0;
+
+        $('#viewerImage').on('mousedown', function(e) {
+            if (currentZoom > 1) {
+                isDragging = true;
+                startX = e.clientX - currentX;
+                startY = e.clientY - currentY;
+                $(this).css('cursor', 'grabbing');
+            }
+        });
+
+        $(document).on('mousemove', function(e) {
+            if (isDragging && currentZoom > 1) {
+                currentX = e.clientX - startX;
+                currentY = e.clientY - startY;
+                $('#viewerImage').css('transform', `scale(${currentZoom}) translate(${currentX}px, ${currentY}px)`);
+            }
+        });
+
+        $(document).on('mouseup', function() {
+            isDragging = false;
+            $('#viewerImage').css('cursor', 'zoom-in');
+        });
+
+        // تكبير بعجلة الماوس
+        $('#viewerImage').on('wheel', function(e) {
+            e.preventDefault();
+            if (e.originalEvent.deltaY < 0) {
+                zoomIn();
+            } else {
+                zoomOut();
+            }
+        });
+
+        // تكبير بالكيبورد
+        $(document).on('keydown', function(e) {
+            if ($('#imageViewerModal').hasClass('show')) {
+                if (e.key === '+' || e.key === '=') {
+                    e.preventDefault();
+                    zoomIn();
+                } else if (e.key === '-') {
+                    e.preventDefault();
+                    zoomOut();
+                } else if (e.key === '0') {
+                    e.preventDefault();
+                    resetZoom();
+                }
+            }
         });
     </script>
 @endpush

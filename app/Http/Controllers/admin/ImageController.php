@@ -46,8 +46,7 @@ class ImageController extends Controller
         $images = $imagesQ->latest('id')->paginate(24)->withQueryString();
 
         // جلب الأشخاص للمنشن في مودال رفع الصور
-        $people = Person::
-            get();
+        $people = Person::get();
 
         return view('dashboard.gallery.index', compact(
             'search',
@@ -196,5 +195,42 @@ class ImageController extends Controller
         }
         $image->delete();
         return back()->with('success', 'تم حذف الصورة.');
+    }
+
+    /**
+     * حذف شخص من الصورة
+     */
+    public function removePerson(Image $image, Person $person)
+    {
+        // التحقق من أن الشخص مرتبط بالصورة
+        if (!$image->mentionedPersons()->where('person_id', $person->id)->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'هذا الشخص غير مرتبط بهذه الصورة'
+            ], 404);
+        }
+
+        // حذف العلاقة
+        $image->mentionedPersons()->detach($person->id);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'تم حذف الشخص من الصورة بنجاح'
+        ]);
+    }
+
+    /**
+     * تحميل الصورة
+     */
+    public function download(Image $image)
+    {
+        if (!$image->path || !Storage::disk('public')->exists($image->path)) {
+            abort(404, 'الصورة غير موجودة');
+        }
+
+        $filePath = storage_path('app/public/' . $image->path);
+        $fileName = $image->name ?: 'صورة_' . $image->id . '.' . pathinfo($image->path, PATHINFO_EXTENSION);
+
+        return response()->download($filePath, $fileName);
     }
 }
