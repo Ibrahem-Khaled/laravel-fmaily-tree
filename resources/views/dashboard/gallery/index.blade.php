@@ -102,16 +102,28 @@
                                         <td>{{ optional($img->category)->name ?? '-' }}</td>
                                         <td>
                                             @if($img->mentionedPersons->count() > 0)
-                                                @foreach($img->mentionedPersons as $person)
-                                                    <span class="badge badge-info mr-1">
-                                                        {{ $person->full_name }}
-                                                        <button type="button" class="btn btn-sm btn-outline-danger ml-1"
-                                                                onclick="removePersonFromImage({{ $img->id }}, {{ $person->id }})"
-                                                                style="padding: 2px 6px; font-size: 10px; border-radius: 50%;">
-                                                            <i class="fas fa-times"></i>
+                                                <div class="mentioned-persons-container" data-image-id="{{ $img->id }}">
+                                                    <div class="sortable-list" id="sortable-{{ $img->id }}">
+                                                        @foreach($img->mentionedPersons as $person)
+                                                            <div class="badge badge-info mentioned-person-item"
+                                                                 data-person-id="{{ $person->id }}">
+                                                                <i class="fas fa-grip-vertical text-muted mr-1"></i>
+                                                                {{ $person->full_name }}
+                                                                <button type="button" class="btn btn-sm btn-outline-danger ml-1"
+                                                                        onclick="removePersonFromImage({{ $img->id }}, {{ $person->id }})"
+                                                                        style="padding: 2px 6px; font-size: 10px; border-radius: 50%;">
+                                                                    <i class="fas fa-times"></i>
+                                                                </button>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                    @if($img->mentionedPersons->count() > 1)
+                                                        <button type="button" class="btn btn-sm btn-outline-primary mt-1"
+                                                                onclick="toggleReorderMode({{ $img->id }})">
+                                                            <i class="fas fa-sort"></i> إعادة ترتيب
                                                         </button>
-                                                    </span>
-                                                @endforeach
+                                                    @endif
+                                                </div>
                                             @else
                                                 <span class="text-muted">لا يوجد</span>
                                             @endif
@@ -235,11 +247,88 @@
     .btn-group .btn {
         margin: 0 2px;
     }
+
+    /* إعادة ترتيب الأشخاص */
+    .mentioned-persons-container {
+        min-height: 40px;
+    }
+
+    .mentioned-person-item {
+        transition: all 0.3s ease;
+        user-select: none;
+        margin: 2px;
+        display: inline-block;
+    }
+
+    .mentioned-person-item:hover {
+        transform: scale(1.05);
+    }
+
+    .sortable-ghost {
+        opacity: 0.4;
+        background: #c8ebfb;
+    }
+
+    .sortable-chosen {
+        transform: scale(1.1);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+
+    .sortable-drag {
+        transform: rotate(5deg);
+    }
+
+    .reorder-mode .mentioned-person-item {
+        cursor: move;
+    }
+
+    .reorder-mode .mentioned-person-item .btn-outline-danger {
+        display: none;
+    }
+
+    .reorder-controls {
+        margin-top: 5px;
+    }
+
+    .sortable-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        min-height: 30px;
+        padding: 5px;
+        border: 1px dashed transparent;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+
+    .reorder-mode .sortable-list {
+        border-color: #007bff;
+        background-color: rgba(0, 123, 255, 0.05);
+    }
+
+    .mentioned-person-item {
+        cursor: default;
+        position: relative;
+    }
+
+    .reorder-mode .mentioned-person-item {
+        cursor: move;
+    }
+
+    .mentioned-person-item .fa-grip-vertical {
+        opacity: 0.3;
+        transition: opacity 0.3s ease;
+    }
+
+    .reorder-mode .mentioned-person-item .fa-grip-vertical {
+        opacity: 1;
+    }
 </style>
 @endpush
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script>
         // تهيئة Select2 للبحث عن الأشخاص
         $(document).ready(function() {
@@ -562,5 +651,125 @@
                 }
             }
         });
+
+        // إعادة ترتيب الأشخاص باستخدام SortableJS
+        let sortableInstances = {};
+        let reorderMode = false;
+
+        function toggleReorderMode(imageId) {
+            const container = $(`.mentioned-persons-container[data-image-id="${imageId}"]`);
+            const sortableList = container.find('.sortable-list');
+
+            if (reorderMode) {
+                // إلغاء وضع إعادة الترتيب
+                container.removeClass('reorder-mode');
+                container.find('.reorder-controls').remove();
+
+                // تدمير Sortable instance
+                if (sortableInstances[imageId]) {
+                    sortableInstances[imageId].destroy();
+                    delete sortableInstances[imageId];
+                }
+                reorderMode = false;
+            } else {
+                // تفعيل وضع إعادة الترتيب
+                container.addClass('reorder-mode');
+
+                // إضافة أزرار التحكم
+                const controls = `
+                    <div class="reorder-controls">
+                        <button type="button" class="btn btn-sm btn-success" onclick="saveReorder(${imageId})">
+                            <i class="fas fa-check"></i> حفظ الترتيب
+                        </button>
+                        <button type="button" class="btn btn-sm btn-secondary" onclick="cancelReorder(${imageId})">
+                            <i class="fas fa-times"></i> إلغاء
+                        </button>
+                    </div>
+                `;
+                container.append(controls);
+
+                // إنشاء Sortable instance
+                sortableInstances[imageId] = new Sortable(sortableList[0], {
+                    animation: 150,
+                    ghostClass: 'sortable-ghost',
+                    chosenClass: 'sortable-chosen',
+                    dragClass: 'sortable-drag',
+                    handle: '.mentioned-person-item',
+                    onStart: function(evt) {
+                        console.log('بدء السحب:', evt.item.textContent);
+                    },
+                    onEnd: function(evt) {
+                        console.log('انتهاء السحب:', evt.item.textContent);
+                    }
+                });
+
+                reorderMode = true;
+            }
+        }
+
+        function saveReorder(imageId) {
+            const container = $(`.mentioned-persons-container[data-image-id="${imageId}"]`);
+            const personIds = [];
+
+            container.find('.mentioned-person-item').each(function() {
+                personIds.push($(this).data('person-id'));
+            });
+
+            console.log('ترتيب الأشخاص الجديد:', personIds);
+
+            // إظهار مؤشر التحميل
+            const saveBtn = container.find('.reorder-controls .btn-success');
+            const originalText = saveBtn.html();
+            saveBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> جارٍ الحفظ...');
+
+            $.ajax({
+                url: `/dashboard/images/${imageId}/reorder-persons`,
+                method: 'POST',
+                data: {
+                    person_ids: personIds,
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    console.log('استجابة الخادم:', response);
+                    if (response.success) {
+                        alert('تم حفظ الترتيب بنجاح');
+                        location.reload();
+                    } else {
+                        alert(response.message || 'تعذر حفظ الترتيب');
+                        saveBtn.prop('disabled', false).html(originalText);
+                    }
+                },
+                error: function(xhr) {
+                    console.error('خطأ في AJAX:', xhr);
+                    let errorMessage = 'خطأ في الاتصال بالخادم';
+
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    } else if (xhr.status === 422) {
+                        errorMessage = 'البيانات المرسلة غير صحيحة';
+                    } else if (xhr.status === 404) {
+                        errorMessage = 'الصورة غير موجودة';
+                    }
+
+                    alert(errorMessage);
+                    saveBtn.prop('disabled', false).html(originalText);
+                }
+            });
+        }
+
+        function cancelReorder(imageId) {
+            const container = $(`.mentioned-persons-container[data-image-id="${imageId}"]`);
+            container.removeClass('reorder-mode');
+            container.find('.reorder-controls').remove();
+
+            // تدمير Sortable instance
+            if (sortableInstances[imageId]) {
+                sortableInstances[imageId].destroy();
+                delete sortableInstances[imageId];
+            }
+
+            reorderMode = false;
+            location.reload(); // إعادة تحميل لاستعادة الترتيب الأصلي
+        }
     </script>
 @endpush

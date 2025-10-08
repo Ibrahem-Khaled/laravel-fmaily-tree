@@ -783,7 +783,7 @@
                 if (!childrenContainer) return;
                 childrenContainer.innerHTML =
                     `<div class="col-12 text-center text-muted p-3">جاري تحميل الأبناء...</div>`;
-                const data = await fetchAPI(`/person/${personId}/children`);
+                const data = await fetchAPI(`/person/${personId}/children-details`);
                 childrenContainer.innerHTML = '';
                 if (data && data.children && data.children.length > 0) {
                     data.children.forEach(child => {

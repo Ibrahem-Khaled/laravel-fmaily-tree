@@ -78,8 +78,8 @@ class FamilyTreeController extends Controller
             // حساب عدد الأبناء بناءً على الجنس - استخدام البيانات المحملة مسبقاً
             $childrenCount = 0;
             if ($person->gender === 'female') {
-                // للإناث: استخدام العلاقة المحملة مسبقاً
-                $childrenCount = $person->childrenFromMother ? $person->childrenFromMother->count() : 0;
+                // للإناث: لا نعرض أبناء الأمهات في الشجرة الرئيسية
+                $childrenCount = 0;
             } else {
                 // للذكور: استخدام العلاقة المحملة مسبقاً
                 $childrenCount = $person->children ? $person->children->count() : 0;
@@ -99,8 +99,8 @@ class FamilyTreeController extends Controller
             // حساب عدد الأبناء بناءً على الجنس - استخدام البيانات المحملة مسبقاً
             $childrenCount = 0;
             if ($person->gender === 'female') {
-                // للإناث: استخدام العلاقة المحملة مسبقاً
-                $childrenCount = $person->childrenFromMother ? $person->childrenFromMother->count() : 0;
+                // للإناث: لا نعرض أبناء الأمهات في الشجرة الرئيسية
+                $childrenCount = 0;
             } else {
                 // للذكور: استخدام العلاقة المحملة مسبقاً
                 $childrenCount = $person->children ? $person->children->count() : 0;
@@ -109,8 +109,8 @@ class FamilyTreeController extends Controller
             // إذا كان للشخص أبناء، نضيفهم بشكل متداخل
             if ($childrenCount > 0) {
                 if ($person->gender === 'female') {
-                    // للإناث: استخدام البيانات المحملة مسبقاً
-                    $children = $person->childrenFromMother ?: collect();
+                    // للإناث: لا نعرض أبناء الأمهات في الشجرة الرئيسية
+                    $children = collect();
                 } else {
                     // للذكور: استخدام البيانات المحملة مسبقاً
                     $children = $person->children ?: collect();
@@ -147,8 +147,8 @@ class FamilyTreeController extends Controller
 
         // التحقق من جنس الشخص لتحديد كيفية البحث عن الأبناء
         if ($person->gender === 'female') {
-            // إذا كان الشخص أنثى، يتم البحث عن الأبناء عن طريق mother_id
-            $childrenQuery->where('mother_id', $person->id);
+            // للإناث: لا نعرض أبناء الأمهات في الشجرة، نرجع قائمة فارغة
+            $childrenQuery->whereRaw('1 = 0'); // استعلام فارغ
         } else {
             // إذا كان الشخص ذكر، يتم البحث عن طريق parent_id (الأب)
             $childrenQuery->where('parent_id', $person->id);
@@ -211,12 +211,75 @@ class FamilyTreeController extends Controller
 
         $personData = $this->formatPersonData($person, true);
 
+        // في كارد التفاصيل، نضمن عرض العدد الصحيح للأبناء (بما في ذلك أبناء الأمهات)
+        if ($person->gender === 'female') {
+            $personData['children_count'] = Person::where('mother_id', $person->id)->count();
+        } else {
+            $personData['children_count'] = $person->children()->count();
+        }
+
         // حفظ البيانات في cache لمدة 20 دقيقة
         cache()->put($cacheKey, $personData, 1200);
 
         return response()->json([
             'success' => true,
             'person' => $personData,
+            'cached' => false
+        ]);
+    }
+
+    // API لجلب أبناء شخص معين في كارد التفاصيل (يشمل أبناء الأمهات)
+    public function getChildrenForDetails($id)
+    {
+        $cacheKey = "person_children_details_{$id}";
+        $cachedData = cache()->get($cacheKey);
+
+        if ($cachedData) {
+            return response()->json([
+                'success' => true,
+                'children' => $cachedData,
+                'cached' => true
+            ]);
+        }
+
+        $person = Person::select(['id', 'gender'])->findOrFail($id);
+        $childrenQuery = Person::select([
+            'id', 'first_name', 'last_name', 'gender', 'birth_date', 'death_date',
+            'photo_url', 'parent_id', 'mother_id'
+        ]);
+
+        // التحقق من جنس الشخص لتحديد كيفية البحث عن الأبناء
+        if ($person->gender === 'female') {
+            // للإناث: البحث عن الأبناء عن طريق mother_id
+            $childrenQuery->where('mother_id', $person->id);
+        } else {
+            // للذكور: البحث عن طريق parent_id (الأب)
+            $childrenQuery->where('parent_id', $person->id);
+        }
+
+        // جلب الأبناء مع عدد أبنائهم محسن للأداء
+        $children = $childrenQuery->withCount([
+            'children as children_count',
+            'childrenFromMother as children_from_mother_count'
+        ])->get();
+
+        $childrenData = array_values($children->map(function (Person $child) {
+            $childData = $this->formatPersonData($child);
+            // إظهار العدد الصحيح للذكور والإناث
+            if ($child->gender === 'female') {
+                $childData['children_count'] = $child->children_from_mother_count ?? 0;
+            } else {
+                $childData['children_count'] = $child->children_count ?? 0;
+            }
+            return $childData;
+        })->toArray());
+
+        // حفظ البيانات في cache لمدة 15 دقيقة
+        cache()->put($cacheKey, $childrenData, 900);
+
+        return response()->json([
+            'success' => true,
+            'children' => $childrenData,
             'cached' => false
         ]);
     }
@@ -248,6 +311,11 @@ class FamilyTreeController extends Controller
             } else {
                 $children_count = $person->children()->count();
             }
+        }
+
+        // للشجرة الرئيسية: لا نعرض أبناء الأمهات
+        if (!$fullDetails && $person->gender === 'female') {
+            $children_count = 0;
         }
 
         $data = [

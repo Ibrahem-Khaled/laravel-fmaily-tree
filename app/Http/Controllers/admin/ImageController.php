@@ -77,9 +77,13 @@ class ImageController extends Controller
                     'category_id' => $request->category_id,
                 ]);
 
-                // ربط الأشخاص المذكورين بالصورة
+                // ربط الأشخاص المذكورين بالصورة مع الترتيب
                 if ($request->has('mentioned_persons') && is_array($request->mentioned_persons)) {
-                    $image->mentionedPersons()->attach($request->mentioned_persons);
+                    $personsWithOrder = [];
+                    foreach ($request->mentioned_persons as $index => $personId) {
+                        $personsWithOrder[$personId] = ['order' => $index + 1];
+                    }
+                    $image->mentionedPersons()->attach($personsWithOrder);
                 }
             }
         });
@@ -174,9 +178,13 @@ class ImageController extends Controller
 
             $image->update($data);
 
-            // تحديث الأشخاص المذكورين
+            // تحديث الأشخاص المذكورين مع الترتيب
             if ($request->has('mentioned_persons')) {
-                $image->mentionedPersons()->sync($request->mentioned_persons);
+                $personsWithOrder = [];
+                foreach ($request->mentioned_persons as $index => $personId) {
+                    $personsWithOrder[$personId] = ['order' => $index + 1];
+                }
+                $image->mentionedPersons()->sync($personsWithOrder);
             } else {
                 $image->mentionedPersons()->detach();
             }
@@ -217,6 +225,60 @@ class ImageController extends Controller
             'success' => true,
             'message' => 'تم حذف الشخص من الصورة بنجاح'
         ]);
+    }
+
+    /**
+     * إعادة ترتيب الأشخاص المذكورين في الصورة
+     */
+    public function reorderPersons(Request $request, Image $image)
+    {
+        $request->validate([
+            'person_ids' => ['required', 'array'],
+            'person_ids.*' => ['exists:persons,id']
+        ]);
+
+        $personIds = $request->input('person_ids', []);
+
+        // التحقق من أن جميع الأشخاص مرتبطين بالصورة
+        $existingPersonIds = $image->mentionedPersons()->pluck('person_id')->toArray();
+
+        // التحقق من أن عدد الأشخاص المرسلين يطابق الموجودين
+        if (count($personIds) !== count($existingPersonIds)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'عدد الأشخاص المرسلين لا يطابق الموجودين في الصورة'
+            ], 400);
+        }
+
+        foreach ($personIds as $personId) {
+            if (!in_array($personId, $existingPersonIds)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'بعض الأشخاص غير مرتبطين بهذه الصورة'
+                ], 400);
+            }
+        }
+
+        try {
+            // تحديث الترتيب
+            $personsWithOrder = [];
+            foreach ($personIds as $index => $personId) {
+                $personsWithOrder[$personId] = ['order' => $index + 1];
+            }
+
+            $image->mentionedPersons()->sync($personsWithOrder);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تم إعادة ترتيب الأشخاص بنجاح',
+                'new_order' => $personIds
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ أثناء إعادة الترتيب: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**

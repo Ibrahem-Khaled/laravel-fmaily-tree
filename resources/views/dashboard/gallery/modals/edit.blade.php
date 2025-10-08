@@ -47,14 +47,18 @@
 
                 <div class="form-group">
                     <label>الأشخاص المذكورين في الصورة (اختياري)</label>
-                    <select name="mentioned_persons[]" id="editMentionedPersons" class="form-control" multiple>
-                        @foreach ($people as $person)
-                            <option value="{{ $person->id }}">
-                                {{ $person->full_name }}
-                            </option>
-                        @endforeach
-                    </select>
-                    <small class="text-muted d-block mt-1">يمكن اختيار أكثر من شخص للصورة الواحدة.</small>
+                    <div class="mentioned-persons-edit-container">
+                        <select name="mentioned_persons[]" id="editMentionedPersons" class="form-control" multiple>
+                            @foreach ($people as $person)
+                                <option value="{{ $person->id }}">
+                                    {{ $person->full_name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <div class="mt-2">
+                            <small class="text-muted">يمكن اختيار أكثر من شخص للصورة الواحدة. الترتيب مهم - سيتم عرض الأشخاص بالترتيب الذي تختاره.</small>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="form-group">

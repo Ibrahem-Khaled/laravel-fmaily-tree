@@ -98,6 +98,49 @@
             object-fit: contain;
         }
 
+        /* أنماط الأشخاص المذكورين */
+        .mentioned-persons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 8px;
+        }
+
+        .mentioned-person-tag {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        /* Lazy loading styles */
+        .lazy-image {
+            opacity: 0;
+            transition: opacity 0.2s ease; /* تقليل وقت الانتقال */
+        }
+
+        .lazy-image.loaded {
+            opacity: 1;
+        }
+
+        .lazy-placeholder {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
         /* --- نهاية الأنماط الأساسية --- */
 
         /* --- أنماط جديدة لعرض المجلدات --- */
@@ -350,6 +393,7 @@
                 </div>
                 <div id="modalImageCategory"
                     class="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium"></div>
+                <div id="modalImageMentionedPersons" class="mentioned-persons"></div>
             </div>
             <div class="flex flex-col gap-3">
                 <button onclick="viewFullscreen()"
@@ -422,9 +466,60 @@
             if(backdrop) {
                 backdrop.addEventListener('click', closeSidebar);
             }
+
+            // تهيئة Lazy Loading
+            initLazyLoading();
         });
         // ===== نهاية التعديل 4 =====
 
+        // دالة تهيئة Lazy Loading
+        function initLazyLoading() {
+            const lazyImages = document.querySelectorAll('.lazy-image');
+
+            if ('IntersectionObserver' in window) {
+                const imageObserver = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const img = entry.target;
+                            const placeholder = img.nextElementSibling;
+
+                            img.src = img.dataset.src;
+                            img.onload = () => {
+                                img.classList.add('loaded');
+                                if (placeholder) {
+                                    placeholder.style.display = 'none';
+                                }
+                            };
+
+                            observer.unobserve(img);
+                        }
+                    });
+                }, {
+                    rootMargin: '100px 0px', // زيادة المسافة لتحميل أسرع
+                    threshold: 0.01
+                });
+
+                lazyImages.forEach(img => imageObserver.observe(img));
+            } else {
+                // Fallback للمتصفحات القديمة
+                lazyImages.forEach(img => {
+                    img.src = img.dataset.src;
+                    img.classList.add('loaded');
+                    const placeholder = img.nextElementSibling;
+                    if (placeholder) {
+                        placeholder.style.display = 'none';
+                    }
+                });
+            }
+        }
+
+        // دالة لإعادة تهيئة Lazy Loading عند إضافة صور جديدة
+        function refreshLazyLoading() {
+            const newLazyImages = document.querySelectorAll('.lazy-image:not(.loaded)');
+            if (newLazyImages.length > 0) {
+                initLazyLoading();
+            }
+        }
 
         // دالة لإنشاء كود HTML لبطاقة الصورة
         function createImageCard(image) {
@@ -434,25 +529,41 @@
             const categoryName = image.article && image.article.category ? image.article.category.name : '';
             const articleId = image.article ? image.article.id : null;
 
+            // إنشاء قائمة الأشخاص المذكورين
+            let mentionedPersonsHtml = '';
+            if (image.mentioned_persons && image.mentioned_persons.length > 0) {
+                mentionedPersonsHtml = `
+                    <div class="mentioned-persons">
+                        ${image.mentioned_persons.map(person =>
+                            `<span class="mentioned-person-tag">${person.full_name}</span>`
+                        ).join('')}
+                    </div>
+                `;
+            }
+
             const imageData = JSON.stringify({
                 id: image.id,
                 path: imagePath,
                 title: title,
                 author: author,
                 category: categoryName,
-                article_id: articleId
+                article_id: articleId,
+                mentioned_persons: image.mentioned_persons || []
             });
 
             return `
                 <div onclick='showImageOptions(${imageData})'
                     class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer green-glow-hover transition-all duration-500">
                     <div class="aspect-square overflow-hidden bg-gradient-to-br from-green-100 to-green-200">
-                        <img src="${imagePath}" alt="${title}" class="w-full h-full object-cover transition-all duration-700 group-hover:scale-110">
+                        <img data-src="${imagePath}" alt="${title}"
+                             class="lazy-image w-full h-full object-cover transition-all duration-700 group-hover:scale-110">
+                        <div class="lazy-placeholder absolute inset-0"></div>
                     </div>
                     <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
                     <div class="absolute bottom-0 left-0 right-0 p-3 text-white transform translate-y-full group-hover:translate-y-0 transition-all duration-500">
                         <h4 class="font-bold text-sm line-clamp-1">${title}</h4>
                         ${author ? `<span class="text-xs text-green-200">${author}</span>` : ''}
+                        ${mentionedPersonsHtml}
                     </div>
                 </div>
             `;
@@ -475,6 +586,11 @@
                 category.images.forEach(image => {
                     imageGrid.innerHTML += createImageCard(image);
                 });
+
+                // إعادة تهيئة Lazy Loading للصور الجديدة
+                setTimeout(() => {
+                    refreshLazyLoading();
+                }, 100);
             } else {
                 imageGrid.classList.add('hidden');
                 noImagesMessage.classList.remove('hidden');
@@ -507,6 +623,17 @@
                 categoryElement.style.display = 'inline-block';
             } else {
                 categoryElement.style.display = 'none';
+            }
+
+            // عرض الأشخاص المذكورين
+            const mentionedPersonsElement = document.getElementById('modalImageMentionedPersons');
+            if (imageData.mentioned_persons && imageData.mentioned_persons.length > 0) {
+                mentionedPersonsElement.innerHTML = imageData.mentioned_persons.map(person =>
+                    `<span class="mentioned-person-tag">${person.full_name}</span>`
+                ).join('');
+                mentionedPersonsElement.style.display = 'flex';
+            } else {
+                mentionedPersonsElement.style.display = 'none';
             }
 
             const articleBtn = document.getElementById('viewArticleBtn');

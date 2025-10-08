@@ -44,6 +44,7 @@ Route::prefix('api')->group(function () {
     Route::get('/family-tree', [FamilyTreeController::class, 'getFamilyTree']);
     Route::get('/person/{id}', [FamilyTreeController::class, 'getPersonDetails']);
     Route::get('/person/{id}/children', [FamilyTreeController::class, 'getChildren']);
+    Route::get('/person/{id}/children-details', [FamilyTreeController::class, 'getChildrenForDetails']);
     Route::get('/person/{father}/wives', [FamilyTreeController::class, 'getWives']);
 });
 
@@ -85,6 +86,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::delete('images/{image}', [ImageController::class, 'destroy'])->name('images.destroy');
     Route::delete('images',         [ImageController::class, 'bulkDestroy'])->name('images.bulk-destroy');
     Route::delete('images/{image}/remove-person/{person}', [ImageController::class, 'removePerson'])->name('images.remove-person');
+    Route::post('images/{image}/reorder-persons', [ImageController::class, 'reorderPersons'])->name('images.reorder-persons');
     Route::get('images/{image}/download', [ImageController::class, 'download'])->name('images.download');
 
     Route::post('articles/{article}/images', [ImageController::class, 'storeForArticle'])->name('articles.images.store');

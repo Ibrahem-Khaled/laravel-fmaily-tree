@@ -29,7 +29,8 @@ class GalleryController extends Controller
             ->with([
                 'images.article:id,title,person_id,category_id', // اختر الحقول التي تحتاجها فقط لتحسين الأداء
                 'images.article.person:id,name',
-                'images.article.category:id,name'
+                'images.article.category:id,name',
+                'images.mentionedPersons' // إضافة الأشخاص المذكورين بالترتيب
             ])
             ->get();
 

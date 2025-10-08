@@ -31,7 +31,9 @@ class Image extends BaseModel
     public function mentionedPersons(): BelongsToMany
     {
         return $this->belongsToMany(Person::class, 'image_mentions', 'image_id', 'person_id')
-            ->withTimestamps();
+            ->withTimestamps()
+            ->withPivot('order')
+            ->orderBy('image_mentions.order');
     }
 
     protected static function booted(): void
