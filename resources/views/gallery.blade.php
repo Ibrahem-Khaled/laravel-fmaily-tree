@@ -101,7 +101,8 @@
         /* أنماط الأشخاص المذكورين */
         .mentioned-persons {
             display: flex;
-            flex-wrap: wrap;
+            flex-direction: column;
+            align-items: flex-end;
             gap: 4px;
             margin-top: 8px;
         }
@@ -524,7 +525,7 @@
         // دالة لإنشاء كود HTML لبطاقة الصورة
         function createImageCard(image) {
             const imagePath = `{{ asset('storage') }}/${image.path}`;
-            const title = image.article ? image.article.title : 'بدون عنوان';
+            const title = image.article && image.article.title && image.article.title.trim() !== '' ? image.article.title : '';
             const author = image.article && image.article.person ? image.article.person.name : '';
             const categoryName = image.article && image.article.category ? image.article.category.name : '';
             const articleId = image.article ? image.article.id : null;
@@ -532,13 +533,20 @@
             // إنشاء قائمة الأشخاص المذكورين
             let mentionedPersonsHtml = '';
             if (image.mentioned_persons && image.mentioned_persons.length > 0) {
-                mentionedPersonsHtml = `
-                    <div class="mentioned-persons">
-                        ${image.mentioned_persons.map(person =>
-                            `<span class="mentioned-person-tag">${person.full_name}</span>`
-                        ).join('')}
-                    </div>
-                `;
+                // تصفية العناصر الفارغة أو null
+                const validPersons = image.mentioned_persons.filter(person =>
+                    person && person.full_name && person.full_name.trim() !== ''
+                );
+
+                if (validPersons.length > 0) {
+                    mentionedPersonsHtml = `
+                        <div class="mentioned-persons">
+                            ${validPersons.map(person =>
+                                `<span class="mentioned-person-tag">${person.full_name}</span>`
+                            ).join('')}
+                        </div>
+                    `;
+                }
             }
 
             const imageData = JSON.stringify({
@@ -561,7 +569,7 @@
                     </div>
                     <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
                     <div class="absolute bottom-0 left-0 right-0 p-3 text-white transform translate-y-full group-hover:translate-y-0 transition-all duration-500">
-                        <h4 class="font-bold text-sm line-clamp-1">${title}</h4>
+                        ${title ? `<h4 class="font-bold text-sm line-clamp-1">${title}</h4>` : ''}
                         ${author ? `<span class="text-xs text-green-200">${author}</span>` : ''}
                         ${mentionedPersonsHtml}
                     </div>
@@ -612,7 +620,16 @@
             currentImageData = imageData;
             const modal = document.getElementById('imageOptionsModal');
             document.getElementById('modalImagePreview').src = imageData.path;
-            document.getElementById('modalImageTitle').textContent = imageData.title;
+
+            // عرض العنوان فقط إذا كان موجوداً وغير فارغ
+            const titleElement = document.getElementById('modalImageTitle');
+            if (imageData.title && imageData.title.trim() !== '') {
+                titleElement.textContent = imageData.title;
+                titleElement.style.display = 'block';
+            } else {
+                titleElement.style.display = 'none';
+            }
+
             const authorSpan = document.getElementById('modalImageAuthor').querySelector('span');
             authorSpan.textContent = imageData.author || 'غير محدد';
             authorSpan.parentElement.style.display = imageData.author ? 'flex' : 'none';
@@ -628,10 +645,19 @@
             // عرض الأشخاص المذكورين
             const mentionedPersonsElement = document.getElementById('modalImageMentionedPersons');
             if (imageData.mentioned_persons && imageData.mentioned_persons.length > 0) {
-                mentionedPersonsElement.innerHTML = imageData.mentioned_persons.map(person =>
-                    `<span class="mentioned-person-tag">${person.full_name}</span>`
-                ).join('');
-                mentionedPersonsElement.style.display = 'flex';
+                // تصفية العناصر الفارغة أو null
+                const validPersons = imageData.mentioned_persons.filter(person =>
+                    person && person.full_name && person.full_name.trim() !== ''
+                );
+
+                if (validPersons.length > 0) {
+                    mentionedPersonsElement.innerHTML = validPersons.map(person =>
+                        `<span class="mentioned-person-tag">${person.full_name}</span>`
+                    ).join('');
+                    mentionedPersonsElement.style.display = 'flex';
+                } else {
+                    mentionedPersonsElement.style.display = 'none';
+                }
             } else {
                 mentionedPersonsElement.style.display = 'none';
             }

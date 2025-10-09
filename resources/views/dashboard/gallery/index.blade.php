@@ -292,7 +292,8 @@
 
     .sortable-list {
         display: flex;
-        flex-wrap: wrap;
+        flex-direction: column;
+        align-items: flex-end;
         gap: 5px;
         min-height: 30px;
         padding: 5px;
