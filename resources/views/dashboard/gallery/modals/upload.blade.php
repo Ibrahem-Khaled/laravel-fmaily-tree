@@ -50,7 +50,7 @@
                             required>
                         <label class="custom-file-label" for="uploadImagesInput">اختر ملفات...</label>
                     </div>
-                    <small class="text-muted d-block mt-1">يمكن رفع عدة صور، بحد أقصى 4MB لكل صورة.</small>
+                    <small class="text-muted d-block mt-1">يمكن رفع عدة صور، بحد أقصى 150MB لكل صورة.</small>
                 </div>
             </div>
 

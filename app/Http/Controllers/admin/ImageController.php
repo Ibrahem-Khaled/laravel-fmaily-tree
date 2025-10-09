@@ -63,7 +63,7 @@ class ImageController extends Controller
     {
         $request->validate([
             'category_id' => ['required', 'exists:categories,id'],
-            'images.*'    => ['required', 'image', 'max:100000'],
+            'images.*'    => ['required', 'image', 'max:150000'], // 150MB limit
             'mentioned_persons' => ['nullable', 'array'],
             'mentioned_persons.*' => ['exists:persons,id'],
         ]);
@@ -115,7 +115,7 @@ class ImageController extends Controller
 
     public function storeForArticle(Request $request, Article $article)
     {
-        $request->validate(['images.*' => ['required', 'image', 'max:100000']]);
+        $request->validate(['images.*' => ['required', 'image', 'max:150000']]); // 150MB limit
 
         foreach ($request->file('images', []) as $file) {
             $path = $file->store('articles', 'public');
@@ -151,7 +151,7 @@ class ImageController extends Controller
             'name' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'category_id' => ['required', 'exists:categories,id'],
-            'image' => ['nullable', 'image', 'max:100000'],
+            'image' => ['nullable', 'image', 'max:150000'], // 150MB limit
             'mentioned_persons' => ['nullable', 'array'],
             'mentioned_persons.*' => ['exists:persons,id'],
         ]);
