@@ -95,8 +95,19 @@
                                     <tr>
                                         <td><input type="checkbox" name="ids[]" value="{{ $img->id }}"></td>
                                         <td>
-                                            <img src="{{ $img->path ? asset('storage/' . $img->path) : asset('img/no-image.png') }}"
-                                                style="width:120px;height:90px;object-fit:cover;" class="img-thumbnail">
+                                            @if($img->media_type === 'youtube' && $img->youtube_url)
+                                                <div style="width:120px;height:90px;position:relative;background:#000;border-radius:4px;overflow:hidden;">
+                                                    <img src="{{ $img->getYouTubeThumbnail() }}"
+                                                         style="width:100%;height:100%;object-fit:cover;"
+                                                         class="img-thumbnail">
+                                                    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-size:24px;">
+                                                        <i class="fab fa-youtube"></i>
+                                                    </div>
+                                                </div>
+                                            @else
+                                                <img src="{{ $img->path ? asset('storage/' . $img->path) : asset('img/no-image.png') }}"
+                                                    style="width:120px;height:90px;object-fit:cover;" class="img-thumbnail">
+                                            @endif
                                         </td>
                                         <td>{{ $img->name ?? '-' }}</td>
                                         <td>{{ optional($img->category)->name ?? '-' }}</td>
@@ -130,9 +141,15 @@
                                         </td>
                                         <td>
                                             <div class="btn-group" role="group">
-                                                <button type="button" class="btn btn-sm btn-info" onclick="viewImage({{ $img->id }}, '{{ $img->path ? asset('storage/' . $img->path) : asset('img/no-image.png') }}', '{{ $img->name ?? 'صورة' }}')">
-                                                    <i class="fas fa-search-plus"></i> تكبير
-                                                </button>
+                                                @if($img->media_type === 'youtube' && $img->youtube_url)
+                                                    <button type="button" class="btn btn-sm btn-danger" onclick="viewYouTube({{ $img->id }}, '{{ $img->youtube_url }}', '{{ $img->name ?? 'فيديو يوتيوب' }}')">
+                                                        <i class="fab fa-youtube"></i> مشاهدة
+                                                    </button>
+                                                @else
+                                                    <button type="button" class="btn btn-sm btn-info" onclick="viewImage({{ $img->id }}, '{{ $img->path ? asset('storage/' . $img->path) : asset('img/no-image.png') }}', '{{ $img->name ?? 'صورة' }}')">
+                                                        <i class="fas fa-search-plus"></i> تكبير
+                                                    </button>
+                                                @endif
                                                 <button type="button" class="btn btn-sm btn-success" onclick="downloadImage({{ $img->id }}, '{{ $img->name ?? 'صورة' }}')">
                                                     <i class="fas fa-download"></i> تحميل
                                                 </button>
@@ -194,6 +211,29 @@
                         <button type="button" class="btn btn-outline-success" onclick="downloadCurrentImage()">
                             <i class="fas fa-download"></i> تحميل
                         </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- مودال عرض فيديو يوتيوب --}}
+    <div class="modal fade" id="youtubeViewerModal" tabindex="-1" role="dialog" aria-labelledby="youtubeViewerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="youtubeViewerModalLabel">مشاهدة فيديو يوتيوب</h5>
+                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                </div>
+                <div class="modal-body text-center">
+                    <div class="video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+                        <iframe id="youtubeViewerIframe" src="" frameborder="0" allowfullscreen
+                                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>
+                    </div>
+                    <div class="mt-3">
+                        <a id="youtubeViewerLink" href="" target="_blank" class="btn btn-outline-danger">
+                            <i class="fab fa-youtube"></i> مشاهدة على يوتيوب
+                        </a>
                     </div>
                 </div>
             </div>
@@ -404,9 +444,51 @@
                         // تحديث الأشخاص المذكورين
                         $('#editMentionedPersons').val(image.mentioned_persons || []);
 
-                        // عرض الصورة الحالية
-                        const imageUrl = image.path ? `{{ asset('storage/') }}/${image.path}` : '{{ asset('img/no-image.png') }}';
-                        $('#currentImage').attr('src', imageUrl);
+                        // عرض المحتوى الحالي
+                        if (image.media_type === 'youtube' && image.youtube_url) {
+                            // عرض فيديو يوتيوب
+                            $('#currentImage').hide();
+                            $('#currentYoutubePreview').show();
+
+                            // استخراج معرف الفيديو
+                            let videoId = '';
+                            const patterns = [
+                                /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+                                /youtube\.com\/watch\?.*v=([a-zA-Z0-9_-]{11})/
+                            ];
+
+                            for (let pattern of patterns) {
+                                const match = image.youtube_url.match(pattern);
+                                if (match) {
+                                    videoId = match[1];
+                                    break;
+                                }
+                            }
+
+                            if (videoId) {
+                                const embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                                $('#currentYoutubeIframe').attr('src', embedUrl);
+                                $('#currentYoutubeLink').attr('href', image.youtube_url);
+                            }
+
+                            // تحديد نوع المحتوى
+                            $('#edit_media_type_youtube').prop('checked', true);
+                            $('#edit-image-section').hide();
+                            $('#edit-youtube-section').show();
+                            $('#editYoutubeUrl').val(image.youtube_url);
+                        } else {
+                            // عرض صورة
+                            $('#currentYoutubePreview').hide();
+                            $('#currentImage').show();
+
+                            const imageUrl = image.path ? `{{ asset('storage/') }}/${image.path}` : '{{ asset('img/no-image.png') }}';
+                            $('#currentImage').attr('src', imageUrl);
+
+                            // تحديد نوع المحتوى
+                            $('#edit_media_type_image').prop('checked', true);
+                            $('#edit-youtube-section').hide();
+                            $('#edit-image-section').show();
+                        }
 
                         // تحديث رابط النموذج
                         $('#editImageForm').attr('action', `/dashboard/images/${imageId}`);
@@ -552,6 +634,34 @@
             $('#imageViewerModalLabel').text('عرض الصورة: ' + imageName);
             $('#viewerImage').css('transform', 'scale(1)');
             $('#imageViewerModal').modal('show');
+        }
+
+        // عرض فيديو يوتيوب في المودال
+        function viewYouTube(imageId, youtubeUrl, videoName) {
+            // استخراج معرف الفيديو من الرابط
+            let videoId = '';
+            const patterns = [
+                /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+                /youtube\.com\/watch\?.*v=([a-zA-Z0-9_-]{11})/
+            ];
+
+            for (let pattern of patterns) {
+                const match = youtubeUrl.match(pattern);
+                if (match) {
+                    videoId = match[1];
+                    break;
+                }
+            }
+
+            if (videoId) {
+                const embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                $('#youtubeViewerIframe').attr('src', embedUrl);
+                $('#youtubeViewerLink').attr('href', youtubeUrl);
+                $('#youtubeViewerModalLabel').text('مشاهدة: ' + videoName);
+                $('#youtubeViewerModal').modal('show');
+            } else {
+                alert('رابط يوتيوب غير صحيح');
+            }
         }
 
         // تكبير الصورة
@@ -772,5 +882,22 @@
             reorderMode = false;
             location.reload(); // إعادة تحميل لاستعادة الترتيب الأصلي
         }
+
+        // التحكم في نوع المحتوى في مودال التعديل
+        $(document).ready(function() {
+            $('#edit_media_type_image').on('change', function() {
+                if ($(this).is(':checked')) {
+                    $('#edit-image-section').show();
+                    $('#edit-youtube-section').hide();
+                }
+            });
+
+            $('#edit_media_type_youtube').on('change', function() {
+                if ($(this).is(':checked')) {
+                    $('#edit-image-section').hide();
+                    $('#edit-youtube-section').show();
+                }
+            });
+        });
     </script>
 @endpush

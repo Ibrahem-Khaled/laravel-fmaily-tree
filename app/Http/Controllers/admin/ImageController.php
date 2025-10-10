@@ -63,17 +63,21 @@ class ImageController extends Controller
     {
         $request->validate([
             'category_id' => ['required', 'exists:categories,id'],
-            'images.*'    => ['required', 'image', 'max:150000'], // 150MB limit
+            'images.*'    => ['nullable', 'image', 'max:150000'], // 150MB limit
+            'youtube_urls.*' => ['nullable', 'url', 'regex:/^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)/'],
+            'media_types.*' => ['nullable', 'in:image,youtube'],
             'mentioned_persons' => ['nullable', 'array'],
             'mentioned_persons.*' => ['exists:persons,id'],
         ]);
 
         DB::transaction(function () use ($request) {
+            // Handle image uploads
             foreach ($request->file('images', []) as $file) {
                 $path = $file->store('categories', 'public');
                 $image = Image::create([
                     'name'        => $file->getClientOriginalName(),
                     'path'        => $path,
+                    'media_type'  => 'image',
                     'category_id' => $request->category_id,
                 ]);
 
@@ -84,6 +88,30 @@ class ImageController extends Controller
                         $personsWithOrder[$personId] = ['order' => $index + 1];
                     }
                     $image->mentionedPersons()->attach($personsWithOrder);
+                }
+            }
+
+            // Handle YouTube URLs
+            $youtubeUrls = $request->input('youtube_urls', []);
+            $youtubeNames = $request->input('youtube_names', []);
+
+            foreach ($youtubeUrls as $index => $url) {
+                if (!empty($url)) {
+                    $image = Image::create([
+                        'name'        => $youtubeNames[$index] ?? 'فيديو يوتيوب',
+                        'youtube_url'  => $url,
+                        'media_type'  => 'youtube',
+                        'category_id' => $request->category_id,
+                    ]);
+
+                    // ربط الأشخاص المذكورين بالفيديو مع الترتيب
+                    if ($request->has('mentioned_persons') && is_array($request->mentioned_persons)) {
+                        $personsWithOrder = [];
+                        foreach ($request->mentioned_persons as $index => $personId) {
+                            $personsWithOrder[$personId] = ['order' => $index + 1];
+                        }
+                        $image->mentionedPersons()->attach($personsWithOrder);
+                    }
                 }
             }
         });
@@ -139,6 +167,8 @@ class ImageController extends Controller
                 'name' => $image->name,
                 'description' => $image->description,
                 'path' => $image->path,
+                'youtube_url' => $image->youtube_url,
+                'media_type' => $image->media_type,
                 'category_id' => $image->category_id,
                 'mentioned_persons' => $image->mentionedPersons->pluck('id')->toArray(),
             ]
@@ -152,6 +182,8 @@ class ImageController extends Controller
             'description' => ['nullable', 'string'],
             'category_id' => ['required', 'exists:categories,id'],
             'image' => ['nullable', 'image', 'max:150000'], // 150MB limit
+            'youtube_url' => ['nullable', 'url', 'regex:/^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)/'],
+            'media_type' => ['nullable', 'in:image,youtube'],
             'mentioned_persons' => ['nullable', 'array'],
             'mentioned_persons.*' => ['exists:persons,id'],
         ]);
@@ -173,7 +205,16 @@ class ImageController extends Controller
                 // رفع الصورة الجديدة
                 $path = $request->file('image')->store('categories', 'public');
                 $data['path'] = $path;
+                $data['media_type'] = 'image';
+                $data['youtube_url'] = null; // Clear YouTube URL when uploading image
                 $data['name'] = $data['name'] ?: $request->file('image')->getClientOriginalName();
+            }
+
+            // إذا تم إدخال رابط يوتيوب
+            if ($request->filled('youtube_url')) {
+                $data['youtube_url'] = $request->youtube_url;
+                $data['media_type'] = 'youtube';
+                $data['path'] = null; // Clear image path when using YouTube
             }
 
             $image->update($data);

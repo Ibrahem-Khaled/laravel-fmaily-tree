@@ -524,7 +524,8 @@
 
         // دالة لإنشاء كود HTML لبطاقة الصورة
         function createImageCard(image) {
-            const imagePath = `{{ asset('storage') }}/${image.path}`;
+            const isYouTube = image.media_type === 'youtube' && image.youtube_url;
+            const imagePath = isYouTube ? null : `{{ asset('storage') }}/${image.path}`;
             const title = image.article && image.article.title && image.article.title.trim() !== '' ? image.article.title : '';
             const author = image.article && image.article.person ? image.article.person.name : '';
             const categoryName = image.article && image.article.category ? image.article.category.name : '';
@@ -552,6 +553,8 @@
             const imageData = JSON.stringify({
                 id: image.id,
                 path: imagePath,
+                youtube_url: image.youtube_url,
+                media_type: image.media_type,
                 title: title,
                 author: author,
                 category: categoryName,
@@ -559,22 +562,65 @@
                 mentioned_persons: image.mentioned_persons || []
             });
 
-            return `
-                <div onclick='showImageOptions(${imageData})'
-                    class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer green-glow-hover transition-all duration-500">
-                    <div class="aspect-square overflow-hidden bg-gradient-to-br from-green-100 to-green-200">
-                        <img data-src="${imagePath}" alt="${title}"
-                             class="lazy-image w-full h-full object-cover transition-all duration-700 group-hover:scale-110">
-                        <div class="lazy-placeholder absolute inset-0"></div>
+            if (isYouTube) {
+                // استخراج معرف الفيديو
+                let videoId = '';
+                const patterns = [
+                    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+                    /youtube\.com\/watch\?.*v=([a-zA-Z0-9_-]{11})/
+                ];
+
+                for (let pattern of patterns) {
+                    const match = image.youtube_url.match(pattern);
+                    if (match) {
+                        videoId = match[1];
+                        break;
+                    }
+                }
+
+                const thumbnailUrl = videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : '';
+
+                return `
+                    <div onclick='showImageOptions(${imageData})'
+                        class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer green-glow-hover transition-all duration-500">
+                        <div class="aspect-square overflow-hidden bg-gradient-to-br from-red-100 to-red-200">
+                            <img data-src="${thumbnailUrl}" alt="${title}"
+                                 class="lazy-image w-full h-full object-cover transition-all duration-700 group-hover:scale-110">
+                            <div class="lazy-placeholder absolute inset-0"></div>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <div class="bg-red-600 text-white rounded-full p-3 opacity-80 group-hover:opacity-100 transition-opacity">
+                                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+                        <div class="absolute bottom-0 left-0 right-0 p-3 text-white transform translate-y-full group-hover:translate-y-0 transition-all duration-500">
+                            ${title ? `<h4 class="font-bold text-sm line-clamp-1">${title}</h4>` : ''}
+                            ${author ? `<span class="text-xs text-red-200">${author}</span>` : ''}
+                            ${mentionedPersonsHtml}
+                        </div>
                     </div>
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
-                    <div class="absolute bottom-0 left-0 right-0 p-3 text-white transform translate-y-full group-hover:translate-y-0 transition-all duration-500">
-                        ${title ? `<h4 class="font-bold text-sm line-clamp-1">${title}</h4>` : ''}
-                        ${author ? `<span class="text-xs text-green-200">${author}</span>` : ''}
-                        ${mentionedPersonsHtml}
+                `;
+            } else {
+                return `
+                    <div onclick='showImageOptions(${imageData})'
+                        class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer green-glow-hover transition-all duration-500">
+                        <div class="aspect-square overflow-hidden bg-gradient-to-br from-green-100 to-green-200">
+                            <img data-src="${imagePath}" alt="${title}"
+                                 class="lazy-image w-full h-full object-cover transition-all duration-700 group-hover:scale-110">
+                            <div class="lazy-placeholder absolute inset-0"></div>
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+                        <div class="absolute bottom-0 left-0 right-0 p-3 text-white transform translate-y-full group-hover:translate-y-0 transition-all duration-500">
+                            ${title ? `<h4 class="font-bold text-sm line-clamp-1">${title}</h4>` : ''}
+                            ${author ? `<span class="text-xs text-green-200">${author}</span>` : ''}
+                            ${mentionedPersonsHtml}
+                        </div>
                     </div>
-                </div>
-            `;
+                `;
+            }
         }
 
         // دالة لفتح مجلد وعرض الصور
@@ -619,7 +665,34 @@
         function showImageOptions(imageData) {
             currentImageData = imageData;
             const modal = document.getElementById('imageOptionsModal');
-            document.getElementById('modalImagePreview').src = imageData.path;
+            const previewImg = document.getElementById('modalImagePreview');
+
+            if (imageData.media_type === 'youtube' && imageData.youtube_url) {
+                // عرض فيديو يوتيوب
+                let videoId = '';
+                const patterns = [
+                    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+                    /youtube\.com\/watch\?.*v=([a-zA-Z0-9_-]{11})/
+                ];
+
+                for (let pattern of patterns) {
+                    const match = imageData.youtube_url.match(pattern);
+                    if (match) {
+                        videoId = match[1];
+                        break;
+                    }
+                }
+
+                if (videoId) {
+                    const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+                    previewImg.src = thumbnailUrl;
+                    previewImg.alt = 'فيديو يوتيوب';
+                }
+            } else {
+                // عرض صورة
+                previewImg.src = imageData.path;
+                previewImg.alt = imageData.title || 'صورة';
+            }
 
             // عرض العنوان فقط إذا كان موجوداً وغير فارغ
             const titleElement = document.getElementById('modalImageTitle');
@@ -677,9 +750,59 @@
 
         function viewFullscreen() {
             if (currentImageData) {
-                document.getElementById('fullscreenImage').src = currentImageData.path;
-                document.getElementById('fullscreenModal').classList.remove('hidden');
-                document.getElementById('fullscreenModal').classList.add('flex');
+                const fullscreenModal = document.getElementById('fullscreenModal');
+                const fullscreenImg = document.getElementById('fullscreenImage');
+
+                if (currentImageData.media_type === 'youtube' && currentImageData.youtube_url) {
+                    // عرض فيديو يوتيوب بالحجم الكامل
+                    let videoId = '';
+                    const patterns = [
+                        /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+                        /youtube\.com\/watch\?.*v=([a-zA-Z0-9_-]{11})/
+                    ];
+
+                    for (let pattern of patterns) {
+                        const match = currentImageData.youtube_url.match(pattern);
+                        if (match) {
+                            videoId = match[1];
+                            break;
+                        }
+                    }
+
+                    if (videoId) {
+                        // استبدال الصورة بـ iframe
+                        fullscreenImg.style.display = 'none';
+
+                        // إنشاء iframe إذا لم يكن موجوداً
+                        let iframe = fullscreenModal.querySelector('iframe');
+                        if (!iframe) {
+                            iframe = document.createElement('iframe');
+                            iframe.className = 'fullscreen-image rounded-lg shadow-2xl';
+                            iframe.style.maxHeight = '90vh';
+                            iframe.style.maxWidth = '90vw';
+                            iframe.style.width = '800px';
+                            iframe.style.height = '450px';
+                            iframe.setAttribute('frameborder', '0');
+                            iframe.setAttribute('allowfullscreen', '');
+                            fullscreenModal.querySelector('.modal-backdrop').appendChild(iframe);
+                        }
+
+                        iframe.src = `https://www.youtube.com/embed/${videoId}`;
+                        iframe.style.display = 'block';
+                    }
+                } else {
+                    // عرض صورة بالحجم الكامل
+                    let iframe = fullscreenModal.querySelector('iframe');
+                    if (iframe) {
+                        iframe.style.display = 'none';
+                    }
+
+                    fullscreenImg.src = currentImageData.path;
+                    fullscreenImg.style.display = 'block';
+                }
+
+                fullscreenModal.classList.remove('hidden');
+                fullscreenModal.classList.add('flex');
                 closeImageOptions();
             }
         }
