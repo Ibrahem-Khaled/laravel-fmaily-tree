@@ -45,6 +45,8 @@
                 <button class="btn btn-primary ml-2" data-toggle="modal" data-target="#addPersonsOutsideTheFamilyTreeModal">
                     <i class="fas fa-plus"></i> إضافة شخص خارج تواصل العائلة
                 </button>
+                @include('dashboard.people.modals.add-outside-the-family')
+
             </div>
             <div class="card-body">
                 {{-- تبويب الحالات --}}
@@ -190,9 +192,9 @@
                                         </button>
 
                                         {{-- تضمين المودالات لكل سجل زواج --}}
+                                        @include('dashboard.marriages.modals.delete', ['marriage' => $marriage])
                                         @include('dashboard.marriages.modals.show', ['marriage' => $marriage])
                                         @include('dashboard.marriages.modals.edit', ['marriage' => $marriage])
-                                        @include('dashboard.marriages.modals.delete', ['marriage' => $marriage])
                                     </td>
                                 </tr>
                             @empty
@@ -214,7 +216,6 @@
 
     {{-- مودال إضافة سجل زواج (ثابت) --}}
     @include('dashboard.marriages.modals.create')
-    @include('dashboard.people.modals.add-outside-the-family')
 
 @endsection
 

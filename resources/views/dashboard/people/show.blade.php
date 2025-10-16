@@ -192,13 +192,13 @@
                                             </button>
                                         </td>
 
+                                        @include('dashboard.marriages.modals.delete', [
+                                            'marriage' => $marriage,
+                                        ])
                                         @include('dashboard.marriages.modals.show', [
                                             'marriage' => $marriage,
                                         ])
                                         @include('dashboard.marriages.modals.edit', [
-                                            'marriage' => $marriage,
-                                        ])
-                                        @include('dashboard.marriages.modals.delete', [
                                             'marriage' => $marriage,
                                         ])
                                     </tr>
