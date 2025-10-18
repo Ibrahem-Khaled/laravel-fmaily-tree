@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('first_name');
             $table->string('last_name')->nullable();
             $table->date('birth_date')->nullable();
+            $table->string('birth_place')->nullable();
             $table->date('death_date')->nullable();
             $table->enum('gender', ['male', 'female'])->default('male');
             $table->boolean('from_outside_the_family')->default(false);

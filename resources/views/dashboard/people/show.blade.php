@@ -97,11 +97,15 @@
                                 </td>
                             </tr>
                             <tr>
+                                <th>مكان الميلاد</th>
+                                <td>{{ $person->birth_place ?? '-' }}</td>
+                            </tr>
+                            <tr>
                                 <th>المهنة</th>
                                 <td>{{ $person->occupation ?? '-' }}</td>
                             </tr>
                             <tr>
-                                <th>المكان</th>
+                                <th>مكان الإقامة</th>
                                 <td>{{ $person->location ?? '-' }}</td>
                             </tr>
                         </table>

@@ -127,22 +127,6 @@
                                      class="w-full h-64 object-cover hover:scale-105 transition-transform duration-300">
 
                                 {{-- Image Info Overlay (Hidden by default) --}}
-                                <div class="image-info absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 transition-opacity duration-300 flex flex-col justify-end p-6">
-                                    <div class="text-white">
-                                        <div class="text-lg font-semibold mb-2">{{ $image->name }}</div>
-                                        @if($image->description)
-                                            <div class="text-sm opacity-90 mb-2">{{ Str::limit($image->description, 100) }}</div>
-                                        @endif
-                                        <div class="text-xs opacity-80 flex items-center gap-2">
-                                            <i class="fas fa-calendar-alt"></i>
-                                            <span>{{ $image->created_at->format('Y/m/d') }}</span>
-                                            @if($image->article)
-                                                <i class="fas fa-book mr-2"></i>
-                                                <span>{{ $image->article->title }}</span>
-                                            @endif
-                                        </div>
-                                    </div>
-                                </div>
 
                                 {{-- Action Buttons --}}
                                 <div class="gallery-actions absolute top-4 right-4 flex gap-2 opacity-0 hover:opacity-100 transition-opacity duration-300">
@@ -185,15 +169,13 @@
                     <img id="modalImage" src="" alt="" class="max-w-full max-h-screen object-contain rounded-lg shadow-2xl cursor-pointer" onclick="toggleElements()">
 
                     {{-- Hint Text --}}
-                    <div id="hintText" class="absolute top-4 left-4 bg-black bg-opacity-50 text-white px-3 py-2 rounded-lg text-sm opacity-0 transition-opacity duration-300">
+                    {{-- <div id="hintText" class="absolute top-4 left-4 bg-black bg-opacity-50 text-white px-3 py-2 rounded-lg text-sm opacity-0 transition-opacity duration-300">
                         انقر على الصورة لإخفاء/إظهار العناصر
-                    </div>
+                    </div> --}}
 
                     {{-- Image Info --}}
                     <div id="modalImageInfo" class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black to-transparent text-white p-6 rounded-b-lg">
-                        <h3 id="modalImageTitle" class="text-xl font-semibold mb-2"></h3>
                         <p id="modalImageDescription" class="text-sm opacity-90 mb-2"></p>
-                        <div id="modalImageMeta" class="text-xs opacity-80"></div>
                     </div>
                 </div>
 
@@ -265,15 +247,7 @@
             // Set modal content
             document.getElementById('modalImage').src = image.path;
             document.getElementById('modalImage').alt = image.name;
-            document.getElementById('modalImageTitle').textContent = image.name;
             document.getElementById('modalImageDescription').textContent = image.description;
-
-            // Set meta information
-            let metaText = `تاريخ الإضافة: ${image.created_at}`;
-            if (image.article_title) {
-                metaText += ` | المقال: ${image.article_title}`;
-            }
-            document.getElementById('modalImageMeta').textContent = metaText;
 
             // Reset zoom
             currentZoom = 1;
@@ -352,15 +326,7 @@
             // Update modal content
             document.getElementById('modalImage').src = image.path;
             document.getElementById('modalImage').alt = image.name;
-            document.getElementById('modalImageTitle').textContent = image.name;
             document.getElementById('modalImageDescription').textContent = image.description;
-
-            // Set meta information
-            let metaText = `تاريخ الإضافة: ${image.created_at}`;
-            if (image.article_title) {
-                metaText += ` | المقال: ${image.article_title}`;
-            }
-            document.getElementById('modalImageMeta').textContent = metaText;
 
             updateImageZoom();
         }

@@ -75,7 +75,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="outside_location">المكان</label>
+                        <label for="outside_location">مكان الإقامة</label>
                         <input type="text" class="form-control" id="outside_location" name="location">
                     </div>
 

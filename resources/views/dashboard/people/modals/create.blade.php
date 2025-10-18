@@ -112,13 +112,19 @@
 
                     {{-- Other Fields --}}
                     <div class="form-group">
+                        <label for="create_birth_place">مكان الميلاد</label>
+                        <input type="text" class="form-control" id="create_birth_place" name="birth_place"
+                            value="{{ old('birth_place') }}">
+                    </div>
+
+                    <div class="form-group">
                         <label for="create_occupation">المهنة</label>
                         <input type="text" class="form-control" id="create_occupation" name="occupation"
                             value="{{ old('occupation') }}">
                     </div>
 
                     <div class="form-group">
-                        <label for="create_location">المكان</label>
+                        <label for="create_location">مكان الإقامة</label>
                         <input type="text" class="form-control" id="create_location" name="location"
                             value="{{ old('location') }}">
                     </div>

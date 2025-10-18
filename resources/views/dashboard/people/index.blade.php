@@ -140,7 +140,8 @@
                                 <th>العمر</th>
                                 <th>فترة الحياة</th>
                                 <th>المهنة</th>
-                                <th>المكان</th>
+                                <th>مكان الميلاد</th>
+                                <th>مكان الإقامة</th>
                                 <th>الإجراءات</th>
                             </tr>
                         </thead>
@@ -186,6 +187,7 @@
                                     <td>{{ $person->age ?? 'غير معروف' }}</td>
                                     <td>{{ $person->life_span ?? 'غير معروف' }}</td>
                                     <td>{{ $person->occupation ?? '-' }}</td>
+                                    <td>{{ $person->birth_place ?? '-' }}</td>
                                     <td>{{ $person->location ?? '-' }}</td>
                                     <td>
                                         <button type="button" class="btn btn-sm btn-circle btn-primary" data-toggle="modal"

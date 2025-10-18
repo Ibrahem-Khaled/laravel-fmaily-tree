@@ -125,13 +125,19 @@
 
                     {{-- Other Fields --}}
                     <div class="form-group">
+                        <label for="birth_place_edit{{ $person->id }}">مكان الميلاد</label>
+                        <input type="text" class="form-control" id="birth_place_edit{{ $person->id }}"
+                            name="birth_place" value="{{ old('birth_place', $person->birth_place) }}">
+                    </div>
+
+                    <div class="form-group">
                         <label for="occupation_edit{{ $person->id }}">المهنة</label>
                         <input type="text" class="form-control" id="occupation_edit{{ $person->id }}"
                             name="occupation" value="{{ old('occupation', $person->occupation) }}">
                     </div>
 
                     <div class="form-group">
-                        <label for="location_edit{{ $person->id }}">المكان</label>
+                        <label for="location_edit{{ $person->id }}">مكان الإقامة</label>
                         <input type="text" class="form-control" id="location_edit{{ $person->id }}"
                             name="location" value="{{ old('location', $person->location) }}">
                     </div>
