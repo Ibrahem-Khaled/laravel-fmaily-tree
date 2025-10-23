@@ -857,7 +857,7 @@
         function createImageCard(image) {
             const isYouTube = image.media_type === 'youtube' && image.youtube_url;
             const isPdf = image.media_type === 'pdf' && image.path;
-            const imagePath = isYouTube ? null : `{{ asset('storage') }}/${image.path}`;
+            const imagePath = isYouTube ? null : image.path;
             const title = image.article && image.article.title && image.article.title.trim() !== '' ? image.article.title : '';
             const author = image.article && image.article.person ? image.article.person.name : '';
             const categoryName = image.article && image.article.category ? image.article.category.name : '';
@@ -959,11 +959,12 @@
                     </div>
                 `;
             } else {
+                const storageUrl = `{{ asset('storage') }}/${imagePath}`;
                 return `
                     <div onclick='showImageOptions(${imageData})'
                         class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer green-glow-hover transition-all duration-500">
                         <div class="aspect-square overflow-hidden bg-gradient-to-br from-green-100 to-green-200">
-                            <img data-src="${imagePath}" alt="${title}"
+                            <img data-src="${storageUrl}" alt="${title}"
                                  class="lazy-image w-full h-full object-cover transition-all duration-700 group-hover:scale-110">
                             <div class="lazy-placeholder absolute inset-0"></div>
                         </div>
@@ -1059,7 +1060,8 @@
                 previewImg.alt = 'ملف PDF';
             } else {
                 // عرض صورة
-                previewImg.src = `{{ asset('storage') }}/${imageData.path}`;
+                const storageBasePath = '{{ asset("storage") }}';
+                previewImg.src = `${storageBasePath}/${imageData.path}`;
                 previewImg.alt = imageData.title || 'صورة';
             }
 
@@ -1187,7 +1189,8 @@
                     }
 
                     fullscreenImg.style.display = 'none';
-                    iframe.src = `{{ asset('storage') }}/${currentImageData.path}`;
+                    const storageBasePath = '{{ asset("storage") }}';
+                    iframe.src = `${storageBasePath}/${currentImageData.path}`;
                     iframe.style.display = 'block';
                 } else {
                     // عرض صورة بالحجم الكامل
@@ -1196,7 +1199,8 @@
                         iframe.style.display = 'none';
                     }
 
-                    fullscreenImg.src = `{{ asset('storage') }}/${currentImageData.path}`;
+                    const storageBasePath = '{{ asset("storage") }}';
+                    fullscreenImg.src = `${storageBasePath}/${currentImageData.path}`;
                     fullscreenImg.style.display = 'block';
                 }
 
