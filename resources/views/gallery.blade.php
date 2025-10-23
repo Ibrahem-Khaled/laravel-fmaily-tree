@@ -243,6 +243,156 @@
                 opacity: 1;
             }
         }
+
+        /* أنماط الفلاتر المتقدمة */
+        .filter-type-btn {
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.7);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .filter-type-btn:hover {
+            background: rgba(34, 197, 94, 0.1);
+            border-color: rgba(34, 197, 94, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .filter-type-btn.active {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+            border-color: #16a34a;
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+        }
+
+        /* أنماط المجلدات مع تأثيرات متقدمة */
+        .folder-item {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .folder-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.6s ease;
+            z-index: 1;
+        }
+
+        .folder-item:hover::before {
+            left: 100%;
+        }
+
+        .folder-item:hover {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 20px 40px rgba(34, 197, 94, 0.4);
+        }
+
+        /* تأثيرات النص المتحرك */
+        .gradient-text {
+            background: linear-gradient(135deg, #16a34a 0%, #22c55e 50%, #4ade80 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 3s ease-in-out infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        /* تأثيرات البطاقات */
+        .folder-preview-grid img {
+            transition: all 0.5s ease;
+        }
+
+        .folder-item:hover .folder-preview-grid img {
+            transform: scale(1.1);
+            filter: brightness(1.1) contrast(1.1);
+        }
+
+        /* تأثيرات البحث */
+        #search-input:focus {
+            outline: none;
+            border-color: #22c55e;
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+            transform: scale(1.02);
+        }
+
+        /* تأثيرات الأزرار */
+        .btn-animated {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-animated::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn-animated:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        /* تأثيرات التحميل */
+        .loading-shimmer {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        /* تأثيرات الظهور */
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* تأثيرات النبض */
+        .pulse-effect {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
     </style>
 </head>
 
@@ -251,18 +401,111 @@
 
     <div class="container mx-auto px-4 py-4 lg:py-8 relative z-10">
 
+        <!-- إحصائيات ذكية -->
+        <div id="smart-stats" class="glass-effect p-6 rounded-2xl mb-8 fade-in-up">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="text-center">
+                    <div class="text-3xl font-bold gradient-text" id="total-categories">0</div>
+                    <div class="text-sm text-gray-600">إجمالي الفئات</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold gradient-text" id="total-files">0</div>
+                    <div class="text-sm text-gray-600">إجمالي الملفات</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold gradient-text" id="recent-uploads">0</div>
+                    <div class="text-sm text-gray-600">رفعات هذا الأسبوع</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold gradient-text" id="file-types">0</div>
+                    <div class="text-sm text-gray-600">أنواع الملفات</div>
+                </div>
+            </div>
+        </div>
+
         <div class="flex items-center justify-between mb-4 lg:hidden">
-            <h2 class="text-xl font-bold gradient-text">المعرض</h2>
-            <button id="toggle-filters-btn"
-                class="bg-white/80 p-2 rounded-full shadow-md hover:bg-white transition-all">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-700" fill="none"
-                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M3 4h13M3 8h9m-9 4h6m4 0l4 4m0 0l4-4m-4 4v-8" />
-                </svg>
-            </button>
+            <h2 class="text-xl font-bold gradient-text">المعرض الذكي</h2>
+            <div class="flex items-center gap-2">
+                <button id="toggle-view-mode-btn"
+                    class="bg-white/80 p-2 rounded-full shadow-md hover:bg-white transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-700" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                    </svg>
+                </button>
+                <button id="toggle-filters-btn"
+                    class="bg-white/80 p-2 rounded-full shadow-md hover:bg-white transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-700" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M3 4h13M3 8h9m-9 4h6m4 0l4 4m0 0l4-4m-4 4v-8" />
+                    </svg>
+                </button>
+            </div>
         </div>
         <div class="flex flex-col lg:flex-row gap-8">
+
+            <!-- شريط الفلترة المتقدم -->
+            <div id="advanced-filters-bar" class="glass-effect p-4 rounded-2xl mb-6 hidden">
+                <div class="flex flex-wrap items-center gap-4">
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm font-medium text-gray-700">ترتيب حسب:</span>
+                        <select id="sort-order" class="bg-white/80 border border-gray-200 rounded-lg px-3 py-2 text-sm">
+                            <option value="newest">الأحدث أولاً</option>
+                            <option value="oldest">الأقدم أولاً</option>
+                            <option value="name-asc">الاسم أ-ي</option>
+                            <option value="name-desc">الاسم ي-أ</option>
+                            <option value="most-files">الأكثر ملفات</option>
+                            <option value="least-files">الأقل ملفات</option>
+                        </select>
+                    </div>
+                    
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm font-medium text-gray-700">نوع الملف:</span>
+                        <div class="flex gap-2">
+                            <button class="filter-type-btn active" data-type="all">
+                                <span class="text-xs">الكل</span>
+                            </button>
+                            <button class="filter-type-btn" data-type="image">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
+                                </svg>
+                            </button>
+                            <button class="filter-type-btn" data-type="pdf">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                                </svg>
+                            </button>
+                            <button class="filter-type-btn" data-type="youtube">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm font-medium text-gray-700">البحث:</span>
+                        <input type="text" id="search-input" placeholder="ابحث في الملفات..." 
+                               class="bg-white/80 border border-gray-200 rounded-lg px-3 py-2 text-sm w-48">
+                    </div>
+
+                    <button id="toggle-filters-bar" class="ml-auto bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg text-sm transition-colors">
+                        إخفاء الفلاتر
+                    </button>
+                </div>
+            </div>
+
+            <!-- زر إظهار الفلاتر -->
+            <div class="text-center mb-4">
+                <button id="show-filters-bar" class="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-full font-bold shadow-lg hover:from-green-600 hover:to-green-700 transition-all duration-300 transform hover:scale-105">
+                    <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4 4m0 0l4-4m-4 4v-8"/>
+                    </svg>
+                    فلاتر متقدمة
+                </button>
+            </div>
 
             <div id="filters-backdrop" class="fixed inset-0 bg-black/40 z-20 hidden lg:hidden"></div>
             <aside id="filters-sidebar"
@@ -291,14 +534,38 @@
                                 </span>
                             </a>
                         </li>
-                        @foreach ($categories as $category)
-                            <li>
-                                <a href="javascript:void(0);" onclick="openCategoryView({{ $category->id }})"
-                                    class="block px-3 lg:px-4 py-2 lg:py-3 rounded-xl lg:rounded-2xl transition-all duration-300 font-medium text-sm lg:text-base bg-white/70 hover:bg-green-50 hover:scale-105 hover:shadow-md">
-                                    {{ $category->name }}
-                                </a>
-                            </li>
-                        @endforeach
+                        
+                        <!-- الفئات الحديثة -->
+                        <li class="mt-4">
+                            <div class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">الفئات الحديثة</div>
+                            <div id="recent-categories" class="space-y-1">
+                                <!-- سيتم ملؤها بواسطة JavaScript -->
+                            </div>
+                        </li>
+
+                        <!-- الفئات المفضلة -->
+                        <li class="mt-4">
+                            <div class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">المفضلة</div>
+                            <div id="favorite-categories" class="space-y-1">
+                                <!-- سيتم ملؤها بواسطة JavaScript -->
+                            </div>
+                        </li>
+
+                        <!-- جميع الفئات -->
+                        <li class="mt-4">
+                            <div class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">جميع الفئات</div>
+                            <div class="space-y-1">
+                                @foreach ($categories as $category)
+                                    <a href="javascript:void(0);" onclick="openCategoryView({{ $category->id }})"
+                                        class="block px-3 lg:px-4 py-2 lg:py-3 rounded-xl lg:rounded-2xl transition-all duration-300 font-medium text-sm lg:text-base bg-white/70 hover:bg-green-50 hover:scale-105 hover:shadow-md">
+                                        <span class="flex items-center justify-between">
+                                            <span>{{ $category->name }}</span>
+                                            <span class="text-xs text-gray-500">({{ $category->images_count }})</span>
+                                        </span>
+                                    </a>
+                                @endforeach
+                            </div>
+                        </li>
                     </ul>
                 </div>
             </aside>
@@ -307,29 +574,41 @@
                 <div id="folder-view-container">
                     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-4 gap-6">
                         @foreach ($categories as $category)
-                            <div class="folder-item" onclick="openCategoryView({{ $category->id }})">
+                            <div class="folder-item fade-in-up" onclick="openCategoryView({{ $category->id }})" style="animation-delay: {{ $loop->index * 0.1 }}s">
                                 <div class="folder">
                                     <div class="folder-preview">
                                         @if ($category->images->isNotEmpty())
                                             <div class="folder-preview-grid">
                                                 @foreach ($category->images->take(4) as $image)
-                                                    <img src="{{ asset('storage/' . $image->path) }}" alt="Preview">
+                                                    @if($image->media_type === 'youtube')
+                                                        <img src="https://img.youtube.com/vi/{{ $image->getYouTubeId() }}/maxresdefault.jpg" alt="YouTube Preview">
+                                                    @else
+                                                        <img src="{{ asset('storage/' . $image->path) }}" alt="Preview">
+                                                    @endif
                                                 @endforeach
                                             </div>
                                         @else
-                                            <div
-                                                class="w-full h-full flex items-center justify-center bg-green-200/50 rounded-md">
-                                                <svg class="w-1/2 h-1/2 folder-empty-icon"
-                                                    xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                    viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" />
+                                            <div class="w-full h-full flex items-center justify-center bg-green-200/50 rounded-md">
+                                                <svg class="w-1/2 h-1/2 folder-empty-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" />
                                                 </svg>
                                             </div>
                                         @endif
                                     </div>
+                                    <!-- شارة الفئة الحديثة -->
+                                    @if($category->updated_at->diffInDays() <= 7)
+                                        <div class="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full pulse-effect">
+                                            جديد
+                                        </div>
+                                    @endif
                                 </div>
-                                <h3 class="folder-name">{{ $category->name }} ({{ $category->images_count }})</h3>
+                                <h3 class="folder-name">
+                                    {{ $category->name }} 
+                                    <span class="text-sm text-gray-500">({{ $category->images_count }})</span>
+                                    <div class="text-xs text-gray-400 mt-1">
+                                        {{ $category->updated_at->diffForHumans() }}
+                                    </div>
+                                </h3>
                             </div>
                         @endforeach
                     </div>
@@ -434,12 +713,18 @@
         const noImagesMessage = document.getElementById('no-images-message');
 
 
-        // ===== التعديل 4: إضافة كود JavaScript جديد للتحكم في القائمة الجانبية =====
+        // ===== التعديل 4: إضافة كود JavaScript جديد للتحكم في القائمة الجانبية والفلاتر المتقدمة =====
         document.addEventListener('DOMContentLoaded', function () {
             const sidebar = document.getElementById('filters-sidebar');
             const backdrop = document.getElementById('filters-backdrop');
             const openBtn = document.getElementById('toggle-filters-btn');
             const closeBtn = document.getElementById('close-filters-btn');
+
+            // متغيرات الفلترة المتقدمة
+            let currentSortOrder = 'newest';
+            let currentFilterType = 'all';
+            let currentSearchTerm = '';
+            let allCategories = [...galleryData];
 
             function openSidebar() {
                 sidebar.classList.remove('translate-x-full');
@@ -468,9 +753,319 @@
                 backdrop.addEventListener('click', closeSidebar);
             }
 
+            // تهيئة الفلاتر المتقدمة
+            initAdvancedFilters();
+
+            // تهيئة الإحصائيات الذكية
+            initSmartStats();
+
+            // تهيئة الفئات الذكية
+            initSmartCategories();
+
             // تهيئة Lazy Loading
             initLazyLoading();
         });
+
+        // تهيئة الفلاتر المتقدمة
+        function initAdvancedFilters() {
+            const showFiltersBtn = document.getElementById('show-filters-bar');
+            const hideFiltersBtn = document.getElementById('toggle-filters-bar');
+            const filtersBar = document.getElementById('advanced-filters-bar');
+            const sortOrderSelect = document.getElementById('sort-order');
+            const filterTypeBtns = document.querySelectorAll('.filter-type-btn');
+            const searchInput = document.getElementById('search-input');
+
+            // إظهار/إخفاء شريط الفلاتر
+            if (showFiltersBtn) {
+                showFiltersBtn.addEventListener('click', () => {
+                    filtersBar.classList.remove('hidden');
+                    filtersBar.classList.add('fade-in-up');
+                    showFiltersBtn.style.display = 'none';
+                });
+            }
+
+            if (hideFiltersBtn) {
+                hideFiltersBtn.addEventListener('click', () => {
+                    filtersBar.classList.add('hidden');
+                    document.getElementById('show-filters-bar').style.display = 'block';
+                });
+            }
+
+            // تغيير ترتيب العرض
+            if (sortOrderSelect) {
+                sortOrderSelect.addEventListener('change', (e) => {
+                    currentSortOrder = e.target.value;
+                    applyFilters();
+                });
+            }
+
+            // تغيير نوع الملف
+            filterTypeBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    filterTypeBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentFilterType = btn.dataset.type;
+                    applyFilters();
+                });
+            });
+
+            // البحث
+            if (searchInput) {
+                let searchTimeout;
+                searchInput.addEventListener('input', (e) => {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(() => {
+                        currentSearchTerm = e.target.value.toLowerCase();
+                        applyFilters();
+                    }, 300);
+                });
+            }
+        }
+
+        // تطبيق الفلاتر
+        function applyFilters() {
+            let filteredCategories = [...allCategories];
+
+            // فلترة حسب نوع الملف
+            if (currentFilterType !== 'all') {
+                filteredCategories = filteredCategories.map(category => ({
+                    ...category,
+                    images: category.images.filter(image => {
+                        if (currentFilterType === 'image') return image.media_type === 'image';
+                        if (currentFilterType === 'pdf') return image.media_type === 'pdf';
+                        if (currentFilterType === 'youtube') return image.media_type === 'youtube';
+                        return true;
+                    })
+                })).filter(category => category.images.length > 0);
+            }
+
+            // فلترة حسب البحث
+            if (currentSearchTerm) {
+                filteredCategories = filteredCategories.map(category => ({
+                    ...category,
+                    images: category.images.filter(image => {
+                        const title = image.article?.title?.toLowerCase() || '';
+                        const author = image.article?.person?.name?.toLowerCase() || '';
+                        const categoryName = category.name.toLowerCase();
+                        return title.includes(currentSearchTerm) || 
+                               author.includes(currentSearchTerm) || 
+                               categoryName.includes(currentSearchTerm);
+                    })
+                })).filter(category => category.images.length > 0);
+            }
+
+            // ترتيب الفئات
+            filteredCategories.sort((a, b) => {
+                switch (currentSortOrder) {
+                    case 'newest':
+                        return new Date(b.updated_at) - new Date(a.updated_at);
+                    case 'oldest':
+                        return new Date(a.updated_at) - new Date(b.updated_at);
+                    case 'name-asc':
+                        return a.name.localeCompare(b.name, 'ar');
+                    case 'name-desc':
+                        return b.name.localeCompare(a.name, 'ar');
+                    case 'most-files':
+                        return b.images.length - a.images.length;
+                    case 'least-files':
+                        return a.images.length - b.images.length;
+                    default:
+                        return 0;
+                }
+            });
+
+            // تحديث عرض المجلدات
+            updateFolderDisplay(filteredCategories);
+        }
+
+        // تحديث عرض المجلدات
+        function updateFolderDisplay(categories) {
+            const folderContainer = document.querySelector('#folder-view-container .grid');
+            folderContainer.innerHTML = '';
+
+            categories.forEach((category, index) => {
+                const folderElement = createFolderElement(category);
+                folderElement.style.animationDelay = `${index * 0.1}s`;
+                folderElement.classList.add('fade-in-up');
+                folderContainer.appendChild(folderElement);
+            });
+
+            // إضافة تأثيرات تفاعلية
+            addInteractiveEffects();
+        }
+
+        // إنشاء عنصر مجلد مع تأثيرات متقدمة
+        function createFolderElement(category) {
+            const folderDiv = document.createElement('div');
+            folderDiv.className = 'folder-item';
+            folderDiv.onclick = () => openCategoryView(category.id);
+
+            const previewHtml = category.images.length > 0 ? 
+                `<div class="folder-preview-grid">
+                    ${category.images.slice(0, 4).map(img => 
+                        `<img src="${img.media_type === 'youtube' ? 
+                            `https://img.youtube.com/vi/${extractVideoId(img.youtube_url)}/maxresdefault.jpg` : 
+                            `{{ asset('storage') }}/${img.path}`}" alt="Preview">`
+                    ).join('')}
+                </div>` :
+                `<div class="w-full h-full flex items-center justify-center bg-green-200/50 rounded-md">
+                    <svg class="w-1/2 h-1/2 folder-empty-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" />
+                    </svg>
+                </div>`;
+
+            folderDiv.innerHTML = `
+                <div class="folder">
+                    <div class="folder-preview">
+                        ${previewHtml}
+                    </div>
+                </div>
+                <h3 class="folder-name">
+                    ${category.name} 
+                    <span class="text-sm text-gray-500">(${category.images.length})</span>
+                    <div class="text-xs text-gray-400 mt-1">
+                        ${getLastUpdateText(category.updated_at)}
+                    </div>
+                </h3>
+            `;
+
+            return folderDiv;
+        }
+
+        // استخراج معرف الفيديو من رابط يوتيوب
+        function extractVideoId(url) {
+            if (!url) return '';
+            const patterns = [
+                /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+                /youtube\.com\/watch\?.*v=([a-zA-Z0-9_-]{11})/
+            ];
+            for (let pattern of patterns) {
+                const match = url.match(pattern);
+                if (match) return match[1];
+            }
+            return '';
+        }
+
+        // الحصول على نص آخر تحديث
+        function getLastUpdateText(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffTime = Math.abs(now - date);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays === 1) return 'منذ يوم';
+            if (diffDays < 7) return `منذ ${diffDays} أيام`;
+            if (diffDays < 30) return `منذ ${Math.ceil(diffDays / 7)} أسابيع`;
+            return `منذ ${Math.ceil(diffDays / 30)} أشهر`;
+        }
+
+        // إضافة تأثيرات تفاعلية
+        function addInteractiveEffects() {
+            const folderItems = document.querySelectorAll('.folder-item');
+            
+            folderItems.forEach((item, index) => {
+                // تأثير الظهور المتدرج
+                item.style.opacity = '0';
+                item.style.transform = 'translateY(30px)';
+                
+                setTimeout(() => {
+                    item.style.transition = 'all 0.6s ease-out';
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateY(0)';
+                }, index * 100);
+
+                // تأثير التمرير
+                item.addEventListener('mouseenter', () => {
+                    item.style.transform = 'translateY(-8px) scale(1.05)';
+                });
+
+                item.addEventListener('mouseleave', () => {
+                    item.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+        }
+
+        // تهيئة الإحصائيات الذكية
+        function initSmartStats() {
+            const totalCategories = allCategories.length;
+            const totalFiles = allCategories.reduce((sum, cat) => sum + cat.images.length, 0);
+            
+            // حساب الرفعات الحديثة (آخر أسبوع)
+            const oneWeekAgo = new Date();
+            oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+            const recentUploads = allCategories.reduce((sum, cat) => {
+                return sum + cat.images.filter(img => new Date(img.created_at) > oneWeekAgo).length;
+            }, 0);
+
+            // حساب أنواع الملفات المختلفة
+            const fileTypes = new Set();
+            allCategories.forEach(cat => {
+                cat.images.forEach(img => fileTypes.add(img.media_type));
+            });
+
+            // تحديث الإحصائيات مع تأثيرات متحركة
+            animateCounter('total-categories', totalCategories);
+            animateCounter('total-files', totalFiles);
+            animateCounter('recent-uploads', recentUploads);
+            animateCounter('file-types', fileTypes.size);
+        }
+
+        // تأثير عداد متحرك
+        function animateCounter(elementId, targetValue) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+
+            let currentValue = 0;
+            const increment = targetValue / 50;
+            const timer = setInterval(() => {
+                currentValue += increment;
+                if (currentValue >= targetValue) {
+                    currentValue = targetValue;
+                    clearInterval(timer);
+                }
+                element.textContent = Math.floor(currentValue);
+            }, 30);
+        }
+
+        // تهيئة الفئات الذكية
+        function initSmartCategories() {
+            // الفئات الحديثة (آخر 3 فئات تم تحديثها)
+            const recentCategories = allCategories
+                .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at))
+                .slice(0, 3);
+
+            const recentContainer = document.getElementById('recent-categories');
+            if (recentContainer) {
+                recentContainer.innerHTML = recentCategories.map(cat => 
+                    `<a href="javascript:void(0);" onclick="openCategoryView(${cat.id})"
+                        class="block px-2 py-1 rounded-lg text-xs bg-green-100 hover:bg-green-200 transition-colors">
+                        <span class="flex items-center justify-between">
+                            <span>${cat.name}</span>
+                            <span class="text-green-600">${cat.images.length}</span>
+                        </span>
+                    </a>`
+                ).join('');
+            }
+
+            // الفئات المفضلة (الفئات التي تحتوي على أكثر من 10 ملفات)
+            const favoriteCategories = allCategories
+                .filter(cat => cat.images.length >= 10)
+                .sort((a, b) => b.images.length - a.images.length)
+                .slice(0, 3);
+
+            const favoriteContainer = document.getElementById('favorite-categories');
+            if (favoriteContainer) {
+                favoriteContainer.innerHTML = favoriteCategories.map(cat => 
+                    `<a href="javascript:void(0);" onclick="openCategoryView(${cat.id})"
+                        class="block px-2 py-1 rounded-lg text-xs bg-yellow-100 hover:bg-yellow-200 transition-colors">
+                        <span class="flex items-center justify-between">
+                            <span>${cat.name}</span>
+                            <span class="text-yellow-600">⭐ ${cat.images.length}</span>
+                        </span>
+                    </a>`
+                ).join('');
+            }
+        }
         // ===== نهاية التعديل 4 =====
 
         // دالة تهيئة Lazy Loading

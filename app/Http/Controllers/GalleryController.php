@@ -19,19 +19,21 @@ class GalleryController extends Controller
         $categoriesForView = Category::whereHas('images')
             ->whereNull('parent_id')
             ->with(['images' => function ($query) {
-                $query->select('id', 'path', 'article_id')->latest()->take(4);
+                $query->select('id', 'path', 'article_id', 'media_type', 'created_at')->latest()->take(4);
             }])
             ->withCount('images') // لحساب عدد الصور في كل مجلد
+            ->orderBy('updated_at', 'desc') // ترتيب حسب آخر تحديث
             ->get();
 
         // 2. جلب نفس الفئات ولكن مع كل الصور والمعلومات المرتبطة بها لتمريرها إلى JavaScript
         $categoriesForJs = Category::whereNull('parent_id')
             ->with([
-                'images.article:id,title,person_id,category_id', // اختر الحقول التي تحتاجها فقط لتحسين الأداء
-                'images.article.person:id,name',
-                'images.article.category:id,name',
-                'images.mentionedPersons' // إضافة الأشخاص المذكورين بالترتيب
+                'images' => function ($query) {
+                    $query->with(['article:id,title,person_id,category_id', 'article.person:id,name', 'article.category:id,name', 'mentionedPersons'])
+                          ->orderBy('created_at', 'desc'); // ترتيب الصور داخل كل فئة حسب التاريخ
+                }
             ])
+            ->orderBy('updated_at', 'desc') // ترتيب الفئات حسب آخر تحديث
             ->get();
 
         return view('gallery', [
