@@ -1059,7 +1059,7 @@
                 previewImg.alt = 'ملف PDF';
             } else {
                 // عرض صورة
-                previewImg.src = imageData.path;
+                previewImg.src = `{{ asset('storage') }}/${imageData.path}`;
                 previewImg.alt = imageData.title || 'صورة';
             }
 
@@ -1174,7 +1174,7 @@
                     }
 
                     fullscreenImg.style.display = 'none';
-                    iframe.src = currentImageData.path;
+                    iframe.src = `{{ asset('storage') }}/${currentImageData.path}`;
                     iframe.style.display = 'block';
                 } else {
                     // عرض صورة بالحجم الكامل
@@ -1183,7 +1183,7 @@
                         iframe.style.display = 'none';
                     }
 
-                    fullscreenImg.src = currentImageData.path;
+                    fullscreenImg.src = `{{ asset('storage') }}/${currentImageData.path}`;
                     fullscreenImg.style.display = 'block';
                 }
 
