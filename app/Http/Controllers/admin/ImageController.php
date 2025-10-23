@@ -64,8 +64,9 @@ class ImageController extends Controller
         $request->validate([
             'category_id' => ['required', 'exists:categories,id'],
             'images.*'    => ['nullable', 'image', 'max:150000'], // 150MB limit
+            'pdfs.*'      => ['nullable', 'file', 'mimes:pdf', 'max:50000'], // 50MB limit for PDFs
             'youtube_urls.*' => ['nullable', 'url', 'regex:/^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)/'],
-            'media_types.*' => ['nullable', 'in:image,youtube'],
+            'media_types.*' => ['nullable', 'in:image,youtube,pdf'],
             'mentioned_persons' => ['nullable', 'array'],
             'mentioned_persons.*' => ['exists:persons,id'],
         ]);
@@ -78,10 +79,34 @@ class ImageController extends Controller
                     'name'        => $file->getClientOriginalName(),
                     'path'        => $path,
                     'media_type'  => 'image',
+                    'file_size'   => $file->getSize(),
+                    'file_extension' => $file->getClientOriginalExtension(),
                     'category_id' => $request->category_id,
                 ]);
 
                 // ربط الأشخاص المذكورين بالصورة مع الترتيب
+                if ($request->has('mentioned_persons') && is_array($request->mentioned_persons)) {
+                    $personsWithOrder = [];
+                    foreach ($request->mentioned_persons as $index => $personId) {
+                        $personsWithOrder[$personId] = ['order' => $index + 1];
+                    }
+                    $image->mentionedPersons()->attach($personsWithOrder);
+                }
+            }
+
+            // Handle PDF uploads
+            foreach ($request->file('pdfs', []) as $file) {
+                $path = $file->store('categories', 'public');
+                $image = Image::create([
+                    'name'        => $file->getClientOriginalName(),
+                    'path'        => $path,
+                    'media_type'  => 'pdf',
+                    'file_size'   => $file->getSize(),
+                    'file_extension' => $file->getClientOriginalExtension(),
+                    'category_id' => $request->category_id,
+                ]);
+
+                // ربط الأشخاص المذكورين بالملف مع الترتيب
                 if ($request->has('mentioned_persons') && is_array($request->mentioned_persons)) {
                     $personsWithOrder = [];
                     foreach ($request->mentioned_persons as $index => $personId) {
@@ -116,7 +141,7 @@ class ImageController extends Controller
             }
         });
 
-        return back()->with('success', 'تم رفع الصور للفئة.');
+        return back()->with('success', 'تم رفع الملفات للفئة.');
     }
 
     public function bulkDestroy(Request $request)
@@ -169,6 +194,8 @@ class ImageController extends Controller
                 'path' => $image->path,
                 'youtube_url' => $image->youtube_url,
                 'media_type' => $image->media_type,
+                'file_size' => $image->file_size,
+                'file_extension' => $image->file_extension,
                 'category_id' => $image->category_id,
                 'mentioned_persons' => $image->mentionedPersons->pluck('id')->toArray(),
             ]
@@ -182,8 +209,9 @@ class ImageController extends Controller
             'description' => ['nullable', 'string'],
             'category_id' => ['required', 'exists:categories,id'],
             'image' => ['nullable', 'image', 'max:150000'], // 150MB limit
+            'pdf' => ['nullable', 'file', 'mimes:pdf', 'max:50000'], // 50MB limit for PDFs
             'youtube_url' => ['nullable', 'url', 'regex:/^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)/'],
-            'media_type' => ['nullable', 'in:image,youtube'],
+            'media_type' => ['nullable', 'in:image,youtube,pdf'],
             'mentioned_persons' => ['nullable', 'array'],
             'mentioned_persons.*' => ['exists:persons,id'],
         ]);
@@ -197,17 +225,38 @@ class ImageController extends Controller
 
             // إذا تم رفع صورة جديدة
             if ($request->hasFile('image')) {
-                // حذف الصورة القديمة
+                // حذف الملف القديم
                 if ($image->path && Storage::disk('public')->exists($image->path)) {
                     Storage::disk('public')->delete($image->path);
                 }
 
                 // رفع الصورة الجديدة
-                $path = $request->file('image')->store('categories', 'public');
+                $file = $request->file('image');
+                $path = $file->store('categories', 'public');
                 $data['path'] = $path;
                 $data['media_type'] = 'image';
+                $data['file_size'] = $file->getSize();
+                $data['file_extension'] = $file->getClientOriginalExtension();
                 $data['youtube_url'] = null; // Clear YouTube URL when uploading image
-                $data['name'] = $data['name'] ?: $request->file('image')->getClientOriginalName();
+                $data['name'] = $data['name'] ?: $file->getClientOriginalName();
+            }
+
+            // إذا تم رفع ملف PDF جديد
+            if ($request->hasFile('pdf')) {
+                // حذف الملف القديم
+                if ($image->path && Storage::disk('public')->exists($image->path)) {
+                    Storage::disk('public')->delete($image->path);
+                }
+
+                // رفع ملف PDF الجديد
+                $file = $request->file('pdf');
+                $path = $file->store('categories', 'public');
+                $data['path'] = $path;
+                $data['media_type'] = 'pdf';
+                $data['file_size'] = $file->getSize();
+                $data['file_extension'] = $file->getClientOriginalExtension();
+                $data['youtube_url'] = null; // Clear YouTube URL when uploading PDF
+                $data['name'] = $data['name'] ?: $file->getClientOriginalName();
             }
 
             // إذا تم إدخال رابط يوتيوب

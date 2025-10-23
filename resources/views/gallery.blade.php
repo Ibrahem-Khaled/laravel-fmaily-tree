@@ -373,7 +373,7 @@
         <div
             class="modal-content relative bg-white rounded-t-3xl md:rounded-3xl p-6 md:p-8 w-full max-w-md mx-auto mt-20 md:mt-0">
             <div class="flex items-center justify-between mb-6">
-                <h3 class="text-xl md:text-2xl font-bold gradient-text">خيارات الصورة</h3>
+                <h3 class="text-xl md:text-2xl font-bold gradient-text">خيارات الملف</h3>
                 <button onclick="closeImageOptions()" class="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition">
                     <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
@@ -402,7 +402,7 @@
                     بالحجم الكامل</button>
                 <button id="viewArticleBtn" onclick="viewArticle()"
                     class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white font-bold py-3 px-4 rounded-2xl hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-lg transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2">عرض
-                    تفاصيل الصورة</button>
+                    التفاصيل</button>
             </div>
         </div>
     </div>
@@ -522,9 +522,26 @@
             }
         }
 
+        // دالة لتنسيق حجم الملف
+        function formatFileSize(bytes) {
+            if (!bytes) return '';
+
+            const units = ['B', 'KB', 'MB', 'GB'];
+            let size = parseInt(bytes);
+            let unitIndex = 0;
+
+            while (size >= 1024 && unitIndex < units.length - 1) {
+                size /= 1024;
+                unitIndex++;
+            }
+
+            return Math.round(size * 100) / 100 + ' ' + units[unitIndex];
+        }
+
         // دالة لإنشاء كود HTML لبطاقة الصورة
         function createImageCard(image) {
             const isYouTube = image.media_type === 'youtube' && image.youtube_url;
+            const isPdf = image.media_type === 'pdf' && image.path;
             const imagePath = isYouTube ? null : `{{ asset('storage') }}/${image.path}`;
             const title = image.article && image.article.title && image.article.title.trim() !== '' ? image.article.title : '';
             const author = image.article && image.article.person ? image.article.person.name : '';
@@ -555,6 +572,8 @@
                 path: imagePath,
                 youtube_url: image.youtube_url,
                 media_type: image.media_type,
+                file_size: image.file_size,
+                file_extension: image.file_extension,
                 title: title,
                 author: author,
                 category: categoryName,
@@ -599,6 +618,27 @@
                         <div class="absolute bottom-0 left-0 right-0 p-3 text-white transform translate-y-full group-hover:translate-y-0 transition-all duration-500">
                             ${title ? `<h4 class="font-bold text-sm line-clamp-1">${title}</h4>` : ''}
                             ${author ? `<span class="text-xs text-red-200">${author}</span>` : ''}
+                            ${mentionedPersonsHtml}
+                        </div>
+                    </div>
+                `;
+            } else if (isPdf) {
+                return `
+                    <div onclick='showImageOptions(${imageData})'
+                        class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer green-glow-hover transition-all duration-500">
+                        <div class="aspect-square overflow-hidden bg-gradient-to-br from-orange-100 to-orange-200">
+                            <div class="w-full h-full flex flex-col items-center justify-center">
+                                <svg class="w-16 h-16 text-orange-600 mb-2" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
+                                </svg>
+                                <span class="text-orange-700 font-bold text-sm">PDF</span>
+                                <span class="text-orange-600 text-xs">${image.file_size ? formatFileSize(image.file_size) : ''}</span>
+                            </div>
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+                        <div class="absolute bottom-0 left-0 right-0 p-3 text-white transform translate-y-full group-hover:translate-y-0 transition-all duration-500">
+                            ${title ? `<h4 class="font-bold text-sm line-clamp-1">${title}</h4>` : ''}
+                            ${author ? `<span class="text-xs text-orange-200">${author}</span>` : ''}
                             ${mentionedPersonsHtml}
                         </div>
                     </div>
@@ -688,6 +728,20 @@
                     previewImg.src = thumbnailUrl;
                     previewImg.alt = 'فيديو يوتيوب';
                 }
+            } else if (imageData.media_type === 'pdf' && imageData.path) {
+                // عرض معاينة PDF
+                previewImg.src = 'data:image/svg+xml;base64,' + btoa(`
+                    <svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
+                        <rect width="400" height="300" fill="#f3f4f6"/>
+                        <rect x="50" y="50" width="300" height="200" fill="white" stroke="#d1d5db" stroke-width="2"/>
+                        <svg x="150" y="100" width="100" height="100" viewBox="0 0 24 24" fill="#ef4444">
+                            <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                        </svg>
+                        <text x="200" y="220" text-anchor="middle" font-family="Arial" font-size="16" fill="#374151">PDF</text>
+                        <text x="200" y="240" text-anchor="middle" font-family="Arial" font-size="12" fill="#6b7280">${imageData.file_size ? formatFileSize(imageData.file_size) : ''}</text>
+                    </svg>
+                `);
+                previewImg.alt = 'ملف PDF';
             } else {
                 // عرض صورة
                 previewImg.src = imageData.path;
@@ -790,6 +844,23 @@
                         iframe.src = `https://www.youtube.com/embed/${videoId}`;
                         iframe.style.display = 'block';
                     }
+                } else if (currentImageData.media_type === 'pdf' && currentImageData.path) {
+                    // عرض ملف PDF بالحجم الكامل
+                    let iframe = fullscreenModal.querySelector('iframe');
+                    if (!iframe) {
+                        iframe = document.createElement('iframe');
+                        iframe.className = 'fullscreen-image rounded-lg shadow-2xl';
+                        iframe.style.maxHeight = '90vh';
+                        iframe.style.maxWidth = '90vw';
+                        iframe.style.width = '800px';
+                        iframe.style.height = '600px';
+                        iframe.setAttribute('frameborder', '0');
+                        fullscreenModal.querySelector('.modal-backdrop').appendChild(iframe);
+                    }
+
+                    fullscreenImg.style.display = 'none';
+                    iframe.src = currentImageData.path;
+                    iframe.style.display = 'block';
                 } else {
                     // عرض صورة بالحجم الكامل
                     let iframe = fullscreenModal.querySelector('iframe');

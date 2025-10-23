@@ -718,7 +718,7 @@
                                 <div class="spouse-card clickable ${spouse.death_date ? 'is-deceased' : ''}" onclick="showPersonDetails(${spouse.id})">
                                     ${createPhoto(spouse, 'sm', false)}
                                     <div>
-                                        <strong>${spouse.name || spouse.full_name}</strong>
+                                        <strong>${spouse.full_name}</strong>
                                         <small class="d-block text-muted">${spouseStatusText}</small>
                                     </div>
                                 </div>

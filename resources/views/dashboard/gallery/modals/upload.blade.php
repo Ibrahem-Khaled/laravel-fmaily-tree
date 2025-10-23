@@ -51,6 +51,11 @@
                             <i class="fas fa-images"></i> صور
                         </label>
 
+                        <input type="radio" class="btn-check" name="content_type" id="content_type_pdfs" value="pdfs">
+                        <label class="btn btn-outline-warning" for="content_type_pdfs">
+                            <i class="fas fa-file-pdf"></i> ملفات PDF
+                        </label>
+
                         <input type="radio" class="btn-check" name="content_type" id="content_type_youtube" value="youtube">
                         <label class="btn btn-outline-danger" for="content_type_youtube">
                             <i class="fab fa-youtube"></i> يوتيوب
@@ -66,6 +71,17 @@
                             <label class="custom-file-label" for="uploadImagesInput">اختر ملفات...</label>
                         </div>
                         <small class="text-muted d-block mt-1">يمكن رفع عدة صور، بحد أقصى 150MB لكل صورة.</small>
+                    </div>
+                </div>
+
+                <div id="pdfs-upload-section" style="display: none;">
+                    <div class="form-group">
+                        <label>ملفات PDF (متعددة)</label>
+                        <div class="custom-file">
+                            <input type="file" name="pdfs[]" class="custom-file-input" id="uploadPdfsInput" multiple accept=".pdf">
+                            <label class="custom-file-label" for="uploadPdfsInput">اختر ملفات PDF...</label>
+                        </div>
+                        <small class="text-muted d-block mt-1">يمكن رفع عدة ملفات PDF، بحد أقصى 50MB لكل ملف.</small>
                     </div>
                 </div>
 
@@ -103,24 +119,37 @@
 // التحكم في نوع المحتوى
 document.addEventListener('DOMContentLoaded', function() {
     const contentTypeImages = document.getElementById('content_type_images');
+    const contentTypePdfs = document.getElementById('content_type_pdfs');
     const contentTypeYoutube = document.getElementById('content_type_youtube');
     const imagesSection = document.getElementById('images-upload-section');
+    const pdfsSection = document.getElementById('pdfs-upload-section');
     const youtubeSection = document.getElementById('youtube-upload-section');
     const imagesInput = document.getElementById('uploadImagesInput');
+    const pdfsInput = document.getElementById('uploadPdfsInput');
 
     function toggleSections() {
+        // إخفاء جميع الأقسام أولاً
+        imagesSection.style.display = 'none';
+        pdfsSection.style.display = 'none';
+        youtubeSection.style.display = 'none';
+
+        // إزالة الـ required من جميع المدخلات
+        imagesInput.required = false;
+        pdfsInput.required = false;
+
         if (contentTypeImages.checked) {
             imagesSection.style.display = 'block';
-            youtubeSection.style.display = 'none';
             imagesInput.required = true;
-        } else {
-            imagesSection.style.display = 'none';
+        } else if (contentTypePdfs.checked) {
+            pdfsSection.style.display = 'block';
+            pdfsInput.required = true;
+        } else if (contentTypeYoutube.checked) {
             youtubeSection.style.display = 'block';
-            imagesInput.required = false;
         }
     }
 
     contentTypeImages.addEventListener('change', toggleSections);
+    contentTypePdfs.addEventListener('change', toggleSections);
     contentTypeYoutube.addEventListener('change', toggleSections);
 
     // Initialize

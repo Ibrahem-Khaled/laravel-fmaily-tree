@@ -5,11 +5,11 @@
         {{-- العنوان والمسار --}}
         <div class="row">
             <div class="col-12">
-                <h1 class="h3 mb-0 text-gray-800">معرض الصور (فئات فقط)</h1>
+                <h1 class="h3 mb-0 text-gray-800">معرض الملفات (فئات فقط)</h1>
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">لوحة التحكم</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">معرض الصور</li>
+                        <li class="breadcrumb-item active" aria-current="page">معرض الملفات</li>
                     </ol>
                 </nav>
             </div>
@@ -20,23 +20,23 @@
         {{-- إحصائيات --}}
         <div class="row mb-4">
 
-                <x-stats-card icon="fas fa-images" title="إجمالي صور المعرض" :value="$imagesCount" color="primary" />
+                <x-stats-card icon="fas fa-images" title="إجمالي ملفات المعرض" :value="$imagesCount" color="primary" />
 
-                <x-stats-card icon="fas fa-folder-tree" title="فئات لديها صور" :value="$categoriesWithImages" color="warning" />
+                <x-stats-card icon="fas fa-folder-tree" title="فئات لديها ملفات" :value="$categoriesWithImages" color="warning" />
 
-                <x-stats-card icon="fas fa-upload" title="جاهز للرفع" :value="__('متعدد الصور')" color="info" />
+                <x-stats-card icon="fas fa-upload" title="جاهز للرفع" :value="__('متعدد الملفات')" color="info" />
         </div>
 
         {{-- بطاقة المعرض --}}
         <div class="card shadow mb-4">
             <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                <h6 class="m-0 font-weight-bold text-primary">الصور (مرتبطة بالفئات فقط)</h6>
+                <h6 class="m-0 font-weight-bold text-primary">الملفات (مرتبطة بالفئات فقط)</h6>
                 <div>
                     <button class="btn btn-outline-danger mr-2" id="bulkDeleteBtn">
                         <i class="fas fa-trash"></i> حذف المحدد
                     </button>
                     <button class="btn btn-primary" data-toggle="modal" data-target="#uploadImagesModal">
-                        <i class="fas fa-upload"></i> رفع صور
+                        <i class="fas fa-upload"></i> رفع ملفات
                     </button>
                 </div>
             </div>
@@ -48,7 +48,7 @@
                         <div class="form-group col-md-4">
                             <label>بحث بالاسم</label>
                             <input type="text" name="search" value="{{ $search }}" class="form-control"
-                                placeholder="ابحث باسم الصورة...">
+                                placeholder="ابحث باسم الملف...">
                         </div>
 
                         <div class="form-group col-md-4">
@@ -59,7 +59,7 @@
                         </div>
 
                         <div class="form-group col-md-4">
-                            <label>الفئة (فقط الفئات التي لديها صور)</label>
+                            <label>الفئة (فقط الفئات التي لديها ملفات)</label>
                             <select name="category_id" class="form-control">
                                 <option value="">— الكل —</option>
                                 @foreach ($categories as $cat)
@@ -75,7 +75,7 @@
                     <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i> تطبيق الفلاتر</button>
                 </form>
 
-                {{-- جدول الصور --}}
+                {{-- جدول الملفات --}}
                 <div class="table-responsive">
                     <form action="{{ route('images.bulk-destroy') }}" method="POST" id="bulkDeleteForm">
                         @csrf @method('DELETE')
@@ -103,6 +103,16 @@
                                                     <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-size:24px;">
                                                         <i class="fab fa-youtube"></i>
                                                     </div>
+                                                </div>
+                                            @elseif($img->media_type === 'pdf' && $img->path)
+                                                <div style="width:120px;height:90px;position:relative;background:#f8f9fa;border-radius:4px;overflow:hidden;border:1px solid #dee2e6;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                                                    <svg style="width:40px;height:40px;color:#dc3545;margin-bottom:5px;" fill="currentColor" viewBox="0 0 24 24">
+                                                        <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                                                    </svg>
+                                                    <div style="font-size:10px;color:#6c757d;font-weight:bold;">PDF</div>
+                                                    @if($img->file_size)
+                                                        <div style="font-size:8px;color:#6c757d;">{{ $img->getFormattedFileSize() }}</div>
+                                                    @endif
                                                 </div>
                                             @else
                                                 <img src="{{ $img->path ? asset('storage/' . $img->path) : asset('img/no-image.png') }}"

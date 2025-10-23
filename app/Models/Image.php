@@ -16,6 +16,8 @@ class Image extends BaseModel
         'path',
         'youtube_url',
         'media_type',
+        'file_size',
+        'file_extension',
         'article_id',
         'category_id'
     ];
@@ -64,21 +66,53 @@ class Image extends BaseModel
             return null;
         }
 
-        $url = $this->youtube_url;
-
-        // Extract video ID from various YouTube URL formats
         $patterns = [
             '/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/',
-            '/youtube\.com\/watch\?.*v=([a-zA-Z0-9_-]{11})/',
+            '/youtube\.com\/watch\?.*v=([a-zA-Z0-9_-]{11})/'
         ];
 
         foreach ($patterns as $pattern) {
-            if (preg_match($pattern, $url, $matches)) {
+            if (preg_match($pattern, $this->youtube_url, $matches)) {
                 return $matches[1];
             }
         }
 
         return null;
+    }
+
+    /**
+     * Check if this is a PDF file
+     */
+    public function isPdf(): bool
+    {
+        return $this->media_type === 'pdf' && !empty($this->path);
+    }
+
+    /**
+     * Get file size in human readable format
+     */
+    public function getFormattedFileSize(): string
+    {
+        if (!$this->file_size) {
+            return 'غير محدد';
+        }
+
+        $bytes = (int) $this->file_size;
+        $units = ['B', 'KB', 'MB', 'GB'];
+
+        for ($i = 0; $bytes > 1024 && $i < count($units) - 1; $i++) {
+            $bytes /= 1024;
+        }
+
+        return round($bytes, 2) . ' ' . $units[$i];
+    }
+
+    /**
+     * Get file extension
+     */
+    public function getFileExtension(): string
+    {
+        return $this->file_extension ?: pathinfo($this->path, PATHINFO_EXTENSION);
     }
 
     /**
