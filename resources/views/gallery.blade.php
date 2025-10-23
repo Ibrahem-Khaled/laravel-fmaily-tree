@@ -1065,47 +1065,60 @@
 
             // عرض العنوان فقط إذا كان موجوداً وغير فارغ
             const titleElement = document.getElementById('modalImageTitle');
-            if (imageData.title && imageData.title.trim() !== '') {
-                titleElement.textContent = imageData.title;
-                titleElement.style.display = 'block';
-            } else {
-                titleElement.style.display = 'none';
+            if (titleElement) {
+                if (imageData.title && imageData.title.trim() !== '') {
+                    titleElement.textContent = imageData.title;
+                    titleElement.style.display = 'block';
+                } else {
+                    titleElement.style.display = 'none';
+                }
             }
 
-            const authorSpan = document.getElementById('modalImageAuthor').querySelector('span');
-            authorSpan.textContent = imageData.author || 'غير محدد';
-            authorSpan.parentElement.style.display = imageData.author ? 'flex' : 'none';
+            const authorElement = document.getElementById('modalImageAuthor');
+            if (authorElement) {
+                const authorSpan = authorElement.querySelector('span');
+                if (authorSpan) {
+                    authorSpan.textContent = imageData.author || 'غير محدد';
+                    authorElement.style.display = imageData.author ? 'flex' : 'none';
+                }
+            }
 
             const categoryElement = document.getElementById('modalImageCategory');
-            if (imageData.category) {
-                categoryElement.textContent = '#' + imageData.category;
-                categoryElement.style.display = 'inline-block';
-            } else {
-                categoryElement.style.display = 'none';
+            if (categoryElement) {
+                if (imageData.category) {
+                    categoryElement.textContent = '#' + imageData.category;
+                    categoryElement.style.display = 'inline-block';
+                } else {
+                    categoryElement.style.display = 'none';
+                }
             }
 
             // عرض الأشخاص المذكورين
             const mentionedPersonsElement = document.getElementById('modalImageMentionedPersons');
-            if (imageData.mentioned_persons && imageData.mentioned_persons.length > 0) {
-                // تصفية العناصر الفارغة أو null
-                const validPersons = imageData.mentioned_persons.filter(person =>
-                    person && person.full_name && person.full_name.trim() !== ''
-                );
+            if (mentionedPersonsElement) {
+                if (imageData.mentioned_persons && imageData.mentioned_persons.length > 0) {
+                    // تصفية العناصر الفارغة أو null
+                    const validPersons = imageData.mentioned_persons.filter(person =>
+                        person && person.full_name && person.full_name.trim() !== ''
+                    );
 
-                if (validPersons.length > 0) {
-                    mentionedPersonsElement.innerHTML = validPersons.map(person =>
-                        `<span class="mentioned-person-tag">${person.full_name}</span>`
-                    ).join('');
-                    mentionedPersonsElement.style.display = 'flex';
+                    if (validPersons.length > 0) {
+                        mentionedPersonsElement.innerHTML = validPersons.map(person =>
+                            `<span class="mentioned-person-tag">${person.full_name}</span>`
+                        ).join('');
+                        mentionedPersonsElement.style.display = 'flex';
+                    } else {
+                        mentionedPersonsElement.style.display = 'none';
+                    }
                 } else {
                     mentionedPersonsElement.style.display = 'none';
                 }
-            } else {
-                mentionedPersonsElement.style.display = 'none';
             }
 
             const articleBtn = document.getElementById('viewArticleBtn');
-            articleBtn.style.display = imageData.article_id ? 'flex' : 'none';
+            if (articleBtn) {
+                articleBtn.style.display = imageData.article_id ? 'flex' : 'none';
+            }
 
             modal.classList.remove('hidden');
             modal.classList.add('flex');
