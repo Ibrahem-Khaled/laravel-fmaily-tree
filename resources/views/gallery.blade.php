@@ -942,13 +942,13 @@
                     <div onclick='showImageOptions(${imageData})'
                         class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer green-glow-hover transition-all duration-500">
                         <div class="aspect-square overflow-hidden bg-gradient-to-br from-orange-100 to-orange-200">
-                            <div class="w-full h-full flex flex-col items-center justify-center">
-                                <svg class="w-16 h-16 text-orange-600 mb-2" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
-                                </svg>
-                                <span class="text-orange-700 font-bold text-sm">PDF</span>
-                                <span class="text-orange-600 text-xs">${image.file_size ? formatFileSize(image.file_size) : ''}</span>
+                            <img src="{{ asset('assets/img/base-pdf-img.jpg') }}" alt="PDF Document"
+                                 class="w-full h-full object-cover transition-all duration-700 group-hover:scale-110">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                            <div class="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded-full font-bold">
+                                PDF
                             </div>
+                            ${image.file_size ? `<div class="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded">${formatFileSize(image.file_size)}</div>` : ''}
                         </div>
                         <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
                         <div class="absolute bottom-0 left-0 right-0 p-3 text-white transform translate-y-full group-hover:translate-y-0 transition-all duration-500">
@@ -1046,17 +1046,7 @@
                 }
             } else if (imageData.media_type === 'pdf' && imageData.path) {
                 // عرض معاينة PDF
-                previewImg.src = 'data:image/svg+xml;base64,' + btoa(`
-                    <svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
-                        <rect width="400" height="300" fill="#f3f4f6"/>
-                        <rect x="50" y="50" width="300" height="200" fill="white" stroke="#d1d5db" stroke-width="2"/>
-                        <svg x="150" y="100" width="100" height="100" viewBox="0 0 24 24" fill="#ef4444">
-                            <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
-                        </svg>
-                        <text x="200" y="220" text-anchor="middle" font-family="Arial" font-size="16" fill="#374151">PDF</text>
-                        <text x="200" y="240" text-anchor="middle" font-family="Arial" font-size="12" fill="#6b7280">${imageData.file_size ? formatFileSize(imageData.file_size) : ''}</text>
-                    </svg>
-                `);
+                previewImg.src = '{{ asset("assets/img/base-pdf-img.jpg") }}';
                 previewImg.alt = 'ملف PDF';
             } else {
                 // عرض صورة
