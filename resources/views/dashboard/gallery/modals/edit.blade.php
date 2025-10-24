@@ -91,6 +91,21 @@
                                 </div>
                                 <small class="text-muted d-block mt-1">إذا لم تختر ملف جديد، سيتم الاحتفاظ بالملف الحالي.</small>
                             </div>
+
+                            <div class="form-group">
+                                <label>صورة مصغرة مخصصة (اختياري)</label>
+                                <div class="custom-file">
+                                    <input type="file" name="pdf_thumbnail" class="custom-file-input" id="editThumbnailFile" accept="image/*">
+                                    <label class="custom-file-label" for="editThumbnailFile">اختر صورة مصغرة...</label>
+                                </div>
+                                <small class="text-muted d-block mt-1">صورة مصغرة مخصصة لملف PDF، بحد أقصى 10MB.</small>
+                                <div class="mt-2">
+                                    <label class="form-check-label">
+                                        <input type="checkbox" name="remove_pdf_thumbnail" value="1" class="form-check-input">
+                                        حذف الصورة المصغرة الحالية
+                                    </label>
+                                </div>
+                            </div>
                         </div>
 
                         <div id="edit-youtube-section" style="display: none;">
@@ -98,6 +113,21 @@
                                 <label>رابط يوتيوب</label>
                                 <input type="text" name="youtube_url" id="editYoutubeUrl" class="form-control" placeholder="https://www.youtube.com/watch?v=...">
                                 <small class="text-muted d-block mt-1">أدخل رابط فيديو يوتيوب صحيح.</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label>صورة مصغرة مخصصة (اختياري)</label>
+                                <div class="custom-file">
+                                    <input type="file" name="youtube_thumbnail" class="custom-file-input" id="editYoutubeThumbnailFile" accept="image/*">
+                                    <label class="custom-file-label" for="editYoutubeThumbnailFile">اختر صورة مصغرة...</label>
+                                </div>
+                                <small class="text-muted d-block mt-1">صورة مصغرة مخصصة لفيديو يوتيوب، بحد أقصى 10MB.</small>
+                                <div class="mt-2">
+                                    <label class="form-check-label">
+                                        <input type="checkbox" name="remove_youtube_thumbnail" value="1" class="form-check-input">
+                                        حذف الصورة المصغرة الحالية
+                                    </label>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -166,5 +196,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize
     toggleEditSections();
+
+    // عرض أسماء الملفات المختارة
+    document.addEventListener('change', function(e) {
+        if (e.target.id === 'editThumbnailFile') {
+            const label = e.target.nextElementSibling;
+            if (e.target.files.length > 0) {
+                label.textContent = e.target.files[0].name;
+            } else {
+                label.textContent = 'اختر صورة مصغرة...';
+            }
+        }
+
+        if (e.target.id === 'editYoutubeThumbnailFile') {
+            const label = e.target.nextElementSibling;
+            if (e.target.files.length > 0) {
+                label.textContent = e.target.files[0].name;
+            } else {
+                label.textContent = 'اختر صورة مصغرة...';
+            }
+        }
+    });
 });
 </script>

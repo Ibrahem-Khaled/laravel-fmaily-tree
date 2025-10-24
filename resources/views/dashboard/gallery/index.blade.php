@@ -485,19 +485,47 @@
                             $('#edit_media_type_youtube').prop('checked', true);
                             $('#edit-image-section').hide();
                             $('#edit-youtube-section').show();
+                            $('#edit-pdf-section').hide();
                             $('#editYoutubeUrl').val(image.youtube_url);
+
+                            // إظهار حالة الصورة المصغرة الحالية
+                            if (image.thumbnail_path) {
+                                $('#editYoutubeThumbnailFile').next('.custom-file-label').text('صورة مصغرة موجودة');
+                            }
                         } else {
                             // عرض صورة
                             $('#currentYoutubePreview').hide();
                             $('#currentImage').show();
 
-                            const imageUrl = image.path ? `{{ asset('storage/') }}/${image.path}` : '{{ asset('img/no-image.png') }}';
+                            // استخدام الصورة المصغرة إذا كانت متاحة، وإلا استخدم الصورة الأصلية
+                            let imageUrl;
+                            if (image.thumbnail_path) {
+                                imageUrl = `{{ asset('storage/') }}/${image.thumbnail_path}`;
+                            } else if (image.path) {
+                                imageUrl = `{{ asset('storage/') }}/${image.path}`;
+                            } else {
+                                imageUrl = '{{ asset('img/no-image.png') }}';
+                            }
+
                             $('#currentImage').attr('src', imageUrl);
 
                             // تحديد نوع المحتوى
-                            $('#edit_media_type_image').prop('checked', true);
-                            $('#edit-youtube-section').hide();
-                            $('#edit-image-section').show();
+                            if (image.media_type === 'pdf') {
+                                $('#edit_media_type_pdf').prop('checked', true);
+                                $('#edit-image-section').hide();
+                                $('#edit-pdf-section').show();
+                                $('#edit-youtube-section').hide();
+
+                                // إظهار حالة الصورة المصغرة الحالية
+                                if (image.thumbnail_path) {
+                                    $('#editThumbnailFile').next('.custom-file-label').text('صورة مصغرة موجودة');
+                                }
+                            } else {
+                                $('#edit_media_type_image').prop('checked', true);
+                                $('#edit-youtube-section').hide();
+                                $('#edit-image-section').show();
+                                $('#edit-pdf-section').hide();
+                            }
                         }
 
                         // تحديث رابط النموذج

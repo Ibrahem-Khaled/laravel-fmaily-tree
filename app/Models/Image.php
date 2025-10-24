@@ -14,6 +14,7 @@ class Image extends BaseModel
         'name',
         'description',
         'path',
+        'thumbnail_path',
         'youtube_url',
         'media_type',
         'file_size',
@@ -45,6 +46,9 @@ class Image extends BaseModel
         static::deleting(function (Image $image) {
             if ($image->path) {
                 Storage::disk('public')->delete($image->path);
+            }
+            if ($image->thumbnail_path) {
+                Storage::disk('public')->delete($image->thumbnail_path);
             }
         });
     }
@@ -139,5 +143,42 @@ class Image extends BaseModel
         }
 
         return "https://www.youtube.com/embed/{$videoId}";
+    }
+
+    /**
+     * Get thumbnail URL - returns custom thumbnail if available, otherwise default
+     */
+    public function getThumbnailUrl(): string
+    {
+        // إذا كانت هناك صورة مصغرة مخصصة، استخدمها
+        if ($this->thumbnail_path) {
+            return asset('storage/' . $this->thumbnail_path);
+        }
+
+        // إذا كان فيديو يوتيوب، استخدم الصورة المصغرة الافتراضية
+        if ($this->isYouTube()) {
+            return $this->getYouTubeThumbnail();
+        }
+
+        // إذا كان ملف PDF، استخدم الصورة الافتراضية
+        if ($this->isPdf()) {
+            return asset('assets/img/base-pdf-img.jpg');
+        }
+
+        // إذا كانت صورة عادية، استخدم الصورة نفسها
+        if ($this->path) {
+            return asset('storage/' . $this->path);
+        }
+
+        // صورة افتراضية في حالة عدم وجود أي شيء
+        return asset('assets/img/default-image.jpg');
+    }
+
+    /**
+     * Check if has custom thumbnail
+     */
+    public function hasCustomThumbnail(): bool
+    {
+        return !empty($this->thumbnail_path);
     }
 }

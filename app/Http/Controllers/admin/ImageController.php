@@ -69,6 +69,8 @@ class ImageController extends Controller
             'media_types.*' => ['nullable', 'in:image,youtube,pdf'],
             'mentioned_persons' => ['nullable', 'array'],
             'mentioned_persons.*' => ['exists:persons,id'],
+            'thumbnails.*' => ['nullable', 'image', 'max:10000'], // 10MB limit for thumbnails
+            'youtube_thumbnails.*' => ['nullable', 'image', 'max:10000'], // 10MB limit for YouTube thumbnails
         ]);
 
         DB::transaction(function () use ($request) {
@@ -95,11 +97,22 @@ class ImageController extends Controller
             }
 
             // Handle PDF uploads
-            foreach ($request->file('pdfs', []) as $file) {
+            $pdfFiles = array_values($request->file('pdfs', []));
+            $thumbnailFiles = array_values($request->file('thumbnails', []));
+
+            foreach ($pdfFiles as $index => $file) {
                 $path = $file->store('categories', 'public');
+
+                // Handle thumbnail if provided
+                $thumbnailPath = null;
+                if (isset($thumbnailFiles[$index])) {
+                    $thumbnailPath = $thumbnailFiles[$index]->store('thumbnails', 'public');
+                }
+
                 $image = Image::create([
                     'name'        => $file->getClientOriginalName(),
                     'path'        => $path,
+                    'thumbnail_path' => $thumbnailPath,
                     'media_type'  => 'pdf',
                     'file_size'   => $file->getSize(),
                     'file_extension' => $file->getClientOriginalExtension(),
@@ -119,12 +132,20 @@ class ImageController extends Controller
             // Handle YouTube URLs
             $youtubeUrls = $request->input('youtube_urls', []);
             $youtubeNames = $request->input('youtube_names', []);
+            $youtubeThumbnails = array_values($request->file('youtube_thumbnails', []));
 
             foreach ($youtubeUrls as $index => $url) {
                 if (!empty($url)) {
+                    // Handle thumbnail if provided
+                    $thumbnailPath = null;
+                    if (isset($youtubeThumbnails[$index])) {
+                        $thumbnailPath = $youtubeThumbnails[$index]->store('thumbnails', 'public');
+                    }
+
                     $image = Image::create([
                         'name'        => $youtubeNames[$index] ?? 'فيديو يوتيوب',
                         'youtube_url'  => $url,
+                        'thumbnail_path' => $thumbnailPath,
                         'media_type'  => 'youtube',
                         'category_id' => $request->category_id,
                     ]);
@@ -141,7 +162,7 @@ class ImageController extends Controller
             }
         });
 
-        return back()->with('success', 'تم رفع الملفات للفئة.');
+        return back()->with('success', 'تم رفع الملفات للفئة بنجاح.');
     }
 
     public function bulkDestroy(Request $request)
@@ -192,6 +213,7 @@ class ImageController extends Controller
                 'name' => $image->name,
                 'description' => $image->description,
                 'path' => $image->path,
+                'thumbnail_path' => $image->thumbnail_path,
                 'youtube_url' => $image->youtube_url,
                 'media_type' => $image->media_type,
                 'file_size' => $image->file_size,
@@ -214,6 +236,8 @@ class ImageController extends Controller
             'media_type' => ['nullable', 'in:image,youtube,pdf'],
             'mentioned_persons' => ['nullable', 'array'],
             'mentioned_persons.*' => ['exists:persons,id'],
+            'pdf_thumbnail' => ['nullable', 'image', 'max:10000'], // 10MB limit for PDF thumbnails
+            'youtube_thumbnail' => ['nullable', 'image', 'max:10000'], // 10MB limit for YouTube thumbnails
         ]);
 
         DB::transaction(function () use ($request, $image) {
@@ -264,6 +288,27 @@ class ImageController extends Controller
                 $data['youtube_url'] = $request->youtube_url;
                 $data['media_type'] = 'youtube';
                 $data['path'] = null; // Clear image path when using YouTube
+            }
+
+            // إذا تم رفع صورة مصغرة جديدة
+            if ($request->hasFile('pdf_thumbnail') || $request->hasFile('youtube_thumbnail')) {
+                // حذف الصورة المصغرة القديمة
+                if ($image->thumbnail_path && Storage::disk('public')->exists($image->thumbnail_path)) {
+                    Storage::disk('public')->delete($image->thumbnail_path);
+                }
+
+                // رفع الصورة المصغرة الجديدة
+                $thumbnailFile = $request->file('pdf_thumbnail') ?? $request->file('youtube_thumbnail');
+                $thumbnailPath = $thumbnailFile->store('thumbnails', 'public');
+                $data['thumbnail_path'] = $thumbnailPath;
+            }
+
+            // إذا تم طلب حذف الصورة المصغرة
+            if ($request->has('remove_pdf_thumbnail') || $request->has('remove_youtube_thumbnail')) {
+                if ($image->thumbnail_path && Storage::disk('public')->exists($image->thumbnail_path)) {
+                    Storage::disk('public')->delete($image->thumbnail_path);
+                }
+                $data['thumbnail_path'] = null;
             }
 
             $image->update($data);

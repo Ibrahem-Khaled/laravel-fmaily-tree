@@ -83,26 +83,41 @@
                         </div>
                         <small class="text-muted d-block mt-1">يمكن رفع عدة ملفات PDF، بحد أقصى 50MB لكل ملف.</small>
                     </div>
+
+                    <div class="form-group">
+                        <label>الصور المصغرة للملفات PDF (اختياري)</label>
+                        <div class="custom-file">
+                            <input type="file" name="thumbnails[]" class="custom-file-input" id="uploadThumbnailsInput" multiple accept="image/*">
+                            <label class="custom-file-label" for="uploadThumbnailsInput">اختر صور مصغرة...</label>
+                        </div>
+                        <small class="text-muted d-block mt-1">يمكن رفع صور مصغرة مخصصة للملفات PDF، بحد أقصى 10MB لكل صورة.</small>
+                    </div>
                 </div>
 
                 <div id="youtube-upload-section" style="display: none;">
                     <div class="form-group">
                         <label>روابط يوتيوب</label>
                         <div id="youtube-urls-container">
-                            <div class="input-group mb-2">
-                                <input type="text" name="youtube_urls[]" class="form-control" placeholder="https://www.youtube.com/watch?v=...">
-                                <input type="text" name="youtube_names[]" class="form-control" placeholder="اسم الفيديو (اختياري)">
-                                <div class="input-group-append">
-                                    <button type="button" class="btn btn-outline-danger" onclick="removeYoutubeUrl(this)">
-                                        <i class="fas fa-times"></i>
-                                    </button>
+                            <div class="youtube-url-group mb-3">
+                                <div class="input-group mb-2">
+                                    <input type="text" name="youtube_urls[]" class="form-control" placeholder="https://www.youtube.com/watch?v=...">
+                                    <input type="text" name="youtube_names[]" class="form-control" placeholder="اسم الفيديو (اختياري)">
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-outline-danger" onclick="removeYoutubeUrl(this)">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="custom-file">
+                                    <input type="file" name="youtube_thumbnails[]" class="custom-file-input youtube-thumbnail-input" accept="image/*">
+                                    <label class="custom-file-label">صورة مصغرة مخصصة (اختياري)</label>
                                 </div>
                             </div>
                         </div>
                         <button type="button" class="btn btn-outline-success btn-sm" onclick="addYoutubeUrl()">
                             <i class="fas fa-plus"></i> إضافة رابط آخر
                         </button>
-                        <small class="text-muted d-block mt-1">يمكن إضافة عدة روابط يوتيوب.</small>
+                        <small class="text-muted d-block mt-1">يمكن إضافة عدة روابط يوتيوب مع صور مصغرة مخصصة.</small>
                     </div>
                 </div>
             </div>
@@ -160,14 +175,20 @@ document.addEventListener('DOMContentLoaded', function() {
 function addYoutubeUrl() {
     const container = document.getElementById('youtube-urls-container');
     const newUrlGroup = document.createElement('div');
-    newUrlGroup.className = 'input-group mb-2';
+    newUrlGroup.className = 'youtube-url-group mb-3';
     newUrlGroup.innerHTML = `
-        <input type="text" name="youtube_urls[]" class="form-control" placeholder="https://www.youtube.com/watch?v=...">
-        <input type="text" name="youtube_names[]" class="form-control" placeholder="اسم الفيديو (اختياري)">
-        <div class="input-group-append">
-            <button type="button" class="btn btn-outline-danger" onclick="removeYoutubeUrl(this)">
-                <i class="fas fa-times"></i>
-            </button>
+        <div class="input-group mb-2">
+            <input type="text" name="youtube_urls[]" class="form-control" placeholder="https://www.youtube.com/watch?v=...">
+            <input type="text" name="youtube_names[]" class="form-control" placeholder="اسم الفيديو (اختياري)">
+            <div class="input-group-append">
+                <button type="button" class="btn btn-outline-danger" onclick="removeYoutubeUrl(this)">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="custom-file">
+            <input type="file" name="youtube_thumbnails[]" class="custom-file-input youtube-thumbnail-input" accept="image/*">
+            <label class="custom-file-label">صورة مصغرة مخصصة (اختياري)</label>
         </div>
     `;
     container.appendChild(newUrlGroup);
@@ -177,7 +198,35 @@ function addYoutubeUrl() {
 function removeYoutubeUrl(button) {
     const container = document.getElementById('youtube-urls-container');
     if (container.children.length > 1) {
-        button.closest('.input-group').remove();
+        button.closest('.youtube-url-group').remove();
     }
 }
+
+// عرض أسماء الملفات المختارة
+document.addEventListener('DOMContentLoaded', function() {
+    // للصور المصغرة PDF
+    const thumbnailInput = document.getElementById('uploadThumbnailsInput');
+    if (thumbnailInput) {
+        thumbnailInput.addEventListener('change', function() {
+            const label = this.nextElementSibling;
+            if (this.files.length > 0) {
+                label.textContent = `${this.files.length} ملف مختار`;
+            } else {
+                label.textContent = 'اختر صور مصغرة...';
+            }
+        });
+    }
+
+    // للصور المصغرة يوتيوب
+    document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('youtube-thumbnail-input')) {
+            const label = e.target.nextElementSibling;
+            if (e.target.files.length > 0) {
+                label.textContent = e.target.files[0].name;
+            } else {
+                label.textContent = 'صورة مصغرة مخصصة (اختياري)';
+            }
+        }
+    });
+});
 </script>

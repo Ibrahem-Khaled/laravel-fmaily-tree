@@ -19,7 +19,7 @@ class GalleryController extends Controller
         $categoriesForView = Category::whereHas('images')
             ->whereNull('parent_id')
             ->with(['images' => function ($query) {
-                $query->select('id', 'path', 'article_id', 'media_type', 'created_at')->latest()->take(4);
+                $query->select('id', 'path', 'thumbnail_path', 'article_id', 'media_type', 'youtube_url', 'created_at')->latest()->take(4);
             }])
             ->withCount('images') // لحساب عدد الصور في كل مجلد
             ->orderBy('updated_at', 'desc') // ترتيب حسب آخر تحديث
@@ -30,6 +30,7 @@ class GalleryController extends Controller
             ->with([
                 'images' => function ($query) {
                     $query->with(['article:id,title,person_id,category_id', 'article.person:id,name', 'article.category:id,name', 'mentionedPersons'])
+                          ->select('id', 'name', 'path', 'thumbnail_path', 'youtube_url', 'media_type', 'file_size', 'file_extension', 'article_id', 'category_id', 'created_at')
                           ->orderBy('created_at', 'desc'); // ترتيب الصور داخل كل فئة حسب التاريخ
                 }
             ])
