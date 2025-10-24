@@ -393,6 +393,75 @@
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.05); }
         }
+
+        /* أنماط PDF محسنة للهواتف */
+        .pdf-container {
+            max-height: 90vh;
+            max-width: 90vw;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+        }
+
+        .pdf-header {
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .pdf-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        /* تحسينات للهواتف */
+        @media (max-width: 768px) {
+            .pdf-container {
+                max-height: 95vh;
+                max-width: 95vw;
+                margin: 10px;
+            }
+            
+            .pdf-header {
+                padding: 10px 15px;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+            
+            .pdf-content {
+                padding: 20px 15px;
+            }
+            
+            .pdf-content h3 {
+                font-size: 1.2rem;
+            }
+            
+            .pdf-content p {
+                font-size: 0.9rem;
+            }
+            
+            .pdf-content button {
+                padding: 10px 16px !important;
+                font-size: 13px !important;
+                margin: 5px;
+            }
+        }
     </style>
 </head>
 
@@ -1207,34 +1276,176 @@
                         iframe.style.display = 'block';
                     }
                 } else if (currentImageData.media_type === 'pdf' && currentImageData.path) {
-                    // عرض ملف PDF مباشرة في iframe
+                    // عرض ملف PDF بالحجم الكامل
                     const storageBasePath = '{{ asset("storage") }}';
                     const pdfUrl = `${storageBasePath}/${currentImageData.path}`;
                     
                     // إخفاء الصورة
                     fullscreenImg.style.display = 'none';
                     
-                    // إخفاء أي container PDF موجود
-                    let pdfContainer = fullscreenModal.querySelector('.pdf-container');
-                    if (pdfContainer) {
-                        pdfContainer.style.display = 'none';
-                    }
-                    
-                    // إنشاء أو استخدام iframe موجود
+                    // إخفاء أي iframe موجود
                     let iframe = fullscreenModal.querySelector('iframe');
-                    if (!iframe) {
-                        iframe = document.createElement('iframe');
-                        iframe.className = 'fullscreen-image rounded-lg shadow-2xl';
-                        iframe.style.maxHeight = '90vh';
-                        iframe.style.maxWidth = '90vw';
-                        iframe.style.width = '800px';
-                        iframe.style.height = '600px';
-                        iframe.setAttribute('frameborder', '0');
-                        fullscreenModal.querySelector('.modal-backdrop').appendChild(iframe);
+                    if (iframe) {
+                        iframe.style.display = 'none';
                     }
                     
-                    iframe.src = pdfUrl;
-                    iframe.style.display = 'block';
+                    // إنشاء container للـ PDF
+                    let pdfContainer = fullscreenModal.querySelector('.pdf-container');
+                    if (!pdfContainer) {
+                        pdfContainer = document.createElement('div');
+                        pdfContainer.className = 'pdf-container';
+                        pdfContainer.style.cssText = `
+                            max-height: 90vh;
+                            max-width: 90vw;
+                            width: 100%;
+                            height: 100%;
+                            display: flex;
+                            flex-direction: column;
+                            background: white;
+                            border-radius: 8px;
+                            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+                        `;
+                        fullscreenModal.querySelector('.modal-backdrop').appendChild(pdfContainer);
+                    }
+                    
+                    // إنشاء header للـ PDF
+                    let pdfHeader = pdfContainer.querySelector('.pdf-header');
+                    if (!pdfHeader) {
+                        pdfHeader = document.createElement('div');
+                        pdfHeader.className = 'pdf-header';
+                        pdfHeader.style.cssText = `
+                            padding: 15px 20px;
+                            background: #f8f9fa;
+                            border-bottom: 1px solid #dee2e6;
+                            border-radius: 8px 8px 0 0;
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                        `;
+                        pdfContainer.appendChild(pdfHeader);
+                    }
+                    
+                    // إنشاء أزرار التحكم
+                    pdfHeader.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <svg width="20" height="20" fill="#dc3545" viewBox="0 0 24 24">
+                                <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                            </svg>
+                            <span style="font-weight: 600; color: #495057;">ملف PDF</span>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button onclick="downloadPdf('${pdfUrl}')" style="
+                                background: #28a745;
+                                color: white;
+                                border: none;
+                                padding: 8px 12px;
+                                border-radius: 4px;
+                                cursor: pointer;
+                                font-size: 12px;
+                            ">تحميل</button>
+                            <button onclick="openPdfInNewTab('${pdfUrl}')" style="
+                                background: #007bff;
+                                color: white;
+                                border: none;
+                                padding: 8px 12px;
+                                border-radius: 4px;
+                                cursor: pointer;
+                                font-size: 12px;
+                            ">فتح في تبويب جديد</button>
+                            <button onclick="openPdfWithGoogleViewer('${pdfUrl}')" style="
+                                background: #6f42c1;
+                                color: white;
+                                border: none;
+                                padding: 8px 12px;
+                                border-radius: 4px;
+                                cursor: pointer;
+                                font-size: 12px;
+                            ">عرض مع Google</button>
+                        </div>
+                    `;
+                    
+                    // إنشاء محتوى PDF
+                    let pdfContent = pdfContainer.querySelector('.pdf-content');
+                    if (!pdfContent) {
+                        pdfContent = document.createElement('div');
+                        pdfContent.className = 'pdf-content';
+                        pdfContent.style.cssText = `
+                            flex: 1;
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            justify-content: center;
+                            padding: 40px 20px;
+                            text-align: center;
+                        `;
+                        pdfContainer.appendChild(pdfContent);
+                    }
+                    
+                    // محتوى PDF
+                    pdfContent.innerHTML = `
+                        <div style="margin-bottom: 30px;">
+                            <svg width="80" height="80" fill="#dc3545" viewBox="0 0 24 24">
+                                <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                            </svg>
+                        </div>
+                        <h3 style="color: #495057; margin-bottom: 15px;">ملف PDF</h3>
+                        <p style="color: #6c757d; margin-bottom: 25px;">لعرض ملف PDF، يمكنك تحميله أو فتحه في تبويب جديد</p>
+                        <div style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
+                            <button onclick="downloadPdf('${pdfUrl}')" style="
+                                background: #28a745;
+                                color: white;
+                                border: none;
+                                padding: 12px 20px;
+                                border-radius: 6px;
+                                cursor: pointer;
+                                font-size: 14px;
+                                display: flex;
+                                align-items: center;
+                                gap: 8px;
+                            ">
+                                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                                </svg>
+                                تحميل الملف
+                            </button>
+                            <button onclick="openPdfInNewTab('${pdfUrl}')" style="
+                                background: #007bff;
+                                color: white;
+                                border: none;
+                                padding: 12px 20px;
+                                border-radius: 6px;
+                                cursor: pointer;
+                                font-size: 14px;
+                                display: flex;
+                                align-items: center;
+                                gap: 8px;
+                            ">
+                                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z"/>
+                                </svg>
+                                فتح في تبويب جديد
+                            </button>
+                            <button onclick="openPdfWithGoogleViewer('${pdfUrl}')" style="
+                                background: #6f42c1;
+                                color: white;
+                                border: none;
+                                padding: 12px 20px;
+                                border-radius: 6px;
+                                cursor: pointer;
+                                font-size: 14px;
+                                display: flex;
+                                align-items: center;
+                                gap: 8px;
+                            ">
+                                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M22.56,12.25C22.56,11.47 22.49,10.72 22.36,10H12V14.26H17.92C17.66,15.63 16.9,16.79 15.76,17.57V20.84H19.24C21.36,18.92 22.56,15.91 22.56,12.25M12,23C15.26,23 17.95,21.88 19.24,20.84L15.76,17.57C14.76,18.2 13.48,18.58 12,18.58C8.87,18.58 6.22,16.25 5.26,13H1.69V16.41C2.97,19.26 7.21,23 12,23M5.26,13C5.09,12.43 5,11.73 5,11C5,10.27 5.09,9.57 5.26,9V5.59H1.69C0.93,7.15 0.5,8.9 0.5,11C0.5,13.1 0.93,14.85 1.69,16.41L5.26,13M12,5C13.48,5 14.76,5.38 15.76,6.01L19.24,2.74C17.95,1.7 15.26,0.5 12,0.5C7.21,0.5 2.97,4.24 1.69,7.09L5.26,10.42C6.22,7.75 8.87,5 12,5Z"/>
+                                </svg>
+                                عرض مع Google
+                            </button>
+                        </div>
+                    `;
+                    
+                    pdfContainer.style.display = 'flex';
                 } else {
                     // عرض صورة بالحجم الكامل
                     let iframe = fullscreenModal.querySelector('iframe');
@@ -1279,6 +1490,15 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+        }
+
+        function openPdfInNewTab(pdfUrl) {
+            window.open(pdfUrl, '_blank');
+        }
+
+        function openPdfWithGoogleViewer(pdfUrl) {
+            const googleViewerUrl = `https://docs.google.com/gview?url=${encodeURIComponent(pdfUrl)}&embedded=true`;
+            window.open(googleViewerUrl, '_blank');
         }
     </script>
 
