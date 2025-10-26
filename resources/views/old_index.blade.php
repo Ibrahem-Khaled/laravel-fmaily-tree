@@ -197,13 +197,9 @@
         .modal-body .icon-placeholder-lg { font-size: 5rem; color: var(--primary-color); }
 
         .detail-row {
-            display: flex; align-items: center;
+            display: flex; align-items: flex-start;
             background-color: var(--light-gray);
             padding: 12px; border-radius: 8px; margin-bottom: 12px;
-        }
-        .detail-row i {
-            color: var(--primary-color);
-            width: 30px; text-align: center; font-size: 1.2rem;
         }
 
         /* Desktop: Single column layout */
@@ -216,14 +212,8 @@
         /* Mobile: 2 columns layout for small details */
         @media (max-width: 768px) {
             .detail-row {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
+                gap: 4px;
                 padding: 10px;
-            }
-            .detail-row i {
-                width: auto;
-                font-size: 1.5rem;
             }
             .detail-row-container {
                 display: grid;
@@ -680,13 +670,11 @@
 
                 const createDetailRow = (icon, label, value) => !value ? '' :
                     `<div class="detail-row">
-                        <i class="fas ${icon} fa-fw mx-2"></i>
                         <div><small class="text-muted">${label}</small><p class="mb-0 fw-bold">${value}</p></div>
                     </div>`;
 
                 const createDetailRowWithLink = (icon, label, value, link) => !value ? '' :
                     `<div class="detail-row">
-                        <i class="fas ${icon} fa-fw mx-2"></i>
                         <div><small class="text-muted">${label}</small><p class="mb-0 fw-bold"><a href="${link}" target="_blank">${value}</a></p></div>
                     </div>`;
 
