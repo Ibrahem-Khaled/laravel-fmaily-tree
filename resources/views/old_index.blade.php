@@ -768,11 +768,11 @@
                             ${(person.gender === 'male' || (person.gender === 'female' && person.birth_date && new Date(person.birth_date).getFullYear() >= 2005)) ? createDetailRow('fa-birthday-cake', 'تاريخ الميلاد', person.birth_date) : ''}
                             ${(person.gender === 'male' || (person.gender === 'female' && person.birth_date && new Date(person.birth_date).getFullYear() >= 2005)) && person.age ? createDetailRow('fa-calendar-alt', 'العمر', `${person.age} سنة`) : ''}
                             ${createDetailRow('fa-map-marked-alt', 'مكان الميلاد', person.birth_place)}
-                            ${createDetailRow('fa-briefcase', 'المهنة', person.occupation)}
                             ${createDetailRow('fa-map-marker-alt', 'مكان الإقامة', person.location)}
+                            ${createDetailRow('fa-cross', 'مكان الوفاة', person.death_place)}
+                            ${createDetailRow('fa-monument', 'المقبرة', person.cemetery)}
                             ${person.death_date ? createDetailRow('fa-dove', 'تاريخ الوفاة', person.death_date) : ''}
-                            ${person.death_place ? createDetailRow('fa-cross', 'مكان الوفاة', person.death_place) : ''}
-                            ${person.cemetery ? createDetailRow('fa-monument', 'المقبرة', person.cemetery) : ''}
+                            ${createDetailRow('fa-briefcase', 'المهنة', person.occupation)}
                             <hr class="my-4">
                             ${parentsHtml}
                             ${spousesHtml}
