@@ -206,6 +206,36 @@
             width: 30px; text-align: center; font-size: 1.2rem;
         }
 
+        /* Desktop: Single column layout */
+        .detail-row-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        /* Mobile: 2 columns layout for small details */
+        @media (max-width: 768px) {
+            .detail-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+                padding: 10px;
+            }
+            .detail-row i {
+                width: auto;
+                font-size: 1.5rem;
+            }
+            .detail-row-container {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+            .detail-row-container > .detail-row {
+                margin-bottom: 0;
+                font-size: 0.85rem;
+            }
+        }
+
         .spouse-card, .child-card, .parent-card {
             display: flex; align-items: center; gap: 12px;
             background-color: #fff; padding: 10px; border-radius: 8px;
@@ -765,14 +795,16 @@
                             ${galleryButtonHtml}
                         </div>
                         <div class="col-lg-8">
-                            ${(person.gender === 'male' || (person.gender === 'female' && person.birth_date && new Date(person.birth_date).getFullYear() >= 2005)) ? createDetailRow('fa-birthday-cake', 'تاريخ الميلاد', person.birth_date) : ''}
-                            ${(person.gender === 'male' || (person.gender === 'female' && person.birth_date && new Date(person.birth_date).getFullYear() >= 2005)) && person.age ? createDetailRow('fa-calendar-alt', 'العمر', `${person.age} سنة`) : ''}
-                            ${createDetailRow('fa-map-marked-alt', 'مكان الميلاد', person.birth_place)}
-                            ${createDetailRow('fa-map-marker-alt', 'مكان الإقامة', person.location)}
-                            ${createDetailRow('fa-cross', 'مكان الوفاة', person.death_place)}
-                            ${createDetailRow('fa-monument', 'المقبرة', person.cemetery)}
-                            ${person.death_date ? createDetailRow('fa-dove', 'تاريخ الوفاة', person.death_date) : ''}
-                            ${createDetailRow('fa-briefcase', 'المهنة', person.occupation)}
+                            <div class="detail-row-container">
+                                ${(person.gender === 'male' || (person.gender === 'female' && person.birth_date && new Date(person.birth_date).getFullYear() >= 2005)) ? createDetailRow('fa-birthday-cake', 'تاريخ الميلاد', person.birth_date) : ''}
+                                ${(person.gender === 'male' || (person.gender === 'female' && person.birth_date && new Date(person.birth_date).getFullYear() >= 2005)) && person.age ? createDetailRow('fa-calendar-alt', 'العمر', `${person.age} سنة`) : ''}
+                                ${createDetailRow('fa-map-marked-alt', 'مكان الميلاد', person.birth_place)}
+                                ${createDetailRow('fa-map-marker-alt', 'مكان الإقامة', person.location)}
+                                ${createDetailRow('fa-tombstone-alt', 'مكان الوفاة', person.death_place)}
+                                ${createDetailRow('fa-monument', 'المقبرة', person.cemetery)}
+                                ${person.death_date ? createDetailRow('fa-dove', 'تاريخ الوفاة', person.death_date) : ''}
+                                ${createDetailRow('fa-briefcase', 'المهنة', person.occupation)}
+                            </div>
                             <hr class="my-4">
                             ${parentsHtml}
                             ${spousesHtml}
