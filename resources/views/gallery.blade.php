@@ -436,26 +436,26 @@
                 max-width: 95vw;
                 margin: 10px;
             }
-            
+
             .pdf-header {
                 padding: 10px 15px;
                 flex-direction: column;
                 align-items: stretch;
                 gap: 10px;
             }
-            
+
             .pdf-content {
                 padding: 20px 15px;
             }
-            
+
             .pdf-content h3 {
                 font-size: 1.2rem;
             }
-            
+
             .pdf-content p {
                 font-size: 0.9rem;
             }
-            
+
             .pdf-content button {
                 padding: 10px 16px !important;
                 font-size: 13px !important;
@@ -1146,7 +1146,7 @@
                     `;
                     pdfDownloadBtn.className = 'pdf-download-btn w-full bg-gradient-to-r from-red-500 to-red-600 text-white font-bold py-3 px-4 rounded-2xl hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-lg transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2 mt-3';
                     pdfDownloadBtn.onclick = () => downloadPdf(`${storageBasePath}/${imageData.path}`);
-                    
+
                     // إضافة الزر بعد زر "عرض بالحجم الكامل"
                     const fullscreenBtn = modal.querySelector('button[onclick="viewFullscreen()"]');
                     if (fullscreenBtn) {
@@ -1225,7 +1225,7 @@
             const modal = document.getElementById('imageOptionsModal');
             modal.classList.add('hidden');
             modal.classList.remove('flex');
-            
+
             // تنظيف الأزرار المضافة ديناميكياً
             const pdfDownloadBtn = modal.querySelector('.pdf-download-btn');
             if (pdfDownloadBtn) {
@@ -1279,16 +1279,16 @@
                     // عرض ملف PDF بالحجم الكامل
                     const storageBasePath = '{{ asset("storage") }}';
                     const pdfUrl = `${storageBasePath}/${currentImageData.path}`;
-                    
+
                     // إخفاء الصورة
                     fullscreenImg.style.display = 'none';
-                    
+
                     // إخفاء أي iframe موجود
                     let iframe = fullscreenModal.querySelector('iframe');
                     if (iframe) {
                         iframe.style.display = 'none';
                     }
-                    
+
                     // إنشاء container للـ PDF
                     let pdfContainer = fullscreenModal.querySelector('.pdf-container');
                     if (!pdfContainer) {
@@ -1307,7 +1307,7 @@
                         `;
                         fullscreenModal.querySelector('.modal-backdrop').appendChild(pdfContainer);
                     }
-                    
+
                     // إنشاء header للـ PDF
                     let pdfHeader = pdfContainer.querySelector('.pdf-header');
                     if (!pdfHeader) {
@@ -1324,7 +1324,7 @@
                         `;
                         pdfContainer.appendChild(pdfHeader);
                     }
-                    
+
                     // إنشاء أزرار التحكم
                     pdfHeader.innerHTML = `
                         <div style="display: flex; align-items: center; gap: 10px;">
@@ -1363,7 +1363,7 @@
                             ">عرض مع Google</button>
                         </div>
                     `;
-                    
+
                     // إنشاء محتوى PDF
                     let pdfContent = pdfContainer.querySelector('.pdf-content');
                     if (!pdfContent) {
@@ -1380,7 +1380,7 @@
                         `;
                         pdfContainer.appendChild(pdfContent);
                     }
-                    
+
                     // محتوى PDF
                     pdfContent.innerHTML = `
                         <div style="margin-bottom: 30px;">
@@ -1444,7 +1444,7 @@
                             </button>
                         </div>
                     `;
-                    
+
                     pdfContainer.style.display = 'flex';
                 } else {
                     // عرض صورة بالحجم الكامل
@@ -1467,7 +1467,7 @@
         function closeFullscreen() {
             document.getElementById('fullscreenModal').classList.add('hidden');
             document.getElementById('fullscreenModal').classList.remove('flex');
-            
+
             // تنظيف العناصر المضافة ديناميكياً
             const pdfContainer = document.querySelector('.pdf-container');
             if (pdfContainer) {

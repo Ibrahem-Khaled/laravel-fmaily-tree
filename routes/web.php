@@ -18,7 +18,6 @@ use App\Http\Controllers\FamilyTreeController;
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\HomePersonController;
 use App\Http\Controllers\LogsController;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
 /*
