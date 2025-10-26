@@ -108,6 +108,14 @@
                                 <th>مكان الإقامة</th>
                                 <td>{{ $person->location ?? '-' }}</td>
                             </tr>
+                            <tr>
+                                <th>مكان الوفاة</th>
+                                <td>{{ $person->death_place ?? '-' }}</td>
+                            </tr>
+                            <tr>
+                                <th>المقبرة</th>
+                                <td>{{ $person->cemetery ?? '-' }}</td>
+                            </tr>
                         </table>
                     </div>
                 </div>

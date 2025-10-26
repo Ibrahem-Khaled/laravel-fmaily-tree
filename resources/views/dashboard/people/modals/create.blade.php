@@ -129,6 +129,24 @@
                             value="{{ old('location') }}">
                     </div>
 
+                    {{-- Death Place and Cemetery --}}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="create_death_place">مكان الوفاة</label>
+                                <input type="text" class="form-control" id="create_death_place" name="death_place"
+                                    value="{{ old('death_place') }}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="create_cemetery">المقبرة</label>
+                                <input type="text" class="form-control" id="create_cemetery" name="cemetery"
+                                    value="{{ old('cemetery') }}">
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <label for="create_biography">سيرة ذاتية</label>
                         <textarea class="form-control" id="create_biography" name="biography" rows="3">{{ old('biography') }}</textarea>

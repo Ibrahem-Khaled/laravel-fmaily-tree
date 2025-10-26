@@ -654,6 +654,12 @@
                         <div><small class="text-muted">${label}</small><p class="mb-0 fw-bold">${value}</p></div>
                     </div>`;
 
+                const createDetailRowWithLink = (icon, label, value, link) => !value ? '' :
+                    `<div class="detail-row">
+                        <i class="fas ${icon} fa-fw mx-2"></i>
+                        <div><small class="text-muted">${label}</small><p class="mb-0 fw-bold"><a href="${link}" target="_blank">${value}</a></p></div>
+                    </div>`;
+
                 /* 🚫 لا نظهر "في ذمة الله" كنص داخل المودال */
                 /* نُبقي فقط الإطار الأسود حول الصورة عبر كلاس is-deceased */
 
@@ -765,6 +771,8 @@
                             ${createDetailRow('fa-briefcase', 'المهنة', person.occupation)}
                             ${createDetailRow('fa-map-marker-alt', 'مكان الإقامة', person.location)}
                             ${person.death_date ? createDetailRow('fa-dove', 'تاريخ الوفاة', person.death_date) : ''}
+                            ${person.death_place ? createDetailRow('fa-cross', 'مكان الوفاة', person.death_place) : ''}
+                            ${person.cemetery ? createDetailRow('fa-monument', 'المقبرة', person.cemetery) : ''}
                             <hr class="my-4">
                             ${parentsHtml}
                             ${spousesHtml}

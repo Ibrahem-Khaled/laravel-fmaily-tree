@@ -36,13 +36,13 @@ class FamilyTreeController extends Controller
         // الحصول على الجذور مع تحسين الأداء - تحديد الحقول المطلوبة فقط
         $roots = Person::select([
             'id', 'first_name', 'last_name', 'gender', 'birth_date', 'birth_place', 'death_date',
-            'photo_url', 'parent_id', 'mother_id', 'from_outside_the_family'
+            'death_place', 'cemetery', 'photo_url', 'parent_id', 'mother_id', 'from_outside_the_family'
         ])
         ->whereNull('parent_id')
         ->where('from_outside_the_family', false)
         ->with([
-            'children:id,first_name,last_name,gender,birth_date,birth_place,death_date,photo_url,parent_id,mother_id',
-            'childrenFromMother:id,first_name,last_name,gender,birth_date,birth_place,death_date,photo_url,parent_id,mother_id'
+            'children:id,first_name,last_name,gender,birth_date,birth_place,death_date,death_place,cemetery,photo_url,parent_id,mother_id',
+            'childrenFromMother:id,first_name,last_name,gender,birth_date,birth_place,death_date,death_place,cemetery,photo_url,parent_id,mother_id'
         ])
         ->withCount('mentionedImages')
         ->get();
@@ -142,7 +142,7 @@ class FamilyTreeController extends Controller
         $person = Person::select(['id', 'gender'])->findOrFail($id);
         $childrenQuery = Person::select([
             'id', 'first_name', 'last_name', 'gender', 'birth_date', 'birth_place', 'death_date',
-            'photo_url', 'parent_id', 'mother_id'
+            'death_place', 'cemetery', 'photo_url', 'parent_id', 'mother_id'
         ]);
 
         // التحقق من جنس الشخص لتحديد كيفية البحث عن الأبناء
@@ -199,7 +199,7 @@ class FamilyTreeController extends Controller
         // Eager load relationships محسن للأداء - تحديد الحقول المطلوبة فقط
         $person = Person::select([
             'id', 'first_name', 'last_name', 'gender', 'birth_date', 'birth_place', 'death_date',
-            'photo_url', 'biography', 'occupation', 'location', 'parent_id', 'mother_id'
+            'death_place', 'cemetery', 'photo_url', 'biography', 'occupation', 'location', 'parent_id', 'mother_id'
         ])
         ->with([
             'parent:id,first_name,last_name,gender,birth_date,death_date,photo_url',
@@ -245,7 +245,7 @@ class FamilyTreeController extends Controller
         $person = Person::select(['id', 'gender'])->findOrFail($id);
         $childrenQuery = Person::select([
             'id', 'first_name', 'last_name', 'gender', 'birth_date', 'birth_place', 'death_date',
-            'photo_url', 'parent_id', 'mother_id'
+            'death_place', 'cemetery', 'photo_url', 'parent_id', 'mother_id'
         ]);
 
         // التحقق من جنس الشخص لتحديد كيفية البحث عن الأبناء
@@ -331,6 +331,8 @@ class FamilyTreeController extends Controller
             'birth_date' => optional($person->birth_date)->format('Y/m/d'),
             'birth_place' => $person->birth_place,
             'death_date' => optional($person->death_date)->format('Y/m/d'), // Send death date to frontend
+            'death_place' => $person->death_place ?? null,
+            'cemetery' => $person->cemetery ?? null,
             'age' => $person->age,
         ];
 

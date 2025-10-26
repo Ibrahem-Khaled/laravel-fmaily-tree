@@ -17,6 +17,8 @@ class Person extends BaseModel
         'birth_date',
         'birth_place',
         'death_date',
+        'death_place',
+        'cemetery',
         'gender',
         'from_outside_the_family',
         'photo_url',

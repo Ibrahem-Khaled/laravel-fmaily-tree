@@ -142,6 +142,23 @@
                             name="location" value="{{ old('location', $person->location) }}">
                     </div>
 
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="death_place_edit{{ $person->id }}">مكان الوفاة</label>
+                                <input type="text" class="form-control" id="death_place_edit{{ $person->id }}"
+                                    name="death_place" value="{{ old('death_place', $person->death_place) }}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="cemetery_edit{{ $person->id }}">المقبرة</label>
+                                <input type="text" class="form-control" id="cemetery_edit{{ $person->id }}"
+                                    name="cemetery" value="{{ old('cemetery', $person->cemetery) }}">
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <label for="biography_edit{{ $person->id }}">سيرة ذاتية</label>
                         <textarea class="form-control" id="biography_edit{{ $person->id }}" name="biography" rows="3">{{ old('biography', $person->biography) }}</textarea>
