@@ -801,7 +801,7 @@
                                 ${createDetailRow('fa-map-marked-alt', 'مكان الميلاد', person.birth_place)}
                                 ${createDetailRow('fa-map-marker-alt', 'مكان الإقامة', person.location)}
                                 ${createDetailRow('fa-tombstone-alt', 'مكان الوفاة', person.death_place)}
-                                ${createDetailRow('fa-monument', 'المقبرة', person.cemetery)}
+                                ${createDetailRow('fa-building', 'المقبرة', person.cemetery)}
                                 ${person.death_date ? createDetailRow('fa-dove', 'تاريخ الوفاة', person.death_date) : ''}
                                 ${createDetailRow('fa-briefcase', 'المهنة', person.occupation)}
                             </div>
