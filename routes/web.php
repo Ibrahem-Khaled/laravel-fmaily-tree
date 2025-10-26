@@ -120,24 +120,6 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     // Logs routes
     Route::get('logs/activity', [LogsController::class, 'activity'])->name('logs.activity');
     Route::get('logs/audits',   [LogsController::class, 'audits'])->name('logs.audits');
-
-    // Migration route
-    Route::get('migrate-location-to-birth-place', function () {
-        try {
-            Artisan::call('persons:migrate-location-to-birth-place');
-            $output = Artisan::output();
-            return response()->json([
-                'success' => true,
-                'message' => 'Migration completed successfully',
-                'output' => $output
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Migration failed: ' . $e->getMessage()
-            ], 500);
-        }
-    })->name('migrate.location.to.birth.place');
 });
 
 require __DIR__ . '/auth.php';
