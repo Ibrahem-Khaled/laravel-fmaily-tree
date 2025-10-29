@@ -17,6 +17,7 @@ use App\Http\Controllers\BreastfeedingPublicController;
 use App\Http\Controllers\FamilyTreeController;
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\HomePersonController;
+use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\LogsController;
 use Illuminate\Support\Facades\Route;
 
@@ -39,6 +40,7 @@ Route::get('/gallery', [GalleryController::class, 'index'])->name('gallery.index
 Route::get('/article/{id}', [GalleryController::class, 'show'])->name('article.show');
 Route::get('/gallery/articles', [GalleryController::class, 'articles'])->name('gallery.articles');
 Route::get('/person-gallery/{person}', [GalleryController::class, 'personGallery'])->name('person.gallery');
+Route::get('/reports', [ReportsController::class, 'index'])->name('reports.index');
 
 Route::prefix('api')->group(function () {
     Route::get('/family-tree', [FamilyTreeController::class, 'getFamilyTree']);
