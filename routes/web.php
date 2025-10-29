@@ -19,6 +19,7 @@ use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\HomePersonController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\LogsController;
+use App\Http\Controllers\admin\StoryController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -117,6 +118,9 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::patch('breastfeeding/{breastfeeding}/toggle-status', [BreastfeedingController::class, 'toggleStatus'])->name('breastfeeding.toggle-status')->middleware(['permission:breastfeeding.update']);
     Route::get('breastfeeding/nursing-mothers/search', [BreastfeedingController::class, 'getNursingMothers'])->name('breastfeeding.nursing-mothers.search')->middleware(['permission:breastfeeding.view']);
     Route::get('breastfeeding/breastfed-children/search', [BreastfeedingController::class, 'getBreastfedChildren'])->name('breastfeeding.breastfed-children.search')->middleware(['permission:breastfeeding.view']);
+
+    // Stories routes
+    Route::resource('stories', StoryController::class);
 
     // Logs routes
     Route::get('logs/activity', [LogsController::class, 'activity'])->name('logs.activity');

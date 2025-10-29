@@ -146,6 +146,23 @@ class Person extends BaseModel
         return $this->belongsToMany(Image::class, 'image_mentions', 'person_id', 'image_id')
             ->withTimestamps();
     }
+
+    /**
+     * القصص التي يملكها هذا الشخص (صاحب القصة)
+     */
+    public function ownedStories()
+    {
+        return $this->hasMany(Story::class, 'story_owner_id');
+    }
+
+    /**
+     * القصص التي رواها هذا الشخص (راوي)
+     */
+    public function narratedStories()
+    {
+        return $this->belongsToMany(Story::class, 'story_narrators')
+            ->withTimestamps();
+    }
     public function padges()
     {
         // جدول pivot عندك اسمه person_padges

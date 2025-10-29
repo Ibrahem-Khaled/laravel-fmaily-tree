@@ -239,11 +239,11 @@
                         <i class="fas fa-baby me-1"></i>الرضاعة
                     </a>
                 </li>
-                <li>
+                {{-- <li>
                     <a class="nav-link {{ request()->routeIs('reports.index') ? 'active' : '' }}" href="{{ route('reports.index') }}">
                         التقارير
                     </a>
-                </li>
+                </li> --}}
                 {{-- <li>
                     <a class="nav-link {{ request()->routeIs('about') ? 'active' : '' }}" href="#">عن العائلة</a>
                 </li> --}}

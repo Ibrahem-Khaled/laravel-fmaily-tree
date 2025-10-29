@@ -54,14 +54,14 @@
     </div>
 
     <!-- Nav Item - Content Management Collapse -->
-    <li class="nav-item {{ request()->routeIs(['articles.*', 'categories.*', 'dashboard.images.*']) ? 'active' : '' }}">
+    <li class="nav-item {{ request()->routeIs(['articles.*', 'categories.*', 'dashboard.images.*', 'stories.*']) ? 'active' : '' }}">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseContent"
-           aria-expanded="{{ request()->routeIs(['articles.*', 'categories.*', 'dashboard.images.*']) ? 'true' : 'false' }}"
+           aria-expanded="{{ request()->routeIs(['articles.*', 'categories.*', 'dashboard.images.*', 'stories.*']) ? 'true' : 'false' }}"
            aria-controls="collapseContent">
             <i class="fas fa-fw fa-folder"></i>
             <span>المحتوى والوسائط</span>
         </a>
-        <div id="collapseContent" class="collapse {{ request()->routeIs(['articles.*', 'categories.*', 'dashboard.images.*']) ? 'show' : '' }}"
+        <div id="collapseContent" class="collapse {{ request()->routeIs(['articles.*', 'categories.*', 'dashboard.images.*', 'stories.*']) ? 'show' : '' }}"
              aria-labelledby="headingContent" data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">إدارة المحتوى:</h6>
@@ -73,6 +73,9 @@
                 </a>
                 <a class="collapse-item {{ request()->routeIs('dashboard.images.*') ? 'active' : '' }}" href="{{ route('dashboard.images.index') }}">
                     <i class="fas fa-fw fa-images"></i> مكتبة الصور
+                </a>
+                <a class="collapse-item {{ request()->routeIs('stories.*') ? 'active' : '' }}" href="{{ route('stories.index') }}">
+                    <i class="fas fa-fw fa-book-open"></i> القصص
                 </a>
             </div>
         </div>
