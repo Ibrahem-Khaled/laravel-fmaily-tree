@@ -66,7 +66,8 @@ class StoryController extends Controller
             'title' => 'required|string|max:255',
             'story_owner_id' => 'nullable|exists:persons,id',
             'content' => 'nullable|string',
-            'audio_path' => 'nullable|file|mimes:mp3,wav,ogg,m4a|max:10240',
+            // 1GB limit (in kilobytes)
+            'audio_path' => 'nullable|file|mimes:mp3,wav,ogg,m4a|max:1048576',
             'video_url' => 'nullable|url|max:500',
             'video_path' => 'nullable|file|mimes:mp4,avi,mov,wmv,flv|max:102400',
             'narrators' => 'nullable|array',
@@ -149,7 +150,8 @@ class StoryController extends Controller
             'title' => 'required|string|max:255',
             'story_owner_id' => 'nullable|exists:persons,id',
             'content' => 'nullable|string',
-            'audio_path' => 'nullable|file|mimes:mp3,wav,ogg,m4a|max:10240',
+            // 1GB limit (in kilobytes)
+            'audio_path' => 'nullable|file|mimes:mp3,wav,ogg,m4a|max:1048576',
             'video_url' => 'nullable|url|max:500',
             'video_path' => 'nullable|file|mimes:mp4,avi,mov,wmv,flv|max:102400',
             'narrators' => 'nullable|array',

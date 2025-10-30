@@ -77,7 +77,7 @@
                                         {{ $story->audio_path ? 'تغيير الملف الصوتي...' : 'اختر ملف صوتي...' }}
                                     </label>
                                 </div>
-                                <small class="form-text text-muted">امتدادات مسموحة: mp3, wav, ogg, m4a (حد أقصى 10MB)</small>
+                                <small class="form-text text-muted">امتدادات مسموحة: mp3, wav, ogg, m4a (حد أقصى 1GB)</small>
                             </div>
                         </div>
                         <div class="col-md-6">
