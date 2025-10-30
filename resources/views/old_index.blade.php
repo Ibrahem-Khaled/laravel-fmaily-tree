@@ -378,6 +378,14 @@
             z-index: 3; /* فوق التدرج ::before */
         }
 
+        /* تعطيل إطار/شارة الحداد داخل مودال التفاصيل فقط */
+        #personDetailModal .is-deceased .person-photo-container {
+            box-shadow: none;
+        }
+        #personDetailModal .is-deceased .person-photo-container::after {
+            display: none;
+        }
+
         /* احترام تفضيل تقليل الحركة */
         @media (prefers-reduced-motion: reduce) {
             * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
