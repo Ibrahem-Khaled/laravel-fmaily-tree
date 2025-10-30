@@ -24,6 +24,11 @@
 
             /* ألوان/خصائص الحداد */
             --mourning: #1b1b1b;
+
+            /* تحسينات حركة وتوهّج */
+            --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+            --shadow-soft: 0 6px 18px rgba(0, 0, 0, 0.08);
+            --shadow-strong: 0 14px 36px rgba(0, 0, 0, 0.12);
         }
 
         body {
@@ -56,8 +61,8 @@
             width: 200px;
             border: 1px solid var(--border-color) !important;
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
+            box-shadow: var(--shadow-soft);
+            transition: transform 300ms var(--ease-smooth), box-shadow 300ms var(--ease-smooth), background-color 300ms var(--ease-smooth);
             background-color: #fff;
             overflow: visible; /* للسماح بتموضع العناصر الداخلية */
         }
@@ -69,9 +74,13 @@
 
         .accordion-group-item:hover,
         .accordion-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-strong);
         }
+
+        /* ظهور انسيابي عند دخول العناصر إلى الشاشة */
+        .reveal { opacity: 0; transform: translateY(16px); }
+        .reveal.in-view { opacity: 1; transform: translateY(0); transition: opacity 500ms var(--ease-smooth), transform 500ms var(--ease-smooth); }
 
         .accordion-collapse {
             position: absolute;
@@ -89,6 +98,7 @@
             text-align: center;
             padding: 10px;
             flex-direction: column;
+            transition: background-color 250ms var(--ease-smooth), color 250ms var(--ease-smooth), box-shadow 250ms var(--ease-smooth);
         }
 
         .accordion-button::after { display: none; }
@@ -113,7 +123,7 @@
             background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.12) 60%);
             border-radius: inherit;
             z-index: 1;
-            transition: background 0.3s ease;
+            transition: background 300ms var(--ease-smooth);
         }
         .accordion-button.photo-bg .person-name {
             font-weight: 600;
@@ -175,18 +185,57 @@
             width: 100%;
             display: flex;
             border-top: 1px solid var(--border-color);
-            background: var(--light-gray);
+            background: linear-gradient(180deg, #fafafa 0%, #f3f4f6 100%);
             border-radius: 0 0 12px 12px;
         }
         .actions-bar .btn {
-            flex: 1; font-size: 13px; padding: 8px 4px; color: var(--dark-green); border-radius: 0;
+            flex: 1; font-size: 13px; padding: 10px 6px; color: var(--dark-green); border-radius: 0;
+            transition: background-color 200ms var(--ease-smooth), color 200ms var(--ease-smooth), transform 150ms var(--ease-smooth);
+            position: relative; overflow: hidden;
         }
-        .actions-bar .btn:hover { background-color: #e9ecef; }
+        .actions-bar .btn:hover { background-color: #e9ecef; transform: translateY(-1px); }
         .actions-bar .btn:first-child { border-radius: 0 0 11px 0; }
         .actions-bar .btn:last-child { border-radius: 0 0 0 11px; }
 
+        /* تأثير تموّج بسيط لزر الإجراءات (بدون JS إضافي) */
+        .actions-bar .btn::after {
+            content: '';
+            position: absolute;
+            inset: auto 50% 50% auto;
+            width: 0; height: 0;
+            background: rgba(20, 81, 71, 0.12);
+            border-radius: 50%;
+            transform: translate(50%, 50%);
+            transition: width 400ms var(--ease-smooth), height 400ms var(--ease-smooth), opacity 400ms var(--ease-smooth);
+            opacity: 0;
+        }
+        .actions-bar .btn:hover::after { width: 220px; height: 220px; opacity: 1; }
+
         .modal-header { background-color: var(--dark-green); color: #fff; }
         .modal-header .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
+
+        /* تحسين مظهر المودال بالكامل */
+        .modal-content {
+            border: 0;
+            border-radius: 16px;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.18);
+            background: linear-gradient(180deg, #ffffff 0%, #f9fbfa 100%);
+        }
+        .modal-body { padding: 1.25rem 1.25rem 1.5rem 1.25rem; }
+
+        /* زر نداء الإجراء (لأزرار مثل معرض الصور والقصص) */
+        .btn-cta {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: linear-gradient(135deg, #2fb76e 0%, #1f9a57 100%);
+            color: #fff !important; border: 0 !important;
+            padding: 10px 16px; border-radius: 9999px;
+            box-shadow: 0 12px 30px rgba(47, 183, 110, 0.28);
+            transition: transform 160ms var(--ease-smooth), box-shadow 200ms var(--ease-smooth), filter 200ms var(--ease-smooth);
+            text-decoration: none;
+        }
+        .btn-cta:hover { transform: translateY(-2px); box-shadow: 0 18px 38px rgba(31, 154, 87, 0.32); filter: brightness(1.02); }
+        .btn-cta:active { transform: translateY(0); box-shadow: 0 10px 22px rgba(31, 154, 87, 0.28); }
+        .btn-cta i { font-size: 1rem; }
 
         #personDetailModal .person-photo-container {
             border-radius: 12px;
@@ -198,9 +247,13 @@
 
         .detail-row {
             display: flex; align-items: flex-start;
-            background-color: var(--light-gray);
-            padding: 12px; border-radius: 8px; margin-bottom: 12px;
+            background: linear-gradient(180deg, #fcfcfc 0%, #f4f6f5 100%);
+            padding: 12px; border-radius: 10px; margin-bottom: 12px;
+            border: 1px solid #eef2f1;
+            transition: transform 200ms var(--ease-smooth), box-shadow 200ms var(--ease-smooth);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
         }
+        .detail-row:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(0,0,0,0.08); }
 
         /* Desktop: Single column layout */
         .detail-row-container {
@@ -228,14 +281,16 @@
 
         .spouse-card, .child-card, .parent-card {
             display: flex; align-items: center; gap: 12px;
-            background-color: #fff; padding: 10px; border-radius: 8px;
-            border: 1px solid var(--border-color); transition: all 0.2s ease-in-out;
+            background-color: #fff; padding: 12px; border-radius: 10px;
+            border: 1px solid var(--border-color);
+            transition: transform 180ms var(--ease-smooth), box-shadow 200ms var(--ease-smooth), border-color 200ms var(--ease-smooth);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
         }
         .child-card.clickable, .parent-card.clickable { cursor: pointer; }
         .child-card.clickable:hover, .parent-card.clickable:hover {
             background-color: var(--light-green);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            transform: translateY(-3px);
+            box-shadow: 0 14px 28px rgba(0,0,0,0.10);
             border-color: var(--primary-color);
         }
         .spouse-card img, .child-card img, .parent-card img {
@@ -321,6 +376,12 @@
             top: 8px;
             inset-inline-end: 8px;
             z-index: 3; /* فوق التدرج ::before */
+        }
+
+        /* احترام تفضيل تقليل الحركة */
+        @media (prefers-reduced-motion: reduce) {
+            * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
+            .reveal { opacity: 1 !important; transform: none !important; }
         }
 
         /* --- START: Mobile Responsive Styles --- */
@@ -425,6 +486,35 @@
                         new bootstrap.Tooltip(el);
                     }
                 });
+            }
+
+            // ====== ظهور تدريجي للعناصر عند التمرير ======
+            function initRevealAnimations(root = document) {
+                try {
+                    const elements = root.querySelectorAll('.accordion-group-item, .accordion-item');
+                    if (!elements || elements.length === 0) return;
+
+                    // ضع كلاس reveal كبداية
+                    elements.forEach(el => el.classList.add('reveal'));
+
+                    if ('IntersectionObserver' in window) {
+                        const observer = new IntersectionObserver((entries) => {
+                            entries.forEach(entry => {
+                                if (entry.isIntersecting) {
+                                    entry.target.classList.add('in-view');
+                                    observer.unobserve(entry.target);
+                                }
+                            });
+                        }, { rootMargin: '60px 0px', threshold: 0.1 });
+
+                        elements.forEach(el => observer.observe(el));
+                    } else {
+                        // متصفحات قديمة: أظهر مباشرة
+                        elements.forEach(el => el.classList.add('in-view'));
+                    }
+                } catch (e) {
+                    console.warn('Reveal animations init failed', e);
+                }
             }
 
             async function fetchAPI(endpoint) {
@@ -607,6 +697,20 @@
                     childrenContainer.appendChild(fragment);
                     initTooltips(childrenContainer);
 
+                    // تفعيل تأثير الظهور للعناصر المضافة
+                    initRevealAnimations(childrenContainer);
+
+                    // تطبيق Stagger على العناصر المُضافة
+                    try {
+                        const newItems = childrenContainer.querySelectorAll('.accordion-item');
+                        let delay = 0;
+                        newItems.forEach(item => {
+                            item.classList.add('reveal');
+                            setTimeout(() => item.classList.add('in-view'), delay);
+                            delay += 60; // 60ms بين كل عنصر لظهور سلس
+                        });
+                    } catch (_) {}
+
                     // إظهار رسالة نجاح إذا كانت البيانات من cache
                     if (data.cached) {
                         console.log(`تم تحميل أبناء الشخص ${personId} من الذاكرة المؤقتة`);
@@ -763,14 +867,18 @@
                 }
 
                 let childrenHtml = (person.children_count > 0)
-                    ? `<h5>الأبناء (${person.children_count})</h5><div id="modalChildrenList" class="row g-2"></div><hr class="my-4">`
+                    ? `<h5>الأبناء (${person.children_count})</h5><div id="modalChildrenList" class="row g-2"></div>`
                     : '';
+
+                // Placeholder زر القصص (سيتم إظهاره بعد فحص العداد)
+                const storiesBtnPlaceholder = `<div id="personStoriesButton" class="text-center my-3"></div>${person.children_count > 0 ? '<hr class="my-4">' : ''}`;
 
                 let galleryButtonHtml = (person.images_count > 0)
                     ? `<div class="text-center mb-4">
-                        <button class="btn btn-outline-primary btn-lg" onclick="openPersonGallery(${person.id})">
-                            <i class="fas fa-images me-2"></i> معرض الصور (${person.images_count})
-                        </button>
+                        <a class="btn-cta" onclick="openPersonGallery(${person.id})" role="button" href="javascript:void(0)">
+                            <i class="fas fa-images"></i>
+                            معرض الصور (${person.images_count})
+                        </a>
                     </div>`
                     : '';
 
@@ -798,6 +906,7 @@
                             ${spousesHtml}
                             ${biographyHtml}
                             ${childrenHtml}
+                            ${storiesBtnPlaceholder}
                             ${articlesHtml}
                         </div>
                     </div>`;
@@ -805,7 +914,31 @@
                 setupBiography();
 
                 if (person.children_count > 0) loadModalChildren(person.id);
+
+                // جلب عداد القصص لهذا الشخص لإظهار زر القصص عند الحاجة
+                insertStoriesButton(person.id, person.full_name);
             };
+
+            async function insertStoriesButton(personId, personFullName) {
+                try {
+                    const res = await fetch(`/api/person/${personId}/stories/count`, { headers: { 'Accept': 'application/json' }});
+                    if (!res.ok) return;
+                    const data = await res.json();
+                    if (data && data.count && data.count > 0) {
+                        const holder = document.getElementById('personStoriesButton');
+                        if (holder) {
+                            holder.innerHTML = `
+                                <a class="btn-cta" href="/stories/person/${personId}">
+                                    <i class=\"fas fa-book-open\"></i>
+                                    احداث وقصص (${data.count})
+                                </a>
+                            `;
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Failed to fetch stories count', e);
+                }
+            }
 
             async function loadModalChildren(personId) {
                 const childrenContainer = document.getElementById('modalChildrenList');
@@ -865,6 +998,20 @@
                     treeContainer.innerHTML = '';
                     treeContainer.appendChild(fragment);
                     initTooltips(treeContainer);
+
+                    // تفعيل تأثير الظهور للعناصر الأساسية
+                    initRevealAnimations(treeContainer);
+
+                    // تطبيق Stagger على المستوى الأول
+                    try {
+                        const topItems = treeContainer.querySelectorAll('.accordion-group-item');
+                        let delay = 0;
+                        topItems.forEach(item => {
+                            item.classList.add('reveal');
+                            setTimeout(() => item.classList.add('in-view'), delay);
+                            delay += 80; // إيقاع أبطأ على المستوى الأعلى
+                        });
+                    } catch (_) {}
 
                     // إظهار رسالة نجاح إذا كانت البيانات من cache
                     if (data.cached) {

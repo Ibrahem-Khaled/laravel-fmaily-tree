@@ -19,6 +19,7 @@ use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\HomePersonController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\LogsController;
+use App\Http\Controllers\StoriesPublicController;
 use App\Http\Controllers\admin\StoryController;
 use Illuminate\Support\Facades\Route;
 
@@ -49,10 +50,15 @@ Route::prefix('api')->group(function () {
     Route::get('/person/{id}/children', [FamilyTreeController::class, 'getChildren']);
     Route::get('/person/{id}/children-details', [FamilyTreeController::class, 'getChildrenForDetails']);
     Route::get('/person/{father}/wives', [FamilyTreeController::class, 'getWives']);
+    Route::get('/person/{id}/stories/count', [StoriesPublicController::class, 'countForPerson']);
 });
 
 Route::get('persons/badges', [HomePersonController::class, 'personsWhereHasBadges'])->name('persons.badges');
 Route::get('/people/profile/{person}', [HomePersonController::class, 'show'])->name('people.profile.show');
+
+// Public stories pages (distinct names to avoid admin resource conflicts)
+Route::get('/stories/person/{person}', [StoriesPublicController::class, 'personStories'])->name('public.stories.person');
+Route::get('/stories/{story}', [StoriesPublicController::class, 'show'])->name('public.stories.show');
 
 // Public Breastfeeding Routes
 Route::get('/breastfeeding', [BreastfeedingPublicController::class, 'index'])->name('breastfeeding.public.index');
