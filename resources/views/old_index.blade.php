@@ -878,9 +878,6 @@
                     ? `<h5>الأبناء (${person.children_count})</h5><div id="modalChildrenList" class="row g-2"></div>`
                     : '';
 
-                // Placeholder زر القصص (سيتم إظهاره بعد فحص العداد)
-                const storiesBtnPlaceholder = `<div id="personStoriesButton" class="text-center my-3"></div>${person.children_count > 0 ? '<hr class="my-4">' : ''}`;
-
                 let galleryButtonHtml = (person.images_count > 0)
                     ? `<div class="text-center mb-4">
                         <a class="btn-cta" onclick="openPersonGallery(${person.id})" role="button" href="javascript:void(0)">
@@ -890,6 +887,9 @@
                     </div>`
                     : '';
 
+                // Placeholder زر القصص (سيتم إظهاره بعد فحص العداد) - في العمود الأيسر أسفل معرض الصور
+                const storiesBtnPlaceholder = `<div id="personStoriesButton" class="text-center mb-4"></div>`;
+
                 document.getElementById('modalBodyContent').innerHTML = `
                     <div class="row g-4">
                         <div class="col-lg-4 text-center">
@@ -897,6 +897,7 @@
                             <h4 class="mt-3 mb-1">${person.full_name}</h4>
                             <!-- 🚫 لا نص "في ذمة الله" ولا "على قيد الحياة" هنا -->
                             ${galleryButtonHtml}
+                            ${storiesBtnPlaceholder}
                         </div>
                         <div class="col-lg-8">
                             <div class="detail-row-container">
@@ -914,7 +915,6 @@
                             ${spousesHtml}
                             ${biographyHtml}
                             ${childrenHtml}
-                            ${storiesBtnPlaceholder}
                             ${articlesHtml}
                         </div>
                     </div>`;

@@ -24,7 +24,7 @@
     <main class="container mx-auto px-4 py-8">
         <div class="mb-8 text-center">
             <h1 class="text-3xl md:text-4xl font-bold gradient-text">قصص {{ $person->full_name }}</h1>
-            <p class="text-gray-600 mt-2">مجموعة من القصص والروايات المرتبطة بـ {{ $person->full_name }}</p>
+            <p class="text-gray-600 mt-2"> أحداث وروايات مرتبطة {{ $person->full_name }}</p>
         </div>
 
         @if($stories->count() === 0)
