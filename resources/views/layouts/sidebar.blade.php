@@ -120,12 +120,34 @@
         التقارير والسجلات
     </div>
 
+    <!-- Nav Item - Visit Logs -->
+    <li class="nav-item {{ request()->routeIs('dashboard.visit-logs.*') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('dashboard.visit-logs.index') }}">
+            <i class="fas fa-fw fa-eye"></i>
+            <span>سجل الزيارات</span>
+        </a>
+    </li>
+
     <!-- Nav Item - Reports and Logs -->
     <li class="nav-item {{ request()->routeIs('logs.*') ? 'active' : '' }}">
-        <a class="nav-link" href="{{ route('logs.audits') }}">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseLogs"
+           aria-expanded="{{ request()->routeIs('logs.*') ? 'true' : 'false' }}"
+           aria-controls="collapseLogs">
             <i class="fas fa-fw fa-file-alt"></i>
-            <span>سجلات التدقيق</span>
+            <span>سجلات النظام</span>
         </a>
+        <div id="collapseLogs" class="collapse {{ request()->routeIs('logs.*') ? 'show' : '' }}"
+             aria-labelledby="headingLogs" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">سجلات النظام:</h6>
+                <a class="collapse-item {{ request()->routeIs('logs.activity') ? 'active' : '' }}" href="{{ route('logs.activity') }}">
+                    <i class="fas fa-fw fa-history"></i> سجل النشاطات
+                </a>
+                <a class="collapse-item {{ request()->routeIs('logs.audits') ? 'active' : '' }}" href="{{ route('logs.audits') }}">
+                    <i class="fas fa-fw fa-clipboard-check"></i> سجلات التدقيق
+                </a>
+            </div>
+        </div>
     </li>
 
     <!-- Divider -->

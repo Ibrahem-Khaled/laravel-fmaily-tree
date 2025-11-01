@@ -32,7 +32,8 @@
     <style>
         body {
             font-family: "Tajawal", sans-serif !important;
-            /* text-align: right !important; */
+            /* direction: rtl !important; */
+            text-align: right !important;
         }
 
         .form-control {

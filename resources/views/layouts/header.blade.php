@@ -115,27 +115,28 @@
             <!-- Dropdown - User Information -->
             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
                 @if (Auth::check())
-                    {{-- <a class="dropdown-item" href="{{ route('profile') }}">
+                    <a class="dropdown-item" href="{{ route('profile.edit') }}">
                         <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                        Profile
-                    </a> --}}
-                    <a class="dropdown-item" href="#">
-                        <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
-                        Settings
+                        الملف الشخصي
                     </a>
-                    <a class="dropdown-item" href="#">
+                    <a class="dropdown-item" href="{{ route('profile.edit') }}#change-password">
+                        <i class="fas fa-key fa-sm fa-fw mr-2 text-gray-400"></i>
+                        تغيير كلمة المرور
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="{{ route('dashboard.visit-logs.index') }}">
                         <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
-                        Activity Log
+                        سجل الزيارات
                     </a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
                         <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                        Logout
+                        تسجيل الخروج
                     </a>
                 @else
                     <a class="dropdown-item" href="{{ route('login') }}">
                         <i class="fas fa-sign-in-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                        Login
+                        تسجيل الدخول
                     </a>
                 @endif
             </div>
@@ -149,15 +150,15 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+                <h5 class="modal-title" id="exampleModalLabel">تأكيد تسجيل الخروج</h5>
                 <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">×</span>
                 </button>
             </div>
-            <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+            <div class="modal-body">هل أنت متأكد من أنك تريد إنهاء جلستك الحالية؟</div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                <a class="btn btn-primary" href="{{ route('logout') }}">Logout</a>
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">إلغاء</button>
+                <a class="btn btn-primary" href="{{ route('logout') }}">تسجيل الخروج</a>
             </div>
         </div>
     </div>

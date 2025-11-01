@@ -1,403 +1,313 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
+@extends('layouts.app')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة تعليمية | الملف الشخصي</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        body {
-            font-family: 'Tajawal', sans-serif;
-            background-color: #f8fafc;
-        }
+@section('content')
+<div class="container-fluid" dir="rtl">
+    <!-- عنوان الصفحة -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-key mr-2"></i>تغيير كلمة المرور
+        </h1>
+        <a href="{{ route('dashboard') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-arrow-right mr-1"></i>العودة للوحة التحكم
+        </a>
+    </div>
 
-        .profile-card {
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
-        }
+    @include('components.alerts')
 
-        .profile-card:hover {
-            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .tab-button {
-            transition: all 0.3s ease;
-        }
-
-        .tab-button.active {
-            border-bottom: 3px solid #4a2f85;
-            color: #4a2f85;
-        }
-
-        .progress-ring {
-            transform: rotate(-90deg);
-        }
-
-        .progress-ring__circle {
-            stroke-dasharray: 314;
-            stroke-dashoffset: 314;
-            transition: stroke-dashoffset 0.5s ease;
-        }
-
-        .course-card {
-            transition: all 0.3s ease;
-        }
-
-        .course-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.1);
-        }
-
-        .gradient-text {
-            background: linear-gradient(90deg, #1E3A8A, #4a2f85);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-    </style>
-</head>
-
-<body class="bg-gray-50">
-    <!-- Header -->
-    @include('components.web.header')
-
-    <!-- Profile Section -->
-    <section class="py-12 bg-gradient-to-r from-blue-900 to-blue-600 text-white">
-        <div class="container mx-auto px-6">
-            <div class="flex flex-col md:flex-row items-center">
-                <div class="md:w-1/4 flex justify-center mb-8 md:mb-0">
-                    <div class="relative">
-                        <img src="{{ auth()->user()->avatar_url }}" alt="الصورة الشخصية"
-                            class="w-40 h-40 rounded-full border-4 border-white shadow-lg object-cover">
-                        <button
-                            class="absolute bottom-0 right-0 bg-blue-500 hover:bg-blue-600 text-white
-                                      rounded-full p-2 shadow-md">
-                            <i class="fas fa-camera"></i>
-                        </button>
-                    </div>
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- بطاقة تغيير كلمة المرور -->
+            <div class="card shadow mb-4" id="change-password">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-lock mr-2"></i>تغيير كلمة المرور
+                    </h6>
                 </div>
-                <div class="md:w-3/4 text-center md:text-right">
-                    <h1 class="text-3xl font-bold mb-2">{{ auth()->user()->name }}</h1>
-                    <p class="text-lg opacity-90 mb-4">طالب</p>
-                    <div class="flex flex-wrap justify-center md:justify-start gap-4 mb-6">
-                        <div class="flex items-center bg-blue-700 bg-opacity-30 px-4 py-2 rounded-full">
-                            <i class="fas fa-medal text-yellow-400 ml-2"></i>
-                            <span>المستوى: 1</span>
+                <div class="card-body">
+                    <form action="{{ route('user.update.password') }}" method="POST">
+                        @csrf
+                        @method('PUT')
+
+                        <!-- كلمة المرور الحالية -->
+                        <div class="form-group mb-4">
+                            <label for="current_password" class="font-weight-bold text-gray-700">
+                                <i class="fas fa-key mr-1 text-primary"></i>كلمة المرور الحالية
+                                <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <input 
+                                    type="password" 
+                                    class="form-control @error('current_password') is-invalid @enderror" 
+                                    id="current_password" 
+                                    name="current_password" 
+                                    placeholder="أدخل كلمة المرور الحالية"
+                                    required
+                                    autofocus
+                                >
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('current_password')">
+                                        <i class="fas fa-eye" id="current_password_icon"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            @error('current_password')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
                         </div>
-                        <div class="flex items-center bg-blue-700 bg-opacity-30 px-4 py-2 rounded-full">
-                            <i class="fas fa-star text-yellow-400 ml-2"></i>
-                            <span>نقاط: 1,245</span>
+
+                        <!-- كلمة المرور الجديدة -->
+                        <div class="form-group mb-4">
+                            <label for="new_password" class="font-weight-bold text-gray-700">
+                                <i class="fas fa-lock mr-1 text-success"></i>كلمة المرور الجديدة
+                                <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <input 
+                                    type="password" 
+                                    class="form-control @error('new_password') is-invalid @enderror" 
+                                    id="new_password" 
+                                    name="new_password" 
+                                    placeholder="أدخل كلمة المرور الجديدة (8 أحرف على الأقل)"
+                                    required
+                                    minlength="8"
+                                >
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('new_password')">
+                                        <i class="fas fa-eye" id="new_password_icon"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <small class="form-text text-muted">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                يجب أن تحتوي على 8 أحرف على الأقل وتتضمن أحرف وأرقام
+                            </small>
+                            @error('new_password')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
                         </div>
-                        <div class="flex items-center bg-blue-700 bg-opacity-30 px-4 py-2 rounded-full">
-                            <i class="fas fa-check-circle text-green-400 ml-2"></i>
-                            <span>12 دورة مكتملة</span>
+
+                        <!-- تأكيد كلمة المرور الجديدة -->
+                        <div class="form-group mb-4">
+                            <label for="new_password_confirmation" class="font-weight-bold text-gray-700">
+                                <i class="fas fa-check-circle mr-1 text-info"></i>تأكيد كلمة المرور الجديدة
+                                <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <input 
+                                    type="password" 
+                                    class="form-control @error('new_password_confirmation') is-invalid @enderror" 
+                                    id="new_password_confirmation" 
+                                    name="new_password_confirmation" 
+                                    placeholder="أعد إدخال كلمة المرور الجديدة"
+                                    required
+                                    minlength="8"
+                                >
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('new_password_confirmation')">
+                                        <i class="fas fa-eye" id="new_password_confirmation_icon"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            @error('new_password_confirmation')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
                         </div>
-                    </div>
-                    <div class="flex justify-center md:justify-start space-x-reverse space-x-4">
-                        <button class="bg-white hover:bg-gray-100 text-blue-900 font-bold py-2 px-6 rounded-lg">
-                            تعديل الملف
-                        </button>
-                        <button
-                            class="bg-transparent hover:bg-blue-700 text-white border border-white font-bold py-2 px-6 rounded-lg">
-                            مشاركة الملف
-                        </button>
-                    </div>
+
+                        <!-- مؤشر قوة كلمة المرور -->
+                        <div class="mb-4">
+                            <label class="small text-muted">قوة كلمة المرور:</label>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar" id="passwordStrength" role="progressbar" style="width: 0%"></div>
+                            </div>
+                            <small id="passwordStrengthText" class="text-muted"></small>
+                        </div>
+
+                        <!-- أزرار الإجراء -->
+                        <div class="form-group mb-0">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-save mr-2"></i>حفظ التغييرات
+                            </button>
+                            <a href="{{ route('dashboard') }}" class="btn btn-secondary btn-lg">
+                                <i class="fas fa-times mr-2"></i>إلغاء
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- معلومات إضافية -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-info">
+                        <i class="fas fa-info-circle mr-2"></i>معلومات الحساب
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">
+                            <i class="fas fa-user mr-2 text-primary"></i>الاسم:
+                        </dt>
+                        <dd class="col-sm-8">
+                            <strong>{{ Auth::user()->name }}</strong>
+                        </dd>
+
+                        <dt class="col-sm-4">
+                            <i class="fas fa-envelope mr-2 text-info"></i>البريد الإلكتروني:
+                        </dt>
+                        <dd class="col-sm-8">
+                            {{ Auth::user()->email }}
+                        </dd>
+
+                        @if(Auth::user()->phone)
+                        <dt class="col-sm-4">
+                            <i class="fas fa-phone mr-2 text-success"></i>رقم الهاتف:
+                        </dt>
+                        <dd class="col-sm-8">
+                            {{ Auth::user()->phone }}
+                        </dd>
+                        @endif
+
+                        <dt class="col-sm-4">
+                            <i class="fas fa-calendar mr-2 text-warning"></i>تاريخ التسجيل:
+                        </dt>
+                        <dd class="col-sm-8">
+                            {{ Auth::user()->created_at->format('Y-m-d') }}
+                        </dd>
+                    </dl>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</div>
 
-    <!-- Main Content -->
-    <section class="py-12">
-        <div class="container mx-auto px-6">
-            <div class="flex flex-col lg:flex-row gap-8">
-                <!-- Sidebar -->
-                <div class="lg:w-1/4">
-                    <div class="profile-card bg-white rounded-xl p-6 mb-6">
-                        <h3 class="text-xl font-bold text-blue-900 mb-4 gradient-text">معلوماتي</h3>
-                        <ul class="space-y-4">
-                            <li class="flex items-center">
-                                <i class="fas fa-envelope text-blue-500 w-6 text-center mr-3"></i>
-                                <span>{{ auth()->user()->email ?? 'لا يوجد' }}</span>
-                            </li>
-                            <li class="flex items-center">
-                                <i class="fas fa-phone text-blue-500 w-6 text-center mr-3"></i>
-                                <span>{{ auth()->user()->phone ?? 'لا يوجد' }}</span>
-                            </li>
-                            <li class="flex items-center">
-                                <i class="fas fa-map-marker-alt text-blue-500 w-6 text-center mr-3"></i>
-                                <span>{{ auth()->user()->address ?? 'لا يوجد' }}</span>
-                            </li>
-                            <li class="flex items-center">
-                                <i class="fas fa-calendar-alt text-blue-500 w-6 text-center mr-3"></i>
-                                <span>{{ auth()->user()->created_at->format('Y-m-d') ?? 'لا يوجد' }}</span>
-                            </li>
-                        </ul>
-                    </div>
+@push('scripts')
+<script>
+    // تبديل إظهار/إخفاء كلمة المرور
+    function togglePassword(inputId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(inputId + '_icon');
+        
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
 
-                    <div class="profile-card bg-white rounded-xl p-6 mb-6">
-                        <h3 class="text-xl font-bold text-blue-900 mb-4 gradient-text">إحصائياتي</h3>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="text-center">
-                                <div class="text-3xl font-bold text-blue-600">12</div>
-                                <div class="text-gray-600">دورة مكتملة</div>
-                            </div>
-                            <div class="text-center">
-                                <div class="text-3xl font-bold text-blue-600">5</div>
-                                <div class="text-gray-600">دورة جارية</div>
-                            </div>
-                            <div class="text-center">
-                                <div class="text-3xl font-bold text-blue-600">87%</div>
-                                <div class="text-gray-600">معدل الإنجاز</div>
-                            </div>
-                            <div class="text-center">
-                                <div class="text-3xl font-bold text-blue-600">1245</div>
-                                <div class="text-gray-600">نقطة</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    // التحقق من قوة كلمة المرور
+    document.getElementById('new_password').addEventListener('input', function() {
+        const password = this.value;
+        const strengthBar = document.getElementById('passwordStrength');
+        const strengthText = document.getElementById('passwordStrengthText');
+        
+        let strength = 0;
+        let strengthLabel = '';
+        let strengthColor = '';
+        
+        // فحص طول كلمة المرور
+        if (password.length >= 8) strength += 20;
+        if (password.length >= 12) strength += 10;
+        
+        // فحص الأحرف الكبيرة
+        if (/[A-Z]/.test(password)) strength += 20;
+        
+        // فحص الأحرف الصغيرة
+        if (/[a-z]/.test(password)) strength += 20;
+        
+        // فحص الأرقام
+        if (/[0-9]/.test(password)) strength += 15;
+        
+        // فحص الأحرف الخاصة
+        if (/[^A-Za-z0-9]/.test(password)) strength += 15;
+        
+        // تحديد التصنيف والألوان
+        if (strength < 30) {
+            strengthLabel = 'ضعيفة جداً';
+            strengthColor = 'danger';
+        } else if (strength < 50) {
+            strengthLabel = 'ضعيفة';
+            strengthColor = 'warning';
+        } else if (strength < 70) {
+            strengthLabel = 'متوسطة';
+            strengthColor = 'info';
+        } else if (strength < 85) {
+            strengthLabel = 'قوية';
+            strengthColor = 'success';
+        } else {
+            strengthLabel = 'قوية جداً';
+            strengthColor = 'success';
+        }
+        
+        // تحديث شريط التقدم
+        strengthBar.style.width = strength + '%';
+        strengthBar.className = 'progress-bar bg-' + strengthColor;
+        strengthText.textContent = strengthLabel;
+        
+        // إخفاء النص إذا كانت كلمة المرور فارغة
+        if (password.length === 0) {
+            strengthText.textContent = '';
+            strengthBar.style.width = '0%';
+        }
+    });
 
-                <!-- Main Content -->
-                <div class="lg:w-3/4">
-                    <!-- Tabs Navigation -->
-                    <div class="flex overflow-x-auto border-b border-gray-200 mb-8">
-                        <button class="tab-button px-6 py-3 font-medium text-lg active" data-tab="courses">
-                            دوراتي
-                        </button>
-                        <button class="tab-button px-6 py-3 font-medium text-lg" data-tab="achievements">
-                            إنجازاتي
-                        </button>
-                        <button class="tab-button px-6 py-3 font-medium text-lg" data-tab="certificates">
-                            شهاداتي
-                        </button>
-                        <button class="tab-button px-6 py-3 font-medium text-lg" data-tab="activity">
-                            النشاطات
-                        </button>
-                        <button class="tab-button px-6 py-3 font-medium text-lg" data-tab="settings">
-                            الإعدادات
-                        </button>
-                    </div>
+    // التحقق من تطابق كلمة المرور
+    document.getElementById('new_password_confirmation').addEventListener('input', function() {
+        const password = document.getElementById('new_password').value;
+        const confirmation = this.value;
+        
+        if (confirmation.length > 0) {
+            if (password !== confirmation) {
+                this.setCustomValidity('كلمة المرور غير متطابقة');
+                this.classList.add('is-invalid');
+            } else {
+                this.setCustomValidity('');
+                this.classList.remove('is-invalid');
+                this.classList.add('is-valid');
+            }
+        } else {
+            this.setCustomValidity('');
+            this.classList.remove('is-invalid', 'is-valid');
+        }
+    });
+</script>
+@endpush
 
-                    <!-- Tab Content -->
-                    <div id="courses-tab" class="tab-content">
-                        <div class="mb-8">
-                            <h3 class="text-2xl font-bold text-blue-900 mb-6 gradient-text">الدورات الجارية</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                @foreach (Auth::user()->userCourses as $course)
-                                    <!-- Course  -->
-                                    <div class="course-card bg-white rounded-xl overflow-hidden shadow-md">
-                                        <div class="relative">
-                                            <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
-                                                alt="برمجة تطبيقات الويب" class="w-full h-40 object-cover">
-                                            <div
-                                                class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
-                                                <h4 class="text-white font-bold">برمجة تطبيقات الويب باستخدام React.js
-                                                </h4>
-                                            </div>
-                                        </div>
-                                        <div class="p-6">
-                                            <div class="flex justify-between items-center mb-4">
-                                                <div class="flex items-center">
-                                                    <img src="https://randomuser.me/api/portraits/men/75.jpg"
-                                                        alt="المدرب" class="w-8 h-8 rounded-full mr-2">
-                                                    <span class="text-sm">خالد أحمد</span>
-                                                </div>
-                                                <span class="text-yellow-500">
-                                                    <i class="fas fa-star"></i> 4.9
-                                                </span>
-                                            </div>
-                                            <div class="mb-4">
-                                                <div class="flex justify-between text-sm mb-1">
-                                                    <span>التقدم</span>
-                                                    <span>65%</span>
-                                                </div>
-                                                <div class="w-full bg-gray-200 rounded-full h-2">
-                                                    <div class="bg-blue-600 h-2 rounded-full" style="width: 65%">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="flex justify-between">
-                                                <a href="#"
-                                                    class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                                    استكمال التعلم
-                                                </a>
-                                                <span class="text-gray-500 text-sm">12/18 درس</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Achievements Tab Content (Hidden by default) -->
-                    <div id="achievements-tab" class="tab-content hidden">
-                        <h3 class="text-2xl font-bold text-blue-900 mb-6 gradient-text">إنجازاتي</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            <!-- Achievement 1 -->
-                            <div class="bg-white rounded-xl p-6 shadow-md text-center">
-                                <div
-                                    class="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <i class="fas fa-trophy text-yellow-500 text-3xl"></i>
-                                </div>
-                                <h4 class="font-bold text-lg mb-2">المبتدئ المتميز</h4>
-                                <p class="text-gray-600 mb-4">أكملت 5 دورات بنجاح</p>
-                                <span class="text-sm text-gray-500">تم الحصول عليها في 15 مارس 2023</span>
-                            </div>
-
-                            <!-- Achievement 2 -->
-                            <div class="bg-white rounded-xl p-6 shadow-md text-center">
-                                <div
-                                    class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <i class="fas fa-medal text-blue-500 text-3xl"></i>
-                                </div>
-                                <h4 class="font-bold text-lg mb-2">المتعلم النشط</h4>
-                                <p class="text-gray-600 mb-4">سجلت في 10 دروس خلال أسبوع واحد</p>
-                                <span class="text-sm text-gray-500">تم الحصول عليها في 2 أبريل 2023</span>
-                            </div>
-
-                            <!-- Achievement 3 -->
-                            <div class="bg-white rounded-xl p-6 shadow-md text-center">
-                                <div
-                                    class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <i class="fas fa-star text-green-500 text-3xl"></i>
-                                </div>
-                                <h4 class="font-bold text-lg mb-2">المساهم المثالي</h4>
-                                <p class="text-gray-600 mb-4">ساعدت 5 زملاء في منتديات النقاش</p>
-                                <span class="text-sm text-gray-500">تم الحصول عليها في 8 مايو 2023</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Certificates Tab Content (Hidden by default) -->
-                    <div id="certificates-tab" class="tab-content hidden">
-                        <h3 class="text-2xl font-bold text-blue-900 mb-6 gradient-text">شهاداتي</h3>
-                        <div class="space-y-6">
-                            <!-- Certificate 1 -->
-                            <div class="bg-white rounded-xl overflow-hidden shadow-md">
-                                <div class="md:flex">
-                                    <div class="md:w-1/3">
-                                        <img src="https://images.unsplash.com/photo-1541462608143-67571c6738dd?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
-                                            alt="شهادة الذكاء الاصطناعي" class="w-full h-full object-cover">
-                                    </div>
-                                    <div class="md:w-2/3 p-6">
-                                        <h4 class="font-bold text-xl mb-2">شهادة إتمام دورة الذكاء الاصطناعي</h4>
-                                        <p class="text-gray-600 mb-4">تم منح هذه الشهادة لإتمامك بنجاح دورة "مقدمة في
-                                            تعلم الآلة والذكاء الاصطناعي"</p>
-                                        <div class="flex flex-wrap gap-4">
-                                            <div>
-                                                <p class="text-sm text-gray-500">تاريخ الإصدار</p>
-                                                <p class="font-medium">15 يونيو 2023</p>
-                                            </div>
-                                            <div>
-                                                <p class="text-sm text-gray-500">المدرب</p>
-                                                <p class="font-medium">خالد أحمد</p>
-                                            </div>
-                                            <div>
-                                                <p class="text-sm text-gray-500">المستوى</p>
-                                                <p class="font-medium">متوسط</p>
-                                            </div>
-                                        </div>
-                                        <div class="mt-6 flex space-x-reverse space-x-4">
-                                            <button
-                                                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">
-                                                <i class="fas fa-download mr-2"></i> تحميل الشهادة
-                                            </button>
-                                            <button
-                                                class="bg-white hover:bg-gray-100 text-blue-600 border border-blue-600 font-bold py-2 px-4 rounded-lg">
-                                                <i class="fas fa-share-alt mr-2"></i> مشاركة
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Certificate 2 -->
-                            <div class="bg-white rounded-xl overflow-hidden shadow-md">
-                                <div class="md:flex">
-                                    <div class="md:w-1/3">
-                                        <img src="https://images.unsplash.com/photo-1593642632823-8f785ba67e45?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
-                                            alt="شهادة تحليل البيانات" class="w-full h-full object-cover">
-                                    </div>
-                                    <div class="md:w-2/3 p-6">
-                                        <h4 class="font-bold text-xl mb-2">شهادة إتمام دورة تحليل البيانات</h4>
-                                        <p class="text-gray-600 mb-4">تم منح هذه الشهادة لإتمامك بنجاح دورة "تحليل
-                                            البيانات باستخدام Power BI"</p>
-                                        <div class="flex flex-wrap gap-4">
-                                            <div>
-                                                <p class="text-sm text-gray-500">تاريخ الإصدار</p>
-                                                <p class="font-medium">5 مايو 2023</p>
-                                            </div>
-                                            <div>
-                                                <p class="text-sm text-gray-500">المدرب</p>
-                                                <p class="font-medium">نورة السعيد</p>
-                                            </div>
-                                            <div>
-                                                <p class="text-sm text-gray-500">المستوى</p>
-                                                <p class="font-medium">مبتدئ</p>
-                                            </div>
-                                        </div>
-                                        <div class="mt-6 flex space-x-reverse space-x-4">
-                                            <button
-                                                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">
-                                                <i class="fas fa-download mr-2"></i> تحميل الشهادة
-                                            </button>
-                                            <button
-                                                class="bg-white hover:bg-gray-100 text-blue-600 border border-blue-600 font-bold py-2 px-4 rounded-lg">
-                                                <i class="fas fa-share-alt mr-2"></i> مشاركة
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    @include('components.web.footer')
-
-    <script>
-        // Tab switching functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const tabs = document.querySelectorAll('.tab-button');
-            const tabContents = document.querySelectorAll('.tab-content');
-
-            tabs.forEach(tab => {
-                tab.addEventListener('click', function() {
-                    // Remove active class from all tabs
-                    tabs.forEach(t => t.classList.remove('active'));
-                    // Add active class to clicked tab
-                    this.classList.add('active');
-
-                    // Hide all tab contents
-                    tabContents.forEach(content => content.classList.add('hidden'));
-                    // Show the selected tab content
-                    const tabId = this.getAttribute('data-tab') + '-tab';
-                    document.getElementById(tabId).classList.remove('hidden');
-                });
-            });
-
-            // Initialize progress circles
-            const progressCircles = document.querySelectorAll('.progress-ring__circle');
-            progressCircles.forEach(circle => {
-                const radius = circle.r.baseVal.value;
-                const circumference = 2 * Math.PI * radius;
-                const percent = parseFloat(circle.getAttribute('data-percent'));
-
-                circle.style.strokeDasharray = circumference;
-                circle.style.strokeDashoffset = circumference - (percent / 100) * circumference;
-            });
-        });
-    </script>
-</body>
-
-</html>
+@push('styles')
+<style>
+    .card {
+        border-radius: 0.5rem;
+    }
+    
+    .form-control:focus {
+        border-color: #4e73df;
+        box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+    }
+    
+    .form-group label {
+        margin-bottom: 0.5rem;
+    }
+    
+    .input-group-append button {
+        border-left: 0;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+    
+    #passwordStrength {
+        transition: width 0.3s ease, background-color 0.3s ease;
+    }
+    
+    .is-valid {
+        border-color: #28a745;
+    }
+    
+    .is-invalid {
+        border-color: #dc3545;
+    }
+</style>
+@endpush
+@endsection
