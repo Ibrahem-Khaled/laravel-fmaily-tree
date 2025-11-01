@@ -813,7 +813,7 @@
                 if (person.parent || person.mother) {
                     parentsHtml = '<h5>الوالدين</h5><div class="row g-2">';
                     if (person.parent) {
-                        const parentStatusText = person.parent.death_date ? 'متوفي (رحمه الله)' : 'الأب';
+                        const parentStatusText = person.parent.death_date ? '(رحمه الله)' : 'الأب';
                         parentsHtml += `
                             <div class="col-md-6">
                                 <div class="parent-card clickable ${person.parent.death_date ? 'is-deceased' : ''}" onclick="showPersonDetails(${person.parent.id})">
@@ -823,7 +823,7 @@
                             </div>`;
                     }
                     if (person.mother) {
-                        const motherStatusText = person.mother.death_date ? 'متوفاه (رحمها الله)' : 'الأم';
+                        const motherStatusText = person.mother.death_date ? '(رحمها الله)' : 'الأم';
                         parentsHtml += `
                             <div class="col-md-6">
                                 <div class="parent-card clickable ${person.mother.death_date ? 'is-deceased' : ''}" onclick="showPersonDetails(${person.mother.id})">
@@ -844,9 +844,18 @@
                     person.spouses.forEach(spouse => {
                         let spouseStatusText;
                         if (spouse.death_date) {
-                            spouseStatusText = spouse.gender === 'female' ? 'متوفاه (رحمها الله)' : 'متوفي (رحمه الله)';
+                            spouseStatusText = spouse.gender === 'female' ? '(رحمها الله)' : '(رحمه الله)';
                         } else {
                             spouseStatusText = spouse.gender === 'female' ? 'زوجة' : 'زوج';
+                        }
+
+                        // بناء full_name يدوياً إذا لم يكن موجوداً
+                        let spouseFullName = spouse.full_name || '';
+                        if (!spouseFullName && spouse.first_name) {
+                            spouseFullName = spouse.first_name;
+                            if (spouse.last_name) {
+                                spouseFullName += ' ' + spouse.last_name;
+                            }
                         }
 
                         spousesHtml += `
@@ -854,7 +863,7 @@
                                 <div class="spouse-card clickable ${spouse.death_date ? 'is-deceased' : ''}" onclick="showPersonDetails(${spouse.id})">
                                     ${createPhoto(spouse, 'sm', false)}
                                     <div>
-                                        <strong>${spouse.full_name}</strong>
+                                        <strong>${spouseFullName || spouse.first_name || 'غير معروف'}</strong>
                                         <small class="d-block text-muted">${spouseStatusText}</small>
                                     </div>
                                 </div>
@@ -894,7 +903,7 @@
                     <div class="row g-4">
                         <div class="col-lg-4 text-center">
                             <div class="d-inline-block ${person.death_date ? 'is-deceased' : ''}">${createPhoto(person, 'lg', false)}</div>
-                            <h4 class="mt-3 mb-1">${person.full_name}</h4>
+                            <h4 class="mt-3 mb-1">${person.full_name || person.first_name}</h4>
                             <!-- 🚫 لا نص "في ذمة الله" ولا "على قيد الحياة" هنا -->
                             ${galleryButtonHtml}
                             ${storiesBtnPlaceholder}
@@ -959,7 +968,7 @@
                     data.children.forEach(child => {
                         let statusText;
                         if (child.death_date) {
-                            statusText = child.gender === 'male' ? 'متوفي (رحمه الله)' : 'متوفاه (رحمها الله)';
+                            statusText = child.gender === 'male' ? '(رحمه الله)' : '(رحمها الله)';
                         } else {
                             statusText = child.gender === 'female' ? 'ابنة' : 'ابن';
                         }

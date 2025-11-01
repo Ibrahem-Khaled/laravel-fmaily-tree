@@ -132,7 +132,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     // Logs routes
     Route::get('logs/activity', [LogsController::class, 'activity'])->name('logs.activity');
     Route::get('logs/audits',   [LogsController::class, 'audits'])->name('logs.audits');
-    
+
     // Visit Logs routes
     Route::get('visit-logs', [VisitLogController::class, 'index'])->name('dashboard.visit-logs.index');
     Route::get('visit-logs/{visitLog}', [VisitLogController::class, 'show'])->name('dashboard.visit-logs.show');
