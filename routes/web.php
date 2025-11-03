@@ -16,6 +16,7 @@ use App\Http\Controllers\admin\ArticleController as AdminArticleController;
 use App\Http\Controllers\BreastfeedingPublicController;
 use App\Http\Controllers\FamilyTreeController;
 use App\Http\Controllers\GalleryController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\HomePersonController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\LogsController;
@@ -35,7 +36,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', [FamilyTreeController::class, 'index'])->name('old.family-tree');
+Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/sila', [FamilyTreeController::class, 'index'])->name('sila'); // صفحة صلة - شجرة العائلة
 Route::get('/family-tree', [FamilyTreeController::class, 'newIndex'])->name('family-tree');
 Route::get('/add-self', [FamilyTreeController::class, 'addSelf'])->name('add.self');
 
@@ -136,6 +138,11 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     // Visit Logs routes
     Route::get('visit-logs', [VisitLogController::class, 'index'])->name('dashboard.visit-logs.index');
     Route::get('visit-logs/{visitLog}', [VisitLogController::class, 'show'])->name('dashboard.visit-logs.show');
+
+    // Site Content routes
+    Route::get('site-content', [\App\Http\Controllers\admin\SiteContentController::class, 'index'])->name('dashboard.site-content.index');
+    Route::post('site-content/family-brief', [\App\Http\Controllers\admin\SiteContentController::class, 'updateFamilyBrief'])->name('dashboard.site-content.update-family-brief');
+    Route::post('site-content/whats-new', [\App\Http\Controllers\admin\SiteContentController::class, 'updateWhatsNew'])->name('dashboard.site-content.update-whats-new');
 });
 
 require __DIR__ . '/auth.php';

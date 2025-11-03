@@ -208,15 +208,21 @@
 <header class="custom-header">
     <div class="header-container">
 
-        <a class="header-brand" href="{{ route('old.family-tree') }}">
+        <a class="header-brand" href="{{ route('home') }}">
             <span>تواصل عائلة السريِّع </span>
         </a>
 
         <nav class="header-nav" id="main-nav">
             <ul class="header-nav-list">
                 <li>
-                    <a class="nav-link {{ request()->routeIs('old.family-tree') ? 'active' : '' }}"
-                        href="{{ route('old.family-tree') }}">الرئيسية</a>
+                    <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}"
+                        href="{{ route('home') }}">الرئيسية</a>
+                </li>
+                <li>
+                    <a class="nav-link {{ request()->routeIs('sila') ? 'active' : '' }}"
+                        href="{{ route('sila') }}">
+                        <i class="fas fa-sitemap me-1"></i>صلة
+                    </a>
                 </li>
                 {{-- <li>
                     <a class="nav-link {{ request()->routeIs('family-tree') ? 'active' : '' }}" href="{{ route('family-tree') }}">العرض الجديد</a>

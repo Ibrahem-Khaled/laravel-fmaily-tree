@@ -19,23 +19,8 @@ class PersonController extends Controller
         $gender = $request->input('gender');
         $familyStatus = $request->input('family_status');
 
-        $people = Person::query()
-            ->when($search !== '', function ($query) use ($search) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('first_name', 'like', "%{$search}%")
-                        ->orWhere('last_name', 'like', "%{$search}%")
-                        // الأب المباشر
-                        ->orWhereHas('parent', function ($p) use ($search) {
-                            $p->where('first_name', 'like', "%{$search}%")
-                                ->orWhere('last_name', 'like', "%{$search}%");
-                        })
-                        // جدّ الأب (اختياري إن كانت العلاقة متوفرة):
-                        ->orWhereHas('parent.parent', function ($gp) use ($search) {
-                            $gp->where('first_name', 'like', "%{$search}%")
-                                ->orWhere('last_name', 'like', "%{$search}%");
-                        });
-                });
-            })
+        // بناء الاستعلام الأساسي مع الفلاتر
+        $query = Person::query()
             ->when($gender, fn($q) => $q->where('gender', $gender))
             ->when($familyStatus !== null, function ($query) use ($familyStatus) {
                 if ($familyStatus === '1') {
@@ -45,10 +30,99 @@ class PersonController extends Controller
                     // خارج العائلة
                     $query->where('from_outside_the_family', true);
                 }
-                // إذا كان الفلتر فارغ، لا نطبق أي شرط
-            })
-            ->paginate(10)
-            ->withQueryString();
+            });
+
+        // إذا كان هناك بحث، نستخدم فلتر أولي بسيط (لتحسين الأداء)
+        // سنبحث في first_name فقط لأن full_name يبدأ بـ first_name
+        if ($search !== '') {
+            $searchTerm = trim($search);
+            // تقسيم نص البحث إلى كلمات
+            $words = explode(' ', $searchTerm);
+            $firstWord = $words[0]; // الكلمة الأولى (مثل "طلال")
+            
+            // فلتر أولي: البحث عن الأشخاص الذين يبدأ اسمهم بالكلمة الأولى
+            // هذا يحسن الأداء لأننا لن نحمل جميع الأشخاص
+            $query->where('first_name', 'like', "%{$firstWord}%");
+        }
+
+        // تحميل علاقات parent بشكل متداخل حتى عمق 10 لمطابقة full_name accessor
+        // نستخدم eager loading متداخل لضمان تحميل جميع العلاقات المطلوبة
+        $query->with([
+            'parent' => function($q1) {
+                $q1->with([
+                    'parent' => function($q2) {
+                        $q2->with([
+                            'parent' => function($q3) {
+                                $q3->with([
+                                    'parent' => function($q4) {
+                                        $q4->with([
+                                            'parent' => function($q5) {
+                                                $q5->with([
+                                                    'parent' => function($q6) {
+                                                        $q6->with([
+                                                            'parent' => function($q7) {
+                                                                $q7->with([
+                                                                    'parent' => function($q8) {
+                                                                        $q8->with([
+                                                                            'parent' => function($q9) {
+                                                                                $q9->with('parent');
+                                                                            }
+                                                                        ]);
+                                                                    }
+                                                                ]);
+                                                            }
+                                                        ]);
+                                                    }
+                                                ]);
+                                            }
+                                        ]);
+                                    }
+                                ]);
+                            }
+                        ]);
+                    }
+                ]);
+            }
+        ]);
+
+        // جلب جميع الأشخاص مع علاقات parent محملة
+        $allPeople = $query->get();
+
+        // فلترة النتائج في PHP بناءً على full_name المحسوب (دقيق أكثر)
+        if ($search !== '') {
+            $searchLower = mb_strtolower(trim($search), 'UTF-8');
+            $allPeople = $allPeople->filter(function ($person) use ($searchLower) {
+                try {
+                    // استخدام full_name accessor للبحث الدقيق
+                    // العلاقات محملة مسبقاً عبر eager loading
+                    $fullName = mb_strtolower($person->full_name, 'UTF-8');
+                    
+                    // البحث في full_name
+                    $found = mb_strpos($fullName, $searchLower) !== false;
+                    
+                    return $found;
+                } catch (\Exception $e) {
+                    // في حالة حدوث خطأ، نعيد false لتجاهل هذا الشخص
+                    \Log::warning("Error calculating full_name for person {$person->id}: " . $e->getMessage());
+                    return false;
+                }
+            })->values(); // إعادة فهرسة المجموعة
+        }
+
+        // إعادة pagination يدوياً باستخدام LengthAwarePaginator
+        $currentPage = request()->get('page', 1);
+        $perPage = 10;
+        $currentItems = $allPeople->slice(($currentPage - 1) * $perPage, $perPage)->values();
+        $people = new \Illuminate\Pagination\LengthAwarePaginator(
+            $currentItems,
+            $allPeople->count(),
+            $perPage,
+            $currentPage,
+            [
+                'path' => request()->url(),
+                'query' => request()->query(),
+            ]
+        );
 
         // لو جدولك الحقيقي اسمه "persons" فثبّت اسم الجدول في الموديل:
         // protected $table = 'persons';

@@ -54,17 +54,20 @@
     </div>
 
     <!-- Nav Item - Content Management Collapse -->
-    <li class="nav-item {{ request()->routeIs(['articles.*', 'categories.*', 'dashboard.images.*', 'stories.*']) ? 'active' : '' }}">
+    <li class="nav-item {{ request()->routeIs(['articles.*', 'categories.*', 'dashboard.images.*', 'stories.*', 'dashboard.site-content.*']) ? 'active' : '' }}">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseContent"
-           aria-expanded="{{ request()->routeIs(['articles.*', 'categories.*', 'dashboard.images.*', 'stories.*']) ? 'true' : 'false' }}"
+           aria-expanded="{{ request()->routeIs(['articles.*', 'categories.*', 'dashboard.images.*', 'stories.*', 'dashboard.site-content.*']) ? 'true' : 'false' }}"
            aria-controls="collapseContent">
             <i class="fas fa-fw fa-folder"></i>
             <span>المحتوى والوسائط</span>
         </a>
-        <div id="collapseContent" class="collapse {{ request()->routeIs(['articles.*', 'categories.*', 'dashboard.images.*', 'stories.*']) ? 'show' : '' }}"
+        <div id="collapseContent" class="collapse {{ request()->routeIs(['articles.*', 'categories.*', 'dashboard.images.*', 'stories.*', 'dashboard.site-content.*']) ? 'show' : '' }}"
              aria-labelledby="headingContent" data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">إدارة المحتوى:</h6>
+                <a class="collapse-item {{ request()->routeIs('dashboard.site-content.*') ? 'active' : '' }}" href="{{ route('dashboard.site-content.index') }}">
+                    <i class="fas fa-fw fa-home"></i> محتوى الموقع
+                </a>
                 <a class="collapse-item {{ request()->routeIs('articles.*') ? 'active' : '' }}" href="{{ route('articles.index') }}">
                     <i class="fas fa-fw fa-book"></i> المقالات
                 </a>

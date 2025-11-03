@@ -220,9 +220,77 @@ class Person extends BaseModel
         return $query->where(function ($q) use ($searchTerm) {
             $q->where('first_name', 'like', '%' . $searchTerm . '%')
               ->orWhere('last_name', 'like', '%' . $searchTerm . '%')
-              ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ['%' . $searchTerm . '%'])
+              ->orWhereRaw("CONCAT(COALESCE(first_name, ''), ' ', COALESCE(last_name, '')) LIKE ?", ['%' . $searchTerm . '%'])
               ->orWhereRaw("CONCAT(first_name, ' بن ', last_name) LIKE ?", ['%' . $searchTerm . '%'])
               ->orWhereRaw("CONCAT(first_name, ' بنت ', last_name) LIKE ?", ['%' . $searchTerm . '%']);
+        });
+    }
+
+    /**
+     * Scope for searching by full_name accessor
+     * يبحث في الاسم الكامل المعقد الذي يتضمن "بن"/"بنت" وأسماء الأباء
+     * يستخدم approach عملي: البحث في الأسماء مع علاقات parent
+     */
+    public function scopeSearchByFullName($query, $searchTerm)
+    {
+        if (empty($searchTerm)) {
+            return $query;
+        }
+
+        $searchPattern = '%' . $searchTerm . '%';
+
+        return $query->where(function ($q) use ($searchTerm, $searchPattern) {
+            // البحث في الاسم الأول والأخير للشخص نفسه
+            $q->where('first_name', 'like', $searchPattern)
+              ->orWhere('last_name', 'like', $searchPattern)
+              ->orWhereRaw("CONCAT(COALESCE(first_name, ''), ' ', COALESCE(last_name, '')) LIKE ?", [$searchPattern])
+              // البحث في الاسم الكامل للوالد (إذا كان البحث عن اسم والد)
+              ->orWhereHas('parent', function ($parentQuery) use ($searchTerm, $searchPattern) {
+                  $parentQuery->where(function ($p) use ($searchTerm, $searchPattern) {
+                      $p->where('first_name', 'like', $searchPattern)
+                        ->orWhere('last_name', 'like', $searchPattern)
+                        ->orWhereRaw("CONCAT(COALESCE(first_name, ''), ' ', COALESCE(last_name, '')) LIKE ?", [$searchPattern]);
+                  });
+              })
+              // البحث في الاسم الكامل للجد (إذا كان البحث عن اسم جد)
+              ->orWhereHas('parent.parent', function ($grandParentQuery) use ($searchTerm, $searchPattern) {
+                  $grandParentQuery->where('gender', 'male')
+                    ->where(function ($gp) use ($searchTerm, $searchPattern) {
+                        $gp->where('first_name', 'like', $searchPattern)
+                          ->orWhere('last_name', 'like', $searchPattern)
+                          ->orWhereRaw("CONCAT(COALESCE(first_name, ''), ' ', COALESCE(last_name, '')) LIKE ?", [$searchPattern]);
+                    });
+              })
+              // البحث في نمط متعدد المستويات (الاسم بن الأب بن الجد)
+              ->orWhere(function ($subQuery) use ($searchTerm, $searchPattern) {
+                  $subQuery->whereHas('parent', function ($parentQuery) use ($searchTerm, $searchPattern) {
+                      $parentQuery->where('gender', 'male')
+                        ->whereHas('parent', function ($grandParentQuery) use ($searchTerm, $searchPattern) {
+                            $grandParentQuery->where('gender', 'male')
+                              ->where(function ($gp) use ($searchTerm, $searchPattern) {
+                                  // البحث في أي جزء من النمط المعقد
+                                  $gp->where('first_name', 'like', $searchPattern);
+                              });
+                        });
+                  });
+              })
+              // البحث في الأشخاص الذين لديهم والد ذو اسم يطابق البحث (للحالات المعقدة)
+              ->orWhere(function ($subQuery) use ($searchTerm, $searchPattern) {
+                  $subQuery->whereHas('parent', function ($parentQuery) use ($searchTerm, $searchPattern) {
+                      $parentQuery->where('gender', 'male')
+                        ->where('first_name', 'like', $searchPattern);
+                  });
+              })
+              // البحث في الأشخاص الذين لديهم جد ذو اسم يطابق البحث (للحالات المعقدة)
+              ->orWhere(function ($subQuery) use ($searchTerm, $searchPattern) {
+                  $subQuery->whereHas('parent', function ($parentQuery) use ($searchTerm, $searchPattern) {
+                      $parentQuery->where('gender', 'male')
+                        ->whereHas('parent', function ($grandParentQuery) use ($searchTerm, $searchPattern) {
+                            $grandParentQuery->where('gender', 'male')
+                              ->where('first_name', 'like', $searchPattern);
+                        });
+                  });
+              });
         });
     }
 
