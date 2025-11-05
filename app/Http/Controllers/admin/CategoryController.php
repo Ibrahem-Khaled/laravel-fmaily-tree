@@ -151,4 +151,32 @@ class CategoryController extends Controller
 
         return back()->with('success', 'تم حذف التصنيف بنجاح.');
     }
+
+    public function deleteEmpty()
+    {
+        // البحث عن الأصناف التي لا تحتوي على مقالات أو صور أو أصناف فرعية
+        $emptyCategories = Category::whereDoesntHave('articles')
+            ->whereDoesntHave('images')
+            ->whereDoesntHave('children')
+            ->get();
+
+        $deletedCount = 0;
+
+        foreach ($emptyCategories as $category) {
+            // حذف الصورة إن وجدت
+            if ($category->image && Storage::disk('public')->exists($category->image)) {
+                Storage::disk('public')->delete($category->image);
+            }
+            $category->delete();
+            $deletedCount++;
+        }
+
+        return response()->json([
+            'success' => true,
+            'deleted_count' => $deletedCount,
+            'message' => $deletedCount > 0 
+                ? "تم حذف {$deletedCount} صنف بدون علاقات بنجاح." 
+                : "لا توجد أصناف بدون علاقات للحذف."
+        ]);
+    }
 }

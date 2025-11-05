@@ -17,9 +17,25 @@ class DashboardController extends Controller
         $totalPeople = Person::count();
         $totalMarriages = Marriage::count();
 
+        // الأشخاص الأحياء والمتوفين
+        $alivePeople = Person::whereNull('death_date')->count();
+        $deceasedPeople = Person::whereNotNull('death_date')->count();
+        
+        // عدد الذكور والإناث
+        $maleCount = Person::where('gender', 'male')->count();
+        $femaleCount = Person::where('gender', 'female')->count();
+        
+        // الأشخاص المضافة هذا الشهر
+        $peopleAddedThisMonth = Person::whereMonth('created_at', Carbon::now()->month)
+                                      ->whereYear('created_at', Carbon::now()->year)
+                                      ->count();
+        
+        // الزيجات هذا الشهر
+        $marriagesThisMonth = Marriage::whereMonth('created_at', Carbon::now()->month)
+                                     ->whereYear('created_at', Carbon::now()->year)
+                                     ->count();
+
         // حساب عدد الأجيال بالطريقة الصحيحة
-        // نستخدم withDepth() لحساب العمق أولاً، ثم نجد القيمة القصوى.
-        // ونضيف شرطاً للتحقق من وجود بيانات لتجنب الأخطاء في الجداول الفارغة.
         $totalGenerations = 0;
         if ($totalPeople > 0) {
             // The withDepth() scope calculates the depth for each node.
@@ -35,7 +51,7 @@ class DashboardController extends Controller
 
         $marriagesToday = Marriage::whereMonth('married_at', $today->month)
                                   ->whereDay('married_at', $today->day)
-                                  ->with(['husband', 'wife']) // لجلب بيانات الزوج والزوجة
+                                  ->with(['husband', 'wife'])
                                   ->get();
 
 
@@ -44,40 +60,61 @@ class DashboardController extends Controller
 
 
         // --- 4. أعياد ميلاد قادمة هذا الشهر ---
-        $upcomingBirthdays = Person::whereNull('death_date') // فقط الأشخاص الأحياء
+        $upcomingBirthdays = Person::whereNull('death_date')
                                    ->whereMonth('birth_date', $today->month)
-                                   ->whereDay('birth_date', '>=', $today->day) // من اليوم وحتى نهاية الشهر
-                                   ->orderBy('birth_date')
-                                   ->take(5)
+                                   ->whereDay('birth_date', '>=', $today->day)
+                                   ->orderByRaw('DAY(birth_date)')
+                                   ->take(10)
                                    ->get();
 
 
         // --- 5. حقائق شيقة عن العائلة ---
-        // ✅ تم الإصلاح: استخدام الدالة التجميعية مباشرة في الترتيب لضمان التوافق
-        // هذا الاستعلام يجد الـ parent_id الذي يظهر أكثر من غيره (أي الأب/الأم صاحب أكبر عدد من الأبناء)
         $mostChildrenParentData = DB::table('persons')
                                     ->select('parent_id', DB::raw('COUNT(id) as children_count'))
                                     ->whereNotNull('parent_id')
                                     ->groupBy('parent_id')
-                                    ->orderBy(DB::raw('COUNT(id)'), 'desc') // Order by the raw aggregate expression
+                                    ->orderBy(DB::raw('COUNT(id)'), 'desc')
                                     ->first();
 
         $personWithMostChildren = null;
         if ($mostChildrenParentData) {
             $personWithMostChildren = Person::find($mostChildrenParentData->parent_id);
-            // To display the count in the view, we can attach it to the model
             if ($personWithMostChildren) {
                 $personWithMostChildren->children_count = $mostChildrenParentData->children_count;
             }
         }
+        
+        // أكبر شخص سناً (على قيد الحياة)
+        $oldestPerson = Person::whereNull('death_date')
+                             ->whereNotNull('birth_date')
+                             ->orderBy('birth_date', 'asc')
+                             ->first();
+        
+        // أحدث زواج
+        $latestMarriage = Marriage::with(['husband', 'wife'])
+                                  ->latest('married_at')
+                                  ->first();
+        
+        // عدد الأشخاص المضافة هذا الأسبوع
+        $peopleAddedThisWeek = Person::whereBetween('created_at', [
+            Carbon::now()->startOfWeek(),
+            Carbon::now()->endOfWeek()
+        ])->count();
 
 
         // --- إرسال جميع البيانات إلى الـ View ---
         return view('dashboard.index', [
             'stats' => [
                 'totalPeople' => $totalPeople,
+                'alivePeople' => $alivePeople,
+                'deceasedPeople' => $deceasedPeople,
+                'maleCount' => $maleCount,
+                'femaleCount' => $femaleCount,
                 'totalMarriages' => $totalMarriages,
                 'totalGenerations' => $totalGenerations,
+                'peopleAddedThisMonth' => $peopleAddedThisMonth,
+                'marriagesThisMonth' => $marriagesThisMonth,
+                'peopleAddedThisWeek' => $peopleAddedThisWeek,
             ],
             'events' => [
                 'birthsToday' => $birthsToday,
@@ -87,6 +124,8 @@ class DashboardController extends Controller
             'upcomingBirthdays' => $upcomingBirthdays,
             'funFact' => [
                 'personWithMostChildren' => $personWithMostChildren,
+                'oldestPerson' => $oldestPerson,
+                'latestMarriage' => $latestMarriage,
             ]
         ]);
     }

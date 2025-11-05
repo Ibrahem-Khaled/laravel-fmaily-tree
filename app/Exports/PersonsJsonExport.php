@@ -9,7 +9,7 @@ class PersonsJsonExport
 {
     public function export()
     {
-        $persons = Person::all();
+        $persons = Person::with('location')->get();
         
         $data = $persons->map(function ($person) {
             return [
@@ -20,7 +20,7 @@ class PersonsJsonExport
                 'death_date' => $person->death_date ? $person->death_date->format('Y-m-d') : null,
                 'gender' => $person->gender,
                 'occupation' => $person->occupation,
-                'location' => $person->location,
+                'location' => $person->location_display ?? null,
                 'biography' => $person->biography,
                 'parent_id' => $person->parent_id,
                 '_lft' => $person->_lft,

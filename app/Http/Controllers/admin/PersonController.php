@@ -48,6 +48,7 @@ class PersonController extends Controller
         // تحميل علاقات parent بشكل متداخل حتى عمق 10 لمطابقة full_name accessor
         // نستخدم eager loading متداخل لضمان تحميل جميع العلاقات المطلوبة
         $query->with([
+            'location', // تحميل علاقة location
             'parent' => function($q1) {
                 $q1->with([
                     'parent' => function($q2) {
@@ -159,7 +160,7 @@ class PersonController extends Controller
             'photo' => 'nullable|image|max:2048',
             'biography' => 'nullable|string',
             'occupation' => 'nullable|string|max:100',
-            'location' => 'nullable|string|max:100',
+            'location_id' => 'nullable|exists:locations,id',
             'parent_id' => 'nullable|exists:persons,id',
             'mother_id' => 'nullable|exists:persons,id',
             'source_page' => 'nullable|string', // للتحقق من مصدر الطلب
@@ -168,6 +169,15 @@ class PersonController extends Controller
         // تأكد من أن اسم الحقل في قاعدة البيانات هو 'photo'
         if ($request->hasFile('photo')) {
             $validated['photo'] = $request->file('photo')->store('people-photos', 'public');
+        }
+
+        // معالجة location_id - إذا تم إرسال location_id، نستخدمه
+        // إذا تم إرسال location كنص فقط، نستخدم findOrCreateByName
+        if ($request->has('location_id') && $request->input('location_id')) {
+            $validated['location_id'] = $request->input('location_id');
+        } elseif ($request->has('location') && $request->input('location')) {
+            $location = \App\Models\Location::findOrCreateByName($request->input('location'));
+            $validated['location_id'] = $location->id;
         }
 
         // استخدام create لإنشاء الشخص مباشرة
@@ -207,7 +217,7 @@ class PersonController extends Controller
             'photo' => 'nullable|image|max:2048',
             'biography' => 'nullable|string',
             'occupation' => 'nullable|string|max:100',
-            'location' => 'nullable|string|max:100',
+            'location_id' => 'nullable|exists:locations,id',
             'parent_id' => 'nullable|exists:persons,id',
             'mother_id' => 'nullable|exists:persons,id', // إذا كنت تريد استخدام هذا الحقل
         ]);
@@ -217,6 +227,15 @@ class PersonController extends Controller
                 Storage::disk('public')->delete($person->photo_url);
             }
             $validated['photo_url'] = $request->file('photo')->store('people-photos', 'public');
+        }
+
+        // معالجة location_id - إذا تم إرسال location_id، نستخدمه
+        // إذا تم إرسال location كنص فقط، نستخدم findOrCreateByName
+        if ($request->has('location_id') && $request->input('location_id')) {
+            $validated['location_id'] = $request->input('location_id');
+        } elseif ($request->has('location') && $request->input('location')) {
+            $location = \App\Models\Location::findOrCreateByName($request->input('location'));
+            $validated['location_id'] = $location->id;
         }
 
         $person->update($validated);
@@ -299,9 +318,12 @@ class PersonController extends Controller
 
     public function show(Person $person)
     {
+        // تحميل علاقة location
+        $person->load('location');
+        
         // جلب قوائم الذكور والإناث اللازمة لمودال التعديل والنماذج
-        $males = Person::where('gender', 'male')->get();
-        $females = Person::where('gender', 'female')->get();
+        $males = Person::where('gender', 'male')->with('location')->get();
+        $females = Person::where('gender', 'female')->with('location')->get();
 
         // جلب الأبناء بناءً على جنس الشخص
         if ($person->gender === 'female') {

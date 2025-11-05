@@ -47,20 +47,49 @@ class TrackVisit
 
             // Generate request ID if not exists
             $requestId = $request->header('X-Request-ID') ?? (string) Str::uuid();
+            $sessionId = $request->session()->getId();
+            $currentUrl = $request->fullUrl();
+            $currentRoute = $request->route()?->getName();
+
+            // التحقق من آخر زيارة لنفس IP/Session
+            $lastVisit = VisitLog::where('ip_address', $ipAddress)
+                ->where('session_id', $sessionId)
+                ->latest('created_at')
+                ->first();
+
+            $duration = null;
+            $isUniqueVisit = true;
+
+            if ($lastVisit) {
+                // حساب المدة من آخر زيارة
+                $timeDiff = now()->diffInSeconds($lastVisit->created_at);
+                
+                // إذا كانت نفس الصفحة وتحدث خلال 5 ثوان، تعتبر تحديث وليست زيارة فريدة
+                if ($lastVisit->url === $currentUrl && $timeDiff < 5) {
+                    $isUniqueVisit = false;
+                } else {
+                    // المدة التي قضاها في الصفحة السابقة
+                    $duration = $timeDiff;
+                    // تحديث المدة في الزيارة السابقة
+                    $lastVisit->update(['duration' => $duration]);
+                }
+            }
 
             VisitLog::create([
                 'user_id' => auth()->id(),
                 'ip_address' => $ipAddress,
                 'user_agent' => $userAgent ?: null,
-                'url' => $request->fullUrl(),
+                'url' => $currentUrl,
                 'method' => $request->method(),
-                'route_name' => $request->route()?->getName(),
+                'route_name' => $currentRoute,
                 'referer' => $request->header('referer'),
                 'metadata' => $metadata,
-                'session_id' => $request->session()->getId(),
+                'session_id' => $sessionId,
                 'request_id' => $requestId,
                 'response_time' => round($responseTime, 2),
                 'status_code' => $response->getStatusCode(),
+                'duration' => $duration,
+                'is_unique_visit' => $isUniqueVisit,
             ]);
         } catch (\Exception $e) {
             // Log error but don't break the request

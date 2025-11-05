@@ -54,10 +54,13 @@ class PersonsIndex extends Component
     public function render()
     {
         $persons = Person::query()
+            ->with('location') // تحميل علاقة location للبحث
             ->where(function ($query) {
                 $query->where('first_name', 'like', '%' . $this->search . '%')
                     ->orWhere('last_name', 'like', '%' . $this->search . '%')
-                    ->orWhere('location', 'like', '%' . $this->search . '%')
+                    ->orWhereHas('location', function($q) {
+                        $q->where('name', 'like', '%' . $this->search . '%');
+                    })
                     ->orWhere('occupation', 'like', '%' . $this->search . '%');
             })
             ->orderBy($this->sortField, $this->sortDirection)

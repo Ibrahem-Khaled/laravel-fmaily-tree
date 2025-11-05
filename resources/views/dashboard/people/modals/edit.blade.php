@@ -138,8 +138,11 @@
 
                     <div class="form-group">
                         <label for="location_edit{{ $person->id }}">مكان الإقامة</label>
-                        <input type="text" class="form-control" id="location_edit{{ $person->id }}"
-                            name="location" value="{{ old('location', $person->location) }}">
+                        <input type="text" class="form-control location-autocomplete" id="location_edit{{ $person->id }}"
+                            name="location" value="{{ old('location', $person->location ? $person->location->display_name : '') }}" autocomplete="off" placeholder="ابدأ الكتابة للبحث...">
+                        <input type="hidden" id="location_id_edit{{ $person->id }}" name="location_id" value="{{ old('location_id', $person->location_id) }}">
+                        <small class="form-text text-muted">سيتم البحث تلقائياً في الأماكن الموجودة</small>
+                        <div id="location_suggestions_edit{{ $person->id }}" class="list-group mt-2" style="display: none; position: absolute; z-index: 1000; max-height: 200px; overflow-y: auto; width: 100%;"></div>
                     </div>
 
                     <div class="row">
@@ -244,6 +247,76 @@
                         motherSelect.innerHTML = '<option value="">-- حدث خطأ --</option>';
                     });
             });
+        });
+    });
+</script>
+
+{{-- JavaScript للـ Autocomplete للأماكن في نموذج التعديل --}}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // تهيئة Autocomplete لكل نموذج تعديل
+        document.querySelectorAll('.location-autocomplete').forEach(function(locationInput) {
+            const locationIdInput = document.getElementById(locationInput.id.replace('location_edit', 'location_id_edit').replace('create_location', 'create_location_id'));
+            const suggestionsDiv = document.getElementById(locationInput.id.replace('location_edit', 'location_suggestions_edit').replace('create_location', 'create_location_suggestions'));
+            let searchTimeout;
+
+            if (locationInput && locationIdInput && suggestionsDiv) {
+                locationInput.addEventListener('input', function() {
+                    const query = this.value.trim();
+
+                    clearTimeout(searchTimeout);
+                    
+                    if (query.length < 2) {
+                        suggestionsDiv.style.display = 'none';
+                        if (locationIdInput) locationIdInput.value = '';
+                        return;
+                    }
+
+                    searchTimeout = setTimeout(function() {
+                        fetch('{{ route("locations.autocomplete") }}?q=' + encodeURIComponent(query))
+                            .then(response => response.json())
+                            .then(data => {
+                                suggestionsDiv.innerHTML = '';
+                                
+                                if (data.length === 0) {
+                                    suggestionsDiv.innerHTML = '<div class="list-group-item text-muted">لا توجد نتائج</div>';
+                                    suggestionsDiv.style.display = 'block';
+                                    return;
+                                }
+
+                                data.forEach(function(location) {
+                                    const item = document.createElement('div');
+                                    item.className = 'list-group-item list-group-item-action';
+                                    item.style.cursor = 'pointer';
+                                    item.innerHTML = `
+                                        <strong>${location.name}</strong>
+                                        ${location.persons_count > 0 ? `<small class="text-muted">(${location.persons_count} شخص)</small>` : ''}
+                                    `;
+                                    
+                                    item.addEventListener('click', function() {
+                                        locationInput.value = location.name;
+                                        if (locationIdInput) locationIdInput.value = location.id;
+                                        suggestionsDiv.style.display = 'none';
+                                    });
+                                    
+                                    suggestionsDiv.appendChild(item);
+                                });
+                                
+                                suggestionsDiv.style.display = 'block';
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                            });
+                    }, 300);
+                });
+
+                // إخفاء الاقتراحات عند النقر خارجها
+                document.addEventListener('click', function(e) {
+                    if (!locationInput.contains(e.target) && !suggestionsDiv.contains(e.target)) {
+                        suggestionsDiv.style.display = 'none';
+                    }
+                });
+            }
         });
     });
 </script>

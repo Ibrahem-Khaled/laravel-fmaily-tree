@@ -23,9 +23,14 @@
         <div class="card shadow mb-4">
             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                 <h6 class="m-0 font-weight-bold text-primary">قائمة الأصناف</h6>
-                {{-- <button class="btn btn-primary" data-toggle="modal" data-target="#createCategoryModal">
-                    <i class="fas fa-plus fa-sm"></i> إضافة صنف جديد
-                </button> --}}
+                <div>
+                    <button class="btn btn-danger btn-sm" id="deleteEmptyCategoriesBtn" title="حذف الأصناف بدون علاقات">
+                        <i class="fas fa-trash"></i> حذف الأصناف بدون علاقات
+                    </button>
+                    {{-- <button class="btn btn-primary" data-toggle="modal" data-target="#createCategoryModal">
+                        <i class="fas fa-plus fa-sm"></i> إضافة صنف جديد
+                    </button> --}}
+                </div>
             </div>
             <div class="card-body">
                 {{-- نموذج البحث --}}
@@ -48,6 +53,9 @@
                             <tr>
                                 <th>الاسم</th>
                                 <th>الصنف الأب</th>
+                                <th>عدد المقالات</th>
+                                <th>عدد الصور</th>
+                                <th>عدد الأصناف الفرعية</th>
                                 <th>ترتيب الفرز</th>
                                 <th>الإجراءات</th>
                             </tr>
@@ -74,6 +82,21 @@
                                         @else
                                             <span class="badge badge-pill badge-secondary p-2">رئيسي</span>
                                         @endif
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-success" style="font-size: 0.9rem;">
+                                            <i class="fas fa-file-alt"></i> {{ $category->articles_count ?? 0 }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-info" style="font-size: 0.9rem;">
+                                            <i class="fas fa-image"></i> {{ $category->images_count ?? 0 }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-warning" style="font-size: 0.9rem;">
+                                            <i class="fas fa-folder"></i> {{ $category->children_count ?? 0 }}
+                                        </span>
                                     </td>
                                     <td><span class="badge badge-primary"
                                             style="font-size: 1rem;">{{ $category->sort_order }}</span></td>
@@ -103,7 +126,7 @@
 
                             @empty
                                 <tr>
-                                    <td colspan="4" class="text-center">لا توجد أصناف لعرضها.</td>
+                                    <td colspan="7" class="text-center">لا توجد أصناف لعرضها.</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -134,5 +157,40 @@
         $(function() {
             $('[data-toggle="tooltip"]').tooltip()
         })
+
+        // حذف الأصناف بدون علاقات
+        $('#deleteEmptyCategoriesBtn').on('click', function() {
+            if (!confirm('هل أنت متأكد من حذف جميع الأصناف التي لا تحتوي على مقالات أو صور أو أصناف فرعية؟')) {
+                return;
+            }
+
+            var btn = $(this);
+            btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> جاري الحذف...');
+
+            $.ajax({
+                url: '{{ route("categories.delete-empty") }}',
+                method: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        alert('تم حذف ' + response.deleted_count + ' صنف بدون علاقات بنجاح.');
+                        location.reload();
+                    } else {
+                        alert('حدث خطأ: ' + (response.message || 'لم يتم حذف أي أصناف'));
+                        btn.prop('disabled', false).html('<i class="fas fa-trash"></i> حذف الأصناف بدون علاقات');
+                    }
+                },
+                error: function(xhr) {
+                    var errorMsg = 'حدث خطأ أثناء الحذف';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMsg = xhr.responseJSON.message;
+                    }
+                    alert(errorMsg);
+                    btn.prop('disabled', false).html('<i class="fas fa-trash"></i> حذف الأصناف بدون علاقات');
+                }
+            });
+        });
     </script>
 @endpush

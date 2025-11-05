@@ -44,11 +44,82 @@
         font-weight: 700;
         color: var(--header-text-hover);
         text-decoration: none;
-        border: 2px solid var(--header-text);
-        padding: 0.5rem 1rem;
-        border-radius: 6px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        padding: 0.6rem 1.2rem;
+        border-radius: 8px;
         transition: all 0.3s ease;
-        border-color: #ffffff59;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
+        backdrop-filter: blur(10px);
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+        box-shadow:
+            0 4px 8px rgba(0, 0, 0, 0.2),
+            0 2px 4px rgba(0, 0, 0, 0.1),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3),
+            inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .header-brand::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .header-brand:hover::before {
+        left: 100%;
+    }
+
+    .header-brand::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: 6px;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%);
+        pointer-events: none;
+    }
+
+    .header-brand:hover {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.15) 100%);
+        border-color: rgba(255, 255, 255, 0.6);
+        transform: translateY(-2px);
+        box-shadow:
+            0 6px 12px rgba(0, 0, 0, 0.25),
+            0 4px 8px rgba(0, 0, 0, 0.15),
+            inset 0 2px 4px rgba(255, 255, 255, 0.4),
+            inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+        color: #ffffff;
+    }
+
+    .header-brand:active {
+        transform: translateY(0);
+        box-shadow:
+            0 2px 4px rgba(0, 0, 0, 0.2),
+            inset 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    .header-brand i {
+        transition: transform 0.3s ease;
+        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+    }
+
+    .header-brand:hover i {
+        transform: rotate(15deg) scale(1.1);
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+    }
+
+    .header-brand span {
+        position: relative;
+        z-index: 1;
     }
 
     /* --- قائمة الروابط الرئيسية --- */
@@ -208,8 +279,9 @@
 <header class="custom-header">
     <div class="header-container">
 
-        <a class="header-brand" href="{{ route('home') }}">
-            <span>تواصل عائلة السريِّع </span>
+        <a class="header-brand" href="{{ route('sila') }}" title="الرجوع للصفحة الرئيسية - شجرة العائلة">
+            <span>تواصل عائلة السريِّع</span>
+            <i class="fas fa-sitemap"></i>
         </a>
 
         <nav class="header-nav" id="main-nav">
@@ -245,11 +317,11 @@
                         <i class="fas fa-baby me-1"></i>الرضاعة
                     </a>
                 </li>
-                {{-- <li>
+                <li>
                     <a class="nav-link {{ request()->routeIs('reports.index') ? 'active' : '' }}" href="{{ route('reports.index') }}">
                         التقارير
                     </a>
-                </li> --}}
+                </li>
                 {{-- <li>
                     <a class="nav-link {{ request()->routeIs('about') ? 'active' : '' }}" href="#">عن العائلة</a>
                 </li> --}}

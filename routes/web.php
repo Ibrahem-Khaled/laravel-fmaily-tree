@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\admin\LocationController;
 use App\Http\Controllers\admin\ArticleController;
 use App\Http\Controllers\admin\BreastfeedingController;
 use App\Http\Controllers\admin\CategoryController;
@@ -46,6 +47,7 @@ Route::get('/article/{id}', [GalleryController::class, 'show'])->name('article.s
 Route::get('/gallery/articles', [GalleryController::class, 'articles'])->name('gallery.articles');
 Route::get('/person-gallery/{person}', [GalleryController::class, 'personGallery'])->name('person.gallery');
 Route::get('/reports', [ReportsController::class, 'index'])->name('reports.index');
+Route::get('/api/reports/person/{personId}/statistics', [ReportsController::class, 'getPersonStatistics'])->name('reports.person.statistics');
 
 Route::prefix('api')->group(function () {
     Route::get('/family-tree', [FamilyTreeController::class, 'getFamilyTree']);
@@ -107,8 +109,13 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::put('/categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
     Route::post('categories/quick-store', [CategoryController::class, 'store'])->name('categories.quick-store');
+    Route::post('categories/delete-empty', [CategoryController::class, 'deleteEmpty'])->name('categories.delete-empty');
 
-    // this route is for the admin panel
+    // Locations routes
+    Route::resource('locations', LocationController::class);
+    Route::get('locations/find-similar', [LocationController::class, 'findSimilar'])->name('locations.find-similar');
+    Route::get('locations/autocomplete', [LocationController::class, 'autocomplete'])->name('locations.autocomplete');
+    Route::post('locations/merge', [LocationController::class, 'merge'])->name('locations.merge');
     Route::resource('roles', RoleController::class)->middleware(['permission:roles.manage']);
     Route::resource('users', UserController::class)->only(['index', 'store', 'update', 'destroy'])->middleware(['permission:users.manage']);
     Route::patch('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status')->middleware(['permission:users.manage']);
@@ -143,6 +150,32 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::get('site-content', [\App\Http\Controllers\admin\SiteContentController::class, 'index'])->name('dashboard.site-content.index');
     Route::post('site-content/family-brief', [\App\Http\Controllers\admin\SiteContentController::class, 'updateFamilyBrief'])->name('dashboard.site-content.update-family-brief');
     Route::post('site-content/whats-new', [\App\Http\Controllers\admin\SiteContentController::class, 'updateWhatsNew'])->name('dashboard.site-content.update-whats-new');
+    
+    // Slideshow routes
+    Route::get('slideshow', [\App\Http\Controllers\admin\SiteContentController::class, 'slideshow'])->name('dashboard.slideshow.index');
+    Route::get('slideshow/{slideshowImage}', [\App\Http\Controllers\admin\SiteContentController::class, 'getSlideshowImage'])->name('dashboard.slideshow.show');
+    Route::post('slideshow/add', [\App\Http\Controllers\admin\SiteContentController::class, 'addSlideshowImage'])->name('dashboard.slideshow.add');
+    Route::post('slideshow/{slideshowImage}/update', [\App\Http\Controllers\admin\SiteContentController::class, 'updateSlideshowImage'])->name('dashboard.slideshow.update');
+    Route::post('slideshow/reorder', [\App\Http\Controllers\admin\SiteContentController::class, 'reorderSlideshow'])->name('dashboard.slideshow.reorder');
+    Route::delete('slideshow/{slideshowImage}', [\App\Http\Controllers\admin\SiteContentController::class, 'removeSlideshowImage'])->name('dashboard.slideshow.remove');
+    Route::post('slideshow/{slideshowImage}/toggle', [\App\Http\Controllers\admin\SiteContentController::class, 'toggleSlideshowImage'])->name('dashboard.slideshow.toggle');
+    
+    // Courses routes
+    Route::get('courses', [\App\Http\Controllers\admin\CourseController::class, 'index'])->name('dashboard.courses.index');
+    Route::post('courses', [\App\Http\Controllers\admin\CourseController::class, 'store'])->name('dashboard.courses.store');
+    Route::get('courses/{course}', [\App\Http\Controllers\admin\CourseController::class, 'show'])->name('dashboard.courses.show');
+    Route::post('courses/{course}/update', [\App\Http\Controllers\admin\CourseController::class, 'update'])->name('dashboard.courses.update');
+    Route::post('courses/reorder', [\App\Http\Controllers\admin\CourseController::class, 'reorder'])->name('dashboard.courses.reorder');
+    Route::delete('courses/{course}', [\App\Http\Controllers\admin\CourseController::class, 'destroy'])->name('dashboard.courses.destroy');
+    Route::post('courses/{course}/toggle', [\App\Http\Controllers\admin\CourseController::class, 'toggle'])->name('dashboard.courses.toggle');
+    
+    // Programs routes
+    Route::get('programs', [\App\Http\Controllers\admin\ProgramController::class, 'index'])->name('dashboard.programs.index');
+    Route::post('programs', [\App\Http\Controllers\admin\ProgramController::class, 'store'])->name('dashboard.programs.store');
+    Route::get('programs/{program}', [\App\Http\Controllers\admin\ProgramController::class, 'show'])->name('dashboard.programs.show');
+    Route::post('programs/{program}/update', [\App\Http\Controllers\admin\ProgramController::class, 'update'])->name('dashboard.programs.update');
+    Route::post('programs/reorder', [\App\Http\Controllers\admin\ProgramController::class, 'reorder'])->name('dashboard.programs.reorder');
+    Route::delete('programs/{program}', [\App\Http\Controllers\admin\ProgramController::class, 'destroy'])->name('dashboard.programs.destroy');
 });
 
 require __DIR__ . '/auth.php';

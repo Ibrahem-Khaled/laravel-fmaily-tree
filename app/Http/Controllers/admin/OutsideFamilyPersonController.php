@@ -28,7 +28,7 @@ class OutsideFamilyPersonController extends Controller
             'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'biography' => 'nullable|string',
             'occupation' => 'nullable|string|max:255',
-            'location' => 'nullable|string|max:255',
+            'location_id' => 'nullable|exists:locations,id',
             // تم تغيير الاسم ليعبر عن الغرض بشكل أفضل
             'marrying_person_id' => 'nullable|exists:persons,id',
         ]);
@@ -52,9 +52,18 @@ class OutsideFamilyPersonController extends Controller
                 $personData['photo_url'] = $path;
             }
 
+            // معالجة location_id - إذا تم إرسال location_id، نستخدمه
+            // إذا تم إرسال location كنص فقط، نستخدم findOrCreateByName
+            if ($request->has('location_id') && $request->input('location_id')) {
+                $personData['location_id'] = $request->input('location_id');
+            } elseif ($request->has('location') && $request->input('location')) {
+                $location = \App\Models\Location::findOrCreateByName($request->input('location'));
+                $personData['location_id'] = $location->id;
+            }
+
             // إزالة الحقول غير الموجودة في $fillable أو التي لا نريدها في الإنشاء المباشر
             $marryingPersonId = $personData['marrying_person_id'] ?? null;
-            unset($personData['photo'], $personData['marrying_person_id']);
+            unset($personData['photo'], $personData['marrying_person_id'], $personData['location'] ?? null);
 
             $newlyAddedPerson = Person::create($personData);
 

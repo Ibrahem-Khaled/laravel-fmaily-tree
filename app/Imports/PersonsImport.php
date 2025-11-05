@@ -3,6 +3,7 @@
 namespace App\Imports;
 
 use App\Models\Person;
+use App\Models\Location;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -33,7 +34,7 @@ class PersonsImport implements ToCollection, WithHeadingRow
                     'death_date' => !empty($row['تاريخ_الوفاة']) ? Carbon::parse($row['تاريخ_الوفاة']) : null,
                     'gender' => $row['الجنس'],
                     'occupation' => $row['المهنة'] ?? null,
-                    'location' => $row['المكان'] ?? null,
+                    'location_id' => !empty($row['المكان']) ? Location::findOrCreateByName($row['المكان'])->id : null,
                     'biography' => $row['السيرة_الذاتية'] ?? null,
                     'parent_id' => $row['معرف_الأب_الأم'] ?? null,
                     '_lft' => $row['_lft'] ?? null,

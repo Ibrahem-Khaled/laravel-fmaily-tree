@@ -188,7 +188,7 @@
                                     <td>{{ $person->life_span ?? 'غير معروف' }}</td>
                                     <td>{{ $person->occupation ?? '-' }}</td>
                                     <td>{{ $person->birth_place ?? '-' }}</td>
-                                    <td>{{ $person->location ?? '-' }}</td>
+                                    <td>{{ $person->location_display ?? '-' }}</td>
                                     <td>
                                         <button type="button" class="btn btn-sm btn-circle btn-primary" data-toggle="modal"
                                             data-target="#editPersonModal{{ $person->id }}" title="تعديل">

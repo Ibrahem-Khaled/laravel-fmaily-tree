@@ -515,7 +515,10 @@
                     </div>
                     <div>
                         <label for="location" class="form-label">مكان الإقامة</label>
-                        <input type="text" class="form-input" id="location" name="location" value="{{ old('location') }}">
+                        <input type="text" class="form-input location-autocomplete" id="location" name="location" value="{{ old('location') }}" autocomplete="off" placeholder="ابدأ الكتابة للبحث...">
+                        <input type="hidden" id="location_id" name="location_id" value="{{ old('location_id') }}">
+                        <small class="form-text text-muted mt-1 block">سيتم البحث تلقائياً في الأماكن الموجودة</small>
+                        <div id="location_suggestions" class="list-group mt-2" style="display: none; position: absolute; z-index: 1000; max-height: 200px; overflow-y: auto; width: 100%; background: white; border: 1px solid #ddd; border-radius: 4px;"></div>
                     </div>
                 </div>
                 <div>
@@ -911,6 +914,72 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Initialize first step
     showStep(0);
+
+    // Location Autocomplete
+    const locationInput = document.getElementById('location');
+    const locationIdInput = document.getElementById('location_id');
+    const suggestionsDiv = document.getElementById('location_suggestions');
+    let searchTimeout;
+
+    if (locationInput && locationIdInput && suggestionsDiv) {
+        locationInput.addEventListener('input', function() {
+            const query = this.value.trim();
+
+            clearTimeout(searchTimeout);
+            
+            if (query.length < 2) {
+                suggestionsDiv.style.display = 'none';
+                locationIdInput.value = '';
+                return;
+            }
+
+            searchTimeout = setTimeout(function() {
+                fetch('{{ route("locations.autocomplete") }}?q=' + encodeURIComponent(query))
+                    .then(response => response.json())
+                    .then(data => {
+                        suggestionsDiv.innerHTML = '';
+                        
+                        if (data.length === 0) {
+                            suggestionsDiv.innerHTML = '<div class="list-group-item text-muted">لا توجد نتائج</div>';
+                            suggestionsDiv.style.display = 'block';
+                            return;
+                        }
+
+                        data.forEach(function(location) {
+                            const item = document.createElement('div');
+                            item.className = 'list-group-item list-group-item-action';
+                            item.style.cursor = 'pointer';
+                            item.style.padding = '10px';
+                            item.style.borderBottom = '1px solid #eee';
+                            item.innerHTML = `
+                                <strong>${location.name}</strong>
+                                ${location.persons_count > 0 ? `<small class="text-muted">(${location.persons_count} شخص)</small>` : ''}
+                            `;
+                            
+                            item.addEventListener('click', function() {
+                                locationInput.value = location.name;
+                                locationIdInput.value = location.id;
+                                suggestionsDiv.style.display = 'none';
+                            });
+                            
+                            suggestionsDiv.appendChild(item);
+                        });
+                        
+                        suggestionsDiv.style.display = 'block';
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            }, 300);
+        });
+
+        // إخفاء الاقتراحات عند النقر خارجها
+        document.addEventListener('click', function(e) {
+            if (!locationInput.contains(e.target) && !suggestionsDiv.contains(e.target)) {
+                suggestionsDiv.style.display = 'none';
+            }
+        });
+    }
 });
 </script>
 

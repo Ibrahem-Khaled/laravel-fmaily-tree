@@ -106,7 +106,7 @@
                             </tr>
                             <tr>
                                 <th>مكان الإقامة</th>
-                                <td>{{ $person->location ?? '-' }}</td>
+                                <td>{{ $person->location_display ?? '-' }}</td>
                             </tr>
                             <tr>
                                 <th>مكان الوفاة</th>

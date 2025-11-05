@@ -125,8 +125,11 @@
 
                     <div class="form-group">
                         <label for="create_location">مكان الإقامة</label>
-                        <input type="text" class="form-control" id="create_location" name="location"
-                            value="{{ old('location') }}">
+                        <input type="text" class="form-control location-autocomplete" id="create_location" name="location"
+                            value="{{ old('location') }}" autocomplete="off" placeholder="ابدأ الكتابة للبحث...">
+                        <input type="hidden" id="create_location_id" name="location_id" value="{{ old('location_id') }}">
+                        <small class="form-text text-muted">سيتم البحث تلقائياً في الأماكن الموجودة</small>
+                        <div id="create_location_suggestions" class="list-group mt-2" style="display: none; position: absolute; z-index: 1000; max-height: 200px; overflow-y: auto; width: 100%;"></div>
                     </div>
 
                     {{-- Death Place and Cemetery --}}
@@ -169,3 +172,71 @@
         </div>
     </div>
 </div>
+
+{{-- JavaScript للـ Autocomplete للأماكن --}}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const locationInput = document.getElementById('create_location');
+        const locationIdInput = document.getElementById('create_location_id');
+        const suggestionsDiv = document.getElementById('create_location_suggestions');
+        let searchTimeout;
+
+        if (locationInput && locationIdInput && suggestionsDiv) {
+            locationInput.addEventListener('input', function() {
+                const query = this.value.trim();
+
+                clearTimeout(searchTimeout);
+                
+                if (query.length < 2) {
+                    suggestionsDiv.style.display = 'none';
+                    locationIdInput.value = '';
+                    return;
+                }
+
+                searchTimeout = setTimeout(function() {
+                    fetch('{{ route("locations.autocomplete") }}?q=' + encodeURIComponent(query))
+                        .then(response => response.json())
+                        .then(data => {
+                            suggestionsDiv.innerHTML = '';
+                            
+                            if (data.length === 0) {
+                                suggestionsDiv.innerHTML = '<div class="list-group-item text-muted">لا توجد نتائج</div>';
+                                suggestionsDiv.style.display = 'block';
+                                return;
+                            }
+
+                            data.forEach(function(location) {
+                                const item = document.createElement('div');
+                                item.className = 'list-group-item list-group-item-action';
+                                item.style.cursor = 'pointer';
+                                item.innerHTML = `
+                                    <strong>${location.name}</strong>
+                                    ${location.persons_count > 0 ? `<small class="text-muted">(${location.persons_count} شخص)</small>` : ''}
+                                `;
+                                
+                                item.addEventListener('click', function() {
+                                    locationInput.value = location.name;
+                                    locationIdInput.value = location.id;
+                                    suggestionsDiv.style.display = 'none';
+                                });
+                                
+                                suggestionsDiv.appendChild(item);
+                            });
+                            
+                            suggestionsDiv.style.display = 'block';
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                }, 300);
+            });
+
+            // إخفاء الاقتراحات عند النقر خارجها
+            document.addEventListener('click', function(e) {
+                if (!locationInput.contains(e.target) && !suggestionsDiv.contains(e.target)) {
+                    suggestionsDiv.style.display = 'none';
+                }
+            });
+        }
+    });
+</script>

@@ -90,6 +90,11 @@ class FamilyTreeView extends Component
 
     protected function formatPersonData($person)
     {
+        // تحميل علاقة location إذا لم تكن محملة
+        if (!$person->relationLoaded('location') && $person->location_id) {
+            $person->load('location');
+        }
+        
         return [
             'id' => $person->id,
             'name' => $person->full_name,
@@ -98,7 +103,7 @@ class FamilyTreeView extends Component
             'gender' => $person->gender,
             'photo_url' => $person->photo_url ? asset('storage/' . $person->photo_url) : null,
             'occupation' => $person->occupation,
-            'location' => $person->location,
+            'location' => $person->location_display ?? null,
             'biography' => $person->biography,
             'parent_id' => $person->parent_id,
         ];

@@ -24,7 +24,7 @@ class Person extends BaseModel
         'photo_url',
         'biography',
         'occupation',
-        'location',
+        'location_id', // المرجع الجديد لجدول locations
         'parent_id',
         'mother_id',
     ];
@@ -41,6 +41,39 @@ class Person extends BaseModel
     {
         // ✅ الخطوة 2: تطبيق الـ Scope بشكل دائم على الموديل
         static::addGlobalScope(new OrderedScope);
+        
+        // تحديث عداد الأشخاص عند ربط أو فك ربط شخص بمكان
+        static::saved(function ($person) {
+            if ($person->isDirty('location_id')) {
+                // تحديث العداد للمكان القديم
+                if ($person->getOriginal('location_id')) {
+                    $oldLocation = Location::find($person->getOriginal('location_id'));
+                    if ($oldLocation) {
+                        $oldLocation->persons_count = $oldLocation->persons()->count();
+                        $oldLocation->save();
+                    }
+                }
+                
+                // تحديث العداد للمكان الجديد
+                if ($person->location_id) {
+                    $newLocation = Location::find($person->location_id);
+                    if ($newLocation) {
+                        $newLocation->persons_count = $newLocation->persons()->count();
+                        $newLocation->save();
+                    }
+                }
+            }
+        });
+        
+        static::deleted(function ($person) {
+            if ($person->location_id) {
+                $location = Location::find($person->location_id);
+                if ($location) {
+                    $location->persons_count = $location->persons()->count();
+                    $location->save();
+                }
+            }
+        });
     }
 
 
@@ -117,6 +150,11 @@ class Person extends BaseModel
     public function mother()
     {
         return $this->belongsTo(Person::class, 'mother_id');
+    }
+
+    public function location()
+    {
+        return $this->belongsTo(Location::class);
     }
 
     public function childrenFromMother()
@@ -332,5 +370,16 @@ class Person extends BaseModel
         }
         // هذا يعمل كحل بديل إذا لم يتم تحميل العلاقة
         return optional($this->articles()->first())->id;
+    }
+
+    /**
+     * Accessor لعرض مكان الإقامة بشكل منظم
+     */
+    public function getLocationDisplayAttribute(): ?string
+    {
+        if ($this->location) {
+            return $this->location->display_name;
+        }
+        return null;
     }
 }

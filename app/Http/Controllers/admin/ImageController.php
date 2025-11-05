@@ -219,6 +219,10 @@ class ImageController extends Controller
                 'file_size' => $image->file_size,
                 'file_extension' => $image->file_extension,
                 'category_id' => $image->category_id,
+                'is_program' => $image->is_program,
+                'program_title' => $image->program_title,
+                'program_description' => $image->program_description,
+                'program_order' => $image->program_order,
                 'mentioned_persons' => $image->mentionedPersons->pluck('id')->toArray(),
             ]
         ]);
@@ -238,6 +242,10 @@ class ImageController extends Controller
             'mentioned_persons.*' => ['exists:persons,id'],
             'pdf_thumbnail' => ['nullable', 'image', 'max:10000'], // 10MB limit for PDF thumbnails
             'youtube_thumbnail' => ['nullable', 'image', 'max:10000'], // 10MB limit for YouTube thumbnails
+            'is_program' => ['nullable', 'boolean'],
+            'program_title' => ['nullable', 'string', 'max:255'],
+            'program_description' => ['nullable', 'string'],
+            'program_order' => ['nullable', 'integer'],
         ]);
 
         DB::transaction(function () use ($request, $image) {
@@ -245,6 +253,10 @@ class ImageController extends Controller
                 'name' => $request->name,
                 'description' => $request->description,
                 'category_id' => $request->category_id,
+                'is_program' => $request->has('is_program') ? (bool)$request->is_program : false,
+                'program_title' => $request->program_title,
+                'program_description' => $request->program_description,
+                'program_order' => $request->program_order ?? 0,
             ];
 
             // إذا تم رفع صورة جديدة

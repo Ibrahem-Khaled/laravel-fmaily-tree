@@ -14,7 +14,7 @@ class PersonsExport implements FromCollection, WithHeadings, WithMapping
     */
     public function collection()
     {
-        return Person::all();
+        return Person::with('location')->get();
     }
 
     /**
@@ -52,7 +52,7 @@ class PersonsExport implements FromCollection, WithHeadings, WithMapping
             $person->death_date ? $person->death_date->format('Y-m-d') : null,
             $person->gender,
             $person->occupation,
-            $person->location,
+            $person->location_display ?? null,
             $person->biography,
             $person->parent_id,
             $person->_lft,

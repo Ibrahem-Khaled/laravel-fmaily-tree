@@ -142,7 +142,7 @@ class FamilyTreeController extends Controller
         $person = Person::select(['id', 'gender'])->findOrFail($id);
         $childrenQuery = Person::select([
             'id', 'first_name', 'last_name', 'gender', 'birth_date', 'birth_place', 'death_date',
-            'death_place', 'cemetery', 'photo_url', 'parent_id', 'mother_id'
+            'death_place', 'cemetery', 'photo_url', 'parent_id', 'mother_id', 'location_id'
         ]);
 
         // التحقق من جنس الشخص لتحديد كيفية البحث عن الأبناء
@@ -155,7 +155,8 @@ class FamilyTreeController extends Controller
         }
 
         // جلب الأبناء مع عدد أبنائهم محسن للأداء
-        $children = $childrenQuery->withCount([
+        $children = $childrenQuery->with('location:id,name,normalized_name') // تحميل علاقة location
+            ->withCount([
             'children as children_count',
             'childrenFromMother as children_from_mother_count'
         ])->get();
@@ -199,11 +200,12 @@ class FamilyTreeController extends Controller
         // Eager load relationships محسن للأداء - تحديد الحقول المطلوبة فقط
         $person = Person::select([
             'id', 'first_name', 'last_name', 'gender', 'birth_date', 'birth_place', 'death_date',
-            'death_place', 'cemetery', 'photo_url', 'biography', 'occupation', 'location', 'parent_id', 'mother_id'
+            'death_place', 'cemetery', 'photo_url', 'biography', 'occupation', 'location_id', 'parent_id', 'mother_id'
         ])
         ->with([
             'parent:id,first_name,last_name,gender,birth_date,death_date,photo_url',
             'mother:id,first_name,last_name,gender,birth_date,death_date,photo_url',
+            'location:id,name,normalized_name', // تحميل علاقة location
             'articles:id,title,person_id'
         ])
         ->withCount('mentionedImages')
@@ -245,7 +247,7 @@ class FamilyTreeController extends Controller
         $person = Person::select(['id', 'gender'])->findOrFail($id);
         $childrenQuery = Person::select([
             'id', 'first_name', 'last_name', 'gender', 'birth_date', 'birth_place', 'death_date',
-            'death_place', 'cemetery', 'photo_url', 'parent_id', 'mother_id'
+            'death_place', 'cemetery', 'photo_url', 'parent_id', 'mother_id', 'location_id'
         ]);
 
         // التحقق من جنس الشخص لتحديد كيفية البحث عن الأبناء
@@ -258,7 +260,8 @@ class FamilyTreeController extends Controller
         }
 
         // جلب الأبناء مع عدد أبنائهم محسن للأداء
-        $children = $childrenQuery->withCount([
+        $children = $childrenQuery->with('location:id,name,normalized_name') // تحميل علاقة location
+            ->withCount([
             'children as children_count',
             'childrenFromMother as children_from_mother_count'
         ])->get();
@@ -338,7 +341,7 @@ class FamilyTreeController extends Controller
 
         if ($fullDetails) {
             $data['occupation'] = $person->occupation;
-            $data['location'] = $person->location;
+            $data['location'] = $person->location_display ?? null; // استخدام location_display accessor
             $data['biography'] = $person->biography;
 
             if ($person->parent) {

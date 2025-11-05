@@ -23,12 +23,16 @@ class VisitLog extends Model
         'request_id',
         'response_time',
         'status_code',
+        'duration',
+        'is_unique_visit',
     ];
 
     protected $casts = [
         'metadata' => 'array',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'duration' => 'integer',
+        'is_unique_visit' => 'boolean',
     ];
 
     /**

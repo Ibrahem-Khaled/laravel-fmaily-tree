@@ -76,7 +76,10 @@
 
                     <div class="form-group">
                         <label for="outside_location">مكان الإقامة</label>
-                        <input type="text" class="form-control" id="outside_location" name="location">
+                        <input type="text" class="form-control location-autocomplete" id="outside_location" name="location" autocomplete="off" placeholder="ابدأ الكتابة للبحث...">
+                        <input type="hidden" id="outside_location_id" name="location_id">
+                        <small class="form-text text-muted">سيتم البحث تلقائياً في الأماكن الموجودة</small>
+                        <div id="outside_location_suggestions" class="list-group mt-2" style="display: none; position: absolute; z-index: 1000; max-height: 200px; overflow-y: auto; width: 100%;"></div>
                     </div>
 
                     <div class="form-group">
@@ -147,4 +150,68 @@
 
         });
     });
+
+    // Location Autocomplete
+    const outsideLocationInput = document.getElementById('outside_location');
+    const outsideLocationIdInput = document.getElementById('outside_location_id');
+    const outsideSuggestionsDiv = document.getElementById('outside_location_suggestions');
+    let searchTimeout;
+
+    if (outsideLocationInput && outsideLocationIdInput && outsideSuggestionsDiv) {
+        outsideLocationInput.addEventListener('input', function() {
+            const query = this.value.trim();
+
+            clearTimeout(searchTimeout);
+            
+            if (query.length < 2) {
+                outsideSuggestionsDiv.style.display = 'none';
+                outsideLocationIdInput.value = '';
+                return;
+            }
+
+            searchTimeout = setTimeout(function() {
+                fetch('{{ route("locations.autocomplete") }}?q=' + encodeURIComponent(query))
+                    .then(response => response.json())
+                    .then(data => {
+                        outsideSuggestionsDiv.innerHTML = '';
+                        
+                        if (data.length === 0) {
+                            outsideSuggestionsDiv.innerHTML = '<div class="list-group-item text-muted">لا توجد نتائج</div>';
+                            outsideSuggestionsDiv.style.display = 'block';
+                            return;
+                        }
+
+                        data.forEach(function(location) {
+                            const item = document.createElement('div');
+                            item.className = 'list-group-item list-group-item-action';
+                            item.style.cursor = 'pointer';
+                            item.innerHTML = `
+                                <strong>${location.name}</strong>
+                                ${location.persons_count > 0 ? `<small class="text-muted">(${location.persons_count} شخص)</small>` : ''}
+                            `;
+                            
+                            item.addEventListener('click', function() {
+                                outsideLocationInput.value = location.name;
+                                outsideLocationIdInput.value = location.id;
+                                outsideSuggestionsDiv.style.display = 'none';
+                            });
+                            
+                            outsideSuggestionsDiv.appendChild(item);
+                        });
+                        
+                        outsideSuggestionsDiv.style.display = 'block';
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            }, 300);
+        });
+
+        // إخفاء الاقتراحات عند النقر خارجها
+        document.addEventListener('click', function(e) {
+            if (!outsideLocationInput.contains(e.target) && !outsideSuggestionsDiv.contains(e.target)) {
+                outsideSuggestionsDiv.style.display = 'none';
+            }
+        });
+    }
 </script>

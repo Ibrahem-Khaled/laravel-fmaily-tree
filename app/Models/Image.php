@@ -20,7 +20,11 @@ class Image extends BaseModel
         'file_size',
         'file_extension',
         'article_id',
-        'category_id'
+        'category_id',
+        'is_program',
+        'program_title',
+        'program_description',
+        'program_order'
     ];
 
     public function article(): BelongsTo
@@ -180,5 +184,23 @@ class Image extends BaseModel
     public function hasCustomThumbnail(): bool
     {
         return !empty($this->thumbnail_path);
+    }
+    
+    /**
+     * جلب البرامج النشطة مرتبة
+     */
+    public static function getActivePrograms()
+    {
+        return self::where('is_program', true)
+            ->whereNotNull('path')
+            ->where(function($query) {
+                $query->whereNull('youtube_url')
+                      ->where(function($q) {
+                          $q->where('media_type', 'image')
+                            ->orWhereNull('media_type');
+                      });
+            })
+            ->orderBy('program_order')
+            ->get();
     }
 }

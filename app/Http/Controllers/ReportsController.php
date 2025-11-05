@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Person;
+use App\Models\Category;
+use App\Models\Article;
+use App\Models\Location;
 use Illuminate\Support\Facades\DB;
 
 class ReportsController extends Controller
@@ -29,32 +32,25 @@ class ReportsController extends Controller
             ->whereNull('death_date')
             ->count();
 
-        // عدد حملة الماجستير الأحياء (البحث في occupation أو biography)
-        $masterDegreeCount = Person::where('from_outside_the_family', false)
-            ->whereNull('death_date')
-            ->where(function($query) {
-                $query->where('occupation', 'like', '%ماجستير%')
-                      ->orWhere('biography', 'like', '%ماجستير%')
-                      ->orWhere('occupation', 'like', '%Master%')
-                      ->orWhere('biography', 'like', '%Master%');
-            })
-            ->count();
+        // عدد مقالات فئة الماجستير
+        $masterCategoryIds = Category::where(function($query) {
+            $query->where('name', 'like', '%ماجستير%')
+                  ->orWhere('name', 'like', '%Master%');
+        })->pluck('id');
 
-        // عدد حملة الدكتوراه الأحياء
-        $phdCount = Person::where('from_outside_the_family', false)
-            ->whereNull('death_date')
-            ->where(function($query) {
-                $query->where('occupation', 'like', '%دكتوراه%')
-                      ->orWhere('biography', 'like', '%دكتوراه%')
-                      ->orWhere('occupation', 'like', '%PhD%')
-                      ->orWhere('occupation', 'like', '%Ph.D%')
-                      ->orWhere('biography', 'like', '%PhD%')
-                      ->orWhere('biography', 'like', '%Ph.D%');
-            })
-            ->count();
+        $masterDegreeCount = Article::whereIn('category_id', $masterCategoryIds)->count();
 
-        // ترتيب العائلة الأحياء حسب العمر (الذكور فقط)
-        $malesByAge = Person::where('from_outside_the_family', false)
+        // عدد مقالات فئة الدكتوراه
+        $phdCategoryIds = Category::where(function($query) {
+            $query->where('name', 'like', '%دكتوراه%')
+                  ->orWhere('name', 'like', '%PhD%')
+                  ->orWhere('name', 'like', '%Ph.D%');
+        })->pluck('id');
+
+        $phdCount = Article::whereIn('category_id', $phdCategoryIds)->count();
+
+        // ترتيب أبناء العائلة الأحياء حسب العمر (ذكور فقط)
+        $allFamilyMembersByAge = Person::where('from_outside_the_family', false)
             ->where('gender', 'male')
             ->whereNotNull('birth_date')
             ->whereNull('death_date')
@@ -78,14 +74,18 @@ class ReportsController extends Controller
         // إحصائيات حسب الجد مع حساب الأبناء والأحفاد بشكل متكرر
         $generationsData = $this->getGenerationsStatistics();
 
+        // إحصائيات الأماكن (عدد سكان المدن حسب الذكور والإناث)
+        $locationsStatistics = $this->getLocationsStatistics();
+
         return view('reports', compact(
             'totalFamilyMembers',
             'maleCount',
             'femaleCount',
             'masterDegreeCount',
             'phdCount',
-            'malesByAge',
-            'generationsData'
+            'allFamilyMembersByAge',
+            'generationsData',
+            'locationsStatistics'
         ));
     }
 
@@ -108,12 +108,21 @@ class ReportsController extends Controller
             $allDescendants = $this->countAllDescendants($grandfather->id);
 
             if ($allDescendants['total'] > 0) {
+                // جلب أبناء كل جيل
+                $generationsWithMembers = [];
+                foreach ($allDescendants['generations'] as $genLevel => $genStats) {
+                    $generationsWithMembers[$genLevel] = array_merge($genStats, [
+                        'members' => $this->getGenerationMembers($grandfather->id, $genLevel)
+                    ]);
+                }
+
                 $statistics[] = [
+                    'grandfather_id' => $grandfather->id,
                     'grandfather_name' => $grandfather->full_name,
                     'total_descendants' => $allDescendants['total'],
                     'male_descendants' => $allDescendants['males'],
                     'female_descendants' => $allDescendants['females'],
-                    'generations_breakdown' => $allDescendants['generations'],
+                    'generations_breakdown' => $generationsWithMembers,
                 ];
             }
         }
@@ -187,5 +196,126 @@ class ReportsController extends Controller
             'females' => $females,
             'generations' => $generations,
         ];
+    }
+
+    /**
+     * جلب أبناء جيل معين من جد معين
+     */
+    private function getGenerationMembers($grandfatherId, $targetLevel, $currentPersonId = null, $currentLevel = 1)
+    {
+        if ($currentPersonId === null) {
+            $currentPersonId = $grandfatherId;
+        }
+
+        $members = [];
+
+        if ($currentLevel === $targetLevel) {
+            // نحن في المستوى المطلوب، نجلب الأبناء المباشرين
+            $children = Person::where('parent_id', $currentPersonId)
+                ->where('from_outside_the_family', false)
+                ->orderBy('first_name')
+                ->get();
+
+            foreach ($children as $child) {
+                $members[] = [
+                    'id' => $child->id,
+                    'full_name' => $child->full_name,
+                    'gender' => $child->gender,
+                ];
+            }
+        } else {
+            // نحتاج للانتقال إلى المستوى التالي
+            $children = Person::where('parent_id', $currentPersonId)
+                ->where('from_outside_the_family', false)
+                ->get();
+
+            foreach ($children as $child) {
+                $childMembers = $this->getGenerationMembers($grandfatherId, $targetLevel, $child->id, $currentLevel + 1);
+                $members = array_merge($members, $childMembers);
+            }
+        }
+
+        return $members;
+    }
+
+    /**
+     * جلب إحصائيات الأماكن مع عدد الذكور والإناث
+     */
+    private function getLocationsStatistics()
+    {
+        // جلب جميع الأماكن التي لديها أشخاص مرتبطين بها
+        $locations = Location::whereHas('persons', function($query) {
+            $query->where('from_outside_the_family', false);
+        })->get();
+
+        $statistics = [];
+
+        foreach ($locations as $location) {
+            // حساب عدد الذكور والإناث في هذا المكان
+            $males = $location->persons()
+                ->where('from_outside_the_family', false)
+                ->where('gender', 'male')
+                ->count();
+
+            $females = $location->persons()
+                ->where('from_outside_the_family', false)
+                ->where('gender', 'female')
+                ->count();
+
+            $total = $males + $females;
+
+            if ($total > 0) {
+                $statistics[] = [
+                    'location_id' => $location->id,
+                    'location_name' => $location->display_name,
+                    'total' => $total,
+                    'males' => $males,
+                    'females' => $females,
+                ];
+            }
+        }
+
+        // ترتيب حسب العدد الإجمالي (من الأكبر للأصغر)
+        usort($statistics, function($a, $b) {
+            return $b['total'] <=> $a['total'];
+        });
+
+        return $statistics;
+    }
+
+    /**
+     * جلب إحصائيات شخص معين (للعرض عند النقر على اسم من القائمة)
+     */
+    public function getPersonStatistics($personId)
+    {
+        $person = Person::findOrFail($personId);
+
+        // حساب الأبناء والأحفاد بشكل متكرر
+        $allDescendants = $this->countAllDescendants($person->id);
+
+        // جلب أبناء كل جيل
+        $generationsWithMembers = [];
+        if ($allDescendants['total'] > 0) {
+            foreach ($allDescendants['generations'] as $genLevel => $genStats) {
+                $generationsWithMembers[$genLevel] = array_merge($genStats, [
+                    'members' => $this->getGenerationMembers($person->id, $genLevel)
+                ]);
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'person' => [
+                'id' => $person->id,
+                'full_name' => $person->full_name,
+                'gender' => $person->gender,
+            ],
+            'statistics' => [
+                'total_descendants' => $allDescendants['total'],
+                'male_descendants' => $allDescendants['males'],
+                'female_descendants' => $allDescendants['females'],
+                'generations_breakdown' => $generationsWithMembers,
+            ]
+        ]);
     }
 }

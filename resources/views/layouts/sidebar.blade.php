@@ -24,14 +24,14 @@
     </div>
 
     <!-- Nav Item - Family Management Collapse -->
-    <li class="nav-item {{ request()->routeIs(['people.*', 'marriages.*', 'breastfeeding.*']) ? 'active' : '' }}">
+    <li class="nav-item {{ request()->routeIs(['people.*', 'marriages.*', 'breastfeeding.*', 'locations.*']) ? 'active' : '' }}">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseFamily"
-           aria-expanded="{{ request()->routeIs(['people.*', 'marriages.*', 'breastfeeding.*']) ? 'true' : 'false' }}"
+           aria-expanded="{{ request()->routeIs(['people.*', 'marriages.*', 'breastfeeding.*', 'locations.*']) ? 'true' : 'false' }}"
            aria-controls="collapseFamily">
             <i class="fas fa-fw fa-sitemap"></i>
             <span>إدارة العائلة</span>
         </a>
-        <div id="collapseFamily" class="collapse {{ request()->routeIs(['people.*', 'marriages.*', 'breastfeeding.*']) ? 'show' : '' }}"
+        <div id="collapseFamily" class="collapse {{ request()->routeIs(['people.*', 'marriages.*', 'breastfeeding.*', 'locations.*']) ? 'show' : '' }}"
              aria-labelledby="headingFamily" data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">إدارة العائلة:</h6>
@@ -44,6 +44,9 @@
                 <a class="collapse-item {{ request()->routeIs('breastfeeding.*') ? 'active' : '' }}" href="{{ route('breastfeeding.index') }}">
                     <i class="fas fa-fw fa-baby"></i> الرضاعة
                 </a>
+                <a class="collapse-item {{ request()->routeIs('locations.*') ? 'active' : '' }}" href="{{ route('locations.index') }}">
+                    <i class="fas fa-fw fa-map-marker-alt"></i> الأماكن
+                </a>
             </div>
         </div>
     </li>
@@ -54,19 +57,28 @@
     </div>
 
     <!-- Nav Item - Content Management Collapse -->
-    <li class="nav-item {{ request()->routeIs(['articles.*', 'categories.*', 'dashboard.images.*', 'stories.*', 'dashboard.site-content.*']) ? 'active' : '' }}">
+    <li class="nav-item {{ request()->routeIs(['articles.*', 'categories.*', 'dashboard.images.*', 'stories.*', 'dashboard.site-content.*', 'dashboard.slideshow.*', 'dashboard.courses.*', 'dashboard.programs.*']) ? 'active' : '' }}">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseContent"
-           aria-expanded="{{ request()->routeIs(['articles.*', 'categories.*', 'dashboard.images.*', 'stories.*', 'dashboard.site-content.*']) ? 'true' : 'false' }}"
+           aria-expanded="{{ request()->routeIs(['articles.*', 'categories.*', 'dashboard.images.*', 'stories.*', 'dashboard.site-content.*', 'dashboard.slideshow.*', 'dashboard.courses.*', 'dashboard.programs.*']) ? 'true' : 'false' }}"
            aria-controls="collapseContent">
             <i class="fas fa-fw fa-folder"></i>
             <span>المحتوى والوسائط</span>
         </a>
-        <div id="collapseContent" class="collapse {{ request()->routeIs(['articles.*', 'categories.*', 'dashboard.images.*', 'stories.*', 'dashboard.site-content.*']) ? 'show' : '' }}"
+        <div id="collapseContent" class="collapse {{ request()->routeIs(['articles.*', 'categories.*', 'dashboard.images.*', 'stories.*', 'dashboard.site-content.*', 'dashboard.slideshow.*', 'dashboard.courses.*', 'dashboard.programs.*']) ? 'show' : '' }}"
              aria-labelledby="headingContent" data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">إدارة المحتوى:</h6>
                 <a class="collapse-item {{ request()->routeIs('dashboard.site-content.*') ? 'active' : '' }}" href="{{ route('dashboard.site-content.index') }}">
                     <i class="fas fa-fw fa-home"></i> محتوى الموقع
+                </a>
+                <a class="collapse-item {{ request()->routeIs('dashboard.slideshow.*') ? 'active' : '' }}" href="{{ route('dashboard.slideshow.index') }}">
+                    <i class="fas fa-fw fa-sliders-h"></i> السلايدشو
+                </a>
+                <a class="collapse-item {{ request()->routeIs('dashboard.courses.*') ? 'active' : '' }}" href="{{ route('dashboard.courses.index') }}">
+                    <i class="fas fa-fw fa-graduation-cap"></i> الدورات
+                </a>
+                <a class="collapse-item {{ request()->routeIs('dashboard.programs.*') ? 'active' : '' }}" href="{{ route('dashboard.programs.index') }}">
+                    <i class="fas fa-fw fa-tv"></i> البرامج
                 </a>
                 <a class="collapse-item {{ request()->routeIs('articles.*') ? 'active' : '' }}" href="{{ route('articles.index') }}">
                     <i class="fas fa-fw fa-book"></i> المقالات
