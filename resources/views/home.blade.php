@@ -234,7 +234,7 @@
 
                     {{-- Gallery Container --}}
                     <div class="overflow-hidden rounded-lg" id="gallery-wrapper">
-                        <div class="flex transition-transform duration-500 ease-in-out" id="gallery-container" style="transform: translateX(0);">
+                        <div class="flex transition-transform duration-500 ease-in-out" id="gallery-container" style="transform: translateX(0px); will-change: transform;">
                             @foreach($latestGalleryImages as $galleryImage)
                                 <div class="gallery-slide flex-shrink-0 w-1/2 sm:w-1/4 px-2">
                                         <div class="relative group overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
@@ -606,17 +606,18 @@
         }
 
         function updateGalleryPosition() {
-            if (!galleryContainer) return;
+            if (!galleryContainer || !galleryWrapper) return;
 
             const slidesPerView = updateGallerySlidesPerView();
-            // Calculate translateX based on the number of slides to move
-            // Each slide group shows 'slidesPerView' images
-            // On mobile: w-1/2 means 50% per image, so 2 images = 100%
-            // On desktop: w-1/4 means 25% per image, so 4 images = 100%
-            // So we move by 100% per slide group
-            const translateX = -(currentGallerySlide * 100);
+            // Get the actual width of the wrapper
+            const wrapperWidth = galleryWrapper.offsetWidth;
+            // Calculate the width of one slide (including padding)
+            // On mobile: w-1/2 = 50%, on desktop: w-1/4 = 25%
+            const slideWidth = wrapperWidth / slidesPerView;
+            // Move by the number of slides we want to skip
+            const translateX = -(currentGallerySlide * slideWidth * slidesPerView);
 
-            galleryContainer.style.transform = `translateX(${translateX}%)`;
+            galleryContainer.style.transform = `translateX(${translateX}px)`;
         }
 
         function createGalleryDots() {
@@ -692,10 +693,12 @@
                 e.preventDefault();
                 const currentX = e.changedTouches[0].screenX;
                 const diff = touchStartX - currentX;
+                const slidesPerView = updateGallerySlidesPerView();
                 const wrapperWidth = galleryWrapper.offsetWidth;
-                const translatePercent = (diff / wrapperWidth) * 100;
-                const baseTranslate = -(currentGallerySlide * 100);
-                galleryContainer.style.transform = `translateX(${baseTranslate + translatePercent}%)`;
+                const slideWidth = wrapperWidth / slidesPerView;
+                const baseTranslate = -(currentGallerySlide * slideWidth * slidesPerView);
+                galleryContainer.style.transition = 'none';
+                galleryContainer.style.transform = `translateX(${baseTranslate + diff}px)`;
             }, { passive: false });
 
             galleryWrapper.addEventListener('touchend', function(e) {
@@ -737,9 +740,23 @@
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
             if (totalGalleryImages > 0) {
-                createGalleryDots();
-                updateGalleryPosition();
-                updateGalleryButtons();
+                // Wait a bit for layout to settle
+                setTimeout(function() {
+                    createGalleryDots();
+                    updateGalleryPosition();
+                    updateGalleryButtons();
+                }, 100);
+            }
+        });
+
+        // Also initialize when window loads (in case DOMContentLoaded already fired)
+        window.addEventListener('load', function() {
+            if (totalGalleryImages > 0 && galleryContainer) {
+                setTimeout(function() {
+                    createGalleryDots();
+                    updateGalleryPosition();
+                    updateGalleryButtons();
+                }, 100);
             }
         });
     </script>
