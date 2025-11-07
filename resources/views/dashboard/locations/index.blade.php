@@ -166,15 +166,27 @@
                         </table>
                     </div>
 
-                    {{-- حقل المستهدف للدمج --}}
-                    <div class="form-group mt-3">
-                        <label for="target_location_id">اختر المكان المستهدف للدمج:</label>
-                        <select name="target_location_id" id="target_location_id" class="form-control" required>
-                            <option value="">-- اختر المكان المستهدف --</option>
-                            @foreach($locations as $location)
-                                <option value="{{ $location->id }}">{{ $location->display_name }} ({{ $location->persons_count }} شخص)</option>
-                            @endforeach
-                        </select>
+                    {{-- حقل المستهدف للدمج - خارج الجدول --}}
+                    <div class="card border-warning mt-4">
+                        <div class="card-header bg-warning text-white">
+                            <h6 class="mb-0"><i class="fas fa-compress-arrows-alt"></i> دمج الأماكن المختارة</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group mb-0">
+                                <label for="target_location_id" class="font-weight-bold">
+                                    <i class="fas fa-map-marker-alt"></i> اختر المكان المستهدف للدمج:
+                                </label>
+                                <select name="target_location_id" id="target_location_id" class="form-control form-control-lg" required>
+                                    <option value="">-- اختر المكان المستهدف --</option>
+                                    @foreach($locations as $location)
+                                        <option value="{{ $location->id }}">{{ $location->display_name }} ({{ $location->persons_count }} شخص)</option>
+                                    @endforeach
+                                </select>
+                                <small class="form-text text-muted">
+                                    سيتم نقل جميع الأشخاص من الأماكن المختارة إلى المكان المستهدف، ثم حذف الأماكن المختارة.
+                                </small>
+                            </div>
+                        </div>
                     </div>
                 </form>
 
