@@ -251,7 +251,7 @@
                     <p class="text-xs md:text-sm text-gray-600 mt-1">توزيع أبناء العائلة على الأماكن حسب الذكور والإناث</p>
                 </div>
             </div>
-            
+
             <div class="overflow-x-auto">
                 <table class="w-full min-w-full">
                     <thead>
@@ -271,7 +271,7 @@
                             <tr class="border-b border-gray-100 hover:bg-white/50 transition">
                                 <td class="py-3 px-3 md:px-4 font-bold text-gray-800 text-sm md:text-base">
                                     <div class="flex items-center gap-2">
-                                        
+
                                         <span>{{ $stat['location_name'] }}</span>
                                     </div>
                                 </td>
@@ -297,7 +297,7 @@
                                                 {{ number_format(($stat['total'] / $totalInAllLocations) * 100, 1) }}%
                                             </span>
                                             <div class="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
-                                                <div class="h-full bg-gradient-to-r from-green-400 to-green-600 rounded-full" 
+                                                <div class="h-full bg-gradient-to-r from-green-400 to-green-600 rounded-full"
                                                      style="width: {{ ($stat['total'] / $totalInAllLocations) * 100 }}%"></div>
                                             </div>
                                         </div>
@@ -395,7 +395,7 @@
                                 <td class="py-3 px-3 md:px-4 font-bold text-gray-800 text-sm md:text-base">
                                     <div class="flex items-center gap-2">
                                         <span>{{ $stat['grandfather_name'] }}</span>
-                                        <button onclick="toggleGrandfatherDetails({{ $index }})" 
+                                        <button onclick="toggleGrandfatherDetails({{ $index }})"
                                                 class="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition flex items-center gap-1">
                                             <i class="fas fa-eye"></i>
                                             <span id="view-btn-text-{{ $index }}">استعرض</span>
@@ -459,8 +459,8 @@
                                                         @if(isset($genData['members']) && count($genData['members']) > 0)
                                                             <div class="max-h-40 overflow-y-auto space-y-1">
                                                                 @foreach($genData['members'] as $member)
-                                                                    <div class="flex items-center justify-between text-xs bg-gray-50 p-2 rounded hover:bg-gray-100 transition cursor-pointer person-clickable" 
-                                                                         data-person-id="{{ $member['id'] }}" 
+                                                                    <div class="flex items-center justify-between text-xs bg-gray-50 p-2 rounded hover:bg-gray-100 transition cursor-pointer person-clickable"
+                                                                         data-person-id="{{ $member['id'] }}"
                                                                          onclick="showPersonDetails({{ $member['id'] }})">
                                                                         <span class="text-gray-800 break-words flex-1 hover:text-green-600 transition">{{ $member['full_name'] }}</span>
                                                                         @if($member['gender'] === 'male')
@@ -499,12 +499,12 @@
                 <h3 class="text-2xl md:text-3xl font-bold gradient-text" id="modalPersonName">تفاصيل الشخص</h3>
                 <button onclick="closePersonModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
             </div>
-            
+
             <div id="modalLoading" class="text-center py-8">
                 <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
                 <p class="text-gray-600 mt-2">جاري التحميل...</p>
             </div>
-            
+
             <div id="modalContent" class="hidden">
                 <!-- الإحصائيات -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -521,7 +521,7 @@
                         <div class="text-sm text-gray-600">إناث</div>
                     </div>
                 </div>
-                
+
                 <!-- تفاصيل الأجيال -->
                 <div id="modalGenerations" class="space-y-4"></div>
             </div>
@@ -533,7 +533,7 @@
         function toggleGrandfatherDetails(grandfatherIndex) {
             const detailRow = document.querySelector(`.generations-detail-${grandfatherIndex}`);
             const btnText = document.getElementById(`view-btn-text-${grandfatherIndex}`);
-            
+
             if (detailRow.classList.contains('hidden')) {
                 detailRow.classList.remove('hidden');
                 if (btnText) {
@@ -578,28 +578,28 @@
             const modal = document.getElementById('personDetailsModal');
             const modalLoading = document.getElementById('modalLoading');
             const modalContent = document.getElementById('modalContent');
-            
+
             modal.classList.remove('hidden');
             modal.style.display = 'flex';
             modalLoading.classList.remove('hidden');
             modalContent.classList.add('hidden');
-            
+
             fetch(`/api/reports/person/${personId}/statistics`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
                         // تحديث اسم الشخص
                         document.getElementById('modalPersonName').textContent = data.person.full_name;
-                        
+
                         // تحديث الإحصائيات
                         document.getElementById('modalTotal').textContent = data.statistics.total_descendants;
                         document.getElementById('modalMales').textContent = data.statistics.male_descendants;
                         document.getElementById('modalFemales').textContent = data.statistics.female_descendants;
-                        
+
                         // عرض تفاصيل الأجيال
                         const generationsContainer = document.getElementById('modalGenerations');
                         generationsContainer.innerHTML = '';
-                        
+
                         const generationLabels = {
                             1: 'الجيل الأول (الأبناء)',
                             2: 'الجيل الثاني (الأحفاد)',
@@ -608,14 +608,14 @@
                             5: 'الجيل الخامس',
                             6: 'الجيل السادس'
                         };
-                        
+
                         if (Object.keys(data.statistics.generations_breakdown).length === 0) {
                             generationsContainer.innerHTML = '<div class="text-center text-gray-500 py-8">لا يوجد أبناء أو أحفاد</div>';
                         } else {
                             Object.keys(data.statistics.generations_breakdown).sort((a, b) => parseInt(a) - parseInt(b)).forEach(genLevel => {
                                 const genData = data.statistics.generations_breakdown[genLevel];
                                 const genIndex = `modal-${genLevel}`;
-                                
+
                                 const genCard = document.createElement('div');
                                 genCard.className = 'bg-white p-4 rounded-lg shadow-sm';
                                 genCard.innerHTML = `
@@ -640,11 +640,11 @@
                                             ${genData.members && genData.members.length > 0 ? `
                                                 <div class="max-h-40 overflow-y-auto space-y-1">
                                                     ${genData.members.map(member => `
-                                                        <div class="flex items-center justify-between text-xs bg-gray-50 p-2 rounded hover:bg-gray-100 transition cursor-pointer" 
+                                                        <div class="flex items-center justify-between text-xs bg-gray-50 p-2 rounded hover:bg-gray-100 transition cursor-pointer"
                                                              onclick="showPersonDetails(${member.id}); event.stopPropagation();">
                                                             <span class="text-gray-800 break-words flex-1 hover:text-green-600 transition">${member.full_name}</span>
-                                                            ${member.gender === 'male' ? 
-                                                                '<span class="text-blue-600 font-medium mr-2 flex-shrink-0">♂</span>' : 
+                                                            ${member.gender === 'male' ?
+                                                                '<span class="text-blue-600 font-medium mr-2 flex-shrink-0">♂</span>' :
                                                                 '<span class="text-pink-600 font-medium mr-2 flex-shrink-0">♀</span>'
                                                             }
                                                         </div>
@@ -657,7 +657,7 @@
                                 generationsContainer.appendChild(genCard);
                             });
                         }
-                        
+
                         modalLoading.classList.add('hidden');
                         modalContent.classList.remove('hidden');
                     }
