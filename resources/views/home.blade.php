@@ -182,7 +182,7 @@
     </section>
 
     {{-- Family Brief Section --}}
-    <section class="py-6 md:py-12 lg:py-16 bg-white mobile-section">
+    {{-- <section class="py-6 md:py-12 lg:py-16 bg-white mobile-section">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
             <div class="text-right mb-4 md:mb-8">
                 <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient mb-2 md:mb-4">نبذة عن عائلة السريع</h2>
@@ -205,13 +205,13 @@
                 </div>
             </div>
         </div>
-    </section>
+    </section> --}}
 
     {{-- What's New Section --}}
     <section class="py-6 md:py-12 lg:py-16 bg-white mobile-section">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
             <div class="text-right mb-4 md:mb-8">
-                <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient mb-2 md:mb-4">جديد الصور</h2>
+                <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient mb-2 md:mb-4">الصور</h2>
                 <div class="w-16 md:w-24 h-0.5 md:h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent mr-0"></div>
             </div>
 
@@ -233,7 +233,7 @@
                     </button>
 
                     {{-- Gallery Container --}}
-                    <div class="overflow-hidden rounded-lg">
+                    <div class="overflow-hidden rounded-lg" id="gallery-wrapper">
                         <div class="flex transition-transform duration-500 ease-in-out" id="gallery-container" style="transform: translateX(0);">
                             @foreach($latestGalleryImages as $galleryImage)
                                 <div class="gallery-slide flex-shrink-0 w-1/2 sm:w-1/4 px-2">
@@ -261,16 +261,7 @@
 
                     {{-- Dots Indicator --}}
                     <div class="flex justify-center gap-2 mt-4" id="gallery-dots">
-                        @php
-                            $totalImages = $latestGalleryImages->count();
-                            $maxDots = max(1, ceil($totalImages / 4)); // Show up to 4 images per slide on desktop
-                        @endphp
-                        @for($i = 0; $i < $maxDots; $i++)
-                            <button onclick="goToGallerySlide({{ $i }})"
-                                    class="w-2 h-2 rounded-full transition-all {{ $i === 0 ? 'bg-green-600 w-6' : 'bg-gray-300' }}"
-                                    id="gallery-dot-{{ $i }}"
-                                    aria-label="انتقل للشريحة {{ $i + 1 }}"></button>
-                        @endfor
+                        {{-- Dots will be generated dynamically by JavaScript --}}
                     </div>
                 </div>
             @endif
@@ -278,7 +269,7 @@
     </section>
 
     {{-- Family Programs Section --}}
-    <section class="py-6 md:py-12 lg:py-16 bg-gradient-to-br from-green-50 via-white to-emerald-50 mobile-section relative overflow-hidden">
+    {{-- <section class="py-6 md:py-12 lg:py-16 bg-gradient-to-br from-green-50 via-white to-emerald-50 mobile-section relative overflow-hidden">
         <div class="absolute inset-0 opacity-5">
             <div class="absolute top-0 right-0 w-96 h-96 bg-green-400 rounded-full blur-3xl"></div>
             <div class="absolute bottom-0 left-0 w-96 h-96 bg-emerald-400 rounded-full blur-3xl"></div>
@@ -308,10 +299,10 @@
                 </div>
             </div>
         </div>
-    </section>
+    </section> --}}
 
     {{-- Courses Section --}}
-    <section class="py-6 md:py-12 lg:py-16 bg-white mobile-section">
+    {{-- <section class="py-6 md:py-12 lg:py-16 bg-white mobile-section">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
             <div class="text-right mb-4 md:mb-8">
                 <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient mb-2 md:mb-4">دورات اكادمية السريع</h2>
@@ -321,7 +312,6 @@
 
             @if($courses->count() > 0)
                 <div class="relative">
-                    {{-- Navigation Buttons --}}
                     <button onclick="slideCourses('prev')"
                             class="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-white rounded-full p-3 shadow-lg hover:shadow-xl transition-all hover:bg-gray-50"
                             id="courses-prev-btn"
@@ -335,13 +325,11 @@
                         <i class="fas fa-chevron-left text-green-600 text-xl"></i>
                     </button>
 
-                    {{-- Courses Container --}}
                     <div class="overflow-hidden rounded-lg">
                         <div class="flex transition-transform duration-500 ease-in-out" id="courses-container" style="transform: translateX(0);">
                             @foreach($courses as $course)
                                 <div class="course-slide flex-shrink-0 w-full sm:w-1/2 lg:w-1/3 xl:w-1/4 px-2 md:px-3">
                                     <div class="course-card bg-white rounded-lg md:rounded-xl shadow-lg overflow-hidden h-full">
-                                        {{-- Course Image --}}
                                         <div class="relative h-32 md:h-40 lg:h-48 bg-gradient-to-br from-green-400 to-emerald-600">
                                             <div class="absolute inset-0 flex items-center justify-center">
                                                 <i class="fas fa-book-open text-white text-3xl md:text-5xl lg:text-6xl opacity-30"></i>
@@ -351,11 +339,9 @@
                                             @endif
                                         </div>
 
-                                        {{-- Course Content --}}
                                         <div class="p-3 md:p-4 lg:p-6">
                                             <h3 class="text-base md:text-lg lg:text-xl font-bold text-gray-800 mb-1 md:mb-2 line-clamp-2">{{ $course->title }}</h3>
 
-                                            {{-- Description with Expand/Collapse --}}
                                             <div class="mb-2 md:mb-4">
                                                 <p class="text-gray-600 text-xs md:text-sm course-description-short line-clamp-2" id="desc-short-{{ $loop->index }}">
                                                     {{ $course->description ?? '' }}
@@ -373,7 +359,6 @@
                                                 @endif
                                             </div>
 
-                                            {{-- Course Info --}}
                                             <div class="space-y-1 md:space-y-1.5 mb-2 md:mb-4">
                                                 @if($course->instructor)
                                                     <div class="flex items-center gap-1.5 text-xs text-gray-600">
@@ -395,7 +380,6 @@
                                                 @endif
                                             </div>
 
-                                            {{-- Enroll Button --}}
                                             @if($course->link)
                                                 <a href="{{ $course->link }}" target="_blank" class="w-full py-1.5 md:py-2 px-3 md:px-4 gradient-bg text-white rounded-lg text-xs md:text-sm font-semibold hover:opacity-90 transition-all flex items-center justify-center">
                                                     <i class="fas fa-external-link-alt ml-2 text-xs"></i>سجل الآن
@@ -412,7 +396,6 @@
                         </div>
                     </div>
 
-                    {{-- Dots Indicator --}}
                     @php
                         $totalCourses = $courses->count();
                         $coursesPerView = 4; // Show 4 courses per slide on desktop
@@ -436,7 +419,7 @@
                 </div>
             @endif
         </div>
-    </section>
+    </section> --}}
 
     <script>
         // Enhanced slideshow functionality
@@ -572,10 +555,16 @@
         // Gallery Carousel functionality
         let currentGallerySlide = 0;
         const galleryContainer = document.getElementById('gallery-container');
+        const galleryWrapper = document.getElementById('gallery-wrapper');
         const gallerySlides = document.querySelectorAll('.gallery-slide');
         const totalGalleryImages = {{ $latestGalleryImages->count() ?? 0 }};
-        const slidesPerView = window.innerWidth >= 640 ? 4 : 2; // 4 on desktop, 2 on mobile
-        const totalSlides = Math.ceil(totalGalleryImages / slidesPerView);
+
+        // Touch/swipe support
+        let touchStartX = 0;
+        let touchEndX = 0;
+        let isDragging = false;
+        let startX = 0;
+        let scrollLeft = 0;
 
         function updateGallerySlidesPerView() {
             return window.innerWidth >= 640 ? 4 : 2;
@@ -586,9 +575,17 @@
             const maxSlides = Math.ceil(totalGalleryImages / slidesPerView);
 
             if (direction === 'next') {
-                currentGallerySlide = (currentGallerySlide + 1) % maxSlides;
+                if (currentGallerySlide < maxSlides - 1) {
+                    currentGallerySlide++;
+                } else {
+                    currentGallerySlide = 0; // Loop back to start
+                }
             } else {
-                currentGallerySlide = (currentGallerySlide - 1 + maxSlides) % maxSlides;
+                if (currentGallerySlide > 0) {
+                    currentGallerySlide--;
+                } else {
+                    currentGallerySlide = maxSlides - 1; // Loop to end
+                }
             }
 
             updateGalleryPosition();
@@ -597,24 +594,63 @@
         }
 
         function goToGallerySlide(index) {
-            currentGallerySlide = index;
-            updateGalleryPosition();
-            updateGalleryDots();
-            updateGalleryButtons();
+            const slidesPerView = updateGallerySlidesPerView();
+            const maxSlides = Math.ceil(totalGalleryImages / slidesPerView);
+
+            if (index >= 0 && index < maxSlides) {
+                currentGallerySlide = index;
+                updateGalleryPosition();
+                updateGalleryDots();
+                updateGalleryButtons();
+            }
         }
 
         function updateGalleryPosition() {
-            const slidesPerView = updateGallerySlidesPerView();
-            const slideWidth = 100 / slidesPerView; // Percentage per slide
-            const translateX = -(currentGallerySlide * slideWidth * slidesPerView);
+            if (!galleryContainer) return;
 
-            if (galleryContainer) {
-                galleryContainer.style.transform = `translateX(${translateX}%)`;
+            const slidesPerView = updateGallerySlidesPerView();
+            // Calculate translateX based on the number of slides to move
+            // Each slide group shows 'slidesPerView' images
+            // On mobile: w-1/2 means 50% per image, so 2 images = 100%
+            // On desktop: w-1/4 means 25% per image, so 4 images = 100%
+            // So we move by 100% per slide group
+            const translateX = -(currentGallerySlide * 100);
+
+            galleryContainer.style.transform = `translateX(${translateX}%)`;
+        }
+
+        function createGalleryDots() {
+            const slidesPerView = updateGallerySlidesPerView();
+            const maxSlides = Math.ceil(totalGalleryImages / slidesPerView);
+            const dotsContainer = document.getElementById('gallery-dots');
+
+            if (!dotsContainer) return;
+
+            // Clear existing dots
+            dotsContainer.innerHTML = '';
+
+            // Create dots dynamically
+            for (let i = 0; i < maxSlides; i++) {
+                const dot = document.createElement('button');
+                dot.onclick = () => goToGallerySlide(i);
+                dot.className = `w-2 h-2 rounded-full transition-all ${i === currentGallerySlide ? 'bg-green-600 w-6' : 'bg-gray-300'}`;
+                dot.id = `gallery-dot-${i}`;
+                dot.setAttribute('aria-label', `انتقل للشريحة ${i + 1}`);
+                dotsContainer.appendChild(dot);
             }
         }
 
         function updateGalleryDots() {
+            const slidesPerView = updateGallerySlidesPerView();
+            const maxSlides = Math.ceil(totalGalleryImages / slidesPerView);
             const dots = document.querySelectorAll('[id^="gallery-dot-"]');
+
+            // Recreate dots if count changed (e.g., on resize)
+            if (dots.length !== maxSlides) {
+                createGalleryDots();
+                return;
+            }
+
             dots.forEach((dot, index) => {
                 if (index === currentGallerySlide) {
                     dot.classList.remove('bg-gray-300', 'w-2');
@@ -643,14 +679,57 @@
             }
         }
 
+        // Touch/swipe event handlers for mobile
+        if (galleryWrapper) {
+            galleryWrapper.addEventListener('touchstart', function(e) {
+                touchStartX = e.changedTouches[0].screenX;
+                isDragging = true;
+                galleryContainer.style.transition = 'none';
+            }, { passive: true });
+
+            galleryWrapper.addEventListener('touchmove', function(e) {
+                if (!isDragging) return;
+                e.preventDefault();
+                const currentX = e.changedTouches[0].screenX;
+                const diff = touchStartX - currentX;
+                const wrapperWidth = galleryWrapper.offsetWidth;
+                const translatePercent = (diff / wrapperWidth) * 100;
+                const baseTranslate = -(currentGallerySlide * 100);
+                galleryContainer.style.transform = `translateX(${baseTranslate + translatePercent}%)`;
+            }, { passive: false });
+
+            galleryWrapper.addEventListener('touchend', function(e) {
+                if (!isDragging) return;
+                touchEndX = e.changedTouches[0].screenX;
+                isDragging = false;
+                galleryContainer.style.transition = 'transform 0.5s ease-in-out';
+
+                const swipeThreshold = 50; // Minimum distance for swipe
+                const diff = touchStartX - touchEndX;
+
+                if (Math.abs(diff) > swipeThreshold) {
+                    if (diff > 0) {
+                        // Swipe left - next
+                        slideGallery('next');
+                    } else {
+                        // Swipe right - prev
+                        slideGallery('prev');
+                    }
+                } else {
+                    // Reset position if swipe wasn't significant
+                    updateGalleryPosition();
+                }
+            }, { passive: true });
+        }
+
         // Update on window resize
         let resizeTimer;
         window.addEventListener('resize', function() {
             clearTimeout(resizeTimer);
             resizeTimer = setTimeout(function() {
                 currentGallerySlide = 0;
+                createGalleryDots();
                 updateGalleryPosition();
-                updateGalleryDots();
                 updateGalleryButtons();
             }, 250);
         });
@@ -658,7 +737,8 @@
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
             if (totalGalleryImages > 0) {
-                updateGalleryDots();
+                createGalleryDots();
+                updateGalleryPosition();
                 updateGalleryButtons();
             }
         });
