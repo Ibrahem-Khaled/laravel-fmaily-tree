@@ -16,7 +16,7 @@ class LocationController extends Controller
     public function index(Request $request)
     {
         $search = $request->query('search');
-        $perPage = (int) $request->query('per_page', 15);
+        $perPage = (int) $request->query('per_page', 25);
 
         $query = Location::query()
             ->withCount('persons')
@@ -61,7 +61,7 @@ class LocationController extends Controller
 
         // البحث عن أماكن مشابهة قبل الإنشاء
         $similar = Location::findSimilar($validated['name'], 0.9);
-        
+
         if (!empty($similar) && $similar[0]['similarity'] >= 0.95) {
             return back()
                 ->withInput()
@@ -185,13 +185,13 @@ class LocationController extends Controller
     public function findSimilar(Request $request): JsonResponse
     {
         $name = $request->input('name');
-        
+
         if (!$name) {
             return response()->json(['similar' => []]);
         }
 
         $similar = Location::findSimilar($name, 0.8);
-        
+
         return response()->json([
             'similar' => array_map(function($item) {
                 return [
@@ -210,7 +210,7 @@ class LocationController extends Controller
     public function autocomplete(Request $request): JsonResponse
     {
         $query = $request->input('q', '');
-        
+
         if (empty($query)) {
             return response()->json([]);
         }

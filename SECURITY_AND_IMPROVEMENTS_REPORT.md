@@ -294,3 +294,4 @@ Route::middleware(['throttle:60,1'])->group(function () {
 **تاريخ التقرير**: 2025-01-XX
 **الإصدار**: 1.0
 
+
