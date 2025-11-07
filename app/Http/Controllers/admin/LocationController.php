@@ -144,39 +144,50 @@ class LocationController extends Controller
      */
     public function merge(Request $request)
     {
-        $validated = $request->validate([
-            'target_location_id' => 'required|exists:locations,id',
-            'source_location_ids' => 'required|array',
-            'source_location_ids.*' => 'exists:locations,id',
-        ]);
+        try {
+            $validated = $request->validate([
+                'target_location_id' => 'required|exists:locations,id',
+                'source_location_ids' => 'required|array|min:1',
+                'source_location_ids.*' => 'exists:locations,id',
+            ]);
 
-        $targetLocation = Location::findOrFail($validated['target_location_id']);
-        $sourceLocations = Location::whereIn('id', $validated['source_location_ids'])->get();
+            $targetLocation = Location::findOrFail($validated['target_location_id']);
+            $sourceLocationIds = array_filter($validated['source_location_ids'], function($id) use ($targetLocation) {
+                return $id != $targetLocation->id;
+            });
 
-        $mergedCount = 0;
-
-        foreach ($sourceLocations as $sourceLocation) {
-            if ($sourceLocation->id === $targetLocation->id) {
-                continue; // تخطي المكان المستهدف
+            if (empty($sourceLocationIds)) {
+                return redirect()->route('locations.index')
+                    ->with('error', 'يجب اختيار أماكن مختلفة عن المكان المستهدف.');
             }
 
-            // نقل جميع الأشخاص من المكان المصدر إلى المكان المستهدف
-            Person::where('location_id', $sourceLocation->id)
-                ->update(['location_id' => $targetLocation->id]);
+            $sourceLocations = Location::whereIn('id', $sourceLocationIds)->get();
+            $totalPersonsMoved = 0;
 
-            $mergedCount += $sourceLocation->persons_count;
+            foreach ($sourceLocations as $sourceLocation) {
+                // نقل جميع الأشخاص من المكان المصدر إلى المكان المستهدف
+                $personsCount = Person::where('location_id', $sourceLocation->id)->count();
+                Person::where('location_id', $sourceLocation->id)
+                    ->update(['location_id' => $targetLocation->id]);
 
-            // حذف المكان المصدر
-            $sourceLocation->delete();
+                $totalPersonsMoved += $personsCount;
+
+                // حذف المكان المصدر
+                $sourceLocation->delete();
+            }
+
+            // تحديث عداد الأشخاص للمكان المستهدف
+            $targetLocation->refresh();
+            $targetLocation->update([
+                'persons_count' => $targetLocation->persons()->count()
+            ]);
+
+            return redirect()->route('locations.index')
+                ->with('success', "تم دمج " . count($sourceLocations) . " مكان بنجاح. تم نقل {$totalPersonsMoved} شخص إلى المكان المستهدف.");
+        } catch (\Exception $e) {
+            return redirect()->route('locations.index')
+                ->with('error', 'حدث خطأ أثناء عملية الدمج: ' . $e->getMessage());
         }
-
-        // تحديث عداد الأشخاص للمكان المستهدف
-        $targetLocation->refresh();
-        $targetLocation->persons_count = $targetLocation->persons()->count();
-        $targetLocation->save();
-
-        return redirect()->route('locations.index')
-            ->with('success', "تم دمج {$mergedCount} مكان في المكان المستهدف بنجاح.");
     }
 
     /**

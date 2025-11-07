@@ -105,7 +105,7 @@
                 </form>
 
                 {{-- جدول الأماكن --}}
-                <form id="mergeForm" action="{{ route('locations.merge') }}" method="POST">
+                <form id="mergeForm" action="{{ route('locations.do-merge') }}" method="POST">
                     @csrf
                     <div class="table-responsive">
                         <table class="table table-bordered table-hover" width="100%" cellspacing="0">
@@ -250,8 +250,14 @@
         });
 
         // تأكيد الدمج
-        $('#confirmMergeBtn').on('click', function() {
-            $('#mergeForm').submit();
+        $('#confirmMergeBtn').on('click', function(e) {
+            e.preventDefault();
+            // التأكد من أن الـ form يستخدم POST
+            const form = $('#mergeForm');
+            form.attr('method', 'POST');
+            // إزالة أي حقول _method قد تكون موجودة
+            form.find('input[name="_method"]').remove();
+            form.submit();
         });
 
         // البحث عن أماكن متشابهة
