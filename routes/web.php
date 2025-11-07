@@ -48,6 +48,7 @@ Route::get('/gallery/articles', [GalleryController::class, 'articles'])->name('g
 Route::get('/person-gallery/{person}', [GalleryController::class, 'personGallery'])->name('person.gallery');
 Route::get('/reports', [ReportsController::class, 'index'])->name('reports.index');
 Route::get('/api/reports/person/{personId}/statistics', [ReportsController::class, 'getPersonStatistics'])->name('reports.person.statistics');
+Route::get('/api/reports/location/{locationId}/persons', [ReportsController::class, 'getLocationPersons'])->name('reports.location.persons');
 
 Route::prefix('api')->group(function () {
     Route::get('/family-tree', [FamilyTreeController::class, 'getFamilyTree']);

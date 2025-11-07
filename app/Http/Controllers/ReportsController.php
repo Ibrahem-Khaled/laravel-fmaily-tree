@@ -287,6 +287,43 @@ class ReportsController extends Controller
     }
 
     /**
+     * جلب الأشخاص التابعين لمنطقة معينة (الأحياء فقط)
+     */
+    public function getLocationPersons($locationId)
+    {
+        $location = Location::findOrFail($locationId);
+
+        // جلب جميع الأشخاص الأحياء التابعين لهذه المنطقة
+        $persons = Person::where('location_id', $locationId)
+            ->where('from_outside_the_family', false)
+            ->whereNull('death_date')
+            ->orderBy('gender')
+            ->orderBy('first_name')
+            ->get()
+            ->map(function($person) {
+                return [
+                    'id' => $person->id,
+                    'full_name' => $person->full_name,
+                    'gender' => $person->gender,
+                    'birth_date' => $person->birth_date ? $person->birth_date->format('Y-m-d') : null,
+                    'age' => $person->birth_date ? $person->birth_date->diffInYears(now()) : null,
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'location' => [
+                'id' => $location->id,
+                'name' => $location->display_name,
+            ],
+            'persons' => $persons,
+            'total' => $persons->count(),
+            'males' => $persons->where('gender', 'male')->count(),
+            'females' => $persons->where('gender', 'female')->count(),
+        ]);
+    }
+
+    /**
      * جلب إحصائيات شخص معين (للعرض عند النقر على اسم من القائمة)
      */
     public function getPersonStatistics($personId)

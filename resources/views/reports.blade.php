@@ -271,8 +271,11 @@
                             <tr class="border-b border-gray-100 hover:bg-white/50 transition">
                                 <td class="py-3 px-3 md:px-4 font-bold text-gray-800 text-sm md:text-base">
                                     <div class="flex items-center gap-2">
-
-                                        <span>{{ $stat['location_name'] }}</span>
+                                        <span class="cursor-pointer hover:text-green-600 transition person-clickable"
+                                              onclick="showLocationPersons({{ $stat['location_id'] }})"
+                                              title="انقر لعرض الأشخاص">
+                                            {{ $stat['location_name'] }}
+                                        </span>
                                     </div>
                                 </td>
                                 <td class="py-3 px-3 md:px-4 text-center">
@@ -492,6 +495,44 @@
         </section>
     </div>
 
+    <!-- Modal لعرض الأشخاص التابعين لمنطقة معينة -->
+    <div id="locationPersonsModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center fade-in" style="display: none;">
+        <div class="glass-effect rounded-2xl p-6 md:p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl md:text-3xl font-bold gradient-text" id="modalLocationName">أشخاص المنطقة</h3>
+                <button onclick="closeLocationModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+            </div>
+
+            <div id="locationModalLoading" class="text-center py-8">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+                <p class="text-gray-600 mt-2">جاري التحميل...</p>
+            </div>
+
+            <div id="locationModalContent" class="hidden">
+                <!-- الإحصائيات -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-green-50 p-4 rounded-xl text-center">
+                        <div class="text-3xl font-bold text-green-600" id="locationModalTotal">0</div>
+                        <div class="text-sm text-gray-600">الإجمالي</div>
+                    </div>
+                    <div class="bg-blue-50 p-4 rounded-xl text-center">
+                        <div class="text-3xl font-bold text-blue-600" id="locationModalMales">0</div>
+                        <div class="text-sm text-gray-600">ذكور</div>
+                    </div>
+                    <div class="bg-pink-50 p-4 rounded-xl text-center">
+                        <div class="text-3xl font-bold text-pink-600" id="locationModalFemales">0</div>
+                        <div class="text-sm text-gray-600">إناث</div>
+                    </div>
+                </div>
+
+                <!-- قائمة الأشخاص -->
+                <div class="space-y-2 max-h-96 overflow-y-auto">
+                    <div id="locationPersonsList" class="space-y-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal لعرض تفاصيل الشخص -->
     <div id="personDetailsModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center fade-in" style="display: none;">
         <div class="glass-effect rounded-2xl p-6 md:p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
@@ -697,6 +738,85 @@
         document.getElementById('personDetailsModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closePersonModal();
+            }
+        });
+
+        // دالة لعرض الأشخاص التابعين لمنطقة معينة
+        function showLocationPersons(locationId) {
+            const modal = document.getElementById('locationPersonsModal');
+            const modalLoading = document.getElementById('locationModalLoading');
+            const modalContent = document.getElementById('locationModalContent');
+
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
+            modalLoading.classList.remove('hidden');
+            modalContent.classList.add('hidden');
+
+            fetch(`/api/reports/location/${locationId}/persons`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // تحديث اسم المنطقة
+                        document.getElementById('modalLocationName').textContent = `أشخاص ${data.location.name}`;
+
+                        // تحديث الإحصائيات
+                        document.getElementById('locationModalTotal').textContent = data.total;
+                        document.getElementById('locationModalMales').textContent = data.males;
+                        document.getElementById('locationModalFemales').textContent = data.females;
+
+                        // عرض قائمة الأشخاص
+                        const personsList = document.getElementById('locationPersonsList');
+                        personsList.innerHTML = '';
+
+                        if (data.persons.length === 0) {
+                            personsList.innerHTML = '<div class="text-center text-gray-500 py-8">لا يوجد أشخاص في هذه المنطقة</div>';
+                        } else {
+                            data.persons.forEach(person => {
+                                const personDiv = document.createElement('div');
+                                personDiv.className = 'flex items-center justify-between p-3 bg-white/50 rounded-lg hover:bg-white/70 transition cursor-pointer person-clickable';
+                                personDiv.onclick = () => showPersonDetails(person.id);
+
+                                const genderIcon = person.gender === 'male'
+                                    ? '<span class="text-blue-600 font-medium mr-2">♂</span>'
+                                    : '<span class="text-pink-600 font-medium mr-2">♀</span>';
+
+                                const ageText = person.age ? ` (${person.age} سنة)` : '';
+                                const birthDateText = person.birth_date ? ` - ${person.birth_date}` : '';
+
+                                personDiv.innerHTML = `
+                                    <div class="flex items-center gap-2 min-w-0 flex-1">
+                                        ${genderIcon}
+                                        <span class="text-gray-800 break-words flex-1 hover:text-green-600 transition">${person.full_name}</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500 flex-shrink-0 ml-3">
+                                        ${ageText}${birthDateText}
+                                    </div>
+                                `;
+                                personsList.appendChild(personDiv);
+                            });
+                        }
+
+                        modalLoading.classList.add('hidden');
+                        modalContent.classList.remove('hidden');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    modalLoading.innerHTML = '<div class="text-red-500">حدث خطأ أثناء جلب البيانات</div>';
+                });
+        }
+
+        // دالة لإغلاق modal المنطقة
+        function closeLocationModal() {
+            const modal = document.getElementById('locationPersonsModal');
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+        }
+
+        // إغلاق modal المنطقة عند النقر خارجها
+        document.getElementById('locationPersonsModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeLocationModal();
             }
         });
     </script>
