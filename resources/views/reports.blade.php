@@ -256,7 +256,7 @@
                 <table class="w-full min-w-full">
                     <thead>
                         <tr class="border-b-2 border-green-200">
-                            <th class="text-right py-3 px-3 md:px-4 font-bold text-gray-800 text-sm md:text-base">المدينة/المكان</th>
+                            <th class="text-right py-3 px-3 md:px-4 font-bold text-gray-800 text-sm md:text-base">المدينة</th>
                             <th class="text-center py-3 px-3 md:px-4 font-bold text-gray-800 text-sm md:text-base">الإجمالي</th>
                             <th class="text-center py-3 px-3 md:px-4 font-bold text-blue-600 text-sm md:text-base">ذكور</th>
                             <th class="text-center py-3 px-3 md:px-4 font-bold text-pink-600 text-sm md:text-base">إناث</th>
@@ -271,9 +271,7 @@
                             <tr class="border-b border-gray-100 hover:bg-white/50 transition">
                                 <td class="py-3 px-3 md:px-4 font-bold text-gray-800 text-sm md:text-base">
                                     <div class="flex items-center gap-2">
-                                        <div class="w-8 h-8 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
-                                            <i class="fas fa-map-marker-alt"></i>
-                                        </div>
+                                        
                                         <span>{{ $stat['location_name'] }}</span>
                                     </div>
                                 </td>
@@ -310,7 +308,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="py-8 text-center text-gray-500">لا توجد بيانات عن الأحياء</td>
+                                <td colspan="5" class="py-8 text-center text-gray-500">لا توجد بيانات عن الأماكن</td>
                             </tr>
                         @endforelse
                     </tbody>
