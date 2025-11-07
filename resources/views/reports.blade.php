@@ -257,7 +257,6 @@
                     <thead>
                         <tr class="border-b-2 border-green-200">
                             <th class="text-right py-3 px-3 md:px-4 font-bold text-gray-800 text-sm md:text-base">الحي</th>
-                            <th class="text-right py-3 px-3 md:px-4 font-bold text-gray-800 text-sm md:text-base">المدينة</th>
                             <th class="text-center py-3 px-3 md:px-4 font-bold text-gray-800 text-sm md:text-base">الإجمالي</th>
                             <th class="text-center py-3 px-3 md:px-4 font-bold text-blue-600 text-sm md:text-base">ذكور</th>
                             <th class="text-center py-3 px-3 md:px-4 font-bold text-pink-600 text-sm md:text-base">إناث</th>
@@ -277,9 +276,6 @@
                                         </div>
                                         <span>{{ $stat['location_name'] }}</span>
                                     </div>
-                                </td>
-                                <td class="py-3 px-3 md:px-4 font-medium text-gray-700 text-sm md:text-base">
-                                    {{ $stat['city'] ?? '-' }}
                                 </td>
                                 <td class="py-3 px-3 md:px-4 text-center">
                                     <span class="inline-block px-2 md:px-3 py-1 bg-green-100 text-green-700 rounded-full font-bold text-xs md:text-sm">
@@ -314,7 +310,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="py-8 text-center text-gray-500">لا توجد بيانات عن الأحياء</td>
+                                <td colspan="5" class="py-8 text-center text-gray-500">لا توجد بيانات عن الأحياء</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -322,7 +318,6 @@
                         <tfoot>
                             <tr class="border-t-2 border-green-200 bg-green-50 font-bold">
                                 <td class="py-3 px-3 md:px-4 text-gray-800 text-sm md:text-base">الإجمالي</td>
-                                <td class="py-3 px-3 md:px-4 text-gray-600 text-sm md:text-base">-</td>
                                 <td class="py-3 px-3 md:px-4 text-center">
                                     <span class="inline-block px-2 md:px-3 py-1 bg-green-600 text-white rounded-full text-xs md:text-sm">
                                         {{ number_format($totalInAllLocations) }}

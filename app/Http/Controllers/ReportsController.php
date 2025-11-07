@@ -239,16 +239,15 @@ class ReportsController extends Controller
     }
 
     /**
-     * جلب إحصائيات الأحياء (الأماكن التي لديها city) مع عدد الذكور والإناث الأحياء فقط
+     * جلب إحصائيات الأحياء مع عدد الذكور والإناث الأحياء فقط
      */
     private function getLocationsStatistics()
     {
-        // جلب جميع الأحياء (الأماكن التي لديها city) والتي لديها أشخاص مرتبطين بها
-        $locations = Location::whereNotNull('city')
-            ->whereHas('persons', function($query) {
-                $query->where('from_outside_the_family', false)
-                      ->whereNull('death_date'); // الأحياء فقط
-            })->get();
+        // جلب جميع الأحياء التي لديها أشخاص أحياء مرتبطين بها
+        $locations = Location::whereHas('persons', function($query) {
+            $query->where('from_outside_the_family', false)
+                  ->whereNull('death_date'); // الأفراد الأحياء فقط
+        })->get();
 
         $statistics = [];
 
@@ -257,13 +256,13 @@ class ReportsController extends Controller
             $males = $location->persons()
                 ->where('from_outside_the_family', false)
                 ->where('gender', 'male')
-                ->whereNull('death_date') // الأحياء فقط
+                ->whereNull('death_date') // الأفراد الأحياء فقط
                 ->count();
 
             $females = $location->persons()
                 ->where('from_outside_the_family', false)
                 ->where('gender', 'female')
-                ->whereNull('death_date') // الأحياء فقط
+                ->whereNull('death_date') // الأفراد الأحياء فقط
                 ->count();
 
             $total = $males + $females;
@@ -272,7 +271,6 @@ class ReportsController extends Controller
                 $statistics[] = [
                     'location_id' => $location->id,
                     'location_name' => $location->display_name,
-                    'city' => $location->city,
                     'total' => $total,
                     'males' => $males,
                     'females' => $females,
