@@ -63,7 +63,10 @@ class OutsideFamilyPersonController extends Controller
 
             // إزالة الحقول غير الموجودة في $fillable أو التي لا نريدها في الإنشاء المباشر
             $marryingPersonId = $personData['marrying_person_id'] ?? null;
-            unset($personData['photo'], $personData['marrying_person_id'], $personData['location'] ?? null);
+            unset($personData['photo'], $personData['marrying_person_id']);
+            if (isset($personData['location'])) {
+                unset($personData['location']);
+            }
 
             $newlyAddedPerson = Person::create($personData);
 

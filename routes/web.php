@@ -115,7 +115,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::get('locations/find-similar', [LocationController::class, 'findSimilar'])->name('locations.find-similar');
     Route::get('locations/autocomplete', [LocationController::class, 'autocomplete'])->name('locations.autocomplete');
     Route::post('locations/merge', [LocationController::class, 'merge'])->name('locations.merge');
-    Route::resource('locations', LocationController::class);
+    Route::resource('locations', LocationController::class)->where(['location' => '[0-9]+']);
     Route::resource('roles', RoleController::class)->middleware(['permission:roles.manage']);
     Route::resource('users', UserController::class)->only(['index', 'store', 'update', 'destroy'])->middleware(['permission:users.manage']);
     Route::patch('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status')->middleware(['permission:users.manage']);
