@@ -239,27 +239,31 @@ class ReportsController extends Controller
     }
 
     /**
-     * جلب إحصائيات الأماكن مع عدد الذكور والإناث
+     * جلب إحصائيات الأحياء (الأماكن التي لديها city) مع عدد الذكور والإناث الأحياء فقط
      */
     private function getLocationsStatistics()
     {
-        // جلب جميع الأماكن التي لديها أشخاص مرتبطين بها
-        $locations = Location::whereHas('persons', function($query) {
-            $query->where('from_outside_the_family', false);
-        })->get();
+        // جلب جميع الأحياء (الأماكن التي لديها city) والتي لديها أشخاص مرتبطين بها
+        $locations = Location::whereNotNull('city')
+            ->whereHas('persons', function($query) {
+                $query->where('from_outside_the_family', false)
+                      ->whereNull('death_date'); // الأحياء فقط
+            })->get();
 
         $statistics = [];
 
         foreach ($locations as $location) {
-            // حساب عدد الذكور والإناث في هذا المكان
+            // حساب عدد الذكور والإناث الأحياء فقط في هذا الحي
             $males = $location->persons()
                 ->where('from_outside_the_family', false)
                 ->where('gender', 'male')
+                ->whereNull('death_date') // الأحياء فقط
                 ->count();
 
             $females = $location->persons()
                 ->where('from_outside_the_family', false)
                 ->where('gender', 'female')
+                ->whereNull('death_date') // الأحياء فقط
                 ->count();
 
             $total = $males + $females;
@@ -268,6 +272,7 @@ class ReportsController extends Controller
                 $statistics[] = [
                     'location_id' => $location->id,
                     'location_name' => $location->display_name,
+                    'city' => $location->city,
                     'total' => $total,
                     'males' => $males,
                     'females' => $females,
