@@ -229,8 +229,8 @@
         // زر دمج الأماكن
         $('#mergeLocationsBtn').on('click', function() {
             const checkedCount = $('.location-checkbox:checked').length;
-            if (checkedCount < 2) {
-                alert('يجب اختيار مكانين على الأقل للدمج.');
+            if (checkedCount < 1) {
+                alert('يجب اختيار مكان واحد على الأقل للدمج.');
                 return;
             }
 
