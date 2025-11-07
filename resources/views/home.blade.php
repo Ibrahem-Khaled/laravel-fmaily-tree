@@ -10,6 +10,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 
     <style>
         body {
@@ -121,6 +123,75 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
+
+        /* Swiper Custom Styles */
+        .gallerySwiper {
+            padding: 10px 40px 40px 40px !important;
+        }
+
+        .gallerySwiper .swiper-button-next,
+        .gallerySwiper .swiper-button-prev {
+            color: #37a05c;
+            background: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .gallerySwiper .swiper-button-next:hover,
+        .gallerySwiper .swiper-button-prev:hover {
+            background: #f3f4f6;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .gallerySwiper .swiper-button-next::after,
+        .gallerySwiper .swiper-button-prev::after {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .gallerySwiper .swiper-button-next {
+            left: 0;
+            right: auto;
+        }
+
+        .gallerySwiper .swiper-button-prev {
+            right: 0;
+            left: auto;
+        }
+
+        .gallerySwiper .swiper-pagination-bullet {
+            background: #d1d5db;
+            opacity: 1;
+            width: 8px;
+            height: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .gallerySwiper .swiper-pagination-bullet-active {
+            background: #37a05c;
+            width: 24px;
+            border-radius: 4px;
+        }
+
+        @media (max-width: 640px) {
+            .gallerySwiper {
+                padding: 10px 30px 30px 30px !important;
+            }
+
+            .gallerySwiper .swiper-button-next,
+            .gallerySwiper .swiper-button-prev {
+                width: 32px;
+                height: 32px;
+            }
+
+            .gallerySwiper .swiper-button-next::after,
+            .gallerySwiper .swiper-button-prev::after {
+                font-size: 14px;
+            }
+        }
     </style>
 </head>
 
@@ -215,33 +286,19 @@
                 <div class="w-16 md:w-24 h-0.5 md:h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent mr-0"></div>
             </div>
 
-            {{-- آخر 8 صور من المعرض - Carousel --}}
+            {{-- آخر 8 صور من المعرض - Swiper Carousel --}}
             @if($latestGalleryImages->count() > 0)
                 <div class="relative mb-6">
-                    {{-- Navigation Buttons --}}
-                    <button onclick="slideGallery('prev')"
-                            class="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-white rounded-full p-2 shadow-lg hover:shadow-xl transition-all hover:bg-gray-50"
-                            id="gallery-prev-btn"
-                            aria-label="السابق">
-                        <i class="fas fa-chevron-right text-green-600 text-lg"></i>
-                    </button>
-                    <button onclick="slideGallery('next')"
-                            class="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-white rounded-full p-2 shadow-lg hover:shadow-xl transition-all hover:bg-gray-50"
-                            id="gallery-next-btn"
-                            aria-label="التالي">
-                        <i class="fas fa-chevron-left text-green-600 text-lg"></i>
-                    </button>
-
-                    {{-- Gallery Container --}}
-                    <div class="overflow-hidden rounded-lg" id="gallery-wrapper">
-                        <div class="flex transition-transform duration-500 ease-in-out" id="gallery-container" style="transform: translateX(0px); will-change: transform;">
+                    <!-- Swiper -->
+                    <div class="swiper gallerySwiper">
+                        <div class="swiper-wrapper">
                             @foreach($latestGalleryImages as $galleryImage)
-                                <div class="gallery-slide flex-shrink-0 w-1/2 sm:w-1/4 px-2">
-                                        <div class="relative group overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
+                                <div class="swiper-slide">
+                                    <div class="relative group overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 px-2">
                                         <img src="{{ asset('storage/' . $galleryImage->path) }}"
                                              alt="{{ $galleryImage->name ?? 'صورة' }}"
-                                             class="w-full h-24 md:h-32 lg:h-40 object-cover transition-transform duration-300 group-hover:scale-110">
-                                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                             class="w-full h-24 md:h-32 lg:h-40 object-cover transition-transform duration-300 group-hover:scale-110 rounded-lg">
+                                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg">
                                             <div class="absolute bottom-2 right-2 left-2">
                                                 <p class="text-white text-xs md:text-sm font-semibold truncate">
                                                     {{ $galleryImage->name ?? 'صورة' }}
@@ -257,11 +314,11 @@
                                 </div>
                             @endforeach
                         </div>
-                    </div>
-
-                    {{-- Dots Indicator --}}
-                    <div class="flex justify-center gap-2 mt-4" id="gallery-dots">
-                        {{-- Dots will be generated dynamically by JavaScript --}}
+                        <!-- Navigation buttons -->
+                        <div class="swiper-button-next gallery-next"></div>
+                        <div class="swiper-button-prev gallery-prev"></div>
+                        <!-- Pagination -->
+                        <div class="swiper-pagination gallery-pagination"></div>
                     </div>
                 </div>
             @endif
@@ -551,213 +608,36 @@
         });
     </script>
 
+    <!-- Swiper JS -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script>
-        // Gallery Carousel functionality
-        let currentGallerySlide = 0;
-        const galleryContainer = document.getElementById('gallery-container');
-        const galleryWrapper = document.getElementById('gallery-wrapper');
-        const gallerySlides = document.querySelectorAll('.gallery-slide');
-        const totalGalleryImages = {{ $latestGalleryImages->count() ?? 0 }};
-
-        // Touch/swipe support
-        let touchStartX = 0;
-        let touchEndX = 0;
-        let isDragging = false;
-        let startX = 0;
-        let scrollLeft = 0;
-
-        function updateGallerySlidesPerView() {
-            return window.innerWidth >= 640 ? 4 : 2;
-        }
-
-        function slideGallery(direction) {
-            const slidesPerView = updateGallerySlidesPerView();
-            const maxSlides = Math.ceil(totalGalleryImages / slidesPerView);
-
-            if (direction === 'next') {
-                if (currentGallerySlide < maxSlides - 1) {
-                    currentGallerySlide++;
-                } else {
-                    currentGallerySlide = 0; // Loop back to start
-                }
-            } else {
-                if (currentGallerySlide > 0) {
-                    currentGallerySlide--;
-                } else {
-                    currentGallerySlide = maxSlides - 1; // Loop to end
-                }
-            }
-
-            updateGalleryPosition();
-            updateGalleryDots();
-            updateGalleryButtons();
-        }
-
-        function goToGallerySlide(index) {
-            const slidesPerView = updateGallerySlidesPerView();
-            const maxSlides = Math.ceil(totalGalleryImages / slidesPerView);
-
-            if (index >= 0 && index < maxSlides) {
-                currentGallerySlide = index;
-                updateGalleryPosition();
-                updateGalleryDots();
-                updateGalleryButtons();
-            }
-        }
-
-        function updateGalleryPosition() {
-            if (!galleryContainer || !galleryWrapper) return;
-
-            const slidesPerView = updateGallerySlidesPerView();
-            // Get the actual width of the wrapper
-            const wrapperWidth = galleryWrapper.offsetWidth;
-            // Calculate the width of one slide (including padding)
-            // On mobile: w-1/2 = 50%, on desktop: w-1/4 = 25%
-            const slideWidth = wrapperWidth / slidesPerView;
-            // Move by the number of slides we want to skip
-            const translateX = -(currentGallerySlide * slideWidth * slidesPerView);
-
-            galleryContainer.style.transform = `translateX(${translateX}px)`;
-        }
-
-        function createGalleryDots() {
-            const slidesPerView = updateGallerySlidesPerView();
-            const maxSlides = Math.ceil(totalGalleryImages / slidesPerView);
-            const dotsContainer = document.getElementById('gallery-dots');
-
-            if (!dotsContainer) return;
-
-            // Clear existing dots
-            dotsContainer.innerHTML = '';
-
-            // Create dots dynamically
-            for (let i = 0; i < maxSlides; i++) {
-                const dot = document.createElement('button');
-                dot.onclick = () => goToGallerySlide(i);
-                dot.className = `w-2 h-2 rounded-full transition-all ${i === currentGallerySlide ? 'bg-green-600 w-6' : 'bg-gray-300'}`;
-                dot.id = `gallery-dot-${i}`;
-                dot.setAttribute('aria-label', `انتقل للشريحة ${i + 1}`);
-                dotsContainer.appendChild(dot);
-            }
-        }
-
-        function updateGalleryDots() {
-            const slidesPerView = updateGallerySlidesPerView();
-            const maxSlides = Math.ceil(totalGalleryImages / slidesPerView);
-            const dots = document.querySelectorAll('[id^="gallery-dot-"]');
-
-            // Recreate dots if count changed (e.g., on resize)
-            if (dots.length !== maxSlides) {
-                createGalleryDots();
-                return;
-            }
-
-            dots.forEach((dot, index) => {
-                if (index === currentGallerySlide) {
-                    dot.classList.remove('bg-gray-300', 'w-2');
-                    dot.classList.add('bg-green-600', 'w-6');
-                } else {
-                    dot.classList.remove('bg-green-600', 'w-6');
-                    dot.classList.add('bg-gray-300', 'w-2');
-                }
-            });
-        }
-
-        function updateGalleryButtons() {
-            const slidesPerView = updateGallerySlidesPerView();
-            const maxSlides = Math.ceil(totalGalleryImages / slidesPerView);
-
-            const prevBtn = document.getElementById('gallery-prev-btn');
-            const nextBtn = document.getElementById('gallery-next-btn');
-
-            // يمكن إخفاء الأزرار إذا كان هناك شريحة واحدة فقط
-            if (maxSlides <= 1) {
-                if (prevBtn) prevBtn.style.display = 'none';
-                if (nextBtn) nextBtn.style.display = 'none';
-            } else {
-                if (prevBtn) prevBtn.style.display = 'block';
-                if (nextBtn) nextBtn.style.display = 'block';
-            }
-        }
-
-        // Touch/swipe event handlers for mobile
-        if (galleryWrapper) {
-            galleryWrapper.addEventListener('touchstart', function(e) {
-                touchStartX = e.changedTouches[0].screenX;
-                isDragging = true;
-                galleryContainer.style.transition = 'none';
-            }, { passive: true });
-
-            galleryWrapper.addEventListener('touchmove', function(e) {
-                if (!isDragging) return;
-                e.preventDefault();
-                const currentX = e.changedTouches[0].screenX;
-                const diff = touchStartX - currentX;
-                const slidesPerView = updateGallerySlidesPerView();
-                const wrapperWidth = galleryWrapper.offsetWidth;
-                const slideWidth = wrapperWidth / slidesPerView;
-                const baseTranslate = -(currentGallerySlide * slideWidth * slidesPerView);
-                galleryContainer.style.transition = 'none';
-                galleryContainer.style.transform = `translateX(${baseTranslate + diff}px)`;
-            }, { passive: false });
-
-            galleryWrapper.addEventListener('touchend', function(e) {
-                if (!isDragging) return;
-                touchEndX = e.changedTouches[0].screenX;
-                isDragging = false;
-                galleryContainer.style.transition = 'transform 0.5s ease-in-out';
-
-                const swipeThreshold = 50; // Minimum distance for swipe
-                const diff = touchStartX - touchEndX;
-
-                if (Math.abs(diff) > swipeThreshold) {
-                    if (diff > 0) {
-                        // Swipe left - next
-                        slideGallery('next');
-                    } else {
-                        // Swipe right - prev
-                        slideGallery('prev');
-                    }
-                } else {
-                    // Reset position if swipe wasn't significant
-                    updateGalleryPosition();
-                }
-            }, { passive: true });
-        }
-
-        // Update on window resize
-        let resizeTimer;
-        window.addEventListener('resize', function() {
-            clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(function() {
-                currentGallerySlide = 0;
-                createGalleryDots();
-                updateGalleryPosition();
-                updateGalleryButtons();
-            }, 250);
-        });
-
-        // Initialize on page load
+        // Initialize Gallery Swiper
         document.addEventListener('DOMContentLoaded', function() {
-            if (totalGalleryImages > 0) {
-                // Wait a bit for layout to settle
-                setTimeout(function() {
-                    createGalleryDots();
-                    updateGalleryPosition();
-                    updateGalleryButtons();
-                }, 100);
-            }
-        });
-
-        // Also initialize when window loads (in case DOMContentLoaded already fired)
-        window.addEventListener('load', function() {
-            if (totalGalleryImages > 0 && galleryContainer) {
-                setTimeout(function() {
-                    createGalleryDots();
-                    updateGalleryPosition();
-                    updateGalleryButtons();
-                }, 100);
-            }
+            const totalImages = {{ $latestGalleryImages->count() ?? 0 }};
+            const gallerySwiper = new Swiper('.gallerySwiper', {
+                slidesPerView: 2,
+                spaceBetween: 10,
+                loop: totalImages > 4,
+                autoplay: {
+                    delay: 5000,
+                    disableOnInteraction: false,
+                },
+                pagination: {
+                    el: '.gallery-pagination',
+                    clickable: true,
+                    dynamicBullets: true,
+                },
+                navigation: {
+                    nextEl: '.gallery-next',
+                    prevEl: '.gallery-prev',
+                },
+                breakpoints: {
+                    640: {
+                        slidesPerView: 4,
+                        spaceBetween: 15,
+                    },
+                },
+            });
         });
     </script>
 
