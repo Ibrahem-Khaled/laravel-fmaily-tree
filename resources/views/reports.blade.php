@@ -360,10 +360,14 @@
                             </div>
                             <div class="min-w-0 flex-1">
                                 <div class="font-bold text-gray-800 text-sm md:text-base break-words">{{ $person['full_name'] }}</div>
-                                <div class="text-xs text-gray-500">{{ $person['birth_date'] ?? 'غير محدد' }}</div>
+                                @if(isset($person['gender']) && $person['gender'] === 'male')
+                                    <div class="text-xs text-gray-500">{{ $person['birth_date'] ?? 'غير محدد' }}</div>
+                                @endif
                             </div>
                         </div>
-                        <div class="text-base md:text-lg font-bold text-green-600 flex-shrink-0 ml-3">{{ $person['age'] }} سنة</div>
+                        @if(isset($person['gender']) && $person['gender'] === 'male')
+                            <div class="text-base md:text-lg font-bold text-green-600 flex-shrink-0 ml-3">{{ $person['age'] }} سنة</div>
+                        @endif
                     </div>
                 @empty
                     <p class="text-center text-gray-500 py-4">لا توجد بيانات</p>
@@ -780,17 +784,20 @@
                                     ? '<span class="text-blue-600 font-medium mr-2">♂</span>'
                                     : '<span class="text-pink-600 font-medium mr-2">♀</span>';
 
-                                const ageText = person.age ? ` (${person.age} سنة)` : '';
-                                const birthDateText = person.birth_date ? ` - ${person.birth_date}` : '';
+                                // إخفاء العمر وتاريخ الميلاد للنساء
+                                let ageAndDateText = '';
+                                if (person.gender === 'male') {
+                                    const ageText = person.age ? ` (${person.age} سنة)` : '';
+                                    const birthDateText = person.birth_date ? ` - ${person.birth_date}` : '';
+                                    ageAndDateText = ageText + birthDateText;
+                                }
 
                                 personDiv.innerHTML = `
                                     <div class="flex items-center gap-2 min-w-0 flex-1">
                                         ${genderIcon}
                                         <span class="text-gray-800 break-words flex-1 hover:text-green-600 transition">${person.full_name}</span>
                                     </div>
-                                    <div class="text-xs text-gray-500 flex-shrink-0 ml-3">
-                                        ${ageText}${birthDateText}
-                                    </div>
+                                    ${ageAndDateText ? `<div class="text-xs text-gray-500 flex-shrink-0 ml-3">${ageAndDateText}</div>` : ''}
                                 `;
                                 personsList.appendChild(personDiv);
                             });
