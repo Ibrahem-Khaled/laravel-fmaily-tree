@@ -243,12 +243,12 @@
             </div>
         </section>
 
-        <!-- القسم الثالث: إحصائيات الأحياء (عدد سكان الأحياء) -->
+        <!-- القسم الثالث: إحصائيات الأماكن (عدد سكان المدن) -->
         <section class="glass-effect p-4 md:p-6 rounded-2xl green-glow mb-6 md:mb-8 fade-in">
             <div class="flex flex-col md:flex-row items-center gap-3 mb-4 md:mb-6">
                 <div class="text-center md:text-right">
-                    <h3 class="text-xl md:text-2xl font-bold gradient-text">عدد سكان الأحياء</h3>
-                    <p class="text-xs md:text-sm text-gray-600 mt-1">توزيع أبناء العائلة الأحياء على الأحياء حسب الذكور والإناث</p>
+                    <h3 class="text-xl md:text-2xl font-bold gradient-text">عدد سكان المدن</h3>
+                    <p class="text-xs md:text-sm text-gray-600 mt-1">توزيع أبناء العائلة على الأماكن حسب الذكور والإناث</p>
                 </div>
             </div>
             
@@ -256,7 +256,7 @@
                 <table class="w-full min-w-full">
                     <thead>
                         <tr class="border-b-2 border-green-200">
-                            <th class="text-right py-3 px-3 md:px-4 font-bold text-gray-800 text-sm md:text-base">الحي</th>
+                            <th class="text-right py-3 px-3 md:px-4 font-bold text-gray-800 text-sm md:text-base">المدينة/المكان</th>
                             <th class="text-center py-3 px-3 md:px-4 font-bold text-gray-800 text-sm md:text-base">الإجمالي</th>
                             <th class="text-center py-3 px-3 md:px-4 font-bold text-blue-600 text-sm md:text-base">ذكور</th>
                             <th class="text-center py-3 px-3 md:px-4 font-bold text-pink-600 text-sm md:text-base">إناث</th>
