@@ -125,6 +125,18 @@ class Person extends BaseModel
         return $this->birth_date->diffInYears($endDate);
     }
 
+    public function getLifeSpanAttribute(): ?string
+    {
+        if (!$this->birth_date) {
+            return null;
+        }
+
+        $startDate = $this->birth_date->format('Y-m-d');
+        $endDate = $this->death_date ? $this->death_date->format('Y-m-d') : 'حتى الآن';
+        
+        return $startDate . ' - ' . $endDate;
+    }
+
     public function getAvatarAttribute(): ?string
     {
         if ($this->photo_url) {

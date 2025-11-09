@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
+use App\Exports\PersonsExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 
 class PersonController extends Controller
@@ -373,5 +375,95 @@ class PersonController extends Controller
 
         // إرجاع قائمة الزوجات كـ JSON
         return response()->json($wives);
+    }
+
+    public function export(Request $request)
+    {
+        $search = trim((string) $request->input('search'));
+        $gender = $request->input('gender');
+        $familyStatus = $request->input('family_status');
+
+        // بناء الاستعلام الأساسي مع الفلاتر (نفس منطق index)
+        $query = Person::query()
+            ->when($gender, fn($q) => $q->where('gender', $gender))
+            ->when($familyStatus !== null, function ($query) use ($familyStatus) {
+                if ($familyStatus === '1') {
+                    $query->where('from_outside_the_family', false);
+                } elseif ($familyStatus === '0') {
+                    $query->where('from_outside_the_family', true);
+                }
+            });
+
+        // تطبيق البحث إذا كان موجوداً
+        if ($search !== '') {
+            $searchTerm = trim($search);
+            $words = explode(' ', $searchTerm);
+            $firstWord = $words[0];
+            $query->where('first_name', 'like', "%{$firstWord}%");
+        }
+
+        // تحميل العلاقات المطلوبة لـ full_name accessor
+        $query->with([
+            'location',
+            'parent' => function($q1) {
+                $q1->with([
+                    'parent' => function($q2) {
+                        $q2->with([
+                            'parent' => function($q3) {
+                                $q3->with([
+                                    'parent' => function($q4) {
+                                        $q4->with([
+                                            'parent' => function($q5) {
+                                                $q5->with([
+                                                    'parent' => function($q6) {
+                                                        $q6->with([
+                                                            'parent' => function($q7) {
+                                                                $q7->with([
+                                                                    'parent' => function($q8) {
+                                                                        $q8->with([
+                                                                            'parent' => function($q9) {
+                                                                                $q9->with('parent');
+                                                                            }
+                                                                        ]);
+                                                                    }
+                                                                ]);
+                                                            }
+                                                        ]);
+                                                    }
+                                                ]);
+                                            }
+                                        ]);
+                                    }
+                                ]);
+                            }
+                        ]);
+                    }
+                ]);
+            },
+            'mother'
+        ]);
+
+        // جلب جميع الأشخاص
+        $allPeople = $query->get();
+
+        // فلترة النتائج في PHP بناءً على full_name إذا كان هناك بحث
+        if ($search !== '') {
+            $searchLower = mb_strtolower(trim($search), 'UTF-8');
+            $allPeople = $allPeople->filter(function ($person) use ($searchLower) {
+                try {
+                    $fullName = mb_strtolower($person->full_name, 'UTF-8');
+                    return mb_strpos($fullName, $searchLower) !== false;
+                } catch (\Exception $e) {
+                    return false;
+                }
+            })->values();
+        }
+
+        // إنشاء Export class مع الاستعلام المفلتر
+        $export = new PersonsExport($allPeople);
+
+        // تصدير الملف
+        $fileName = 'persons_' . date('Y-m-d_His') . '.xlsx';
+        return Excel::download($export, $fileName);
     }
 }

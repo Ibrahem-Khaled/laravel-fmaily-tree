@@ -6,15 +6,48 @@ use App\Models\Person;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class PersonsExport implements FromCollection, WithHeadings, WithMapping
+class PersonsExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize, WithStyles
 {
+    protected $query;
+
+    public function __construct($query = null)
+    {
+        $this->query = $query;
+    }
+
     /**
     * @return \Illuminate\Support\Collection
     */
     public function collection()
     {
-        return Person::with('location')->get();
+        if ($this->query) {
+            // إذا كان Collection، نعيده مباشرة
+            if ($this->query instanceof \Illuminate\Support\Collection) {
+                return $this->query;
+            }
+            // إذا كان Query Builder، نستدعي get()
+            return $this->query->get();
+        }
+
+        // تحميل العلاقات المطلوبة لـ full_name accessor
+        return Person::with([
+            'parent',
+            'parent.parent',
+            'parent.parent.parent',
+            'parent.parent.parent.parent',
+            'parent.parent.parent.parent.parent',
+            'parent.parent.parent.parent.parent.parent',
+            'parent.parent.parent.parent.parent.parent.parent',
+            'parent.parent.parent.parent.parent.parent.parent.parent',
+            'parent.parent.parent.parent.parent.parent.parent.parent.parent',
+            'parent.parent.parent.parent.parent.parent.parent.parent.parent.parent',
+            'mother',
+            'location'
+        ])->get();
     }
 
     /**
@@ -24,17 +57,23 @@ class PersonsExport implements FromCollection, WithHeadings, WithMapping
     {
         return [
             'ID',
+            'الاسم الكامل',
             'الاسم الأول',
             'اسم العائلة',
-            'تاريخ الميلاد',
-            'تاريخ الوفاة',
             'الجنس',
+            'تاريخ الميلاد',
+            'العمر',
+            'فترة الحياة',
+            'تاريخ الوفاة',
+            'مكان الميلاد',
+            'مكان الإقامة',
+            'مكان الوفاة',
+            'المقبرة',
             'المهنة',
-            'المكان',
+            'الأب',
+            'الأم',
+            'الحالة العائلية',
             'السيرة الذاتية',
-            'معرف الأب/الأم',
-            '_lft',
-            '_rgt',
         ];
     }
 
@@ -46,17 +85,34 @@ class PersonsExport implements FromCollection, WithHeadings, WithMapping
     {
         return [
             $person->id,
+            $person->full_name, // استخدام accessor
             $person->first_name,
-            $person->last_name,
-            $person->birth_date ? $person->birth_date->format('Y-m-d') : null,
-            $person->death_date ? $person->death_date->format('Y-m-d') : null,
-            $person->gender,
-            $person->occupation,
-            $person->location_display ?? null,
-            $person->biography,
-            $person->parent_id,
-            $person->_lft,
-            $person->_rgt,
+            $person->last_name ?? '',
+            $person->gender == 'male' ? 'ذكر' : 'أنثى',
+            $person->birth_date ? $person->birth_date->format('Y-m-d') : '',
+            $person->age ?? '',
+            $person->life_span ?? '',
+            $person->death_date ? $person->death_date->format('Y-m-d') : '',
+            $person->birth_place ?? '',
+            $person->location_display ?? '',
+            $person->death_place ?? '',
+            $person->cemetery ?? '',
+            $person->occupation ?? '',
+            $person->parent ? $person->parent->full_name : '',
+            $person->mother ? $person->mother->full_name : '',
+            $person->from_outside_the_family ? 'خارج العائلة' : 'داخل العائلة',
+            $person->biography ?? '',
+        ];
+    }
+
+    /**
+     * @param Worksheet $sheet
+     * @return array
+     */
+    public function styles(Worksheet $sheet)
+    {
+        return [
+            1 => ['font' => ['bold' => true, 'size' => 12]],
         ];
     }
 }

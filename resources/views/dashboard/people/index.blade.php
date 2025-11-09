@@ -42,9 +42,14 @@
         <div class="card shadow mb-4">
             <div class="card-header py-3 d-flex justify-content-between">
                 <h6 class="m-0 font-weight-bold text-primary">قائمة الأشخاص</h6>
-                <button class="btn btn-primary" data-toggle="modal" data-target="#createPersonModal">
-                    <i class="fas fa-plus"></i> إضافة شخص
-                </button>
+                <div>
+                    <a href="{{ route('people.export.excel', request()->query()) }}" class="btn btn-success mr-2">
+                        <i class="fas fa-file-excel"></i> تصدير Excel
+                    </a>
+                    <button class="btn btn-primary" data-toggle="modal" data-target="#createPersonModal">
+                        <i class="fas fa-plus"></i> إضافة شخص
+                    </button>
+                </div>
             </div>
             <div class="card-body">
                 {{-- ✅ تعديل تبويبات الجنس: إضافة قيمة البحث الحالية إلى الروابط --}}
