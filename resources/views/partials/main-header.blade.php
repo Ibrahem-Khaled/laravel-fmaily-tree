@@ -29,7 +29,7 @@
         justify-content: space-between;
         align-items: center;
         height: 100%;
-        padding: 0 2rem;
+        padding: 0 1rem;
         /* مساحة على الأطراف */
         max-width: 1400px;
         margin: 0 auto;
@@ -126,7 +126,7 @@
     .header-nav {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.25rem;
     }
 
     .header-nav-list {
@@ -134,12 +134,12 @@
         list-style: none;
         margin: 0;
         padding: 0;
-        gap: 0.5rem;
+        gap: 0.25rem;
     }
 
     .header-nav .nav-link {
         display: block;
-        padding: 0 1rem;
+        padding: 0 0.75rem;
         height: var(--header-height);
         line-height: var(--header-height);
         color: var(--header-text);

@@ -17,7 +17,16 @@ class CourseController extends Controller
     {
         $courses = Course::orderBy('order')->get();
         
-        return view('dashboard.courses.index', compact('courses'));
+        // إحصائيات الدورات
+        $stats = [
+            'total' => Course::count(),
+            'active' => Course::where('is_active', true)->count(),
+            'inactive' => Course::where('is_active', false)->count(),
+            'total_students' => Course::sum('students'),
+            'with_links' => Course::whereNotNull('link')->count(),
+        ];
+        
+        return view('dashboard.courses.index', compact('courses', 'stats'));
     }
 
     /**

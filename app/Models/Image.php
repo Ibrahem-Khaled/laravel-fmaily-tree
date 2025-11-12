@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
 
 class Image extends BaseModel
@@ -24,7 +25,9 @@ class Image extends BaseModel
         'is_program',
         'program_title',
         'program_description',
-        'program_order'
+        'program_order',
+        'program_id',
+        'program_media_order'
     ];
 
     public function article(): BelongsTo
@@ -43,6 +46,30 @@ class Image extends BaseModel
             ->withTimestamps()
             ->withPivot('order')
             ->orderBy('image_mentions.order');
+    }
+
+    /**
+     * Program that this media item belongs to.
+     */
+    public function program(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'program_id');
+    }
+
+    /**
+     * Media items attached to this program.
+     */
+    public function mediaItems(): HasMany
+    {
+        return $this->hasMany(self::class, 'program_id')->orderBy('program_media_order');
+    }
+
+    /**
+     * Program related links.
+     */
+    public function programLinks(): HasMany
+    {
+        return $this->hasMany(ProgramLink::class, 'program_id')->orderBy('link_order');
     }
 
     protected static function booted(): void

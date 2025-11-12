@@ -4,9 +4,11 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Image;
+use App\Models\ProgramLink;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class ProgramController extends Controller
 {
@@ -18,8 +20,15 @@ class ProgramController extends Controller
         $programs = Image::where('is_program', true)
             ->orderBy('program_order')
             ->get();
-        
-        return view('dashboard.programs.index', compact('programs'));
+
+        // إحصائيات البرامج
+        $stats = [
+            'total' => Image::where('is_program', true)->count(),
+            'with_description' => Image::where('is_program', true)->whereNotNull('program_description')->count(),
+            'recent' => Image::where('is_program', true)->where('created_at', '>=', now()->subDays(30))->count(),
+        ];
+
+        return view('dashboard.programs.index', compact('programs', 'stats'));
     }
 
     /**
@@ -30,7 +39,7 @@ class ProgramController extends Controller
         $request->validate([
             'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'program_title' => 'required|string|max:255',
-            'program_description' => 'nullable|string|max:1000',
+            'program_description' => 'nullable|string|max:10000',
             'name' => 'nullable|string|max:255',
             'category_id' => 'nullable|exists:categories,id',
         ]);
@@ -59,10 +68,12 @@ class ProgramController extends Controller
      */
     public function update(Request $request, Image $program)
     {
+        abort_unless($program->is_program, 404);
+
         $request->validate([
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'program_title' => 'required|string|max:255',
-            'program_description' => 'nullable|string|max:1000',
+            'program_description' => 'nullable|string|max:10000',
             'name' => 'nullable|string|max:255',
             'category_id' => 'nullable|exists:categories,id',
         ]);
@@ -72,7 +83,7 @@ class ProgramController extends Controller
             if ($program->path) {
                 Storage::disk('public')->delete($program->path);
             }
-            
+
             $imagePath = $request->file('image')->store('programs', 'public');
             $program->path = $imagePath;
         }
@@ -93,6 +104,8 @@ class ProgramController extends Controller
      */
     public function show(Image $program)
     {
+        abort_unless($program->is_program, 404);
+
         return response()->json([
             'program_title' => $program->program_title,
             'program_description' => $program->program_description,
@@ -107,10 +120,21 @@ class ProgramController extends Controller
      */
     public function destroy(Image $program)
     {
+        abort_unless($program->is_program, 404);
+
         if ($program->path) {
             Storage::disk('public')->delete($program->path);
         }
-        
+
+        $program->mediaItems->each(function (Image $media) {
+            if ($media->path && $media->media_type !== 'youtube') {
+                Storage::disk('public')->delete($media->path);
+            }
+            $media->delete();
+        });
+
+        $program->programLinks()->delete();
+
         $program->update([
             'is_program' => false,
             'program_title' => null,
@@ -141,5 +165,222 @@ class ProgramController extends Controller
         });
 
         return response()->json(['success' => true, 'message' => 'تم إعادة الترتيب بنجاح']);
+    }
+
+    /**
+     * صفحة إدارة تفاصيل برنامج محدد.
+     */
+    public function manage(Image $program)
+    {
+        abort_unless($program->is_program, 404);
+
+        $program->load(['mediaItems', 'programLinks']);
+
+        $galleryMedia = $program->mediaItems->filter(function (Image $media) {
+            return $media->media_type === 'image' || is_null($media->media_type);
+        });
+
+        $videoMedia = $program->mediaItems->filter(function (Image $media) {
+            return $media->media_type === 'youtube';
+        });
+
+        return view('dashboard.programs.manage', [
+            'program' => $program,
+            'galleryMedia' => $galleryMedia,
+            'videoMedia' => $videoMedia,
+            'programLinks' => $program->programLinks,
+        ]);
+    }
+
+    /**
+     * إضافة وسائط للبرنامج (صور أو فيديوهات يوتيوب).
+     */
+    public function storeMedia(Request $request, Image $program)
+    {
+        abort_unless($program->is_program, 404);
+
+        // التحقق من وجود صور عند اختيار نوع الوسيط صورة
+        if ($request->media_type === 'image') {
+            if (!$request->hasFile('images') && !$request->hasFile('image')) {
+                return redirect()
+                    ->route('dashboard.programs.manage', $program)
+                    ->withErrors(['images' => 'يرجى اختيار صورة واحدة على الأقل']);
+            }
+        }
+
+        $request->validate([
+            'media_type' => ['required', Rule::in(['image', 'youtube'])],
+            'title' => 'nullable|string|max:255',
+            'description' => 'nullable|string|max:500',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'images' => 'nullable|array',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'youtube_url' => 'required_if:media_type,youtube|url|max:500',
+        ], [
+            'images.*.image' => 'يجب أن يكون الملف المرفوع صورة',
+            'images.*.mimes' => 'يجب أن تكون الصورة من نوع: jpeg, png, jpg, gif, webp',
+            'images.*.max' => 'يجب ألا تتجاوز الصورة 5 ميجابايت',
+            'youtube_url.required_if' => 'يرجى إدخال رابط يوتيوب عند اختيار نوع الوسيط فيديو',
+        ]);
+
+        $nextOrder = ($program->mediaItems()->max('program_media_order') ?? 0) + 1;
+
+        if ($request->media_type === 'image') {
+            $uploadedCount = 0;
+            
+            // دعم رفع عدة صور دفعة واحدة
+            if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $image) {
+                    $path = $image->store('programs/media', 'public');
+                    
+                    $program->mediaItems()->create([
+                        'name' => $request->title,
+                        'description' => $request->description,
+                        'path' => $path,
+                        'media_type' => 'image',
+                        'program_media_order' => $nextOrder++,
+                        'is_program' => false,
+                    ]);
+                    $uploadedCount++;
+                }
+            } 
+            // دعم رفع صورة واحدة (للتوافق مع الكود القديم)
+            elseif ($request->hasFile('image')) {
+                $path = $request->file('image')->store('programs/media', 'public');
+                
+                $program->mediaItems()->create([
+                    'name' => $request->title,
+                    'description' => $request->description,
+                    'path' => $path,
+                    'media_type' => 'image',
+                    'program_media_order' => $nextOrder,
+                    'is_program' => false,
+                ]);
+                $uploadedCount = 1;
+            }
+
+            $message = $uploadedCount > 1 
+                ? "تم رفع {$uploadedCount} صور بنجاح" 
+                : "تم إضافة الصورة بنجاح";
+        } else {
+            $program->mediaItems()->create([
+                'name' => $request->title,
+                'description' => $request->description,
+                'media_type' => 'youtube',
+                'youtube_url' => $request->youtube_url,
+                'program_media_order' => $nextOrder,
+                'is_program' => false,
+            ]);
+            $message = 'تم إضافة الفيديو بنجاح';
+        }
+
+        return redirect()
+            ->route('dashboard.programs.manage', $program)
+            ->with('success', $message);
+    }
+
+    /**
+     * حذف وسيط من البرنامج.
+     */
+    public function destroyMedia(Image $program, Image $media)
+    {
+        abort_unless($program->is_program && $media->program_id === $program->id, 404);
+
+        if ($media->path && $media->media_type !== 'youtube') {
+            Storage::disk('public')->delete($media->path);
+        }
+
+        $media->delete();
+
+        return redirect()
+            ->route('dashboard.programs.manage', $program)
+            ->with('success', 'تم حذف الوسيط بنجاح');
+    }
+
+    /**
+     * إعادة ترتيب وسائط البرنامج.
+     */
+    public function reorderMedia(Request $request, Image $program)
+    {
+        abort_unless($program->is_program, 404);
+
+        $request->validate([
+            'orders' => 'required|array',
+            'orders.*' => 'required|integer|exists:images,id',
+        ]);
+
+        DB::transaction(function () use ($request, $program) {
+            foreach ($request->orders as $order => $mediaId) {
+                Image::where('id', $mediaId)
+                    ->where('program_id', $program->id)
+                    ->update(['program_media_order' => $order + 1]);
+            }
+        });
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * إضافة رابط خارجي للبرنامج.
+     */
+    public function storeLink(Request $request, Image $program)
+    {
+        abort_unless($program->is_program, 404);
+
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'url' => 'required|url|max:500',
+            'description' => 'nullable|string|max:500',
+        ]);
+
+        $nextOrder = ($program->programLinks()->max('link_order') ?? 0) + 1;
+
+        $program->programLinks()->create([
+            'title' => $request->title,
+            'url' => $request->url,
+            'description' => $request->description,
+            'link_order' => $nextOrder,
+        ]);
+
+        return redirect()
+            ->route('dashboard.programs.manage', $program)
+            ->with('success', 'تم إضافة الرابط بنجاح');
+    }
+
+    /**
+     * حذف رابط خارجي.
+     */
+    public function destroyLink(Image $program, ProgramLink $link)
+    {
+        abort_unless($program->is_program && $link->program_id === $program->id, 404);
+
+        $link->delete();
+
+        return redirect()
+            ->route('dashboard.programs.manage', $program)
+            ->with('success', 'تم حذف الرابط بنجاح');
+    }
+
+    /**
+     * إعادة ترتيب الروابط.
+     */
+    public function reorderLinks(Request $request, Image $program)
+    {
+        abort_unless($program->is_program, 404);
+
+        $request->validate([
+            'orders' => 'required|array',
+            'orders.*' => 'required|integer|exists:program_links,id',
+        ]);
+
+        DB::transaction(function () use ($request, $program) {
+            foreach ($request->orders as $order => $linkId) {
+                ProgramLink::where('id', $linkId)
+                    ->where('program_id', $program->id)
+                    ->update(['link_order' => $order + 1]);
+            }
+        });
+
+        return response()->json(['success' => true]);
     }
 }

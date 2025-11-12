@@ -84,40 +84,6 @@
             }
         }
 
-        /* تأثيرات إبداعية */
-        .coming-soon-card {
-            position: relative;
-            overflow: hidden;
-            background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
-        }
-
-        .coming-soon-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(34, 197, 94, 0.1) 0%, transparent 70%);
-            animation: rotate 20s linear infinite;
-        }
-
-        @keyframes rotate {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .shimmer {
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-            background-size: 200% 100%;
-            animation: shimmer 3s infinite;
-        }
-
-        @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-        }
-
         .glass-morphism {
             background: rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(10px);
@@ -192,6 +158,7 @@
                 font-size: 14px;
             }
         }
+
     </style>
 </head>
 
@@ -207,7 +174,7 @@
                         @if($slideshowImage->image_url)
                             <img src="{{ $slideshowImage->image_url }}"
                                  alt="{{ $slideshowImage->title ?? 'صورة' }}"
-                                 class="w-full h-full object-cover opacity-90">
+                                 class="w-full h-full object-contain opacity-90">
                         @endif
                         <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
                         @if($slideshowImage->title || $slideshowImage->description)
@@ -279,10 +246,10 @@
     </section> --}}
 
     {{-- What's New Section --}}
-    <section class="py-6 md:py-12 lg:py-16 bg-white mobile-section">
+    <section class="py-3 md:py-6 lg:py-8 bg-white mobile-section">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
-            <div class="text-right mb-4 md:mb-8">
-                <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient mb-2 md:mb-4">الصور</h2>
+            <div class="text-right mb-2 md:mb-4">
+                <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient mb-1 md:mb-2">الصور</h2>
                 <div class="w-16 md:w-24 h-0.5 md:h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent mr-0"></div>
             </div>
 
@@ -295,9 +262,17 @@
                             @foreach($latestGalleryImages as $galleryImage)
                                 <div class="swiper-slide">
                                     <div class="relative group overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 px-2">
-                                        <img src="{{ asset('storage/' . $galleryImage->path) }}"
-                                             alt="{{ $galleryImage->name ?? 'صورة' }}"
-                                             class="w-full h-24 md:h-32 lg:h-40 object-cover transition-transform duration-300 group-hover:scale-110 rounded-lg">
+                                        @if(isset($galleryImage->image_url))
+                                            {{-- HomeGalleryImage --}}
+                                            <img src="{{ $galleryImage->image_url }}"
+                                                 alt="{{ $galleryImage->name ?? 'صورة' }}"
+                                                 class="w-full h-24 md:h-32 lg:h-40 object-cover transition-transform duration-300 group-hover:scale-110 rounded-lg">
+                                        @else
+                                            {{-- Image from gallery --}}
+                                            <img src="{{ asset('storage/' . $galleryImage->path) }}"
+                                                 alt="{{ $galleryImage->name ?? 'صورة' }}"
+                                                 class="w-full h-24 md:h-32 lg:h-40 object-cover transition-transform duration-300 group-hover:scale-110 rounded-lg">
+                                        @endif
                                         <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg">
                                             <div class="absolute bottom-2 right-2 left-2">
                                                 <p class="text-white text-xs md:text-sm font-semibold truncate">
@@ -325,41 +300,116 @@
         </div>
     </section>
 
+    {{-- Family Councils Section --}}
+    <section class="py-3 md:py-6 lg:py-8 bg-white mobile-section">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+            <div class="text-right mb-2 md:mb-4">
+                <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient mb-1 md:mb-2">مجالس العائلة</h2>
+                <div class="w-16 md:w-24 h-0.5 md:h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent mr-0 mb-1 md:mb-2"></div>
+            </div>
+
+            @if($councils && $councils->count() > 0)
+                <div class="overflow-x-auto -mx-4 sm:mx-0">
+                    <div class="inline-block min-w-full align-middle">
+                        <div class="overflow-hidden shadow-lg rounded-lg">
+                            <table class="min-w-full divide-y divide-gray-200 bg-white">
+                                <thead class="gradient-bg text-white">
+                                    <tr>
+                                        <th scope="col" class="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-bold uppercase tracking-wider text-center">المجلس</th>
+                                        <th scope="col" class="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-bold uppercase tracking-wider text-center">الوصف</th>
+                                        <th scope="col" class="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-bold uppercase tracking-wider text-center">الموقع</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    @foreach($councils as $council)
+                                        <tr class="hover:bg-gray-50 transition-colors">
+                                            <td class="px-2 py-2 md:px-4 md:py-3 whitespace-nowrap text-center">
+                                                <div class="flex items-center justify-center">
+                                                    <i class="fas fa-building text-green-600 ml-2 text-sm md:text-base"></i>
+                                                    <span class="text-xs md:text-sm font-semibold text-gray-900">{{ $council->name }}</span>
+                                                </div>
+                                            </td>
+                                            <td class="px-2 py-2 md:px-4 md:py-3 text-center">
+                                                <a href="{{ route('councils.show', $council) }}"
+                                                   class="text-xs md:text-sm text-gray-600 line-clamp-2 max-w-xs mx-auto hover:text-green-600 transition-colors block">
+                                                    {{ $council->description ? Str::limit($council->description, 100) : '-' }}
+                                                </a>
+                                            </td>
+
+                                            <td class="px-2 py-2 md:px-4 md:py-3 whitespace-nowrap text-xs md:text-sm font-medium text-center">
+                                                @if($council->google_map_url)
+                                                    <a href="{{ $council->google_map_url }}"
+                                                       target="_blank"
+                                                       class="text-blue-600 hover:text-blue-900 transition-colors"
+                                                       title="فتح في جوجل ماب">
+                                                        <i class="fas fa-map-marked-alt"></i>
+                                                        <span class="mr-1 hidden lg:inline">الخريطة</span>
+                                                    </a>
+                                                @else
+                                                    <span class="text-gray-400">-</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            @else
+                <div class="text-center py-8 md:py-12">
+                    <i class="fas fa-building text-gray-400 text-4xl md:text-6xl mb-4"></i>
+                    <p class="text-gray-600 text-base md:text-lg">لا توجد مجالس متاحة حالياً</p>
+                </div>
+            @endif
+        </div>
+    </section>
+
     {{-- Family Programs Section --}}
-    {{-- <section class="py-6 md:py-12 lg:py-16 bg-gradient-to-br from-green-50 via-white to-emerald-50 mobile-section relative overflow-hidden">
+    <section class="py-3 md:py-6 lg:py-8 bg-gradient-to-br from-green-50 via-white to-emerald-50 mobile-section relative overflow-hidden">
         <div class="absolute inset-0 opacity-5">
             <div class="absolute top-0 right-0 w-96 h-96 bg-green-400 rounded-full blur-3xl"></div>
             <div class="absolute bottom-0 left-0 w-96 h-96 bg-emerald-400 rounded-full blur-3xl"></div>
         </div>
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
-            <div class="text-right mb-4 md:mb-8">
-                <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient mb-2 md:mb-4">برامج عائلة السريع</h2>
-                <div class="w-16 md:w-24 h-0.5 md:h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent mr-0 mb-2 md:mb-4"></div>
+            <div class="text-right mb-2 md:mb-4">
+                <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient mb-1 md:mb-2">برامج العائلة</h2>
+                <div class="w-16 md:w-24 h-0.5 md:h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent mr-0 mb-1 md:mb-2"></div>
             </div>
 
-            <div class="text-center py-8 md:py-12 lg:py-16 ">
-                <div class="coming-soon-card w-full inline-block rounded-xl md:rounded-2xl shadow-lg md:shadow-xl p-6 md:p-10 lg:p-12 max-w-lg mx-auto relative overflow-hidden shimmer">
-                    <div class="relative z-10">
-                        <div class="mb-4 md:mb-6">
-                            <div class="inline-block relative">
-                                <i class="fas fa-hourglass-half text-green-500 text-4xl md:text-5xl lg:text-6xl animate-pulse"></i>
-                                <div class="absolute inset-0 bg-green-400 rounded-full blur-xl opacity-30 animate-ping"></div>
+            {{-- برامج السريع - صور ملتصقة --}}
+            @if($programs && $programs->count() > 0)
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-3">
+                    @foreach($programs as $program)
+                        <a href="{{ route('programs.show', $program) }}"
+                           class="relative group overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 bg-white flex items-center justify-center h-24 sm:h-32 md:h-40 lg:h-48">
+                            <img src="{{ asset('storage/' . $program->path) }}"
+                                 alt="{{ $program->program_title ?? $program->name ?? 'برنامج' }}"
+                                 class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 p-2 sm:p-3">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                                <div class="absolute bottom-2 right-2 left-2">
+                                    <p class="text-white text-xs sm:text-sm font-semibold truncate drop-shadow-lg">
+                                        {{ $program->program_title ?? $program->name ?? 'برنامج' }}
+                                    </p>
+                                </div>
                             </div>
-                        </div>
-                        <h3 class="text-xl md:text-2xl lg:text-3xl font-bold text-gray-800 mb-2 md:mb-3">قريباً</h3>
-                        <div class="mt-4 md:mt-6 flex justify-center gap-2">
-                            <div class="w-2 h-2 bg-green-400 rounded-full animate-bounce" style="animation-delay: 0s;"></div>
-                            <div class="w-2 h-2 bg-green-500 rounded-full animate-bounce" style="animation-delay: 0.2s;"></div>
-                            <div class="w-2 h-2 bg-green-600 rounded-full animate-bounce" style="animation-delay: 0.4s;"></div>
-                        </div>
-                    </div>
+                        </a>
+                    @endforeach
                 </div>
-            </div>
+            @else
+                <div class="text-center py-8 md:py-12">
+                    <i class="fas fa-calendar-alt text-gray-400 text-4xl md:text-6xl mb-4"></i>
+                    <p class="text-gray-600 text-base md:text-lg">لا توجد برامج متاحة حالياً</p>
+                </div>
+            @endif
         </div>
-    </section> --}}
+    </section>
+
+    {{-- Old Family Programs Section (commented) --}}
+    {{-- <section class="py-6 md:py-12 lg:py-16 bg-gradient-to-br from-green-50 via-white to-emerald-50 mobile-section relative overflow-hidden">
 
     {{-- Courses Section --}}
-    {{-- <section class="py-6 md:py-12 lg:py-16 bg-white mobile-section">
+    <section class="py-6 md:py-12 lg:py-16 bg-white mobile-section">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
             <div class="text-right mb-4 md:mb-8">
                 <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient mb-2 md:mb-4">دورات اكادمية السريع</h2>
@@ -476,7 +526,7 @@
                 </div>
             @endif
         </div>
-    </section> --}}
+    </section>
 
     <script>
         // Enhanced slideshow functionality

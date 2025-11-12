@@ -53,26 +53,29 @@
 
     <!-- Heading -->
     <div class="sidebar-heading">
-        المحتوى والوسائط
+        الصفحة الرئيسية
     </div>
 
-    <!-- Nav Item - Content Management Collapse -->
-    <li class="nav-item {{ request()->routeIs(['articles.*', 'categories.*', 'dashboard.images.*', 'stories.*', 'dashboard.site-content.*', 'dashboard.slideshow.*', 'dashboard.courses.*', 'dashboard.programs.*']) ? 'active' : '' }}">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseContent"
-           aria-expanded="{{ request()->routeIs(['articles.*', 'categories.*', 'dashboard.images.*', 'stories.*', 'dashboard.site-content.*', 'dashboard.slideshow.*', 'dashboard.courses.*', 'dashboard.programs.*']) ? 'true' : 'false' }}"
-           aria-controls="collapseContent">
-            <i class="fas fa-fw fa-folder"></i>
-            <span>المحتوى والوسائط</span>
+    <!-- Nav Item - Home Page Management -->
+    <li class="nav-item {{ request()->routeIs(['dashboard.site-content.*', 'dashboard.slideshow.*', 'dashboard.home-gallery.*', 'dashboard.courses.*', 'dashboard.programs.*', 'dashboard.councils.*']) ? 'active' : '' }}">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseHome"
+           aria-expanded="{{ request()->routeIs(['dashboard.site-content.*', 'dashboard.slideshow.*', 'dashboard.home-gallery.*', 'dashboard.courses.*', 'dashboard.programs.*', 'dashboard.councils.*']) ? 'true' : 'false' }}"
+           aria-controls="collapseHome">
+            <i class="fas fa-fw fa-home"></i>
+            <span>الصفحة الرئيسية</span>
         </a>
-        <div id="collapseContent" class="collapse {{ request()->routeIs(['articles.*', 'categories.*', 'dashboard.images.*', 'stories.*', 'dashboard.site-content.*', 'dashboard.slideshow.*', 'dashboard.courses.*', 'dashboard.programs.*']) ? 'show' : '' }}"
-             aria-labelledby="headingContent" data-parent="#accordionSidebar">
+        <div id="collapseHome" class="collapse {{ request()->routeIs(['dashboard.site-content.*', 'dashboard.slideshow.*', 'dashboard.home-gallery.*', 'dashboard.courses.*', 'dashboard.programs.*', 'dashboard.councils.*']) ? 'show' : '' }}"
+             aria-labelledby="headingHome" data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
-                <h6 class="collapse-header">إدارة المحتوى:</h6>
+                <h6 class="collapse-header">إدارة الصفحة الرئيسية:</h6>
                 <a class="collapse-item {{ request()->routeIs('dashboard.site-content.*') ? 'active' : '' }}" href="{{ route('dashboard.site-content.index') }}">
-                    <i class="fas fa-fw fa-home"></i> محتوى الموقع
+                    <i class="fas fa-fw fa-file-alt"></i> محتوى الصفحة
                 </a>
                 <a class="collapse-item {{ request()->routeIs('dashboard.slideshow.*') ? 'active' : '' }}" href="{{ route('dashboard.slideshow.index') }}">
                     <i class="fas fa-fw fa-sliders-h"></i> السلايدشو
+                </a>
+                <a class="collapse-item {{ request()->routeIs('dashboard.home-gallery.*') ? 'active' : '' }}" href="{{ route('dashboard.home-gallery.index') }}">
+                    <i class="fas fa-fw fa-images"></i> صور الصفحة الرئيسية
                 </a>
                 <a class="collapse-item {{ request()->routeIs('dashboard.courses.*') ? 'active' : '' }}" href="{{ route('dashboard.courses.index') }}">
                     <i class="fas fa-fw fa-graduation-cap"></i> الدورات
@@ -80,6 +83,30 @@
                 <a class="collapse-item {{ request()->routeIs('dashboard.programs.*') ? 'active' : '' }}" href="{{ route('dashboard.programs.index') }}">
                     <i class="fas fa-fw fa-tv"></i> البرامج
                 </a>
+                <a class="collapse-item {{ request()->routeIs('dashboard.councils.*') ? 'active' : '' }}" href="{{ route('dashboard.councils.index') }}">
+                    <i class="fas fa-fw fa-building"></i> مجالس العائلة
+                </a>
+            </div>
+        </div>
+    </li>
+
+    <!-- Heading -->
+    <div class="sidebar-heading">
+        المحتوى والوسائط
+    </div>
+
+    <!-- Nav Item - Content Management Collapse -->
+    <li class="nav-item {{ request()->routeIs(['articles.*', 'categories.*', 'dashboard.images.*', 'stories.*']) ? 'active' : '' }}">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseContent"
+           aria-expanded="{{ request()->routeIs(['articles.*', 'categories.*', 'dashboard.images.*', 'stories.*']) ? 'true' : 'false' }}"
+           aria-controls="collapseContent">
+            <i class="fas fa-fw fa-folder"></i>
+            <span>المحتوى والوسائط</span>
+        </a>
+        <div id="collapseContent" class="collapse {{ request()->routeIs(['articles.*', 'categories.*', 'dashboard.images.*', 'stories.*']) ? 'show' : '' }}"
+             aria-labelledby="headingContent" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">إدارة المحتوى:</h6>
                 <a class="collapse-item {{ request()->routeIs('articles.*') ? 'active' : '' }}" href="{{ route('articles.index') }}">
                     <i class="fas fa-fw fa-book"></i> المقالات
                 </a>

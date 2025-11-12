@@ -20,6 +20,7 @@ use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\HomePersonController;
 use App\Http\Controllers\ReportsController;
+use App\Http\Controllers\ProgramPageController;
 use App\Http\Controllers\LogsController;
 use App\Http\Controllers\StoriesPublicController;
 use App\Http\Controllers\admin\StoryController;
@@ -38,6 +39,9 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/programs/{program}', [ProgramPageController::class, 'show'])->name('programs.show');
+Route::get('/councils', [\App\Http\Controllers\FamilyCouncilPublicController::class, 'index'])->name('councils.index');
+Route::get('/councils/{council}', [\App\Http\Controllers\FamilyCouncilPublicController::class, 'show'])->name('councils.show');
 Route::get('/sila', [FamilyTreeController::class, 'index'])->name('sila'); // صفحة صلة - شجرة العائلة
 Route::get('/family-tree', [FamilyTreeController::class, 'newIndex'])->name('family-tree');
 Route::get('/add-self', [FamilyTreeController::class, 'addSelf'])->name('add.self');
@@ -162,6 +166,14 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::delete('slideshow/{slideshowImage}', [\App\Http\Controllers\admin\SiteContentController::class, 'removeSlideshowImage'])->name('dashboard.slideshow.remove');
     Route::post('slideshow/{slideshowImage}/toggle', [\App\Http\Controllers\admin\SiteContentController::class, 'toggleSlideshowImage'])->name('dashboard.slideshow.toggle');
     
+    // Home Gallery routes
+    Route::get('home-gallery', [\App\Http\Controllers\admin\SiteContentController::class, 'homeGallery'])->name('dashboard.home-gallery.index');
+    Route::post('home-gallery/add', [\App\Http\Controllers\admin\SiteContentController::class, 'addHomeGalleryImage'])->name('dashboard.home-gallery.add');
+    Route::post('home-gallery/{homeGalleryImage}/update', [\App\Http\Controllers\admin\SiteContentController::class, 'updateHomeGalleryImage'])->name('dashboard.home-gallery.update');
+    Route::post('home-gallery/reorder', [\App\Http\Controllers\admin\SiteContentController::class, 'reorderHomeGallery'])->name('dashboard.home-gallery.reorder');
+    Route::delete('home-gallery/{homeGalleryImage}', [\App\Http\Controllers\admin\SiteContentController::class, 'removeHomeGalleryImage'])->name('dashboard.home-gallery.remove');
+    Route::post('home-gallery/{homeGalleryImage}/toggle', [\App\Http\Controllers\admin\SiteContentController::class, 'toggleHomeGalleryImage'])->name('dashboard.home-gallery.toggle');
+    
     // Courses routes
     Route::get('courses', [\App\Http\Controllers\admin\CourseController::class, 'index'])->name('dashboard.courses.index');
     Route::post('courses', [\App\Http\Controllers\admin\CourseController::class, 'store'])->name('dashboard.courses.store');
@@ -178,6 +190,25 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::post('programs/{program}/update', [\App\Http\Controllers\admin\ProgramController::class, 'update'])->name('dashboard.programs.update');
     Route::post('programs/reorder', [\App\Http\Controllers\admin\ProgramController::class, 'reorder'])->name('dashboard.programs.reorder');
     Route::delete('programs/{program}', [\App\Http\Controllers\admin\ProgramController::class, 'destroy'])->name('dashboard.programs.destroy');
+    Route::get('programs/{program}/manage', [\App\Http\Controllers\admin\ProgramController::class, 'manage'])->name('dashboard.programs.manage');
+    Route::post('programs/{program}/media', [\App\Http\Controllers\admin\ProgramController::class, 'storeMedia'])->name('dashboard.programs.media.store');
+    Route::delete('programs/{program}/media/{media}', [\App\Http\Controllers\admin\ProgramController::class, 'destroyMedia'])->name('dashboard.programs.media.destroy');
+    Route::post('programs/{program}/media/reorder', [\App\Http\Controllers\admin\ProgramController::class, 'reorderMedia'])->name('dashboard.programs.media.reorder');
+    Route::post('programs/{program}/links', [\App\Http\Controllers\admin\ProgramController::class, 'storeLink'])->name('dashboard.programs.links.store');
+    Route::delete('programs/{program}/links/{link}', [\App\Http\Controllers\admin\ProgramController::class, 'destroyLink'])->name('dashboard.programs.links.destroy');
+    Route::post('programs/{program}/links/reorder', [\App\Http\Controllers\admin\ProgramController::class, 'reorderLinks'])->name('dashboard.programs.links.reorder');
+    
+    // Family Councils routes
+    Route::get('councils', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'index'])->name('dashboard.councils.index');
+    Route::post('councils', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'store'])->name('dashboard.councils.store');
+    Route::get('councils/{council}', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'show'])->name('dashboard.councils.show');
+    Route::post('councils/{council}/update', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'update'])->name('dashboard.councils.update');
+    Route::post('councils/reorder', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'reorder'])->name('dashboard.councils.reorder');
+    Route::delete('councils/{council}', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'destroy'])->name('dashboard.councils.destroy');
+    Route::get('councils/{council}/manage', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'manage'])->name('dashboard.councils.manage');
+    Route::post('councils/{council}/images', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'storeImage'])->name('dashboard.councils.images.store');
+    Route::delete('councils/{council}/images/{image}', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'destroyImage'])->name('dashboard.councils.images.destroy');
+    Route::post('councils/{council}/images/reorder', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'reorderImages'])->name('dashboard.councils.images.reorder');
 });
 
 require __DIR__ . '/auth.php';

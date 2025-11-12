@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'إدارة السلايدشو')
+@section('title', 'إدارة صور الصفحة الرئيسية')
 
 @section('content')
 <div class="container-fluid">
@@ -8,12 +8,12 @@
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <div>
             <h1 class="h3 mb-2 text-gray-800">
-                <i class="fas fa-images text-primary mr-2"></i>إدارة السلايدشو
+                <i class="fas fa-images text-primary mr-2"></i>إدارة صور الصفحة الرئيسية
             </h1>
-            <p class="text-muted mb-0">قم بإدارة صور السلايدشو الرئيسية وإضافة تفاصيل لكل صورة</p>
+            <p class="text-muted mb-0">قم بإدارة صور قسم "الصور" في الصفحة الرئيسية</p>
         </div>
         <button type="button" class="btn btn-primary shadow-sm" data-toggle="modal" data-target="#addModal">
-            <i class="fas fa-plus-circle mr-2"></i>إضافة شريحة جديدة
+            <i class="fas fa-plus-circle mr-2"></i>إضافة صور
         </button>
     </div>
 
@@ -37,13 +37,13 @@
 
     <!-- Statistics Cards -->
     <div class="row mb-4">
-        <div class="col-xl-3 col-md-6 mb-4">
+        <div class="col-xl-4 col-md-6 mb-4">
             <div class="card border-left-primary shadow h-100 py-2" style="border-left: 0.25rem solid #4e73df !important;">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                إجمالي الشرائح
+                                إجمالي الصور
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['total'] ?? 0 }}</div>
                         </div>
@@ -55,13 +55,13 @@
             </div>
         </div>
 
-        <div class="col-xl-3 col-md-6 mb-4">
+        <div class="col-xl-4 col-md-6 mb-4">
             <div class="card border-left-success shadow h-100 py-2" style="border-left: 0.25rem solid #1cc88a !important;">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                شرائح نشطة
+                                صور نشطة
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['active'] ?? 0 }}</div>
                         </div>
@@ -73,13 +73,13 @@
             </div>
         </div>
 
-        <div class="col-xl-3 col-md-6 mb-4">
+        <div class="col-xl-4 col-md-6 mb-4">
             <div class="card border-left-warning shadow h-100 py-2" style="border-left: 0.25rem solid #f6c23e !important;">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                شرائح معطلة
+                                صور معطلة
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['inactive'] ?? 0 }}</div>
                         </div>
@@ -90,34 +90,16 @@
                 </div>
             </div>
         </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-info shadow h-100 py-2" style="border-left: 0.25rem solid #36b9cc !important;">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                شرائح بروابط
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['with_links'] ?? 0 }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-link fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
-    <!-- Slideshow Images Grid -->
-    @if($slideshowImages->count() > 0)
+    <!-- Gallery Images Grid -->
+    @if($galleryImages->count() > 0)
         <div class="mb-4">
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-white border-bottom">
                     <div class="d-flex justify-content-between align-items-center">
                         <h6 class="mb-0 font-weight-bold text-primary">
-                            <i class="fas fa-sliders-h mr-2"></i>صور السلايدشو ({{ $slideshowImages->count() }})
+                            <i class="fas fa-images mr-2"></i>صور المعرض ({{ $galleryImages->count() }})
                         </h6>
                         <button type="button" class="btn btn-sm btn-success" onclick="saveOrder()" id="saveOrderBtn" style="display: none;">
                             <i class="fas fa-save mr-1"></i>حفظ الترتيب
@@ -125,21 +107,21 @@
                     </div>
                 </div>
                 <div class="card-body p-4">
-                    <div id="slideshow-grid" class="row">
-                        @foreach($slideshowImages as $slideshowImage)
-                            <div class="col-md-6 col-lg-4 mb-4" data-id="{{ $slideshowImage->id }}">
-                                <div class="card h-100 shadow-sm border-0 slideshow-card {{ !$slideshowImage->is_active ? 'opacity-50' : '' }}" 
+                    <div id="gallery-grid" class="row">
+                        @foreach($galleryImages as $galleryImage)
+                            <div class="col-md-6 col-lg-4 mb-4" data-id="{{ $galleryImage->id }}">
+                                <div class="card h-100 shadow-sm border-0 gallery-card {{ !$galleryImage->is_active ? 'opacity-50' : '' }}" 
                                      style="transition: all 0.3s ease; border-radius: 12px; overflow: hidden;">
-                                    @if($slideshowImage->image_url)
+                                    @if($galleryImage->image_url)
                                         <div class="position-relative" style="overflow: hidden;">
-                                            <img src="{{ $slideshowImage->image_url }}" 
-                                                 alt="{{ $slideshowImage->title ?? 'صورة' }}"
+                                            <img src="{{ $galleryImage->image_url }}" 
+                                                 alt="{{ $galleryImage->name ?? 'صورة' }}"
                                                  class="card-img-top" 
                                                  style="height: 220px; object-fit: cover; cursor: move; transition: transform 0.3s ease;">
                                             <div class="position-absolute top-0 left-0 m-2">
-                                                <span class="badge badge-{{ $slideshowImage->is_active ? 'success' : 'secondary' }} shadow-sm px-3 py-2" style="font-size: 0.75rem;">
-                                                    <i class="fas fa-{{ $slideshowImage->is_active ? 'check-circle' : 'times-circle' }} mr-1"></i>
-                                                    {{ $slideshowImage->is_active ? 'نشط' : 'معطل' }}
+                                                <span class="badge badge-{{ $galleryImage->is_active ? 'success' : 'secondary' }} shadow-sm px-3 py-2" style="font-size: 0.75rem;">
+                                                    <i class="fas fa-{{ $galleryImage->is_active ? 'check-circle' : 'times-circle' }} mr-1"></i>
+                                                    {{ $galleryImage->is_active ? 'نشط' : 'معطل' }}
                                                 </span>
                                             </div>
                                             <div class="position-absolute top-0 right-0 m-2">
@@ -149,7 +131,7 @@
                                             </div>
                                             <div class="position-absolute bottom-0 right-0 m-2">
                                                 <span class="badge badge-dark shadow-sm px-2 py-1" style="font-size: 0.75rem;">
-                                                    #{{ $slideshowImage->order }}
+                                                    #{{ $galleryImage->order }}
                                                 </span>
                                             </div>
                                         </div>
@@ -158,47 +140,38 @@
                                     <div class="card-body p-3">
                                         <h6 class="card-title font-weight-bold mb-2 text-dark" style="font-size: 1rem;">
                                             <i class="fas fa-image text-primary mr-2"></i>
-                                            {{ $slideshowImage->title ?? 'بدون عنوان' }}
+                                            <span data-name="{{ $galleryImage->name ?? 'بدون اسم' }}">{{ $galleryImage->name ?? 'بدون اسم' }}</span>
                                         </h6>
                                         
-                                        @if($slideshowImage->description)
-                                            <p class="card-text text-muted small mb-2" style="font-size: 0.85rem; line-height: 1.5;">
-                                                {{ Str::limit($slideshowImage->description, 100) }}
+                                        @if($galleryImage->category)
+                                            <p class="card-text text-muted small mb-2" style="font-size: 0.85rem;" data-category-id="{{ $galleryImage->category_id }}">
+                                                <i class="fas fa-folder text-info mr-1"></i>
+                                                {{ $galleryImage->category->name }}
                                             </p>
-                                        @endif
-                                        
-                                        @if($slideshowImage->link)
-                                            <div class="mb-2">
-                                                <a href="{{ $slideshowImage->link }}" target="_blank" 
-                                                   class="text-info small" style="text-decoration: none;">
-                                                    <i class="fas fa-external-link-alt mr-1"></i>
-                                                    {{ Str::limit($slideshowImage->link, 40) }}
-                                                </a>
-                                            </div>
                                         @endif
                                         
                                         <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
                                             <div class="btn-group btn-group-sm shadow-sm">
                                                 <button type="button" 
                                                         class="btn btn-outline-info border-0" 
-                                                        onclick="editSlideshowImage({{ $slideshowImage->id }})" 
+                                                        onclick="editGalleryImage({{ $galleryImage->id }})" 
                                                         title="تعديل"
                                                         style="border-radius: 6px 0 0 6px;">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
-                                                <form action="{{ route('dashboard.slideshow.toggle', $slideshowImage) }}" 
+                                                <form action="{{ route('dashboard.home-gallery.toggle', $galleryImage) }}" 
                                                       method="POST" class="d-inline">
                                                     @csrf
                                                     <button type="submit" 
-                                                            class="btn btn-outline-{{ $slideshowImage->is_active ? 'warning' : 'success' }} border-0"
-                                                            title="{{ $slideshowImage->is_active ? 'تعطيل' : 'تفعيل' }}">
-                                                        <i class="fas fa-{{ $slideshowImage->is_active ? 'eye-slash' : 'eye' }}"></i>
+                                                            class="btn btn-outline-{{ $galleryImage->is_active ? 'warning' : 'success' }} border-0"
+                                                            title="{{ $galleryImage->is_active ? 'تعطيل' : 'تفعيل' }}">
+                                                        <i class="fas fa-{{ $galleryImage->is_active ? 'eye-slash' : 'eye' }}"></i>
                                                     </button>
                                                 </form>
-                                                <form action="{{ route('dashboard.slideshow.remove', $slideshowImage) }}" 
+                                                <form action="{{ route('dashboard.home-gallery.remove', $galleryImage) }}" 
                                                       method="POST" 
                                                       class="d-inline"
-                                                      onsubmit="return confirm('هل أنت متأكد من حذف هذه الشريحة؟')">
+                                                      onsubmit="return confirm('هل أنت متأكد من حذف هذه الصورة؟')">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" 
@@ -222,90 +195,85 @@
         <div class="card shadow-sm border-0">
             <div class="card-body text-center py-5">
                 <i class="fas fa-images text-muted" style="font-size: 4rem;"></i>
-                <h5 class="mt-3 text-muted">لا توجد صور في السلايدشو</h5>
-                <p class="text-muted mb-4">ابدأ بإضافة صور جديدة للسلايدشو</p>
+                <h5 class="mt-3 text-muted">لا توجد صور في المعرض</h5>
+                <p class="text-muted mb-4">ابدأ بإضافة صور جديدة للمعرض</p>
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addModal">
-                    <i class="fas fa-plus-circle mr-2"></i>إضافة شريحة جديدة
+                    <i class="fas fa-plus-circle mr-2"></i>إضافة صور
                 </button>
             </div>
         </div>
     @endif
 </div>
 
-<!-- Modal إضافة شريحة جديدة -->
+<!-- Modal إضافة صورة جديدة -->
 <div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content border-0 shadow-lg">
             <div class="modal-header bg-primary text-white border-0">
                 <h5 class="modal-title" id="addModalLabel">
-                    <i class="fas fa-plus-circle mr-2"></i>إضافة شريحة جديدة
+                    <i class="fas fa-plus-circle mr-2"></i>إضافة صور جديدة
                 </h5>
                 <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form action="{{ route('dashboard.slideshow.add') }}" method="POST" enctype="multipart/form-data" id="addForm">
+            <form action="{{ route('dashboard.home-gallery.add') }}" method="POST" enctype="multipart/form-data" id="addForm">
                 @csrf
                 <div class="modal-body p-4">
                     <div class="form-group">
-                        <label for="image" class="font-weight-bold">
-                            الصورة <span class="text-danger">*</span>
+                        <label for="images" class="font-weight-bold">
+                            الصور <span class="text-danger">*</span>
                         </label>
                         <div class="custom-file">
-                            <input type="file" name="image" id="image" 
-                                   class="custom-file-input @error('image') is-invalid @enderror" 
-                                   accept="image/*" required>
-                            <label class="custom-file-label" for="image">اختر صورة...</label>
+                            <input type="file" name="images[]" id="images" 
+                                   class="custom-file-input @error('images') is-invalid @enderror @error('images.*') is-invalid @enderror" 
+                                   accept="image/*" multiple required>
+                            <label class="custom-file-label" for="images">اختر صورة أو أكثر...</label>
                         </div>
-                        @error('image')
+                        @error('images')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                        @error('images.*')
                             <div class="invalid-feedback d-block">{{ $message }}</div>
                         @enderror
                         <small class="form-text text-muted">
                             <i class="fas fa-info-circle mr-1"></i>
-                            الصيغ المدعومة: JPEG, PNG, JPG, GIF, WebP (حد أقصى 5MB)
+                            يمكنك اختيار عدة صور في نفس الوقت. الصيغ المدعومة: JPEG, PNG, JPG, GIF, WebP (حد أقصى 5MB لكل صورة)
                         </small>
-                        <div class="mt-2" id="imagePreview"></div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="title" class="font-weight-bold">العنوان (اختياري)</label>
-                        <input type="text" name="title" id="title" 
-                               class="form-control @error('title') is-invalid @enderror" 
-                               value="{{ old('title') }}" 
-                               placeholder="أدخل عنوان للشريحة..."
-                               maxlength="255">
-                        @error('title')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="description" class="font-weight-bold">الوصف (اختياري)</label>
-                        <textarea name="description" id="description" rows="3" 
-                                  class="form-control @error('description') is-invalid @enderror" 
-                                  placeholder="أدخل وصف للشريحة..."
-                                  maxlength="1000">{{ old('description') }}</textarea>
-                        <small class="form-text text-muted">
-                            <span id="charCount">0</span> / 1000 حرف
-                        </small>
-                        @error('description')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="link" class="font-weight-bold">رابط (اختياري)</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fas fa-link"></i></span>
-                            </div>
-                            <input type="url" name="link" id="link" 
-                                   class="form-control @error('link') is-invalid @enderror" 
-                                   value="{{ old('link') }}" 
-                                   placeholder="https://example.com" 
-                                   maxlength="500">
+                        <div class="mt-3" id="imagePreview">
+                            <div class="row" id="previewContainer"></div>
                         </div>
-                        @error('link')
+                        <div class="mt-2">
+                            <small class="text-muted">
+                                <span id="selectedCount">0</span> صورة محددة
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="name" class="font-weight-bold">اسم الصورة (اختياري)</label>
+                        <input type="text" name="name" id="name" 
+                               class="form-control @error('name') is-invalid @enderror" 
+                               value="{{ old('name') }}" 
+                               placeholder="أدخل اسم للصورة..."
+                               maxlength="255">
+                        @error('name')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="category_id" class="font-weight-bold">الفئة (اختياري)</label>
+                        <select name="category_id" id="category_id" 
+                                class="form-control @error('category_id') is-invalid @enderror">
+                            <option value="">-- اختر فئة --</option>
+                            @foreach($categories as $category)
+                                <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
+                                    {{ $category->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('category_id')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
@@ -323,13 +291,13 @@
     </div>
 </div>
 
-<!-- Modal تعديل شريحة -->
+<!-- Modal تعديل صورة -->
 <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content border-0 shadow-lg">
             <div class="modal-header bg-info text-white border-0">
                 <h5 class="modal-title" id="editModalLabel">
-                    <i class="fas fa-edit mr-2"></i>تعديل الشريحة
+                    <i class="fas fa-edit mr-2"></i>تعديل الصورة
                 </h5>
                 <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
@@ -353,35 +321,21 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="edit_title" class="font-weight-bold">العنوان (اختياري)</label>
-                        <input type="text" name="title" id="edit_title" 
+                        <label for="edit_name" class="font-weight-bold">اسم الصورة (اختياري)</label>
+                        <input type="text" name="name" id="edit_name" 
                                class="form-control" 
-                               placeholder="أدخل عنوان للشريحة..."
+                               placeholder="أدخل اسم للصورة..."
                                maxlength="255">
                     </div>
                     
                     <div class="form-group">
-                        <label for="edit_description" class="font-weight-bold">الوصف (اختياري)</label>
-                        <textarea name="description" id="edit_description" rows="3" 
-                                  class="form-control" 
-                                  placeholder="أدخل وصف للشريحة..."
-                                  maxlength="1000"></textarea>
-                        <small class="form-text text-muted">
-                            <span id="editCharCount">0</span> / 1000 حرف
-                        </small>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="edit_link" class="font-weight-bold">رابط (اختياري)</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fas fa-link"></i></span>
-                            </div>
-                            <input type="url" name="link" id="edit_link" 
-                                   class="form-control" 
-                                   placeholder="https://example.com" 
-                                   maxlength="500">
-                        </div>
+                        <label for="edit_category_id" class="font-weight-bold">الفئة (اختياري)</label>
+                        <select name="category_id" id="edit_category_id" class="form-control">
+                            <option value="">-- اختر فئة --</option>
+                            @foreach($categories as $category)
+                                <option value="{{ $category->id }}">{{ $category->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
                 <div class="modal-footer bg-light border-0">
@@ -402,9 +356,9 @@
 
 <script>
     // تفعيل السحب والإفلات
-    const slideshowGrid = document.getElementById('slideshow-grid');
-    if (slideshowGrid) {
-        new Sortable(slideshowGrid, {
+    const galleryGrid = document.getElementById('gallery-grid');
+    if (galleryGrid) {
+        new Sortable(galleryGrid, {
             handle: '.fa-grip-vertical',
             animation: 300,
             ghostClass: 'sortable-ghost',
@@ -417,10 +371,10 @@
 
     // حفظ الترتيب
     function saveOrder() {
-        const items = document.querySelectorAll('#slideshow-grid [data-id]');
+        const items = document.querySelectorAll('#gallery-grid [data-id]');
         const orders = Array.from(items).map(item => item.dataset.id);
 
-        fetch('{{ route("dashboard.slideshow.reorder") }}', {
+        fetch('{{ route("dashboard.home-gallery.reorder") }}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -444,37 +398,74 @@
     }
 
     // تعديل صورة
-    function editSlideshowImage(id) {
-        fetch(`/dashboard/slideshow/${id}`)
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('edit_title').value = data.title || '';
-                document.getElementById('edit_description').value = data.description || '';
-                document.getElementById('edit_link').value = data.link || '';
-                document.getElementById('editForm').action = `/dashboard/slideshow/${id}/update`;
-                updateCharCount('edit_description', 'editCharCount');
-                $('#editModal').modal('show');
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('حدث خطأ أثناء تحميل البيانات');
-            });
+    function editGalleryImage(id) {
+        // جلب بيانات الصورة من DOM
+        const card = document.querySelector(`[data-id="${id}"]`);
+        if (!card) return;
+        
+        const imageUrl = card.querySelector('img')?.src;
+        const nameElement = card.querySelector('[data-name]');
+        const name = nameElement ? nameElement.dataset.name : '';
+        const categoryElement = card.querySelector('[data-category-id]');
+        const categoryId = categoryElement ? categoryElement.dataset.categoryId : '';
+        
+        // ملء النموذج
+        document.getElementById('edit_name').value = name || '';
+        document.getElementById('edit_category_id').value = categoryId || '';
+        document.getElementById('editForm').action = `/dashboard/home-gallery/${id}/update`;
+        
+        // عرض الصورة الحالية
+        if (imageUrl) {
+            document.getElementById('editImagePreview').innerHTML = `
+                <div class="border rounded p-2 bg-light">
+                    <img src="${imageUrl}" class="img-fluid rounded" style="max-height: 200px;">
+                    <small class="text-muted d-block mt-1">الصورة الحالية</small>
+                </div>
+            `;
+        }
+        
+        $('#editModal').modal('show');
     }
 
-    // معاينة الصورة عند الاختيار
-    document.getElementById('image').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('imagePreview').innerHTML = `
-                    <div class="border rounded p-2 bg-light">
-                        <img src="${e.target.result}" class="img-fluid rounded" style="max-height: 200px;">
-                    </div>
-                `;
-            };
-            reader.readAsDataURL(file);
+    // معاينة الصور عند الاختيار (دعم رفع متعدد)
+    document.getElementById('images').addEventListener('change', function(e) {
+        const files = Array.from(e.target.files);
+        const previewContainer = document.getElementById('previewContainer');
+        const selectedCount = document.getElementById('selectedCount');
+        
+        // تحديث العداد
+        selectedCount.textContent = files.length;
+        
+        // مسح المعاينة السابقة
+        previewContainer.innerHTML = '';
+        
+        if (files.length === 0) {
+            return;
         }
+        
+        // عرض معاينة لكل صورة
+        files.forEach((file, index) => {
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const col = document.createElement('div');
+                    col.className = 'col-md-4 col-sm-6 mb-3';
+                    col.innerHTML = `
+                        <div class="border rounded p-2 bg-light position-relative">
+                            <img src="${e.target.result}" class="img-fluid rounded" style="max-height: 150px; width: 100%; object-fit: cover;">
+                            <small class="text-muted d-block mt-1 text-center" style="font-size: 0.75rem;">
+                                ${file.name.length > 20 ? file.name.substring(0, 20) + '...' : file.name}
+                            </small>
+                            <small class="text-muted d-block text-center" style="font-size: 0.7rem;">
+                                ${(file.size / 1024 / 1024).toFixed(2)} MB
+                            </small>
+                        </div>
+                    `;
+                    previewContainer.appendChild(col);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
     });
 
     document.getElementById('edit_image').addEventListener('change', function(e) {
@@ -493,61 +484,55 @@
         }
     });
 
-    // عداد الأحرف
-    function updateCharCount(textareaId, counterId) {
-        const textarea = document.getElementById(textareaId);
-        const counter = document.getElementById(counterId);
-        if (textarea && counter) {
-            textarea.addEventListener('input', function() {
-                counter.textContent = this.value.length;
-            });
-            counter.textContent = textarea.value.length;
-        }
-    }
-
     // تحديث تسمية ملفات الرفع
     document.querySelectorAll('.custom-file-input').forEach(function(input) {
         input.addEventListener('change', function() {
             const label = this.nextElementSibling;
             if (this.files && this.files.length > 0) {
-                label.textContent = this.files[0].name;
+                if (this.multiple && this.files.length > 1) {
+                    label.textContent = `${this.files.length} ملفات محددة`;
+                } else {
+                    label.textContent = this.files[0].name;
+                }
             } else {
-                label.textContent = 'اختر ملف...';
+                label.textContent = input.id === 'images' ? 'اختر صورة أو أكثر...' : 'اختر ملف...';
             }
         });
     });
-
-    // تهيئة عداد الأحرف
-    updateCharCount('description', 'charCount');
     
     // إعادة تعيين النموذج عند إغلاق المودال
     $('#addModal').on('hidden.bs.modal', function() {
         document.getElementById('addForm').reset();
-        document.getElementById('imagePreview').innerHTML = '';
-        document.getElementById('charCount').textContent = '0';
+        document.getElementById('previewContainer').innerHTML = '';
+        document.getElementById('selectedCount').textContent = '0';
+    });
+    
+    $('#editModal').on('hidden.bs.modal', function() {
+        document.getElementById('editForm').reset();
+        document.getElementById('editImagePreview').innerHTML = '';
     });
 </script>
 
 <style>
-    .slideshow-card {
+    .gallery-card {
         transition: transform 0.3s ease, box-shadow 0.3s ease;
         border-radius: 12px;
     }
     
-    .slideshow-card:hover {
+    .gallery-card:hover {
         transform: translateY(-8px);
         box-shadow: 0 12px 30px rgba(0,0,0,0.2) !important;
     }
     
-    .slideshow-card:hover .card-img-top {
+    .gallery-card:hover .card-img-top {
         transform: scale(1.05);
     }
     
-    .slideshow-card .btn-group-sm .btn {
+    .gallery-card .btn-group-sm .btn {
         transition: all 0.2s ease;
     }
     
-    .slideshow-card .btn-group-sm .btn:hover {
+    .gallery-card .btn-group-sm .btn:hover {
         transform: scale(1.1);
         z-index: 10;
     }
@@ -586,3 +571,4 @@
     }
 </style>
 @endsection
+
