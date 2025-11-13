@@ -84,6 +84,13 @@
                 min-height: auto !important;
                 max-height: none !important;
                 overflow-y: visible !important;
+                overflow-x: visible !important;
+            }
+
+            .mobile-section {
+                overflow: visible !important;
+                overflow-x: visible !important;
+                overflow-y: visible !important;
             }
 
             h2 {
@@ -148,6 +155,18 @@
 
             .space-y-4 > * + * {
                 margin-top: 0.75rem !important;
+            }
+
+            .grid {
+                overflow: visible !important;
+                overflow-x: visible !important;
+                overflow-y: visible !important;
+            }
+
+            .container {
+                overflow: visible !important;
+                overflow-x: visible !important;
+                overflow-y: visible !important;
             }
         }
 
@@ -453,7 +472,7 @@
 
         {{-- Family Programs Section --}}
         <section
-            class="py-2 md:py-6 lg:py-8 bg-gradient-to-br from-green-50 via-white to-emerald-50 mobile-section relative overflow-hidden">
+            class="py-2 md:py-6 lg:py-8 bg-gradient-to-br from-green-50 via-white to-emerald-50 mobile-section relative">
             <div class="absolute inset-0 opacity-5">
                 <div class="absolute top-0 right-0 w-96 h-96 bg-green-400 rounded-full blur-3xl"></div>
                 <div class="absolute bottom-0 left-0 w-96 h-96 bg-emerald-400 rounded-full blur-3xl"></div>
