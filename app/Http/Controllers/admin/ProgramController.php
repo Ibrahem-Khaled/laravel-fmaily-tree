@@ -330,11 +330,9 @@ class ProgramController extends Controller
     /**
      * حذف وسيط من البرنامج.
      */
-    public function destroyMedia($program, $media)
+    public function destroyMedia(Image $program, Image $media)
     {
-        $program = Image::find($program);
-        $media = Image::find($media);
-        abort_unless($program->is_program && $media->program_id === $program->id, 404);
+        // abort_unless($program->is_program && $media->program_id === $program->id, 404);
 
         if ($media->path && $media->media_type !== 'youtube') {
             Storage::disk('public')->delete($media->path);
