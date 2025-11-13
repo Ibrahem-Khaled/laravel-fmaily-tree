@@ -242,12 +242,12 @@ class ProgramController extends Controller
 
         if ($request->media_type === 'image') {
             $uploadedCount = 0;
-            
+
             // دعم رفع عدة صور دفعة واحدة
             if ($request->hasFile('images')) {
                 foreach ($request->file('images') as $image) {
                     $path = $image->store('programs/media', 'public');
-                    
+
                     $program->mediaItems()->create([
                         'name' => $request->title,
                         'description' => $request->description,
@@ -258,11 +258,11 @@ class ProgramController extends Controller
                     ]);
                     $uploadedCount++;
                 }
-            } 
+            }
             // دعم رفع صورة واحدة (للتوافق مع الكود القديم)
             elseif ($request->hasFile('image')) {
                 $path = $request->file('image')->store('programs/media', 'public');
-                
+
                 $program->mediaItems()->create([
                     'name' => $request->title,
                     'description' => $request->description,
@@ -274,8 +274,8 @@ class ProgramController extends Controller
                 $uploadedCount = 1;
             }
 
-            $message = $uploadedCount > 1 
-                ? "تم رفع {$uploadedCount} صور بنجاح" 
+            $message = $uploadedCount > 1
+                ? "تم رفع {$uploadedCount} صور بنجاح"
                 : "تم إضافة الصورة بنجاح";
         } else {
             $program->mediaItems()->create([
@@ -330,8 +330,10 @@ class ProgramController extends Controller
     /**
      * حذف وسيط من البرنامج.
      */
-    public function destroyMedia(Image $program, Image $media)
+    public function destroyMedia($program, $media)
     {
+        $program = Image::find($program);
+        $media = Image::find($media);
         abort_unless($program->is_program && $media->program_id === $program->id, 404);
 
         if ($media->path && $media->media_type !== 'youtube') {
