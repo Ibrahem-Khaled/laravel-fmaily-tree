@@ -203,6 +203,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::post('programs/{program}/galleries/{gallery}/update', [\App\Http\Controllers\admin\ProgramController::class, 'updateGallery'])->name('dashboard.programs.galleries.update');
     Route::delete('programs/{program}/galleries/{gallery}', [\App\Http\Controllers\admin\ProgramController::class, 'destroyGallery'])->name('dashboard.programs.galleries.destroy');
     Route::post('programs/{program}/galleries/{gallery}/media', [\App\Http\Controllers\admin\ProgramController::class, 'storeGalleryMedia'])->name('dashboard.programs.galleries.media.store');
+    Route::post('programs/{program}/galleries/{gallery}/media/{media}/update', [\App\Http\Controllers\admin\ProgramController::class, 'updateGalleryMedia'])->name('dashboard.programs.galleries.media.update');
     Route::delete('programs/{program}/galleries/{gallery}/media/{media}', [\App\Http\Controllers\admin\ProgramController::class, 'destroyGalleryMedia'])->name('dashboard.programs.galleries.media.destroy');
     
     // Family Councils routes

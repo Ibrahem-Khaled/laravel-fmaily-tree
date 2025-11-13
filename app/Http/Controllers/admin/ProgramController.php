@@ -566,13 +566,49 @@ class ProgramController extends Controller
     }
 
     /**
+     * تحديث صورة في معرض.
+     */
+    public function updateGalleryMedia(Request $request, Image $program, ProgramGallery $gallery, Image $media)
+    {
+        abort_unless($program->is_program, 404);
+        abort_unless($gallery->program_id === $program->id, 404);
+        abort_unless($media->gallery_id === $gallery->id, 404);
+
+        $request->validate([
+            'name' => 'nullable|string|max:255',
+            'description' => 'nullable|string|max:500',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+        ]);
+
+        $updateData = [
+            'name' => $request->name,
+            'description' => $request->description,
+        ];
+
+        if ($request->hasFile('image')) {
+            // حذف الصورة القديمة
+            if ($media->path) {
+                Storage::disk('public')->delete($media->path);
+            }
+            // رفع الصورة الجديدة
+            $updateData['path'] = $request->file('image')->store('programs/media', 'public');
+        }
+
+        $media->update($updateData);
+
+        return redirect()
+            ->route('dashboard.programs.manage', $program)
+            ->with('success', 'تم تحديث الصورة بنجاح');
+    }
+
+    /**
      * حذف صورة من معرض.
      */
     public function destroyGalleryMedia(Image $program, ProgramGallery $gallery, Image $media)
     {
-        // abort_unless($program->is_program, 404);
-        // abort_unless($gallery->program_id === $program->id, 404);
-        // abort_unless($media->gallery_id === $gallery->id, 404);
+        abort_unless($program->is_program, 404);
+        abort_unless($gallery->program_id === $program->id, 404);
+        abort_unless($media->gallery_id === $gallery->id, 404);
 
         if ($media->path) {
             Storage::disk('public')->delete($media->path);
