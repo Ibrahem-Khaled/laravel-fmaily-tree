@@ -260,13 +260,25 @@
                                     @if($media->description)
                                         <p class="text-muted small mb-2">{{ Str::limit($media->description, 80) }}</p>
                                     @endif
-                                    <form action="{{ route('dashboard.programs.media.destroy', [$program, $media]) }}" method="POST" onsubmit="return confirm('هل أنت متأكد من حذف هذه الصورة؟')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger">
-                                            <i class="fas fa-trash mr-1"></i>حذف
+                                    <div class="d-flex gap-2">
+                                        <button type="button" 
+                                                class="btn btn-sm btn-outline-primary flex-fill" 
+                                                onclick="editMedia({{ $media->id }}, @json($media->name ?? ''), @json($media->description ?? ''))"
+                                                data-toggle="modal" 
+                                                data-target="#editMediaModal">
+                                            <i class="fas fa-edit mr-1"></i>تعديل
                                         </button>
-                                    </form>
+                                        <form action="{{ route('dashboard.programs.media.destroy', [$program, $media]) }}" 
+                                              method="POST" 
+                                              onsubmit="return confirm('هل أنت متأكد من حذف هذه الصورة؟')"
+                                              class="flex-fill">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-outline-danger w-100">
+                                                <i class="fas fa-trash mr-1"></i>حذف
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -423,6 +435,51 @@
                     @endforeach
                 </ul>
             @endif
+        </div>
+    </div>
+</div>
+
+<!-- Modal تعديل صورة -->
+<div class="modal fade" id="editMediaModal" tabindex="-1" role="dialog" aria-labelledby="editMediaModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-primary text-white border-0">
+                <h5 class="modal-title" id="editMediaModalLabel">
+                    <i class="fas fa-edit mr-2"></i>تعديل الصورة
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="editMediaForm" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-body p-4">
+                    <div class="form-group">
+                        <label for="edit_media_name" class="font-weight-bold">عنوان الصورة</label>
+                        <input type="text" name="name" id="edit_media_name" class="form-control" maxlength="255" placeholder="عنوان الصورة">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit_media_description" class="font-weight-bold">وصف الصورة</label>
+                        <textarea name="description" id="edit_media_description" class="form-control" rows="3" maxlength="500" placeholder="وصف الصورة"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit_media_image" class="font-weight-bold">استبدال الصورة (اختياري)</label>
+                        <div class="custom-file">
+                            <input type="file" name="image" id="edit_media_image" class="custom-file-input" accept="image/*">
+                            <label class="custom-file-label" for="edit_media_image">اختر صورة جديدة...</label>
+                        </div>
+                        <small class="form-text text-muted">اتركه فارغاً للحفاظ على الصورة الحالية</small>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <i class="fas fa-times mr-1"></i>إلغاء
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save mr-1"></i>حفظ التغييرات
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -602,6 +659,23 @@
                 }
             });
         }
+
+        // دالة تعديل الصورة
+        function editMedia(mediaId, name, description) {
+            document.getElementById('edit_media_name').value = name || '';
+            document.getElementById('edit_media_description').value = description || '';
+            document.getElementById('editMediaForm').action = '{{ route("dashboard.programs.media.update", [$program, ":media"]) }}'.replace(':media', mediaId);
+        }
+
+        // تحديث تسمية ملفات الرفع في modal التعديل
+        document.getElementById('edit_media_image')?.addEventListener('change', function() {
+            const label = this.nextElementSibling;
+            if (this.files && this.files.length > 0) {
+                label.textContent = this.files[0].name;
+            } else {
+                label.textContent = 'اختر صورة جديدة...';
+            }
+        });
     });
 </script>
 @endpush

@@ -295,6 +295,39 @@ class ProgramController extends Controller
     }
 
     /**
+     * تحديث وسيط من البرنامج.
+     */
+    public function updateMedia(Request $request, Image $program, Image $media)
+    {
+        abort_unless($program->is_program && $media->program_id === $program->id, 404);
+
+        $request->validate([
+            'name' => 'nullable|string|max:255',
+            'description' => 'nullable|string|max:500',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+        ]);
+
+        if ($request->hasFile('image')) {
+            // حذف الصورة القديمة
+            if ($media->path && $media->media_type !== 'youtube') {
+                Storage::disk('public')->delete($media->path);
+            }
+
+            $path = $request->file('image')->store('programs/media', 'public');
+            $media->path = $path;
+        }
+
+        $media->update([
+            'name' => $request->name ?? $media->name,
+            'description' => $request->description ?? $media->description,
+        ]);
+
+        return redirect()
+            ->route('dashboard.programs.manage', $program)
+            ->with('success', 'تم تحديث الوسيط بنجاح');
+    }
+
+    /**
      * حذف وسيط من البرنامج.
      */
     public function destroyMedia(Image $program, Image $media)

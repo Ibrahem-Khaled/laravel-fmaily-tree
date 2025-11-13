@@ -192,6 +192,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::delete('programs/{program}', [\App\Http\Controllers\admin\ProgramController::class, 'destroy'])->name('dashboard.programs.destroy');
     Route::get('programs/{program}/manage', [\App\Http\Controllers\admin\ProgramController::class, 'manage'])->name('dashboard.programs.manage');
     Route::post('programs/{program}/media', [\App\Http\Controllers\admin\ProgramController::class, 'storeMedia'])->name('dashboard.programs.media.store');
+    Route::post('programs/{program}/media/{media}/update', [\App\Http\Controllers\admin\ProgramController::class, 'updateMedia'])->name('dashboard.programs.media.update');
     Route::delete('programs/{program}/media/{media}', [\App\Http\Controllers\admin\ProgramController::class, 'destroyMedia'])->name('dashboard.programs.media.destroy');
     Route::post('programs/{program}/media/reorder', [\App\Http\Controllers\admin\ProgramController::class, 'reorderMedia'])->name('dashboard.programs.media.reorder');
     Route::post('programs/{program}/links', [\App\Http\Controllers\admin\ProgramController::class, 'storeLink'])->name('dashboard.programs.links.store');

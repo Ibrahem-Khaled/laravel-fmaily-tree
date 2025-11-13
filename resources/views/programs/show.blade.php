@@ -227,7 +227,6 @@
                         <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
                             <div>
                                 <h2 class="text-2xl lg:text-3xl font-bold font-serif bg-gradient-to-r from-emerald-600 to-teal-500 text-transparent bg-clip-text">{{ $program->name ?? $program->program_title ?? 'معرض الصور' }}</h2>
-                                <p class="text-sm text-gray-500 mt-1">ذكريات مصورة من فعاليات البرنامج</p>
                             </div>
                             <span class="px-3 py-1 bg-emerald-50 text-emerald-600 text-sm rounded-full border border-emerald-100">
                                 {{ $galleryMedia->count() }} صورة
@@ -235,16 +234,38 @@
                         </div>
                         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
                             @foreach($galleryMedia as $index => $media)
-                                <div class="group relative overflow-hidden rounded-2xl border border-white/60 shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer"
-                                     onclick="openLightbox({{ $index }})">
-                                    <img src="{{ asset('storage/' . $media->path) }}" alt="{{ $media->name ?? 'صورة' }}" class="w-full h-48 md:h-52 object-cover transition-transform duration-500 group-hover:scale-105">
-                                    <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                    <div class="absolute bottom-3 right-3 left-3 text-white">
-                                        <h3 class="font-semibold text-base line-clamp-1">{{ $media->name ?? 'صورة من فعاليات البرنامج' }}</h3>
-                                        @if($media->description)
-                                            <p class="text-xs text-white/80 mt-1 line-clamp-2">{{ $media->description }}</p>
-                                        @endif
+                                <div class="group relative overflow-hidden rounded-2xl border border-white/60 shadow-md hover:shadow-xl transition-all duration-300">
+                                    <div class="cursor-pointer" onclick="openLightbox({{ $index }})">
+                                        <img src="{{ asset('storage/' . $media->path) }}" alt="{{ $media->name ?? 'صورة' }}" class="w-full h-48 md:h-52 object-cover transition-transform duration-500 group-hover:scale-105">
+                                        <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                        <div class="absolute bottom-3 right-3 left-3 text-white">
+                                            <h3 class="font-semibold text-base line-clamp-1">{{ $media->name ?? 'صورة من فعاليات البرنامج' }}</h3>
+                                            @if($media->description)
+                                                <p class="text-xs text-white/80 mt-1 line-clamp-2">{{ $media->description }}</p>
+                                            @endif
+                                        </div>
                                     </div>
+                                    @if(Auth::check())
+                                        <div class="absolute top-2 left-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+                                            <a href="{{ route('dashboard.programs.manage', $program) }}"
+                                               class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-lg shadow-lg transition-colors"
+                                               title="تعديل الصورة">
+                                                <i class="fas fa-edit text-sm"></i>
+                                            </a>
+                                            <form action="{{ route('dashboard.programs.media.destroy', [$program, $media]) }}"
+                                                  method="POST"
+                                                  onsubmit="return confirm('هل أنت متأكد من حذف هذه الصورة؟')"
+                                                  class="inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit"
+                                                        class="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg shadow-lg transition-colors"
+                                                        title="حذف الصورة">
+                                                    <i class="fas fa-trash text-sm"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    @endif
                                 </div>
                             @endforeach
                         </div>
