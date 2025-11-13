@@ -252,7 +252,7 @@
 
     {{-- Hero Section with Slideshow --}}
     <section
-        class="relative h-[150px] sm:h-[200px] md:h-[260px] lg:h-[340px] overflow-hidden gradient-bg mobile-section">
+        class="relative h-[180px] sm:h-[200px] md:h-[260px] lg:h-[340px] overflow-hidden gradient-bg mobile-section">
         <div class="absolute inset-0 slide-container" id="slideContainer">
             @if ($latestImages->count() > 0)
                 @foreach ($latestImages->take(10) as $index => $slideshowImage)
