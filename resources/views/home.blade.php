@@ -244,6 +244,75 @@
                 font-size: 14px;
             }
         }
+
+        /* Courses Swiper Custom Styles */
+        .coursesSwiper {
+            padding: 10px 40px 40px 40px !important;
+        }
+
+        .coursesSwiper .swiper-button-next,
+        .coursesSwiper .swiper-button-prev {
+            color: #37a05c;
+            background: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .coursesSwiper .swiper-button-next:hover,
+        .coursesSwiper .swiper-button-prev:hover {
+            background: #f3f4f6;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .coursesSwiper .swiper-button-next::after,
+        .coursesSwiper .swiper-button-prev::after {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .coursesSwiper .swiper-button-next {
+            left: 0;
+            right: auto;
+        }
+
+        .coursesSwiper .swiper-button-prev {
+            right: 0;
+            left: auto;
+        }
+
+        .coursesSwiper .swiper-pagination-bullet {
+            background: #d1d5db;
+            opacity: 1;
+            width: 8px;
+            height: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .coursesSwiper .swiper-pagination-bullet-active {
+            background: #37a05c;
+            width: 24px;
+            border-radius: 4px;
+        }
+
+        @media (max-width: 640px) {
+            .coursesSwiper {
+                padding: 10px 30px 30px 30px !important;
+            }
+
+            .coursesSwiper .swiper-button-next,
+            .coursesSwiper .swiper-button-prev {
+                width: 32px;
+                height: 32px;
+            }
+
+            .coursesSwiper .swiper-button-next::after,
+            .coursesSwiper .swiper-button-prev::after {
+                font-size: 14px;
+            }
+        }
     </style>
 </head>
 
@@ -517,35 +586,23 @@
         {{-- <section class="py-6 md:py-12 lg:py-16 bg-gradient-to-br from-green-50 via-white to-emerald-50 mobile-section relative overflow-hidden">
 
     {{-- Courses Section --}}
-        <section class="py-6 md:py-12 lg:py-16 bg-white mobile-section">
+        <section class="py-2 md:py-6 lg:py-8 bg-white mobile-section">
             <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-                <div class="text-right mb-4 md:mb-8">
-                    <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient mb-2 md:mb-4">دورات اكادمية
+                <div class="text-right mb-4 md:mb-6">
+                    <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient mb-1 md:mb-2">دورات اكادمية
                         السريع</h2>
                     <div
-                        class="w-16 md:w-24 h-0.5 md:h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent mr-0 mb-2 md:mb-4">
+                        class="w-16 md:w-24 h-0.5 md:h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent mr-0">
                     </div>
                 </div>
 
                 @if ($courses->count() > 0)
-                    <div class="relative">
-                        <button onclick="slideCourses('prev')"
-                            class="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-white rounded-full p-3 shadow-lg hover:shadow-xl transition-all hover:bg-gray-50"
-                            id="courses-prev-btn" aria-label="السابق">
-                            <i class="fas fa-chevron-right text-green-600 text-xl"></i>
-                        </button>
-                        <button onclick="slideCourses('next')"
-                            class="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-white rounded-full p-3 shadow-lg hover:shadow-xl transition-all hover:bg-gray-50"
-                            id="courses-next-btn" aria-label="التالي">
-                            <i class="fas fa-chevron-left text-green-600 text-xl"></i>
-                        </button>
-
-                        <div class="overflow-hidden rounded-lg">
-                            <div class="flex transition-transform duration-500 ease-in-out" id="courses-container"
-                                style="transform: translateX(0);">
+                    <div class="relative mb-3 md:mb-6">
+                        <!-- Swiper -->
+                        <div class="swiper coursesSwiper">
+                            <div class="swiper-wrapper">
                                 @foreach ($courses as $course)
-                                    <div
-                                        class="course-slide flex-shrink-0 w-full sm:w-1/2 lg:w-1/3 xl:w-1/4 px-2 md:px-3">
+                                    <div class="swiper-slide">
                                         <div
                                             class="course-card bg-white rounded-lg md:rounded-xl shadow-lg overflow-hidden h-full">
                                             <div
@@ -621,28 +678,17 @@
                                     </div>
                                 @endforeach
                             </div>
+                            <!-- Navigation buttons -->
+                            <div class="swiper-button-next courses-next"></div>
+                            <div class="swiper-button-prev courses-prev"></div>
+                            <!-- Pagination -->
+                            <div class="swiper-pagination courses-pagination"></div>
                         </div>
-
-                        @php
-                            $totalCourses = $courses->count();
-                            $coursesPerView = 4; // Show 4 courses per slide on desktop
-                            $maxDots = max(1, ceil($totalCourses / $coursesPerView));
-                        @endphp
-                        @if ($maxDots > 1)
-                            <div class="flex justify-center gap-2 mt-6" id="courses-dots">
-                                @for ($i = 0; $i < $maxDots; $i++)
-                                    <button onclick="goToCoursesSlide({{ $i }})"
-                                        class="w-2 h-2 rounded-full transition-all {{ $i === 0 ? 'bg-green-600 w-6' : 'bg-gray-300' }}"
-                                        id="courses-dot-{{ $i }}"
-                                        aria-label="انتقل للشريحة {{ $i + 1 }}"></button>
-                                @endfor
-                            </div>
-                        @endif
                     </div>
                 @else
-                    <div class="text-center py-12">
-                        <i class="fas fa-book-open text-gray-400 text-6xl mb-4"></i>
-                        <p class="text-gray-600 text-lg">لا توجد دورات متاحة حالياً</p>
+                    <div class="text-center py-8 md:py-12">
+                        <i class="fas fa-book-open text-gray-400 text-4xl md:text-6xl mb-4"></i>
+                        <p class="text-gray-600 text-base md:text-lg">لا توجد دورات متاحة حالياً</p>
                     </div>
                 @endif
             </div>
@@ -813,96 +859,42 @@
     </script>
 
     <script>
-        // Courses Carousel functionality
-        let currentCoursesSlide = 0;
-        const coursesContainer = document.getElementById('courses-container');
-        const totalCourses = {{ $courses->count() ?? 0 }};
-
-        function updateCoursesSlidesPerView() {
-            if (window.innerWidth >= 1280) return 4; // xl
-            if (window.innerWidth >= 1024) return 3; // lg
-            if (window.innerWidth >= 640) return 2; // sm
-            return 1; // mobile
-        }
-
-        function slideCourses(direction) {
-            const slidesPerView = updateCoursesSlidesPerView();
-            const maxSlides = Math.ceil(totalCourses / slidesPerView);
-
-            if (direction === 'next') {
-                currentCoursesSlide = (currentCoursesSlide + 1) % maxSlides;
-            } else {
-                currentCoursesSlide = (currentCoursesSlide - 1 + maxSlides) % maxSlides;
-            }
-
-            updateCoursesPosition();
-            updateCoursesDots();
-            updateCoursesButtons();
-        }
-
-        function goToCoursesSlide(index) {
-            currentCoursesSlide = index;
-            updateCoursesPosition();
-            updateCoursesDots();
-            updateCoursesButtons();
-        }
-
-        function updateCoursesPosition() {
-            const slidesPerView = updateCoursesSlidesPerView();
-            const slideWidth = 100 / slidesPerView;
-            const translateX = -(currentCoursesSlide * slideWidth * slidesPerView);
-
-            if (coursesContainer) {
-                coursesContainer.style.transform = `translateX(${translateX}%)`;
-            }
-        }
-
-        function updateCoursesDots() {
-            const dots = document.querySelectorAll('[id^="courses-dot-"]');
-            dots.forEach((dot, index) => {
-                if (index === currentCoursesSlide) {
-                    dot.classList.remove('bg-gray-300', 'w-2');
-                    dot.classList.add('bg-green-600', 'w-6');
-                } else {
-                    dot.classList.remove('bg-green-600', 'w-6');
-                    dot.classList.add('bg-gray-300', 'w-2');
-                }
-            });
-        }
-
-        function updateCoursesButtons() {
-            const slidesPerView = updateCoursesSlidesPerView();
-            const maxSlides = Math.ceil(totalCourses / slidesPerView);
-
-            const prevBtn = document.getElementById('courses-prev-btn');
-            const nextBtn = document.getElementById('courses-next-btn');
-
-            if (maxSlides <= 1) {
-                if (prevBtn) prevBtn.style.display = 'none';
-                if (nextBtn) nextBtn.style.display = 'none';
-            } else {
-                if (prevBtn) prevBtn.style.display = 'block';
-                if (nextBtn) nextBtn.style.display = 'block';
-            }
-        }
-
-        // Update on window resize
-        let resizeTimerCourses;
-        window.addEventListener('resize', function() {
-            clearTimeout(resizeTimerCourses);
-            resizeTimerCourses = setTimeout(function() {
-                currentCoursesSlide = 0;
-                updateCoursesPosition();
-                updateCoursesDots();
-                updateCoursesButtons();
-            }, 250);
-        });
-
-        // Initialize courses carousel on page load
+        // Initialize Courses Swiper
         document.addEventListener('DOMContentLoaded', function() {
+            const totalCourses = {{ $courses->count() ?? 0 }};
             if (totalCourses > 0) {
-                updateCoursesDots();
-                updateCoursesButtons();
+                const coursesSwiper = new Swiper('.coursesSwiper', {
+                    slidesPerView: 1,
+                    spaceBetween: 15,
+                    loop: totalCourses > 4,
+                    autoplay: {
+                        delay: 5000,
+                        disableOnInteraction: false,
+                    },
+                    pagination: {
+                        el: '.courses-pagination',
+                        clickable: true,
+                        dynamicBullets: true,
+                    },
+                    navigation: {
+                        nextEl: '.courses-next',
+                        prevEl: '.courses-prev',
+                    },
+                    breakpoints: {
+                        640: {
+                            slidesPerView: 2,
+                            spaceBetween: 15,
+                        },
+                        1024: {
+                            slidesPerView: 3,
+                            spaceBetween: 20,
+                        },
+                        1280: {
+                            slidesPerView: 4,
+                            spaceBetween: 20,
+                        },
+                    },
+                });
             }
         });
     </script>
