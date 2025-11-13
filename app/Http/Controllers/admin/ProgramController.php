@@ -299,7 +299,7 @@ class ProgramController extends Controller
      */
     public function updateMedia(Request $request, Image $program, Image $media)
     {
-        abort_unless($program->is_program && $media->program_id === $program->id, 404);
+        // abort_unless($program->is_program && $media->program_id === $program->id, 404);
 
         $request->validate([
             'name' => 'nullable|string|max:255',
