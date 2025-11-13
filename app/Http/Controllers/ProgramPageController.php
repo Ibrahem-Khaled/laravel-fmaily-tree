@@ -13,10 +13,10 @@ class ProgramPageController extends Controller
     {
         abort_unless($program->is_program, 404);
 
-        $program->load(['mediaItems', 'programLinks']);
+        $program->load(['mediaItems', 'programLinks', 'programGalleries.images']);
 
         $galleryMedia = $program->mediaItems->filter(function ($item) {
-            return $item->media_type === 'image' || is_null($item->media_type);
+            return ($item->media_type === 'image' || is_null($item->media_type)) && is_null($item->gallery_id);
         });
 
         $videoMedia = $program->mediaItems->where('media_type', 'youtube');
@@ -26,6 +26,7 @@ class ProgramPageController extends Controller
             'galleryMedia' => $galleryMedia,
             'videoMedia' => $videoMedia,
             'programLinks' => $program->programLinks,
+            'programGalleries' => $program->programGalleries,
         ]);
     }
 }

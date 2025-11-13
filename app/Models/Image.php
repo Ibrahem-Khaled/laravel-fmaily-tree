@@ -28,7 +28,8 @@ class Image extends BaseModel
         'program_description',
         'program_order',
         'program_id',
-        'program_media_order'
+        'program_media_order',
+        'gallery_id'
     ];
 
     public function article(): BelongsTo
@@ -71,6 +72,22 @@ class Image extends BaseModel
     public function programLinks(): HasMany
     {
         return $this->hasMany(ProgramLink::class, 'program_id')->orderBy('link_order');
+    }
+
+    /**
+     * Gallery that this image belongs to.
+     */
+    public function gallery(): BelongsTo
+    {
+        return $this->belongsTo(ProgramGallery::class, 'gallery_id');
+    }
+
+    /**
+     * Program galleries.
+     */
+    public function programGalleries(): HasMany
+    {
+        return $this->hasMany(ProgramGallery::class, 'program_id')->orderBy('gallery_order');
     }
 
     protected static function booted(): void

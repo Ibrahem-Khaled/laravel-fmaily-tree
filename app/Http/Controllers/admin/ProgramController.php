@@ -5,6 +5,7 @@ namespace App\Http\Controllers\admin;
 use App\Http\Controllers\Controller;
 use App\Models\Image;
 use App\Models\ProgramLink;
+use App\Models\ProgramGallery;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -189,10 +190,10 @@ class ProgramController extends Controller
     {
         abort_unless($program->is_program, 404);
 
-        $program->load(['mediaItems', 'programLinks']);
+        $program->load(['mediaItems', 'programLinks', 'programGalleries']);
 
         $galleryMedia = $program->mediaItems->filter(function (Image $media) {
-            return $media->media_type === 'image' || is_null($media->media_type);
+            return ($media->media_type === 'image' || is_null($media->media_type)) && is_null($media->gallery_id);
         });
 
         $videoMedia = $program->mediaItems->filter(function (Image $media) {
@@ -204,6 +205,7 @@ class ProgramController extends Controller
             'galleryMedia' => $galleryMedia,
             'videoMedia' => $videoMedia,
             'programLinks' => $program->programLinks,
+            'programGalleries' => $program->programGalleries,
         ]);
     }
 
@@ -430,5 +432,156 @@ class ProgramController extends Controller
         });
 
         return response()->json(['success' => true]);
+    }
+
+    /**
+     * إضافة معرض صور جديد للبرنامج.
+     */
+    public function storeGallery(Request $request, Image $program)
+    {
+        abort_unless($program->is_program, 404);
+
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string|max:1000',
+        ]);
+
+        $lastOrder = $program->programGalleries()->max('gallery_order') ?? 0;
+
+        $gallery = $program->programGalleries()->create([
+            'title' => $request->title,
+            'description' => $request->description,
+            'gallery_order' => $lastOrder + 1,
+        ]);
+
+        return redirect()
+            ->route('dashboard.programs.manage', $program)
+            ->with('success', 'تم إنشاء المعرض بنجاح');
+    }
+
+    /**
+     * تحديث معرض صور.
+     */
+    public function updateGallery(Request $request, Image $program, ProgramGallery $gallery)
+    {
+        abort_unless($program->is_program, 404);
+        abort_unless($gallery->program_id === $program->id, 404);
+
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string|max:1000',
+        ]);
+
+        $gallery->update([
+            'title' => $request->title,
+            'description' => $request->description,
+        ]);
+
+        return redirect()
+            ->route('dashboard.programs.manage', $program)
+            ->with('success', 'تم تحديث المعرض بنجاح');
+    }
+
+    /**
+     * حذف معرض صور.
+     */
+    public function destroyGallery(Image $program, ProgramGallery $gallery)
+    {
+        abort_unless($program->is_program, 404);
+        abort_unless($gallery->program_id === $program->id, 404);
+
+        $gallery->delete();
+
+        return redirect()
+            ->route('dashboard.programs.manage', $program)
+            ->with('success', 'تم حذف المعرض بنجاح');
+    }
+
+    /**
+     * إضافة صور لمعرض محدد.
+     */
+    public function storeGalleryMedia(Request $request, Image $program, ProgramGallery $gallery)
+    {
+        abort_unless($program->is_program, 404);
+        abort_unless($gallery->program_id === $program->id, 404);
+
+        if (!$request->hasFile('images') && !$request->hasFile('image')) {
+            return redirect()
+                ->route('dashboard.programs.manage', $program)
+                ->withErrors(['images' => 'يرجى اختيار صورة واحدة على الأقل']);
+        }
+
+        $request->validate([
+            'title' => 'nullable|string|max:255',
+            'description' => 'nullable|string|max:500',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'images' => 'nullable|array',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+        ], [
+            'images.*.image' => 'يجب أن يكون الملف المرفوع صورة',
+            'images.*.mimes' => 'يجب أن تكون الصورة من نوع: jpeg, png, jpg, gif, webp',
+            'images.*.max' => 'يجب ألا تتجاوز الصورة 5 ميجابايت',
+        ]);
+
+        $nextOrder = ($gallery->images()->max('program_media_order') ?? 0) + 1;
+        $uploadedCount = 0;
+
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $path = $image->store('programs/media', 'public');
+
+                $gallery->images()->create([
+                    'name' => $request->title,
+                    'description' => $request->description,
+                    'path' => $path,
+                    'media_type' => 'image',
+                    'program_id' => $program->id,
+                    'program_media_order' => $nextOrder++,
+                    'is_program' => false,
+                ]);
+                $uploadedCount++;
+            }
+        } elseif ($request->hasFile('image')) {
+            $path = $request->file('image')->store('programs/media', 'public');
+
+            $gallery->images()->create([
+                'name' => $request->title,
+                'description' => $request->description,
+                'path' => $path,
+                'media_type' => 'image',
+                'program_id' => $program->id,
+                'program_media_order' => $nextOrder,
+                'is_program' => false,
+            ]);
+            $uploadedCount = 1;
+        }
+
+        $message = $uploadedCount > 1
+            ? "تم رفع {$uploadedCount} صور للمعرض بنجاح"
+            : "تم إضافة الصورة للمعرض بنجاح";
+
+        return redirect()
+            ->route('dashboard.programs.manage', $program)
+            ->with('success', $message);
+    }
+
+    /**
+     * حذف صورة من معرض.
+     */
+    public function destroyGalleryMedia(Image $program, ProgramGallery $gallery, Image $media)
+    {
+        abort_unless($program->is_program, 404);
+        abort_unless($gallery->program_id === $program->id, 404);
+        abort_unless($media->gallery_id === $gallery->id, 404);
+
+        if ($media->path) {
+            Storage::disk('public')->delete($media->path);
+        }
+
+        $media->delete();
+
+        return redirect()
+            ->route('dashboard.programs.manage', $program)
+            ->with('success', 'تم حذف الصورة من المعرض بنجاح');
     }
 }

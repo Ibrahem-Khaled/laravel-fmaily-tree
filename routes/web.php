@@ -198,6 +198,12 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::post('programs/{program}/links', [\App\Http\Controllers\admin\ProgramController::class, 'storeLink'])->name('dashboard.programs.links.store');
     Route::delete('programs/{program}/links/{link}', [\App\Http\Controllers\admin\ProgramController::class, 'destroyLink'])->name('dashboard.programs.links.destroy');
     Route::post('programs/{program}/links/reorder', [\App\Http\Controllers\admin\ProgramController::class, 'reorderLinks'])->name('dashboard.programs.links.reorder');
+    // Gallery routes
+    Route::post('programs/{program}/galleries', [\App\Http\Controllers\admin\ProgramController::class, 'storeGallery'])->name('dashboard.programs.galleries.store');
+    Route::post('programs/{program}/galleries/{gallery}/update', [\App\Http\Controllers\admin\ProgramController::class, 'updateGallery'])->name('dashboard.programs.galleries.update');
+    Route::delete('programs/{program}/galleries/{gallery}', [\App\Http\Controllers\admin\ProgramController::class, 'destroyGallery'])->name('dashboard.programs.galleries.destroy');
+    Route::post('programs/{program}/galleries/{gallery}/media', [\App\Http\Controllers\admin\ProgramController::class, 'storeGalleryMedia'])->name('dashboard.programs.galleries.media.store');
+    Route::delete('programs/{program}/galleries/{gallery}/media/{media}', [\App\Http\Controllers\admin\ProgramController::class, 'destroyGalleryMedia'])->name('dashboard.programs.galleries.media.destroy');
     
     // Family Councils routes
     Route::get('councils', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'index'])->name('dashboard.councils.index');

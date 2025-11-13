@@ -222,6 +222,8 @@
             </header>
 
             <div class="p-6 lg:p-10 space-y-14">
+
+
                 @if($galleryMedia->isNotEmpty())
                     <section>
                         <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
@@ -340,7 +342,7 @@
                     </section>
                 @endif
 
-                @if($galleryMedia->isEmpty() && $videoMedia->isEmpty() && $programLinks->isEmpty())
+                @if($galleryMedia->isEmpty() && $videoMedia->isEmpty() && $programLinks->isEmpty() && $programGalleries->isEmpty())
                     <div class="bg-white/90 backdrop-blur-md border border-white/60 rounded-3xl p-10 text-center shadow-lg">
                         <i class="fas fa-hourglass-half text-4xl text-emerald-500 mb-4"></i>
                         <p class="text-lg text-gray-600">لم يتم إضافة محتوى تفصيلي لهذا البرنامج بعد. ترقبوا تحديثات قادمة قريباً.</p>
@@ -371,7 +373,16 @@
             progressBar.style.width = docHeight > 0 ? `${(scrollTop / docHeight) * 100}%` : '0%';
         });
 
+        // دمج جميع الصور (الصور العادية + صور المعارض)
         const galleryImages = @json($galleryPaths);
+        @if($programGalleries->isNotEmpty())
+            @foreach($programGalleries as $gallery)
+                @if($gallery->images->isNotEmpty())
+                    galleryImages.push(...@json($gallery->images->map(fn($img) => asset('storage/' . $img->path))->values()));
+                @endif
+            @endforeach
+        @endif
+
         let currentIndex = 0;
         const lightbox = document.getElementById('lightbox');
         const lightboxImage = document.getElementById('lightboxImage');
