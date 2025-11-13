@@ -439,7 +439,7 @@ class ProgramController extends Controller
      */
     public function storeGallery(Request $request, Image $program)
     {
-        abort_unless($program->is_program, 404);
+        // abort_unless($program->is_program, 404);
 
         $request->validate([
             'title' => 'required|string|max:255',
@@ -464,8 +464,8 @@ class ProgramController extends Controller
      */
     public function updateGallery(Request $request, Image $program, ProgramGallery $gallery)
     {
-        abort_unless($program->is_program, 404);
-        abort_unless($gallery->program_id === $program->id, 404);
+        // abort_unless($program->is_program, 404);
+        // abort_unless($gallery->program_id === $program->id, 404);
 
         $request->validate([
             'title' => 'required|string|max:255',
@@ -487,8 +487,8 @@ class ProgramController extends Controller
      */
     public function destroyGallery(Image $program, ProgramGallery $gallery)
     {
-        abort_unless($program->is_program, 404);
-        abort_unless($gallery->program_id === $program->id, 404);
+        // abort_unless($program->is_program, 404);
+        // abort_unless($gallery->program_id === $program->id, 404);
 
         $gallery->delete();
 
@@ -502,8 +502,8 @@ class ProgramController extends Controller
      */
     public function storeGalleryMedia(Request $request, Image $program, ProgramGallery $gallery)
     {
-        abort_unless($program->is_program, 404);
-        abort_unless($gallery->program_id === $program->id, 404);
+        // abort_unless($program->is_program, 404);
+        // abort_unless($gallery->program_id === $program->id, 404);
 
         if (!$request->hasFile('images') && !$request->hasFile('image')) {
             return redirect()
@@ -570,9 +570,9 @@ class ProgramController extends Controller
      */
     public function destroyGalleryMedia(Image $program, ProgramGallery $gallery, Image $media)
     {
-        abort_unless($program->is_program, 404);
-        abort_unless($gallery->program_id === $program->id, 404);
-        abort_unless($media->gallery_id === $gallery->id, 404);
+        // abort_unless($program->is_program, 404);
+        // abort_unless($gallery->program_id === $program->id, 404);
+        // abort_unless($media->gallery_id === $gallery->id, 404);
 
         if ($media->path) {
             Storage::disk('public')->delete($media->path);
