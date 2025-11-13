@@ -79,11 +79,11 @@
         /* تحسين التصميم العام - تصغير العناصر للشاشات الصغيرة */
         @media (max-width: 640px) {
             section {
-                padding-top: 1.5rem !important;
-                padding-bottom: 1.5rem !important;
-                min-height: 33vh;
-                max-height: 33vh;
-                overflow-y: auto;
+                padding-top: 0.75rem !important;
+                padding-bottom: 0.75rem !important;
+                min-height: auto !important;
+                max-height: none !important;
+                overflow-y: visible !important;
             }
 
             h2 {
@@ -98,14 +98,56 @@
 
             .mb-8,
             .mb-12 {
-                margin-bottom: 1rem !important;
+                margin-bottom: 0.5rem !important;
+            }
+
+            .mb-2 {
+                margin-bottom: 0.75rem !important;
+            }
+
+            .mb-4 {
+                margin-bottom: 1.25rem !important;
             }
 
             .py-12,
             .py-16,
             .py-20 {
-                padding-top: 1.5rem !important;
-                padding-bottom: 1.5rem !important;
+                padding-top: 0.75rem !important;
+                padding-bottom: 0.75rem !important;
+            }
+
+            .py-3 {
+                padding-top: 0.75rem !important;
+                padding-bottom: 0.75rem !important;
+            }
+
+            .py-6 {
+                padding-top: 0.75rem !important;
+                padding-bottom: 0.75rem !important;
+            }
+
+            .mb-6 {
+                margin-bottom: 0.75rem !important;
+            }
+
+            .gap-2 {
+                gap: 0.5rem !important;
+            }
+
+            .gap-3 {
+                gap: 0.75rem !important;
+            }
+
+            .space-y-2 > * + * {
+                margin-top: 0.5rem !important;
+            }
+
+            .space-y-3 > * + * {
+                margin-top: 0.75rem !important;
+            }
+
+            .space-y-4 > * + * {
+                margin-top: 0.75rem !important;
             }
         }
 
@@ -274,9 +316,9 @@
     </section> --}}
 
     {{-- What's New Section --}}
-    <section class="py-3 md:py-6 lg:py-8 bg-white mobile-section">
+    <section class="py-2 md:py-6 lg:py-8 bg-white mobile-section">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
-            <div class="text-right mb-2 md:mb-4">
+            <div class="text-right mb-4 md:mb-6">
                 <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient mb-1 md:mb-2">الصور</h2>
                 <div
                     class="w-16 md:w-24 h-0.5 md:h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent mr-0">
@@ -285,7 +327,7 @@
 
             {{-- آخر 8 صور من المعرض - Swiper Carousel --}}
             @if ($latestGalleryImages->count() > 0)
-                <div class="relative mb-6">
+                <div class="relative mb-3 md:mb-6">
                     <!-- Swiper -->
                     <div class="swiper gallerySwiper">
                         <div class="swiper-wrapper">
@@ -335,9 +377,9 @@
     @if (Auth::check())
 
         {{-- Family Councils Section --}}
-        <section class="py-3 md:py-6 lg:py-8 bg-white mobile-section">
+        <section class="py-2 md:py-6 lg:py-8 bg-white mobile-section">
             <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-                <div class="text-right mb-2 md:mb-4">
+                <div class="text-right mb-4 md:mb-6">
                     <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient mb-1 md:mb-2">مجالس العائلة</h2>
                     <div
                         class="w-16 md:w-24 h-0.5 md:h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent mr-0 mb-1 md:mb-2">
@@ -411,13 +453,13 @@
 
         {{-- Family Programs Section --}}
         <section
-            class="py-3 md:py-6 lg:py-8 bg-gradient-to-br from-green-50 via-white to-emerald-50 mobile-section relative overflow-hidden">
+            class="py-2 md:py-6 lg:py-8 bg-gradient-to-br from-green-50 via-white to-emerald-50 mobile-section relative overflow-hidden">
             <div class="absolute inset-0 opacity-5">
                 <div class="absolute top-0 right-0 w-96 h-96 bg-green-400 rounded-full blur-3xl"></div>
                 <div class="absolute bottom-0 left-0 w-96 h-96 bg-emerald-400 rounded-full blur-3xl"></div>
             </div>
             <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
-                <div class="text-right mb-2 md:mb-4">
+                <div class="text-right mb-4 md:mb-6">
                     <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient mb-1 md:mb-2">برامج العائلة</h2>
                     <div
                         class="w-16 md:w-24 h-0.5 md:h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent mr-0 mb-1 md:mb-2">
@@ -465,8 +507,6 @@
                     <div
                         class="w-16 md:w-24 h-0.5 md:h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent mr-0 mb-2 md:mb-4">
                     </div>
-                    <p class="text-gray-600 text-sm md:text-base">اكتشف مجموعة متنوعة من الدورات التعليمية والثقافية
-                    </p>
                 </div>
 
                 @if ($courses->count() > 0)
