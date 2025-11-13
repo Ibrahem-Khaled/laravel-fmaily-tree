@@ -589,7 +589,7 @@
         <section class="py-2 md:py-6 lg:py-8 bg-white mobile-section">
             <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
                 <div class="text-right mb-4 md:mb-6">
-                    <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient mb-1 md:mb-2">دورات اكادمية
+                    <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient mb-1 md:mb-2">دورات أكاديمية
                         السريع</h2>
                     <div
                         class="w-16 md:w-24 h-0.5 md:h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent mr-0">
