@@ -416,7 +416,7 @@ class ProgramController extends Controller
      */
     public function reorderLinks(Request $request, Image $program)
     {
-        abort_unless($program->is_program, 404);
+        // abort_unless($program->is_program, 404);
 
         $request->validate([
             'orders' => 'required|array',
@@ -570,9 +570,9 @@ class ProgramController extends Controller
      */
     public function updateGalleryMedia(Request $request, Image $program, ProgramGallery $gallery, Image $media)
     {
-        abort_unless($program->is_program, 404);
-        abort_unless($gallery->program_id === $program->id, 404);
-        abort_unless($media->gallery_id === $gallery->id, 404);
+        // abort_unless($program->is_program, 404);
+        // abort_unless($gallery->program_id === $program->id, 404);
+        // abort_unless($media->gallery_id === $gallery->id, 404);
 
         $request->validate([
             'name' => 'nullable|string|max:255',
@@ -606,9 +606,9 @@ class ProgramController extends Controller
      */
     public function destroyGalleryMedia(Image $program, ProgramGallery $gallery, Image $media)
     {
-        abort_unless($program->is_program, 404);
-        abort_unless($gallery->program_id === $program->id, 404);
-        abort_unless($media->gallery_id === $gallery->id, 404);
+        // abort_unless($program->is_program, 404);
+        // abort_unless($gallery->program_id === $program->id, 404);
+        // abort_unless($media->gallery_id === $gallery->id, 404);
 
         if ($media->path) {
             Storage::disk('public')->delete($media->path);

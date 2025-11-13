@@ -285,19 +285,23 @@
                                             <div class="cursor-pointer"
                                                 onclick="openLightbox({{ $galleryStartIndex + $index }})">
                                                 <img src="{{ asset('storage/' . $image->path) }}"
-                                                    alt="{{ $image->name ?? 'صورة' }}"
+                                                    alt="{{ $image->name ?? '' }}"
                                                     class="w-full h-48 md:h-52 object-cover transition-transform duration-500 group-hover:scale-105">
                                                 <div
                                                     class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                                 </div>
-                                                <div class="absolute bottom-3 right-3 left-3 text-white">
-                                                    <h3 class="font-semibold text-base line-clamp-1">
-                                                        {{ $image->name ?? 'صورة من المعرض' }}</h3>
-                                                    @if ($image->description)
-                                                        <p class="text-xs text-white/80 mt-1 line-clamp-2">
-                                                            {{ $image->description }}</p>
-                                                    @endif
-                                                </div>
+                                                @if ($image->name || $image->description)
+                                                    <div class="absolute bottom-3 right-3 left-3 text-white">
+                                                        @if ($image->name)
+                                                            <h3 class="font-semibold text-base line-clamp-1">
+                                                                {{ $image->name }}</h3>
+                                                        @endif
+                                                        @if ($image->description)
+                                                            <p class="text-xs text-white/80 mt-1 line-clamp-2">
+                                                                {{ $image->description }}</p>
+                                                        @endif
+                                                    </div>
+                                                @endif
                                             </div>
                                             @if (Auth::check())
                                                 <div
@@ -342,19 +346,23 @@
                                     class="group relative overflow-hidden rounded-2xl border border-white/60 shadow-md hover:shadow-xl transition-all duration-300">
                                     <div class="cursor-pointer" onclick="openLightbox({{ $index }})">
                                         <img src="{{ asset('storage/' . $media->path) }}"
-                                            alt="{{ $media->name ?? 'صورة' }}"
+                                            alt="{{ $media->name ?? '' }}"
                                             class="w-full h-48 md:h-52 object-cover transition-transform duration-500 group-hover:scale-105">
                                         <div
                                             class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                         </div>
-                                        <div class="absolute bottom-3 right-3 left-3 text-white">
-                                            <h3 class="font-semibold text-base line-clamp-1">
-                                                {{ $media->name ?? 'صورة من فعاليات البرنامج' }}</h3>
-                                            @if ($media->description)
-                                                <p class="text-xs text-white/80 mt-1 line-clamp-2">
-                                                    {{ $media->description }}</p>
-                                            @endif
-                                        </div>
+                                        @if ($media->name || $media->description)
+                                            <div class="absolute bottom-3 right-3 left-3 text-white">
+                                                @if ($media->name)
+                                                    <h3 class="font-semibold text-base line-clamp-1">
+                                                        {{ $media->name }}</h3>
+                                                @endif
+                                                @if ($media->description)
+                                                    <p class="text-xs text-white/80 mt-1 line-clamp-2">
+                                                        {{ $media->description }}</p>
+                                                @endif
+                                            </div>
+                                        @endif
                                     </div>
                                     @if (Auth::check())
                                         <div
