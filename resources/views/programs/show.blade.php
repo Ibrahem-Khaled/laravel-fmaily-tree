@@ -179,9 +179,12 @@
 
         <article class="bg-white/85 backdrop-blur-md border border-white/50 rounded-3xl overflow-hidden shadow-emerald-glow animate-fade-in">
             <header class="relative">
-                @if ($program->path)
+                @php
+                    $coverImage = $program->cover_image_path ?? $program->path;
+                @endphp
+                @if ($coverImage)
                     <div class="relative h-60 sm:h-72 lg:h-80 overflow-hidden">
-                        <img src="{{ asset('storage/' . $program->path) }}" alt="{{ $program->program_title }}" class="w-full h-full object-cover">
+                        <img src="{{ asset('storage/' . $coverImage) }}" alt="{{ $program->program_title }}" class="w-full h-full object-cover">
                         <div class="absolute inset-0 bg-gradient-to-t from-emerald-900/80 via-emerald-900/35 to-transparent"></div>
                     </div>
                 @else

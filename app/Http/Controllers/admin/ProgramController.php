@@ -72,6 +72,7 @@ class ProgramController extends Controller
 
         $request->validate([
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'program_title' => 'required|string|max:255',
             'program_description' => 'nullable|string|max:10000',
             'name' => 'nullable|string|max:255',
@@ -88,6 +89,16 @@ class ProgramController extends Controller
             $program->path = $imagePath;
         }
 
+        if ($request->hasFile('cover_image')) {
+            // حذف صورة الغلاف القديمة
+            if ($program->cover_image_path) {
+                Storage::disk('public')->delete($program->cover_image_path);
+            }
+
+            $coverImagePath = $request->file('cover_image')->store('programs/covers', 'public');
+            $program->cover_image_path = $coverImagePath;
+        }
+
         $program->update([
             'name' => $request->name ?? $request->program_title,
             'program_title' => $request->program_title,
@@ -95,7 +106,7 @@ class ProgramController extends Controller
             'category_id' => $request->category_id,
         ]);
 
-        return redirect()->route('dashboard.programs.index')
+        return redirect()->route('dashboard.programs.manage', $program)
             ->with('success', 'تم تحديث البرنامج بنجاح');
     }
 
@@ -124,6 +135,10 @@ class ProgramController extends Controller
 
         if ($program->path) {
             Storage::disk('public')->delete($program->path);
+        }
+
+        if ($program->cover_image_path) {
+            Storage::disk('public')->delete($program->cover_image_path);
         }
 
         $program->mediaItems->each(function (Image $media) {

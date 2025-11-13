@@ -106,6 +106,7 @@
 
                         <div class="form-group">
                             <label class="font-weight-bold">الصورة الرئيسية</label>
+                            <i class="fas fa-info-circle text-info ml-1" data-toggle="tooltip" data-placement="top" title="هذه الصورة تظهر في الصفحة الرئيسية في قائمة البرامج"></i>
                             <div class="custom-file">
                                 <input type="file"
                                        name="image"
@@ -120,6 +121,33 @@
                             @error('image')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
                             @enderror
+                        </div>
+
+                        <div class="form-group">
+                            <label class="font-weight-bold">صورة الغلاف</label>
+                            <i class="fas fa-info-circle text-info ml-1" data-toggle="tooltip" data-placement="top" title="هذه الصورة تظهر في أعلى صفحة تفاصيل البرنامج (اختياري)"></i>
+                            <div class="custom-file">
+                                <input type="file"
+                                       name="cover_image"
+                                       id="cover_image"
+                                       class="custom-file-input @error('cover_image') is-invalid @enderror"
+                                       accept="image/*">
+                                <label class="custom-file-label" for="cover_image">اختر صورة غلاف (اختياري)...</label>
+                            </div>
+                            <small class="form-text text-muted">
+                                <i class="fas fa-info-circle mr-1"></i>إذا لم يتم اختيار صورة غلاف، سيتم استخدام الصورة الرئيسية في صفحة التفاصيل. الصيغ المدعومة: JPEG, PNG, JPG, GIF, WebP (حد أقصى 5MB)
+                            </small>
+                            @error('cover_image')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                            @if($program->cover_image_path)
+                                <div class="mt-2">
+                                    <div class="border rounded p-2 bg-light">
+                                        <img src="{{ asset('storage/' . $program->cover_image_path) }}" class="img-fluid rounded" style="max-height: 150px;">
+                                        <small class="text-muted d-block mt-1">صورة الغلاف الحالية</small>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
 
                         <div class="text-right">

@@ -15,6 +15,7 @@ class Image extends BaseModel
         'name',
         'description',
         'path',
+        'cover_image_path',
         'thumbnail_path',
         'youtube_url',
         'media_type',

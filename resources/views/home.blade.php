@@ -32,11 +32,32 @@
         .slide-container {
             display: flex;
             transition: transform 1s ease-in-out;
+            width: 100%;
+            height: 100%;
+            position: relative;
+            -webkit-transform: translateZ(0);
+            transform: translateZ(0);
         }
 
         .slide-item {
             min-width: 100%;
             flex-shrink: 0;
+            height: 100%;
+            position: relative;
+        }
+
+        .slide-item img {
+            display: block !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            min-height: 100% !important;
+            object-fit: cover !important;
+            -webkit-object-fit: cover !important;
+            -webkit-transform: translateZ(0);
+            transform: translateZ(0);
         }
 
         .course-card {
@@ -177,7 +198,8 @@
                     <div class="slide-item h-full relative">
                         @if ($slideshowImage->image_url)
                             <img src="{{ $slideshowImage->image_url }}" alt="{{ $slideshowImage->title ?? 'صورة' }}"
-                                class="w-full h-full object-contain opacity-90">
+                                class="w-full h-full object-cover opacity-90"
+                                style="display: block; position: absolute; top: 0; left: 0; width: 100%; height: 100%; min-height: 100%;">
                         @endif
                         <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
                         @if ($slideshowImage->title || $slideshowImage->description)
