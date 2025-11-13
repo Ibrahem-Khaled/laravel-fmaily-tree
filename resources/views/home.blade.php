@@ -252,7 +252,7 @@
 
     {{-- Hero Section with Slideshow --}}
     <section
-        class="relative h-[120px] sm:h-[180px] md:h-[240px] lg:h-[320px] overflow-hidden gradient-bg mobile-section">
+        class="relative h-[150px] sm:h-[200px] md:h-[260px] lg:h-[340px] overflow-hidden gradient-bg mobile-section">
         <div class="absolute inset-0 slide-container" id="slideContainer">
             @if ($latestImages->count() > 0)
                 @foreach ($latestImages->take(10) as $index => $slideshowImage)
@@ -413,36 +413,35 @@
                                     <thead class="gradient-bg text-white">
                                         <tr>
                                             <th scope="col"
-                                                class="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-bold uppercase tracking-wider text-center">
+                                                class="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-bold uppercase tracking-wider text-right">
                                                 المجلس</th>
                                             <th scope="col"
-                                                class="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-bold uppercase tracking-wider text-center">
-                                                الوصف</th>
+                                                class="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-bold uppercase tracking-wider text-right">
+                                                المدينة</th>
                                             <th scope="col"
-                                                class="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-bold uppercase tracking-wider text-center">
+                                                class="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-bold uppercase tracking-wider text-right">
                                                 الموقع</th>
                                         </tr>
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200">
                                         @foreach ($councils as $council)
                                             <tr class="hover:bg-gray-50 transition-colors">
-                                                <td class="px-2 py-2 md:px-4 md:py-3 whitespace-nowrap text-center">
-                                                    <div class="flex items-center justify-center">
-                                                        <i
-                                                            class="fas fa-building text-green-600 ml-2 text-sm md:text-base"></i>
+                                                <td class="px-2 py-2 md:px-4 md:py-3 whitespace-nowrap text-right" dir="ltr">
+                                                    <div class="flex items-center justify-end">
                                                         <span
                                                             class="text-xs md:text-sm font-semibold text-gray-900">{{ $council->name }}</span>
+                                                        <i
+                                                            class="fas fa-building text-green-600 ml-2 text-sm md:text-base"></i>
                                                     </div>
                                                 </td>
-                                                <td class="px-2 py-2 md:px-4 md:py-3 text-center">
-                                                    <a href="{{ route('councils.show', $council) }}"
-                                                        class="text-xs md:text-sm text-gray-600 line-clamp-2 max-w-xs mx-auto hover:text-green-600 transition-colors block">
-                                                        {{ $council->description ? Str::limit($council->description, 100) : '-' }}
-                                                    </a>
+                                                <td class="px-2 py-2 md:px-4 md:py-3 text-right">
+                                                    <span class="text-xs md:text-sm text-gray-700">
+                                                        {{ $council->address ?? '-' }}
+                                                    </span>
                                                 </td>
 
                                                 <td
-                                                    class="px-2 py-2 md:px-4 md:py-3 whitespace-nowrap text-xs md:text-sm font-medium text-center">
+                                                    class="px-2 py-2 md:px-4 md:py-3 whitespace-nowrap text-xs md:text-sm font-medium text-right">
                                                     @if ($council->google_map_url)
                                                         <a href="{{ $council->google_map_url }}" target="_blank"
                                                             class="text-blue-600 hover:text-blue-900 transition-colors"
