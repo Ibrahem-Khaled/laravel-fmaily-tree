@@ -262,10 +262,10 @@
                                     @endif
                                     <div class="d-flex gap-2">
                                         <button type="button" 
-                                                class="btn btn-sm btn-outline-primary flex-fill" 
-                                                onclick="editMedia({{ $media->id }}, @json($media->name ?? ''), @json($media->description ?? ''))"
-                                                data-toggle="modal" 
-                                                data-target="#editMediaModal">
+                                                class="btn btn-sm btn-outline-primary flex-fill edit-media-btn" 
+                                                data-media-id="{{ $media->id }}"
+                                                data-media-name="{{ htmlspecialchars($media->name ?? '', ENT_QUOTES, 'UTF-8') }}"
+                                                data-media-description="{{ htmlspecialchars($media->description ?? '', ENT_QUOTES, 'UTF-8') }}">
                                             <i class="fas fa-edit mr-1"></i>تعديل
                                         </button>
                                         <form action="{{ route('dashboard.programs.media.destroy', [$program, $media]) }}" 
@@ -451,8 +451,9 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form id="editMediaForm" method="POST" enctype="multipart/form-data">
+            <form id="editMediaForm" method="POST" enctype="multipart/form-data" action="">
                 @csrf
+                <input type="hidden" id="edit_media_id" name="media_id" value="">
                 <div class="modal-body p-4">
                     <div class="form-group">
                         <label for="edit_media_name" class="font-weight-bold">عنوان الصورة</label>
@@ -662,9 +663,15 @@
 
         // دالة تعديل الصورة
         function editMedia(mediaId, name, description) {
+            document.getElementById('edit_media_id').value = mediaId;
             document.getElementById('edit_media_name').value = name || '';
             document.getElementById('edit_media_description').value = description || '';
-            document.getElementById('editMediaForm').action = '{{ route("dashboard.programs.media.update", [$program, ":media"]) }}'.replace(':media', mediaId);
+            
+            // بناء URL بشكل صحيح
+            const programId = {{ $program->id }};
+            const baseUrl = '{{ url("/dashboard/programs") }}/' + programId + '/media/' + mediaId + '/update';
+            const form = document.getElementById('editMediaForm');
+            form.action = baseUrl;
         }
 
         // تحديث تسمية ملفات الرفع في modal التعديل
@@ -674,6 +681,30 @@
                 label.textContent = this.files[0].name;
             } else {
                 label.textContent = 'اختر صورة جديدة...';
+            }
+        });
+
+        // معالجة أزرار التعديل
+        document.querySelectorAll('.edit-media-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                const mediaId = this.getAttribute('data-media-id');
+                const mediaName = this.getAttribute('data-media-name') || '';
+                const mediaDescription = this.getAttribute('data-media-description') || '';
+                editMedia(mediaId, mediaName, mediaDescription);
+                $('#editMediaModal').modal('show');
+            });
+        });
+
+        // التأكد من تحديث form action عند فتح modal
+        $('#editMediaModal').on('show.bs.modal', function() {
+            const form = document.getElementById('editMediaForm');
+            if (form && !form.action) {
+                // إذا لم يتم تعيين action، قم بتعيينه
+                const mediaId = document.getElementById('edit_media_id').value;
+                if (mediaId) {
+                    const programId = {{ $program->id }};
+                    form.action = '{{ url("/dashboard/programs") }}/' + programId + '/media/' + mediaId + '/update';
+                }
             }
         });
     });
