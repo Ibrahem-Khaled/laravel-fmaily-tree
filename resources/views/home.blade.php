@@ -462,8 +462,6 @@
         </div>
     </section>
 
-    @if (Auth::check())
-
         {{-- Family Councils Section --}}
         <section class="py-2 md:py-6 lg:py-8 bg-white mobile-section">
             <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
@@ -494,13 +492,18 @@
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200">
                                         @foreach ($councils as $council)
-                                            <tr class="hover:bg-gray-50 transition-colors">
+                                            <tr class="hover:bg-gray-50 transition-colors cursor-pointer council-row"
+                                                data-council-id="{{ $council->id }}"
+                                                onclick="toggleCouncilDescription({{ $council->id }})">
                                                 <td class="px-2 py-2 md:px-4 md:py-3 whitespace-nowrap text-right" dir="ltr">
                                                     <div class="flex items-center justify-end">
                                                         <span
                                                             class="text-xs md:text-sm font-semibold text-gray-900">{{ $council->name }}</span>
                                                         <i
                                                             class="fas fa-building text-green-600 ml-2 text-sm md:text-base"></i>
+                                                        @if ($council->description)
+                                                            <i class="fas fa-chevron-down text-green-500 mr-2 text-xs transition-transform duration-300 council-chevron-{{ $council->id }}"></i>
+                                                        @endif
                                                     </div>
                                                 </td>
                                                 <td class="px-2 py-2 md:px-4 md:py-3 text-right">
@@ -514,7 +517,8 @@
                                                     @if ($council->google_map_url)
                                                         <a href="{{ $council->google_map_url }}" target="_blank"
                                                             class="text-blue-600 hover:text-blue-900 transition-colors"
-                                                            title="فتح في جوجل ماب">
+                                                            title="فتح في جوجل ماب"
+                                                            onclick="event.stopPropagation();">
                                                             <i class="fas fa-map-marked-alt"></i>
                                                             <span class="mr-1 hidden lg:inline">الخريطة</span>
                                                         </a>
@@ -523,6 +527,29 @@
                                                     @endif
                                                 </td>
                                             </tr>
+                                            @if ($council->description)
+                                                <tr class="council-description-row council-description-{{ $council->id }} hidden">
+                                                    <td colspan="3" class="px-2 py-0 md:px-4">
+                                                        <div class="council-description-content max-h-0 overflow-hidden transition-all duration-500 ease-in-out">
+                                                            <div class="bg-gradient-to-r from-green-50 to-emerald-50 border-r-4 border-green-500 rounded-lg p-4 md:p-6 my-2 shadow-md">
+                                                                <div class="flex items-start gap-3">
+                                                                    <div class="flex-shrink-0 mt-1">
+                                                                        <i class="fas fa-info-circle text-green-600 text-lg"></i>
+                                                                    </div>
+                                                                    <div class="flex-1">
+                                                                        <h4 class="text-sm md:text-base font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                                                                            <span>نبذة عن {{ $council->name }}</span>
+                                                                        </h4>
+                                                                        <div class="text-xs md:text-sm text-gray-700 leading-relaxed whitespace-pre-line">
+                                                                            {{ $council->description }}
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            @endif
                                         @endforeach
                                     </tbody>
                                 </table>
@@ -694,7 +721,7 @@
             </div>
         </section>
 
-    @endif
+
     <script>
         // Enhanced slideshow functionality
         let currentSlide = 0;
@@ -897,6 +924,41 @@
                 });
             }
         });
+    </script>
+
+    <script>
+        // Council Description Toggle
+        function toggleCouncilDescription(councilId) {
+            const descriptionRow = document.querySelector(`.council-description-${councilId}`);
+            const content = descriptionRow?.querySelector('.council-description-content');
+            const chevron = document.querySelector(`.council-chevron-${councilId}`);
+
+            if (!descriptionRow || !content) return;
+
+            const isHidden = descriptionRow.classList.contains('hidden');
+
+            if (isHidden) {
+                // Show description
+                descriptionRow.classList.remove('hidden');
+                // Force reflow to ensure transition works
+                setTimeout(() => {
+                    content.style.maxHeight = content.scrollHeight + 'px';
+                }, 10);
+                if (chevron) {
+                    chevron.style.transform = 'rotate(180deg)';
+                }
+            } else {
+                // Hide description
+                content.style.maxHeight = '0';
+                if (chevron) {
+                    chevron.style.transform = 'rotate(0deg)';
+                }
+                // Wait for animation to complete before hiding row
+                setTimeout(() => {
+                    descriptionRow.classList.add('hidden');
+                }, 500);
+            }
+        }
     </script>
 
 </html>
