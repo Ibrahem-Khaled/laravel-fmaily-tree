@@ -25,7 +25,7 @@ class HomeController extends Controller
 
         // جلب صور معرض الصفحة الرئيسية (أو آخر 8 صور من المعرض كبديل)
         $latestGalleryImages = HomeGalleryImage::getActiveGalleryImages();
-        
+
         // إذا لم توجد صور في معرض الصفحة الرئيسية، استخدم الصور من المعرض العام
         if ($latestGalleryImages->isEmpty()) {
             $latestGalleryImages = Image::whereNotNull('category_id')
@@ -64,7 +64,6 @@ class HomeController extends Controller
         // جلب الأشخاص الذين ولدوا في مثل هذا اليوم (نفس اليوم والشهر)
         $today = now();
         $birthdayPersons = Person::whereNotNull('birth_date')
-            ->whereNull('death_date') // الأحياء فقط
             ->where('from_outside_the_family', false) // من داخل العائلة فقط
             ->whereRaw('DAY(birth_date) = ?', [$today->day])
             ->whereRaw('MONTH(birth_date) = ?', [$today->month])
@@ -74,7 +73,7 @@ class HomeController extends Controller
             ->get();
 
         // جلب آخر الخريجين من أصحاب المقالات (آخر 12 مقال مع فئة التخرج)
-        $latestGraduates = Article::where('status', 'published')
+        $latestGraduates = Article::whereIn('status', ['published', 'draft'])
             ->whereNotNull('person_id')
             ->whereNotNull('category_id')
             ->with(['person:id,first_name,last_name,photo_url,parent_id', 'person.parent:id,first_name,gender,parent_id', 'person.parent.parent:id,first_name,gender,parent_id', 'category:id,name'])

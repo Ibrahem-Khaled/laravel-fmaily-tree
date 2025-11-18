@@ -228,15 +228,17 @@
             display: inline-flex; align-items: center; justify-content: center;
             background: linear-gradient(135deg, #2fb76e 0%, #1f9a57 100%);
             color: #fff !important; border: 0 !important;
-            padding: 12px; border-radius: 50%;
-            width: 48px; height: 48px;
+            padding: 12px 20px; border-radius: 25px;
+            gap: 8px;
             box-shadow: 0 12px 30px rgba(47, 183, 110, 0.28);
             transition: transform 160ms var(--ease-smooth), box-shadow 200ms var(--ease-smooth), filter 200ms var(--ease-smooth);
             text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
         }
         .btn-cta:hover { transform: translateY(-2px) scale(1.05); box-shadow: 0 18px 38px rgba(31, 154, 87, 0.32); filter: brightness(1.02); }
         .btn-cta:active { transform: translateY(0) scale(1); box-shadow: 0 10px 22px rgba(31, 154, 87, 0.28); }
-        .btn-cta i { font-size: 1.25rem; }
+        .btn-cta i { font-size: 1.1rem; }
 
         #personDetailModal .person-photo-container {
             border-radius: 12px;
@@ -892,6 +894,7 @@
                 let galleryButtonHtml = (person.images_count > 0)
                     ? `<a class="btn-cta" onclick="openPersonGallery(${person.id})" role="button" href="javascript:void(0)" title="معرض الصور">
                             <i class="fas fa-images"></i>
+                            <span>الصور</span>
                         </a>`
                     : '';
 
@@ -994,6 +997,7 @@
                             holder.innerHTML = `
                                 <a class="btn-cta" href="/stories/person/${personId}" title="أحداث وقصص">
                                     <i class="fas fa-book-open"></i>
+                                    <span>كتب وابحاث</span>
                                 </a>
                             `;
                         }
@@ -1014,6 +1018,7 @@
                             holder.innerHTML = `
                                 <a class="btn-cta" href="javascript:void(0)" onclick="showFriendships(${personId})" title="الأصدقاء">
                                     <i class="fas fa-user-friends"></i>
+                                    <span>الأصدقاء</span>
                                 </a>
                             `;
                         }

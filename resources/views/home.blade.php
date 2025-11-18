@@ -465,7 +465,7 @@
                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-3">
                     @foreach ($latestGraduates as $article)
                         @if ($article->person)
-                            <a href="{{ route('people.profile.show', $article->person->id) }}"
+                            <a href="{{ route('article.show', $article->id) }}"
                                 class="relative group overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 bg-white flex flex-col items-center justify-center h-24 sm:h-32 md:h-40 lg:h-48">
                                 @if ($article->person->photo_url)
                                     <img src="{{ asset('storage/' . $article->person->photo_url) }}"
