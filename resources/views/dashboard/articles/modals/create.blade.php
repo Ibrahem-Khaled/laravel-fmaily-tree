@@ -24,7 +24,7 @@
 
                 <div class="form-row">
                     {{-- الفئة --}}
-                    <div class="form-group col-md-5">
+                    <div class="form-group col-md-4">
                         <label>الفئة (يتم إظهار الفئات التي لديها مقالات فقط)</label>
                         <div class="input-group">
                             <select name="category_id" class="form-control" required>
@@ -56,8 +56,18 @@
                         </select>
                     </div>
 
+                    {{-- تاريخ المقال --}}
+                    <div class="form-group col-md-5">
+                        <label>تاريخ المقال</label>
+                        <input type="datetime-local" name="created_at" class="form-control" 
+                            value="{{ old('created_at') }}">
+                        <small class="text-muted d-block">اختياري. إن تركته فارغًا سيتم استخدام التاريخ الحالي تلقائياً.</small>
+                    </div>
+                </div>
+
+                <div class="form-row">
                     {{-- الناشر (الشخص) --}}
-                    <div class="form-group col-md-4">
+                    <div class="form-group col-md-12">
                         <label>الناشر</label>
                         <select name="person_id" class="form-control">
                             <option value="">— بدون ناشر —</option>

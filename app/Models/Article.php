@@ -14,7 +14,8 @@ class Article extends BaseModel
         'content',
         'category_id',
         'person_id',
-        'status'
+        'status',
+        'created_at'
     ];
 
     protected $attributes = [

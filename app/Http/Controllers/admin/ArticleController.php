@@ -77,7 +77,17 @@ class ArticleController extends Controller
     public function store(StoreArticleRequest $request)
     {
         DB::transaction(function () use ($request) {
-            $article = Article::create($request->validated());
+            $data = $request->validated();
+            
+            // معالجة created_at إذا تم إرساله
+            if (isset($data['created_at']) && !empty($data['created_at'])) {
+                $data['created_at'] = date('Y-m-d H:i:s', strtotime($data['created_at']));
+            } else {
+                // إزالة created_at من البيانات إذا كان فارغاً ليتم استخدام التاريخ التلقائي
+                unset($data['created_at']);
+            }
+            
+            $article = Article::create($data);
 
             // رفع الصور (أسماء آمنة عبر store())
             if ($request->hasFile('images')) {
