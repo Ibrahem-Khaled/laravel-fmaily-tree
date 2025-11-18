@@ -24,7 +24,7 @@
                 </div>
 
                 <div class="form-row mb-4">
-                    <div class="form-group col-md-4">
+                    <div class="form-group col-md-3">
                         <label class="mb-1">الفئة</label>
                         <select name="category_id" class="form-control" required>
                             @foreach ($categories as $cat)
@@ -36,7 +36,7 @@
                         </select>
                     </div>
 
-                    <div class="form-group col-md-4">
+                    <div class="form-group col-md-3">
                         <label class="mb-1">الحالة</label>
                         <select name="status" class="form-control" required>
                             <option value="draft" {{ old('status', $article->status) === 'draft' ? 'selected' : '' }}>
@@ -46,7 +46,22 @@
                         </select>
                     </div>
 
-                    <div class="form-group col-md-4">
+                    <div class="form-group col-md-6">
+                        <label class="mb-1">تاريخ المقال</label>
+                        @php
+                            $createdAtValue = old('created_at');
+                            if (!$createdAtValue && $article->created_at) {
+                                $createdAtValue = \Carbon\Carbon::parse($article->created_at)->format('Y-m-d\TH:i');
+                            }
+                        @endphp
+                        <input type="datetime-local" name="created_at" class="form-control" 
+                            value="{{ $createdAtValue }}">
+                        <small class="text-muted d-block">يمكن تعديل تاريخ إنشاء المقال.</small>
+                    </div>
+                </div>
+
+                <div class="form-row mb-4">
+                    <div class="form-group col-md-12">
                         <label class="mb-1">الناشر</label>
                         <select name="person_id" class="form-control">
                             <option value="">— بدون ناشر —</option>

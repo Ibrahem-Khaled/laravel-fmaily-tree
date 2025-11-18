@@ -132,7 +132,17 @@ class ArticleController extends Controller
     public function update(UpdateArticleRequest $request, Article $article)
     {
         DB::transaction(function () use ($request, $article) {
-            $article->update($request->validated());
+            $data = $request->validated();
+            
+            // معالجة created_at إذا تم إرساله
+            if (isset($data['created_at']) && !empty($data['created_at'])) {
+                $data['created_at'] = date('Y-m-d H:i:s', strtotime($data['created_at']));
+            } else {
+                // إزالة created_at من البيانات إذا كان فارغاً
+                unset($data['created_at']);
+            }
+            
+            $article->update($data);
 
             // صور جديدة
             if ($request->hasFile('images')) {
