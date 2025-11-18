@@ -403,6 +403,100 @@
         </div>
     </section> --}}
 
+    {{-- Born Today Section --}}
+    @if ($birthdayPersons && $birthdayPersons->count() > 0)
+        <section class="py-2 md:py-6 lg:py-8 bg-white mobile-section">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+                <div class="text-right mb-4 md:mb-6">
+                    <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient mb-1 md:mb-2">ولد في مثل هذا اليوم</h2>
+                    <div
+                        class="w-16 md:w-24 h-0.5 md:h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent mr-0 mb-1 md:mb-2">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-3">
+                    @foreach ($birthdayPersons as $person)
+                        <a href="{{ route('people.profile.show', $person->id) }}"
+                            class="relative group overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 bg-white flex flex-col items-center justify-center h-24 sm:h-32 md:h-40 lg:h-48">
+                            @if ($person->photo_url)
+                                <img src="{{ asset('storage/' . $person->photo_url) }}"
+                                    alt="{{ $person->full_name }}"
+                                    class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
+                            @else
+                                <div class="w-full h-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center">
+                                    <i class="fas {{ $person->gender == 'male' ? 'fa-male' : 'fa-female' }} text-white text-3xl md:text-5xl opacity-50"></i>
+                                </div>
+                            @endif
+                            <div
+                                class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                                <div class="absolute bottom-2 right-2 left-2">
+                                    <p class="text-white text-xs sm:text-sm font-semibold truncate drop-shadow-lg text-center">
+                                        {{ $person->full_name }}
+                                    </p>
+                                    @if ($person->birth_date)
+                                        <p class="text-white/80 text-xs truncate text-center mt-1">
+                                            {{ $person->birth_date->format('Y-m-d') }}
+                                        </p>
+                                    @endif
+                                </div>
+                            </div>
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+        </section>
+    @endif
+
+    {{-- Latest Graduates Section --}}
+    @if ($latestGraduates && $latestGraduates->count() > 0)
+        <section class="py-2 md:py-6 lg:py-8 bg-gradient-to-br from-green-50 via-white to-emerald-50 mobile-section relative">
+            <div class="absolute inset-0 opacity-5">
+                <div class="absolute top-0 right-0 w-96 h-96 bg-green-400 rounded-full blur-3xl"></div>
+                <div class="absolute bottom-0 left-0 w-96 h-96 bg-emerald-400 rounded-full blur-3xl"></div>
+            </div>
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
+                <div class="text-right mb-4 md:mb-6">
+                    <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient mb-1 md:mb-2">آخر الخريجين</h2>
+                    <div
+                        class="w-16 md:w-24 h-0.5 md:h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent mr-0 mb-1 md:mb-2">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-3">
+                    @foreach ($latestGraduates as $article)
+                        @if ($article->person)
+                            <a href="{{ route('people.profile.show', $article->person->id) }}"
+                                class="relative group overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 bg-white flex flex-col items-center justify-center h-24 sm:h-32 md:h-40 lg:h-48">
+                                @if ($article->person->photo_url)
+                                    <img src="{{ asset('storage/' . $article->person->photo_url) }}"
+                                        alt="{{ $article->person->full_name }}"
+                                        class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
+                                @else
+                                    <div class="w-full h-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center">
+                                        <i class="fas {{ $article->person->gender == 'male' ? 'fa-male' : 'fa-female' }} text-white text-3xl md:text-5xl opacity-50"></i>
+                                    </div>
+                                @endif
+                                <div
+                                    class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                                    <div class="absolute bottom-2 right-2 left-2">
+                                        <p class="text-white text-xs sm:text-sm font-semibold truncate drop-shadow-lg text-center">
+                                            {{ $article->person->full_name }}
+                                        </p>
+                                        @if ($article->category)
+                                            <p class="text-white/80 text-xs truncate text-center mt-1">
+                                                {{ $article->category->name }}
+                                            </p>
+                                        @endif
+                                    </div>
+                                </div>
+                            </a>
+                        @endif
+                    @endforeach
+                </div>
+            </div>
+        </section>
+    @endif
+
     {{-- What's New Section --}}
     <section class="py-2 md:py-6 lg:py-8 bg-white mobile-section">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">

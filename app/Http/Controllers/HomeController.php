@@ -8,7 +8,10 @@ use App\Models\SlideshowImage;
 use App\Models\HomeGalleryImage;
 use App\Models\Course;
 use App\Models\FamilyCouncil;
+use App\Models\Person;
+use App\Models\Article;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
@@ -58,6 +61,27 @@ class HomeController extends Controller
             ->orderBy('display_order')
             ->get();
 
+        // جلب الأشخاص الذين ولدوا في مثل هذا اليوم (نفس اليوم والشهر)
+        $today = now();
+        $birthdayPersons = Person::whereNotNull('birth_date')
+            ->whereNull('death_date') // الأحياء فقط
+            ->where('from_outside_the_family', false) // من داخل العائلة فقط
+            ->whereRaw('DAY(birth_date) = ?', [$today->day])
+            ->whereRaw('MONTH(birth_date) = ?', [$today->month])
+            ->with(['parent:id,first_name,gender,parent_id', 'parent.parent:id,first_name,gender,parent_id'])
+            ->orderBy('birth_date')
+            ->take(12)
+            ->get();
+
+        // جلب آخر الخريجين من أصحاب المقالات (آخر 12 مقال مع فئة التخرج)
+        $latestGraduates = Article::where('status', 'published')
+            ->whereNotNull('person_id')
+            ->whereNotNull('category_id')
+            ->with(['person:id,first_name,last_name,photo_url,parent_id', 'person.parent:id,first_name,gender,parent_id', 'person.parent.parent:id,first_name,gender,parent_id', 'category:id,name'])
+            ->latest('created_at')
+            ->take(12)
+            ->get();
+
         return view('home', [
             'latestImages' => $slideshowImages,
             'latestGalleryImages' => $latestGalleryImages,
@@ -66,6 +90,8 @@ class HomeController extends Controller
             'courses' => $courses,
             'programs' => $programs,
             'councils' => $councils,
+            'birthdayPersons' => $birthdayPersons,
+            'latestGraduates' => $latestGraduates,
         ]);
     }
 }

@@ -61,7 +61,11 @@ Route::prefix('api')->group(function () {
     Route::get('/person/{id}/children-details', [FamilyTreeController::class, 'getChildrenForDetails']);
     Route::get('/person/{father}/wives', [FamilyTreeController::class, 'getWives']);
     Route::get('/person/{id}/stories/count', [StoriesPublicController::class, 'countForPerson']);
+    Route::get('/person/{id}/friendships/count', [FamilyTreeController::class, 'getFriendshipsCount']);
 });
+
+// Routes for friendships
+Route::get('/person/{person}/friends', [\App\Http\Controllers\FriendshipController::class, 'index'])->name('person.friends');
 
 Route::get('persons/badges', [HomePersonController::class, 'personsWhereHasBadges'])->name('persons.badges');
 Route::get('/people/profile/{person}', [HomePersonController::class, 'show'])->name('people.profile.show');
@@ -74,12 +78,30 @@ Route::get('/stories/{story}', [StoriesPublicController::class, 'show'])->name('
 Route::get('/breastfeeding', [BreastfeedingPublicController::class, 'index'])->name('breastfeeding.public.index');
 Route::get('/breastfeeding/{person}', [BreastfeedingPublicController::class, 'show'])->name('breastfeeding.public.show');
 
+// Public Store Routes
+Route::prefix('store')->name('store.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\ProductStoreController::class, 'index'])->name('index');
+    Route::get('category/{category}', [\App\Http\Controllers\ProductStoreController::class, 'category'])->name('category');
+    Route::get('subcategory/{subcategory}', [\App\Http\Controllers\ProductStoreController::class, 'subcategory'])->name('subcategory');
+    Route::get('{product}', [\App\Http\Controllers\ProductStoreController::class, 'show'])->name('show');
+});
+
 
 Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
 
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::resource('people', PersonController::class)->middleware(['permission:people.view|people.create|people.update|people.delete']);
+    
+    // Routes for managing person contact accounts
+    Route::post('people/{person}/contact-accounts', [\App\Http\Controllers\admin\PersonContactAccountController::class, 'store'])->name('people.contact-accounts.store');
+    Route::put('people/{person}/contact-accounts/{contactAccount}', [\App\Http\Controllers\admin\PersonContactAccountController::class, 'update'])->name('people.contact-accounts.update');
+    Route::delete('people/{person}/contact-accounts/{contactAccount}', [\App\Http\Controllers\admin\PersonContactAccountController::class, 'destroy'])->name('people.contact-accounts.destroy');
+    
+    // Routes for managing person locations
+    Route::post('people/{person}/locations', [\App\Http\Controllers\admin\PersonLocationController::class, 'store'])->name('people.locations.store');
+    Route::put('people/{person}/locations/{personLocation}', [\App\Http\Controllers\admin\PersonLocationController::class, 'update'])->name('people.locations.update');
+    Route::delete('people/{person}/locations/{personLocation}', [\App\Http\Controllers\admin\PersonLocationController::class, 'destroy'])->name('people.locations.destroy');
     Route::delete('/people/{person}/photo', [PersonController::class, 'removePhoto'])->name('people.removePhoto')->middleware(['permission:people.update']);
     Route::post('/people/reorder', [PersonController::class, 'reorder'])->name('people.reorder')->middleware(['permission:people.update']);
     Route::get('/people/search', [PersonController::class, 'search'])->name('people.search')->middleware(['permission:people.view']);
@@ -89,6 +111,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::post('/persons/store-outside', [OutsideFamilyPersonController::class, 'store'])->name('persons.store.outside')->middleware(['permission:people.create']);
 
     Route::resource('marriages', MarriageController::class)->except(['show']);
+    Route::resource('friendships', \App\Http\Controllers\admin\FriendshipController::class)->except(['show']);
 
     Route::resource('articles', ArticleController::class)->only(['index', 'store', 'update', 'destroy']);
     // حذف فيديو من مقال
@@ -217,6 +240,33 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::post('councils/{council}/images', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'storeImage'])->name('dashboard.councils.images.store');
     Route::delete('councils/{council}/images/{image}', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'destroyImage'])->name('dashboard.councils.images.destroy');
     Route::post('councils/{council}/images/reorder', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'reorderImages'])->name('dashboard.councils.images.reorder');
+    
+    // Products Store routes
+    Route::prefix('products')->name('products.')->group(function () {
+        // Categories
+        Route::get('categories', [\App\Http\Controllers\admin\ProductCategoryController::class, 'index'])->name('categories.index');
+        Route::post('categories', [\App\Http\Controllers\admin\ProductCategoryController::class, 'store'])->name('categories.store');
+        Route::put('categories/{category}', [\App\Http\Controllers\admin\ProductCategoryController::class, 'update'])->name('categories.update');
+        Route::delete('categories/{category}', [\App\Http\Controllers\admin\ProductCategoryController::class, 'destroy'])->name('categories.destroy');
+        Route::post('categories/{category}/toggle', [\App\Http\Controllers\admin\ProductCategoryController::class, 'toggle'])->name('categories.toggle');
+        Route::post('categories/reorder', [\App\Http\Controllers\admin\ProductCategoryController::class, 'reorder'])->name('categories.reorder');
+        
+        // Subcategories
+        Route::get('subcategories', [\App\Http\Controllers\admin\ProductSubcategoryController::class, 'index'])->name('subcategories.index');
+        Route::post('subcategories', [\App\Http\Controllers\admin\ProductSubcategoryController::class, 'store'])->name('subcategories.store');
+        Route::put('subcategories/{subcategory}', [\App\Http\Controllers\admin\ProductSubcategoryController::class, 'update'])->name('subcategories.update');
+        Route::delete('subcategories/{subcategory}', [\App\Http\Controllers\admin\ProductSubcategoryController::class, 'destroy'])->name('subcategories.destroy');
+        Route::post('subcategories/{subcategory}/toggle', [\App\Http\Controllers\admin\ProductSubcategoryController::class, 'toggle'])->name('subcategories.toggle');
+        
+        // Products
+        Route::get('/', [\App\Http\Controllers\admin\ProductController::class, 'index'])->name('index');
+        Route::get('create', [\App\Http\Controllers\admin\ProductController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\admin\ProductController::class, 'store'])->name('store');
+        Route::get('{product}/edit', [\App\Http\Controllers\admin\ProductController::class, 'edit'])->name('edit');
+        Route::put('{product}', [\App\Http\Controllers\admin\ProductController::class, 'update'])->name('update');
+        Route::delete('{product}', [\App\Http\Controllers\admin\ProductController::class, 'destroy'])->name('destroy');
+        Route::post('{product}/toggle', [\App\Http\Controllers\admin\ProductController::class, 'toggle'])->name('toggle');
+    });
 });
 
 require __DIR__ . '/auth.php';

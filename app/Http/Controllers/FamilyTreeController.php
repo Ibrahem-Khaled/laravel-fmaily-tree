@@ -200,15 +200,18 @@ class FamilyTreeController extends Controller
         // Eager load relationships محسن للأداء - تحديد الحقول المطلوبة فقط
         $person = Person::select([
             'id', 'first_name', 'last_name', 'gender', 'birth_date', 'birth_place', 'death_date',
-            'death_place', 'cemetery', 'photo_url', 'biography', 'occupation', 'location_id', 'parent_id', 'mother_id'
+            'death_place', 'cemetery', 'cemetery_location', 'grave_number', 'photo_url', 'biography', 'occupation', 'location_id', 'parent_id', 'mother_id'
         ])
         ->with([
             'parent:id,first_name,last_name,gender,birth_date,death_date,photo_url',
             'mother:id,first_name,last_name,gender,birth_date,death_date,photo_url',
             'location:id,name,normalized_name', // تحميل علاقة location
-            'articles:id,title,person_id'
+            'articles:id,title,person_id',
+            'friendships.friend:id,first_name,last_name,gender,birth_date,death_date,photo_url',
+            'contactAccounts:id,person_id,type,value,label,sort_order', // حسابات التواصل
+            'locations:id,name,normalized_name' // لوكيشنات متعددة
         ])
-        ->withCount('mentionedImages')
+        ->withCount(['mentionedImages', 'friendships'])
         ->findOrFail($id);
 
         $personData = $this->formatPersonData($person, true);
@@ -336,6 +339,8 @@ class FamilyTreeController extends Controller
             'death_date' => optional($person->death_date)->format('Y/m/d'), // Send death date to frontend
             'death_place' => $person->death_place ?? null,
             'cemetery' => $person->cemetery ?? null,
+            'cemetery_location' => $person->cemetery_location ?? null,
+            'grave_number' => $person->grave_number ?? null,
             'age' => $person->age,
         ];
 
@@ -343,6 +348,32 @@ class FamilyTreeController extends Controller
             $data['occupation'] = $person->occupation;
             $data['location'] = $person->location_display ?? null; // استخدام location_display accessor
             $data['biography'] = $person->biography;
+            
+            // إضافة حسابات التواصل
+            if ($person->relationLoaded('contactAccounts')) {
+                $data['contact_accounts'] = $person->contactAccounts->map(function($account) {
+                    return [
+                        'id' => $account->id,
+                        'type' => $account->type,
+                        'value' => $account->value,
+                        'label' => $account->label,
+                        'icon' => $account->icon,
+                        'url' => $account->url,
+                    ];
+                })->toArray();
+            }
+            
+            // إضافة لوكيشنات متعددة
+            if ($person->relationLoaded('locations')) {
+                $data['locations'] = $person->locations->map(function($location) {
+                    return [
+                        'id' => $location->id,
+                        'name' => $location->name,
+                        'label' => $location->pivot->label,
+                        'is_primary' => $location->pivot->is_primary,
+                    ];
+                })->toArray();
+            }
 
             if ($person->parent) {
                 // To display father's name under main person's name
@@ -417,6 +448,38 @@ class FamilyTreeController extends Controller
             });
         }
 
+        // إضافة الأصدقاء
+        if ($fullDetails && $person->relationLoaded('friendships')) {
+            $data['friends'] = $person->friendships->map(function ($friendship) {
+                return [
+                    'id' => $friendship->friend->id,
+                    'first_name' => $friendship->friend->first_name,
+                    'last_name' => $friendship->friend->last_name,
+                    'full_name' => $friendship->friend->full_name,
+                    'gender' => $friendship->friend->gender,
+                    'birth_date' => $friendship->friend->birth_date?->format('Y-m-d'),
+                    'death_date' => $friendship->friend->death_date?->format('Y-m-d'),
+                    'photo_url' => $friendship->friend->photo_url,
+                    'description' => $friendship->description,
+                    'friendship_story' => $friendship->friendship_story,
+                ];
+            });
+            $data['friendships_count'] = $person->friendships_count ?? $person->friendships->count();
+        }
+
         return $data;
+    }
+
+    /**
+     * API لجلب عدد الأصدقاء لشخص معين
+     */
+    public function getFriendshipsCount($id)
+    {
+        $count = \App\Models\Friendship::where('person_id', $id)->count();
+        
+        return response()->json([
+            'success' => true,
+            'count' => $count
+        ]);
     }
 }

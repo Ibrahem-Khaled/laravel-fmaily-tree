@@ -19,6 +19,8 @@ class Person extends BaseModel
         'death_date',
         'death_place',
         'cemetery',
+        'cemetery_location', // لوكيشن القبر
+        'grave_number', // رقم القبر
         'gender',
         'from_outside_the_family',
         'photo_url',
@@ -169,6 +171,33 @@ class Person extends BaseModel
         return $this->belongsTo(Location::class);
     }
 
+    /**
+     * حسابات التواصل المتعددة للشخص
+     */
+    public function contactAccounts()
+    {
+        return $this->hasMany(PersonContactAccount::class)->orderBy('sort_order');
+    }
+
+    /**
+     * لوكيشنات متعددة للشخص
+     */
+    public function personLocations()
+    {
+        return $this->hasMany(PersonLocation::class)->orderBy('sort_order');
+    }
+
+    /**
+     * العلاقة مع locations من خلال person_locations
+     */
+    public function locations()
+    {
+        return $this->belongsToMany(Location::class, 'person_locations')
+                    ->withPivot('label', 'is_primary', 'sort_order')
+                    ->withTimestamps()
+                    ->orderBy('person_locations.sort_order');
+    }
+
     public function childrenFromMother()
     {
         return $this->hasMany(Person::class, 'mother_id');
@@ -189,6 +218,18 @@ class Person extends BaseModel
     public function articles()
     {
         return $this->hasMany(Article::class);
+    }
+
+    public function friendships()
+    {
+        return $this->hasMany(Friendship::class, 'person_id');
+    }
+
+    public function friends()
+    {
+        return $this->belongsToMany(Person::class, 'friendships', 'person_id', 'friend_id')
+                    ->withPivot('description', 'friendship_story')
+                    ->withTimestamps();
     }
 
     public function mentionedImages()

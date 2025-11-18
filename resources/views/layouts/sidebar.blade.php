@@ -24,14 +24,14 @@
     </div>
 
     <!-- Nav Item - Family Management Collapse -->
-    <li class="nav-item {{ request()->routeIs(['people.*', 'marriages.*', 'breastfeeding.*', 'locations.*']) ? 'active' : '' }}">
+    <li class="nav-item {{ request()->routeIs(['people.*', 'marriages.*', 'breastfeeding.*', 'locations.*', 'friendships.*']) ? 'active' : '' }}">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseFamily"
-           aria-expanded="{{ request()->routeIs(['people.*', 'marriages.*', 'breastfeeding.*', 'locations.*']) ? 'true' : 'false' }}"
+           aria-expanded="{{ request()->routeIs(['people.*', 'marriages.*', 'breastfeeding.*', 'locations.*', 'friendships.*']) ? 'true' : 'false' }}"
            aria-controls="collapseFamily">
             <i class="fas fa-fw fa-sitemap"></i>
             <span>إدارة العائلة</span>
         </a>
-        <div id="collapseFamily" class="collapse {{ request()->routeIs(['people.*', 'marriages.*', 'breastfeeding.*', 'locations.*']) ? 'show' : '' }}"
+        <div id="collapseFamily" class="collapse {{ request()->routeIs(['people.*', 'marriages.*', 'breastfeeding.*', 'locations.*', 'friendships.*']) ? 'show' : '' }}"
              aria-labelledby="headingFamily" data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">إدارة العائلة:</h6>
@@ -43,6 +43,9 @@
                 </a>
                 <a class="collapse-item {{ request()->routeIs('breastfeeding.*') ? 'active' : '' }}" href="{{ route('breastfeeding.index') }}">
                     <i class="fas fa-fw fa-baby"></i> الرضاعة
+                </a>
+                <a class="collapse-item {{ request()->routeIs('friendships.*') ? 'active' : '' }}" href="{{ route('friendships.index') }}">
+                    <i class="fas fa-fw fa-user-friends"></i> الأصدقاء
                 </a>
                 <a class="collapse-item {{ request()->routeIs('locations.*') ? 'active' : '' }}" href="{{ route('locations.index') }}">
                     <i class="fas fa-fw fa-map-marker-alt"></i> الأماكن
@@ -118,6 +121,36 @@
                 </a>
                 <a class="collapse-item {{ request()->routeIs('stories.*') ? 'active' : '' }}" href="{{ route('stories.index') }}">
                     <i class="fas fa-fw fa-book-open"></i> القصص
+                </a>
+            </div>
+        </div>
+    </li>
+
+    <!-- Heading -->
+    <div class="sidebar-heading">
+        المتجر
+    </div>
+
+    <!-- Nav Item - Products Store Collapse -->
+    <li class="nav-item {{ request()->routeIs('products.*') ? 'active' : '' }}">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseProducts"
+           aria-expanded="{{ request()->routeIs('products.*') ? 'true' : 'false' }}"
+           aria-controls="collapseProducts">
+            <i class="fas fa-fw fa-shopping-bag"></i>
+            <span>متجر الأسر المنتجة</span>
+        </a>
+        <div id="collapseProducts" class="collapse {{ request()->routeIs('products.*') ? 'show' : '' }}"
+             aria-labelledby="headingProducts" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">إدارة المتجر:</h6>
+                <a class="collapse-item {{ request()->routeIs('products.index') || request()->routeIs('products.create') || request()->routeIs('products.edit') ? 'active' : '' }}" href="{{ route('products.index') }}">
+                    <i class="fas fa-fw fa-box"></i> المنتجات
+                </a>
+                <a class="collapse-item {{ request()->routeIs('products.categories.*') ? 'active' : '' }}" href="{{ route('products.categories.index') }}">
+                    <i class="fas fa-fw fa-tags"></i> الفئات الرئيسية
+                </a>
+                <a class="collapse-item {{ request()->routeIs('products.subcategories.*') ? 'active' : '' }}" href="{{ route('products.subcategories.index') }}">
+                    <i class="fas fa-fw fa-layer-group"></i> الفئات الفرعية
                 </a>
             </div>
         </div>

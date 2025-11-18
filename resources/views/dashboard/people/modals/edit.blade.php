@@ -162,6 +162,23 @@
                         </div>
                     </div>
 
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="cemetery_location_edit{{ $person->id }}">لوكيشن القبر</label>
+                                <input type="text" class="form-control" id="cemetery_location_edit{{ $person->id }}"
+                                    name="cemetery_location" value="{{ old('cemetery_location', $person->cemetery_location) }}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="grave_number_edit{{ $person->id }}">رقم القبر</label>
+                                <input type="text" class="form-control" id="grave_number_edit{{ $person->id }}"
+                                    name="grave_number" value="{{ old('grave_number', $person->grave_number) }}">
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <label for="biography_edit{{ $person->id }}">سيرة ذاتية</label>
                         <textarea class="form-control" id="biography_edit{{ $person->id }}" name="biography" rows="3">{{ old('biography', $person->biography) }}</textarea>

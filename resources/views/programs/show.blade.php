@@ -291,13 +291,13 @@
                                                     class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                                 </div>
                                                 @if ($image->name || $image->description)
-                                                    <div class="absolute bottom-3 right-3 left-3 text-white">
+                                                    <div class="absolute bottom-3 right-3 left-3 bg-white/90 backdrop-blur-sm rounded-lg p-2">
                                                         @if ($image->name)
-                                                            <h3 class="font-semibold text-base line-clamp-1">
+                                                            <h3 class="font-semibold text-base line-clamp-1 text-black">
                                                                 {{ $image->name }}</h3>
                                                         @endif
                                                         @if ($image->description)
-                                                            <p class="text-xs text-white/80 mt-1 line-clamp-2">
+                                                            <p class="text-xs text-gray-700 mt-1 line-clamp-2">
                                                                 {{ $image->description }}</p>
                                                         @endif
                                                     </div>
@@ -352,13 +352,13 @@
                                             class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                         </div>
                                         @if ($media->name || $media->description)
-                                            <div class="absolute bottom-3 right-3 left-3 text-white">
+                                            <div class="absolute bottom-3 right-3 left-3 bg-white/90 backdrop-blur-sm rounded-lg p-2">
                                                 @if ($media->name)
-                                                    <h3 class="font-semibold text-base line-clamp-1">
+                                                    <h3 class="font-semibold text-base line-clamp-1 text-black">
                                                         {{ $media->name }}</h3>
                                                 @endif
                                                 @if ($media->description)
-                                                    <p class="text-xs text-white/80 mt-1 line-clamp-2">
+                                                    <p class="text-xs text-gray-700 mt-1 line-clamp-2">
                                                         {{ $media->description }}</p>
                                                 @endif
                                             </div>

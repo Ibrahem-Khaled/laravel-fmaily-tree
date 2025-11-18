@@ -116,6 +116,14 @@
                                 <th>المقبرة</th>
                                 <td>{{ $person->cemetery ?? '-' }}</td>
                             </tr>
+                            <tr>
+                                <th>لوكيشن القبر</th>
+                                <td>{{ $person->cemetery_location ?? '-' }}</td>
+                            </tr>
+                            <tr>
+                                <th>رقم القبر</th>
+                                <td>{{ $person->grave_number ?? '-' }}</td>
+                            </tr>
                         </table>
                     </div>
                 </div>
@@ -351,6 +359,136 @@
             </div>
         </div>
 
+        {{-- بطاقة حسابات التواصل --}}
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-address-book"></i>
+                    حسابات التواصل
+                </h6>
+                <button class="btn btn-success btn-sm" data-toggle="modal" data-target="#addContactAccountModal{{ $person->id }}">
+                    <i class="fas fa-plus"></i> إضافة حساب تواصل
+                </button>
+            </div>
+            <div class="card-body">
+                @if ($person->contactAccounts->isNotEmpty())
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>النوع</th>
+                                    <th>القيمة</th>
+                                    <th>التسمية</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($person->contactAccounts as $account)
+                                    <tr>
+                                        <td>
+                                            <i class="fas {{ $account->icon }}"></i>
+                                            {{ ucfirst($account->type) }}
+                                        </td>
+                                        <td>
+                                            <a href="{{ $account->url }}" target="_blank">{{ $account->value }}</a>
+                                        </td>
+                                        <td>{{ $account->label ?? '-' }}</td>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-circle btn-primary"
+                                                data-toggle="modal" data-target="#editContactAccountModal{{ $account->id }}"
+                                                title="تعديل">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <form action="{{ route('people.contact-accounts.destroy', [$person->id, $account->id]) }}" method="POST" class="d-inline"
+                                                onsubmit="return confirm('هل أنت متأكد من حذف هذا الحساب؟');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-circle btn-danger" title="حذف">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <div class="text-center p-3">
+                        <p class="mb-0">لا توجد حسابات تواصل حالياً. يمكنك إضافة حساب باستخدام الزر أعلاه.</p>
+                    </div>
+                @endif
+            </div>
+        </div>
+
+        {{-- بطاقة المواقع المتعددة --}}
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-map-marker-alt"></i>
+                    المواقع
+                </h6>
+                <button class="btn btn-success btn-sm" data-toggle="modal" data-target="#addPersonLocationModal{{ $person->id }}">
+                    <i class="fas fa-plus"></i> إضافة موقع
+                </button>
+            </div>
+            <div class="card-body">
+                @if ($person->locations->isNotEmpty())
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>الموقع</th>
+                                    <th>التسمية</th>
+                                    <th>الحالة</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($person->locations as $location)
+                                    @php
+                                        $personLocation = $person->personLocations->where('location_id', $location->id)->first();
+                                    @endphp
+                                    <tr>
+                                        <td>{{ $location->name }}</td>
+                                        <td>{{ $personLocation->label ?? '-' }}</td>
+                                        <td>
+                                            @if ($personLocation && $personLocation->is_primary)
+                                                <span class="badge badge-success">أساسي</span>
+                                            @else
+                                                <span class="badge badge-secondary">ثانوي</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if ($personLocation)
+                                                <button type="button" class="btn btn-sm btn-circle btn-primary"
+                                                    data-toggle="modal" data-target="#editPersonLocationModal{{ $personLocation->id }}"
+                                                    title="تعديل">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <form action="{{ route('people.locations.destroy', [$person->id, $personLocation->id]) }}" method="POST" class="d-inline"
+                                                    onsubmit="return confirm('هل أنت متأكد من حذف هذا الموقع؟');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-sm btn-circle btn-danger" title="حذف">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <div class="text-center p-3">
+                        <p class="mb-0">لا توجد مواقع حالياً. يمكنك إضافة موقع باستخدام الزر أعلاه.</p>
+                    </div>
+                @endif
+            </div>
+        </div>
+
         {{-- بطاقة الرضاعة --}}
         <div class="card shadow mb-4">
             <div class="card-header py-3 d-flex justify-content-between align-items-center">
@@ -496,6 +634,18 @@
 
     {{-- مودال إضافة زواج جديد --}}
     @include('dashboard.people.modals.add_marriage')
+
+    {{-- مودالات حسابات التواصل --}}
+    @include('dashboard.people.modals.add-contact-account', ['person' => $person])
+    @foreach ($person->contactAccounts as $account)
+        @include('dashboard.people.modals.edit-contact-account', ['account' => $account, 'person' => $person])
+    @endforeach
+
+    {{-- مودالات المواقع --}}
+    @include('dashboard.people.modals.add-person-location', ['person' => $person])
+    @foreach ($person->personLocations as $personLocation)
+        @include('dashboard.people.modals.edit-person-location', ['personLocation' => $personLocation, 'person' => $person])
+    @endforeach
 
     {{-- تضمين مودالات التعديل لكل الأشخاص المعروضين في الصفحة --}}
     {{-- @foreach ($spouses as $spouse)

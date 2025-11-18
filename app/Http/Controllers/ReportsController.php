@@ -49,33 +49,48 @@ class ReportsController extends Controller
 
         $phdCount = Article::whereIn('category_id', $phdCategoryIds)->count();
 
-        // ترتيب أبناء العائلة الأحياء حسب العمر (ذكور فقط)
+        // ترتيب أبناء العائلة الأحياء حسب العمر (جميع الأبناء: ذكور وإناث)
+        // الذكور مرتبون حسب العمر، والإناث تظهر بدون ترتيب حسب العمر
         $allFamilyMembersByAge = Person::where('from_outside_the_family', false)
-            ->where('gender', 'male')
-            ->whereNotNull('birth_date')
             ->whereNull('death_date')
-            ->orderBy('birth_date', 'asc')
             ->get()
             ->map(function($person) {
-                // حساب العمر من تاريخ الميلاد حتى الآن (الأحياء فقط)
-                $age = null;
-                if ($person->birth_date) {
-                    $age = $person->birth_date->diffInYears(now());
-                }
-
                 return [
                     'id' => $person->id,
                     'full_name' => $person->full_name,
-                    'age' => $age ?? 'غير محدد',
+                    'gender' => $person->gender,
+                    'age' => $person->age, // استخدام accessor من Person model
                     'birth_date' => $person->birth_date ? $person->birth_date->format('Y-m-d') : null,
                 ];
-            });
+            })
+            ->sortBy(function($person) {
+                // ترتيب: الذكور أولاً حسب العمر (من الأكبر للأصغر)، ثم الإناث بدون ترتيب
+                if ($person['gender'] === 'male' && $person['age'] !== null) {
+                    return -$person['age']; // سالب للترتيب من الأكبر للأصغر
+                }
+                return PHP_INT_MAX; // الإناث في النهاية
+            })
+            ->values();
 
         // إحصائيات حسب الجد مع حساب الأبناء والأحفاد بشكل متكرر
         $generationsData = $this->getGenerationsStatistics();
 
         // إحصائيات الأماكن (عدد سكان المدن حسب الذكور والإناث)
         $locationsStatistics = $this->getLocationsStatistics();
+
+        // أكثر الأسماء تكراراً (من داخل العائلة فقط)
+        $mostCommonNames = Person::where('from_outside_the_family', false)
+            ->select('first_name', DB::raw('count(*) as count'))
+            ->groupBy('first_name')
+            ->orderByDesc('count')
+            ->limit(20)
+            ->get()
+            ->map(function($item) {
+                return [
+                    'name' => $item->first_name,
+                    'count' => $item->count,
+                ];
+            });
 
         return view('reports', compact(
             'totalFamilyMembers',
@@ -85,7 +100,8 @@ class ReportsController extends Controller
             'phdCount',
             'allFamilyMembersByAge',
             'generationsData',
-            'locationsStatistics'
+            'locationsStatistics',
+            'mostCommonNames'
         ));
     }
 

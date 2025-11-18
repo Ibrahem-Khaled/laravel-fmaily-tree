@@ -225,17 +225,18 @@
 
         /* زر نداء الإجراء (لأزرار مثل معرض الصور والقصص) */
         .btn-cta {
-            display: inline-flex; align-items: center; gap: 8px;
+            display: inline-flex; align-items: center; justify-content: center;
             background: linear-gradient(135deg, #2fb76e 0%, #1f9a57 100%);
             color: #fff !important; border: 0 !important;
-            padding: 10px 16px; border-radius: 9999px;
+            padding: 12px; border-radius: 50%;
+            width: 48px; height: 48px;
             box-shadow: 0 12px 30px rgba(47, 183, 110, 0.28);
             transition: transform 160ms var(--ease-smooth), box-shadow 200ms var(--ease-smooth), filter 200ms var(--ease-smooth);
             text-decoration: none;
         }
-        .btn-cta:hover { transform: translateY(-2px); box-shadow: 0 18px 38px rgba(31, 154, 87, 0.32); filter: brightness(1.02); }
-        .btn-cta:active { transform: translateY(0); box-shadow: 0 10px 22px rgba(31, 154, 87, 0.28); }
-        .btn-cta i { font-size: 1rem; }
+        .btn-cta:hover { transform: translateY(-2px) scale(1.05); box-shadow: 0 18px 38px rgba(31, 154, 87, 0.32); filter: brightness(1.02); }
+        .btn-cta:active { transform: translateY(0) scale(1); box-shadow: 0 10px 22px rgba(31, 154, 87, 0.28); }
+        .btn-cta i { font-size: 1.25rem; }
 
         #personDetailModal .person-photo-container {
             border-radius: 12px;
@@ -279,31 +280,31 @@
             }
         }
 
-        .spouse-card, .child-card, .parent-card {
+        .spouse-card, .child-card, .parent-card, .friend-card {
             display: flex; align-items: center; gap: 12px;
             background-color: #fff; padding: 12px; border-radius: 10px;
             border: 1px solid var(--border-color);
             transition: transform 180ms var(--ease-smooth), box-shadow 200ms var(--ease-smooth), border-color 200ms var(--ease-smooth);
             box-shadow: 0 2px 6px rgba(0,0,0,0.04);
         }
-        .child-card.clickable, .parent-card.clickable { cursor: pointer; }
-        .child-card.clickable:hover, .parent-card.clickable:hover {
+        .child-card.clickable, .parent-card.clickable, .friend-card.clickable { cursor: pointer; }
+        .child-card.clickable:hover, .parent-card.clickable:hover, .friend-card.clickable:hover {
             background-color: var(--light-green);
             transform: translateY(-3px);
             box-shadow: 0 14px 28px rgba(0,0,0,0.10);
             border-color: var(--primary-color);
         }
-        .spouse-card img, .child-card img, .parent-card img {
+        .spouse-card img, .child-card img, .parent-card img, .friend-card img {
             width: 45px; height: 45px; border-radius: 50%; object-fit: cover;
         }
-        .spouse-card .icon-placeholder-sm, .child-card .icon-placeholder-sm, .parent-card .icon-placeholder-sm {
+        .spouse-card .icon-placeholder-sm, .child-card .icon-placeholder-sm, .parent-card .icon-placeholder-sm, .friend-card .icon-placeholder-sm {
             font-size: 1.5rem; color: var(--primary-color);
             width: 45px; height: 45px; background-color: var(--light-gray);
             border-radius: 50%; display: flex; justify-content: center; align-items: center;
         }
 
         /* تحسين عرض حالة الوفاة */
-        .spouse-card.is-deceased small, .child-card.is-deceased small, .parent-card.is-deceased small {
+        .spouse-card.is-deceased small, .child-card.is-deceased small, .parent-card.is-deceased small, .friend-card.is-deceased small {
             color: #dc3545 !important;
             font-weight: 600;
         }
@@ -887,17 +888,18 @@
                     ? `<h5>الأبناء (${person.children_count})</h5><div id="modalChildrenList" class="row g-2"></div>`
                     : '';
 
+                // زر معرض الصور
                 let galleryButtonHtml = (person.images_count > 0)
-                    ? `<div class="text-center mb-4">
-                        <a class="btn-cta" onclick="openPersonGallery(${person.id})" role="button" href="javascript:void(0)">
+                    ? `<a class="btn-cta" onclick="openPersonGallery(${person.id})" role="button" href="javascript:void(0)" title="معرض الصور">
                             <i class="fas fa-images"></i>
-                            معرض الصور (${person.images_count})
-                        </a>
-                    </div>`
+                        </a>`
                     : '';
 
-                // Placeholder زر القصص (سيتم إظهاره بعد فحص العداد) - في العمود الأيسر أسفل معرض الصور
-                const storiesBtnPlaceholder = `<div id="personStoriesButton" class="text-center mb-4"></div>`;
+                // Placeholder زر القصص (سيتم إظهاره بعد فحص العداد)
+                const storiesBtnPlaceholder = `<div id="personStoriesButton"></div>`;
+
+                // Placeholder زر الأصدقاء (سيتم إظهاره بعد فحص العداد)
+                const friendshipsBtnPlaceholder = `<div id="personFriendshipsButton"></div>`;
 
                 document.getElementById('modalBodyContent').innerHTML = `
                     <div class="row g-4">
@@ -905,8 +907,11 @@
                             <div class="d-inline-block ${person.death_date ? 'is-deceased' : ''}">${createPhoto(person, 'lg', false)}</div>
                             <h4 class="mt-3 mb-1">${person.full_name || person.first_name}</h4>
                             <!-- 🚫 لا نص "في ذمة الله" ولا "على قيد الحياة" هنا -->
-                            ${galleryButtonHtml}
-                            ${storiesBtnPlaceholder}
+                            <div class="d-flex justify-content-center gap-2 mb-4 flex-wrap">
+                                ${galleryButtonHtml}
+                                ${storiesBtnPlaceholder}
+                                ${friendshipsBtnPlaceholder}
+                            </div>
                         </div>
                         <div class="col-lg-8">
                             <div class="detail-row-container">
@@ -916,9 +921,48 @@
                                 ${createDetailRow('fa-map-marker-alt', 'مكان الإقامة', person.location)}
                                 ${createDetailRow('fa-tombstone-alt', 'مكان الوفاة', person.death_place)}
                                 ${createDetailRow('fa-building', 'المقبرة', person.cemetery)}
+                                ${createDetailRow('fa-map-pin', 'لوكيشن القبر', person.cemetery_location)}
+                                ${createDetailRow('fa-hashtag', 'رقم القبر', person.grave_number)}
                                 ${person.death_date ? createDetailRow('fa-dove', 'تاريخ الوفاة', person.death_date) : ''}
                                 ${createDetailRow('fa-briefcase', 'المهنة', person.occupation)}
                             </div>
+                            ${person.locations && person.locations.length > 0 ? `
+                                <hr class="my-4">
+                                <h5>المواقع</h5>
+                                <div class="row g-2">
+                                    ${person.locations.map(loc => `
+                                        <div class="col-md-6">
+                                            <div class="detail-row">
+                                                <div>
+                                                    <small class="text-muted">${loc.label || 'موقع'}</small>
+                                                    <p class="mb-0 fw-bold">${loc.name}</p>
+                                                    ${loc.is_primary ? '<span class="badge bg-success">أساسي</span>' : ''}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+                            ${person.contact_accounts && person.contact_accounts.length > 0 ? `
+                                <hr class="my-4">
+                                <h5>حسابات التواصل</h5>
+                                <div class="row g-2">
+                                    ${person.contact_accounts.map(account => `
+                                        <div class="col-md-6">
+                                            <div class="detail-row">
+                                                <div>
+                                                    <small class="text-muted">${account.label || account.type}</small>
+                                                    <p class="mb-0 fw-bold">
+                                                        <a href="${account.url}" target="_blank" class="text-decoration-none">
+                                                            <i class="fas ${account.icon} me-2"></i>${account.value}
+                                                        </a>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
                             <hr class="my-4">
                             ${parentsHtml}
                             ${spousesHtml}
@@ -934,6 +978,9 @@
 
                 // جلب عداد القصص لهذا الشخص لإظهار زر القصص عند الحاجة
                 insertStoriesButton(person.id, person.full_name);
+
+                // جلب عداد الأصدقاء لهذا الشخص لإظهار زر الأصدقاء عند الحاجة
+                insertFriendshipsButton(person.id);
             };
 
             async function insertStoriesButton(personId, personFullName) {
@@ -945,9 +992,8 @@
                         const holder = document.getElementById('personStoriesButton');
                         if (holder) {
                             holder.innerHTML = `
-                                <a class="btn-cta" href="/stories/person/${personId}">
-                                    <i class=\"fas fa-book-open\"></i>
-                                    احداث وقصص (${data.count})
+                                <a class="btn-cta" href="/stories/person/${personId}" title="أحداث وقصص">
+                                    <i class="fas fa-book-open"></i>
                                 </a>
                             `;
                         }
@@ -956,6 +1002,32 @@
                     console.warn('Failed to fetch stories count', e);
                 }
             }
+
+            async function insertFriendshipsButton(personId) {
+                try {
+                    const res = await fetch(`/api/person/${personId}/friendships/count`, { headers: { 'Accept': 'application/json' }});
+                    if (!res.ok) return;
+                    const data = await res.json();
+                    if (data && data.count && data.count > 0) {
+                        const holder = document.getElementById('personFriendshipsButton');
+                        if (holder) {
+                            holder.innerHTML = `
+                                <a class="btn-cta" href="javascript:void(0)" onclick="showFriendships(${personId})" title="الأصدقاء">
+                                    <i class="fas fa-user-friends"></i>
+                                </a>
+                            `;
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Failed to fetch friendships count', e);
+                }
+            }
+
+            window.showFriendships = (personId) => {
+                window.open(`/person/${personId}/friends`, '_blank');
+            };
+
+            // تم إزالة openFriendshipDetails - الآن يتم عرض التفاصيل في مودال في صفحة الأصدقاء
 
             async function loadModalChildren(personId) {
                 const childrenContainer = document.getElementById('modalChildrenList');

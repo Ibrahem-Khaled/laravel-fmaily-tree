@@ -291,8 +291,7 @@
                         href="{{ route('home') }}">الرئيسية</a>
                 </li>
                 <li>
-                    <a class="nav-link {{ request()->routeIs('sila') ? 'active' : '' }}"
-                        href="{{ route('sila') }}">
+                    <a class="nav-link {{ request()->routeIs('sila') ? 'active' : '' }}" href="{{ route('sila') }}">
                         <i class="fas fa-sitemap me-1"></i>صلة
                     </a>
                 </li>
@@ -308,17 +307,28 @@
                         href="{{ route('gallery.articles') }}">شهادات و أبحاث</a>
                 </li>
                 <li>
-                    <a class="nav-link {{ request()->routeIs('persons.badges') ? 'active' : '' }}" href="{{ route('persons.badges') }}">
+                    <a class="nav-link {{ request()->routeIs('persons.badges') ? 'active' : '' }}"
+                        href="{{ route('persons.badges') }}">
                         طلاب طموح
                     </a>
                 </li>
                 <li>
-                    <a class="nav-link {{ request()->routeIs('breastfeeding.public.*') ? 'active' : '' }}" href="{{ route('breastfeeding.public.index') }}">
+                    <a class="nav-link {{ request()->routeIs('breastfeeding.public.*') ? 'active' : '' }}"
+                        href="{{ route('breastfeeding.public.index') }}">
                         <i class="fas fa-baby me-1"></i>الرضاعة
                     </a>
                 </li>
+                @if (auth()->check())
+                    <li>
+                        <a class="nav-link {{ request()->routeIs('store.*') ? 'active' : '' }}"
+                            href="{{ route('store.index') }}">
+                            <i class="fas fa-shopping-bag me-1"></i>متجر الأسر المنتجة
+                        </a>
+                    </li>
+                @endif
                 <li>
-                    <a class="nav-link {{ request()->routeIs('reports.index') ? 'active' : '' }}" href="{{ route('reports.index') }}">
+                    <a class="nav-link {{ request()->routeIs('reports.index') ? 'active' : '' }}"
+                        href="{{ route('reports.index') }}">
                         التقارير
                     </a>
                 </li>

@@ -157,6 +157,8 @@ class PersonController extends Controller
             'death_date' => 'nullable|date|after_or_equal:birth_date',
             'death_place' => 'nullable|string|max:150',
             'cemetery' => 'nullable|string|max:150',
+            'cemetery_location' => 'nullable|string|max:150',
+            'grave_number' => 'nullable|string|max:50',
             'gender' => 'required|in:male,female',
             'from_outside_the_family' => 'nullable|boolean',
             'photo' => 'nullable|image|max:2048',
@@ -214,6 +216,8 @@ class PersonController extends Controller
             'death_date' => 'nullable|date|after_or_equal:birth_date',
             'death_place' => 'nullable|string|max:150',
             'cemetery' => 'nullable|string|max:150',
+            'cemetery_location' => 'nullable|string|max:150',
+            'grave_number' => 'nullable|string|max:50',
             'gender' => 'required|in:male,female',
             'from_outside_the_family' => 'nullable|boolean',
             'photo' => 'nullable|image|max:2048',
@@ -321,7 +325,7 @@ class PersonController extends Controller
     public function show(Person $person)
     {
         // تحميل علاقة location
-        $person->load('location');
+        $person->load(['location', 'contactAccounts', 'personLocations', 'locations']);
         
         // جلب قوائم الذكور والإناث اللازمة لمودال التعديل والنماذج
         $males = Person::where('gender', 'male')->with('location')->get();

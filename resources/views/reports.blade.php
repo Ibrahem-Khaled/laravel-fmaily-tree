@@ -349,6 +349,7 @@
             <div class="flex flex-col md:flex-row items-center gap-3 mb-4 md:mb-6">
                 <div class="text-center md:text-right">
                     <h3 class="text-xl md:text-2xl font-bold gradient-text">ترتيب أبناء العائلة حسب العمر</h3>
+                    <p class="text-xs md:text-sm text-gray-600 mt-1">الأحياء فقط</p>
                 </div>
             </div>
             <div class="space-y-2 max-h-96 md:max-h-[600px] overflow-y-auto">
@@ -359,14 +360,25 @@
                                 {{ $index + 1 }}
                             </div>
                             <div class="min-w-0 flex-1">
-                                <div class="font-bold text-gray-800 text-sm md:text-base break-words">{{ $person['full_name'] }}</div>
-                                @if(isset($person['gender']) && $person['gender'] === 'male')
-                                    <div class="text-xs text-gray-500">{{ $person['birth_date'] ?? 'غير محدد' }}</div>
+                                <div class="font-bold text-gray-800 text-sm md:text-base break-words">
+                                    {{ $person['full_name'] }}
+                                    @if(isset($person['gender']))
+                                        @if($person['gender'] === 'male')
+                                            <span class="text-blue-600 text-xs mr-1">♂</span>
+                                        @else
+                                            <span class="text-pink-600 text-xs mr-1">♀</span>
+                                        @endif
                                 @endif
                             </div>
                         </div>
-                        @if(isset($person['gender']) && $person['gender'] === 'male')
-                            <div class="text-base md:text-lg font-bold text-green-600 flex-shrink-0 ml-3">{{ $person['age'] }} سنة</div>
+                        </div>
+                        @if(isset($person['gender']) && $person['gender'] === 'male' && isset($person['age']))
+                            <div class="flex flex-col items-end flex-shrink-0 ml-3">
+                                <div class="text-base md:text-lg font-bold text-green-600">{{ $person['age'] }} سنة</div>
+                                @if(isset($person['birth_date']))
+                                    <div class="text-xs text-gray-500 mt-1">{{ $person['birth_date'] }}</div>
+                                @endif
+                            </div>
                         @endif
                     </div>
                 @empty
@@ -375,7 +387,38 @@
             </div>
         </section>
 
-        <!-- القسم الخامس: إحصائيات الأبناء والأحفاد حسب الجد -->
+        <!-- القسم الخامس: أكثر الأسماء تكراراً -->
+        <section class="glass-effect p-4 md:p-6 rounded-2xl green-glow mb-6 md:mb-8 fade-in">
+            <div class="flex flex-col md:flex-row items-center gap-3 mb-4 md:mb-6">
+                <div class="text-center md:text-right">
+                    <h3 class="text-xl md:text-2xl font-bold gradient-text">أكثر الأسماء تكراراً</h3>
+                    <p class="text-xs md:text-sm text-gray-600 mt-1">الأسماء الأكثر شيوعاً بين أبناء العائلة</p>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                @forelse($mostCommonNames as $index => $nameData)
+                    <div class="bg-white/50 rounded-xl p-4 hover:bg-white/70 transition-all duration-300 hover:shadow-lg">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="w-8 h-8 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                                {{ $index + 1 }}
+                            </div>
+                            <div class="text-2xl md:text-3xl font-bold text-green-600">
+                                {{ $nameData['count'] }}
+                            </div>
+                        </div>
+                        <div class="font-bold text-gray-800 text-lg md:text-xl text-right mt-2">
+                            {{ $nameData['name'] }}
+                        </div>
+                    </div>
+                @empty
+                    <div class="col-span-full text-center py-8">
+                        <p class="text-gray-500">لا توجد بيانات</p>
+                    </div>
+                @endforelse
+            </div>
+        </section>
+
+        <!-- القسم السادس: إحصائيات الأبناء والأحفاد حسب الجد -->
         <section class="glass-effect p-4 md:p-6 rounded-2xl green-glow mb-8 fade-in">
             <!-- رأس القسم -->
             <div class="text-center mb-4 md:mb-6">
