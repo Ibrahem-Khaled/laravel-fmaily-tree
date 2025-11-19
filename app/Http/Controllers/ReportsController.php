@@ -51,7 +51,7 @@ class ReportsController extends Controller
         $phdCount = Article::whereIn('category_id', $phdCategoryIds)->count();
 
         // ترتيب أبناء العائلة الأحياء حسب العمر (جميع الأبناء: ذكور وإناث)
-        // الذكور مرتبون حسب العمر، والإناث تظهر بدون ترتيب حسب العمر
+        // مرتبون من الأكبر للأصغر حسب تاريخ الميلاد
         $allFamilyMembersByAge = Person::where('from_outside_the_family', false)
             ->whereNull('death_date')
             ->get()
@@ -62,14 +62,14 @@ class ReportsController extends Controller
                     'gender' => $person->gender,
                     'age' => $person->age, // استخدام accessor من Person model
                     'birth_date' => $person->birth_date ? $person->birth_date->format('Y-m-d') : null,
+                    'birth_date_raw' => $person->birth_date ? $person->birth_date->timestamp : 0, // للترتيب (0 للأشخاص بدون تاريخ)
                 ];
             })
-            ->sortBy(function($person) {
-                // ترتيب: الذكور أولاً حسب العمر (من الأكبر للأصغر)، ثم الإناث بدون ترتيب
-                if ($person['gender'] === 'male' && $person['age'] !== null) {
-                    return -$person['age']; // سالب للترتيب من الأكبر للأصغر
-                }
-                return PHP_INT_MAX; // الإناث في النهاية
+            ->sortByDesc(function($person) {
+                // ترتيب من الأكبر للأصغر حسب تاريخ الميلاد
+                // تاريخ الميلاد الأقدم (timestamp أصغر) = عمر أكبر
+                // نستخدم sortByDesc مع timestamp لأن timestamp الأصغر = عمر أكبر
+                return $person['birth_date_raw'] > 0 ? $person['birth_date_raw'] : 0;
             })
             ->values();
 
@@ -79,11 +79,12 @@ class ReportsController extends Controller
         // إحصائيات الأماكن (عدد سكان المدن حسب الذكور والإناث)
         $locationsStatistics = $this->getLocationsStatistics();
 
-        // أكثر الأسماء تكراراً (من داخل العائلة فقط)
+        // أكثر الأسماء تكراراً (من داخل العائلة فقط) - مرتبة من الأكثر تكراراً للأقل
         $mostCommonNames = Person::where('from_outside_the_family', false)
             ->select('first_name', DB::raw('count(*) as count'))
             ->groupBy('first_name')
             ->orderByDesc('count')
+            ->orderBy('first_name') // في حالة التساوي، ترتيب أبجدي
             ->limit(20)
             ->get()
             ->map(function($item) {
@@ -91,7 +92,9 @@ class ReportsController extends Controller
                     'name' => $item->first_name,
                     'count' => $item->count,
                 ];
-            });
+            })
+            ->sortByDesc('count') // ترتيب إضافي من الأكثر للأقل
+            ->values();
 
         return view('reports', compact(
             'totalFamilyMembers',

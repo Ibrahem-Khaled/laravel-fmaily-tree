@@ -931,7 +931,8 @@
                 .then(data => {
                     if (data.success) {
                         // تحديث عنوان الـ modal
-                        document.getElementById('modalNameTitle').textContent = `أشخاص يحملون اسم "${data.name}"`;
+                        const nameText = typeof data.name === 'string' ? data.name : name;
+                        document.getElementById('modalNameTitle').textContent = `أشخاص يحملون اسم "${nameText}"`;
 
                         // تحديث الإحصائيات
                         document.getElementById('nameModalTotal').textContent = data.total;
