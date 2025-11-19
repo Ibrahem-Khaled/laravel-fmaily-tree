@@ -6,6 +6,7 @@ use App\Models\Person;
 use App\Models\Category;
 use App\Models\Article;
 use App\Models\Location;
+use App\Models\Marriage;
 use Illuminate\Support\Facades\DB;
 
 class ReportsController extends Controller
@@ -48,6 +49,35 @@ class ReportsController extends Controller
         })->pluck('id');
 
         $phdCount = Article::whereIn('category_id', $phdCategoryIds)->count();
+
+        // إجمالي الأنساب (الأشخاص من خارج العائلة المتزوجون من داخل العائلة)
+        // شرط: أن يكونوا متزوجين فعلاً (ليسوا مطلقين)
+        $totalRelatives = DB::table('marriages')
+            ->join('persons as husbands', 'marriages.husband_id', '=', 'husbands.id')
+            ->join('persons as wives', 'marriages.wife_id', '=', 'wives.id')
+            ->where(function($query) {
+                // الزوج من خارج العائلة والزوجة من داخل العائلة
+                $query->where(function($q) {
+                    $q->where('husbands.from_outside_the_family', true)
+                      ->where('wives.from_outside_the_family', false);
+                })
+                // أو الزوجة من خارج العائلة والزوج من داخل العائلة
+                ->orWhere(function($q) {
+                    $q->where('husbands.from_outside_the_family', false)
+                      ->where('wives.from_outside_the_family', true);
+                });
+            })
+            ->where(function($query) {
+                // شرط: أن يكون الزواج نشط (غير مطلق)
+                $query->where('marriages.is_divorced', false)
+                      ->whereNull('marriages.divorced_at');
+            })
+            ->selectRaw('CASE 
+                WHEN husbands.from_outside_the_family = 1 THEN marriages.husband_id 
+                ELSE marriages.wife_id 
+            END as relative_id')
+            ->distinct()
+            ->count();
 
         // ترتيب أبناء العائلة الأحياء حسب العمر (جميع الأبناء: ذكور وإناث)
         // الذكور مرتبون حسب العمر، والإناث تظهر بدون ترتيب حسب العمر
@@ -98,6 +128,7 @@ class ReportsController extends Controller
             'femaleCount',
             'masterDegreeCount',
             'phdCount',
+            'totalRelatives',
             'allFamilyMembersByAge',
             'generationsData',
             'locationsStatistics',

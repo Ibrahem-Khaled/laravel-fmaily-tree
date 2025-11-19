@@ -206,6 +206,29 @@
             </div>
         </section>
 
+        <!-- القسم الأول-ب: إجمالي الأنساب -->
+        <section class="mb-6 md:mb-8">
+            <div class="stat-card glass-effect p-4 md:p-8 rounded-2xl green-glow">
+                <!-- رأس القسم -->
+                <div class="flex flex-col md:flex-row items-center gap-4 mb-6">
+                    <div class="text-center md:text-right">
+                        <h3 class="text-xl md:text-2xl font-bold text-gray-800 mb-1">إجمالي الأنساب</h3>
+                        <p class="text-xs md:text-sm text-gray-500">الأشخاص من خارج العائلة المتزوجون من داخل العائلة (الزواج النشط فقط)</p>
+                    </div>
+                </div>
+
+                <!-- الرقم -->
+                <div class="flex justify-center">
+                    <div class="text-center p-6 md:p-8 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl w-full max-w-md">
+                        <div class="text-5xl md:text-6xl font-bold text-purple-600 mb-3">{{ number_format($totalRelatives) }}</div>
+                        <div class="text-base md:text-lg font-medium text-gray-700">
+                            <i class="fas fa-heart mr-2"></i>أنساب متزوجون
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- القسم الثاني: الإحصائيات التعليمية -->
         <section class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
             <!-- حملة الماجستير -->
