@@ -62,14 +62,14 @@ class ReportsController extends Controller
                     'gender' => $person->gender,
                     'age' => $person->age, // استخدام accessor من Person model
                     'birth_date' => $person->birth_date ? $person->birth_date->format('Y-m-d') : null,
-                    'birth_date_raw' => $person->birth_date ? $person->birth_date->timestamp : 0, // للترتيب (0 للأشخاص بدون تاريخ)
+                    'birth_date_raw' => $person->birth_date ? $person->birth_date->timestamp : PHP_INT_MAX, // للترتيب
                 ];
             })
-            ->sortByDesc(function($person) {
+            ->sortBy(function($person) {
                 // ترتيب من الأكبر للأصغر حسب تاريخ الميلاد
                 // تاريخ الميلاد الأقدم (timestamp أصغر) = عمر أكبر
-                // نستخدم sortByDesc مع timestamp لأن timestamp الأصغر = عمر أكبر
-                return $person['birth_date_raw'] > 0 ? $person['birth_date_raw'] : 0;
+                // نستخدم sortBy تصاعدياً: timestamp أصغر أولاً = عمر أكبر أولاً
+                return $person['birth_date_raw'];
             })
             ->values();
 
