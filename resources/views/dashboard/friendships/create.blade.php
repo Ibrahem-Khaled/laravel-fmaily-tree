@@ -36,7 +36,7 @@
                                 <select id="person_id" name="person_id" 
                                         class="form-control @error('person_id') is-invalid @enderror" required>
                                     <option value="">اختر الشخص</option>
-                                    @foreach($persons as $person)
+                                    @foreach($familyMembers as $person)
                                         <option value="{{ $person->id }}" {{ old('person_id') == $person->id ? 'selected' : '' }}>
                                             {{ $person->full_name }}
                                         </option>
@@ -54,7 +54,7 @@
                                 <select id="friend_id" name="friend_id" 
                                         class="form-control @error('friend_id') is-invalid @enderror" required>
                                     <option value="">اختر الصديق</option>
-                                    @foreach($persons as $person)
+                                    @foreach($allPersons as $person)
                                         <option value="{{ $person->id }}" {{ old('friend_id') == $person->id ? 'selected' : '' }}>
                                             {{ $person->full_name }}
                                         </option>

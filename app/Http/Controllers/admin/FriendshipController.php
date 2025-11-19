@@ -16,14 +16,14 @@ class FriendshipController extends Controller
     {
         $search = $request->query('search');
         $personId = $request->query('person_id');
-        
+
         $query = Friendship::with([
             'person:id,first_name,last_name,photo_url,parent_id',
             'person.parent:id,first_name,gender,parent_id',
             'friend:id,first_name,last_name,photo_url,parent_id',
             'friend.parent:id,first_name,gender,parent_id'
         ]);
-        
+
         if ($search) {
             $query->whereHas('person', function($q) use ($search) {
                 $q->where('first_name', 'like', "%{$search}%")
@@ -33,21 +33,21 @@ class FriendshipController extends Controller
                   ->orWhere('last_name', 'like', "%{$search}%");
             });
         }
-        
+
         if ($personId) {
             $query->where('person_id', $personId);
         }
-        
+
         $friendships = $query->latest()->paginate(20)->appends($request->query());
         $persons = Person::with(['parent:id,first_name,gender,parent_id', 'parent.parent:id,first_name,gender,parent_id'])
             ->orderBy('first_name')
             ->orderBy('last_name')
             ->get(['id', 'first_name', 'last_name', 'parent_id']);
-        
+
         $stats = [
             'total' => Friendship::count(),
         ];
-        
+
         return view('dashboard.friendships.index', compact('friendships', 'persons', 'stats', 'search', 'personId'));
     }
 
@@ -56,11 +56,23 @@ class FriendshipController extends Controller
      */
     public function create()
     {
-        $persons = Person::with(['parent:id,first_name,gender,parent_id', 'parent.parent:id,first_name,gender,parent_id'])
+        // جلب الأشخاص داخل العائلة فقط للشخص الرئيسي
+        $familyMembers = Person::with(['parent:id,first_name,gender,parent_id', 'parent.parent:id,first_name,gender,parent_id'])
+            ->where(function($query) {
+                $query->where('from_outside_the_family', false)
+                      ->orWhereNull('from_outside_the_family');
+            })
             ->orderBy('first_name')
             ->orderBy('last_name')
             ->get(['id', 'first_name', 'last_name', 'parent_id']);
-        return view('dashboard.friendships.create', compact('persons'));
+
+        // جلب جميع الأشخاص للصديق
+        $allPersons = Person::with(['parent:id,first_name,gender,parent_id', 'parent.parent:id,first_name,gender,parent_id'])
+            ->orderBy('first_name')
+            ->orderBy('last_name')
+            ->get(['id', 'first_name', 'last_name', 'parent_id']);
+
+        return view('dashboard.friendships.create', compact('familyMembers', 'allPersons'));
     }
 
     /**
@@ -81,7 +93,7 @@ class FriendshipController extends Controller
         $existing = Friendship::where('person_id', $request->person_id)
             ->where('friend_id', $request->friend_id)
             ->first();
-            
+
         if ($existing) {
             return back()->withInput()->withErrors(['friend_id' => 'هذه الصداقة موجودة بالفعل']);
         }
@@ -103,7 +115,7 @@ class FriendshipController extends Controller
             'friend:id,first_name,last_name,photo_url,parent_id',
             'friend.parent:id,first_name,gender,parent_id'
         ]);
-        
+
         $persons = Person::with(['parent:id,first_name,gender,parent_id', 'parent.parent:id,first_name,gender,parent_id'])
             ->orderBy('first_name')
             ->orderBy('last_name')
@@ -130,7 +142,7 @@ class FriendshipController extends Controller
             ->where('friend_id', $request->friend_id)
             ->where('id', '!=', $friendship->id)
             ->first();
-            
+
         if ($existing) {
             return back()->withInput()->withErrors(['friend_id' => 'هذه الصداقة موجودة بالفعل']);
         }
