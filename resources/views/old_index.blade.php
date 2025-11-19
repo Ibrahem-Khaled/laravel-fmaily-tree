@@ -924,8 +924,13 @@
                                 ${createDetailRow('fa-map-marker-alt', 'مكان الإقامة', person.location)}
                                 ${createDetailRow('fa-tombstone-alt', 'مكان الوفاة', person.death_place)}
                                 ${createDetailRow('fa-building', 'المقبرة', person.cemetery)}
-                                ${createDetailRow('fa-map-pin', 'لوكيشن القبر', person.cemetery_location)}
                                 ${createDetailRow('fa-hashtag', 'رقم القبر', person.grave_number)}
+                                ${person.cemetery_location ? (() => {
+                                    const locationUrl = person.cemetery_location.startsWith('http://') || person.cemetery_location.startsWith('https://') 
+                                        ? person.cemetery_location 
+                                        : `https://${person.cemetery_location}`;
+                                    return createDetailRowWithLink('fa-map-pin', 'لوكيشن القبر', person.cemetery_location, locationUrl);
+                                })() : ''}
                                 ${person.death_date ? createDetailRow('fa-dove', 'تاريخ الوفاة', person.death_date) : ''}
                                 ${createDetailRow('fa-briefcase', 'المهنة', person.occupation)}
                             </div>
