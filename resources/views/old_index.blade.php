@@ -349,6 +349,60 @@
             }
         }
 
+        /* تصميم حقول القبر الصغيرة في سطر واحد */
+        .grave-fields-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .grave-field-small {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: linear-gradient(180deg, #fcfcfc 0%, #f4f6f5 100%);
+            border: 1px solid #eef2f1;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+
+        .grave-field-small i {
+            color: var(--primary-color);
+            font-size: 0.9rem;
+        }
+
+        .grave-field-small strong {
+            color: var(--dark-green);
+            font-weight: 600;
+        }
+
+        .grave-location-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--dark-green) 100%);
+            color: #fff;
+            border-radius: 50%;
+            text-decoration: none;
+            transition: all 200ms var(--ease-smooth);
+            box-shadow: 0 2px 6px rgba(55, 160, 92, 0.25);
+        }
+
+        .grave-location-link:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(55, 160, 92, 0.35);
+            color: #fff;
+        }
+
+        .grave-location-link i {
+            font-size: 0.9rem;
+        }
+
         /* Desktop: Single column layout */
         .detail-row-container {
             display: grid;
@@ -1013,16 +1067,39 @@
                                 ${(person.gender === 'male' || (person.gender === 'female' && person.birth_date && new Date(person.birth_date).getFullYear() >= 2005)) && person.age ? createDetailRow('fa-calendar-alt', 'العمر', `${person.age} سنة`) : ''}
                                 ${createDetailRow('fa-map-marked-alt', 'مكان الميلاد', person.birth_place)}
                                 ${createDetailRow('fa-map-marker-alt', 'مكان الإقامة', person.location)}
-                                ${createDetailRow('fa-tombstone-alt', 'مكان الوفاة', person.death_place)}
-                                ${createDetailRow('fa-building', 'المقبرة', person.cemetery)}
-                                ${createDetailRow('fa-hashtag', 'رقم القبر', person.grave_number)}
-                                ${person.cemetery_location ? (() => {
-                                    const locationUrl = person.cemetery_location.startsWith('http://') || person.cemetery_location.startsWith('https://')
-                                        ? person.cemetery_location
-                                        : `https://${person.cemetery_location}`;
-                                    return createDetailRowWithLink('fa-map-pin', 'لوكيشن القبر', person.cemetery_location, locationUrl);
-                                })() : ''}
                                 ${person.death_date ? createDetailRow('fa-dove', 'تاريخ الوفاة', person.death_date) : ''}
+                                ${createDetailRow('fa-tombstone-alt', 'مكان الوفاة', person.death_place)}
+                                ${(person.cemetery || person.grave_number || person.cemetery_location) ? `
+                                    <div class="detail-row">
+                                        <div style="width: 100%;">
+                                            <small class="text-muted d-block mb-2">معلومات القبر</small>
+                                            <div class="grave-fields-row">
+                                                ${person.cemetery ? `
+                                                    <div class="grave-field-small">
+                                                        <i class="fas fa-building"></i>
+                                                        <strong>${person.cemetery}</strong>
+                                                    </div>
+                                                ` : ''}
+                                                ${person.grave_number ? `
+                                                    <div class="grave-field-small">
+                                                        <i class="fas fa-hashtag"></i>
+                                                        <strong>${person.grave_number}</strong>
+                                                    </div>
+                                                ` : ''}
+                                                ${person.cemetery_location ? (() => {
+                                                    const locationUrl = person.cemetery_location.startsWith('http://') || person.cemetery_location.startsWith('https://')
+                                                        ? person.cemetery_location
+                                                        : `https://${person.cemetery_location}`;
+                                                    return `
+                                                        <a href="${locationUrl}" target="_blank" class="grave-location-link" title="لوكيشن القبر: ${person.cemetery_location}">
+                                                            <i class="fas fa-map-pin"></i>
+                                                        </a>
+                                                    `;
+                                                })() : ''}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ` : ''}
                                 ${createDetailRow('fa-briefcase', 'المهنة', person.occupation)}
                             </div>
                             ${person.locations && person.locations.length > 0 ? `
@@ -1051,7 +1128,7 @@
                                         const brandIcons = ['whatsapp', 'facebook', 'instagram', 'twitter', 'linkedin', 'telegram'];
                                         const iconClass = brandIcons.includes(account.type) ? 'fab' : 'fas';
                                         const iconName = account.icon || 'fa-link';
-                                        
+
                                         return `
                                         <a href="${account.url}" target="_blank" class="contact-account-item"
                                            title="${account.value}${account.label ? ' - ' + account.label : ''}">
