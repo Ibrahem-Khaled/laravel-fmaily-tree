@@ -397,7 +397,8 @@
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 @forelse($mostCommonNames as $index => $nameData)
-                    <div class="bg-white/50 rounded-xl p-4 hover:bg-white/70 transition-all duration-300 hover:shadow-lg">
+                    <div class="bg-white/50 rounded-xl p-4 hover:bg-white/70 transition-all duration-300 hover:shadow-lg cursor-pointer"
+                         onclick="showPersonsByName('{{ $nameData['name'] }}')">
                         <div class="flex items-center justify-between mb-2">
                             <div class="w-8 h-8 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
                                 {{ $index + 1 }}
@@ -406,7 +407,7 @@
                                 {{ $nameData['count'] }}
                             </div>
                         </div>
-                        <div class="font-bold text-gray-800 text-lg md:text-xl text-right mt-2">
+                        <div class="font-bold text-gray-800 text-lg md:text-xl text-right mt-2 hover:text-green-600 transition">
                             {{ $nameData['name'] }}
                         </div>
                     </div>
@@ -546,6 +547,44 @@
                 </table>
             </div>
         </section>
+    </div>
+
+    <!-- Modal لعرض الأشخاص الذين يحملون اسم معين -->
+    <div id="namePersonsModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center fade-in" style="display: none;">
+        <div class="glass-effect rounded-2xl p-6 md:p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl md:text-3xl font-bold gradient-text" id="modalNameTitle">أشخاص يحملون الاسم</h3>
+                <button onclick="closeNameModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+            </div>
+
+            <div id="nameModalLoading" class="text-center py-8">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+                <p class="text-gray-600 mt-2">جاري التحميل...</p>
+            </div>
+
+            <div id="nameModalContent" class="hidden">
+                <!-- الإحصائيات -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-green-50 p-4 rounded-xl text-center">
+                        <div class="text-3xl font-bold text-green-600" id="nameModalTotal">0</div>
+                        <div class="text-sm text-gray-600">الإجمالي</div>
+                    </div>
+                    <div class="bg-blue-50 p-4 rounded-xl text-center">
+                        <div class="text-3xl font-bold text-blue-600" id="nameModalMales">0</div>
+                        <div class="text-sm text-gray-600">ذكور</div>
+                    </div>
+                    <div class="bg-pink-50 p-4 rounded-xl text-center">
+                        <div class="text-3xl font-bold text-pink-600" id="nameModalFemales">0</div>
+                        <div class="text-sm text-gray-600">إناث</div>
+                    </div>
+                </div>
+
+                <!-- قائمة الأشخاص -->
+                <div class="space-y-2 max-h-96 overflow-y-auto">
+                    <div id="namePersonsList" class="space-y-2"></div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Modal لعرض الأشخاص التابعين لمنطقة معينة -->
@@ -873,6 +912,93 @@
         document.getElementById('locationPersonsModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeLocationModal();
+            }
+        });
+
+        // دالة لعرض الأشخاص الذين يحملون اسم معين
+        function showPersonsByName(name) {
+            const modal = document.getElementById('namePersonsModal');
+            const modalLoading = document.getElementById('nameModalLoading');
+            const modalContent = document.getElementById('nameModalContent');
+
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
+            modalLoading.classList.remove('hidden');
+            modalContent.classList.add('hidden');
+
+            fetch(`/api/reports/name/${encodeURIComponent(name)}/persons`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // تحديث عنوان الـ modal
+                        document.getElementById('modalNameTitle').textContent = `أشخاص يحملون اسم "${data.name}"`;
+
+                        // تحديث الإحصائيات
+                        document.getElementById('nameModalTotal').textContent = data.total;
+                        document.getElementById('nameModalMales').textContent = data.males;
+                        document.getElementById('nameModalFemales').textContent = data.females;
+
+                        // عرض قائمة الأشخاص
+                        const personsList = document.getElementById('namePersonsList');
+                        personsList.innerHTML = '';
+
+                        if (data.persons.length === 0) {
+                            personsList.innerHTML = '<div class="text-center text-gray-500 py-8">لا يوجد أشخاص يحملون هذا الاسم</div>';
+                        } else {
+                            data.persons.forEach(person => {
+                                const personDiv = document.createElement('div');
+                                personDiv.className = 'flex items-center justify-between p-3 bg-white/50 rounded-lg hover:bg-white/70 transition cursor-pointer person-clickable';
+                                personDiv.onclick = () => showPersonDetails(person.id);
+
+                                const genderIcon = person.gender === 'male'
+                                    ? '<span class="text-blue-600 font-medium mr-2">♂</span>'
+                                    : '<span class="text-pink-600 font-medium mr-2">♀</span>';
+
+                                // إخفاء العمر وتاريخ الميلاد للنساء
+                                let ageAndDateText = '';
+                                if (person.gender === 'male') {
+                                    const ageText = person.age ? ` (${person.age} سنة)` : '';
+                                    const birthDateText = person.birth_date ? ` - ${person.birth_date}` : '';
+                                    ageAndDateText = ageText + birthDateText;
+                                }
+
+                                const locationText = person.location ? `<div class="text-xs text-gray-500 mt-1"><i class="fas fa-map-marker-alt mr-1"></i>${person.location}</div>` : '';
+
+                                personDiv.innerHTML = `
+                                    <div class="flex items-center gap-2 min-w-0 flex-1">
+                                        ${genderIcon}
+                                        <div class="min-w-0 flex-1">
+                                            <span class="text-gray-800 break-words flex-1 hover:text-green-600 transition">${person.full_name}</span>
+                                            ${locationText}
+                                        </div>
+                                    </div>
+                                    ${ageAndDateText ? `<div class="text-xs text-gray-500 flex-shrink-0 ml-3">${ageAndDateText}</div>` : ''}
+                                `;
+                                personsList.appendChild(personDiv);
+                            });
+                        }
+
+                        modalLoading.classList.add('hidden');
+                        modalContent.classList.remove('hidden');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    modalLoading.innerHTML = '<div class="text-red-500">حدث خطأ أثناء جلب البيانات</div>';
+                });
+        }
+
+        // دالة لإغلاق modal الاسم
+        function closeNameModal() {
+            const modal = document.getElementById('namePersonsModal');
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+        }
+
+        // إغلاق modal الاسم عند النقر خارجها
+        document.getElementById('namePersonsModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeNameModal();
             }
         });
     </script>

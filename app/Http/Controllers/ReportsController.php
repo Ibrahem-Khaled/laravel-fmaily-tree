@@ -442,4 +442,35 @@ class ReportsController extends Controller
             ]
         ]);
     }
+
+    /**
+     * جلب الأشخاص الذين يحملون اسم معين
+     */
+    public function getPersonsByName($name)
+    {
+        $persons = Person::where('from_outside_the_family', false)
+            ->where('first_name', $name)
+            ->orderBy('first_name')
+            ->orderBy('last_name')
+            ->get()
+            ->map(function($person) {
+                return [
+                    'id' => $person->id,
+                    'full_name' => $person->full_name,
+                    'gender' => $person->gender,
+                    'age' => $person->age,
+                    'birth_date' => $person->birth_date ? $person->birth_date->format('Y-m-d') : null,
+                    'location' => $person->location,
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'name' => $name,
+            'persons' => $persons,
+            'total' => $persons->count(),
+            'males' => $persons->where('gender', 'male')->count(),
+            'females' => $persons->where('gender', 'female')->count(),
+        ]);
+    }
 }
