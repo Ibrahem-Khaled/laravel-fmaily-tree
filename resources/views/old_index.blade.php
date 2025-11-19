@@ -1067,6 +1067,7 @@
                                 ${(person.gender === 'male' || (person.gender === 'female' && person.birth_date && new Date(person.birth_date).getFullYear() >= 2005)) && person.age ? createDetailRow('fa-calendar-alt', 'العمر', `${person.age} سنة`) : ''}
                                 ${createDetailRow('fa-map-marked-alt', 'مكان الميلاد', person.birth_place)}
                                 ${createDetailRow('fa-map-marker-alt', 'مكان الإقامة', person.location)}
+                                ${createDetailRow('fa-briefcase', 'المهنة', person.occupation)}
                                 ${person.death_date ? createDetailRow('fa-dove', 'تاريخ الوفاة', person.death_date) : ''}
                                 ${createDetailRow('fa-tombstone-alt', 'مكان الوفاة', person.death_place)}
                                 ${(person.cemetery || person.grave_number || person.cemetery_location) ? `
@@ -1100,7 +1101,6 @@
                                         </div>
                                     </div>
                                 ` : ''}
-                                ${createDetailRow('fa-briefcase', 'المهنة', person.occupation)}
                             </div>
                             ${person.locations && person.locations.length > 0 ? `
                                 <hr class="my-4">
