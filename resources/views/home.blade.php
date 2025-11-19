@@ -713,6 +713,15 @@
                         @endif
                     @endforeach
                 </div>
+
+                <!-- زر عرض المزيد -->
+                <div class="text-center mt-4 md:mt-6">
+                    <a href="{{ route('gallery.articles') }}"
+                        class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:scale-105">
+                        <span>عرض المزيد</span>
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
+                </div>
             </div>
         </section>
     @endif
