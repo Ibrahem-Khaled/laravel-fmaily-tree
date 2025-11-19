@@ -34,15 +34,6 @@ class OutsideFamilyPersonController extends Controller
         ]);
 
         if ($validator->fails()) {
-            // إذا كان الطلب من صفحة الأصدقاء (AJAX)، أرجع JSON
-            if ($request->input('source_page') === 'friendships' || $request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'التحقق من البيانات فشل',
-                    'errors' => $validator->errors()
-                ], 422);
-            }
-            
             return redirect()->back()
                         ->withErrors($validator)
                         ->withInput();
@@ -105,29 +96,9 @@ class OutsideFamilyPersonController extends Controller
                 }
             }
 
-            // إذا كان الطلب من صفحة الأصدقاء (AJAX)، أرجع JSON
-            if ($request->input('source_page') === 'friendships' || $request->ajax()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'تمت إضافة الشخص بنجاح!',
-                    'person' => [
-                        'id' => $newlyAddedPerson->id,
-                        'full_name' => $newlyAddedPerson->full_name
-                    ]
-                ]);
-            }
-
             return redirect()->back()->with('success', 'تمت إضافة الشخص ورابط الزواج بنجاح!');
 
         } catch (\Exception $e) {
-            // إذا كان الطلب من صفحة الأصدقاء (AJAX)، أرجع JSON
-            if ($request->input('source_page') === 'friendships' || $request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'حدث خطأ أثناء إضافة الشخص: ' . $e->getMessage()
-                ], 500);
-            }
-            
             return redirect()->back()->with('error', 'حدث خطأ أثناء إضافة الشخص: ' . $e->getMessage())->withInput();
         }
     }

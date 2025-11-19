@@ -162,7 +162,7 @@
             const query = this.value.trim();
 
             clearTimeout(searchTimeout);
-            
+
             if (query.length < 2) {
                 outsideSuggestionsDiv.style.display = 'none';
                 outsideLocationIdInput.value = '';
@@ -174,7 +174,7 @@
                     .then(response => response.json())
                     .then(data => {
                         outsideSuggestionsDiv.innerHTML = '';
-                        
+
                         if (data.length === 0) {
                             outsideSuggestionsDiv.innerHTML = '<div class="list-group-item text-muted">لا توجد نتائج</div>';
                             outsideSuggestionsDiv.style.display = 'block';
@@ -189,16 +189,16 @@
                                 <strong>${location.name}</strong>
                                 ${location.persons_count > 0 ? `<small class="text-muted">(${location.persons_count} شخص)</small>` : ''}
                             `;
-                            
+
                             item.addEventListener('click', function() {
                                 outsideLocationInput.value = location.name;
                                 outsideLocationIdInput.value = location.id;
                                 outsideSuggestionsDiv.style.display = 'none';
                             });
-                            
+
                             outsideSuggestionsDiv.appendChild(item);
                         });
-                        
+
                         outsideSuggestionsDiv.style.display = 'block';
                     })
                     .catch(error => {

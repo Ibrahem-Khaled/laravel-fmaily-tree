@@ -1047,7 +1047,7 @@
                                 <h5>حسابات التواصل</h5>
                                 <div class="contact-accounts-grid">
                                     ${person.contact_accounts.map(account => `
-                                        <a href="${account.url}" target="_blank" class="contact-account-item" 
+                                        <a href="${account.url}" target="_blank" class="contact-account-item"
                                            title="${account.value}${account.label ? ' - ' + account.label : ''}">
                                             <i class="fas ${account.icon} contact-icon"></i>
                                             ${account.label ? `<span class="contact-label">${account.label}</span>` : ''}
