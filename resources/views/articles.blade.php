@@ -520,7 +520,7 @@
                                             </p> --}}
                                         </div>
                                         <div class="text-xs text-gray-500 mt-2">
-                                            من  <span
+                                           <span
                                                 class="font-bold text-gray-700">{{ $article->person->full_name ?? 'غير معروف' }}</span>
                                             {{-- في
                                             {{ $article?->created_at?->format('d M Y') }} --}}
