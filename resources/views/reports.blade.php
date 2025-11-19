@@ -206,29 +206,6 @@
             </div>
         </section>
 
-        <!-- القسم الأول-ب: إجمالي الأنساب -->
-        <section class="mb-6 md:mb-8">
-            <div class="stat-card glass-effect p-4 md:p-8 rounded-2xl green-glow">
-                <!-- رأس القسم -->
-                <div class="flex flex-col md:flex-row items-center gap-4 mb-6">
-                    <div class="text-center md:text-right">
-                        <h3 class="text-xl md:text-2xl font-bold text-gray-800 mb-1">إجمالي الأنساب</h3>
-                        <p class="text-xs md:text-sm text-gray-500">الأشخاص من خارج العائلة المتزوجون من داخل العائلة (الزواج النشط فقط)</p>
-                    </div>
-                </div>
-
-                <!-- الرقم -->
-                <div class="flex justify-center">
-                    <div class="text-center p-6 md:p-8 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl w-full max-w-md">
-                        <div class="text-5xl md:text-6xl font-bold text-purple-600 mb-3">{{ number_format($totalRelatives) }}</div>
-                        <div class="text-base md:text-lg font-medium text-gray-700">
-                            <i class="fas fa-heart mr-2"></i>أنساب متزوجون
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
         <!-- القسم الثاني: الإحصائيات التعليمية -->
         <section class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
             <!-- حملة الماجستير -->
@@ -460,6 +437,7 @@
                             <th class="text-center py-3 px-3 md:px-4 font-bold text-gray-800 text-sm md:text-base">إجمالي الأحفاد</th>
                             <th class="text-center py-3 px-3 md:px-4 font-bold text-blue-600 text-sm md:text-base">ذكور</th>
                             <th class="text-center py-3 px-3 md:px-4 font-bold text-pink-600 text-sm md:text-base">إناث</th>
+                            <th class="text-center py-3 px-3 md:px-4 font-bold text-purple-600 text-sm md:text-base">إجمالي الأنساب</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -490,11 +468,16 @@
                                         {{ $stat['female_descendants'] }}
                                     </span>
                                 </td>
+                                <td class="py-3 px-3 md:px-4 text-center">
+                                    <span class="inline-block px-2 md:px-3 py-1 bg-purple-100 text-purple-700 rounded-full font-bold text-xs md:text-sm">
+                                        <i class="fas fa-heart mr-1"></i>{{ number_format($stat['total_relatives'] ?? 0) }}
+                                    </span>
+                                </td>
                             </tr>
 
                             <!-- صف التفاصيل (مخفى افتراضيًا) -->
                             <tr class="generations-detail-{{ $index }} hidden">
-                                <td colspan="4" class="py-4 px-4 bg-gray-50">
+                                <td colspan="5" class="py-4 px-4 bg-gray-50">
                                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                         @php
                                             $generationLabels = [
@@ -556,7 +539,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="py-8 text-center text-gray-500">لا توجد بيانات</td>
+                                <td colspan="5" class="py-8 text-center text-gray-500">لا توجد بيانات</td>
                             </tr>
                         @endforelse
                     </tbody>

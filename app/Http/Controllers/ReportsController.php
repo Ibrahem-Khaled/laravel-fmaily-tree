@@ -128,7 +128,6 @@ class ReportsController extends Controller
             'femaleCount',
             'masterDegreeCount',
             'phdCount',
-            'totalRelatives',
             'allFamilyMembersByAge',
             'generationsData',
             'locationsStatistics',
@@ -163,12 +162,16 @@ class ReportsController extends Controller
                     ]);
                 }
 
+                // حساب إجمالي الأنساب لهذا الجد (الأشخاص من خارج العائلة المتزوجون من أحفاده)
+                $totalRelativesForGrandfather = $this->countRelativesForGrandfather($grandfather->id);
+
                 $statistics[] = [
                     'grandfather_id' => $grandfather->id,
                     'grandfather_name' => $grandfather->full_name,
                     'total_descendants' => $allDescendants['total'],
                     'male_descendants' => $allDescendants['males'],
                     'female_descendants' => $allDescendants['females'],
+                    'total_relatives' => $totalRelativesForGrandfather,
                     'generations_breakdown' => $generationsWithMembers,
                 ];
             }
@@ -283,6 +286,69 @@ class ReportsController extends Controller
         }
 
         return $members;
+    }
+
+    /**
+     * حساب إجمالي الأنساب لجد معين (الأشخاص من خارج العائلة المتزوجون من أحفاده)
+     */
+    private function countRelativesForGrandfather($grandfatherId)
+    {
+        // جلب جميع IDs لأحفاد الجد (جميع الأجيال)
+        $descendantIds = $this->getAllDescendantIds($grandfatherId);
+        
+        if (empty($descendantIds)) {
+            return 0;
+        }
+
+        // حساب الأنساب (الأشخاص من خارج العائلة المتزوجون من أحفاد الجد)
+        $totalRelatives = DB::table('marriages')
+            ->join('persons as husbands', 'marriages.husband_id', '=', 'husbands.id')
+            ->join('persons as wives', 'marriages.wife_id', '=', 'wives.id')
+            ->where(function($query) use ($descendantIds) {
+                // الزوج من خارج العائلة والزوجة من أحفاد الجد
+                $query->where(function($q) use ($descendantIds) {
+                    $q->where('husbands.from_outside_the_family', true)
+                      ->whereIn('wives.id', $descendantIds);
+                })
+                // أو الزوجة من خارج العائلة والزوج من أحفاد الجد
+                ->orWhere(function($q) use ($descendantIds) {
+                    $q->where('husbands.from_outside_the_family', false)
+                      ->whereIn('husbands.id', $descendantIds)
+                      ->where('wives.from_outside_the_family', true);
+                });
+            })
+            ->where(function($query) {
+                // شرط: أن يكون الزواج نشط (غير مطلق)
+                $query->where('marriages.is_divorced', false)
+                      ->whereNull('marriages.divorced_at');
+            })
+            ->selectRaw('CASE 
+                WHEN husbands.from_outside_the_family = 1 THEN marriages.husband_id 
+                ELSE marriages.wife_id 
+            END as relative_id')
+            ->distinct()
+            ->count();
+
+        return $totalRelatives;
+    }
+
+    /**
+     * جلب جميع IDs لأحفاد الجد (جميع الأجيال)
+     */
+    private function getAllDescendantIds($personId, $ids = [])
+    {
+        $children = Person::where('parent_id', $personId)
+            ->where('from_outside_the_family', false)
+            ->pluck('id')
+            ->toArray();
+        
+        $ids = array_merge($ids, $children);
+        
+        foreach ($children as $childId) {
+            $ids = $this->getAllDescendantIds($childId, $ids);
+        }
+        
+        return array_unique($ids);
     }
 
     /**
