@@ -22,7 +22,7 @@ class UpdateArticleRequest extends FormRequest
             'status'      => ['sometimes', 'in:published,draft'],
             'category_id' => ['sometimes', 'exists:categories,id'],
             'person_id'   => ['sometimes', 'nullable', 'exists:persons,id'],
-            'created_at'  => ['sometimes', 'nullable', 'date'],
+            'created_at_year' => ['sometimes', 'nullable', 'integer', 'min:1900', 'max:2100'],
 
             'images'      => ['sometimes', 'array', 'max:10'],
             'images.*'    => ['file', 'image', 'mimes:jpeg,jpg,png,webp', 'max:4096', 'dimensions:min_width=200,min_height=200'],

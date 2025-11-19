@@ -79,13 +79,14 @@ class ArticleController extends Controller
         DB::transaction(function () use ($request) {
             $data = $request->validated();
             
-            // معالجة created_at إذا تم إرساله
-            if (isset($data['created_at']) && !empty($data['created_at'])) {
-                $data['created_at'] = date('Y-m-d H:i:s', strtotime($data['created_at']));
+            // معالجة created_at_year وتحويلها إلى created_at
+            if (isset($data['created_at_year']) && !empty($data['created_at_year'])) {
+                $data['created_at'] = $data['created_at_year'] . '-01-01 00:00:00';
             } else {
                 // إزالة created_at من البيانات إذا كان فارغاً ليتم استخدام التاريخ التلقائي
                 unset($data['created_at']);
             }
+            unset($data['created_at_year']); // إزالة الحقل المؤقت
             
             $article = Article::create($data);
 
@@ -134,13 +135,14 @@ class ArticleController extends Controller
         DB::transaction(function () use ($request, $article) {
             $data = $request->validated();
             
-            // معالجة created_at إذا تم إرساله
-            if (isset($data['created_at']) && !empty($data['created_at'])) {
-                $data['created_at'] = date('Y-m-d H:i:s', strtotime($data['created_at']));
+            // معالجة created_at_year وتحويلها إلى created_at
+            if (isset($data['created_at_year']) && !empty($data['created_at_year'])) {
+                $data['created_at'] = $data['created_at_year'] . '-01-01 00:00:00';
             } else {
                 // إزالة created_at من البيانات إذا كان فارغاً
                 unset($data['created_at']);
             }
+            unset($data['created_at_year']); // إزالة الحقل المؤقت
             
             $article->update($data);
 

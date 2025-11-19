@@ -47,16 +47,25 @@
                     </div>
 
                     <div class="form-group col-md-6">
-                        <label class="mb-1">تاريخ المقال</label>
+                        <label class="mb-1">سنة المقال</label>
                         @php
-                            $createdAtValue = old('created_at');
-                            if (!$createdAtValue && $article->created_at) {
-                                $createdAtValue = \Carbon\Carbon::parse($article->created_at)->format('Y-m-d\TH:i');
+                            $selectedYear = old('created_at_year');
+                            if (!$selectedYear && $article->created_at) {
+                                $selectedYear = \Carbon\Carbon::parse($article->created_at)->format('Y');
                             }
+                            $currentYear = date('Y');
+                            $startYear = 1900;
+                            $endYear = $currentYear + 10;
                         @endphp
-                        <input type="datetime-local" name="created_at" class="form-control" 
-                            value="{{ $createdAtValue }}">
-                        <small class="text-muted d-block">يمكن تعديل تاريخ إنشاء المقال.</small>
+                        <select name="created_at_year" class="form-control">
+                            <option value="">— اختر السنة —</option>
+                            @for ($year = $endYear; $year >= $startYear; $year--)
+                                <option value="{{ $year }}" {{ $selectedYear == $year ? 'selected' : '' }}>
+                                    {{ $year }}
+                                </option>
+                            @endfor
+                        </select>
+                        <small class="text-muted d-block">يمكن تعديل سنة إنشاء المقال.</small>
                     </div>
                 </div>
 

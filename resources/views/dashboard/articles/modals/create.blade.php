@@ -56,12 +56,23 @@
                         </select>
                     </div>
 
-                    {{-- تاريخ المقال --}}
+                    {{-- تاريخ المقال (السنة فقط) --}}
                     <div class="form-group col-md-5">
-                        <label>تاريخ المقال</label>
-                        <input type="datetime-local" name="created_at" class="form-control" 
-                            value="{{ old('created_at') }}">
-                        <small class="text-muted d-block">اختياري. إن تركته فارغًا سيتم استخدام التاريخ الحالي تلقائياً.</small>
+                        <label>سنة المقال</label>
+                        <select name="created_at_year" class="form-control">
+                            <option value="">— اختر السنة —</option>
+                            @php
+                                $currentYear = date('Y');
+                                $startYear = 1900;
+                                $endYear = $currentYear + 10;
+                            @endphp
+                            @for ($year = $endYear; $year >= $startYear; $year--)
+                                <option value="{{ $year }}" {{ old('created_at_year') == $year ? 'selected' : '' }}>
+                                    {{ $year }}
+                                </option>
+                            @endfor
+                        </select>
+                        <small class="text-muted d-block">اختياري. إن تركته فارغًا سيتم استخدام السنة الحالية تلقائياً.</small>
                     </div>
                 </div>
 
