@@ -258,6 +258,97 @@
         }
         .detail-row:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(0,0,0,0.08); }
 
+        /* تصميم عصري لحسابات التواصل */
+        .contact-accounts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .contact-account-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 16px 12px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border: 2px solid #e9ecef;
+            border-radius: 16px;
+            transition: all 300ms var(--ease-smooth);
+            text-decoration: none;
+            color: var(--dark-green);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contact-account-item::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--dark-green) 100%);
+            opacity: 0;
+            transition: opacity 300ms var(--ease-smooth);
+        }
+
+        .contact-account-item:hover {
+            transform: translateY(-4px) scale(1.05);
+            border-color: var(--primary-color);
+            box-shadow: 0 12px 24px rgba(55, 160, 92, 0.25);
+        }
+
+        .contact-account-item:hover::before {
+            opacity: 0.1;
+        }
+
+        .contact-account-item:hover .contact-icon,
+        .contact-account-item:hover .contact-label {
+            color: var(--primary-color);
+            transform: scale(1.1);
+        }
+
+        .contact-icon {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+            transition: all 300ms var(--ease-smooth);
+            z-index: 1;
+            position: relative;
+        }
+
+        .contact-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--dark-green);
+            text-align: center;
+            line-height: 1.2;
+            z-index: 1;
+            position: relative;
+            transition: all 300ms var(--ease-smooth);
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .contact-account-item:hover .contact-label {
+            white-space: normal;
+            word-break: break-word;
+        }
+
+        @media (max-width: 768px) {
+            .contact-accounts-grid {
+                grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+                gap: 8px;
+            }
+            .contact-icon {
+                font-size: 1.5rem;
+            }
+            .contact-label {
+                font-size: 0.65rem;
+            }
+        }
+
         /* Desktop: Single column layout */
         .detail-row-container {
             display: grid;
@@ -926,8 +1017,8 @@
                                 ${createDetailRow('fa-building', 'المقبرة', person.cemetery)}
                                 ${createDetailRow('fa-hashtag', 'رقم القبر', person.grave_number)}
                                 ${person.cemetery_location ? (() => {
-                                    const locationUrl = person.cemetery_location.startsWith('http://') || person.cemetery_location.startsWith('https://') 
-                                        ? person.cemetery_location 
+                                    const locationUrl = person.cemetery_location.startsWith('http://') || person.cemetery_location.startsWith('https://')
+                                        ? person.cemetery_location
                                         : `https://${person.cemetery_location}`;
                                     return createDetailRowWithLink('fa-map-pin', 'لوكيشن القبر', person.cemetery_location, locationUrl);
                                 })() : ''}
@@ -954,20 +1045,13 @@
                             ${person.contact_accounts && person.contact_accounts.length > 0 ? `
                                 <hr class="my-4">
                                 <h5>حسابات التواصل</h5>
-                                <div class="row g-2">
+                                <div class="contact-accounts-grid">
                                     ${person.contact_accounts.map(account => `
-                                        <div class="col-md-6">
-                                            <div class="detail-row">
-                                                <div>
-                                                    <small class="text-muted">${account.label || account.type}</small>
-                                                    <p class="mb-0 fw-bold">
-                                                        <a href="${account.url}" target="_blank" class="text-decoration-none">
-                                                            <i class="fas ${account.icon} me-2"></i>${account.value}
-                                                        </a>
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        <a href="${account.url}" target="_blank" class="contact-account-item" 
+                                           title="${account.value}${account.label ? ' - ' + account.label : ''}">
+                                            <i class="fas ${account.icon} contact-icon"></i>
+                                            ${account.label ? `<span class="contact-label">${account.label}</span>` : ''}
+                                        </a>
                                     `).join('')}
                                 </div>
                             ` : ''}

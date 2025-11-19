@@ -161,8 +161,9 @@
         </div>
 
         <div class="flex flex-col lg:flex-row gap-8">
-            <!-- Categories Sidebar -->
-            <aside class="w-full lg:w-1/4">
+            <!-- Sidebar -->
+            <aside class="w-full lg:w-1/4 space-y-6">
+                <!-- Categories Section -->
                 <div class="glass-effect p-6 rounded-3xl green-glow sticky top-20">
                     <div class="flex items-center justify-between mb-6 border-b border-green-200 pb-4">
                         <h3 class="text-2xl font-bold gradient-text">
@@ -172,7 +173,7 @@
 
                     <ul class="space-y-2">
                         <li>
-                            <a href="{{ route('store.index') }}" 
+                            <a href="{{ route('store.index', array_filter(['person' => $personId, 'search' => $search])) }}" 
                                class="category-item block px-4 py-3 rounded-2xl transition-all duration-300 font-medium {{ !$categoryId ? 'active' : 'bg-white/70 hover:bg-green-50' }}">
                                 <span class="flex items-center justify-between">
                                     <span><i class="fas fa-th mr-2"></i>جميع المنتجات</span>
@@ -181,7 +182,7 @@
                         </li>
                         @foreach($categories as $category)
                             <li>
-                                <a href="{{ route('store.index', ['category' => $category->id]) }}" 
+                                <a href="{{ route('store.index', array_filter(['category' => $category->id, 'person' => $personId, 'search' => $search])) }}" 
                                    class="category-item block px-4 py-3 rounded-2xl transition-all duration-300 font-medium {{ $categoryId == $category->id ? 'active' : 'bg-white/70 hover:bg-green-50' }}">
                                     <span class="flex items-center justify-between">
                                         <span><i class="fas fa-folder mr-2"></i>{{ $category->name }}</span>
@@ -192,6 +193,39 @@
                         @endforeach
                     </ul>
                 </div>
+
+                <!-- Product Owners Section -->
+                @if($productOwners && $productOwners->count() > 0)
+                <div class="glass-effect p-6 rounded-3xl green-glow sticky top-20">
+                    <div class="flex items-center justify-between mb-6 border-b border-green-200 pb-4">
+                        <h3 class="text-2xl font-bold gradient-text">
+                            <i class="fas fa-users mr-2"></i>أصحاب المنتجات
+                        </h3>
+                    </div>
+
+                    <ul class="space-y-2">
+                        <li>
+                            <a href="{{ route('store.index', array_filter(['category' => $categoryId, 'search' => $search])) }}" 
+                               class="category-item block px-4 py-3 rounded-2xl transition-all duration-300 font-medium {{ !$personId ? 'active' : 'bg-white/70 hover:bg-green-50' }}">
+                                <span class="flex items-center justify-between">
+                                    <span><i class="fas fa-user-friends mr-2"></i>جميع الأشخاص</span>
+                                </span>
+                            </a>
+                        </li>
+                        @foreach($productOwners as $owner)
+                            <li>
+                                <a href="{{ route('store.index', array_filter(['person' => $owner->id, 'category' => $categoryId, 'search' => $search])) }}" 
+                                   class="category-item block px-4 py-3 rounded-2xl transition-all duration-300 font-medium {{ $personId == $owner->id ? 'active' : 'bg-white/70 hover:bg-green-50' }}">
+                                    <span class="flex items-center justify-between">
+                                        <span><i class="fas fa-user mr-2"></i>{{ $owner->full_name }}</span>
+                                        <span class="text-xs bg-white/50 px-2 py-1 rounded-full">{{ $owner->products_count }}</span>
+                                    </span>
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+                @endif
             </aside>
 
             <!-- Products Section -->
@@ -202,6 +236,9 @@
                         @if($categoryId)
                             <input type="hidden" name="category" value="{{ $categoryId }}">
                         @endif
+                        @if($personId)
+                            <input type="hidden" name="person" value="{{ $personId }}">
+                        @endif
                         <input type="text" name="search" 
                                class="flex-1 px-6 py-4 rounded-2xl border-2 border-green-200 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-300 transition-all"
                                placeholder="ابحث عن منتج..." value="{{ $search }}">
@@ -211,6 +248,39 @@
                         </button>
                     </form>
                 </div>
+
+                <!-- Active Filters -->
+                @if($categoryId || $personId)
+                <div class="glass-effect p-4 rounded-2xl mb-6 fade-in-up">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="text-sm font-medium text-gray-600">الفلترة الحالية:</span>
+                        @if($categoryId)
+                            @php $selectedCategory = $categories->firstWhere('id', $categoryId); @endphp
+                            @if($selectedCategory)
+                                <span class="bg-green-500 text-white px-3 py-1 rounded-full text-sm flex items-center gap-2">
+                                    <i class="fas fa-folder"></i>
+                                    {{ $selectedCategory->name }}
+                                    <a href="{{ route('store.index', array_filter(['person' => $personId, 'search' => $search])) }}" class="hover:bg-green-600 rounded-full p-1">
+                                        <i class="fas fa-times text-xs"></i>
+                                    </a>
+                                </span>
+                            @endif
+                        @endif
+                        @if($personId && $productOwners)
+                            @php $selectedOwner = $productOwners->firstWhere('id', $personId); @endphp
+                            @if($selectedOwner)
+                                <span class="bg-blue-500 text-white px-3 py-1 rounded-full text-sm flex items-center gap-2">
+                                    <i class="fas fa-user"></i>
+                                    {{ $selectedOwner->full_name }}
+                                    <a href="{{ route('store.index', array_filter(['category' => $categoryId, 'search' => $search])) }}" class="hover:bg-blue-600 rounded-full p-1">
+                                        <i class="fas fa-times text-xs"></i>
+                                    </a>
+                                </span>
+                            @endif
+                        @endif
+                    </div>
+                </div>
+                @endif
 
                 @if($products->count() > 0)
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

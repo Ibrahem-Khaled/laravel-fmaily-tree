@@ -220,6 +220,11 @@ class Person extends BaseModel
         return $this->hasMany(Article::class);
     }
 
+    public function products()
+    {
+        return $this->hasMany(Product::class, 'owner_id');
+    }
+
     public function friendships()
     {
         return $this->hasMany(Friendship::class, 'person_id');

@@ -13,6 +13,7 @@ class ProductStoreController extends Controller
     {
         $categoryId = $request->query('category');
         $subcategoryId = $request->query('subcategory');
+        $personId = $request->query('person');
         $search = $request->query('search');
         
         $query = Product::with(['category', 'subcategory', 'owner', 'location'])->active();
@@ -25,6 +26,10 @@ class ProductStoreController extends Controller
             $query->where('product_subcategory_id', $subcategoryId);
         }
         
+        if ($personId) {
+            $query->where('owner_id', $personId);
+        }
+        
         if ($search) {
             $query->where(function($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
@@ -35,7 +40,18 @@ class ProductStoreController extends Controller
         $products = $query->ordered()->paginate(12)->appends($request->query());
         $categories = ProductCategory::active()->withCount('products')->ordered()->get();
         
-        return view('store.index', compact('products', 'categories', 'categoryId', 'subcategoryId', 'search'));
+        // جلب الأشخاص أصحاب المنتجات مع عدد منتجات كل شخص
+        $productOwners = \App\Models\Person::whereHas('products', function($q) {
+            $q->active();
+        })
+        ->withCount(['products' => function($q) {
+            $q->active();
+        }])
+        ->orderBy('first_name')
+        ->orderBy('last_name')
+        ->get();
+        
+        return view('store.index', compact('products', 'categories', 'categoryId', 'subcategoryId', 'personId', 'search', 'productOwners'));
     }
 
     public function show(Product $product)

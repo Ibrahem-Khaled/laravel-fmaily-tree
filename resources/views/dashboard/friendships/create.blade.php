@@ -51,15 +51,22 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="friend_id">الصديق <span class="text-danger">*</span></label>
-                                <select id="friend_id" name="friend_id" 
-                                        class="form-control @error('friend_id') is-invalid @enderror" required>
-                                    <option value="">اختر الصديق</option>
-                                    @foreach($persons as $person)
-                                        <option value="{{ $person->id }}" {{ old('friend_id') == $person->id ? 'selected' : '' }}>
-                                            {{ $person->full_name }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                                <div class="input-group">
+                                    <select id="friend_id" name="friend_id" 
+                                            class="form-control @error('friend_id') is-invalid @enderror" required>
+                                        <option value="">اختر الصديق</option>
+                                        @foreach($persons as $person)
+                                            <option value="{{ $person->id }}" {{ old('friend_id') == $person->id ? 'selected' : '' }}>
+                                                {{ $person->full_name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#addFriendOutsideFamilyModal">
+                                            <i class="fas fa-plus"></i> إضافة من خارج العائلة
+                                        </button>
+                                    </div>
+                                </div>
                                 @error('friend_id')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -103,6 +110,9 @@
             </div>
         </div>
     </div>
+
+    {{-- مودال إضافة شخص من خارج العائلة --}}
+    @include('dashboard.friendships.modals.add-outside-family')
 @endsection
 
 @push('scripts')
