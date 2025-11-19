@@ -66,6 +66,26 @@ class GalleryController extends Controller
 
         $isFiltered = false;
 
+        // جلب السنوات المتاحة (من أول سنة مقال)
+        $firstArticleYear = Article::selectRaw('YEAR(MIN(created_at)) as year')
+            ->value('year');
+        
+        $currentYear = date('Y');
+        $selectedYear = $request->get('year', $currentYear); // السنة الحالية افتراضياً
+
+        // فلترة حسب السنة
+        if ($request->has('year')) {
+            $query->whereYear('created_at', $request->year);
+            $isFiltered = true;
+        } else {
+            // افتراضياً: عرض مقالات السنة الحالية فقط إذا كانت هناك مقالات في السنة الحالية
+            $hasCurrentYearArticles = Article::whereYear('created_at', $currentYear)->exists();
+            if ($hasCurrentYearArticles) {
+                $query->whereYear('created_at', $currentYear);
+            }
+            // إذا لم تكن هناك مقالات في السنة الحالية، اعرض الكل
+        }
+
         // فلترة حسب القسم
         if ($request->has('category')) {
             $query->where('category_id', $request->category);
@@ -88,11 +108,18 @@ class GalleryController extends Controller
             $isFiltered = true;
         }
 
+        // جلب السنوات المتاحة (جميع السنوات التي تحتوي على مقالات)
+        $availableYears = Article::selectRaw('YEAR(created_at) as year')
+            ->distinct()
+            ->orderBy('year', 'desc')
+            ->pluck('year')
+            ->toArray();
+
         // إذا كان هناك فلترة، اعرض جميع النتائج بدون باجينيشن
         if ($isFiltered) {
             $articles = $query->latest()->get();
         } else {
-            $articles = $query->latest()->paginate(12);
+            $articles = $query->latest()->paginate(12)->withQueryString();
         }
 
         // جلب التصنيفات مع عدد المقالات
@@ -118,7 +145,11 @@ class GalleryController extends Controller
             'totalArticles',
             'totalAuthors',
             'totalImages',
-            'isFiltered'
+            'isFiltered',
+            'availableYears',
+            'selectedYear',
+            'currentYear',
+            'firstArticleYear'
         ));
     }
 

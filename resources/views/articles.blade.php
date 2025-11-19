@@ -320,7 +320,8 @@
                             <input type="text" id="searchInput" placeholder="ابحث عن مقال..."
                                 class="w-full px-4 lg:px-6 py-3 lg:py-4 pr-12 lg:pr-14 bg-white/70 border-2 border-green-200 rounded-2xl
                                        text-sm lg:text-base focus:ring-4 focus:ring-green-300 focus:border-green-500
-                                       transition-all duration-300 hover:border-green-400">
+                                       transition-all duration-300 hover:border-green-400"
+                                       value="{{ request('search') }}">
                             <svg class="absolute right-3 lg:right-4 top-1/2 transform -translate-y-1/2 w-5 lg:w-6 h-5 lg:h-6 text-green-500"
                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -328,6 +329,22 @@
                             </svg>
                         </div>
                     </div>
+
+                    {{-- Dropdown للسنوات --}}
+                    @if(isset($availableYears) && count($availableYears) > 0)
+                    <div class="flex-shrink-0">
+                        <select id="yearFilter" onchange="filterByYear(this.value)"
+                            class="w-full lg:w-auto px-4 lg:px-6 py-3 lg:py-4 bg-white/70 border-2 border-green-200 rounded-2xl
+                                   text-sm lg:text-base focus:ring-4 focus:ring-green-300 focus:border-green-500
+                                   transition-all duration-300 hover:border-green-400 cursor-pointer">
+                            @foreach($availableYears as $year)
+                                <option value="{{ $year }}" {{ $selectedYear == $year ? 'selected' : '' }}>
+                                    {{ $year }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    @endif
 
                     <div class="flex gap-2 lg:gap-3">
                         <div class="flex bg-white/70 rounded-xl p-1">
@@ -676,6 +693,14 @@
                     } else {
                         url.searchParams.delete('search');
                     }
+                    // الحفاظ على السنة والفئة الحالية
+                    const currentUrlParams = new URLSearchParams(window.location.search);
+                    if (currentUrlParams.has('year')) {
+                        url.searchParams.set('year', currentUrlParams.get('year'));
+                    }
+                    if (currentUrlParams.has('category')) {
+                        url.searchParams.set('category', currentUrlParams.get('category'));
+                    }
                     window.location.href = url.toString();
                 }
             });
@@ -690,10 +715,32 @@
                 if (currentUrlParams.has('search')) {
                     url.searchParams.set('search', currentUrlParams.get('search'));
                 }
+                if (currentUrlParams.has('year')) {
+                    url.searchParams.set('year', currentUrlParams.get('year'));
+                }
                 window.location.href = url.toString();
             };
 
-            // 5. تحديث حالة الفلتر السريِّع  النشط
+            // 5. فلترة حسب السنة
+            window.filterByYear = function(year) {
+                const url = new URL(window.location.href);
+                if (year) {
+                    url.searchParams.set('year', year);
+                } else {
+                    url.searchParams.delete('year');
+                }
+                // الحفاظ على البحث والفئة الحالية
+                const currentUrlParams = new URLSearchParams(window.location.search);
+                if (currentUrlParams.has('search')) {
+                    url.searchParams.set('search', currentUrlParams.get('search'));
+                }
+                if (currentUrlParams.has('category')) {
+                    url.searchParams.set('category', currentUrlParams.get('category'));
+                }
+                window.location.href = url.toString();
+            };
+
+            // 6. تحديث حالة الفلتر السريِّع  النشط
             const currentCategory = new URLSearchParams(window.location.search).get('category');
             filterChips.forEach(chip => {
                 chip.classList.remove('active-filter');
@@ -703,7 +750,7 @@
                 }
             });
 
-            // 6. تأثير ظهور البطاقات عند التمرير
+            // 7. تأثير ظهور البطاقات عند التمرير
             const articleCards = document.querySelectorAll('.article-card');
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach((entry, index) => {
