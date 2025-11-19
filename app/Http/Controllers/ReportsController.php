@@ -50,10 +50,11 @@ class ReportsController extends Controller
 
         $phdCount = Article::whereIn('category_id', $phdCategoryIds)->count();
 
-        // ترتيب أبناء العائلة الأحياء حسب العمر (جميع الأبناء: ذكور وإناث)
+        // ترتيب أبناء العائلة الأحياء حسب العمر (الذكور فقط)
         // مرتبون من الأكبر للأصغر حسب تاريخ الميلاد
         $allFamilyMembersByAge = Person::where('from_outside_the_family', false)
             ->whereNull('death_date')
+            ->where('gender', 'male') // الذكور فقط
             ->get()
             ->map(function($person) {
                 return [

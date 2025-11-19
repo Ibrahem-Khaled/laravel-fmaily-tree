@@ -349,7 +349,7 @@
             <div class="flex flex-col md:flex-row items-center gap-3 mb-4 md:mb-6">
                 <div class="text-center md:text-right">
                     <h3 class="text-xl md:text-2xl font-bold gradient-text">ترتيب أبناء العائلة حسب العمر</h3>
-                    <p class="text-xs md:text-sm text-gray-600 mt-1">الأحياء فقط</p>
+                    <p class="text-xs md:text-sm text-gray-600 mt-1">الذكور الأحياء فقط</p>
                 </div>
             </div>
             <div class="space-y-2 max-h-96 md:max-h-[600px] overflow-y-auto">
