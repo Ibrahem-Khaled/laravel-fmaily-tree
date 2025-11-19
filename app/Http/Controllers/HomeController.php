@@ -10,6 +10,7 @@ use App\Models\Course;
 use App\Models\FamilyCouncil;
 use App\Models\Person;
 use App\Models\Article;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -72,14 +73,64 @@ class HomeController extends Controller
             ->take(12)
             ->get();
 
-        // جلب آخر الخريجين من أصحاب المقالات (آخر 12 مقال مع فئة التخرج)
-        $latestGraduates = Article::whereIn('status', ['published', 'draft'])
+        // جلب فئات الشهادات
+        $bachelorCategoryIds = Category::where(function($query) {
+            $query->where('name', 'like', '%بكالوريوس%')
+                  ->orWhere('name', 'like', '%Bachelor%')
+                  ->orWhere('name', 'like', '%Bachelors%')
+                  ->orWhere('name', 'like', '%ليسانس%');
+        })->pluck('id');
+
+        $masterCategoryIds = Category::where(function($query) {
+            $query->where('name', 'like', '%ماجستير%')
+                  ->orWhere('name', 'like', '%Master%');
+        })->pluck('id');
+
+        $phdCategoryIds = Category::where(function($query) {
+            $query->where('name', 'like', '%دكتوراه%')
+                  ->orWhere('name', 'like', '%PhD%')
+                  ->orWhere('name', 'like', '%Ph.D%');
+        })->pluck('id');
+
+        // جلب آخر 10 خريجين من كل فئة
+        $bachelorGraduates = Article::whereIn('status', ['published', 'draft'])
             ->whereNotNull('person_id')
-            ->whereNotNull('category_id')
-            ->with(['person:id,first_name,last_name,photo_url,parent_id', 'person.parent:id,first_name,gender,parent_id', 'person.parent.parent:id,first_name,gender,parent_id', 'category:id,name'])
+            ->whereIn('category_id', $bachelorCategoryIds)
+            ->with(['person:id,first_name,last_name,photo_url,parent_id,gender', 'person.parent:id,first_name,gender,parent_id', 'person.parent.parent:id,first_name,gender,parent_id', 'category:id,name'])
             ->latest('created_at')
-            ->take(12)
+            ->take(10)
             ->get();
+
+        $masterGraduates = Article::whereIn('status', ['published', 'draft'])
+            ->whereNotNull('person_id')
+            ->whereIn('category_id', $masterCategoryIds)
+            ->with(['person:id,first_name,last_name,photo_url,parent_id,gender', 'person.parent:id,first_name,gender,parent_id', 'person.parent.parent:id,first_name,gender,parent_id', 'category:id,name'])
+            ->latest('created_at')
+            ->take(10)
+            ->get();
+
+        $phdGraduates = Article::whereIn('status', ['published', 'draft'])
+            ->whereNotNull('person_id')
+            ->whereIn('category_id', $phdCategoryIds)
+            ->with(['person:id,first_name,last_name,photo_url,parent_id,gender', 'person.parent:id,first_name,gender,parent_id', 'person.parent.parent:id,first_name,gender,parent_id', 'category:id,name'])
+            ->latest('created_at')
+            ->take(10)
+            ->get();
+
+        // دمج جميع الخريجين مع إضافة نوع الشهادة
+        $latestGraduates = collect()
+            ->merge($bachelorGraduates->map(function($article) {
+                $article->degree_type = 'bachelor';
+                return $article;
+            }))
+            ->merge($masterGraduates->map(function($article) {
+                $article->degree_type = 'master';
+                return $article;
+            }))
+            ->merge($phdGraduates->map(function($article) {
+                $article->degree_type = 'phd';
+                return $article;
+            }));
 
         return view('home', [
             'latestImages' => $slideshowImages,

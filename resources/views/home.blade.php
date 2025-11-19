@@ -664,7 +664,13 @@
     </section>
 
     {{-- Latest Graduates Section --}}
-    @if ($latestGraduates && $latestGraduates->count() > 0)
+    @php
+        $bachelorGraduates = $latestGraduates->where('degree_type', 'bachelor')->take(10);
+        $masterGraduates = $latestGraduates->where('degree_type', 'master')->take(10);
+        $phdGraduates = $latestGraduates->where('degree_type', 'phd')->take(10);
+    @endphp
+
+    @if (($bachelorGraduates->count() > 0 || $masterGraduates->count() > 0 || $phdGraduates->count() > 0))
         <section
             class="py-2 md:py-6 lg:py-8 bg-gradient-to-br from-green-50 via-white to-emerald-50 mobile-section relative">
             <div class="absolute inset-0 opacity-5">
@@ -679,40 +685,134 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-3">
-                    @foreach ($latestGraduates as $article)
-                        @if ($article->person)
-                            <a href="{{ route('article.show', $article->id) }}"
-                                class="relative group overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 bg-white flex flex-col items-center justify-center h-24 sm:h-32 md:h-40 lg:h-48">
-                                @if ($article->person->photo_url)
-                                    <img src="{{ asset('storage/' . $article->person->photo_url) }}"
-                                        alt="{{ $article->person->full_name }}"
-                                        class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
-                                @else
-                                    <div
-                                        class="w-full h-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center">
-                                        <i
-                                            class="fas {{ $article->person->gender == 'male' ? 'fa-male' : 'fa-female' }} text-white text-3xl md:text-5xl opacity-50"></i>
-                                    </div>
-                                @endif
-                                <div
-                                    class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                                    <div class="absolute bottom-2 right-2 left-2">
-                                        <p
-                                            class="text-white text-xs sm:text-sm font-semibold truncate drop-shadow-lg text-center">
-                                            {{ $article->person->full_name }}
-                                        </p>
-                                        @if ($article->category)
-                                            <p class="text-white/80 text-xs truncate text-center mt-1">
-                                                {{ $article->category->name }}
-                                            </p>
+                <!-- حملة البكالوريوس -->
+                @if ($bachelorGraduates->count() > 0)
+                    <div class="mb-6 md:mb-8">
+                        <h3 class="text-lg md:text-xl font-bold text-green-600 mb-3 md:mb-4 text-right">
+                            <i class="fas fa-graduation-cap mr-2"></i>حملة البكالوريوس
+                        </h3>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-3">
+                            @foreach ($bachelorGraduates as $article)
+                                @if ($article->person)
+                                    <a href="{{ route('article.show', $article->id) }}"
+                                        class="relative group overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 bg-white flex flex-col items-center justify-center h-24 sm:h-32 md:h-40 lg:h-48">
+                                        @if ($article->person->photo_url)
+                                            <img src="{{ asset('storage/' . $article->person->photo_url) }}"
+                                                alt="{{ $article->person->full_name }}"
+                                                class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
+                                        @else
+                                            <div
+                                                class="w-full h-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center">
+                                                <i
+                                                    class="fas {{ $article->person->gender == 'male' ? 'fa-male' : 'fa-female' }} text-white text-3xl md:text-5xl opacity-50"></i>
+                                            </div>
                                         @endif
-                                    </div>
-                                </div>
-                            </a>
-                        @endif
-                    @endforeach
-                </div>
+                                        <div
+                                            class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                                            <div class="absolute bottom-2 right-2 left-2">
+                                                <p
+                                                    class="text-white text-xs sm:text-sm font-semibold truncate drop-shadow-lg text-center">
+                                                    {{ $article->person->full_name }}
+                                                </p>
+                                                @if ($article->category)
+                                                    <p class="text-white/80 text-xs truncate text-center mt-1">
+                                                        {{ $article->category->name }}
+                                                    </p>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </a>
+                                @endif
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
+                <!-- حملة الماجستير -->
+                @if ($masterGraduates->count() > 0)
+                    <div class="mb-6 md:mb-8">
+                        <h3 class="text-lg md:text-xl font-bold text-indigo-600 mb-3 md:mb-4 text-right">
+                            <i class="fas fa-graduation-cap mr-2"></i>حملة الماجستير
+                        </h3>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-3">
+                            @foreach ($masterGraduates as $article)
+                                @if ($article->person)
+                                    <a href="{{ route('article.show', $article->id) }}"
+                                        class="relative group overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 bg-white flex flex-col items-center justify-center h-24 sm:h-32 md:h-40 lg:h-48">
+                                        @if ($article->person->photo_url)
+                                            <img src="{{ asset('storage/' . $article->person->photo_url) }}"
+                                                alt="{{ $article->person->full_name }}"
+                                                class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
+                                        @else
+                                            <div
+                                                class="w-full h-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center">
+                                                <i
+                                                    class="fas {{ $article->person->gender == 'male' ? 'fa-male' : 'fa-female' }} text-white text-3xl md:text-5xl opacity-50"></i>
+                                            </div>
+                                        @endif
+                                        <div
+                                            class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                                            <div class="absolute bottom-2 right-2 left-2">
+                                                <p
+                                                    class="text-white text-xs sm:text-sm font-semibold truncate drop-shadow-lg text-center">
+                                                    {{ $article->person->full_name }}
+                                                </p>
+                                                @if ($article->category)
+                                                    <p class="text-white/80 text-xs truncate text-center mt-1">
+                                                        {{ $article->category->name }}
+                                                    </p>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </a>
+                                @endif
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
+                <!-- حملة الدكتوراه -->
+                @if ($phdGraduates->count() > 0)
+                    <div class="mb-6 md:mb-8">
+                        <h3 class="text-lg md:text-xl font-bold text-yellow-600 mb-3 md:mb-4 text-right">
+                            <i class="fas fa-graduation-cap mr-2"></i>حملة الدكتوراه
+                        </h3>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-3">
+                            @foreach ($phdGraduates as $article)
+                                @if ($article->person)
+                                    <a href="{{ route('article.show', $article->id) }}"
+                                        class="relative group overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 bg-white flex flex-col items-center justify-center h-24 sm:h-32 md:h-40 lg:h-48">
+                                        @if ($article->person->photo_url)
+                                            <img src="{{ asset('storage/' . $article->person->photo_url) }}"
+                                                alt="{{ $article->person->full_name }}"
+                                                class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
+                                        @else
+                                            <div
+                                                class="w-full h-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center">
+                                                <i
+                                                    class="fas {{ $article->person->gender == 'male' ? 'fa-male' : 'fa-female' }} text-white text-3xl md:text-5xl opacity-50"></i>
+                                            </div>
+                                        @endif
+                                        <div
+                                            class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                                            <div class="absolute bottom-2 right-2 left-2">
+                                                <p
+                                                    class="text-white text-xs sm:text-sm font-semibold truncate drop-shadow-lg text-center">
+                                                    {{ $article->person->full_name }}
+                                                </p>
+                                                @if ($article->category)
+                                                    <p class="text-white/80 text-xs truncate text-center mt-1">
+                                                        {{ $article->category->name }}
+                                                    </p>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </a>
+                                @endif
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
 
                 <!-- زر عرض المزيد -->
                 <div class="text-center mt-4 md:mt-6">
