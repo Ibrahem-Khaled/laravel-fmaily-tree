@@ -670,7 +670,7 @@
         $phdGraduates = $latestGraduates->where('degree_type', 'phd')->take(10);
     @endphp
 
-    @if ($bachelorGraduates->count() > 0 || $masterGraduates->count() > 0 || $phdGraduates->count() > 0)
+    {{-- @if ($bachelorGraduates->count() > 0 || $masterGraduates->count() > 0 || $phdGraduates->count() > 0)
         <section
             class="py-2 md:py-6 lg:py-8 bg-gradient-to-br from-green-50 via-white to-emerald-50 mobile-section relative">
             <div class="absolute inset-0 opacity-5">
@@ -817,7 +817,7 @@
                 </div>
             </div>
         </section>
-    @endif
+    @endif --}}
 
     {{-- Old Family Programs Section (commented) --}}
     {{-- <section class="py-6 md:py-12 lg:py-16 bg-gradient-to-br from-green-50 via-white to-emerald-50 mobile-section relative overflow-hidden">
