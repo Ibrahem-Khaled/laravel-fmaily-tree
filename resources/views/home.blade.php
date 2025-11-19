@@ -670,7 +670,7 @@
         $phdGraduates = $latestGraduates->where('degree_type', 'phd')->take(10);
     @endphp
 
-    @if (($bachelorGraduates->count() > 0 || $masterGraduates->count() > 0 || $phdGraduates->count() > 0))
+    @if ($bachelorGraduates->count() > 0 || $masterGraduates->count() > 0 || $phdGraduates->count() > 0)
         <section
             class="py-2 md:py-6 lg:py-8 bg-gradient-to-br from-green-50 via-white to-emerald-50 mobile-section relative">
             <div class="absolute inset-0 opacity-5">
@@ -678,21 +678,14 @@
                 <div class="absolute bottom-0 left-0 w-96 h-96 bg-emerald-400 rounded-full blur-3xl"></div>
             </div>
             <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
-                <div class="text-right mb-4 md:mb-6">
-                    <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient mb-1 md:mb-2">آخر الخريجين</h2>
-                    <div
-                        class="w-16 md:w-24 h-0.5 md:h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent mr-0 mb-1 md:mb-2">
-                    </div>
-                </div>
-
-                <!-- حملة البكالوريوس -->
-                @if ($bachelorGraduates->count() > 0)
+                <!-- حملة الدكتوراه -->
+                @if ($phdGraduates->count() > 0)
                     <div class="mb-6 md:mb-8">
-                        <h3 class="text-lg md:text-xl font-bold text-green-600 mb-3 md:mb-4 text-right">
-                            <i class="fas fa-graduation-cap mr-2"></i>حملة البكالوريوس
+                        <h3 class="text-lg md:text-xl font-bold text-yellow-600 mb-3 md:mb-4 text-right">
+                            <i class="fas fa-graduation-cap mr-2"></i>حملة الدكتوراه
                         </h3>
                         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-3">
-                            @foreach ($bachelorGraduates as $article)
+                            @foreach ($phdGraduates as $article)
                                 @if ($article->person)
                                     <a href="{{ route('article.show', $article->id) }}"
                                         class="relative group overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 bg-white flex flex-col items-center justify-center h-24 sm:h-32 md:h-40 lg:h-48">
@@ -702,7 +695,7 @@
                                                 class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
                                         @else
                                             <div
-                                                class="w-full h-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center">
+                                                class="w-full h-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center">
                                                 <i
                                                     class="fas {{ $article->person->gender == 'male' ? 'fa-male' : 'fa-female' }} text-white text-3xl md:text-5xl opacity-50"></i>
                                             </div>
@@ -771,14 +764,14 @@
                     </div>
                 @endif
 
-                <!-- حملة الدكتوراه -->
-                @if ($phdGraduates->count() > 0)
+                <!-- حملة البكالوريوس -->
+                @if ($bachelorGraduates->count() > 0)
                     <div class="mb-6 md:mb-8">
-                        <h3 class="text-lg md:text-xl font-bold text-yellow-600 mb-3 md:mb-4 text-right">
-                            <i class="fas fa-graduation-cap mr-2"></i>حملة الدكتوراه
+                        <h3 class="text-lg md:text-xl font-bold text-green-600 mb-3 md:mb-4 text-right">
+                            <i class="fas fa-graduation-cap mr-2"></i>حملة البكالوريوس
                         </h3>
                         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-3">
-                            @foreach ($phdGraduates as $article)
+                            @foreach ($bachelorGraduates as $article)
                                 @if ($article->person)
                                     <a href="{{ route('article.show', $article->id) }}"
                                         class="relative group overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 bg-white flex flex-col items-center justify-center h-24 sm:h-32 md:h-40 lg:h-48">
@@ -788,7 +781,7 @@
                                                 class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
                                         @else
                                             <div
-                                                class="w-full h-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center">
+                                                class="w-full h-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center">
                                                 <i
                                                     class="fas {{ $article->person->gender == 'male' ? 'fa-male' : 'fa-female' }} text-white text-3xl md:text-5xl opacity-50"></i>
                                             </div>
