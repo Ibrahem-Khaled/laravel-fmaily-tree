@@ -122,8 +122,31 @@ class GalleryController extends Controller
             $articles = $query->latest()->paginate(12)->withQueryString();
         }
 
-        // جلب التصنيفات مع عدد المقالات
-        $categories = Category::whereHas('articles')
+        // تحديد السنة المستخدمة للفلترة
+        $filterYear = $request->has('year') ? $request->year : null;
+        if (!$filterYear) {
+            $hasCurrentYearArticles = Article::whereYear('created_at', $currentYear)->exists();
+            if ($hasCurrentYearArticles) {
+                $filterYear = $currentYear;
+            }
+        }
+        
+        // جلب التصنيفات مع عدد المقالات حسب السنة المحددة
+        $categoriesQuery = Category::query();
+        
+        if ($filterYear) {
+            // إضافة فلترة السنة للتصنيفات
+            $categoriesQuery->whereHas('articles', function($q) use ($filterYear) {
+                $q->whereYear('created_at', $filterYear);
+            });
+        }
+        
+        $categories = $categoriesQuery
+            ->withCount(['articles' => function($q) use ($filterYear) {
+                if ($filterYear) {
+                    $q->whereYear('created_at', $filterYear);
+                }
+            }])
             ->orderBy('sort_order', 'asc')
             ->get();
 
@@ -133,10 +156,23 @@ class GalleryController extends Controller
             ->limit(5)
             ->get();
 
-        // الإحصائيات
-        $totalArticles = Article::count();
-        $totalAuthors = Person::has('articles')->count();
-        $totalImages = Image::count();
+        // الإحصائيات حسب السنة المحددة
+        $totalArticlesQuery = Article::query();
+        if ($filterYear) {
+            $totalArticlesQuery->whereYear('created_at', $filterYear);
+        }
+        $totalArticles = $totalArticlesQuery->count();
+        
+        // عدد الكتّاب حسب السنة المحددة
+        $totalAuthorsQuery = Person::query();
+        if ($filterYear) {
+            $totalAuthorsQuery->whereHas('articles', function($q) use ($filterYear) {
+                $q->whereYear('created_at', $filterYear);
+            });
+        }
+        $totalAuthors = $totalAuthorsQuery->count();
+        
+        $totalImages = Image::count(); // عدد الصور يبقى كما هو
 
         return view('articles', compact(
             'articles',

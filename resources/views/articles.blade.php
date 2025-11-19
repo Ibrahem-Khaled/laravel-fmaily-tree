@@ -383,19 +383,22 @@
                         class="filter-chip px-4 py-2 bg-white/70 rounded-full text-sm font-medium hover:bg-green-50
                                transition-all duration-300 active-filter">
                         الكل
+                        <span class="ml-2 inline-block px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs">
+                            {{ $totalArticles }}
+                        </span>
                     </button>
                     @foreach ($categories as $category)
+                        @if($category->articles_count > 0)
                         <button onclick="filterByCategory('{{ $category->id }}')"
                             class="filter-chip px-4 py-2 bg-white/70 rounded-full text-sm font-medium hover:bg-green-50
                                    transition-all duration-300">
                             {{ $category->name }}
-                            @if ($category->articles_count > 0)
-                                <span
-                                    class="ml-2 inline-block px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs">
-                                    {{ $category->articles_count }}
-                                </span>
-                            @endif
+                            <span
+                                class="ml-2 inline-block px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs">
+                                {{ $category->articles_count }}
+                            </span>
                         </button>
+                        @endif
                     @endforeach
                 </div>
             </div>
@@ -422,7 +425,7 @@
                             </div>
 
                             <div class="space-y-2">
-                                <a href="{{ url('/gallery/articles') }}"
+                                <a href="{{ url('/gallery/articles' . (request('year') ? '?year=' . request('year') : '')) }}"
                                     class="block px-3 lg:px-4 py-2 lg:py-3 rounded-xl lg:rounded-2xl transition-all duration-300
                                            font-medium text-sm lg:text-base
                                            {{ !request('category') ? 'bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg scale-105' : 'bg-white/70 hover:bg-green-50 hover:scale-105 hover:shadow-md' }}">
@@ -441,20 +444,20 @@
                                 </a>
 
                                 @foreach ($categories as $category)
-                                    <a href="{{ url('/gallery/articles?category=' . $category->id) }}"
+                                    @if($category->articles_count > 0)
+                                    <a href="{{ url('/gallery/articles?category=' . $category->id . (request('year') ? '&year=' . request('year') : '')) }}"
                                         class="block px-3 lg:px-4 py-2 lg:py-3 rounded-xl lg:rounded-2xl transition-all duration-300
                                                font-medium text-sm lg:text-base
                                                {{ request('category') == $category->id ? 'bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg scale-105' : 'bg-white/70 hover:bg-green-50 hover:scale-105 hover:shadow-md' }}">
                                         <span class="flex items-center justify-between">
                                             {{ $category->name }}
-                                            @if ($category->articles_count > 0)
-                                                <span
-                                                    class="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-bold">
-                                                    {{ $category->articles_count }}
-                                                </span>
-                                            @endif
+                                            <span
+                                                class="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-bold">
+                                                {{ $category->articles_count }}
+                                            </span>
                                         </span>
                                     </a>
+                                    @endif
                                 @endforeach
                             </div>
 
