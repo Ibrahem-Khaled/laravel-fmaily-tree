@@ -28,6 +28,25 @@
 
         @include('components.alerts')
 
+
+        {{-- مودالات حسابات التواصل --}}
+        @include('dashboard.people.modals.add-contact-account', ['person' => $person])
+        @foreach ($person->contactAccounts as $account)
+            @include('dashboard.people.modals.edit-contact-account', [
+                'account' => $account,
+                'person' => $person,
+            ])
+        @endforeach
+
+        {{-- مودالات المواقع --}}
+        @include('dashboard.people.modals.add-person-location', ['person' => $person])
+        @foreach ($person->personLocations as $personLocation)
+            @include('dashboard.people.modals.edit-person-location', [
+                'personLocation' => $personLocation,
+                'person' => $person,
+            ])
+        @endforeach
+
         {{-- بطاقة المعلومات الأساسية للشخص --}}
         <div class="card shadow mb-4">
             <div class="card-header py-3 d-flex justify-content-between align-items-center">
@@ -366,7 +385,8 @@
                     <i class="fas fa-address-book"></i>
                     حسابات التواصل
                 </h6>
-                <button class="btn btn-success btn-sm" data-toggle="modal" data-target="#addContactAccountModal{{ $person->id }}">
+                <button class="btn btn-success btn-sm" data-toggle="modal"
+                    data-target="#addContactAccountModal{{ $person->id }}">
                     <i class="fas fa-plus"></i> إضافة حساب تواصل
                 </button>
             </div>
@@ -395,15 +415,18 @@
                                         <td>{{ $account->label ?? '-' }}</td>
                                         <td>
                                             <button type="button" class="btn btn-sm btn-circle btn-primary"
-                                                data-toggle="modal" data-target="#editContactAccountModal{{ $account->id }}"
-                                                title="تعديل">
+                                                data-toggle="modal"
+                                                data-target="#editContactAccountModal{{ $account->id }}" title="تعديل">
                                                 <i class="fas fa-edit"></i>
                                             </button>
-                                            <form action="{{ route('people.contact-accounts.destroy', [$person->id, $account->id]) }}" method="POST" class="d-inline"
+                                            <form
+                                                action="{{ route('people.contact-accounts.destroy', [$person->id, $account->id]) }}"
+                                                method="POST" class="d-inline"
                                                 onsubmit="return confirm('هل أنت متأكد من حذف هذا الحساب؟');">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-circle btn-danger" title="حذف">
+                                                <button type="submit" class="btn btn-sm btn-circle btn-danger"
+                                                    title="حذف">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
@@ -428,7 +451,8 @@
                     <i class="fas fa-map-marker-alt"></i>
                     المواقع
                 </h6>
-                <button class="btn btn-success btn-sm" data-toggle="modal" data-target="#addPersonLocationModal{{ $person->id }}">
+                <button class="btn btn-success btn-sm" data-toggle="modal"
+                    data-target="#addPersonLocationModal{{ $person->id }}">
                     <i class="fas fa-plus"></i> إضافة موقع
                 </button>
             </div>
@@ -447,7 +471,9 @@
                             <tbody>
                                 @foreach ($person->locations as $location)
                                     @php
-                                        $personLocation = $person->personLocations->where('location_id', $location->id)->first();
+                                        $personLocation = $person->personLocations
+                                            ->where('location_id', $location->id)
+                                            ->first();
                                     @endphp
                                     <tr>
                                         <td>{{ $location->name }}</td>
@@ -462,15 +488,19 @@
                                         <td>
                                             @if ($personLocation)
                                                 <button type="button" class="btn btn-sm btn-circle btn-primary"
-                                                    data-toggle="modal" data-target="#editPersonLocationModal{{ $personLocation->id }}"
+                                                    data-toggle="modal"
+                                                    data-target="#editPersonLocationModal{{ $personLocation->id }}"
                                                     title="تعديل">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
-                                                <form action="{{ route('people.locations.destroy', [$person->id, $personLocation->id]) }}" method="POST" class="d-inline"
+                                                <form
+                                                    action="{{ route('people.locations.destroy', [$person->id, $personLocation->id]) }}"
+                                                    method="POST" class="d-inline"
                                                     onsubmit="return confirm('هل أنت متأكد من حذف هذا الموقع؟');">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-circle btn-danger" title="حذف">
+                                                    <button type="submit" class="btn btn-sm btn-circle btn-danger"
+                                                        title="حذف">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
                                                 </form>
@@ -635,17 +665,7 @@
     {{-- مودال إضافة زواج جديد --}}
     @include('dashboard.people.modals.add_marriage')
 
-    {{-- مودالات حسابات التواصل --}}
-    @include('dashboard.people.modals.add-contact-account', ['person' => $person])
-    @foreach ($person->contactAccounts as $account)
-        @include('dashboard.people.modals.edit-contact-account', ['account' => $account, 'person' => $person])
-    @endforeach
 
-    {{-- مودالات المواقع --}}
-    @include('dashboard.people.modals.add-person-location', ['person' => $person])
-    @foreach ($person->personLocations as $personLocation)
-        @include('dashboard.people.modals.edit-person-location', ['personLocation' => $personLocation, 'person' => $person])
-    @endforeach
 
     {{-- تضمين مودالات التعديل لكل الأشخاص المعروضين في الصفحة --}}
     {{-- @foreach ($spouses as $spouse)
