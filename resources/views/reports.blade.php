@@ -207,7 +207,24 @@
         </section>
 
         <!-- القسم الثاني: الإحصائيات التعليمية -->
-        <section class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
+            <!-- حملة البكالوريوس -->
+            <div class="stat-card glass-effect p-4 md:p-6 rounded-2xl green-glow">
+                <div class="flex flex-col md:flex-row items-center md:items-start justify-between gap-4">
+                    <div class="flex items-center gap-3 md:gap-4 flex-1">
+                        <div class="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 md:w-8 md:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg md:text-2xl font-bold gradient-text">حملة البكالوريوس</h3>
+                        </div>
+                    </div>
+                    <div class="text-4xl md:text-5xl font-bold text-green-600">{{ number_format($bachelorDegreeCount) }}</div>
+                </div>
+            </div>
+
             <!-- حملة الماجستير -->
             <div class="stat-card glass-effect p-4 md:p-6 rounded-2xl green-glow">
                 <div class="flex flex-col md:flex-row items-center md:items-start justify-between gap-4">

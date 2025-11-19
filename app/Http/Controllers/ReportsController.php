@@ -50,6 +50,16 @@ class ReportsController extends Controller
 
         $phdCount = Article::whereIn('category_id', $phdCategoryIds)->count();
 
+        // عدد مقالات فئة البكالوريوس
+        $bachelorCategoryIds = Category::where(function($query) {
+            $query->where('name', 'like', '%بكالوريوس%')
+                  ->orWhere('name', 'like', '%Bachelor%')
+                  ->orWhere('name', 'like', '%Bachelors%')
+                  ->orWhere('name', 'like', '%ليسانس%');
+        })->pluck('id');
+
+        $bachelorDegreeCount = Article::whereIn('category_id', $bachelorCategoryIds)->count();
+
         // ترتيب أبناء العائلة الأحياء حسب العمر (الذكور فقط)
         // مرتبون من الأكبر للأصغر حسب تاريخ الميلاد
         $allFamilyMembersByAge = Person::where('from_outside_the_family', false)
