@@ -145,15 +145,15 @@
                 gap: 0.75rem !important;
             }
 
-            .space-y-2 > * + * {
+            .space-y-2>*+* {
                 margin-top: 0.5rem !important;
             }
 
-            .space-y-3 > * + * {
+            .space-y-3>*+* {
                 margin-top: 0.75rem !important;
             }
 
-            .space-y-4 > * + * {
+            .space-y-4>*+* {
                 margin-top: 0.75rem !important;
             }
 
@@ -408,7 +408,8 @@
         <section class="py-2 md:py-6 lg:py-8 bg-white mobile-section">
             <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
                 <div class="text-right mb-4 md:mb-6">
-                    <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient mb-1 md:mb-2">ولد في مثل هذا اليوم</h2>
+                    <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient mb-1 md:mb-2">ولد في مثل هذا
+                        اليوم</h2>
                     <div
                         class="w-16 md:w-24 h-0.5 md:h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent mr-0 mb-1 md:mb-2">
                     </div>
@@ -419,18 +420,20 @@
                         <a href="{{ route('people.profile.show', $person->id) }}"
                             class="relative group overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 bg-white flex flex-col items-center justify-center h-24 sm:h-32 md:h-40 lg:h-48">
                             @if ($person->photo_url)
-                                <img src="{{ asset('storage/' . $person->photo_url) }}"
-                                    alt="{{ $person->full_name }}"
+                                <img src="{{ asset('storage/' . $person->photo_url) }}" alt="{{ $person->full_name }}"
                                     class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
                             @else
-                                <div class="w-full h-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center">
-                                    <i class="fas {{ $person->gender == 'male' ? 'fa-male' : 'fa-female' }} text-white text-3xl md:text-5xl opacity-50"></i>
+                                <div
+                                    class="w-full h-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center">
+                                    <i
+                                        class="fas {{ $person->gender == 'male' ? 'fa-male' : 'fa-female' }} text-white text-3xl md:text-5xl opacity-50"></i>
                                 </div>
                             @endif
                             <div
                                 class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
                                 <div class="absolute bottom-2 right-2 left-2">
-                                    <p class="text-white text-xs sm:text-sm font-semibold truncate drop-shadow-lg text-center">
+                                    <p
+                                        class="text-white text-xs sm:text-sm font-semibold truncate drop-shadow-lg text-center">
                                         {{ $person->full_name }}
                                     </p>
                                     @if ($person->birth_date)
@@ -441,56 +444,6 @@
                                 </div>
                             </div>
                         </a>
-                    @endforeach
-                </div>
-            </div>
-        </section>
-    @endif
-
-    {{-- Latest Graduates Section --}}
-    @if ($latestGraduates && $latestGraduates->count() > 0)
-        <section class="py-2 md:py-6 lg:py-8 bg-gradient-to-br from-green-50 via-white to-emerald-50 mobile-section relative">
-            <div class="absolute inset-0 opacity-5">
-                <div class="absolute top-0 right-0 w-96 h-96 bg-green-400 rounded-full blur-3xl"></div>
-                <div class="absolute bottom-0 left-0 w-96 h-96 bg-emerald-400 rounded-full blur-3xl"></div>
-            </div>
-            <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
-                <div class="text-right mb-4 md:mb-6">
-                    <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient mb-1 md:mb-2">آخر الخريجين</h2>
-                    <div
-                        class="w-16 md:w-24 h-0.5 md:h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent mr-0 mb-1 md:mb-2">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-3">
-                    @foreach ($latestGraduates as $article)
-                        @if ($article->person)
-                            <a href="{{ route('article.show', $article->id) }}"
-                                class="relative group overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 bg-white flex flex-col items-center justify-center h-24 sm:h-32 md:h-40 lg:h-48">
-                                @if ($article->person->photo_url)
-                                    <img src="{{ asset('storage/' . $article->person->photo_url) }}"
-                                        alt="{{ $article->person->full_name }}"
-                                        class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
-                                @else
-                                    <div class="w-full h-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center">
-                                        <i class="fas {{ $article->person->gender == 'male' ? 'fa-male' : 'fa-female' }} text-white text-3xl md:text-5xl opacity-50"></i>
-                                    </div>
-                                @endif
-                                <div
-                                    class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                                    <div class="absolute bottom-2 right-2 left-2">
-                                        <p class="text-white text-xs sm:text-sm font-semibold truncate drop-shadow-lg text-center">
-                                            {{ $article->person->full_name }}
-                                        </p>
-                                        @if ($article->category)
-                                            <p class="text-white/80 text-xs truncate text-center mt-1">
-                                                {{ $article->category->name }}
-                                            </p>
-                                        @endif
-                                    </div>
-                                </div>
-                            </a>
-                        @endif
                     @endforeach
                 </div>
             </div>
@@ -556,110 +509,162 @@
         </div>
     </section>
 
-        {{-- Family Councils Section --}}
-        <section class="py-2 md:py-6 lg:py-8 bg-white mobile-section">
-            <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-                <div class="text-right mb-4 md:mb-6">
-                    <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient mb-1 md:mb-2">مجالس العائلة</h2>
-                    <div
-                        class="w-16 md:w-24 h-0.5 md:h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent mr-0 mb-1 md:mb-2">
-                    </div>
+    {{-- Family Councils Section --}}
+    <section class="py-2 md:py-6 lg:py-8 bg-white mobile-section">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+            <div class="text-right mb-4 md:mb-6">
+                <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient mb-1 md:mb-2">مجالس العائلة</h2>
+                <div
+                    class="w-16 md:w-24 h-0.5 md:h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent mr-0 mb-1 md:mb-2">
                 </div>
+            </div>
 
-                @if ($councils && $councils->count() > 0)
-                    <div class="overflow-x-auto -mx-4 sm:mx-0">
-                        <div class="inline-block min-w-full align-middle">
-                            <div class="overflow-hidden shadow-lg rounded-lg">
-                                <table class="min-w-full divide-y divide-gray-200 bg-white">
-                                    <thead class="gradient-bg text-white">
-                                        <tr>
-                                            <th scope="col"
-                                                class="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-bold uppercase tracking-wider text-right">
-                                                المجلس</th>
-                                            <th scope="col"
-                                                class="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-bold uppercase tracking-wider text-right">
-                                                المدينة</th>
-                                            <th scope="col"
-                                                class="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-bold uppercase tracking-wider text-right">
-                                                الموقع</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
-                                        @foreach ($councils as $council)
-                                            <tr class="hover:bg-gray-50 transition-colors cursor-pointer council-row"
-                                                data-council-id="{{ $council->id }}"
-                                                onclick="toggleCouncilDescription({{ $council->id }})">
-                                                <td class="px-2 py-2 md:px-4 md:py-3 whitespace-nowrap text-right" dir="ltr">
-                                                    <div class="flex items-center justify-end">
-                                                        <span
-                                                            class="text-xs md:text-sm font-semibold text-gray-900">{{ $council->name }}</span>
+            @if ($councils && $councils->count() > 0)
+                <div class="overflow-x-auto -mx-4 sm:mx-0">
+                    <div class="inline-block min-w-full align-middle">
+                        <div class="overflow-hidden shadow-lg rounded-lg">
+                            <table class="min-w-full divide-y divide-gray-200 bg-white">
+                                <thead class="gradient-bg text-white">
+                                    <tr>
+                                        <th scope="col"
+                                            class="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-bold uppercase tracking-wider text-right">
+                                            المجلس</th>
+                                        <th scope="col"
+                                            class="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-bold uppercase tracking-wider text-right">
+                                            المدينة</th>
+                                        <th scope="col"
+                                            class="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-bold uppercase tracking-wider text-right">
+                                            الموقع</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    @foreach ($councils as $council)
+                                        <tr class="hover:bg-gray-50 transition-colors cursor-pointer council-row"
+                                            data-council-id="{{ $council->id }}"
+                                            onclick="toggleCouncilDescription({{ $council->id }})">
+                                            <td class="px-2 py-2 md:px-4 md:py-3 whitespace-nowrap text-right"
+                                                dir="ltr">
+                                                <div class="flex items-center justify-end">
+                                                    <span
+                                                        class="text-xs md:text-sm font-semibold text-gray-900">{{ $council->name }}</span>
+                                                    <i
+                                                        class="fas fa-building text-green-600 ml-2 text-sm md:text-base"></i>
+                                                    @if ($council->description)
                                                         <i
-                                                            class="fas fa-building text-green-600 ml-2 text-sm md:text-base"></i>
-                                                        @if ($council->description)
-                                                            <i class="fas fa-chevron-down text-green-500 mr-2 text-xs transition-transform duration-300 council-chevron-{{ $council->id }}"></i>
-                                                        @endif
-                                                    </div>
-                                                </td>
-                                                <td class="px-2 py-2 md:px-4 md:py-3 text-right">
-                                                    <span class="text-xs md:text-sm text-gray-700">
-                                                        {{ $council->address ?? '-' }}
-                                                    </span>
-                                                </td>
-
-                                                <td
-                                                    class="px-2 py-2 md:px-4 md:py-3 whitespace-nowrap text-xs md:text-sm font-medium text-right">
-                                                    @if ($council->google_map_url)
-                                                        <a href="{{ $council->google_map_url }}" target="_blank"
-                                                            class="text-blue-600 hover:text-blue-900 transition-colors"
-                                                            title="فتح في جوجل ماب"
-                                                            onclick="event.stopPropagation();">
-                                                            <i class="fas fa-map-marked-alt"></i>
-                                                            <span class="mr-1 hidden lg:inline">الخريطة</span>
-                                                        </a>
-                                                    @else
-                                                        <span class="text-gray-400">-</span>
+                                                            class="fas fa-chevron-down text-green-500 mr-2 text-xs transition-transform duration-300 council-chevron-{{ $council->id }}"></i>
                                                     @endif
-                                                </td>
-                                            </tr>
-                                            @if ($council->description)
-                                                <tr class="council-description-row council-description-{{ $council->id }} hidden">
-                                                    <td colspan="3" class="px-2 py-0 md:px-4">
-                                                        <div class="council-description-content max-h-0 overflow-hidden transition-all duration-500 ease-in-out">
-                                                            <div class="bg-gradient-to-r from-green-50 to-emerald-50 border-r-4 border-green-500 rounded-lg p-4 md:p-6 my-2 shadow-md">
-                                                                <div class="flex items-start gap-3">
-                                                                    <div class="flex-shrink-0 mt-1">
-                                                                        <i class="fas fa-info-circle text-green-600 text-lg"></i>
-                                                                    </div>
-                                                                    <div class="flex-1">
-                                                                        <h4 class="text-sm md:text-base font-semibold text-gray-800 mb-2 flex items-center gap-2">
-                                                                            <span>نبذة عن {{ $council->name }}</span>
-                                                                        </h4>
-                                                                        <div class="text-xs md:text-sm text-gray-700 leading-relaxed whitespace-pre-line">
-                                                                            {{ $council->description }}
-                                                                        </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-2 py-2 md:px-4 md:py-3 text-right">
+                                                <span class="text-xs md:text-sm text-gray-700">
+                                                    {{ $council->address ?? '-' }}
+                                                </span>
+                                            </td>
+
+                                            <td
+                                                class="px-2 py-2 md:px-4 md:py-3 whitespace-nowrap text-xs md:text-sm font-medium text-right">
+                                                @if ($council->google_map_url)
+                                                    <a href="{{ $council->google_map_url }}" target="_blank"
+                                                        class="text-blue-600 hover:text-blue-900 transition-colors"
+                                                        title="فتح في جوجل ماب" onclick="event.stopPropagation();">
+                                                        <i class="fas fa-map-marked-alt"></i>
+                                                        <span class="mr-1 hidden lg:inline">الخريطة</span>
+                                                    </a>
+                                                @else
+                                                    <span class="text-gray-400">-</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        @if ($council->description)
+                                            <tr
+                                                class="council-description-row council-description-{{ $council->id }} hidden">
+                                                <td colspan="3" class="px-2 py-0 md:px-4">
+                                                    <div
+                                                        class="council-description-content max-h-0 overflow-hidden transition-all duration-500 ease-in-out">
+                                                        <div
+                                                            class="bg-gradient-to-r from-green-50 to-emerald-50 border-r-4 border-green-500 rounded-lg p-4 md:p-6 my-2 shadow-md">
+                                                            <div class="flex items-start gap-3">
+                                                                <div class="flex-shrink-0 mt-1">
+                                                                    <i
+                                                                        class="fas fa-info-circle text-green-600 text-lg"></i>
+                                                                </div>
+                                                                <div class="flex-1">
+                                                                    <h4
+                                                                        class="text-sm md:text-base font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                                                                        <span>نبذة عن {{ $council->name }}</span>
+                                                                    </h4>
+                                                                    <div
+                                                                        class="text-xs md:text-sm text-gray-700 leading-relaxed whitespace-pre-line">
+                                                                        {{ $council->description }}
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                    </td>
-                                                </tr>
-                                            @endif
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endif
+                                    @endforeach
+                                </tbody>
+                            </table>
                         </div>
                     </div>
-                @else
-                    <div class="text-center py-8 md:py-12">
-                        <i class="fas fa-building text-gray-400 text-4xl md:text-6xl mb-4"></i>
-                        <p class="text-gray-600 text-base md:text-lg">لا توجد مجالس متاحة حالياً</p>
-                    </div>
-                @endif
-            </div>
-        </section>
+                </div>
+            @else
+                <div class="text-center py-8 md:py-12">
+                    <i class="fas fa-building text-gray-400 text-4xl md:text-6xl mb-4"></i>
+                    <p class="text-gray-600 text-base md:text-lg">لا توجد مجالس متاحة حالياً</p>
+                </div>
+            @endif
+        </div>
+    </section>
 
-        {{-- Family Programs Section --}}
+    {{-- Family Programs Section --}}
+    <section
+        class="py-2 md:py-6 lg:py-8 bg-gradient-to-br from-green-50 via-white to-emerald-50 mobile-section relative">
+        <div class="absolute inset-0 opacity-5">
+            <div class="absolute top-0 right-0 w-96 h-96 bg-green-400 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-0 left-0 w-96 h-96 bg-emerald-400 rounded-full blur-3xl"></div>
+        </div>
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
+            <div class="text-right mb-4 md:mb-6">
+                <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient mb-1 md:mb-2">برامج العائلة</h2>
+                <div
+                    class="w-16 md:w-24 h-0.5 md:h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent mr-0 mb-1 md:mb-2">
+                </div>
+            </div>
+
+            {{-- برامج السريع - صور ملتصقة --}}
+            @if ($programs && $programs->count() > 0)
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-3">
+                    @foreach ($programs as $program)
+                        <a href="{{ route('programs.show', $program) }}"
+                            class="relative group overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 bg-white flex items-center justify-center h-24 sm:h-32 md:h-40 lg:h-48">
+                            <img src="{{ asset('storage/' . $program->path) }}"
+                                alt="{{ $program->program_title ?? ($program->name ?? 'برنامج') }}"
+                                class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 p-2 sm:p-3">
+                            <div
+                                class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                                <div class="absolute bottom-2 right-2 left-2">
+                                    <p class="text-white text-xs sm:text-sm font-semibold truncate drop-shadow-lg">
+                                        {{ $program->program_title ?? ($program->name ?? 'برنامج') }}
+                                    </p>
+                                </div>
+                            </div>
+                        </a>
+                    @endforeach
+                </div>
+            @else
+                <div class="text-center py-8 md:py-12">
+                    <i class="fas fa-calendar-alt text-gray-400 text-4xl md:text-6xl mb-4"></i>
+                    <p class="text-gray-600 text-base md:text-lg">لا توجد برامج متاحة حالياً</p>
+                </div>
+            @endif
+        </div>
+    </section>
+
+    {{-- Latest Graduates Section --}}
+    @if ($latestGraduates && $latestGraduates->count() > 0)
         <section
             class="py-2 md:py-6 lg:py-8 bg-gradient-to-br from-green-50 via-white to-emerald-50 mobile-section relative">
             <div class="absolute inset-0 opacity-5">
@@ -668,152 +673,161 @@
             </div>
             <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
                 <div class="text-right mb-4 md:mb-6">
-                    <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient mb-1 md:mb-2">برامج العائلة</h2>
+                    <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient mb-1 md:mb-2">آخر الخريجين</h2>
                     <div
                         class="w-16 md:w-24 h-0.5 md:h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent mr-0 mb-1 md:mb-2">
                     </div>
                 </div>
 
-                {{-- برامج السريع - صور ملتصقة --}}
-                @if ($programs && $programs->count() > 0)
-                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-3">
-                        @foreach ($programs as $program)
-                            <a href="{{ route('programs.show', $program) }}"
-                                class="relative group overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 bg-white flex items-center justify-center h-24 sm:h-32 md:h-40 lg:h-48">
-                                <img src="{{ asset('storage/' . $program->path) }}"
-                                    alt="{{ $program->program_title ?? ($program->name ?? 'برنامج') }}"
-                                    class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 p-2 sm:p-3">
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-3">
+                    @foreach ($latestGraduates as $article)
+                        @if ($article->person)
+                            <a href="{{ route('article.show', $article->id) }}"
+                                class="relative group overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 bg-white flex flex-col items-center justify-center h-24 sm:h-32 md:h-40 lg:h-48">
+                                @if ($article->person->photo_url)
+                                    <img src="{{ asset('storage/' . $article->person->photo_url) }}"
+                                        alt="{{ $article->person->full_name }}"
+                                        class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
+                                @else
+                                    <div
+                                        class="w-full h-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center">
+                                        <i
+                                            class="fas {{ $article->person->gender == 'male' ? 'fa-male' : 'fa-female' }} text-white text-3xl md:text-5xl opacity-50"></i>
+                                    </div>
+                                @endif
                                 <div
                                     class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
                                     <div class="absolute bottom-2 right-2 left-2">
-                                        <p class="text-white text-xs sm:text-sm font-semibold truncate drop-shadow-lg">
-                                            {{ $program->program_title ?? ($program->name ?? 'برنامج') }}
+                                        <p
+                                            class="text-white text-xs sm:text-sm font-semibold truncate drop-shadow-lg text-center">
+                                            {{ $article->person->full_name }}
                                         </p>
+                                        @if ($article->category)
+                                            <p class="text-white/80 text-xs truncate text-center mt-1">
+                                                {{ $article->category->name }}
+                                            </p>
+                                        @endif
                                     </div>
                                 </div>
                             </a>
-                        @endforeach
-                    </div>
-                @else
-                    <div class="text-center py-8 md:py-12">
-                        <i class="fas fa-calendar-alt text-gray-400 text-4xl md:text-6xl mb-4"></i>
-                        <p class="text-gray-600 text-base md:text-lg">لا توجد برامج متاحة حالياً</p>
-                    </div>
-                @endif
+                        @endif
+                    @endforeach
+                </div>
             </div>
         </section>
+    @endif
 
-        {{-- Old Family Programs Section (commented) --}}
-        {{-- <section class="py-6 md:py-12 lg:py-16 bg-gradient-to-br from-green-50 via-white to-emerald-50 mobile-section relative overflow-hidden">
+    {{-- Old Family Programs Section (commented) --}}
+    {{-- <section class="py-6 md:py-12 lg:py-16 bg-gradient-to-br from-green-50 via-white to-emerald-50 mobile-section relative overflow-hidden">
 
     {{-- Courses Section --}}
-        <section class="py-2 md:py-6 lg:py-8 bg-white mobile-section">
-            <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-                <div class="text-right mb-4 md:mb-6">
-                    <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient mb-1 md:mb-2">دورات أكاديمية
-                        السريع</h2>
-                    <div
-                        class="w-16 md:w-24 h-0.5 md:h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent mr-0">
-                    </div>
+    <section class="py-2 md:py-6 lg:py-8 bg-white mobile-section">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+            <div class="text-right mb-4 md:mb-6">
+                <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient mb-1 md:mb-2">دورات أكاديمية
+                    السريع</h2>
+                <div
+                    class="w-16 md:w-24 h-0.5 md:h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent mr-0">
                 </div>
+            </div>
 
-                @if ($courses->count() > 0)
-                    <div class="relative mb-3 md:mb-6">
-                        <!-- Swiper -->
-                        <div class="swiper coursesSwiper">
-                            <div class="swiper-wrapper">
-                                @foreach ($courses as $course)
-                                    <div class="swiper-slide">
+            @if ($courses->count() > 0)
+                <div class="relative mb-3 md:mb-6">
+                    <!-- Swiper -->
+                    <div class="swiper coursesSwiper">
+                        <div class="swiper-wrapper">
+                            @foreach ($courses as $course)
+                                <div class="swiper-slide">
+                                    <div
+                                        class="course-card bg-white rounded-lg md:rounded-xl shadow-lg overflow-hidden h-full">
                                         <div
-                                            class="course-card bg-white rounded-lg md:rounded-xl shadow-lg overflow-hidden h-full">
-                                            <div
-                                                class="relative h-32 md:h-40 lg:h-48 bg-gradient-to-br from-green-400 to-emerald-600">
-                                                <div class="absolute inset-0 flex items-center justify-center">
-                                                    <i
-                                                        class="fas fa-book-open text-white text-3xl md:text-5xl lg:text-6xl opacity-30"></i>
-                                                </div>
-                                                @if ($course->image_url)
-                                                    <img src="{{ $course->image_url }}" alt="{{ $course->title }}"
-                                                        class="w-full h-full object-cover">
-                                                @endif
+                                            class="relative h-32 md:h-40 lg:h-48 bg-gradient-to-br from-green-400 to-emerald-600">
+                                            <div class="absolute inset-0 flex items-center justify-center">
+                                                <i
+                                                    class="fas fa-book-open text-white text-3xl md:text-5xl lg:text-6xl opacity-30"></i>
                                             </div>
+                                            @if ($course->image_url)
+                                                <img src="{{ $course->image_url }}" alt="{{ $course->title }}"
+                                                    class="w-full h-full object-cover">
+                                            @endif
+                                        </div>
 
-                                            <div class="p-3 md:p-4 lg:p-6">
-                                                <h3
-                                                    class="text-base md:text-lg lg:text-xl font-bold text-gray-800 mb-1 md:mb-2 line-clamp-2">
-                                                    {{ $course->title }}</h3>
+                                        <div class="p-3 md:p-4 lg:p-6">
+                                            <h3
+                                                class="text-base md:text-lg lg:text-xl font-bold text-gray-800 mb-1 md:mb-2 line-clamp-2">
+                                                {{ $course->title }}</h3>
 
-                                                <div class="mb-2 md:mb-4">
-                                                    <p class="text-gray-600 text-xs md:text-sm course-description-short line-clamp-2"
-                                                        id="desc-short-{{ $loop->index }}">
-                                                        {{ $course->description ?? '' }}
-                                                    </p>
-                                                    <p class="text-gray-600 text-xs md:text-sm course-description-full hidden"
-                                                        id="desc-full-{{ $loop->index }}">
-                                                        {{ $course->description ?? '' }}
-                                                    </p>
-                                                    @if ($course->description && strlen($course->description) > 80)
-                                                        <button onclick="toggleDescription({{ $loop->index }})"
-                                                            class="text-green-600 hover:text-green-700 text-xs font-semibold mt-1 flex items-center gap-1 transition-colors course-toggle-btn"
-                                                            id="toggle-btn-{{ $loop->index }}">
-                                                            <span class="toggle-text">عرض المزيد</span>
-                                                            <i class="fas fa-chevron-down toggle-icon text-xs"></i>
-                                                        </button>
-                                                    @endif
-                                                </div>
-
-                                                <div class="space-y-1 md:space-y-1.5 mb-2 md:mb-4">
-                                                    @if ($course->instructor)
-                                                        <div class="flex items-center gap-1.5 text-xs text-gray-600">
-                                                            <i class="fas fa-user text-green-500 text-xs"></i>
-                                                            <span class="truncate">{{ $course->instructor }}</span>
-                                                        </div>
-                                                    @endif
-                                                    @if ($course->duration)
-                                                        <div class="flex items-center gap-1.5 text-xs text-gray-600">
-                                                            <i class="fas fa-clock text-green-500 text-xs"></i>
-                                                            <span>{{ $course->duration }}</span>
-                                                        </div>
-                                                    @endif
-                                                    @if ($course->students > 0)
-                                                        <div class="flex items-center gap-1.5 text-xs text-gray-600">
-                                                            <i class="fas fa-users text-green-500 text-xs"></i>
-                                                            <span>{{ $course->students }} طالب</span>
-                                                        </div>
-                                                    @endif
-                                                </div>
-
-                                                @if ($course->link)
-                                                    <a href="{{ $course->link }}" target="_blank"
-                                                        class="w-full py-1.5 md:py-2 px-3 md:px-4 gradient-bg text-white rounded-lg text-xs md:text-sm font-semibold hover:opacity-90 transition-all flex items-center justify-center">
-                                                        <i class="fas fa-external-link-alt ml-2 text-xs"></i>سجل الآن
-                                                    </a>
-                                                @else
-                                                    <button
-                                                        class="w-full py-1.5 md:py-2 px-3 md:px-4 gradient-bg text-white rounded-lg text-xs md:text-sm font-semibold hover:opacity-90 transition-all">
-                                                        <i class="fas fa-plus-circle ml-2 text-xs"></i>سجل الآن
+                                            <div class="mb-2 md:mb-4">
+                                                <p class="text-gray-600 text-xs md:text-sm course-description-short line-clamp-2"
+                                                    id="desc-short-{{ $loop->index }}">
+                                                    {{ $course->description ?? '' }}
+                                                </p>
+                                                <p class="text-gray-600 text-xs md:text-sm course-description-full hidden"
+                                                    id="desc-full-{{ $loop->index }}">
+                                                    {{ $course->description ?? '' }}
+                                                </p>
+                                                @if ($course->description && strlen($course->description) > 80)
+                                                    <button onclick="toggleDescription({{ $loop->index }})"
+                                                        class="text-green-600 hover:text-green-700 text-xs font-semibold mt-1 flex items-center gap-1 transition-colors course-toggle-btn"
+                                                        id="toggle-btn-{{ $loop->index }}">
+                                                        <span class="toggle-text">عرض المزيد</span>
+                                                        <i class="fas fa-chevron-down toggle-icon text-xs"></i>
                                                     </button>
                                                 @endif
                                             </div>
+
+                                            <div class="space-y-1 md:space-y-1.5 mb-2 md:mb-4">
+                                                @if ($course->instructor)
+                                                    <div class="flex items-center gap-1.5 text-xs text-gray-600">
+                                                        <i class="fas fa-user text-green-500 text-xs"></i>
+                                                        <span class="truncate">{{ $course->instructor }}</span>
+                                                    </div>
+                                                @endif
+                                                @if ($course->duration)
+                                                    <div class="flex items-center gap-1.5 text-xs text-gray-600">
+                                                        <i class="fas fa-clock text-green-500 text-xs"></i>
+                                                        <span>{{ $course->duration }}</span>
+                                                    </div>
+                                                @endif
+                                                @if ($course->students > 0)
+                                                    <div class="flex items-center gap-1.5 text-xs text-gray-600">
+                                                        <i class="fas fa-users text-green-500 text-xs"></i>
+                                                        <span>{{ $course->students }} طالب</span>
+                                                    </div>
+                                                @endif
+                                            </div>
+
+                                            @if ($course->link)
+                                                <a href="{{ $course->link }}" target="_blank"
+                                                    class="w-full py-1.5 md:py-2 px-3 md:px-4 gradient-bg text-white rounded-lg text-xs md:text-sm font-semibold hover:opacity-90 transition-all flex items-center justify-center">
+                                                    <i class="fas fa-external-link-alt ml-2 text-xs"></i>سجل الآن
+                                                </a>
+                                            @else
+                                                <button
+                                                    class="w-full py-1.5 md:py-2 px-3 md:px-4 gradient-bg text-white rounded-lg text-xs md:text-sm font-semibold hover:opacity-90 transition-all">
+                                                    <i class="fas fa-plus-circle ml-2 text-xs"></i>سجل الآن
+                                                </button>
+                                            @endif
                                         </div>
                                     </div>
-                                @endforeach
-                            </div>
-                            <!-- Navigation buttons -->
-                            <div class="swiper-button-next courses-next"></div>
-                            <div class="swiper-button-prev courses-prev"></div>
-                            <!-- Pagination -->
-                            <div class="swiper-pagination courses-pagination"></div>
+                                </div>
+                            @endforeach
                         </div>
+                        <!-- Navigation buttons -->
+                        <div class="swiper-button-next courses-next"></div>
+                        <div class="swiper-button-prev courses-prev"></div>
+                        <!-- Pagination -->
+                        <div class="swiper-pagination courses-pagination"></div>
                     </div>
-                @else
-                    <div class="text-center py-8 md:py-12">
-                        <i class="fas fa-book-open text-gray-400 text-4xl md:text-6xl mb-4"></i>
-                        <p class="text-gray-600 text-base md:text-lg">لا توجد دورات متاحة حالياً</p>
-                    </div>
-                @endif
-            </div>
-        </section>
+                </div>
+            @else
+                <div class="text-center py-8 md:py-12">
+                    <i class="fas fa-book-open text-gray-400 text-4xl md:text-6xl mb-4"></i>
+                    <p class="text-gray-600 text-base md:text-lg">لا توجد دورات متاحة حالياً</p>
+                </div>
+            @endif
+        </div>
+    </section>
 
 
     <script>

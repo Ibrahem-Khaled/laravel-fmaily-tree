@@ -281,7 +281,7 @@ class ReportsController extends Controller
     {
         // جلب جميع IDs لأحفاد الجد (جميع الأجيال)
         $descendantIds = $this->getAllDescendantIds($grandfatherId);
-        
+
         if (empty($descendantIds)) {
             return 0;
         }
@@ -308,9 +308,9 @@ class ReportsController extends Controller
                 $query->where('marriages.is_divorced', false)
                       ->whereNull('marriages.divorced_at');
             })
-            ->selectRaw('CASE 
-                WHEN husbands.from_outside_the_family = 1 THEN marriages.husband_id 
-                ELSE marriages.wife_id 
+            ->selectRaw('CASE
+                WHEN husbands.from_outside_the_family = 1 THEN marriages.husband_id
+                ELSE marriages.wife_id
             END as relative_id')
             ->distinct()
             ->count();
@@ -327,13 +327,13 @@ class ReportsController extends Controller
             ->where('from_outside_the_family', false)
             ->pluck('id')
             ->toArray();
-        
+
         $ids = array_merge($ids, $children);
-        
+
         foreach ($children as $childId) {
             $ids = $this->getAllDescendantIds($childId, $ids);
         }
-        
+
         return array_unique($ids);
     }
 
