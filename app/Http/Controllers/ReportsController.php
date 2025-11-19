@@ -113,6 +113,7 @@ class ReportsController extends Controller
             'femaleCount',
             'masterDegreeCount',
             'phdCount',
+            'bachelorDegreeCount',
             'allFamilyMembersByAge',
             'generationsData',
             'locationsStatistics',
