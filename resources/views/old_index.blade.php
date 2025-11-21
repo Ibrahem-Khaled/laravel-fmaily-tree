@@ -1092,8 +1092,8 @@
                                                         ? person.cemetery_location
                                                         : `https://${person.cemetery_location}`;
                                                     return `
-                                                        <a href="${locationUrl}" target="_blank" class="grave-location-link" title="لوكيشن القبر: ${person.cemetery_location}">
-                                                            <i class="fas fa-map-pin"></i>
+                                                        <a href="${locationUrl}" target="_blank" class="grave-location-link" title="موقع القبر على الخريطة: ${person.cemetery_location}">
+                                                            <i class="fas fa-map-marked-alt"></i>
                                                         </a>
                                                     `;
                                                 })() : ''}
