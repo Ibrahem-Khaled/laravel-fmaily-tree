@@ -1093,7 +1093,7 @@
                                                         : `https://${person.cemetery_location}`;
                                                     return `
                                                         <a href="${locationUrl}" target="_blank" class="grave-location-link" title="موقع القبر على الخريطة: ${person.cemetery_location}">
-                                                            <i class="fas fa-map-marked-alt"></i>
+                                                            <i class="fas fa-location-dot"></i>
                                                         </a>
                                                     `;
                                                 })() : ''}
