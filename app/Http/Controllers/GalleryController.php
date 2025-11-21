@@ -98,6 +98,37 @@ class GalleryController extends Controller
             $isFiltered = true;
         }
 
+        // فلترة حسب نوع الدرجة العلمية
+        if ($request->has('degree')) {
+            $degree = $request->degree;
+            $categoryIds = [];
+            
+            if ($degree === 'phd') {
+                $categoryIds = \App\Models\Category::where(function($query) {
+                    $query->where('name', 'like', '%دكتوراه%')
+                          ->orWhere('name', 'like', '%PhD%')
+                          ->orWhere('name', 'like', '%Ph.D%');
+                })->pluck('id');
+            } elseif ($degree === 'master') {
+                $categoryIds = \App\Models\Category::where(function($query) {
+                    $query->where('name', 'like', '%ماجستير%')
+                          ->orWhere('name', 'like', '%Master%');
+                })->pluck('id');
+            } elseif ($degree === 'bachelor') {
+                $categoryIds = \App\Models\Category::where(function($query) {
+                    $query->where('name', 'like', '%بكالوريوس%')
+                          ->orWhere('name', 'like', '%Bachelor%')
+                          ->orWhere('name', 'like', '%Bachelors%')
+                          ->orWhere('name', 'like', '%ليسانس%');
+                })->pluck('id');
+            }
+            
+            if (!empty($categoryIds)) {
+                $query->whereIn('category_id', $categoryIds);
+                $isFiltered = true;
+            }
+        }
+
         // البحث
         if ($request->has('search')) {
             $search = $request->search;
