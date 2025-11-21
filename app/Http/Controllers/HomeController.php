@@ -92,6 +92,28 @@ class HomeController extends Controller
                   ->orWhere('name', 'like', '%Ph.D%');
         })->pluck('id');
 
+        // حساب العدد الكلي لكل فئة (عدد الأشخاص المميزين)
+        $bachelorTotalCount = Article::whereIn('status', ['published', 'draft'])
+            ->whereNotNull('person_id')
+            ->whereIn('category_id', $bachelorCategoryIds)
+            ->select('person_id')
+            ->distinct()
+            ->count('person_id');
+
+        $masterTotalCount = Article::whereIn('status', ['published', 'draft'])
+            ->whereNotNull('person_id')
+            ->whereIn('category_id', $masterCategoryIds)
+            ->select('person_id')
+            ->distinct()
+            ->count('person_id');
+
+        $phdTotalCount = Article::whereIn('status', ['published', 'draft'])
+            ->whereNotNull('person_id')
+            ->whereIn('category_id', $phdCategoryIds)
+            ->select('person_id')
+            ->distinct()
+            ->count('person_id');
+
         // جلب آخر 10 خريجين من كل فئة
         $bachelorGraduates = Article::whereIn('status', ['published', 'draft'])
             ->whereNotNull('person_id')
@@ -142,6 +164,9 @@ class HomeController extends Controller
             'councils' => $councils,
             'birthdayPersons' => $birthdayPersons,
             'latestGraduates' => $latestGraduates,
+            'bachelorTotalCount' => $bachelorTotalCount,
+            'masterTotalCount' => $masterTotalCount,
+            'phdTotalCount' => $phdTotalCount,
         ]);
     }
 }

@@ -29,35 +29,111 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        .slide-container {
-            display: flex;
-            transition: transform 1s ease-in-out;
+        /* Hero Slideshow Swiper Styles */
+        .heroSwiper {
+            width: 100%;
+            height: 100%;
+        }
+
+        .heroSwiper .swiper-slide {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            opacity: 0 !important;
+        }
+
+        .heroSwiper .swiper-slide-active {
+            opacity: 1 !important;
+        }
+
+        .heroSwiper .swiper-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .heroSwiper .swiper-slide a {
+            display: block;
             width: 100%;
             height: 100%;
             position: relative;
-            -webkit-transform: translateZ(0);
-            transform: translateZ(0);
         }
 
-        .slide-item {
-            min-width: 100%;
-            flex-shrink: 0;
-            height: 100%;
-            position: relative;
+        .heroSwiper .swiper-button-next,
+        .heroSwiper .swiper-button-prev {
+            color: white;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            z-index: 20;
+            pointer-events: auto;
         }
 
-        .slide-item img {
-            display: block !important;
-            position: absolute !important;
-            top: 0 !important;
-            left: 0 !important;
-            width: 100% !important;
-            height: 100% !important;
-            min-height: 100% !important;
-            object-fit: cover !important;
-            -webkit-object-fit: cover !important;
-            -webkit-transform: translateZ(0);
-            transform: translateZ(0);
+        .heroSwiper .swiper-button-next:hover,
+        .heroSwiper .swiper-button-prev:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .heroSwiper .swiper-button-next::after,
+        .heroSwiper .swiper-button-prev::after {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .heroSwiper .swiper-button-next {
+            left: 10px;
+            right: auto;
+        }
+
+        .heroSwiper .swiper-button-prev {
+            right: 10px;
+            left: auto;
+        }
+
+        .heroSwiper .swiper-pagination {
+            z-index: 20;
+            pointer-events: auto;
+        }
+
+        .heroSwiper .swiper-pagination-bullet {
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 1;
+            width: 8px;
+            height: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .heroSwiper .swiper-pagination-bullet-active {
+            background: white;
+            width: 24px;
+            border-radius: 4px;
+        }
+
+        @media (max-width: 640px) {
+            .heroSwiper .swiper-button-next,
+            .heroSwiper .swiper-button-prev {
+                width: 32px;
+                height: 32px;
+            }
+
+            .heroSwiper .swiper-button-next::after,
+            .heroSwiper .swiper-button-prev::after {
+                font-size: 14px;
+            }
+
+            .heroSwiper .swiper-button-next {
+                left: 5px;
+            }
+
+            .heroSwiper .swiper-button-prev {
+                right: 5px;
+            }
         }
 
         .course-card {
@@ -340,57 +416,61 @@
     {{-- Hero Section with Slideshow --}}
     <section
         class="relative h-[180px] sm:h-[200px] md:h-[260px] lg:h-[340px] overflow-hidden gradient-bg mobile-section">
-        <div class="absolute inset-0 slide-container" id="slideContainer">
-            @if ($latestImages->count() > 0)
-                @foreach ($latestImages->take(10) as $index => $slideshowImage)
-                    <div class="slide-item h-full relative">
-                        @if ($slideshowImage->image_url)
-                            <img src="{{ $slideshowImage->image_url }}" alt="{{ $slideshowImage->title ?? 'صورة' }}"
-                                class="w-full h-full object-cover opacity-90"
-                                style="display: block; position: absolute; top: 0; left: 0; width: 100%; height: 100%; min-height: 100%;">
-                        @endif
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
-                        @if ($slideshowImage->title || $slideshowImage->description)
-                            <div class="absolute bottom-4 md:bottom-6 right-3 left-3 md:right-6 md:left-6">
-                                <div class="glass-effect rounded-lg p-2 md:p-3 lg:p-4 max-w-xl">
-                                    @if ($slideshowImage->title)
-                                        <h2 class="text-white text-sm md:text-base lg:text-lg font-bold">
-                                            {{ $slideshowImage->title }}</h2>
-                                    @endif
-                                    @if ($slideshowImage->description)
-                                        <p class="text-white/90 text-xs md:text-sm line-clamp-2">
-                                            {{ $slideshowImage->description }}</p>
-                                    @endif
-                                    @if ($slideshowImage->link)
-                                        <a href="{{ $slideshowImage->link }}" target="_blank"
-                                            class="inline-block mt-1 md:mt-2 text-white text-xs md:text-sm hover:underline">
-                                            <i class="fas fa-external-link-alt ml-1"></i>المزيد
-                                        </a>
-                                    @endif
-                                </div>
-                            </div>
-                        @endif
-                    </div>
-                @endforeach
-            @else
-                <div class="slide-item h-full flex items-center justify-center">
-                    <div class="text-center text-white px-4">
-                        <i class="fas fa-images text-4xl md:text-6xl mb-4 opacity-50"></i>
-                        <p class="text-base md:text-xl">لا توجد صور في السلايدشو حالياً</p>
-                    </div>
-                </div>
-            @endif
-        </div>
-
-        {{-- Navigation Dots --}}
         @if ($latestImages->count() > 0)
-            <div class="absolute bottom-3 md:bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 z-10">
-                @foreach ($latestImages->take(10) as $index => $slideshowImage)
-                    <button
-                        class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-white/50 hover:bg-white transition-all slide-dot {{ $index === 0 ? 'bg-white' : '' }}"
-                        onclick="goToSlide({{ $index }})"
-                        aria-label="انتقل للشريحة {{ $index + 1 }}"></button>
-                @endforeach
+            <!-- Swiper -->
+            <div class="swiper heroSwiper">
+                <div class="swiper-wrapper">
+                    @foreach ($latestImages->take(10) as $slideshowImage)
+                        <div class="swiper-slide">
+                            @if ($slideshowImage->link)
+                                <a href="{{ $slideshowImage->link }}" target="_blank" class="block relative w-full h-full cursor-pointer">
+                            @else
+                                <div class="relative w-full h-full">
+                            @endif
+                                @if ($slideshowImage->image_url)
+                                    <img src="{{ $slideshowImage->image_url }}" alt="{{ $slideshowImage->title ?? 'صورة' }}"
+                                        class="w-full h-full object-cover opacity-90">
+                                @endif
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+                                @if ($slideshowImage->title || $slideshowImage->description)
+                                    <div class="absolute bottom-4 md:bottom-6 right-3 left-3 md:right-6 md:left-6 z-10">
+                                        <div class="glass-effect rounded-lg p-2 md:p-3 lg:p-4 max-w-xl">
+                                            @if ($slideshowImage->title)
+                                                <h2 class="text-white text-sm md:text-base lg:text-lg font-bold">
+                                                    {{ $slideshowImage->title }}</h2>
+                                            @endif
+                                            @if ($slideshowImage->description)
+                                                <p class="text-white/90 text-xs md:text-sm line-clamp-2">
+                                                    {{ $slideshowImage->description }}</p>
+                                            @endif
+                                            @if ($slideshowImage->link)
+                                                <div class="inline-block mt-1 md:mt-2 text-white text-xs md:text-sm">
+                                                    <i class="fas fa-external-link-alt ml-1"></i>المزيد
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endif
+                            @if ($slideshowImage->link)
+                                </a>
+                            @else
+                                </div>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+                <!-- Navigation buttons -->
+                <div class="swiper-button-next hero-next"></div>
+                <div class="swiper-button-prev hero-prev"></div>
+                <!-- Pagination -->
+                <div class="swiper-pagination hero-pagination"></div>
+            </div>
+        @else
+            <div class="absolute inset-0 flex items-center justify-center">
+                <div class="text-center text-white px-4">
+                    <i class="fas fa-images text-4xl md:text-6xl mb-4 opacity-50"></i>
+                    <p class="text-base md:text-xl">لا توجد صور في السلايدشو حالياً</p>
+                </div>
             </div>
         @endif
     </section>
@@ -688,7 +768,7 @@
         $phdGraduates = $latestGraduates->where('degree_type', 'phd')->take(10);
     @endphp
 
-    @if ($bachelorGraduates->count() > 0 || $masterGraduates->count() > 0 || $phdGraduates->count() > 0)
+    @if ((isset($bachelorTotalCount) && $bachelorTotalCount > 0) || (isset($masterTotalCount) && $masterTotalCount > 0) || (isset($phdTotalCount) && $phdTotalCount > 0))
         <section
             class="py-2 md:py-6 lg:py-8 bg-gradient-to-br from-green-50 via-white to-emerald-50 mobile-section relative">
             <div class="absolute inset-0 opacity-5">
@@ -706,7 +786,7 @@
                 {{-- بطاقات الدرجات العلمية --}}
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
                     <!-- حملة الدكتوراه -->
-                    @if ($phdGraduates->count() > 0)
+                    @if (isset($phdTotalCount) && $phdTotalCount > 0)
                         <a href="{{ route('gallery.articles', ['degree' => 'phd']) }}"
                             class="relative overflow-hidden rounded-lg shadow-lg bg-gradient-to-br from-yellow-50 via-white to-yellow-100 flex flex-col items-center justify-center h-32 sm:h-40 md:h-48 lg:h-56 border-2 border-yellow-200 degree-card"
                             style="animation-delay: 0s;">
@@ -716,7 +796,7 @@
                                         حملة الدكتوراه
                                     </h3>
                                     <p class="text-xs md:text-sm text-yellow-600 mt-1">
-                                        {{ $phdGraduates->count() }} خريج
+                                        {{ $phdTotalCount }} خريج
                                     </p>
                                 </div>
                             </div>
@@ -724,7 +804,7 @@
                     @endif
 
                     <!-- حملة الماجستير -->
-                    @if ($masterGraduates->count() > 0)
+                    @if (isset($masterTotalCount) && $masterTotalCount > 0)
                         <a href="{{ route('gallery.articles', ['degree' => 'master']) }}"
                             class="relative overflow-hidden rounded-lg shadow-lg bg-gradient-to-br from-indigo-50 via-white to-indigo-100 flex flex-col items-center justify-center h-32 sm:h-40 md:h-48 lg:h-56 border-2 border-indigo-200 degree-card"
                             style="animation-delay: 0.2s;">
@@ -734,7 +814,7 @@
                                         حملة الماجستير
                                     </h3>
                                     <p class="text-xs md:text-sm text-indigo-600 mt-1">
-                                        {{ $masterGraduates->count() }} خريج
+                                        {{ $masterTotalCount }} خريج
                                     </p>
                                 </div>
                             </div>
@@ -742,7 +822,7 @@
                     @endif
 
                     <!-- حملة البكالوريوس -->
-                    @if ($bachelorGraduates->count() > 0)
+                    @if (isset($bachelorTotalCount) && $bachelorTotalCount > 0)
                         <a href="{{ route('gallery.articles', ['degree' => 'bachelor']) }}"
                             class="relative overflow-hidden rounded-lg shadow-lg bg-gradient-to-br from-green-50 via-white to-emerald-100 flex flex-col items-center justify-center h-32 sm:h-40 md:h-48 lg:h-56 border-2 border-green-200 degree-card"
                             style="animation-delay: 0.4s;">
@@ -752,7 +832,7 @@
                                         حملة البكالوريوس
                                     </h3>
                                     <p class="text-xs md:text-sm text-green-600 mt-1">
-                                        {{ $bachelorGraduates->count() }} خريج
+                                        {{ $bachelorTotalCount }} خريج
                                     </p>
                                 </div>
                             </div>
@@ -886,44 +966,63 @@
 
 
     <script>
-        // Enhanced slideshow functionality
-        let currentSlide = 0;
-        const slideContainer = document.getElementById('slideContainer');
-        const slides = slideContainer?.querySelectorAll('.slide-item') || [];
-        const dots = document.querySelectorAll('.slide-dot');
+        // Initialize Hero Slideshow Swiper
+        document.addEventListener('DOMContentLoaded', function() {
+            const totalSlides = {{ $latestImages->count() ?? 0 }};
+            if (totalSlides > 0) {
+                const heroSwiper = new Swiper('.heroSwiper', {
+                    slidesPerView: 1,
+                    spaceBetween: 0,
+                    loop: totalSlides > 1,
+                    autoplay: {
+                        delay: 5000,
+                        disableOnInteraction: false,
+                        pauseOnMouseEnter: true,
+                    },
+                    effect: 'fade',
+                    fadeEffect: {
+                        crossFade: true
+                    },
+                    speed: 1000,
+                    pagination: {
+                        el: '.hero-pagination',
+                        clickable: true,
+                        dynamicBullets: true,
+                    },
+                    navigation: {
+                        nextEl: '.hero-next',
+                        prevEl: '.hero-prev',
+                    },
+                    keyboard: {
+                        enabled: true,
+                    },
+                    grabCursor: true,
+                });
 
-        function goToSlide(index) {
-            if (slides.length === 0 || index < 0 || index >= slides.length) return;
+                // Prevent link click when clicking on navigation buttons or pagination
+                const nextBtn = document.querySelector('.hero-next');
+                const prevBtn = document.querySelector('.hero-prev');
+                const pagination = document.querySelector('.hero-pagination');
 
-            currentSlide = index;
-            const translateValue = -index * 100;
-
-            if (slideContainer) {
-                slideContainer.style.transform = `translateX(${translateValue}%)`;
-            }
-
-            // Update active dot
-            dots.forEach((dot, i) => {
-                if (i === index) {
-                    dot.classList.remove('bg-white/50');
-                    dot.classList.add('bg-white');
-                } else {
-                    dot.classList.remove('bg-white');
-                    dot.classList.add('bg-white/50');
+                if (nextBtn) {
+                    nextBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                    });
                 }
-            });
-        }
 
-        // Auto-advance slides every 5 seconds
-        if (slides.length > 0) {
-            setInterval(() => {
-                currentSlide = (currentSlide + 1) % slides.length;
-                goToSlide(currentSlide);
-            }, 5000);
+                if (prevBtn) {
+                    prevBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                    });
+                }
 
-            // Initialize first slide
-            goToSlide(0);
-        }
+                if (pagination) {
+                    pagination.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                    });
+                }
+            }
+        });
 
         // Toggle course description expand/collapse
         function toggleDescription(index) {
