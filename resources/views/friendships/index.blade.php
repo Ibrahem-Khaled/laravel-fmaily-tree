@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.rtl.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
@@ -151,6 +151,48 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
+
+        /* تأثيرات من articles.blade.php */
+        .friend-card {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .friend-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .friend-card:hover .person-photo-container {
+            transform: scale(1.05);
+        }
+
+        .person-photo-container {
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* تأثير التوهج الأخضر عند hover */
+        .green-glow-hover:hover {
+            box-shadow: 0 0 60px rgba(34, 197, 94, 0.5);
+        }
+
+        /* شريط التمرير المخصص */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f0fdf4;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #22c55e, #16a34a);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #16a34a, #15803d);
+        }
     </style>
 </head>
 
@@ -174,7 +216,7 @@
             <div class="inline-block mb-6 {{ $person->death_date ? 'is-deceased' : '' }}">
                 <div class="person-photo-container">
                     @if($person->photo_url)
-                        <img src="{{ $person->photo_url }}" alt="{{ $person->full_name }}" 
+                        <img src="{{ asset('storage/' . $person->photo_url) }}" alt="{{ $person->full_name }}"
                              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                         <div class="icon-placeholder" style="display:none;">
                             <i class="fas {{ $person->gender === 'female' ? 'fa-female' : 'fa-male' }}"></i>
@@ -203,9 +245,9 @@
             <!-- Friends Grid -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
                 @foreach($friendships as $friendship)
-                    <div class="friend-card glass-effect rounded-3xl overflow-hidden green-glow fade-in-up" 
+                    <div class="friend-card glass-effect rounded-3xl overflow-hidden green-glow-hover fade-in-up"
                          style="animation-delay: {{ $loop->index * 0.1 }}s;"
-                         onclick="showFriendshipDetails({{ $person->id }}, {{ $friendship->friend->id }}, {{ $friendship->id }})"
+                         onclick="showFriendshipDetails({{ $friendship->friend->id }}, {{ $friendship->id }})"
                          data-friendship-id="{{ $friendship->id }}">
                         <div class="p-6">
                             <!-- Friend Photo -->
@@ -213,8 +255,8 @@
                                 <div class="inline-block {{ $friendship->friend->death_date ? 'is-deceased' : '' }}">
                                     <div class="person-photo-container" style="width: 100px; height: 100px;">
                                         @if($friendship->friend->photo_url)
-                                            <img src="{{ $friendship->friend->photo_url }}" 
-                                                 alt="{{ $friendship->friend->full_name }}" 
+                                            <img src="{{ asset('storage/' . $friendship->friend->photo_url) }}"
+                                                 alt="{{ $friendship->friend->full_name }}"
                                                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                                             <div class="icon-placeholder" style="display:none; font-size: 2.5rem;">
                                                 <i class="fas {{ $friendship->friend->gender === 'female' ? 'fa-female' : 'fa-male' }}"></i>
@@ -234,22 +276,22 @@
                             </div>
 
                             <!-- Friend Name -->
-                            <h3 class="text-xl font-bold text-center mb-3 text-gray-800 line-clamp-2">
+                            <h3 class="text-xl font-bold text-center mb-3 text-gray-800 line-clamp-2 hover:text-green-600 transition-colors duration-300">
                                 {{ $friendship->friend->full_name }}
                             </h3>
 
                             <!-- Description Preview -->
                             @if($friendship->description)
-                                <p class="text-gray-600 text-sm mb-4 description-preview text-center">
+                                <p class="text-gray-600 text-sm mb-4 description-preview text-center leading-relaxed">
                                     {{ $friendship->description }}
                                 </p>
                             @endif
 
                             <!-- View Details Button -->
-                            <div class="text-center">
-                                <span class="inline-flex items-center gap-2 text-green-600 font-medium text-sm">
-                                    <i class="fas fa-eye"></i>
-                                    عرض التفاصيل
+                            <div class="text-center mt-4">
+                                <span class="inline-flex items-center gap-2 text-green-600 font-medium text-sm group">
+                                    <span>عرض التفاصيل</span>
+                                    <i class="fas fa-arrow-left transition-transform duration-300 group-hover:-translate-x-1"></i>
                                 </span>
                             </div>
                         </div>
@@ -278,39 +320,49 @@
         </div>
     </div>
 
-    <!-- Modal for Friendship Details -->
-    <div class="modal fade" id="friendshipDetailModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content glass-effect" style="border-radius: 20px; border: none;">
-                <div class="modal-header" style="background: linear-gradient(135deg, #145147 0%, #37a05c 100%); color: white; border-radius: 20px 20px 0 0;">
-                    <h5 class="modal-title">
-                        <i class="fas fa-heart me-2"></i>تفاصيل الصداقة
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body p-4" id="friendshipModalBody">
-                    <div class="text-center py-5">
-                        <div class="spinner-border text-success" role="status">
-                            <span class="visually-hidden">جاري التحميل...</span>
+        <!-- Modal for Friendship Details -->
+        <div class="modal fade" id="friendshipDetailModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content glass-effect" style="border-radius: 24px; border: none; overflow: hidden;">
+                    <div class="modal-header" style="background: linear-gradient(135deg, #145147 0%, #37a05c 100%); color: white; border-radius: 24px 24px 0 0; padding: 1.5rem;">
+                        <h5 class="modal-title d-flex align-items-center gap-2" style="font-size: 1.5rem; font-weight: bold;">
+                            <i class="fas fa-heart"></i>
+                            <span>تفاصيل الصداقة</span>
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" style="opacity: 0.9;"></button>
+                    </div>
+                    <div class="modal-body p-4 p-md-5" id="friendshipModalBody" style="background: linear-gradient(135deg, rgba(240, 253, 244, 0.5) 0%, rgba(255, 255, 255, 0.8) 100%);">
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-success" role="status" style="width: 3rem; height: 3rem;">
+                                <span class="visually-hidden">جاري التحميل...</span>
+                            </div>
+                            <p class="mt-3 text-muted">جاري تحميل التفاصيل...</p>
                         </div>
-                        <p class="mt-3 text-muted">جاري تحميل التفاصيل...</p>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Add stagger animation
+        // Add stagger animation with Intersection Observer (like articles.blade.php)
         document.addEventListener('DOMContentLoaded', function() {
             const cards = document.querySelectorAll('.friend-card');
-            cards.forEach((card, index) => {
-                card.style.opacity = '0';
-                setTimeout(() => {
-                    card.style.transition = 'opacity 0.5s ease-out';
-                    card.style.opacity = '1';
-                }, index * 100);
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry, index) => {
+                    if (entry.isIntersecting) {
+                        setTimeout(() => {
+                            entry.target.classList.add('visible');
+                        }, index * 100);
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, {
+                rootMargin: '0px 0px -100px 0px'
+            });
+
+            cards.forEach(card => {
+                observer.observe(card);
             });
         });
 
@@ -324,7 +376,7 @@
                     'first_name' => $f->friend->first_name,
                     'last_name' => $f->friend->last_name,
                     'gender' => $f->friend->gender,
-                    'photo_url' => $f->friend->photo_url,
+                    'photo_url' => $f->friend->photo_url ? asset('storage/' . $f->friend->photo_url) : null,
                     'birth_date' => $f->friend->birth_date ? $f->friend->birth_date->format('Y-m-d') : null,
                     'death_date' => $f->friend->death_date ? $f->friend->death_date->format('Y-m-d') : null,
                     'occupation' => $f->friend->occupation,
@@ -334,17 +386,7 @@
             ];
         })->values()) !!};
 
-        const personData = {
-            id: {{ $person->id }},
-            full_name: @json($person->full_name),
-            photo_url: @json($person->photo_url),
-            gender: @json($person->gender),
-            birth_date: @json($person->birth_date ? $person->birth_date->format('Y-m-d') : null),
-            death_date: @json($person->death_date ? $person->death_date->format('Y-m-d') : null),
-            occupation: @json($person->occupation),
-        };
-
-        function showFriendshipDetails(personId, friendId, friendshipId) {
+        function showFriendshipDetails(friendId, friendshipId) {
             const friendship = friendshipsData.find(f => f.id === friendshipId);
             if (!friendship) return;
 
@@ -354,7 +396,6 @@
 
             const friend = friendship.friend;
             const isDeceased = !!friend.death_date;
-            const personIsDeceased = !!personData.death_date;
 
             const createPhoto = (person, size = 'md') => {
                 const sizes = {
@@ -364,25 +405,25 @@
                 };
                 const currentSize = sizes[size] || sizes['md'];
                 const iconClass = person.gender === 'female' ? 'fa-female' : 'fa-male';
-                
+
                 const photoHtml = person.photo_url
-                    ? `<img src="${person.photo_url}" alt="${person.full_name}" 
+                    ? `<img src="${person.photo_url}" alt="${person.full_name}"
                          loading="lazy"
                          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
                          style="width: ${currentSize.container}; height: ${currentSize.container}; object-fit: cover; border-radius: 50%; border: 4px solid white; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);">`
                     : '';
-                
+
                 const iconHtml = `
                     <div style="display:${person.photo_url ? 'none' : 'flex'}; width: ${currentSize.container}; height: ${currentSize.container}; background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); border-radius: 50%; align-items: center; justify-content: center; border: 4px solid white; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);">
                         <i class="fas ${iconClass}" style="font-size: ${currentSize.icon}; color: #37a05c;"></i>
                     </div>`;
-                
+
                 const badgeHtml = person.death_date
                     ? `<span style="position: absolute; top: 8px; right: 8px; background: linear-gradient(135deg, #000, #2e2e2e); color: #fff; font-weight: 700; font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px; z-index: 3; box-shadow: 0 2px 8px rgba(0,0,0,.25);">
                             في ذمّة الله <i class="fa-solid fa-dove"></i>
                        </span>`
                     : '';
-                
+
                 return `
                     <div style="position: relative; display: inline-block; ${person.death_date ? 'filter: grayscale(0.3);' : ''}">
                         ${photoHtml}
@@ -392,50 +433,58 @@
             };
 
             modalBody.innerHTML = `
-                <div class="row g-4">
-                    <!-- الشخص الأول -->
-                    <div class="col-md-6">
-                        <div class="text-center p-4 rounded-3xl ${personIsDeceased ? 'is-deceased' : ''}" style="background: rgba(255, 255, 255, 0.5); border-radius: 20px;">
-                            ${createPhoto(personData, 'lg')}
-                            <h3 class="mt-4 mb-2 font-bold text-xl" style="font-family: 'Amiri', serif;">${personData.full_name}</h3>
-                            ${personData.birth_date ? `<p class="text-muted text-sm mb-1"><i class="fas fa-birthday-cake me-1"></i>${personData.birth_date}</p>` : ''}
-                            ${personData.occupation ? `<p class="text-muted text-sm"><i class="fas fa-briefcase me-1"></i>${personData.occupation}</p>` : ''}
-                        </div>
-                    </div>
-
-                    <!-- الصديق -->
-                    <div class="col-md-6">
-                        <div class="text-center p-4 rounded-3xl ${isDeceased ? 'is-deceased' : ''}" style="background: rgba(255, 255, 255, 0.5); border-radius: 20px;">
+                <!-- الصديق فقط -->
+                <div class="row justify-content-center">
+                    <div class="col-md-8 col-lg-6">
+                        <div class="text-center p-5 rounded-3xl ${isDeceased ? 'is-deceased' : ''}" style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(220, 252, 231, 0.5) 100%); border-radius: 24px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);">
                             ${createPhoto(friend, 'lg')}
-                            <h3 class="mt-4 mb-2 font-bold text-xl" style="font-family: 'Amiri', serif;">${friend.full_name}</h3>
-                            ${friend.birth_date ? `<p class="text-muted text-sm mb-1"><i class="fas fa-birthday-cake me-1"></i>${friend.birth_date}</p>` : ''}
-                            ${friend.occupation ? `<p class="text-muted text-sm"><i class="fas fa-briefcase me-1"></i>${friend.occupation}</p>` : ''}
+                            <h3 class="mt-5 mb-3 font-bold text-2xl gradient-text" style="font-family: 'Amiri', serif;">${friend.full_name}</h3>
+                            ${friend.birth_date ? `
+                                <div class="mb-2">
+                                    <span class="inline-flex items-center gap-2 px-4 py-2 bg-white/70 rounded-full text-sm text-gray-700">
+                                        <i class="fas fa-birthday-cake text-green-600"></i>
+                                        ${friend.birth_date}
+                                    </span>
+                                </div>
+                            ` : ''}
+                            ${friend.occupation ? `
+                                <div class="mb-3">
+                                    <span class="inline-flex items-center gap-2 px-4 py-2 bg-white/70 rounded-full text-sm text-gray-700">
+                                        <i class="fas fa-briefcase text-green-600"></i>
+                                        ${friend.occupation}
+                                    </span>
+                                </div>
+                            ` : ''}
                         </div>
                     </div>
                 </div>
 
                 ${friendship.description ? `
-                    <div class="mt-4 p-4 rounded-2xl" style="background: rgba(220, 252, 231, 0.5); border-right: 4px solid #37a05c; border-radius: 16px;">
-                        <h5 class="mb-3 font-bold">
-                            <i class="fas fa-info-circle me-2 text-green-600"></i>نبذة عن الصداقة
+                    <div class="mt-5 p-5 rounded-2xl" style="background: linear-gradient(135deg, rgba(220, 252, 231, 0.6) 0%, rgba(187, 247, 208, 0.4) 100%); border-right: 4px solid #37a05c; border-radius: 20px; box-shadow: 0 4px 20px rgba(55, 160, 92, 0.15);">
+                        <h5 class="mb-4 font-bold text-lg flex items-center gap-2">
+                            <i class="fas fa-info-circle text-green-600"></i>
+                            <span>نبذة عن الصداقة</span>
                         </h5>
-                        <p class="mb-0" style="line-height: 1.8;">${friendship.description}</p>
+                        <p class="mb-0 text-gray-700" style="line-height: 2; font-size: 1.05rem;">${friendship.description}</p>
                     </div>
                 ` : ''}
 
                 ${friendship.friendship_story ? `
-                    <div class="mt-4 p-4 rounded-2xl" style="background: rgba(248, 249, 250, 0.8); border-right: 4px solid #145147; border-radius: 16px;">
-                        <h5 class="mb-3 font-bold">
-                            <i class="fas fa-book-open me-2" style="color: #145147;"></i>قصة الصداقة
+                    <div class="mt-4 p-5 rounded-2xl" style="background: linear-gradient(135deg, rgba(248, 249, 250, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%); border-right: 4px solid #145147; border-radius: 20px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);">
+                        <h5 class="mb-4 font-bold text-lg flex items-center gap-2">
+                            <i class="fas fa-book-open" style="color: #145147;"></i>
+                            <span>قصة الصداقة</span>
                         </h5>
-                        <div class="mb-0" style="line-height: 1.8; white-space: pre-wrap;">${friendship.friendship_story}</div>
+                        <div class="mb-0 text-gray-700" style="line-height: 2; white-space: pre-wrap; font-size: 1.05rem;">${friendship.friendship_story}</div>
                     </div>
                 ` : ''}
 
                 ${!friendship.description && !friendship.friendship_story ? `
-                    <div class="text-center py-5 text-muted">
-                        <i class="fas fa-info-circle fa-3x mb-3 opacity-50"></i>
-                        <p>لا توجد معلومات إضافية عن هذه الصداقة</p>
+                    <div class="text-center py-8 text-muted">
+                        <div class="inline-block p-4 bg-green-50 rounded-full mb-4">
+                            <i class="fas fa-info-circle fa-3x text-green-400 opacity-50"></i>
+                        </div>
+                        <p class="text-lg">لا توجد معلومات إضافية عن هذه الصداقة</p>
                     </div>
                 ` : ''}
             `;

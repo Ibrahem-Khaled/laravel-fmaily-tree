@@ -184,23 +184,26 @@
                 <!-- الأرقام -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
                     <!-- إجمالي -->
-                    <div class="text-center p-4 md:p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-xl">
+                    <div class="text-center p-4 md:p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-xl sm:col-span-1 col-span-full">
                         <div class="text-4xl md:text-5xl font-bold gradient-text mb-2">{{ number_format($totalFamilyMembers) }}</div>
                         <div class="text-xs md:text-sm font-medium text-gray-600">إجمالي الأبناء</div>
                     </div>
 
-                    <!-- الذكور -->
-                    <div class="text-center p-4 md:p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl">
-                        <div class="text-4xl md:text-5xl font-bold text-blue-600 mb-2">{{ number_format($maleCount) }}</div>
-                        <div class="text-xs md:text-sm font-medium text-gray-600">ذكور</div>
-                        <div class="text-xs text-gray-500 mt-1">{{ $totalFamilyMembers > 0 ? number_format(($maleCount / $totalFamilyMembers) * 100, 1) : 0 }}%</div>
-                    </div>
+                    <!-- الذكور والإناث -->
+                    <div class="grid grid-cols-2 gap-4 sm:col-span-2 col-span-full">
+                        <!-- الذكور -->
+                        <div class="text-center p-4 md:p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl">
+                            <div class="text-4xl md:text-5xl font-bold text-blue-600 mb-2">{{ number_format($maleCount) }}</div>
+                            <div class="text-xs md:text-sm font-medium text-gray-600">ذكور</div>
+                            <div class="text-xs text-gray-500 mt-1">{{ $totalFamilyMembers > 0 ? number_format(($maleCount / $totalFamilyMembers) * 100, 1) : 0 }}%</div>
+                        </div>
 
-                    <!-- الإناث -->
-                    <div class="text-center p-4 md:p-6 bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl">
-                        <div class="text-4xl md:text-5xl font-bold text-pink-600 mb-2">{{ number_format($femaleCount) }}</div>
-                        <div class="text-xs md:text-sm font-medium text-gray-600">إناث</div>
-                        <div class="text-xs text-gray-500 mt-1">{{ $totalFamilyMembers > 0 ? number_format(($femaleCount / $totalFamilyMembers) * 100, 1) : 0 }}%</div>
+                        <!-- الإناث -->
+                        <div class="text-center p-4 md:p-6 bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl">
+                            <div class="text-4xl md:text-5xl font-bold text-pink-600 mb-2">{{ number_format($femaleCount) }}</div>
+                            <div class="text-xs md:text-sm font-medium text-gray-600">إناث</div>
+                            <div class="text-xs text-gray-500 mt-1">{{ $totalFamilyMembers > 0 ? number_format(($femaleCount / $totalFamilyMembers) * 100, 1) : 0 }}%</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -417,15 +420,17 @@
                     <div class="bg-white/50 rounded-xl p-4 hover:bg-white/70 transition-all duration-300 hover:shadow-lg cursor-pointer"
                          onclick="showPersonsByName('{{ $nameData['name'] }}')">
                         <div class="flex items-center justify-between mb-2">
-                            <div class="w-8 h-8 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-                                {{ $index + 1 }}
+                            <div class="flex items-center gap-2 flex-1">
+                                <div class="w-8 h-8 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                                    {{ $index + 1 }}
+                                </div>
+                                <div class="font-bold text-gray-800 text-lg md:text-xl text-right hover:text-green-600 transition">
+                                    {{ $nameData['name'] }}
+                                </div>
                             </div>
                             <div class="text-2xl md:text-3xl font-bold text-green-600">
                                 {{ $nameData['count'] }}
                             </div>
-                        </div>
-                        <div class="font-bold text-gray-800 text-lg md:text-xl text-right mt-2 hover:text-green-600 transition">
-                            {{ $nameData['name'] }}
                         </div>
                     </div>
                 @empty
@@ -455,7 +460,7 @@
                             <th class="text-center py-3 px-3 md:px-4 font-bold text-gray-800 text-sm md:text-base">إجمالي الأحفاد</th>
                             <th class="text-center py-3 px-3 md:px-4 font-bold text-blue-600 text-sm md:text-base">ذكور</th>
                             <th class="text-center py-3 px-3 md:px-4 font-bold text-pink-600 text-sm md:text-base">إناث</th>
-                            <th class="text-center py-3 px-3 md:px-4 font-bold text-purple-600 text-sm md:text-base">إجمالي الأنساب</th>
+                            {{-- <th class="text-center py-3 px-3 md:px-4 font-bold text-purple-600 text-sm md:text-base">إجمالي الأنساب</th> --}}
                         </tr>
                     </thead>
                     <tbody>
@@ -486,16 +491,16 @@
                                         {{ $stat['female_descendants'] }}
                                     </span>
                                 </td>
-                                <td class="py-3 px-3 md:px-4 text-center">
+                                {{-- <td class="py-3 px-3 md:px-4 text-center">
                                     <span class="inline-block px-2 md:px-3 py-1 bg-purple-100 text-purple-700 rounded-full font-bold text-xs md:text-sm">
                                         <i class="fas fa-heart mr-1"></i>{{ number_format($stat['total_relatives'] ?? 0) }}
                                     </span>
-                                </td>
+                                </td> --}}
                             </tr>
 
                             <!-- صف التفاصيل (مخفى افتراضيًا) -->
                             <tr class="generations-detail-{{ $index }} hidden">
-                                <td colspan="5" class="py-4 px-4 bg-gray-50">
+                                <td colspan="4" class="py-4 px-4 bg-gray-50">
                                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                         @php
                                             $generationLabels = [
