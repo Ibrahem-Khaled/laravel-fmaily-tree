@@ -330,40 +330,43 @@
                         </div>
                     </div> --}}
 
-                    {{-- Dropdown للسنوات --}}
-                    @if(isset($availableYears) && count($availableYears) > 0)
-                    <div class="flex-shrink-0">
-                        <select id="yearFilter" onchange="filterByYear(this.value)"
-                            class="w-full lg:w-auto px-4 lg:px-6 py-3 lg:py-4 bg-white/70 border-2 border-green-200 rounded-2xl
-                                   text-sm lg:text-base focus:ring-4 focus:ring-green-300 focus:border-green-500
-                                   transition-all duration-300 hover:border-green-400 cursor-pointer">
-                            @foreach($availableYears as $year)
-                                <option value="{{ $year }}" {{ $selectedYear == $year ? 'selected' : '' }}>
-                                    {{ $year }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    @endif
-
-                    <div class="flex gap-2 lg:gap-3">
-                        <div class="flex bg-white/70 rounded-xl p-1">
-                            <button onclick="setViewMode('grid')" id="gridViewBtn"
-                                class="p-2 lg:p-3 rounded-lg transition-all duration-300 active-filter">
-                                <svg class="w-5 lg:w-6 h-5 lg:h-6" fill="currentColor" viewBox="0 0 20 20">
-                                    <path
-                                        d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM13 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2h-2z" />
-                                </svg>
-                            </button>
-                            <button onclick="setViewMode('list')" id="listViewBtn"
-                                class="p-2 lg:p-3 rounded-lg transition-all duration-300 hover:bg-gray-100">
-                                <svg class="w-5 lg:w-6 h-5 lg:h-6" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd"
-                                        d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                                        clip-rule="evenodd" />
-                                </svg>
-                            </button>
+                    {{-- Dropdown للسنوات وأزرار العرض جنب بعض --}}
+                    <div class="flex flex-row gap-2 lg:gap-4 items-center">
+                        @if(isset($availableYears) && count($availableYears) > 0)
+                        <div class="flex-shrink-0 flex-1 lg:flex-none">
+                            <select id="yearFilter" onchange="filterByYear(this.value)"
+                                class="w-full lg:w-auto px-4 lg:px-6 py-3 lg:py-4 bg-white/70 border-2 border-green-200 rounded-2xl
+                                       text-sm lg:text-base focus:ring-4 focus:ring-green-300 focus:border-green-500
+                                       transition-all duration-300 hover:border-green-400 cursor-pointer">
+                                @foreach($availableYears as $year)
+                                    <option value="{{ $year }}" {{ $selectedYear == $year ? 'selected' : '' }}>
+                                        {{ $year }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
+                        @endif
+
+                        <div class="flex gap-2 lg:gap-3">
+                            <div class="flex bg-white/70 rounded-xl p-1">
+                                <button onclick="setViewMode('grid')" id="gridViewBtn"
+                                    class="p-2 lg:p-3 rounded-lg transition-all duration-300 active-filter">
+                                    <svg class="w-5 lg:w-6 h-5 lg:h-6" fill="currentColor" viewBox="0 0 20 20">
+                                        <path
+                                            d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM13 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2h-2z" />
+                                    </svg>
+                                </button>
+                                <button onclick="setViewMode('list')" id="listViewBtn"
+                                    class="p-2 lg:p-3 rounded-lg transition-all duration-300 hover:bg-gray-100">
+                                    <svg class="w-5 lg:w-6 h-5 lg:h-6" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd"
+                                            d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
 
                         {{-- <button onclick="toggleFilter()"
                             class="lg:hidden px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white
