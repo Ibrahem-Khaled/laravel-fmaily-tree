@@ -315,7 +315,7 @@
         <div class="mb-8">
             <div class="glass-effect p-4 lg:p-6 rounded-3xl green-glow">
                 <div class="flex flex-col lg:flex-row gap-4">
-                    <div class="flex-1">
+                    {{-- <div class="flex-1">
                         <div class="search-bar relative">
                             <input type="text" id="searchInput" placeholder="ابحث عن مقال..."
                                 class="w-full px-4 lg:px-6 py-3 lg:py-4 pr-12 lg:pr-14 bg-white/70 border-2 border-green-200 rounded-2xl
@@ -328,7 +328,7 @@
                                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                             </svg>
                         </div>
-                    </div>
+                    </div> --}}
 
                     {{-- Dropdown للسنوات --}}
                     @if(isset($availableYears) && count($availableYears) > 0)
@@ -656,7 +656,7 @@
             const articlesContainer = document.getElementById('articlesContainer');
             const gridViewBtn = document.getElementById('gridViewBtn');
             const listViewBtn = document.getElementById('listViewBtn');
-            const searchInput = document.getElementById('searchInput');
+            // const searchInput = document.getElementById('searchInput');
             const filterPanel = document.getElementById('filterPanel');
             const slidePanel = filterPanel.querySelector('.slide-panel');
             const filterChips = document.querySelectorAll('.filter-chip');
@@ -687,26 +687,26 @@
             };
 
             // 3. البحث (بناء رابط وإعادة توجيه)
-            searchInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    const searchVal = e.target.value.trim();
-                    const url = new URL(window.location.href);
-                    if (searchVal) {
-                        url.searchParams.set('search', searchVal);
-                    } else {
-                        url.searchParams.delete('search');
-                    }
-                    // الحفاظ على السنة والفئة الحالية
-                    const currentUrlParams = new URLSearchParams(window.location.search);
-                    if (currentUrlParams.has('year')) {
-                        url.searchParams.set('year', currentUrlParams.get('year'));
-                    }
-                    if (currentUrlParams.has('category')) {
-                        url.searchParams.set('category', currentUrlParams.get('category'));
-                    }
-                    window.location.href = url.toString();
-                }
-            });
+            // searchInput.addEventListener('keypress', function(e) {
+            //     if (e.key === 'Enter') {
+            //         const searchVal = e.target.value.trim();
+            //         const url = new URL(window.location.href);
+            //         if (searchVal) {
+            //             url.searchParams.set('search', searchVal);
+            //         } else {
+            //             url.searchParams.delete('search');
+            //         }
+            //         // الحفاظ على السنة والفئة الحالية
+            //         const currentUrlParams = new URLSearchParams(window.location.search);
+            //         if (currentUrlParams.has('year')) {
+            //             url.searchParams.set('year', currentUrlParams.get('year'));
+            //         }
+            //         if (currentUrlParams.has('category')) {
+            //             url.searchParams.set('category', currentUrlParams.get('category'));
+            //         }
+            //         window.location.href = url.toString();
+            //     }
+            // });
 
             // 4. الفلاتر السريِّع ة (بناء رابط وإعادة توجيه)
             window.filterByCategory = function(categoryId) {
