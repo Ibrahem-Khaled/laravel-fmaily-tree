@@ -92,13 +92,18 @@
                                     <td>
                                         <div class="d-flex align-items-center">
                                             @if($friendship->person->photo_url)
-                                                <img src="{{ $friendship->person->photo_url }}" 
+                                                <img src="{{ asset('storage/' . $friendship->person->photo_url) }}" 
                                                      alt="{{ $friendship->person->first_name }}" 
-                                                     class="rounded-circle mr-2" width="40" height="40">
+                                                     class="rounded-circle mr-2" width="40" height="40"
+                                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                                <div class="rounded-circle mr-2 bg-light d-flex align-items-center justify-content-center" 
+                                                     style="width: 40px; height: 40px; display: none;">
+                                                    <i class="fas {{ $friendship->person->gender === 'female' ? 'fa-female' : 'fa-male' }} text-muted"></i>
+                                                </div>
                                             @else
                                                 <div class="rounded-circle mr-2 bg-light d-flex align-items-center justify-content-center" 
                                                      style="width: 40px; height: 40px;">
-                                                    <i class="fas fa-user text-muted"></i>
+                                                    <i class="fas {{ $friendship->person->gender === 'female' ? 'fa-female' : 'fa-male' }} text-muted"></i>
                                                 </div>
                                             @endif
                                             <div>
@@ -109,13 +114,18 @@
                                     <td>
                                         <div class="d-flex align-items-center">
                                             @if($friendship->friend->photo_url)
-                                                <img src="{{ $friendship->friend->photo_url }}" 
+                                                <img src="{{ asset('storage/' . $friendship->friend->photo_url) }}" 
                                                      alt="{{ $friendship->friend->first_name }}" 
-                                                     class="rounded-circle mr-2" width="40" height="40">
+                                                     class="rounded-circle mr-2" width="40" height="40"
+                                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                                <div class="rounded-circle mr-2 bg-light d-flex align-items-center justify-content-center" 
+                                                     style="width: 40px; height: 40px; display: none;">
+                                                    <i class="fas {{ $friendship->friend->gender === 'female' ? 'fa-female' : 'fa-male' }} text-muted"></i>
+                                                </div>
                                             @else
                                                 <div class="rounded-circle mr-2 bg-light d-flex align-items-center justify-content-center" 
                                                      style="width: 40px; height: 40px;">
-                                                    <i class="fas fa-user text-muted"></i>
+                                                    <i class="fas {{ $friendship->friend->gender === 'female' ? 'fa-female' : 'fa-male' }} text-muted"></i>
                                                 </div>
                                             @endif
                                             <div>
