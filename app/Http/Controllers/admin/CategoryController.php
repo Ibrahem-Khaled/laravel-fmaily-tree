@@ -103,7 +103,7 @@ class CategoryController extends Controller
         $stats = [
             'total' => Category::count(),
             'parents' => Category::parents()->count(),
-            'children' => Category::children()->count(),
+            'children' => Category::whereNotNull('parent_id')->count(),
             'has_articles' => Category::hasArticles()->count(),
             'no_articles' => Category::noArticles()->count(),
             'has_images' => Category::hasImages()->count(),
