@@ -33,8 +33,39 @@
                 </div>
             </div>
             <div class="card-body">
+                {{-- فلترة حسب العلاقات --}}
+                <div class="mb-3">
+                    <div class="btn-group" role="group">
+                        <a href="{{ route('categories.index', array_merge(request()->except(['filter', 'page']), ['filter' => 'all'])) }}"
+                           class="btn btn-sm {{ $filter == 'all' ? 'btn-primary' : 'btn-outline-primary' }}">
+                            الكل ({{ $stats['total'] }})
+                        </a>
+                        <a href="{{ route('categories.index', array_merge(request()->except(['filter', 'page']), ['filter' => 'has_articles'])) }}"
+                           class="btn btn-sm {{ $filter == 'has_articles' ? 'btn-success' : 'btn-outline-success' }}">
+                            <i class="fas fa-file-alt"></i> بها مقالات ({{ $stats['has_articles'] }})
+                        </a>
+                        <a href="{{ route('categories.index', array_merge(request()->except(['filter', 'page']), ['filter' => 'has_images'])) }}"
+                           class="btn btn-sm {{ $filter == 'has_images' ? 'btn-info' : 'btn-outline-info' }}">
+                            <i class="fas fa-image"></i> بها صور ({{ $stats['has_images'] }})
+                        </a>
+                        <a href="{{ route('categories.index', array_merge(request()->except(['filter', 'page']), ['filter' => 'has_children'])) }}"
+                           class="btn btn-sm {{ $filter == 'has_children' ? 'btn-warning' : 'btn-outline-warning' }}">
+                            <i class="fas fa-folder"></i> بها فئات فرعية ({{ $stats['has_children'] }})
+                        </a>
+                        <a href="{{ route('categories.index', array_merge(request()->except(['filter', 'page']), ['filter' => 'active'])) }}"
+                           class="btn btn-sm {{ $filter == 'active' ? 'btn-success' : 'btn-outline-success' }}">
+                            <i class="fas fa-check-circle"></i> مفعلة ({{ $stats['active'] }})
+                        </a>
+                        <a href="{{ route('categories.index', array_merge(request()->except(['filter', 'page']), ['filter' => 'inactive'])) }}"
+                           class="btn btn-sm {{ $filter == 'inactive' ? 'btn-secondary' : 'btn-outline-secondary' }}">
+                            <i class="fas fa-times-circle"></i> غير مفعلة ({{ $stats['inactive'] }})
+                        </a>
+                    </div>
+                </div>
+
                 {{-- نموذج البحث --}}
                 <form action="{{ route('categories.index') }}" method="GET" class="mb-4">
+                    <input type="hidden" name="filter" value="{{ $filter }}">
                     <div class="input-group">
                         <input type="text" name="search" class="form-control" placeholder="ابحث بالاسم أو الوصف..."
                             value="{{ request('search') }}">
@@ -48,21 +79,26 @@
 
                 {{-- جدول الأصناف --}}
                 <div class="table-responsive">
-                    <table class="table table-bordered table-hover" width="100%" cellspacing="0">
+                    <table class="table table-bordered table-hover" width="100%" cellspacing="0" id="categoriesTable">
                         <thead class="thead-light">
                             <tr>
+                                <th width="30"><i class="fas fa-grip-vertical text-muted"></i></th>
                                 <th>الاسم</th>
                                 <th>الصنف الأب</th>
                                 <th>عدد المقالات</th>
                                 <th>عدد الصور</th>
                                 <th>عدد الأصناف الفرعية</th>
                                 <th>ترتيب الفرز</th>
+                                <th>الحالة</th>
                                 <th>الإجراءات</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="sortable">
                             @forelse($categories as $category)
-                                <tr>
+                                <tr data-id="{{ $category->id }}" data-order="{{ $category->sort_order }}" class="{{ !$category->is_active ? 'table-secondary' : '' }}">
+                                    <td class="sortable-handle" style="cursor: move;">
+                                        <i class="fas fa-grip-vertical text-muted"></i>
+                                    </td>
                                     <td>
                                         <div class="d-flex align-items-center">
                                             <img src="{{ $category->image ? asset('storage/' . $category->image) : asset('img/default-category.png') }}"
@@ -101,6 +137,15 @@
                                     <td><span class="badge badge-primary"
                                             style="font-size: 1rem;">{{ $category->sort_order }}</span></td>
                                     <td>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input toggle-active" 
+                                                   id="toggle-{{ $category->id }}" 
+                                                   data-id="{{ $category->id }}"
+                                                   {{ $category->is_active ? 'checked' : '' }}>
+                                            <label class="custom-control-label" for="toggle-{{ $category->id }}"></label>
+                                        </div>
+                                    </td>
+                                    <td>
                                         <button type="button" class="btn btn-sm btn-circle btn-info" data-toggle="modal"
                                             data-target="#showCategoryModal{{ $category->id }}" title="عرض">
                                             <i class="fas fa-eye"></i>
@@ -126,7 +171,7 @@
 
                             @empty
                                 <tr>
-                                    <td colspan="7" class="text-center">لا توجد أصناف لعرضها.</td>
+                                    <td colspan="9" class="text-center">لا توجد أصناف لعرضها.</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -145,7 +190,25 @@
     {{-- @include('dashboard.categories.modals.create', ['allCategories' => $allCategories]) --}}
 @endsection
 
+@push('styles')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.css">
+    <style>
+        .sortable-handle {
+            cursor: move;
+            user-select: none;
+        }
+        .sortable-ghost {
+            opacity: 0.4;
+            background: #f0f0f0;
+        }
+        .sortable-drag {
+            opacity: 0.8;
+        }
+    </style>
+@endpush
+
 @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <script>
         // عرض اسم الملف المختار في حقول رفع الصور
         $('.custom-file-input').on('change', function() {
@@ -189,6 +252,76 @@
                     }
                     alert(errorMsg);
                     btn.prop('disabled', false).html('<i class="fas fa-trash"></i> حذف الأصناف بدون علاقات');
+                }
+            });
+        });
+
+        // Drag and Drop لإعادة الترتيب
+        var sortable = Sortable.create(document.getElementById('sortable'), {
+            handle: '.sortable-handle',
+            animation: 150,
+            ghostClass: 'sortable-ghost',
+            dragClass: 'sortable-drag',
+            onEnd: function(evt) {
+                var items = [];
+                $('#sortable tr').each(function(index) {
+                    items.push({
+                        id: $(this).data('id'),
+                        sort_order: index
+                    });
+                });
+
+                $.ajax({
+                    url: '{{ route("categories.update-order") }}',
+                    method: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        items: items
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // تحديث أرقام الترتيب في الجدول
+                            $('#sortable tr').each(function(index) {
+                                $(this).find('.badge-primary').text(index);
+                            });
+                        }
+                    },
+                    error: function(xhr) {
+                        alert('حدث خطأ أثناء تحديث الترتيب');
+                        location.reload();
+                    }
+                });
+            }
+        });
+
+        // Toggle Active/Inactive
+        $('.toggle-active').on('change', function() {
+            var checkbox = $(this);
+            var categoryId = checkbox.data('id');
+            var isChecked = checkbox.is(':checked');
+
+            $.ajax({
+                url: '{{ url("/dashboard/categories") }}/' + categoryId + '/toggle-active',
+                method: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        var row = checkbox.closest('tr');
+                        if (response.is_active) {
+                            row.removeClass('table-secondary');
+                        } else {
+                            row.addClass('table-secondary');
+                        }
+                    } else {
+                        checkbox.prop('checked', !isChecked);
+                        alert('حدث خطأ أثناء تحديث الحالة');
+                    }
+                },
+                error: function(xhr) {
+                    checkbox.prop('checked', !isChecked);
+                    alert('حدث خطأ أثناء تحديث الحالة');
                 }
             });
         });

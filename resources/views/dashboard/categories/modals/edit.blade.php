@@ -39,6 +39,12 @@
                         </div>
                     </div>
                     <div class="form-group">
+                        <div class="custom-control custom-switch">
+                            <input type="checkbox" class="custom-control-input" id="is_active-{{ $category->id }}" name="is_active" value="1" {{ $category->is_active ? 'checked' : '' }}>
+                            <label class="custom-control-label" for="is_active-{{ $category->id }}">مفعل</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <label>الصورة الحالية:</label>
                         <img src="{{ $category->image ? asset('storage/' . $category->image) : asset('img/default-category.png') }}" alt="{{ $category->name }}" class="img-thumbnail" width="100">
                     </div>

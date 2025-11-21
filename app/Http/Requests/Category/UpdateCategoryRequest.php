@@ -28,6 +28,7 @@ class UpdateCategoryRequest extends FormRequest
             'parent_id' => ['nullable', 'integer', 'exists:categories,id', Rule::notIn([$id])],
             'sort_order' => ['nullable', 'integer', 'min:0'],
             'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp,avif', 'max:2048'],
+            'is_active' => ['nullable', 'boolean'],
         ];
     }
 }

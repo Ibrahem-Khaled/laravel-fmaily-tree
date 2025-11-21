@@ -63,11 +63,23 @@ class CategoryController extends Controller
             case 'no_images':
                 $query->noImages();
                 break;
+            case 'has_children':
+                $query->whereHas('children');
+                break;
+            case 'no_children':
+                $query->whereDoesntHave('children');
+                break;
             case 'parents':
                 $query->parents();
                 break;
             case 'children':
                 $query->children();
+                break;
+            case 'active':
+                $query->active();
+                break;
+            case 'inactive':
+                $query->inactive();
                 break;
             case 'all':
             default:
@@ -81,7 +93,7 @@ class CategoryController extends Controller
 
 
         // ترتيب افتراضي
-        $query->orderByDesc('sort_order')->orderBy('name');
+        $query->orderBy('sort_order')->orderBy('name');
 
 
         $categories = $query->paginate($perPage)->appends($request->query());
@@ -91,11 +103,15 @@ class CategoryController extends Controller
         $stats = [
             'total' => Category::count(),
             'parents' => Category::parents()->count(),
-            'children' => 0,
+            'children' => Category::children()->count(),
             'has_articles' => Category::hasArticles()->count(),
             'no_articles' => Category::noArticles()->count(),
             'has_images' => Category::hasImages()->count(),
             'no_images' => Category::noImages()->count(),
+            'has_children' => Category::whereHas('children')->count(),
+            'no_children' => Category::whereDoesntHave('children')->count(),
+            'active' => Category::active()->count(),
+            'inactive' => Category::inactive()->count(),
         ];
 
 
@@ -177,6 +193,35 @@ class CategoryController extends Controller
             'message' => $deletedCount > 0 
                 ? "تم حذف {$deletedCount} صنف بدون علاقات بنجاح." 
                 : "لا توجد أصناف بدون علاقات للحذف."
+        ]);
+    }
+
+    public function toggleActive(Category $category)
+    {
+        $category->update(['is_active' => !$category->is_active]);
+        
+        return response()->json([
+            'success' => true,
+            'is_active' => $category->is_active,
+            'message' => $category->is_active ? 'تم تفعيل الفئة بنجاح' : 'تم إلغاء تفعيل الفئة بنجاح'
+        ]);
+    }
+
+    public function updateOrder(Request $request)
+    {
+        $request->validate([
+            'items' => 'required|array',
+            'items.*.id' => 'required|exists:categories,id',
+            'items.*.sort_order' => 'required|integer',
+        ]);
+
+        foreach ($request->items as $item) {
+            Category::where('id', $item['id'])->update(['sort_order' => $item['sort_order']]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'تم تحديث الترتيب بنجاح'
         ]);
     }
 }

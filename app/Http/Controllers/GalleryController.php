@@ -18,6 +18,7 @@ class GalleryController extends Controller
         // 1. جلب الفئات الرئيسية لعرضها كمجلدات مع أول 4 صور للمعاينة
         $categoriesForView = Category::whereHas('images')
             ->whereNull('parent_id')
+            ->where('is_active', true)
             ->with(['images' => function ($query) {
                 $query->select('id', 'path', 'thumbnail_path', 'article_id', 'media_type', 'youtube_url', 'created_at')->latest()->take(4);
             }])
@@ -27,6 +28,7 @@ class GalleryController extends Controller
 
         // 2. جلب نفس الفئات ولكن مع كل الصور والمعلومات المرتبطة بها لتمريرها إلى JavaScript
         $categoriesForJs = Category::whereNull('parent_id')
+            ->where('is_active', true)
             ->with([
                 'images' => function ($query) {
                     $query->with(['article:id,title,person_id,category_id', 'article.person:id,name', 'article.category:id,name', 'mentionedPersons'])
@@ -173,6 +175,7 @@ class GalleryController extends Controller
         }
         
         $categories = $categoriesQuery
+            ->where('is_active', true)
             ->withCount(['articles' => function($q) use ($filterYear) {
                 if ($filterYear) {
                     $q->whereYear('created_at', $filterYear);

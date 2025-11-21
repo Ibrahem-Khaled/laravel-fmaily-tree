@@ -331,36 +331,6 @@
                 transform: translateY(0);
             }
         }
-
-        .degree-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transition: left 0.5s;
-            z-index: 1;
-        }
-
-        .degree-card:hover::before {
-            left: 100%;
-        }
-
-        /* Pulse glow effect */
-        @keyframes pulse-glow {
-            0%, 100% {
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1), 0 0 0 0 rgba(55, 160, 92, 0.4);
-            }
-            50% {
-                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2), 0 0 20px 10px rgba(55, 160, 92, 0.2);
-            }
-        }
-
-        .degree-card:hover {
-            animation: pulse-glow 2s ease-in-out infinite;
-        }
     </style>
 </head>
 
@@ -738,26 +708,17 @@
                     <!-- حملة الدكتوراه -->
                     @if ($phdGraduates->count() > 0)
                         <a href="{{ route('gallery.articles', ['degree' => 'phd']) }}"
-                            class="relative group overflow-hidden rounded-lg shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 bg-gradient-to-br from-yellow-50 via-white to-yellow-100 flex flex-col items-center justify-center h-32 sm:h-40 md:h-48 lg:h-56 border-2 border-yellow-200 hover:border-yellow-400 degree-card"
+                            class="relative overflow-hidden rounded-lg shadow-lg bg-gradient-to-br from-yellow-50 via-white to-yellow-100 flex flex-col items-center justify-center h-32 sm:h-40 md:h-48 lg:h-56 border-2 border-yellow-200 degree-card"
                             style="animation-delay: 0s;">
-                            <div class="absolute inset-0 bg-gradient-to-br from-yellow-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                             <div class="relative z-10 flex flex-col items-center justify-center p-4">
-                                <div class="mb-3 md:mb-4 transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
-                                    <img src="{{ asset('assets/img/DR.png') }}"
-                                         alt="حملة الدكتوراه"
-                                         class="h-20 md:h-24 lg:h-28 w-auto drop-shadow-lg">
-                                </div>
                                 <div class="text-center">
-                                    <h3 class="text-lg md:text-xl font-bold text-yellow-700 group-hover:text-yellow-800 transition-colors duration-300">
+                                    <h3 class="text-lg md:text-xl font-bold text-yellow-700">
                                         حملة الدكتوراه
                                     </h3>
-                                    <p class="text-xs md:text-sm text-yellow-600 mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                    <p class="text-xs md:text-sm text-yellow-600 mt-1">
                                         {{ $phdGraduates->count() }} خريج
                                     </p>
                                 </div>
-                            </div>
-                            <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                <i class="fas fa-arrow-left text-yellow-600 text-sm animate-pulse"></i>
                             </div>
                         </a>
                     @endif
@@ -765,26 +726,17 @@
                     <!-- حملة الماجستير -->
                     @if ($masterGraduates->count() > 0)
                         <a href="{{ route('gallery.articles', ['degree' => 'master']) }}"
-                            class="relative group overflow-hidden rounded-lg shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 bg-gradient-to-br from-indigo-50 via-white to-indigo-100 flex flex-col items-center justify-center h-32 sm:h-40 md:h-48 lg:h-56 border-2 border-indigo-200 hover:border-indigo-400 degree-card"
+                            class="relative overflow-hidden rounded-lg shadow-lg bg-gradient-to-br from-indigo-50 via-white to-indigo-100 flex flex-col items-center justify-center h-32 sm:h-40 md:h-48 lg:h-56 border-2 border-indigo-200 degree-card"
                             style="animation-delay: 0.2s;">
-                            <div class="absolute inset-0 bg-gradient-to-br from-indigo-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                             <div class="relative z-10 flex flex-col items-center justify-center p-4">
-                                <div class="mb-3 md:mb-4 transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
-                                    <img src="{{ asset('assets/img/MG.png') }}"
-                                         alt="حملة الماجستير"
-                                         class="h-20 md:h-24 lg:h-28 w-auto drop-shadow-lg">
-                                </div>
                                 <div class="text-center">
-                                    <h3 class="text-lg md:text-xl font-bold text-indigo-700 group-hover:text-indigo-800 transition-colors duration-300">
+                                    <h3 class="text-lg md:text-xl font-bold text-indigo-700">
                                         حملة الماجستير
                                     </h3>
-                                    <p class="text-xs md:text-sm text-indigo-600 mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                    <p class="text-xs md:text-sm text-indigo-600 mt-1">
                                         {{ $masterGraduates->count() }} خريج
                                     </p>
                                 </div>
-                            </div>
-                            <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                <i class="fas fa-arrow-left text-indigo-600 text-sm animate-pulse"></i>
                             </div>
                         </a>
                     @endif
@@ -792,26 +744,17 @@
                     <!-- حملة البكالوريوس -->
                     @if ($bachelorGraduates->count() > 0)
                         <a href="{{ route('gallery.articles', ['degree' => 'bachelor']) }}"
-                            class="relative group overflow-hidden rounded-lg shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 bg-gradient-to-br from-green-50 via-white to-emerald-100 flex flex-col items-center justify-center h-32 sm:h-40 md:h-48 lg:h-56 border-2 border-green-200 hover:border-green-400 degree-card"
+                            class="relative overflow-hidden rounded-lg shadow-lg bg-gradient-to-br from-green-50 via-white to-emerald-100 flex flex-col items-center justify-center h-32 sm:h-40 md:h-48 lg:h-56 border-2 border-green-200 degree-card"
                             style="animation-delay: 0.4s;">
-                            <div class="absolute inset-0 bg-gradient-to-br from-green-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                             <div class="relative z-10 flex flex-col items-center justify-center p-4">
-                                <div class="mb-3 md:mb-4 transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
-                                    <img src="{{ asset('assets/img/BG.png') }}"
-                                         alt="حملة البكالوريوس"
-                                         class="h-20 md:h-24 lg:h-28 w-auto drop-shadow-lg">
-                                </div>
                                 <div class="text-center">
-                                    <h3 class="text-lg md:text-xl font-bold text-green-700 group-hover:text-green-800 transition-colors duration-300">
+                                    <h3 class="text-lg md:text-xl font-bold text-green-700">
                                         حملة البكالوريوس
                                     </h3>
-                                    <p class="text-xs md:text-sm text-green-600 mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                    <p class="text-xs md:text-sm text-green-600 mt-1">
                                         {{ $bachelorGraduates->count() }} خريج
                                     </p>
                                 </div>
-                            </div>
-                            <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                <i class="fas fa-arrow-left text-green-600 text-sm animate-pulse"></i>
                             </div>
                         </a>
                     @endif

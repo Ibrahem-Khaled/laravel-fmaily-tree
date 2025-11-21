@@ -140,6 +140,8 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
     Route::post('categories/quick-store', [CategoryController::class, 'store'])->name('categories.quick-store');
     Route::post('categories/delete-empty', [CategoryController::class, 'deleteEmpty'])->name('categories.delete-empty');
+    Route::post('categories/{category}/toggle-active', [CategoryController::class, 'toggleActive'])->name('categories.toggle-active');
+    Route::post('categories/update-order', [CategoryController::class, 'updateOrder'])->name('categories.update-order');
 
     // Locations routes
     Route::get('locations/find-similar', [LocationController::class, 'findSimilar'])->name('locations.find-similar');

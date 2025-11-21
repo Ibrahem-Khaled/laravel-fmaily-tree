@@ -14,10 +14,12 @@ class Category extends BaseModel
         'image',
         'parent_id',
         'sort_order',
+        'is_active',
     ];
 
     protected $casts = [
         'sort_order' => 'integer',
+        'is_active' => 'boolean',
     ];
 
     protected static function booted()
@@ -109,5 +111,15 @@ class Category extends BaseModel
             $q->where('name', 'like', "%{$term}%")
                 ->orWhere('description', 'like', "%{$term}%");
         });
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    public function scopeInactive($query)
+    {
+        return $query->where('is_active', false);
     }
 }
