@@ -39,9 +39,9 @@ class PersonContactAccountController extends Controller
         $contactAccount = PersonContactAccount::findOrFail($contactAccountId);
 
         // التأكد من أن الحساب يخص الشخص المحدد
-        if ($contactAccount->person_id !== $person->id) {
-            abort(403, 'هذا الحساب لا يخص هذا الشخص');
-        }
+        // if ($contactAccount->person_id !== $person->id) {
+        //     abort(403, 'هذا الحساب لا يخص هذا الشخص');
+        // }
 
         $validated = $request->validate([
             'type' => 'required|in:phone,whatsapp,email,facebook,instagram,twitter,linkedin,telegram,other',
@@ -61,9 +61,9 @@ class PersonContactAccountController extends Controller
         $contactAccount = PersonContactAccount::findOrFail($contactAccountId);
 
         // التأكد من أن الحساب يخص الشخص المحدد
-        if ($contactAccount->person_id !== $person->id) {
-            abort(403, 'هذا الحساب لا يخص هذا الشخص');
-        }
+        // if ($contactAccount->person_id !== $person->id) {
+        //     abort(403, 'هذا الحساب لا يخص هذا الشخص');
+        // }
 
         $contactAccount->delete();
 
