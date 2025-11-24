@@ -1,7 +1,7 @@
 <!-- مودال تعديل الدور -->
 <div class="modal fade" id="editRoleModal{{ $role->id }}" tabindex="-1" role="dialog"
     aria-labelledby="editRoleModalLabel{{ $role->id }}" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="editRoleModalLabel{{ $role->id }}">تعديل الدور: {{ $role->name }}</h5>
@@ -28,6 +28,43 @@
                             <option value="1" {{ $role->is_active ? 'selected' : '' }}>نشط</option>
                             <option value="0" {{ !$role->is_active ? 'selected' : '' }}>غير نشط</option>
                         </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>الصلاحيات</label>
+                        <div class="border rounded p-3" style="max-height: 400px; overflow-y: auto;">
+                            @php
+                                $rolePermissions = $role->permissions->pluck('id')->toArray();
+                            @endphp
+                            @foreach($permissions as $group => $groupPermissions)
+                                <div class="mb-3">
+                                    <h6 class="font-weight-bold text-primary mb-2">
+                                        <i class="fas fa-folder"></i> {{ ucfirst($group) }}
+                                    </h6>
+                                    <div class="row">
+                                        @foreach($groupPermissions as $permission)
+                                            <div class="col-md-6 mb-2">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" 
+                                                        name="permissions[]" 
+                                                        value="{{ $permission->id }}" 
+                                                        id="perm_edit_{{ $role->id }}_{{ $permission->id }}"
+                                                        {{ in_array($permission->id, $rolePermissions) ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="perm_edit_{{ $role->id }}_{{ $permission->id }}">
+                                                        {{ $permission->name }}
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                                <hr>
+                            @endforeach
+                        </div>
+                        <small class="form-text text-muted">
+                            <button type="button" class="btn btn-sm btn-link p-0" onclick="selectAllPermissions('edit_{{ $role->id }}')">تحديد الكل</button> |
+                            <button type="button" class="btn btn-sm btn-link p-0" onclick="deselectAllPermissions('edit_{{ $role->id }}')">إلغاء تحديد الكل</button>
+                        </small>
                     </div>
                 </div>
                 <div class="modal-footer">

@@ -70,6 +70,7 @@
                                 <th>#</th>
                                 <th>الاسم</th>
                                 <th>الوصف</th>
+                                <th>الصلاحيات</th>
                                 <th>الحالة</th>
                                 <th>تاريخ الإنشاء</th>
                                 <th>الإجراءات</th>
@@ -81,6 +82,15 @@
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $role->name }}</td>
                                     <td>{{ $role->description ?? '-' }}</td>
+                                    <td>
+                                        @if($role->permissions->count() > 0)
+                                            <span class="badge badge-info" title="{{ $role->permissions->pluck('name')->implode(', ') }}">
+                                                {{ $role->permissions->count() }} صلاحية
+                                            </span>
+                                        @else
+                                            <span class="badge badge-secondary">لا توجد صلاحيات</span>
+                                        @endif
+                                    </td>
                                     <td>
                                         <span class="badge badge-{{ $role->is_active ? 'success' : 'danger' }}">
                                             {{ $role->is_active ? 'نشط' : 'غير نشط' }}
@@ -107,7 +117,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="text-center">لا توجد أدوار لعرضها.</td>
+                                    <td colspan="7" class="text-center">لا توجد أدوار لعرضها.</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -132,5 +142,21 @@
         $(function() {
             $('[data-toggle="tooltip"]').tooltip()
         })
+        
+        // تحديد جميع الصلاحيات
+        function selectAllPermissions(prefix) {
+            const checkboxes = document.querySelectorAll(`input[name="permissions[]"]`);
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = true;
+            });
+        }
+        
+        // إلغاء تحديد جميع الصلاحيات
+        function deselectAllPermissions(prefix) {
+            const checkboxes = document.querySelectorAll(`input[name="permissions[]"]`);
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+        }
     </script>
 @endpush

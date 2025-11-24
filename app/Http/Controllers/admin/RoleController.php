@@ -4,6 +4,7 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Role;
+use Spatie\Permission\Models\Permission;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -36,14 +37,21 @@ class RoleController extends Controller
             });
         }
 
-        $roles = $query->latest()->paginate(10);
+        $roles = $query->with('permissions')->latest()->paginate(10);
+        
+        // الحصول على جميع الصلاحيات للمودال
+        $permissions = Permission::all()->groupBy(function ($permission) {
+            $parts = explode('.', $permission->name);
+            return $parts[0] ?? 'other';
+        });
 
         return view('dashboard.roles.index', compact(
             'roles',
             'totalRoles',
             'activeRoles',
             'inactiveRoles',
-            'statusFilter'
+            'statusFilter',
+            'permissions'
         ));
     }
 
@@ -55,17 +63,39 @@ class RoleController extends Controller
         $request->validate([
             'name' => 'required|string|max:255|unique:roles,name',
             'description' => 'nullable|string|max:500',
+            'permissions' => 'nullable|array',
+            'permissions.*' => 'exists:permissions,id',
         ]);
 
-        Role::create([
+        $role = Role::create([
             'name' => $request->name,
-            'description' => $request->description,
+            'description' => $request->description ?? null,
             'is_active' => true, // الأدوار الجديدة تكون نشطة افتراضياً
         ]);
+
+        // ربط الصلاحيات بالدور
+        if ($request->has('permissions')) {
+            $permissions = Permission::whereIn('id', $request->permissions)->get();
+            $role->syncPermissions($permissions);
+        }
 
         return redirect()->route('roles.index')->with('success', 'تمت إضافة الدور بنجاح.');
     }
 
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(Role $role)
+    {
+        $permissions = Permission::all()->groupBy(function ($permission) {
+            $parts = explode('.', $permission->name);
+            return $parts[0] ?? 'other';
+        });
+        
+        $rolePermissions = $role->permissions->pluck('id')->toArray();
+
+        return view('dashboard.roles.edit', compact('role', 'permissions', 'rolePermissions'));
+    }
 
     /**
      * Update the specified resource in storage.
@@ -76,13 +106,23 @@ class RoleController extends Controller
             'name' => ['required', 'string', 'max:255', Rule::unique('roles')->ignore($role->id)],
             'description' => 'nullable|string|max:500',
             'is_active' => 'required|boolean',
+            'permissions' => 'nullable|array',
+            'permissions.*' => 'exists:permissions,id',
         ]);
 
         $role->update([
             'name' => $request->name,
-            'description' => $request->description,
+            'description' => $request->description ?? null,
             'is_active' => $request->is_active,
         ]);
+
+        // تحديث الصلاحيات
+        if ($request->has('permissions')) {
+            $permissions = Permission::whereIn('id', $request->permissions)->get();
+            $role->syncPermissions($permissions);
+        } else {
+            $role->syncPermissions([]);
+        }
 
         return redirect()->route('roles.index')->with('success', 'تم تعديل الدور بنجاح.');
     }
@@ -92,10 +132,10 @@ class RoleController extends Controller
      */
     public function destroy(Role $role)
     {
-        // يمكنك إضافة منطق هنا لمنع حذف أدوار معينة (مثل مدير)
-        // if ($role->name === 'admin') {
-        //     return redirect()->route('roles.index')->with('error', 'لا يمكن حذف دور المدير.');
-        // }
+        // منع حذف أدوار معينة
+        if (in_array($role->name, ['super_admin', 'admin'])) {
+            return redirect()->route('roles.index')->with('error', 'لا يمكن حذف هذا الدور.');
+        }
 
         $role->delete();
         return redirect()->route('roles.index')->with('success', 'تم حذف الدور بنجاح.');

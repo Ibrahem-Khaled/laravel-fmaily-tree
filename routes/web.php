@@ -90,19 +90,19 @@ Route::prefix('store')->name('store.')->group(function () {
 
 Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
 
-    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard')->middleware(['permission:dashboard.view']);
 
     Route::resource('people', PersonController::class)->middleware(['permission:people.view|people.create|people.update|people.delete']);
     
     // Routes for managing person contact accounts
-    Route::post('people/{person}/contact-accounts', [\App\Http\Controllers\admin\PersonContactAccountController::class, 'store'])->name('people.contact-accounts.store');
-    Route::put('people/{person}/contact-accounts/{contactAccount}', [\App\Http\Controllers\admin\PersonContactAccountController::class, 'update'])->name('people.contact-accounts.update');
-    Route::delete('people/{person}/contact-accounts/{contactAccount}', [\App\Http\Controllers\admin\PersonContactAccountController::class, 'destroy'])->name('people.contact-accounts.destroy');
+    Route::post('people/{person}/contact-accounts', [\App\Http\Controllers\admin\PersonContactAccountController::class, 'store'])->name('people.contact-accounts.store')->middleware(['permission:people.update']);
+    Route::put('people/{person}/contact-accounts/{contactAccount}', [\App\Http\Controllers\admin\PersonContactAccountController::class, 'update'])->name('people.contact-accounts.update')->middleware(['permission:people.update']);
+    Route::delete('people/{person}/contact-accounts/{contactAccount}', [\App\Http\Controllers\admin\PersonContactAccountController::class, 'destroy'])->name('people.contact-accounts.destroy')->middleware(['permission:people.update']);
     
     // Routes for managing person locations
-    Route::post('people/{person}/locations', [\App\Http\Controllers\admin\PersonLocationController::class, 'store'])->name('people.locations.store');
-    Route::put('people/{person}/locations/{personLocation}', [\App\Http\Controllers\admin\PersonLocationController::class, 'update'])->name('people.locations.update');
-    Route::delete('people/{person}/locations/{personLocation}', [\App\Http\Controllers\admin\PersonLocationController::class, 'destroy'])->name('people.locations.destroy');
+    Route::post('people/{person}/locations', [\App\Http\Controllers\admin\PersonLocationController::class, 'store'])->name('people.locations.store')->middleware(['permission:people.update']);
+    Route::put('people/{person}/locations/{personLocation}', [\App\Http\Controllers\admin\PersonLocationController::class, 'update'])->name('people.locations.update')->middleware(['permission:people.update']);
+    Route::delete('people/{person}/locations/{personLocation}', [\App\Http\Controllers\admin\PersonLocationController::class, 'destroy'])->name('people.locations.destroy')->middleware(['permission:people.update']);
     Route::delete('/people/{person}/photo', [PersonController::class, 'removePhoto'])->name('people.removePhoto')->middleware(['permission:people.update']);
     Route::post('/people/reorder', [PersonController::class, 'reorder'])->name('people.reorder')->middleware(['permission:people.update']);
     Route::get('/people/search', [PersonController::class, 'search'])->name('people.search')->middleware(['permission:people.view']);
@@ -111,10 +111,10 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
 
     Route::post('/persons/store-outside', [OutsideFamilyPersonController::class, 'store'])->name('persons.store.outside')->middleware(['permission:people.create']);
 
-    Route::resource('marriages', MarriageController::class)->except(['show']);
-    Route::resource('friendships', \App\Http\Controllers\admin\FriendshipController::class)->except(['show']);
+    Route::resource('marriages', MarriageController::class)->except(['show'])->middleware(['permission:marriages.view|marriages.create|marriages.update|marriages.delete']);
+    Route::resource('friendships', \App\Http\Controllers\admin\FriendshipController::class)->except(['show'])->middleware(['permission:friendships.view|friendships.create|friendships.update|friendships.delete']);
 
-    Route::resource('articles', ArticleController::class)->only(['index', 'store', 'update', 'destroy']);
+    Route::resource('articles', ArticleController::class)->only(['index', 'store', 'update', 'destroy'])->middleware(['permission:articles.view|articles.create|articles.update|articles.delete']);
     // حذف فيديو من مقال
     Route::delete('/articles/{article}/videos/{video}', [AdminArticleController::class, 'destroyVideo'])->name('articles.videos.destroy');
     Route::delete('/attachments/{attachment}', [ArticleController::class, 'destroyAttachment'])
@@ -123,43 +123,43 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
         ->name('attachments.download');
 
     // معرض الصور
-    Route::get('images/index',        [ImageController::class, 'index'])->name('dashboard.images.index');
-    Route::get('images/{image}/edit', [ImageController::class, 'edit'])->name('images.edit');
-    Route::put('images/{image}',      [ImageController::class, 'update'])->name('images.update');
-    Route::post('gallery/upload', [ImageController::class, 'store'])->name('gallery.store');
-    Route::delete('images/{image}', [ImageController::class, 'destroy'])->name('images.destroy');
-    Route::delete('images',         [ImageController::class, 'bulkDestroy'])->name('images.bulk-destroy');
-    Route::delete('images/{image}/remove-person/{person}', [ImageController::class, 'removePerson'])->name('images.remove-person');
-    Route::post('images/{image}/reorder-persons', [ImageController::class, 'reorderPersons'])->name('images.reorder-persons');
-    Route::get('images/{image}/download', [ImageController::class, 'download'])->name('images.download');
+    Route::get('images/index',        [ImageController::class, 'index'])->name('dashboard.images.index')->middleware(['permission:images.view']);
+    Route::get('images/{image}/edit', [ImageController::class, 'edit'])->name('images.edit')->middleware(['permission:images.view']);
+    Route::put('images/{image}',      [ImageController::class, 'update'])->name('images.update')->middleware(['permission:images.update']);
+    Route::post('gallery/upload', [ImageController::class, 'store'])->name('gallery.store')->middleware(['permission:images.upload']);
+    Route::delete('images/{image}', [ImageController::class, 'destroy'])->name('images.destroy')->middleware(['permission:images.delete']);
+    Route::delete('images',         [ImageController::class, 'bulkDestroy'])->name('images.bulk-destroy')->middleware(['permission:images.delete']);
+    Route::delete('images/{image}/remove-person/{person}', [ImageController::class, 'removePerson'])->name('images.remove-person')->middleware(['permission:images.update']);
+    Route::post('images/{image}/reorder-persons', [ImageController::class, 'reorderPersons'])->name('images.reorder-persons')->middleware(['permission:images.update']);
+    Route::get('images/{image}/download', [ImageController::class, 'download'])->name('images.download')->middleware(['permission:images.view']);
 
     Route::post('articles/{article}/images', [ImageController::class, 'storeForArticle'])->name('articles.images.store');
     // إنشاء فئة سريع (AJAX)
-    Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
-    Route::put('/categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
-    Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
-    Route::post('categories/quick-store', [CategoryController::class, 'store'])->name('categories.quick-store');
-    Route::post('categories/delete-empty', [CategoryController::class, 'deleteEmpty'])->name('categories.delete-empty');
-    Route::post('categories/{category}/toggle-active', [CategoryController::class, 'toggleActive'])->name('categories.toggle-active');
-    Route::post('categories/update-order', [CategoryController::class, 'updateOrder'])->name('categories.update-order');
+    Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index')->middleware(['permission:categories.view']);
+    Route::put('/categories/{category}', [CategoryController::class, 'update'])->name('categories.update')->middleware(['permission:categories.update']);
+    Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy')->middleware(['permission:categories.delete']);
+    Route::post('categories/quick-store', [CategoryController::class, 'store'])->name('categories.quick-store')->middleware(['permission:categories.create']);
+    Route::post('categories/delete-empty', [CategoryController::class, 'deleteEmpty'])->name('categories.delete-empty')->middleware(['permission:categories.delete']);
+    Route::post('categories/{category}/toggle-active', [CategoryController::class, 'toggleActive'])->name('categories.toggle-active')->middleware(['permission:categories.update']);
+    Route::post('categories/update-order', [CategoryController::class, 'updateOrder'])->name('categories.update-order')->middleware(['permission:categories.update']);
 
     // Locations routes
-    Route::get('locations/find-similar', [LocationController::class, 'findSimilar'])->name('locations.find-similar');
-    Route::get('locations/autocomplete', [LocationController::class, 'autocomplete'])->name('locations.autocomplete');
-    Route::post('locations/do-merge', [LocationController::class, 'merge'])->name('locations.do-merge');
-    Route::resource('locations', LocationController::class)->where(['location' => '[0-9]+']);
+    Route::get('locations/find-similar', [LocationController::class, 'findSimilar'])->name('locations.find-similar')->middleware(['permission:locations.view']);
+    Route::get('locations/autocomplete', [LocationController::class, 'autocomplete'])->name('locations.autocomplete')->middleware(['permission:locations.view']);
+    Route::post('locations/do-merge', [LocationController::class, 'merge'])->name('locations.do-merge')->middleware(['permission:locations.update']);
+    Route::resource('locations', LocationController::class)->where(['location' => '[0-9]+'])->middleware(['permission:locations.view|locations.create|locations.update|locations.delete']);
     Route::resource('roles', RoleController::class)->middleware(['permission:roles.manage']);
     Route::resource('users', UserController::class)->only(['index', 'store', 'update', 'destroy'])->middleware(['permission:users.manage']);
     Route::patch('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status')->middleware(['permission:users.manage']);
 
     // Badges (Padges) routes
-    Route::resource('padges', PadgeController::class);
-    Route::get('padges/{padge}/people', [PadgePeopleController::class, 'index'])->name('padges.people.index');
-    Route::get('dashboard/padges/{padge}/people/search', [PadgePeopleController::class, 'search'])->name('padges.people.search');
+    Route::resource('padges', PadgeController::class)->middleware(['permission:padges.view|padges.create|padges.update|padges.delete']);
+    Route::get('padges/{padge}/people', [PadgePeopleController::class, 'index'])->name('padges.people.index')->middleware(['permission:padges.view']);
+    Route::get('dashboard/padges/{padge}/people/search', [PadgePeopleController::class, 'search'])->name('padges.people.search')->middleware(['permission:padges.view']);
 
-    Route::post('padges/{padge}/people', [PadgePeopleController::class, 'attach'])->name('padges.people.attach');
-    Route::delete('padges/{padge}/people/{person}', [PadgePeopleController::class, 'detach'])->name('padges.people.detach');
-    Route::patch('padges/{padge}/people/{person}/toggle', [PadgePeopleController::class, 'toggle'])->name('padges.people.toggle');
+    Route::post('padges/{padge}/people', [PadgePeopleController::class, 'attach'])->name('padges.people.attach')->middleware(['permission:padges.update']);
+    Route::delete('padges/{padge}/people/{person}', [PadgePeopleController::class, 'detach'])->name('padges.people.detach')->middleware(['permission:padges.update']);
+    Route::patch('padges/{padge}/people/{person}/toggle', [PadgePeopleController::class, 'toggle'])->name('padges.people.toggle')->middleware(['permission:padges.update']);
 
     // Breastfeeding routes
     Route::resource('breastfeeding', BreastfeedingController::class)->middleware(['permission:breastfeeding.view|breastfeeding.create|breastfeeding.update|breastfeeding.delete']);
@@ -168,84 +168,84 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::get('breastfeeding/breastfed-children/search', [BreastfeedingController::class, 'getBreastfedChildren'])->name('breastfeeding.breastfed-children.search')->middleware(['permission:breastfeeding.view']);
 
     // Stories routes
-    Route::resource('stories', StoryController::class);
+    Route::resource('stories', StoryController::class)->middleware(['permission:stories.view|stories.create|stories.update|stories.delete']);
 
     // Logs routes
-    Route::get('logs/activity', [LogsController::class, 'activity'])->name('logs.activity');
-    Route::get('logs/audits',   [LogsController::class, 'audits'])->name('logs.audits');
+    Route::get('logs/activity', [LogsController::class, 'activity'])->name('logs.activity')->middleware(['permission:logs.view']);
+    Route::get('logs/audits',   [LogsController::class, 'audits'])->name('logs.audits')->middleware(['permission:audit.view']);
 
     // Visit Logs routes
-    Route::get('visit-logs', [VisitLogController::class, 'index'])->name('dashboard.visit-logs.index');
-    Route::get('visit-logs/{visitLog}', [VisitLogController::class, 'show'])->name('dashboard.visit-logs.show');
+    Route::get('visit-logs', [VisitLogController::class, 'index'])->name('dashboard.visit-logs.index')->middleware(['permission:visit-logs.view']);
+    Route::get('visit-logs/{visitLog}', [VisitLogController::class, 'show'])->name('dashboard.visit-logs.show')->middleware(['permission:visit-logs.view']);
 
     // Site Content routes
-    Route::get('site-content', [\App\Http\Controllers\admin\SiteContentController::class, 'index'])->name('dashboard.site-content.index');
-    Route::post('site-content/family-brief', [\App\Http\Controllers\admin\SiteContentController::class, 'updateFamilyBrief'])->name('dashboard.site-content.update-family-brief');
-    Route::post('site-content/whats-new', [\App\Http\Controllers\admin\SiteContentController::class, 'updateWhatsNew'])->name('dashboard.site-content.update-whats-new');
+    Route::get('site-content', [\App\Http\Controllers\admin\SiteContentController::class, 'index'])->name('dashboard.site-content.index')->middleware(['permission:site-content.view']);
+    Route::post('site-content/family-brief', [\App\Http\Controllers\admin\SiteContentController::class, 'updateFamilyBrief'])->name('dashboard.site-content.update-family-brief')->middleware(['permission:site-content.update']);
+    Route::post('site-content/whats-new', [\App\Http\Controllers\admin\SiteContentController::class, 'updateWhatsNew'])->name('dashboard.site-content.update-whats-new')->middleware(['permission:site-content.update']);
     
     // Slideshow routes
-    Route::get('slideshow', [\App\Http\Controllers\admin\SiteContentController::class, 'slideshow'])->name('dashboard.slideshow.index');
-    Route::get('slideshow/{slideshowImage}', [\App\Http\Controllers\admin\SiteContentController::class, 'getSlideshowImage'])->name('dashboard.slideshow.show');
-    Route::post('slideshow/add', [\App\Http\Controllers\admin\SiteContentController::class, 'addSlideshowImage'])->name('dashboard.slideshow.add');
-    Route::post('slideshow/{slideshowImage}/update', [\App\Http\Controllers\admin\SiteContentController::class, 'updateSlideshowImage'])->name('dashboard.slideshow.update');
-    Route::post('slideshow/reorder', [\App\Http\Controllers\admin\SiteContentController::class, 'reorderSlideshow'])->name('dashboard.slideshow.reorder');
-    Route::delete('slideshow/{slideshowImage}', [\App\Http\Controllers\admin\SiteContentController::class, 'removeSlideshowImage'])->name('dashboard.slideshow.remove');
-    Route::post('slideshow/{slideshowImage}/toggle', [\App\Http\Controllers\admin\SiteContentController::class, 'toggleSlideshowImage'])->name('dashboard.slideshow.toggle');
+    Route::get('slideshow', [\App\Http\Controllers\admin\SiteContentController::class, 'slideshow'])->name('dashboard.slideshow.index')->middleware(['permission:slideshow.view']);
+    Route::get('slideshow/{slideshowImage}', [\App\Http\Controllers\admin\SiteContentController::class, 'getSlideshowImage'])->name('dashboard.slideshow.show')->middleware(['permission:slideshow.view']);
+    Route::post('slideshow/add', [\App\Http\Controllers\admin\SiteContentController::class, 'addSlideshowImage'])->name('dashboard.slideshow.add')->middleware(['permission:slideshow.create']);
+    Route::post('slideshow/{slideshowImage}/update', [\App\Http\Controllers\admin\SiteContentController::class, 'updateSlideshowImage'])->name('dashboard.slideshow.update')->middleware(['permission:slideshow.update']);
+    Route::post('slideshow/reorder', [\App\Http\Controllers\admin\SiteContentController::class, 'reorderSlideshow'])->name('dashboard.slideshow.reorder')->middleware(['permission:slideshow.update']);
+    Route::delete('slideshow/{slideshowImage}', [\App\Http\Controllers\admin\SiteContentController::class, 'removeSlideshowImage'])->name('dashboard.slideshow.remove')->middleware(['permission:slideshow.delete']);
+    Route::post('slideshow/{slideshowImage}/toggle', [\App\Http\Controllers\admin\SiteContentController::class, 'toggleSlideshowImage'])->name('dashboard.slideshow.toggle')->middleware(['permission:slideshow.update']);
     
     // Home Gallery routes
-    Route::get('home-gallery', [\App\Http\Controllers\admin\SiteContentController::class, 'homeGallery'])->name('dashboard.home-gallery.index');
-    Route::post('home-gallery/add', [\App\Http\Controllers\admin\SiteContentController::class, 'addHomeGalleryImage'])->name('dashboard.home-gallery.add');
-    Route::post('home-gallery/{homeGalleryImage}/update', [\App\Http\Controllers\admin\SiteContentController::class, 'updateHomeGalleryImage'])->name('dashboard.home-gallery.update');
-    Route::post('home-gallery/reorder', [\App\Http\Controllers\admin\SiteContentController::class, 'reorderHomeGallery'])->name('dashboard.home-gallery.reorder');
-    Route::delete('home-gallery/{homeGalleryImage}', [\App\Http\Controllers\admin\SiteContentController::class, 'removeHomeGalleryImage'])->name('dashboard.home-gallery.remove');
-    Route::post('home-gallery/{homeGalleryImage}/toggle', [\App\Http\Controllers\admin\SiteContentController::class, 'toggleHomeGalleryImage'])->name('dashboard.home-gallery.toggle');
+    Route::get('home-gallery', [\App\Http\Controllers\admin\SiteContentController::class, 'homeGallery'])->name('dashboard.home-gallery.index')->middleware(['permission:home-gallery.view']);
+    Route::post('home-gallery/add', [\App\Http\Controllers\admin\SiteContentController::class, 'addHomeGalleryImage'])->name('dashboard.home-gallery.add')->middleware(['permission:home-gallery.create']);
+    Route::post('home-gallery/{homeGalleryImage}/update', [\App\Http\Controllers\admin\SiteContentController::class, 'updateHomeGalleryImage'])->name('dashboard.home-gallery.update')->middleware(['permission:home-gallery.update']);
+    Route::post('home-gallery/reorder', [\App\Http\Controllers\admin\SiteContentController::class, 'reorderHomeGallery'])->name('dashboard.home-gallery.reorder')->middleware(['permission:home-gallery.update']);
+    Route::delete('home-gallery/{homeGalleryImage}', [\App\Http\Controllers\admin\SiteContentController::class, 'removeHomeGalleryImage'])->name('dashboard.home-gallery.remove')->middleware(['permission:home-gallery.delete']);
+    Route::post('home-gallery/{homeGalleryImage}/toggle', [\App\Http\Controllers\admin\SiteContentController::class, 'toggleHomeGalleryImage'])->name('dashboard.home-gallery.toggle')->middleware(['permission:home-gallery.update']);
     
     // Courses routes
-    Route::get('courses', [\App\Http\Controllers\admin\CourseController::class, 'index'])->name('dashboard.courses.index');
-    Route::post('courses', [\App\Http\Controllers\admin\CourseController::class, 'store'])->name('dashboard.courses.store');
-    Route::get('courses/{course}', [\App\Http\Controllers\admin\CourseController::class, 'show'])->name('dashboard.courses.show');
-    Route::post('courses/{course}/update', [\App\Http\Controllers\admin\CourseController::class, 'update'])->name('dashboard.courses.update');
-    Route::post('courses/reorder', [\App\Http\Controllers\admin\CourseController::class, 'reorder'])->name('dashboard.courses.reorder');
-    Route::delete('courses/{course}', [\App\Http\Controllers\admin\CourseController::class, 'destroy'])->name('dashboard.courses.destroy');
-    Route::post('courses/{course}/toggle', [\App\Http\Controllers\admin\CourseController::class, 'toggle'])->name('dashboard.courses.toggle');
+    Route::get('courses', [\App\Http\Controllers\admin\CourseController::class, 'index'])->name('dashboard.courses.index')->middleware(['permission:courses.view']);
+    Route::post('courses', [\App\Http\Controllers\admin\CourseController::class, 'store'])->name('dashboard.courses.store')->middleware(['permission:courses.create']);
+    Route::get('courses/{course}', [\App\Http\Controllers\admin\CourseController::class, 'show'])->name('dashboard.courses.show')->middleware(['permission:courses.view']);
+    Route::post('courses/{course}/update', [\App\Http\Controllers\admin\CourseController::class, 'update'])->name('dashboard.courses.update')->middleware(['permission:courses.update']);
+    Route::post('courses/reorder', [\App\Http\Controllers\admin\CourseController::class, 'reorder'])->name('dashboard.courses.reorder')->middleware(['permission:courses.update']);
+    Route::delete('courses/{course}', [\App\Http\Controllers\admin\CourseController::class, 'destroy'])->name('dashboard.courses.destroy')->middleware(['permission:courses.delete']);
+    Route::post('courses/{course}/toggle', [\App\Http\Controllers\admin\CourseController::class, 'toggle'])->name('dashboard.courses.toggle')->middleware(['permission:courses.update']);
     
     // Programs routes
-    Route::get('programs', [\App\Http\Controllers\admin\ProgramController::class, 'index'])->name('dashboard.programs.index');
-    Route::post('programs', [\App\Http\Controllers\admin\ProgramController::class, 'store'])->name('dashboard.programs.store');
-    Route::get('programs/{program}', [\App\Http\Controllers\admin\ProgramController::class, 'show'])->name('dashboard.programs.show');
-    Route::post('programs/{program}/update', [\App\Http\Controllers\admin\ProgramController::class, 'update'])->name('dashboard.programs.update');
-    Route::post('programs/reorder', [\App\Http\Controllers\admin\ProgramController::class, 'reorder'])->name('dashboard.programs.reorder');
-    Route::delete('programs/{program}', [\App\Http\Controllers\admin\ProgramController::class, 'destroy'])->name('dashboard.programs.destroy');
-    Route::get('programs/{program}/manage', [\App\Http\Controllers\admin\ProgramController::class, 'manage'])->name('dashboard.programs.manage');
-    Route::post('programs/{program}/media', [\App\Http\Controllers\admin\ProgramController::class, 'storeMedia'])->name('dashboard.programs.media.store');
-    Route::post('programs/{program}/media/{media}/update', [\App\Http\Controllers\admin\ProgramController::class, 'updateMedia'])->name('dashboard.programs.media.update');
-    Route::delete('programs/{program}/media/{media}', [\App\Http\Controllers\admin\ProgramController::class, 'destroyMedia'])->name('dashboard.programs.media.destroy');
-    Route::post('programs/{program}/media/reorder', [\App\Http\Controllers\admin\ProgramController::class, 'reorderMedia'])->name('dashboard.programs.media.reorder');
-    Route::post('programs/{program}/links', [\App\Http\Controllers\admin\ProgramController::class, 'storeLink'])->name('dashboard.programs.links.store');
-    Route::delete('programs/{program}/links/{link}', [\App\Http\Controllers\admin\ProgramController::class, 'destroyLink'])->name('dashboard.programs.links.destroy');
-    Route::post('programs/{program}/links/reorder', [\App\Http\Controllers\admin\ProgramController::class, 'reorderLinks'])->name('dashboard.programs.links.reorder');
+    Route::get('programs', [\App\Http\Controllers\admin\ProgramController::class, 'index'])->name('dashboard.programs.index')->middleware(['permission:programs.view']);
+    Route::post('programs', [\App\Http\Controllers\admin\ProgramController::class, 'store'])->name('dashboard.programs.store')->middleware(['permission:programs.create']);
+    Route::get('programs/{program}', [\App\Http\Controllers\admin\ProgramController::class, 'show'])->name('dashboard.programs.show')->middleware(['permission:programs.view']);
+    Route::post('programs/{program}/update', [\App\Http\Controllers\admin\ProgramController::class, 'update'])->name('dashboard.programs.update')->middleware(['permission:programs.update']);
+    Route::post('programs/reorder', [\App\Http\Controllers\admin\ProgramController::class, 'reorder'])->name('dashboard.programs.reorder')->middleware(['permission:programs.update']);
+    Route::delete('programs/{program}', [\App\Http\Controllers\admin\ProgramController::class, 'destroy'])->name('dashboard.programs.destroy')->middleware(['permission:programs.delete']);
+    Route::get('programs/{program}/manage', [\App\Http\Controllers\admin\ProgramController::class, 'manage'])->name('dashboard.programs.manage')->middleware(['permission:programs.view']);
+    Route::post('programs/{program}/media', [\App\Http\Controllers\admin\ProgramController::class, 'storeMedia'])->name('dashboard.programs.media.store')->middleware(['permission:programs.update']);
+    Route::post('programs/{program}/media/{media}/update', [\App\Http\Controllers\admin\ProgramController::class, 'updateMedia'])->name('dashboard.programs.media.update')->middleware(['permission:programs.update']);
+    Route::delete('programs/{program}/media/{media}', [\App\Http\Controllers\admin\ProgramController::class, 'destroyMedia'])->name('dashboard.programs.media.destroy')->middleware(['permission:programs.update']);
+    Route::post('programs/{program}/media/reorder', [\App\Http\Controllers\admin\ProgramController::class, 'reorderMedia'])->name('dashboard.programs.media.reorder')->middleware(['permission:programs.update']);
+    Route::post('programs/{program}/links', [\App\Http\Controllers\admin\ProgramController::class, 'storeLink'])->name('dashboard.programs.links.store')->middleware(['permission:programs.update']);
+    Route::delete('programs/{program}/links/{link}', [\App\Http\Controllers\admin\ProgramController::class, 'destroyLink'])->name('dashboard.programs.links.destroy')->middleware(['permission:programs.update']);
+    Route::post('programs/{program}/links/reorder', [\App\Http\Controllers\admin\ProgramController::class, 'reorderLinks'])->name('dashboard.programs.links.reorder')->middleware(['permission:programs.update']);
     // Gallery routes
-    Route::post('programs/{program}/galleries', [\App\Http\Controllers\admin\ProgramController::class, 'storeGallery'])->name('dashboard.programs.galleries.store');
-    Route::post('programs/{program}/galleries/{gallery}/update', [\App\Http\Controllers\admin\ProgramController::class, 'updateGallery'])->name('dashboard.programs.galleries.update');
-    Route::delete('programs/{program}/galleries/{gallery}', [\App\Http\Controllers\admin\ProgramController::class, 'destroyGallery'])->name('dashboard.programs.galleries.destroy');
-    Route::post('programs/{program}/galleries/{gallery}/media', [\App\Http\Controllers\admin\ProgramController::class, 'storeGalleryMedia'])->name('dashboard.programs.galleries.media.store');
-    Route::post('programs/{program}/galleries/{gallery}/media/{media}/update', [\App\Http\Controllers\admin\ProgramController::class, 'updateGalleryMedia'])->name('dashboard.programs.galleries.media.update');
-    Route::delete('programs/{program}/galleries/{gallery}/media/{media}', [\App\Http\Controllers\admin\ProgramController::class, 'destroyGalleryMedia'])->name('dashboard.programs.galleries.media.destroy');
+    Route::post('programs/{program}/galleries', [\App\Http\Controllers\admin\ProgramController::class, 'storeGallery'])->name('dashboard.programs.galleries.store')->middleware(['permission:programs.update']);
+    Route::post('programs/{program}/galleries/{gallery}/update', [\App\Http\Controllers\admin\ProgramController::class, 'updateGallery'])->name('dashboard.programs.galleries.update')->middleware(['permission:programs.update']);
+    Route::delete('programs/{program}/galleries/{gallery}', [\App\Http\Controllers\admin\ProgramController::class, 'destroyGallery'])->name('dashboard.programs.galleries.destroy')->middleware(['permission:programs.update']);
+    Route::post('programs/{program}/galleries/{gallery}/media', [\App\Http\Controllers\admin\ProgramController::class, 'storeGalleryMedia'])->name('dashboard.programs.galleries.media.store')->middleware(['permission:programs.update']);
+    Route::post('programs/{program}/galleries/{gallery}/media/{media}/update', [\App\Http\Controllers\admin\ProgramController::class, 'updateGalleryMedia'])->name('dashboard.programs.galleries.media.update')->middleware(['permission:programs.update']);
+    Route::delete('programs/{program}/galleries/{gallery}/media/{media}', [\App\Http\Controllers\admin\ProgramController::class, 'destroyGalleryMedia'])->name('dashboard.programs.galleries.media.destroy')->middleware(['permission:programs.update']);
     
     // Family Councils routes
-    Route::get('councils', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'index'])->name('dashboard.councils.index');
-    Route::post('councils', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'store'])->name('dashboard.councils.store');
-    Route::get('councils/{council}', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'show'])->name('dashboard.councils.show');
-    Route::post('councils/{council}/update', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'update'])->name('dashboard.councils.update');
-    Route::post('councils/reorder', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'reorder'])->name('dashboard.councils.reorder');
-    Route::delete('councils/{council}', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'destroy'])->name('dashboard.councils.destroy');
-    Route::get('councils/{council}/manage', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'manage'])->name('dashboard.councils.manage');
-    Route::post('councils/{council}/images', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'storeImage'])->name('dashboard.councils.images.store');
-    Route::delete('councils/{council}/images/{image}', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'destroyImage'])->name('dashboard.councils.images.destroy');
-    Route::post('councils/{council}/images/reorder', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'reorderImages'])->name('dashboard.councils.images.reorder');
+    Route::get('councils', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'index'])->name('dashboard.councils.index')->middleware(['permission:councils.view']);
+    Route::post('councils', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'store'])->name('dashboard.councils.store')->middleware(['permission:councils.create']);
+    Route::get('councils/{council}', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'show'])->name('dashboard.councils.show')->middleware(['permission:councils.view']);
+    Route::post('councils/{council}/update', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'update'])->name('dashboard.councils.update')->middleware(['permission:councils.update']);
+    Route::post('councils/reorder', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'reorder'])->name('dashboard.councils.reorder')->middleware(['permission:councils.update']);
+    Route::delete('councils/{council}', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'destroy'])->name('dashboard.councils.destroy')->middleware(['permission:councils.delete']);
+    Route::get('councils/{council}/manage', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'manage'])->name('dashboard.councils.manage')->middleware(['permission:councils.view']);
+    Route::post('councils/{council}/images', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'storeImage'])->name('dashboard.councils.images.store')->middleware(['permission:councils.update']);
+    Route::delete('councils/{council}/images/{image}', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'destroyImage'])->name('dashboard.councils.images.destroy')->middleware(['permission:councils.update']);
+    Route::post('councils/{council}/images/reorder', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'reorderImages'])->name('dashboard.councils.images.reorder')->middleware(['permission:councils.update']);
     
     // Products Store routes
-    Route::prefix('products')->name('products.')->group(function () {
+    Route::prefix('products')->name('products.')->middleware(['permission:products.view|products.create|products.update|products.delete'])->group(function () {
         // Categories
         Route::get('categories', [\App\Http\Controllers\admin\ProductCategoryController::class, 'index'])->name('categories.index');
         Route::post('categories', [\App\Http\Controllers\admin\ProductCategoryController::class, 'store'])->name('categories.store');
