@@ -420,7 +420,7 @@
                                                 <i class="fas fa-edit"></i>
                                             </button>
                                             <form
-                                                action="{{ route('people.contact-accounts.destroy', [$person->id, $account->id]) }}"
+                                                action="{{ route('people.contact-accounts.destroy', ['person' => $person->id, 'contactAccountId' => $account->id]) }}"
                                                 method="POST" class="d-inline"
                                                 onsubmit="return confirm('هل أنت متأكد من حذف هذا الحساب؟');">
                                                 @csrf

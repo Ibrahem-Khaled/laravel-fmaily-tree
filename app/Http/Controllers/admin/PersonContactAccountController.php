@@ -9,6 +9,12 @@ use Illuminate\Http\Request;
 
 class PersonContactAccountController extends Controller
 {
+    public function __construct()
+    {
+        // التحقق من الصلاحيات في الـ constructor
+        $this->middleware('permission:people.update');
+    }
+
     public function store(Request $request, Person $person)
     {
         $validated = $request->validate([

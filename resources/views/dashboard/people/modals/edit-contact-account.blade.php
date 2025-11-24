@@ -8,7 +8,7 @@
                     <span>&times;</span>
                 </button>
             </div>
-            <form action="{{ route('people.contact-accounts.update', [$person->id, $account->id]) }}" method="POST">
+            <form action="{{ route('people.contact-accounts.update', ['person' => $person->id, 'contactAccountId' => $account->id]) }}" method="POST">
                 @csrf
                 @method('PUT')
                 <div class="modal-body">
