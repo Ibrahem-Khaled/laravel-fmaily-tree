@@ -19,18 +19,22 @@ class PersonContactAccountController extends Controller
         ]);
 
         $validated['person_id'] = $person->id;
-        $validated['sort_order'] = $validated['sort_order'] ?? $person->contactAccounts()->max('sort_order') + 1 ?? 0;
+        $maxOrder = $person->contactAccounts()->max('sort_order');
+        $validated['sort_order'] = $validated['sort_order'] ?? ($maxOrder ? $maxOrder + 1 : 0);
 
         PersonContactAccount::create($validated);
 
         return redirect()->back()->with('success', 'تم إضافة حساب التواصل بنجاح');
     }
 
-    public function update(Request $request, Person $person, PersonContactAccount $contactAccount)
+    public function update(Request $request, Person $person, $contactAccountId)
     {
+        // البحث عن حساب التواصل
+        $contactAccount = PersonContactAccount::findOrFail($contactAccountId);
+
         // التأكد من أن الحساب يخص الشخص المحدد
         if ($contactAccount->person_id !== $person->id) {
-            abort(403);
+            abort(403, 'هذا الحساب لا يخص هذا الشخص');
         }
 
         $validated = $request->validate([
@@ -45,11 +49,14 @@ class PersonContactAccountController extends Controller
         return redirect()->back()->with('success', 'تم تحديث حساب التواصل بنجاح');
     }
 
-    public function destroy(Person $person, PersonContactAccount $contactAccount)
+    public function destroy(Person $person, $contactAccountId)
     {
+        // البحث عن حساب التواصل
+        $contactAccount = PersonContactAccount::findOrFail($contactAccountId);
+
         // التأكد من أن الحساب يخص الشخص المحدد
         if ($contactAccount->person_id !== $person->id) {
-            abort(403);
+            abort(403, 'هذا الحساب لا يخص هذا الشخص');
         }
 
         $contactAccount->delete();

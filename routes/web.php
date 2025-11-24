@@ -96,8 +96,8 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     
     // Routes for managing person contact accounts
     Route::post('people/{person}/contact-accounts', [\App\Http\Controllers\admin\PersonContactAccountController::class, 'store'])->name('people.contact-accounts.store')->middleware(['permission:people.update']);
-    Route::put('people/{person}/contact-accounts/{contactAccount}', [\App\Http\Controllers\admin\PersonContactAccountController::class, 'update'])->name('people.contact-accounts.update')->middleware(['permission:people.update']);
-    Route::delete('people/{person}/contact-accounts/{contactAccount}', [\App\Http\Controllers\admin\PersonContactAccountController::class, 'destroy'])->name('people.contact-accounts.destroy')->middleware(['permission:people.update']);
+    Route::put('people/{person}/contact-accounts/{contactAccountId}', [\App\Http\Controllers\admin\PersonContactAccountController::class, 'update'])->name('people.contact-accounts.update')->middleware(['permission:people.update']);
+    Route::delete('people/{person}/contact-accounts/{contactAccountId}', [\App\Http\Controllers\admin\PersonContactAccountController::class, 'destroy'])->name('people.contact-accounts.destroy')->middleware(['permission:people.update']);
     
     // Routes for managing person locations
     Route::post('people/{person}/locations', [\App\Http\Controllers\admin\PersonLocationController::class, 'store'])->name('people.locations.store')->middleware(['permission:people.update']);
