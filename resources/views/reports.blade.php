@@ -417,18 +417,24 @@
             </div>
             <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 @forelse($mostCommonNames as $index => $nameData)
+                    @php
+                        $isMale = isset($nameData['dominant_gender']) && $nameData['dominant_gender'] === 'male';
+                        $nameColor = $isMale ? 'text-blue-600' : 'text-pink-600';
+                        $badgeColor = $isMale ? 'from-blue-400 to-blue-600' : 'from-pink-400 to-pink-600';
+                        $countColor = $isMale ? 'text-blue-600' : 'text-pink-600';
+                    @endphp
                     <div class="bg-white/50 rounded-xl p-4 hover:bg-white/70 transition-all duration-300 hover:shadow-lg cursor-pointer"
                          onclick="showPersonsByName('{{ $nameData['name'] }}')">
                         <div class="flex items-center justify-between mb-2">
                             <div class="flex items-center gap-2 flex-1">
-                                <div class="w-8 h-8 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                                <div class="w-8 h-8 bg-gradient-to-br {{ $badgeColor }} rounded-lg flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
                                     {{ $index + 1 }}
                                 </div>
-                                <div class="font-bold text-gray-800 text-lg md:text-xl text-right hover:text-green-600 transition">
+                                <div class="font-bold {{ $nameColor }} text-lg md:text-xl text-right hover:opacity-80 transition">
                                     {{ $nameData['name'] }}
                                 </div>
                             </div>
-                            <div class="text-2xl md:text-3xl font-bold text-green-600">
+                            <div class="text-2xl md:text-3xl font-bold {{ $countColor }}">
                                 {{ $nameData['count'] }}
                             </div>
                         </div>
@@ -514,46 +520,90 @@
                                         @endphp
 
                                         @foreach($stat['generations_breakdown'] as $genLevel => $genData)
-                                            <div class="bg-white p-3 rounded-lg shadow-sm cursor-pointer hover:shadow-md transition"
-                                                 onclick="toggleGenerationDetails({{ $index }}, {{ $genLevel }})">
+                                            <div class="bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition">
                                                 <div class="flex items-center justify-between mb-2">
                                                     <div class="text-xs font-bold text-gray-600">
                                                         {{ $generationLabels[$genLevel] ?? "الجيل " . $genLevel }}
                                                     </div>
-                                                    <svg class="w-3 h-3 text-gray-400 gen-arrow-{{ $index }}-{{ $genLevel }}"
-                                                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                                    </svg>
                                                 </div>
                                                 <div class="text-2xl font-bold text-green-600">{{ $genData['total'] ?? 0 }}</div>
                                                 <div class="flex gap-2 mt-2">
                                                     <span class="text-xs text-blue-600">♂ {{ $genData['males'] ?? 0 }}</span>
                                                     <span class="text-xs text-pink-600">♀ {{ $genData['females'] ?? 0 }}</span>
                                                 </div>
+                                                @if(isset($genData['relatives_count']) && $genData['relatives_count'] > 0)
+                                                    <div class="mt-2 pt-2 border-t border-gray-200">
+                                                        <div class="flex items-center gap-1 justify-center">
+                                                            <i class="fas fa-heart text-purple-600 text-xs"></i>
+                                                            <span class="text-xs font-bold text-purple-600">الأنساب: {{ $genData['relatives_count'] }}</span>
+                                                        </div>
+                                                    </div>
+                                                @endif
+
+                                                <!-- أزرار العرض -->
+                                                <div class="mt-3 flex gap-2">
+                                                    @if(isset($genData['members']) && count($genData['members']) > 0)
+                                                        <button onclick="toggleGenerationSection({{ $index }}, {{ $genLevel }}, 'members'); event.stopPropagation();"
+                                                                class="flex-1 text-xs px-2 py-1.5 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition font-medium">
+                                                            <i class="fas fa-users mr-1"></i> الأبناء
+                                                        </button>
+                                                    @endif
+                                                    @if(isset($genData['relatives']) && count($genData['relatives']) > 0)
+                                                        <button onclick="toggleGenerationSection({{ $index }}, {{ $genLevel }}, 'relatives'); event.stopPropagation();"
+                                                                class="flex-1 text-xs px-2 py-1.5 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition font-medium">
+                                                            <i class="fas fa-heart mr-1"></i> الأنساب
+                                                        </button>
+                                                    @endif
+                                                </div>
 
                                                 <!-- التفاصيل الإضافية (مخفية) -->
-                                                <div class="gen-details-{{ $index }}-{{ $genLevel }} hidden mt-3 pt-3 border-t">
-                                                    <div class="space-y-2">
-                                                        <div class="text-xs font-bold text-gray-700 mb-2">قائمة الأبناء:</div>
-                                                        @if(isset($genData['members']) && count($genData['members']) > 0)
-                                                            <div class="max-h-40 overflow-y-auto space-y-1">
-                                                                @foreach($genData['members'] as $member)
-                                                                    <div class="flex items-center justify-between text-xs bg-gray-50 p-2 rounded hover:bg-gray-100 transition cursor-pointer person-clickable"
-                                                                         data-person-id="{{ $member['id'] }}"
-                                                                         onclick="showPersonDetails({{ $member['id'] }})">
-                                                                        <span class="text-gray-800 break-words flex-1 hover:text-green-600 transition">{{ $member['full_name'] }}</span>
-                                                                        @if($member['gender'] === 'male')
-                                                                            <span class="text-blue-600 font-medium mr-2 flex-shrink-0">♂</span>
-                                                                        @else
-                                                                            <span class="text-pink-600 font-medium mr-2 flex-shrink-0">♀</span>
-                                                                        @endif
-                                                                    </div>
-                                                                @endforeach
-                                                            </div>
-                                                        @else
-                                                            <div class="text-xs text-gray-400">لا توجد بيانات</div>
-                                                        @endif
+                                                <!-- قائمة الأبناء -->
+                                                <div class="gen-details-{{ $index }}-{{ $genLevel }}-members hidden mt-3 pt-3 border-t">
+                                                    <div class="text-xs font-bold text-gray-700 mb-2">قائمة الأبناء:</div>
+                                                    @if(isset($genData['members']) && count($genData['members']) > 0)
+                                                        <div class="max-h-40 overflow-y-auto space-y-1">
+                                                            @foreach($genData['members'] as $member)
+                                                                <div class="flex items-center justify-between text-xs bg-gray-50 p-2 rounded hover:bg-gray-100 transition cursor-pointer person-clickable"
+                                                                     data-person-id="{{ $member['id'] }}"
+                                                                     onclick="showPersonDetails({{ $member['id'] }})">
+                                                                    <span class="text-gray-800 break-words flex-1 hover:text-green-600 transition">{{ $member['full_name'] }}</span>
+                                                                    @if($member['gender'] === 'male')
+                                                                        <span class="text-blue-600 font-medium mr-2 flex-shrink-0">♂</span>
+                                                                    @else
+                                                                        <span class="text-pink-600 font-medium mr-2 flex-shrink-0">♀</span>
+                                                                    @endif
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
+                                                    @else
+                                                        <div class="text-xs text-gray-400">لا توجد بيانات</div>
+                                                    @endif
+                                                </div>
+
+                                                <!-- قائمة الأنساب -->
+                                                <div class="gen-details-{{ $index }}-{{ $genLevel }}-relatives hidden mt-3 pt-3 border-t">
+                                                    <div class="text-xs font-bold text-purple-700 mb-2 flex items-center gap-1">
+                                                        <i class="fas fa-heart"></i>
+                                                        <span>قائمة الأنساب (من خارج العائلة):</span>
                                                     </div>
+                                                    @if(isset($genData['relatives']) && count($genData['relatives']) > 0)
+                                                        <div class="max-h-40 overflow-y-auto space-y-1">
+                                                            @foreach($genData['relatives'] as $relative)
+                                                                <div class="flex items-center justify-between text-xs bg-purple-50 p-2 rounded hover:bg-purple-100 transition cursor-pointer person-clickable"
+                                                                     data-person-id="{{ $relative['id'] }}"
+                                                                     onclick="showPersonDetails({{ $relative['id'] }})">
+                                                                    <span class="text-gray-800 break-words flex-1 hover:text-purple-600 transition">{{ $relative['full_name'] }}</span>
+                                                                    @if($relative['gender'] === 'male')
+                                                                        <span class="text-blue-600 font-medium mr-2 flex-shrink-0">♂</span>
+                                                                    @else
+                                                                        <span class="text-pink-600 font-medium mr-2 flex-shrink-0">♀</span>
+                                                                    @endif
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
+                                                    @else
+                                                        <div class="text-xs text-gray-400">لا يوجد أنساب</div>
+                                                    @endif
                                                 </div>
                                             </div>
                                         @endforeach
@@ -702,21 +752,24 @@
             }
         }
 
-        // دالة لإظهار/إخفاء تفاصيل جيل محدد
-        function toggleGenerationDetails(grandfatherIndex, generationLevel) {
-            const detailRow = document.querySelector(`.gen-details-${grandfatherIndex}-${generationLevel}`);
-            const arrow = document.querySelector(`.gen-arrow-${grandfatherIndex}-${generationLevel}`);
+        // دالة لإظهار/إخفاء تفاصيل جيل محدد (الأبناء أو الأنساب)
+        function toggleGenerationSection(grandfatherIndex, generationLevel, section) {
+            const detailRow = document.querySelector(`.gen-details-${grandfatherIndex}-${generationLevel}-${section}`);
 
+            if (!detailRow) return;
+
+            // إخفاء القسم الآخر إذا كان مفتوحاً
+            const otherSection = section === 'members' ? 'relatives' : 'members';
+            const otherDetailRow = document.querySelector(`.gen-details-${grandfatherIndex}-${generationLevel}-${otherSection}`);
+            if (otherDetailRow && !otherDetailRow.classList.contains('hidden')) {
+                otherDetailRow.classList.add('hidden');
+            }
+
+            // تبديل القسم المطلوب
             if (detailRow.classList.contains('hidden')) {
                 detailRow.classList.remove('hidden');
-                if (arrow) {
-                    arrow.style.transform = 'rotate(180deg)';
-                }
             } else {
                 detailRow.classList.add('hidden');
-                if (arrow) {
-                    arrow.style.transform = 'rotate(0deg)';
-                }
             }
         }
 
@@ -774,39 +827,82 @@
                                 const genCard = document.createElement('div');
                                 genCard.className = 'bg-white p-4 rounded-lg shadow-sm';
                                 genCard.innerHTML = `
-                                    <div class="flex items-center justify-between mb-3 cursor-pointer" onclick="toggleModalGenerationDetails('${genIndex}')">
+                                    <div class="flex items-center justify-between mb-3">
                                         <div class="text-sm font-bold text-gray-700">
                                             ${generationLabels[genLevel] || 'الجيل ' + genLevel}
                                         </div>
                                         <div class="flex items-center gap-2">
                                             <span class="text-xl font-bold text-green-600">${genData.total || 0}</span>
-                                            <svg class="w-4 h-4 text-gray-400 gen-arrow-${genIndex}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                            </svg>
                                         </div>
                                     </div>
                                     <div class="flex gap-2 mb-3">
                                         <span class="text-xs text-blue-600">♂ ${genData.males || 0}</span>
                                         <span class="text-xs text-pink-600">♀ ${genData.females || 0}</span>
                                     </div>
-                                    <div class="gen-details-${genIndex} hidden mt-3 pt-3 border-t">
-                                        <div class="space-y-2">
-                                            <div class="text-xs font-bold text-gray-700 mb-2">قائمة الأبناء:</div>
-                                            ${genData.members && genData.members.length > 0 ? `
-                                                <div class="max-h-40 overflow-y-auto space-y-1">
-                                                    ${genData.members.map(member => `
-                                                        <div class="flex items-center justify-between text-xs bg-gray-50 p-2 rounded hover:bg-gray-100 transition cursor-pointer"
-                                                             onclick="showPersonDetails(${member.id}); event.stopPropagation();">
-                                                            <span class="text-gray-800 break-words flex-1 hover:text-green-600 transition">${member.full_name}</span>
-                                                            ${member.gender === 'male' ?
-                                                                '<span class="text-blue-600 font-medium mr-2 flex-shrink-0">♂</span>' :
-                                                                '<span class="text-pink-600 font-medium mr-2 flex-shrink-0">♀</span>'
-                                                            }
-                                                        </div>
-                                                    `).join('')}
-                                                </div>
-                                            ` : '<div class="text-xs text-gray-400">لا توجد بيانات</div>'}
+                                    ${genData.relatives_count && genData.relatives_count > 0 ? `
+                                        <div class="mt-2 pt-2 border-t border-gray-200">
+                                            <div class="flex items-center gap-1 justify-center">
+                                                <i class="fas fa-heart text-purple-600 text-xs"></i>
+                                                <span class="text-xs font-bold text-purple-600">الأنساب: ${genData.relatives_count}</span>
+                                            </div>
                                         </div>
+                                    ` : ''}
+
+                                    <!-- أزرار العرض -->
+                                    <div class="mt-3 flex gap-2">
+                                        ${genData.members && genData.members.length > 0 ? `
+                                            <button onclick="toggleModalGenerationSection('${genIndex}', 'members'); event.stopPropagation();"
+                                                    class="flex-1 text-xs px-2 py-1.5 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition font-medium">
+                                                <i class="fas fa-users mr-1"></i> الأبناء
+                                            </button>
+                                        ` : ''}
+                                        ${genData.relatives && genData.relatives.length > 0 ? `
+                                            <button onclick="toggleModalGenerationSection('${genIndex}', 'relatives'); event.stopPropagation();"
+                                                    class="flex-1 text-xs px-2 py-1.5 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition font-medium">
+                                                <i class="fas fa-heart mr-1"></i> الأنساب
+                                            </button>
+                                        ` : ''}
+                                    </div>
+
+                                    <!-- قائمة الأبناء -->
+                                    <div class="gen-details-${genIndex}-members hidden mt-3 pt-3 border-t">
+                                        <div class="text-xs font-bold text-gray-700 mb-2">قائمة الأبناء:</div>
+                                        ${genData.members && genData.members.length > 0 ? `
+                                            <div class="max-h-40 overflow-y-auto space-y-1">
+                                                ${genData.members.map(member => `
+                                                    <div class="flex items-center justify-between text-xs bg-gray-50 p-2 rounded hover:bg-gray-100 transition cursor-pointer"
+                                                         onclick="showPersonDetails(${member.id}); event.stopPropagation();">
+                                                        <span class="text-gray-800 break-words flex-1 hover:text-green-600 transition">${member.full_name}</span>
+                                                        ${member.gender === 'male' ?
+                                                            '<span class="text-blue-600 font-medium mr-2 flex-shrink-0">♂</span>' :
+                                                            '<span class="text-pink-600 font-medium mr-2 flex-shrink-0">♀</span>'
+                                                        }
+                                                    </div>
+                                                `).join('')}
+                                            </div>
+                                        ` : '<div class="text-xs text-gray-400">لا توجد بيانات</div>'}
+                                    </div>
+
+                                    <!-- قائمة الأنساب -->
+                                    <div class="gen-details-${genIndex}-relatives hidden mt-3 pt-3 border-t">
+                                        <div class="text-xs font-bold text-purple-700 mb-2 flex items-center gap-1">
+                                            <i class="fas fa-heart"></i>
+                                            <span>قائمة الأنساب (من خارج العائلة):</span>
+                                        </div>
+                                        ${genData.relatives && genData.relatives.length > 0 ? `
+                                            <div class="max-h-40 overflow-y-auto space-y-1">
+                                                ${genData.relatives.map(relative => `
+                                                    <div class="flex items-center justify-between text-xs bg-purple-50 p-2 rounded hover:bg-purple-100 transition cursor-pointer"
+                                                         onclick="showPersonDetails(${relative.id}); event.stopPropagation();">
+                                                        <span class="text-gray-800 break-words flex-1 hover:text-purple-600 transition">${relative.full_name}</span>
+                                                        ${relative.gender === 'male' ?
+                                                            '<span class="text-blue-600 font-medium mr-2 flex-shrink-0">♂</span>' :
+                                                            '<span class="text-pink-600 font-medium mr-2 flex-shrink-0">♀</span>'
+                                                        }
+                                                    </div>
+                                                `).join('')}
+                                            </div>
+                                        ` : '<div class="text-xs text-gray-400">لا يوجد أنساب</div>'}
                                     </div>
                                 `;
                                 generationsContainer.appendChild(genCard);
@@ -830,21 +926,24 @@
             modal.style.display = 'none';
         }
 
-        // دالة لإظهار/إخفاء تفاصيل جيل في الـ modal
-        function toggleModalGenerationDetails(genIndex) {
-            const detailRow = document.querySelector(`.gen-details-${genIndex}`);
-            const arrow = document.querySelector(`.gen-arrow-${genIndex}`);
+        // دالة لإظهار/إخفاء تفاصيل جيل في الـ modal (الأبناء أو الأنساب)
+        function toggleModalGenerationSection(genIndex, section) {
+            const detailRow = document.querySelector(`.gen-details-${genIndex}-${section}`);
 
+            if (!detailRow) return;
+
+            // إخفاء القسم الآخر إذا كان مفتوحاً
+            const otherSection = section === 'members' ? 'relatives' : 'members';
+            const otherDetailRow = document.querySelector(`.gen-details-${genIndex}-${otherSection}`);
+            if (otherDetailRow && !otherDetailRow.classList.contains('hidden')) {
+                otherDetailRow.classList.add('hidden');
+            }
+
+            // تبديل القسم المطلوب
             if (detailRow.classList.contains('hidden')) {
                 detailRow.classList.remove('hidden');
-                if (arrow) {
-                    arrow.style.transform = 'rotate(180deg)';
-                }
             } else {
                 detailRow.classList.add('hidden');
-                if (arrow) {
-                    arrow.style.transform = 'rotate(0deg)';
-                }
             }
         }
 

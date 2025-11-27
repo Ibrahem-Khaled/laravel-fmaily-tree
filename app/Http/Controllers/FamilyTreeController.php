@@ -330,6 +330,7 @@ class FamilyTreeController extends Controller
             'mother_id' => $person->mother_id,
             'full_name' => $person->full_name,
             'first_name' => $person->first_name,
+            'last_name' => $person->last_name, // إضافة last_name للأشخاص من خارج العائلة
             'gender' => $person->gender,
             'photo_url' => $person->avatar, // Assuming 'avatar' is the attribute for photo url
             'children_count' => $children_count, // إظهار العدد الصحيح للذكور والإناث
@@ -415,8 +416,24 @@ class FamilyTreeController extends Controller
 
                 if ($activeMarriages->isNotEmpty()) {
                     $wifeIds = $activeMarriages->pluck('wife_id');
-                    $wives = Person::select(['id', 'first_name', 'last_name', 'gender', 'birth_date', 'birth_place', 'death_date', 'photo_url'])
+                    $wives = Person::select(['id', 'first_name', 'last_name', 'gender', 'birth_date', 'birth_place', 'death_date', 'photo_url', 'parent_id'])
                         ->whereIn('id', $wifeIds)
+                        ->with(['parent' => function($q1) {
+                            // تحميل parent بشكل متداخل لضمان عمل full_name بشكل صحيح
+                            $q1->select(['id', 'first_name', 'gender', 'parent_id'])
+                               ->with(['parent' => function($q2) {
+                                   $q2->select(['id', 'first_name', 'gender', 'parent_id'])
+                                      ->with(['parent' => function($q3) {
+                                          $q3->select(['id', 'first_name', 'gender', 'parent_id'])
+                                             ->with(['parent' => function($q4) {
+                                                 $q4->select(['id', 'first_name', 'gender', 'parent_id'])
+                                                    ->with(['parent' => function($q5) {
+                                                        $q5->select(['id', 'first_name', 'gender', 'parent_id']);
+                                                    }]);
+                                             }]);
+                                      }]);
+                               }]);
+                        }])
                         ->get();
                     $spouses = $wives;
                 }
@@ -434,7 +451,23 @@ class FamilyTreeController extends Controller
                 $currentMarriage = $activeMarriages->first();
 
                 if ($currentMarriage && $currentMarriage->husband_id) {
-                    $husband = Person::select(['id', 'first_name', 'last_name', 'gender', 'birth_date', 'birth_place', 'death_date', 'photo_url'])
+                    $husband = Person::select(['id', 'first_name', 'last_name', 'gender', 'birth_date', 'birth_place', 'death_date', 'photo_url', 'parent_id'])
+                        ->with(['parent' => function($q1) {
+                            // تحميل parent بشكل متداخل لضمان عمل full_name بشكل صحيح
+                            $q1->select(['id', 'first_name', 'gender', 'parent_id'])
+                               ->with(['parent' => function($q2) {
+                                   $q2->select(['id', 'first_name', 'gender', 'parent_id'])
+                                      ->with(['parent' => function($q3) {
+                                          $q3->select(['id', 'first_name', 'gender', 'parent_id'])
+                                             ->with(['parent' => function($q4) {
+                                                 $q4->select(['id', 'first_name', 'gender', 'parent_id'])
+                                                    ->with(['parent' => function($q5) {
+                                                        $q5->select(['id', 'first_name', 'gender', 'parent_id']);
+                                                    }]);
+                                             }]);
+                                      }]);
+                               }]);
+                        }])
                         ->find($currentMarriage->husband_id);
                     if ($husband) {
                         $spouses->push($husband);

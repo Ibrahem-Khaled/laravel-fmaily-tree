@@ -73,19 +73,23 @@ class GalleryController extends Controller
             ->value('year');
         
         $currentYear = date('Y');
-        $selectedYear = $request->get('year', $currentYear); // السنة الحالية افتراضياً
+        $selectedYear = $request->get('year', null); // لا يوجد سنة محددة افتراضياً
 
         // فلترة حسب السنة
-        if ($request->has('year')) {
+        if ($request->has('year') && $request->year != '') {
             $query->whereYear('created_at', $request->year);
             $isFiltered = true;
+            $selectedYear = $request->year;
         } else {
-            // افتراضياً: عرض مقالات السنة الحالية فقط إذا كانت هناك مقالات في السنة الحالية
-            $hasCurrentYearArticles = Article::whereYear('created_at', $currentYear)->exists();
-            if ($hasCurrentYearArticles) {
-                $query->whereYear('created_at', $currentYear);
+            // إذا تم اختيار فئة معينة ولم يتم اختيار سنة، اعرض كل المقالات للفئة
+            // إذا لم يتم اختيار فئة، استخدم السلوك الافتراضي (السنة الحالية)
+            if (!$request->has('category')) {
+                $hasCurrentYearArticles = Article::whereYear('created_at', $currentYear)->exists();
+                if ($hasCurrentYearArticles) {
+                    $query->whereYear('created_at', $currentYear);
+                    $selectedYear = $currentYear;
+                }
             }
-            // إذا لم تكن هناك مقالات في السنة الحالية، اعرض الكل
         }
 
         // فلترة حسب القسم
@@ -141,8 +145,15 @@ class GalleryController extends Controller
             $isFiltered = true;
         }
 
-        // جلب السنوات المتاحة (جميع السنوات التي تحتوي على مقالات)
-        $availableYears = Article::selectRaw('YEAR(created_at) as year')
+        // جلب السنوات المتاحة حسب الفئة المحددة
+        $availableYearsQuery = Article::selectRaw('YEAR(created_at) as year');
+        
+        // إذا تم اختيار فئة معينة، اعرض فقط السنوات التي تحتوي على مقالات في هذه الفئة
+        if ($request->has('category')) {
+            $availableYearsQuery->where('category_id', $request->category);
+        }
+        
+        $availableYears = $availableYearsQuery
             ->distinct()
             ->orderBy('year', 'desc')
             ->pluck('year')
@@ -156,8 +167,9 @@ class GalleryController extends Controller
         }
 
         // تحديد السنة المستخدمة للفلترة
-        $filterYear = $request->has('year') ? $request->year : null;
-        if (!$filterYear) {
+        $filterYear = ($request->has('year') && $request->year != '') ? $request->year : null;
+        // إذا تم اختيار فئة ولم يتم اختيار سنة، لا نستخدم فلترة السنة في الإحصائيات
+        if (!$filterYear && !$request->has('category')) {
             $hasCurrentYearArticles = Article::whereYear('created_at', $currentYear)->exists();
             if ($hasCurrentYearArticles) {
                 $filterYear = $currentYear;

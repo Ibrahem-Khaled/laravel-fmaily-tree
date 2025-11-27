@@ -332,12 +332,13 @@
 
                     {{-- Dropdown للسنوات وأزرار العرض جنب بعض --}}
                     <div class="flex flex-row gap-2 lg:gap-4 items-center">
-                        @if(isset($availableYears) && count($availableYears) > 0)
-                        <div class="flex-shrink-0 flex-1 lg:flex-none">
+                        @if(request('category') && isset($availableYears) && count($availableYears) > 0)
+                        <div class="flex-shrink-0 lg:flex-none">
                             <select id="yearFilter" onchange="filterByYear(this.value)"
-                                class="w-full lg:w-auto px-4 lg:px-6 py-3 lg:py-4 bg-white/70 border-2 border-green-200 rounded-2xl
-                                       text-sm lg:text-base focus:ring-4 focus:ring-green-300 focus:border-green-500
+                                class="w-24 lg:w-auto px-2 lg:px-6 py-1.5 lg:py-4 bg-white/70 border lg:border-2 border-green-200 rounded-xl lg:rounded-2xl
+                                       text-xs lg:text-base focus:ring-2 lg:focus:ring-4 focus:ring-green-300 focus:border-green-500
                                        transition-all duration-300 hover:border-green-400 cursor-pointer">
+                                <option value="" {{ !$selectedYear ? 'selected' : '' }}>الكل</option>
                                 @foreach($availableYears as $year)
                                     <option value="{{ $year }}" {{ $selectedYear == $year ? 'selected' : '' }}>
                                         {{ $year }}
@@ -729,20 +730,24 @@
 
             // 5. فلترة حسب السنة
             window.filterByYear = function(year) {
-                const url = new URL(window.location.href);
-                if (year) {
-                    url.searchParams.set('year', year);
-                } else {
-                    url.searchParams.delete('year');
-                }
-                // الحفاظ على البحث والفئة الحالية
+                const url = new URL(window.location.origin + '/gallery/articles');
                 const currentUrlParams = new URLSearchParams(window.location.search);
-                if (currentUrlParams.has('search')) {
-                    url.searchParams.set('search', currentUrlParams.get('search'));
-                }
+                
+                // الحفاظ على الفئة الحالية
                 if (currentUrlParams.has('category')) {
                     url.searchParams.set('category', currentUrlParams.get('category'));
                 }
+                
+                // إضافة أو حذف السنة
+                if (year && year !== '') {
+                    url.searchParams.set('year', year);
+                }
+                
+                // الحفاظ على البحث إذا كان موجوداً
+                if (currentUrlParams.has('search')) {
+                    url.searchParams.set('search', currentUrlParams.get('search'));
+                }
+                
                 window.location.href = url.toString();
             };
 

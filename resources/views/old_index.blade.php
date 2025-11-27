@@ -286,30 +286,22 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--dark-green) 100%);
             opacity: 0;
             transition: opacity 300ms var(--ease-smooth);
         }
 
         .contact-account-item:hover {
             transform: translateY(-4px) scale(1.05);
-            border-color: var(--primary-color);
-            box-shadow: 0 12px 24px rgba(55, 160, 92, 0.25);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
         }
 
         .contact-account-item:hover::before {
             opacity: 0.1;
         }
 
-        .contact-account-item:hover .contact-icon,
-        .contact-account-item:hover .contact-label {
-            color: var(--primary-color);
-            transform: scale(1.1);
-        }
-
         .contact-icon {
             font-size: 2rem;
-            color: var(--primary-color);
+            color: var(--primary-color); /* لون افتراضي */
             margin-bottom: 8px;
             transition: all 300ms var(--ease-smooth);
             z-index: 1;
@@ -319,7 +311,6 @@
         .contact-label {
             font-size: 0.75rem;
             font-weight: 600;
-            color: var(--dark-green);
             text-align: center;
             line-height: 1.2;
             z-index: 1;
@@ -334,6 +325,141 @@
         .contact-account-item:hover .contact-label {
             white-space: normal;
             word-break: break-word;
+        }
+
+        /* ألوان WhatsApp */
+        .contact-account-item.whatsapp {
+            border-color: #25D366;
+        }
+        .contact-account-item.whatsapp .contact-icon {
+            color: #25D366;
+        }
+        .contact-account-item.whatsapp .contact-label {
+            color: #128C7E;
+        }
+        .contact-account-item.whatsapp::before {
+            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+        }
+        .contact-account-item.whatsapp:hover {
+            border-color: #25D366;
+            box-shadow: 0 12px 24px rgba(37, 211, 102, 0.3);
+        }
+
+        /* ألوان Facebook */
+        .contact-account-item.facebook {
+            border-color: #1877F2;
+        }
+        .contact-account-item.facebook .contact-icon {
+            color: #1877F2;
+        }
+        .contact-account-item.facebook .contact-label {
+            color: #1877F2;
+        }
+        .contact-account-item.facebook::before {
+            background: linear-gradient(135deg, #1877F2 0%, #0C63D4 100%);
+        }
+        .contact-account-item.facebook:hover {
+            border-color: #1877F2;
+            box-shadow: 0 12px 24px rgba(24, 119, 242, 0.3);
+        }
+
+        /* ألوان Instagram */
+        .contact-account-item.instagram {
+            border-color: #E4405F;
+        }
+        .contact-account-item.instagram .contact-icon {
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: inline-block; /* مهم لـ background-clip */
+        }
+        .contact-account-item.instagram .contact-label {
+            color: #E4405F;
+        }
+        .contact-account-item.instagram::before {
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+        }
+        .contact-account-item.instagram:hover {
+            border-color: #E4405F;
+            box-shadow: 0 12px 24px rgba(228, 64, 95, 0.3);
+        }
+
+        /* ألوان Twitter/X */
+        .contact-account-item.twitter,
+        .contact-account-item.x {
+            border-color: #1DA1F2;
+        }
+        .contact-account-item.twitter .contact-icon,
+        .contact-account-item.x .contact-icon {
+            color: #1DA1F2;
+        }
+        .contact-account-item.twitter .contact-label,
+        .contact-account-item.x .contact-label {
+            color: #1DA1F2;
+        }
+        .contact-account-item.twitter::before,
+        .contact-account-item.x::before {
+            background: linear-gradient(135deg, #1DA1F2 0%, #0d8bd9 100%);
+        }
+        .contact-account-item.twitter:hover,
+        .contact-account-item.x:hover {
+            border-color: #1DA1F2;
+            box-shadow: 0 12px 24px rgba(29, 161, 242, 0.3);
+        }
+
+        /* ألوان LinkedIn */
+        .contact-account-item.linkedin {
+            border-color: #0077B5;
+        }
+        .contact-account-item.linkedin .contact-icon {
+            color: #0077B5;
+        }
+        .contact-account-item.linkedin .contact-label {
+            color: #0077B5;
+        }
+        .contact-account-item.linkedin::before {
+            background: linear-gradient(135deg, #0077B5 0%, #005885 100%);
+        }
+        .contact-account-item.linkedin:hover {
+            border-color: #0077B5;
+            box-shadow: 0 12px 24px rgba(0, 119, 181, 0.3);
+        }
+
+        /* ألوان Telegram */
+        .contact-account-item.telegram {
+            border-color: #0088cc;
+        }
+        .contact-account-item.telegram .contact-icon {
+            color: #0088cc;
+        }
+        .contact-account-item.telegram .contact-label {
+            color: #0088cc;
+        }
+        .contact-account-item.telegram::before {
+            background: linear-gradient(135deg, #0088cc 0%, #006699 100%);
+        }
+        .contact-account-item.telegram:hover {
+            border-color: #0088cc;
+            box-shadow: 0 12px 24px rgba(0, 136, 204, 0.3);
+        }
+
+        /* ألوان افتراضية للحسابات الأخرى */
+        .contact-account-item:not(.whatsapp):not(.facebook):not(.instagram):not(.twitter):not(.x):not(.linkedin):not(.telegram) {
+            border-color: var(--primary-color);
+        }
+        .contact-account-item:not(.whatsapp):not(.facebook):not(.instagram):not(.twitter):not(.x):not(.linkedin):not(.telegram) .contact-icon {
+            color: var(--primary-color);
+        }
+        .contact-account-item:not(.whatsapp):not(.facebook):not(.instagram):not(.twitter):not(.x):not(.linkedin):not(.telegram) .contact-label {
+            color: var(--dark-green);
+        }
+        .contact-account-item:not(.whatsapp):not(.facebook):not(.instagram):not(.twitter):not(.x):not(.linkedin):not(.telegram)::before {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--dark-green) 100%);
+        }
+        .contact-account-item:not(.whatsapp):not(.facebook):not(.instagram):not(.twitter):not(.x):not(.linkedin):not(.telegram):hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 12px 24px rgba(55, 160, 92, 0.25);
         }
 
         @media (max-width: 768px) {
@@ -997,13 +1123,19 @@
                             spouseStatusText = spouse.gender === 'female' ? 'زوجة' : 'زوج';
                         }
 
-                        // بناء full_name يدوياً إذا لم يكن موجوداً
-                        let spouseFullName = spouse.full_name || '';
-                        if (!spouseFullName && spouse.first_name) {
+                        // بناء full_name يدوياً - للأشخاص من خارج العائلة قد لا يكون full_name متوفراً بشكل صحيح
+                        let spouseFullName = '';
+                        if (spouse.full_name && spouse.full_name.trim() !== '') {
+                            // إذا كان full_name موجوداً وصحيحاً، استخدمه
+                            spouseFullName = spouse.full_name;
+                        } else if (spouse.first_name) {
+                            // بناء الاسم من first_name و last_name
                             spouseFullName = spouse.first_name;
-                            if (spouse.last_name) {
+                            if (spouse.last_name && spouse.last_name.trim() !== '') {
                                 spouseFullName += ' ' + spouse.last_name;
                             }
+                        } else {
+                            spouseFullName = 'غير معروف';
                         }
 
                         spousesHtml += `
@@ -1011,7 +1143,7 @@
                                 <div class="spouse-card clickable ${spouse.death_date ? 'is-deceased' : ''}" onclick="showPersonDetails(${spouse.id})">
                                     ${createPhoto(spouse, 'sm', false)}
                                     <div>
-                                        <strong>${spouseFullName || spouse.first_name || 'غير معروف'}</strong>
+                                        <strong>${spouseFullName}</strong>
                                         <small class="d-block text-muted">${spouseStatusText}</small>
                                     </div>
                                 </div>
@@ -1129,8 +1261,11 @@
                                         const iconClass = brandIcons.includes(account.type) ? 'fab' : 'fas';
                                         const iconName = account.icon || 'fa-link';
 
+                                        // إضافة class للألوان الأصلية
+                                        const accountTypeClass = account.type ? account.type.toLowerCase() : '';
+
                                         return `
-                                        <a href="${account.url}" target="_blank" class="contact-account-item"
+                                        <a href="${account.url}" target="_blank" class="contact-account-item ${accountTypeClass}"
                                            title="${account.value}${account.label ? ' - ' + account.label : ''}">
                                             <i class="${iconClass} ${iconName} contact-icon"></i>
                                             ${account.label ? `<span class="contact-label">${account.label}</span>` : ''}
@@ -1352,6 +1487,18 @@
             };
 
             loadInitialTree();
+
+            // ====== فتح مودال الشخص عند تحميل الصفحة مع hash ======
+            if (location.hash.startsWith('#person-')) {
+                const personIdMatch = location.hash.match(/#person-(\d+)/);
+                if (personIdMatch) {
+                    const personId = personIdMatch[1];
+                    // انتظر تحميل الشجرة أولاً ثم افتح المودال
+                    setTimeout(() => {
+                        window.showPersonDetails(personId, { push: false });
+                    }, 1000);
+                }
+            }
         });
     </script>
 </body>

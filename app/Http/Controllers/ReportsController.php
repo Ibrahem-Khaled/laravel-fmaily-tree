@@ -92,16 +92,26 @@ class ReportsController extends Controller
 
         // أكثر الأسماء تكراراً (من داخل العائلة فقط) - مرتبة من الأكثر تكراراً للأقل
         $mostCommonNames = Person::where('from_outside_the_family', false)
-            ->select('first_name', DB::raw('count(*) as count'))
+            ->select('first_name', 
+                DB::raw('count(*) as count'),
+                DB::raw('SUM(CASE WHEN gender = "male" THEN 1 ELSE 0 END) as males'),
+                DB::raw('SUM(CASE WHEN gender = "female" THEN 1 ELSE 0 END) as females')
+            )
             ->groupBy('first_name')
             ->orderByDesc('count')
             ->orderBy('first_name') // في حالة التساوي، ترتيب أبجدي
             ->limit(20)
             ->get()
             ->map(function($item) {
+                // تحديد الجنس السائد (إذا كان عدد الذكور أكبر = male، وإلا female)
+                $dominantGender = $item->males > $item->females ? 'male' : 'female';
+                
                 return [
                     'name' => $item->first_name,
                     'count' => $item->count,
+                    'males' => $item->males,
+                    'females' => $item->females,
+                    'dominant_gender' => $dominantGender,
                 ];
             })
             ->sortByDesc('count') // ترتيب إضافي من الأكثر للأقل
@@ -140,11 +150,14 @@ class ReportsController extends Controller
             $allDescendants = $this->countAllDescendants($grandfather->id);
 
             if ($allDescendants['total'] > 0) {
-                // جلب أبناء كل جيل
+                // جلب أبناء كل جيل مع الأنساب
                 $generationsWithMembers = [];
                 foreach ($allDescendants['generations'] as $genLevel => $genStats) {
+                    $relatives = $this->getGenerationRelatives($grandfather->id, $genLevel);
                     $generationsWithMembers[$genLevel] = array_merge($genStats, [
-                        'members' => $this->getGenerationMembers($grandfather->id, $genLevel)
+                        'members' => $this->getGenerationMembers($grandfather->id, $genLevel),
+                        'relatives' => $relatives,
+                        'relatives_count' => count($relatives)
                     ]);
                 }
 
@@ -338,6 +351,102 @@ class ReportsController extends Controller
     }
 
     /**
+     * جلب الأنساب (الأشخاص من خارج العائلة المتزوجون من أبناء جيل معين)
+     */
+    private function getGenerationRelatives($grandfatherId, $targetLevel)
+    {
+        // جلب جميع أبناء الجيل المطلوب مرة واحدة فقط
+        $generationMemberIds = $this->getGenerationMemberIds($grandfatherId, $targetLevel);
+
+        if (empty($generationMemberIds)) {
+            return [];
+        }
+
+        // جلب الأنساب (الأشخاص من خارج العائلة المتزوجون من أبناء هذا الجيل)
+        $relativesData = DB::table('marriages')
+            ->join('persons as husbands', 'marriages.husband_id', '=', 'husbands.id')
+            ->join('persons as wives', 'marriages.wife_id', '=', 'wives.id')
+            ->where(function($query) use ($generationMemberIds) {
+                // الزوج من خارج العائلة والزوجة من أبناء الجيل
+                $query->where(function($q) use ($generationMemberIds) {
+                    $q->where('husbands.from_outside_the_family', true)
+                      ->whereIn('wives.id', $generationMemberIds);
+                })
+                // أو الزوجة من خارج العائلة والزوج من أبناء الجيل
+                ->orWhere(function($q) use ($generationMemberIds) {
+                    $q->where('husbands.from_outside_the_family', false)
+                      ->whereIn('husbands.id', $generationMemberIds)
+                      ->where('wives.from_outside_the_family', true);
+                });
+            })
+            ->where(function($query) {
+                // شرط: أن يكون الزواج نشط (غير مطلق)
+                $query->where('marriages.is_divorced', false)
+                      ->whereNull('marriages.divorced_at');
+            })
+            ->selectRaw('CASE
+                WHEN husbands.from_outside_the_family = 1 THEN husbands.id
+                ELSE wives.id
+            END as relative_id')
+            ->distinct()
+            ->pluck('relative_id')
+            ->toArray();
+
+        if (empty($relativesData)) {
+            return [];
+        }
+
+        // جلب بيانات الأنساب بشكل محسن
+        $relatives = Person::select(['id', 'first_name', 'last_name', 'gender'])
+            ->whereIn('id', $relativesData)
+            ->get()
+            ->map(function($person) {
+                return [
+                    'id' => $person->id,
+                    'full_name' => $person->first_name . ($person->last_name ? ' ' . $person->last_name : ''),
+                    'gender' => $person->gender,
+                ];
+            })
+            ->toArray();
+
+        return $relatives;
+    }
+
+    /**
+     * جلب جميع IDs لأبناء جيل معين
+     */
+    private function getGenerationMemberIds($grandfatherId, $targetLevel, $currentPersonId = null, $currentLevel = 1)
+    {
+        if ($currentPersonId === null) {
+            $currentPersonId = $grandfatherId;
+        }
+
+        $memberIds = [];
+
+        if ($currentLevel === $targetLevel) {
+            // نحن في المستوى المطلوب، نجلب الأبناء المباشرين
+            $children = Person::where('parent_id', $currentPersonId)
+                ->where('from_outside_the_family', false)
+                ->pluck('id')
+                ->toArray();
+            
+            $memberIds = array_merge($memberIds, $children);
+        } else {
+            // نحتاج للانتقال إلى المستوى التالي
+            $children = Person::where('parent_id', $currentPersonId)
+                ->where('from_outside_the_family', false)
+                ->get();
+
+            foreach ($children as $child) {
+                $childIds = $this->getGenerationMemberIds($grandfatherId, $targetLevel, $child->id, $currentLevel + 1);
+                $memberIds = array_merge($memberIds, $childIds);
+            }
+        }
+
+        return array_unique($memberIds);
+    }
+
+    /**
      * جلب إحصائيات الأحياء مع عدد الذكور والإناث الأحياء فقط
      */
     private function getLocationsStatistics()
@@ -432,12 +541,15 @@ class ReportsController extends Controller
         // حساب الأبناء والأحفاد بشكل متكرر
         $allDescendants = $this->countAllDescendants($person->id);
 
-        // جلب أبناء كل جيل
+        // جلب أبناء كل جيل مع الأنساب
         $generationsWithMembers = [];
         if ($allDescendants['total'] > 0) {
             foreach ($allDescendants['generations'] as $genLevel => $genStats) {
+                $relatives = $this->getGenerationRelatives($person->id, $genLevel);
                 $generationsWithMembers[$genLevel] = array_merge($genStats, [
-                    'members' => $this->getGenerationMembers($person->id, $genLevel)
+                    'members' => $this->getGenerationMembers($person->id, $genLevel),
+                    'relatives' => $relatives,
+                    'relatives_count' => count($relatives)
                 ]);
             }
         }

@@ -111,7 +111,7 @@
         /* Gallery & Courses Swiper */
         .gallerySwiper,
         .coursesSwiper {
-            padding: 20px 50px 50px !important;
+            padding: 15px 40px 40px !important;
         }
 
         .gallerySwiper .swiper-button-next,
@@ -323,7 +323,7 @@
     @include('partials.main-header')
 
     {{-- Hero Section with Slideshow --}}
-    <section class="relative h-[250px] sm:h-[350px] md:h-[450px] lg:h-[550px] overflow-hidden">
+    <section class="relative h-[180px] sm:h-[220px] md:h-[280px] lg:h-[320px] overflow-hidden">
         @if ($latestImages->count() > 0)
             <div class="swiper heroSwiper">
                 <div class="swiper-wrapper">
@@ -340,22 +340,22 @@
                                 @endif
                                 <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
                                 @if ($slideshowImage->title || $slideshowImage->description)
-                                    <div class="absolute bottom-8 md:bottom-12 right-6 left-6 md:right-12 md:left-12 z-10">
-                                        <div class="glass-effect rounded-2xl p-4 md:p-6 lg:p-8 max-w-3xl animate-fade-in-up">
+                                    <div class="absolute bottom-4 md:bottom-6 right-4 left-4 md:right-6 md:left-6 z-10">
+                                        <div class="glass-effect rounded-xl p-3 md:p-4 max-w-2xl animate-fade-in-up">
                                             @if ($slideshowImage->title)
-                                                <h2 class="text-white text-xl md:text-2xl lg:text-4xl font-bold mb-2 md:mb-3 drop-shadow-lg">
+                                                <h2 class="text-white text-base md:text-lg lg:text-xl font-bold mb-1 md:mb-2 drop-shadow-lg">
                                                     {{ $slideshowImage->title }}
                                                 </h2>
                                             @endif
                                             @if ($slideshowImage->description)
-                                                <p class="text-white/95 text-sm md:text-base lg:text-lg line-clamp-2 mb-3 drop-shadow">
+                                                <p class="text-white/95 text-xs md:text-sm line-clamp-2 mb-2 drop-shadow">
                                                     {{ $slideshowImage->description }}
                                                 </p>
                                             @endif
                                             @if ($slideshowImage->link)
-                                                <span class="inline-flex items-center gap-2 text-white text-sm md:text-base bg-white/20 px-4 py-2 rounded-lg hover:bg-white/30 transition-all">
+                                                <span class="inline-flex items-center gap-1.5 text-white text-xs md:text-sm bg-white/20 px-3 py-1.5 rounded-lg hover:bg-white/30 transition-all">
                                                     <span>اكتشف المزيد</span>
-                                                    <i class="fas fa-arrow-left"></i>
+                                                    <i class="fas fa-arrow-left text-xs"></i>
                                                 </span>
                                             @endif
                                         </div>
@@ -376,8 +376,8 @@
         @else
             <div class="absolute inset-0 gradient-primary flex items-center justify-center">
                 <div class="text-center text-white px-4">
-                    <i class="fas fa-images text-6xl md:text-8xl mb-6 opacity-40 animate-float"></i>
-                    <p class="text-xl md:text-2xl font-semibold">لا توجد صور في السلايدشو حالياً</p>
+                    <i class="fas fa-images text-4xl md:text-5xl mb-4 opacity-40 animate-float"></i>
+                    <p class="text-base md:text-lg font-semibold">لا توجد صور في السلايدشو حالياً</p>
                 </div>
             </div>
         @endif
@@ -385,19 +385,19 @@
 
     {{-- Born Today Section --}}
     @if ($birthdayPersons && $birthdayPersons->count() > 0)
-        <section class="py-12 md:py-16 lg:py-20 bg-white relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-64 h-64 bg-green-100 rounded-full blur-3xl opacity-30"></div>
+        <section class="py-6 md:py-8 lg:py-10 bg-white relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-48 h-48 bg-green-100 rounded-full blur-3xl opacity-30"></div>
             <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
-                <div class="text-right mb-10 md:mb-12">
-                    <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gradient section-title mb-4">
-                        🎂 ولد في مثل هذا اليوم
+                <div class="text-right mb-6 md:mb-8">
+                    <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">
+                        ولد في مثل هذا اليوم
                     </h2>
-                    <p class="text-gray-600 text-sm md:text-base mt-3">نحتفل معهم بذكرى ميلادهم</p>
+                    <p class="text-gray-600 text-xs md:text-sm mt-2">نحتفل معهم بذكرى ميلادهم</p>
                 </div>
 
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6">
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-3">
                     @foreach ($birthdayPersons as $person)
-                        <a href="{{ route('people.profile.show', $person->id) }}"
+                        <a href="{{ route('sila') }}#person-{{ $person->id }}"
                             class="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 bg-white card-hover">
                             <div class="aspect-square">
                                 @if ($person->photo_url)
@@ -414,11 +414,7 @@
                                     <p class="text-white text-sm md:text-base font-bold truncate drop-shadow-lg mb-1">
                                         {{ $person->full_name }}
                                     </p>
-                                    @if ($person->birth_date)
-                                        <p class="text-white/90 text-xs">
-                                            {{ $person->birth_date->format('Y-m-d') }}
-                                        </p>
-                                    @endif
+
                                 </div>
                             </div>
                             <div class="absolute top-2 right-2 bg-yellow-400 text-white text-xs px-2 py-1 rounded-full shadow-lg">
@@ -432,14 +428,14 @@
     @endif
 
     {{-- Gallery Section --}}
-    <section class="py-12 md:py-16 lg:py-20 bg-gradient-to-br from-gray-50 to-green-50/50 relative overflow-hidden">
-        <div class="absolute bottom-0 left-0 w-64 h-64 bg-emerald-100 rounded-full blur-3xl opacity-30"></div>
+    <section class="py-6 md:py-8 lg:py-10 bg-gradient-to-br from-gray-50 to-green-50/50 relative overflow-hidden">
+        <div class="absolute bottom-0 left-0 w-48 h-48 bg-emerald-100 rounded-full blur-3xl opacity-30"></div>
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
-            <div class="text-right mb-10 md:mb-12">
-                <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gradient section-title mb-4">
+            <div class="text-right mb-6 md:mb-8">
+                <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">
                     📸 معرض الصور
                 </h2>
-                <p class="text-gray-600 text-sm md:text-base mt-3">لحظات جميلة من حياة العائلة</p>
+                <p class="text-gray-600 text-xs md:text-sm mt-2">لحظات جميلة من حياة العائلة</p>
             </div>
 
             @if ($latestGalleryImages->count() > 0)
@@ -450,18 +446,18 @@
                                 <div class="relative group overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300">
                                     @if (isset($galleryImage->image_url))
                                         <img src="{{ $galleryImage->image_url }}" alt="{{ $galleryImage->name ?? 'صورة' }}"
-                                            class="w-full h-48 md:h-56 lg:h-64 object-cover transition-transform duration-500 group-hover:scale-110">
+                                            class="w-full h-32 md:h-40 lg:h-48 object-cover transition-transform duration-500 group-hover:scale-110">
                                     @else
                                         <img src="{{ asset('storage/' . $galleryImage->path) }}" alt="{{ $galleryImage->name ?? 'صورة' }}"
-                                            class="w-full h-48 md:h-56 lg:h-64 object-cover transition-transform duration-500 group-hover:scale-110">
+                                            class="w-full h-32 md:h-40 lg:h-48 object-cover transition-transform duration-500 group-hover:scale-110">
                                     @endif
                                     <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                        <div class="absolute bottom-4 right-4 left-4">
-                                            <p class="text-white text-sm md:text-base font-bold truncate drop-shadow-lg">
+                                        <div class="absolute bottom-2 right-2 left-2">
+                                            <p class="text-white text-xs md:text-sm font-bold truncate drop-shadow-lg">
                                                 {{ $galleryImage->name ?? 'صورة' }}
                                             </p>
                                             @if ($galleryImage->category)
-                                                <p class="text-white/90 text-xs mt-1">
+                                                <p class="text-white/90 text-xs mt-0.5">
                                                     {{ $galleryImage->category->name }}
                                                 </p>
                                             @endif
@@ -476,19 +472,19 @@
                     <div class="swiper-pagination gallery-pagination"></div>
                 </div>
             @else
-                <div class="text-center py-16">
-                    <i class="fas fa-images text-gray-300 text-6xl mb-4"></i>
-                    <p class="text-gray-500 text-lg">لا توجد صور متاحة حالياً</p>
+                <div class="text-center py-8">
+                    <i class="fas fa-images text-gray-300 text-4xl mb-3"></i>
+                    <p class="text-gray-500 text-sm md:text-base">لا توجد صور متاحة حالياً</p>
                 </div>
             @endif
         </div>
     </section>
 
     {{-- Family Councils Section --}}
-    <section class="py-2 md:py-6 lg:py-8 bg-white mobile-section">
+    <section class="py-2 md:py-4 lg:py-6 bg-white mobile-section">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-            <div class="text-right mb-4 md:mb-6">
-                <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient mb-1 md:mb-2">مجالس العائلة</h2>
+            <div class="text-right mb-3 md:mb-4">
+                <h2 class="text-lg sm:text-xl md:text-2xl font-bold text-gradient mb-1">مجالس العائلة</h2>
                 <div
                     class="w-16 md:w-24 h-0.5 md:h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent mr-0 mb-1 md:mb-2">
                 </div>
@@ -502,13 +498,13 @@
                                 <thead class="gradient-primary text-white">
                                     <tr>
                                         <th scope="col"
-                                            class="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-bold uppercase tracking-wider text-right">
+                                            class="px-2 py-1.5 md:px-3 md:py-2 text-xs font-bold uppercase tracking-wider text-right">
                                             المجلس</th>
                                         <th scope="col"
-                                            class="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-bold uppercase tracking-wider text-right">
+                                            class="px-2 py-1.5 md:px-3 md:py-2 text-xs font-bold uppercase tracking-wider text-right">
                                             المدينة</th>
                                         <th scope="col"
-                                            class="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-bold uppercase tracking-wider text-right">
+                                            class="px-2 py-1.5 md:px-3 md:py-2 text-xs font-bold uppercase tracking-wider text-right">
                                             الموقع</th>
                                     </tr>
                                 </thead>
@@ -517,33 +513,33 @@
                                         <tr class="hover:bg-gray-50 transition-colors cursor-pointer council-row"
                                             data-council-id="{{ $council->id }}"
                                             onclick="toggleCouncilDescription({{ $council->id }})">
-                                            <td class="px-2 py-2 md:px-4 md:py-3 whitespace-nowrap text-right"
+                                            <td class="px-2 py-1.5 md:px-3 md:py-2 whitespace-nowrap text-right"
                                                 dir="ltr">
                                                 <div class="flex items-center justify-end">
                                                     <span
-                                                        class="text-xs md:text-sm font-semibold text-gray-900">{{ $council->name }}</span>
+                                                        class="text-xs font-semibold text-gray-900">{{ $council->name }}</span>
                                                     <i
-                                                        class="fas fa-building text-green-600 ml-2 text-sm md:text-base"></i>
+                                                        class="fas fa-building text-green-600 ml-1.5 text-xs"></i>
                                                     @if ($council->description)
                                                         <i
-                                                            class="fas fa-chevron-down text-green-500 mr-2 text-xs transition-transform duration-300 council-chevron-{{ $council->id }}"></i>
+                                                            class="fas fa-chevron-down text-green-500 mr-1.5 text-xs transition-transform duration-300 council-chevron-{{ $council->id }}"></i>
                                                     @endif
                                                 </div>
                                             </td>
-                                            <td class="px-2 py-2 md:px-4 md:py-3 text-right">
-                                                <span class="text-xs md:text-sm text-gray-700">
+                                            <td class="px-2 py-1.5 md:px-3 md:py-2 text-right">
+                                                <span class="text-xs text-gray-700">
                                                     {{ $council->address ?? '-' }}
                                                 </span>
                                             </td>
 
                                             <td
-                                                class="px-2 py-2 md:px-4 md:py-3 whitespace-nowrap text-xs md:text-sm font-medium text-right">
+                                                class="px-2 py-1.5 md:px-3 md:py-2 whitespace-nowrap text-xs font-medium text-right">
                                                 @if ($council->google_map_url)
                                                     <a href="{{ $council->google_map_url }}" target="_blank"
                                                         class="text-blue-600 hover:text-blue-900 transition-colors"
                                                         title="فتح في جوجل ماب" onclick="event.stopPropagation();">
-                                                        <i class="fas fa-map-marked-alt"></i>
-                                                        <span class="mr-1 hidden lg:inline">الخريطة</span>
+                                                        <i class="fas fa-map-marked-alt text-xs"></i>
+                                                        <span class="mr-1 hidden lg:inline text-xs">الخريطة</span>
                                                     </a>
                                                 @else
                                                     <span class="text-gray-400">-</span>
@@ -553,23 +549,23 @@
                                         @if ($council->description)
                                             <tr
                                                 class="council-description-row council-description-{{ $council->id }} hidden">
-                                                <td colspan="3" class="px-2 py-0 md:px-4">
+                                                <td colspan="3" class="px-2 py-0 md:px-3">
                                                     <div
                                                         class="council-description-content max-h-0 overflow-hidden transition-all duration-500 ease-in-out">
                                                         <div
-                                                            class="bg-gradient-to-r from-green-50 to-emerald-50 border-r-4 border-green-500 rounded-lg p-4 md:p-6 my-2 shadow-md">
-                                                            <div class="flex items-start gap-3">
-                                                                <div class="flex-shrink-0 mt-1">
+                                                            class="bg-gradient-to-r from-green-50 to-emerald-50 border-r-4 border-green-500 rounded-lg p-3 md:p-4 my-1.5 shadow-md">
+                                                            <div class="flex items-start gap-2">
+                                                                <div class="flex-shrink-0 mt-0.5">
                                                                     <i
-                                                                        class="fas fa-info-circle text-green-600 text-lg"></i>
+                                                                        class="fas fa-info-circle text-green-600 text-sm"></i>
                                                                 </div>
                                                                 <div class="flex-1">
                                                                     <h4
-                                                                        class="text-sm md:text-base font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                                                                        class="text-xs md:text-sm font-semibold text-gray-800 mb-1.5 flex items-center gap-1.5">
                                                                         <span>نبذة عن {{ $council->name }}</span>
                                                                     </h4>
                                                                     <div
-                                                                        class="text-xs md:text-sm text-gray-700 leading-relaxed whitespace-pre-line">
+                                                                        class="text-xs text-gray-700 leading-relaxed whitespace-pre-line">
                                                                         {{ $council->description }}
                                                                     </div>
                                                                 </div>
@@ -586,38 +582,38 @@
                     </div>
                 </div>
             @else
-                <div class="text-center py-8 md:py-12">
-                    <i class="fas fa-building text-gray-400 text-4xl md:text-6xl mb-4"></i>
-                    <p class="text-gray-600 text-base md:text-lg">لا توجد مجالس متاحة حالياً</p>
+                <div class="text-center py-6">
+                    <i class="fas fa-building text-gray-400 text-3xl md:text-4xl mb-3"></i>
+                    <p class="text-gray-600 text-sm md:text-base">لا توجد مجالس متاحة حالياً</p>
                 </div>
             @endif
         </div>
     </section>
 
     {{-- Family Programs Section --}}
-    <section class="py-12 md:py-16 lg:py-20 bg-gradient-to-br from-green-50 to-emerald-50 relative overflow-hidden">
-        <div class="absolute top-0 right-0 w-96 h-96 bg-emerald-200 rounded-full blur-3xl opacity-20"></div>
+    <section class="py-6 md:py-8 lg:py-10 bg-gradient-to-br from-green-50 to-emerald-50 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-200 rounded-full blur-3xl opacity-20"></div>
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
-            <div class="text-right mb-10 md:mb-12">
-                <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gradient section-title mb-4">
+            <div class="text-right mb-6 md:mb-8">
+                <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">
                     🎯 برامج العائلة
                 </h2>
-                <p class="text-gray-600 text-sm md:text-base mt-3">فعاليات وأنشطة متنوعة</p>
+                <p class="text-gray-600 text-xs md:text-sm mt-2">فعاليات وأنشطة متنوعة</p>
             </div>
 
             @if ($programs && $programs->count() > 0)
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-3">
                     @foreach ($programs as $program)
                         <a href="{{ route('programs.show', $program) }}"
                             class="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 bg-white card-hover">
-                            <div class="aspect-square p-4">
+                            <div class="aspect-square p-2 md:p-3">
                                 <img src="{{ asset('storage/' . $program->path) }}"
                                     alt="{{ $program->program_title ?? ($program->name ?? 'برنامج') }}"
                                     class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
                             </div>
                             <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                <div class="absolute bottom-4 right-4 left-4 text-center">
-                                    <p class="text-white text-sm md:text-base font-bold line-clamp-2 drop-shadow-lg">
+                                <div class="absolute bottom-2 right-2 left-2 text-center">
+                                    <p class="text-white text-xs md:text-sm font-bold line-clamp-2 drop-shadow-lg">
                                         {{ $program->program_title ?? ($program->name ?? 'برنامج') }}
                                     </p>
                                 </div>
@@ -626,9 +622,9 @@
                     @endforeach
                 </div>
             @else
-                <div class="text-center py-16">
-                    <i class="fas fa-calendar-alt text-gray-300 text-6xl mb-4"></i>
-                    <p class="text-gray-500 text-lg">لا توجد برامج متاحة حالياً</p>
+                <div class="text-center py-8">
+                    <i class="fas fa-calendar-alt text-gray-300 text-4xl mb-3"></i>
+                    <p class="text-gray-500 text-sm md:text-base">لا توجد برامج متاحة حالياً</p>
                 </div>
             @endif
         </div>
@@ -642,80 +638,80 @@
     @endphp
 
     @if ((isset($bachelorTotalCount) && $bachelorTotalCount > 0) || (isset($masterTotalCount) && $masterTotalCount > 0) || (isset($phdTotalCount) && $phdTotalCount > 0))
-        <section class="py-12 md:py-16 lg:py-20 bg-white relative overflow-hidden">
-            <div class="absolute bottom-0 right-0 w-96 h-96 bg-yellow-100 rounded-full blur-3xl opacity-20"></div>
+        <section class="py-6 md:py-8 lg:py-10 bg-white relative overflow-hidden">
+            <div class="absolute bottom-0 right-0 w-64 h-64 bg-yellow-100 rounded-full blur-3xl opacity-20"></div>
             <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
-                <div class="text-right mb-10 md:mb-12">
-                    <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gradient section-title mb-4">
+                <div class="text-right mb-6 md:mb-8">
+                    <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">
                         🎓 الشهادات العلمية
                     </h2>
-                    <p class="text-gray-600 text-sm md:text-base mt-3">نفخر بإنجازاتهم الأكاديمية</p>
+                    <p class="text-gray-600 text-xs md:text-sm mt-2">نفخر بإنجازاتهم الأكاديمية</p>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 md:gap-8 mb-8">
+                <div class="grid grid-cols-3 gap-2 md:gap-4 mb-6">
                     @if (isset($phdTotalCount) && $phdTotalCount > 0)
                         <a href="{{ route('gallery.articles', ['degree' => 'phd']) }}"
-                            class="degree-card group relative overflow-hidden rounded-2xl shadow-xl bg-gradient-to-br from-yellow-100 via-yellow-50 to-amber-100 p-8 card-hover border-2 border-yellow-200">
+                            class="degree-card group relative overflow-hidden rounded-xl shadow-lg bg-gradient-to-br from-yellow-100 via-yellow-50 to-amber-100 p-2 md:p-6 card-hover border-2 border-yellow-200">
                             <div class="relative z-10 text-center">
-                                <div class="w-20 h-20 bg-yellow-400 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                                    <i class="fas fa-graduation-cap text-white text-3xl"></i>
+                                <div class="w-10 h-10 md:w-16 md:h-16 bg-yellow-400 rounded-full flex items-center justify-center mx-auto mb-1 md:mb-3 group-hover:scale-110 transition-transform duration-300">
+                                    <i class="fas fa-graduation-cap text-white text-base md:text-2xl"></i>
                                 </div>
-                                <h3 class="text-2xl font-bold text-yellow-800 mb-2">حملة الدكتوراه</h3>
-                                <div class="text-4xl font-bold text-yellow-600 mb-1">{{ $phdTotalCount }}</div>
-                                <p class="text-yellow-700 text-sm">خريج</p>
+                                <h3 class="text-xs md:text-xl font-bold text-yellow-800 mb-0.5 md:mb-1">الدكتوارة</h3>
+                                <div class="text-lg md:text-4xl font-bold text-yellow-600 mb-0.5 md:mb-1">{{ $phdTotalCount }}</div>
+                                <p class="text-yellow-700 text-[10px] md:text-xs">خريج</p>
                             </div>
                         </a>
                     @endif
 
                     @if (isset($masterTotalCount) && $masterTotalCount > 0)
                         <a href="{{ route('gallery.articles', ['degree' => 'master']) }}"
-                            class="degree-card group relative overflow-hidden rounded-2xl shadow-xl bg-gradient-to-br from-indigo-100 via-indigo-50 to-purple-100 p-8 card-hover border-2 border-indigo-200">
+                            class="degree-card group relative overflow-hidden rounded-xl shadow-lg bg-gradient-to-br from-indigo-100 via-indigo-50 to-purple-100 p-2 md:p-6 card-hover border-2 border-indigo-200">
                             <div class="relative z-10 text-center">
-                                <div class="w-20 h-20 bg-indigo-400 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                                    <i class="fas fa-user-graduate text-white text-3xl"></i>
+                                <div class="w-10 h-10 md:w-16 md:h-16 bg-indigo-400 rounded-full flex items-center justify-center mx-auto mb-1 md:mb-3 group-hover:scale-110 transition-transform duration-300">
+                                    <i class="fas fa-user-graduate text-white text-base md:text-2xl"></i>
                                 </div>
-                                <h3 class="text-2xl font-bold text-indigo-800 mb-2">حملة الماجستير</h3>
-                                <div class="text-4xl font-bold text-indigo-600 mb-1">{{ $masterTotalCount }}</div>
-                                <p class="text-indigo-700 text-sm">خريج</p>
+                                <h3 class="text-xs md:text-xl font-bold text-indigo-800 mb-0.5 md:mb-1"> الماجستير</h3>
+                                <div class="text-lg md:text-4xl font-bold text-indigo-600 mb-0.5 md:mb-1">{{ $masterTotalCount }}</div>
+                                <p class="text-indigo-700 text-[10px] md:text-xs">خريج</p>
                             </div>
                         </a>
                     @endif
 
                     @if (isset($bachelorTotalCount) && $bachelorTotalCount > 0)
                         <a href="{{ route('gallery.articles', ['degree' => 'bachelor']) }}"
-                            class="degree-card group relative overflow-hidden rounded-2xl shadow-xl bg-gradient-to-br from-green-100 via-green-50 to-emerald-100 p-8 card-hover border-2 border-green-200">
+                            class="degree-card group relative overflow-hidden rounded-xl shadow-lg bg-gradient-to-br from-green-100 via-green-50 to-emerald-100 p-2 md:p-6 card-hover border-2 border-green-200">
                             <div class="relative z-10 text-center">
-                                <div class="w-20 h-20 bg-green-400 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                                    <i class="fas fa-award text-white text-3xl"></i>
+                                <div class="w-10 h-10 md:w-16 md:h-16 bg-green-400 rounded-full flex items-center justify-center mx-auto mb-1 md:mb-3 group-hover:scale-110 transition-transform duration-300">
+                                    <i class="fas fa-award text-white text-base md:text-2xl"></i>
                                 </div>
-                                <h3 class="text-2xl font-bold text-green-800 mb-2">حملة البكالوريوس</h3>
-                                <div class="text-4xl font-bold text-green-600 mb-1">{{ $bachelorTotalCount }}</div>
-                                <p class="text-green-700 text-sm">خريج</p>
+                                <h3 class="text-xs md:text-xl font-bold text-green-800 mb-0.5 md:mb-1"> البكالوريوس</h3>
+                                <div class="text-lg md:text-4xl font-bold text-green-600 mb-0.5 md:mb-1">{{ $bachelorTotalCount }}</div>
+                                <p class="text-green-700 text-[10px] md:text-xs">خريج</p>
                             </div>
                         </a>
                     @endif
                 </div>
 
-                <div class="text-center">
+                {{-- <div class="text-center">
                     <a href="{{ route('gallery.articles') }}"
-                        class="inline-flex items-center gap-3 px-8 py-4 gradient-secondary text-white font-bold text-lg rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 hover:scale-105">
+                        class="inline-flex items-center gap-2 px-6 py-3 gradient-secondary text-white font-bold text-sm md:text-base rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:scale-105">
                         <span>استكشف المزيد</span>
                         <i class="fas fa-arrow-left"></i>
                     </a>
-                </div>
+                </div> --}}
             </div>
         </section>
     @endif
 
     {{-- Courses Section --}}
-    <section class="py-12 md:py-16 lg:py-20 bg-gradient-to-br from-gray-50 to-green-50/50 relative overflow-hidden">
-        <div class="absolute top-0 left-0 w-96 h-96 bg-green-200 rounded-full blur-3xl opacity-20"></div>
+    <section class="py-6 md:py-8 lg:py-10 bg-gradient-to-br from-gray-50 to-green-50/50 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-64 h-64 bg-green-200 rounded-full blur-3xl opacity-20"></div>
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
-            <div class="text-right mb-10 md:mb-12">
-                <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gradient section-title mb-4">
+            <div class="text-right mb-6 md:mb-8">
+                <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">
                     📚 دورات أكاديمية السريع
                 </h2>
-                <p class="text-gray-600 text-sm md:text-base mt-3">تعلم وتطور مع دوراتنا المتميزة</p>
+                <p class="text-gray-600 text-xs md:text-sm mt-2">تعلم وتطور مع دوراتنا المتميزة</p>
             </div>
 
             @if ($courses->count() > 0)
@@ -724,39 +720,39 @@
                         @foreach ($courses as $course)
                             <div class="swiper-slide">
                                 <div class="glass-card rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 h-full flex flex-col">
-                                    <div class="relative h-48 gradient-primary overflow-hidden">
+                                    <div class="relative h-32 md:h-36 gradient-primary overflow-hidden">
                                         @if ($course->image_url)
                                             <img src="{{ $course->image_url }}" alt="{{ $course->title }}"
                                                 class="w-full h-full object-cover">
                                         @else
                                             <div class="absolute inset-0 flex items-center justify-center">
-                                                <i class="fas fa-book-open text-white text-6xl opacity-30 animate-float"></i>
+                                                <i class="fas fa-book-open text-white text-4xl opacity-30 animate-float"></i>
                                             </div>
                                         @endif
                                     </div>
 
-                                    <div class="p-6 flex-1 flex flex-col">
-                                        <h3 class="text-xl font-bold text-gray-800 mb-3 line-clamp-2">{{ $course->title }}</h3>
+                                    <div class="p-3 md:p-4 flex-1 flex flex-col">
+                                        <h3 class="text-base md:text-lg font-bold text-gray-800 mb-2 line-clamp-2">{{ $course->title }}</h3>
 
-                                        <p class="text-gray-600 text-sm mb-4 line-clamp-3 flex-1">
+                                        <p class="text-gray-600 text-xs mb-3 line-clamp-2 flex-1">
                                             {{ $course->description ?? 'دورة تدريبية متميزة' }}
                                         </p>
 
-                                        <div class="space-y-2 mb-4">
+                                        <div class="space-y-1 mb-3">
                                             @if ($course->instructor)
-                                                <div class="flex items-center gap-2 text-sm text-gray-600">
+                                                <div class="flex items-center gap-1.5 text-xs text-gray-600">
                                                     <i class="fas fa-user text-green-500"></i>
                                                     <span>{{ $course->instructor }}</span>
                                                 </div>
                                             @endif
                                             @if ($course->duration)
-                                                <div class="flex items-center gap-2 text-sm text-gray-600">
+                                                <div class="flex items-center gap-1.5 text-xs text-gray-600">
                                                     <i class="fas fa-clock text-green-500"></i>
                                                     <span>{{ $course->duration }}</span>
                                                 </div>
                                             @endif
                                             @if ($course->students > 0)
-                                                <div class="flex items-center gap-2 text-sm text-gray-600">
+                                                <div class="flex items-center gap-1.5 text-xs text-gray-600">
                                                     <i class="fas fa-users text-green-500"></i>
                                                     <span>{{ $course->students }} طالب</span>
                                                 </div>
@@ -765,12 +761,12 @@
 
                                         @if ($course->link)
                                             <a href="{{ $course->link }}" target="_blank"
-                                                class="w-full py-3 px-4 gradient-secondary text-white rounded-xl font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2">
+                                                class="w-full py-2 px-3 gradient-secondary text-white rounded-lg text-xs md:text-sm font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2">
                                                 <span>سجل الآن</span>
                                                 <i class="fas fa-arrow-left"></i>
                                             </a>
                                         @else
-                                            <button class="w-full py-3 px-4 gradient-secondary text-white rounded-xl font-semibold hover:shadow-lg transition-all">
+                                            <button class="w-full py-2 px-3 gradient-secondary text-white rounded-lg text-xs md:text-sm font-semibold hover:shadow-lg transition-all">
                                                 قريباً
                                             </button>
                                         @endif
@@ -784,9 +780,9 @@
                     <div class="swiper-pagination courses-pagination"></div>
                 </div>
             @else
-                <div class="text-center py-16">
-                    <i class="fas fa-book-open text-gray-300 text-6xl mb-4"></i>
-                    <p class="text-gray-500 text-lg">لا توجد دورات متاحة حالياً</p>
+                <div class="text-center py-8">
+                    <i class="fas fa-book-open text-gray-300 text-4xl mb-3"></i>
+                    <p class="text-gray-500 text-sm md:text-base">لا توجد دورات متاحة حالياً</p>
                 </div>
             @endif
         </div>
