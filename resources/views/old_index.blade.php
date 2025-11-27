@@ -859,8 +859,8 @@
 
                 // لا نظهر البادج إن كان showBadge=false (المودال)
                 const badgeHtml = (person.death_date && showBadge)
-                    ? `<span class="mourning-badge" role="note" aria-label="في ذمّة الله${person.death_date ? ' - توفي في: ' + person.death_date : ''}">
-                            في ذمّة الله <i class="fa-solid fa-dove"></i>
+                    ? `<span class="mourning-badge" role="note" aria-label="متوفى${person.death_date ? ' - توفي في: ' + person.death_date : ''}">
+                            <i class="fa-solid fa-dove"></i>
                        </span>`
                     : '';
 
@@ -899,11 +899,7 @@
                 const buttonContent = `
                     ${hasPhoto ? `
                         <!-- خارج المودال: نظهر البادج -->
-                        ${isDeceased ? `
-                            <span class="mourning-badge" role="note" aria-label="في ذمّة الله${person.death_date ? ' - توفي في: ' + person.death_date : ''}">
-                                في ذمّة الله <i class="fa-solid fa-dove"></i>
-                            </span>
-                        ` : ''}
+
                     ` : createPhoto(person, 'md', true)}
                     <span class="person-name">${person.first_name}</span>
                 `;
@@ -1186,7 +1182,7 @@
                         <div class="col-lg-4 text-center">
                             <div class="d-inline-block ${person.death_date ? 'is-deceased' : ''}">${createPhoto(person, 'lg', false)}</div>
                             <h4 class="mt-3 mb-1">${person.full_name || person.first_name}</h4>
-                            <!-- 🚫 لا نص "في ذمة الله" ولا "على قيد الحياة" هنا -->
+                            ${person.death_date ? `<p class="text-muted mb-2">${person.gender === 'female' ? 'رحمها الله' : 'رحمه الله'}</p>` : ''}
                             <div class="d-flex justify-content-center gap-2 mb-4 flex-wrap">
                                 ${galleryButtonHtml}
                                 ${storiesBtnPlaceholder}
@@ -1195,8 +1191,8 @@
                         </div>
                         <div class="col-lg-8">
                             <div class="detail-row-container">
-                                ${(person.gender === 'male' || (person.gender === 'female' && person.birth_date && new Date(person.birth_date).getFullYear() >= 2005)) ? createDetailRow('fa-birthday-cake', 'تاريخ الميلاد', person.birth_date) : ''}
-                                ${(person.gender === 'male' || (person.gender === 'female' && person.birth_date && new Date(person.birth_date).getFullYear() >= 2005)) && person.age ? createDetailRow('fa-calendar-alt', 'العمر', `${person.age} سنة`) : ''}
+                                ${person.gender === 'male' ? createDetailRow('fa-birthday-cake', 'تاريخ الميلاد', person.birth_date) : ''}
+                                ${person.gender === 'male' && person.age ? createDetailRow('fa-calendar-alt', 'العمر', `${person.age} سنة`) : ''}
                                 ${createDetailRow('fa-map-marked-alt', 'مكان الميلاد', person.birth_place)}
                                 ${createDetailRow('fa-map-marker-alt', 'مكان الإقامة', person.location)}
                                 ${createDetailRow('fa-briefcase', 'المهنة', person.occupation)}

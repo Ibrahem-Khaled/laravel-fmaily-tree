@@ -73,24 +73,34 @@ class HomeController extends Controller
             ->take(12)
             ->get();
 
-        // جلب فئات الشهادات
+        // جلب فئات الشهادات بناءً على ID محددة (يجب تحديد الـ IDs الصحيحة من قاعدة البيانات)
+        // البحث عن الفئات التي تحتوي على مقالات فقط
         $bachelorCategoryIds = Category::where(function($query) {
             $query->where('name', 'like', '%بكالوريوس%')
                   ->orWhere('name', 'like', '%Bachelor%')
                   ->orWhere('name', 'like', '%Bachelors%')
                   ->orWhere('name', 'like', '%ليسانس%');
-        })->pluck('id');
+        })
+        ->where('is_active', true) // فقط الفئات النشطة
+        ->whereHas('articles') // فقط الفئات التي تحتوي على مقالات
+        ->pluck('id');
 
         $masterCategoryIds = Category::where(function($query) {
             $query->where('name', 'like', '%ماجستير%')
                   ->orWhere('name', 'like', '%Master%');
-        })->pluck('id');
+        })
+        ->where('is_active', true) // فقط الفئات النشطة
+        ->whereHas('articles') // فقط الفئات التي تحتوي على مقالات
+        ->pluck('id');
 
         $phdCategoryIds = Category::where(function($query) {
             $query->where('name', 'like', '%دكتوراه%')
                   ->orWhere('name', 'like', '%PhD%')
                   ->orWhere('name', 'like', '%Ph.D%');
-        })->pluck('id');
+        })
+        ->where('is_active', true) // فقط الفئات النشطة
+        ->whereHas('articles') // فقط الفئات التي تحتوي على مقالات
+        ->pluck('id');
 
         // حساب العدد الكلي لكل فئة (عدد الأشخاص المميزين)
         $bachelorTotalCount = Article::whereIn('status', ['published', 'draft'])

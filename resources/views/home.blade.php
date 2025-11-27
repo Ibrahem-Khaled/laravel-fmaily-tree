@@ -392,7 +392,6 @@
                     <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">
                         ولد في مثل هذا اليوم
                     </h2>
-                    <p class="text-gray-600 text-xs md:text-sm mt-2">نحتفل معهم بذكرى ميلادهم</p>
                 </div>
 
                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-3">
@@ -635,6 +634,11 @@
         $bachelorGraduates = $latestGraduates->where('degree_type', 'bachelor')->take(10);
         $masterGraduates = $latestGraduates->where('degree_type', 'master')->take(10);
         $phdGraduates = $latestGraduates->where('degree_type', 'phd')->take(10);
+
+        // جلب أول فئة من كل نوع لاستخدامها في الروابط
+        $bachelorCategoryId = $bachelorGraduates->first()?->category_id;
+        $masterCategoryId = $masterGraduates->first()?->category_id;
+        $phdCategoryId = $phdGraduates->first()?->category_id;
     @endphp
 
     @if ((isset($bachelorTotalCount) && $bachelorTotalCount > 0) || (isset($masterTotalCount) && $masterTotalCount > 0) || (isset($phdTotalCount) && $phdTotalCount > 0))
@@ -649,8 +653,8 @@
                 </div>
 
                 <div class="grid grid-cols-3 gap-2 md:gap-4 mb-6">
-                    @if (isset($phdTotalCount) && $phdTotalCount > 0)
-                        <a href="{{ route('gallery.articles', ['degree' => 'phd']) }}"
+                    @if (isset($phdTotalCount) && $phdTotalCount > 0 && $phdCategoryId)
+                        <a href="{{ route('gallery.articles', ['category' => $phdCategoryId]) }}"
                             class="degree-card group relative overflow-hidden rounded-xl shadow-lg bg-gradient-to-br from-yellow-100 via-yellow-50 to-amber-100 p-2 md:p-6 card-hover border-2 border-yellow-200">
                             <div class="relative z-10 text-center">
                                 <div class="w-10 h-10 md:w-16 md:h-16 bg-yellow-400 rounded-full flex items-center justify-center mx-auto mb-1 md:mb-3 group-hover:scale-110 transition-transform duration-300">
@@ -663,8 +667,8 @@
                         </a>
                     @endif
 
-                    @if (isset($masterTotalCount) && $masterTotalCount > 0)
-                        <a href="{{ route('gallery.articles', ['degree' => 'master']) }}"
+                    @if (isset($masterTotalCount) && $masterTotalCount > 0 && $masterCategoryId)
+                        <a href="{{ route('gallery.articles', ['category' => $masterCategoryId]) }}"
                             class="degree-card group relative overflow-hidden rounded-xl shadow-lg bg-gradient-to-br from-indigo-100 via-indigo-50 to-purple-100 p-2 md:p-6 card-hover border-2 border-indigo-200">
                             <div class="relative z-10 text-center">
                                 <div class="w-10 h-10 md:w-16 md:h-16 bg-indigo-400 rounded-full flex items-center justify-center mx-auto mb-1 md:mb-3 group-hover:scale-110 transition-transform duration-300">
@@ -677,8 +681,8 @@
                         </a>
                     @endif
 
-                    @if (isset($bachelorTotalCount) && $bachelorTotalCount > 0)
-                        <a href="{{ route('gallery.articles', ['degree' => 'bachelor']) }}"
+                    @if (isset($bachelorTotalCount) && $bachelorTotalCount > 0 && $bachelorCategoryId)
+                        <a href="{{ route('gallery.articles', ['category' => $bachelorCategoryId]) }}"
                             class="degree-card group relative overflow-hidden rounded-xl shadow-lg bg-gradient-to-br from-green-100 via-green-50 to-emerald-100 p-2 md:p-6 card-hover border-2 border-green-200">
                             <div class="relative z-10 text-center">
                                 <div class="w-10 h-10 md:w-16 md:h-16 bg-green-400 rounded-full flex items-center justify-center mx-auto mb-1 md:mb-3 group-hover:scale-110 transition-transform duration-300">
