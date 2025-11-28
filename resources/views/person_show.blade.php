@@ -124,26 +124,45 @@
                                 {{-- حاوية المعلومات المختصرة --}}
                                 <div
                                     class="flex flex-wrap items-center justify-center sm:justify-start gap-x-6 gap-y-3 text-base text-gray-600">
-                                    {{-- العمر للرجال فقط --}}
+                                    {{-- العمر وتاريخ الميلاد للرجال فقط --}}
                                     @if ($person->gender === 'male')
-                                        <div class="flex items-center gap-2">
-                                            <span>(العمر: {{ $person->age }} عاماً)</span>
-                                        </div>
+                                        @if ($person->age)
+                                            <div class="flex items-center gap-2">
+                                                <span>(العمر: {{ $person->age }} عاماً)</span>
+                                            </div>
+                                        @endif
+                                        @if ($person->birth_date)
+                                            <div class="flex items-center gap-2">
+                                                <i class="fas fa-birthday-cake text-green-500"></i>
+                                                <span>{{ $person->birth_date }}</span>
+                                            </div>
+                                        @endif
                                     @endif
 
-                                    {{-- بداية الإضافة: عرض الجنس --}}
+                                    {{-- عرض الجنس --}}
                                     @if ($person->gender)
                                         <div class="flex items-center gap-2">
-                                            <svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg"
-                                                viewBox="0 0 20 20" fill="currentColor">
-                                                <path
-                                                    d="M10 8a3 3 0 100-6 3 3 0 000 6zM3.465 14.493a1.23 1.23 0 00.41 1.412A9.957 9.957 0 0010 18c2.31 0 4.438-.784 6.131-2.095a1.23 1.23 0 00.41-1.412A9.99 9.99 0 0010 12a9.99 9.99 0 00-6.535 2.493z" />
-                                            </svg>
+                                            <i class="fas {{ $person->gender == 'male' ? 'fa-mars text-blue-500' : 'fa-venus text-pink-500' }}"></i>
                                             <span>{{ $person->gender == 'male' ? 'ذكر' : 'أنثى' }}</span>
                                         </div>
                                     @endif
-                                    {{-- نهاية الإضافة --}}
 
+                                    {{-- حالة الوفاة --}}
+                                    @if ($person->death_date)
+                                        <div class="flex items-center gap-2">
+                                            <i class="fas fa-dove text-gray-600"></i>
+                                            <span>{{ $person->gender == 'female' ? 'رحمها الله' : 'رحمه الله' }}</span>
+                                        </div>
+                                    @endif
+                                </div>
+
+                                {{-- زر عرض في شجرة العائلة --}}
+                                <div class="mt-4">
+                                    <a href="{{ route('sila') }}#person-{{ $person->id }}"
+                                        class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-bold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:scale-105">
+                                        <i class="fas fa-sitemap"></i>
+                                        <span>عرض في شجرة العائلة</span>
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -155,6 +174,219 @@
                                 class="prose prose-lg max-w-none prose-p:leading-relaxed prose-headings:font-serif prose-headings:text-green-700">
                                 <h2>نبذة تعريفية</h2>
                                 <p>{{ $person->biography }}</p>
+                            </div>
+                        </div>
+                    @endif
+
+                    {{-- معلومات إضافية --}}
+                    <div class="p-6 lg:p-10 border-t border-green-200/60">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {{-- تاريخ الميلاد (للرجال فقط) --}}
+                            @if ($person->gender === 'male' && $person->birth_date)
+                                <div class="bg-green-50 rounded-xl p-4">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <i class="fas fa-birthday-cake text-green-600 text-xl"></i>
+                                        <h3 class="font-bold text-gray-800">تاريخ الميلاد</h3>
+                                    </div>
+                                    <p class="text-gray-700">{{ $person->birth_date }}</p>
+                                </div>
+                            @endif
+
+                            {{-- العمر (للرجال فقط) --}}
+                            @if ($person->gender === 'male' && $person->age)
+                                <div class="bg-green-50 rounded-xl p-4">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <i class="fas fa-calendar-alt text-green-600 text-xl"></i>
+                                        <h3 class="font-bold text-gray-800">العمر</h3>
+                                    </div>
+                                    <p class="text-gray-700">{{ $person->age }} سنة</p>
+                                </div>
+                            @endif
+
+                            {{-- مكان الميلاد --}}
+                            @if ($person->birth_place)
+                                <div class="bg-green-50 rounded-xl p-4">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <i class="fas fa-map-marker-alt text-green-600 text-xl"></i>
+                                        <h3 class="font-bold text-gray-800">مكان الميلاد</h3>
+                                    </div>
+                                    <p class="text-gray-700">{{ $person->birth_place }}</p>
+                                </div>
+                            @endif
+
+                            {{-- مكان الإقامة --}}
+                            @if ($person->location)
+                                <div class="bg-green-50 rounded-xl p-4">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <i class="fas fa-home text-green-600 text-xl"></i>
+                                        <h3 class="font-bold text-gray-800">مكان الإقامة</h3>
+                                    </div>
+                                    <p class="text-gray-700">{{ $person->location->name }}</p>
+                                </div>
+                            @endif
+
+                            {{-- المهنة --}}
+                            @if ($person->occupation)
+                                <div class="bg-green-50 rounded-xl p-4">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <i class="fas fa-briefcase text-green-600 text-xl"></i>
+                                        <h3 class="font-bold text-gray-800">المهنة</h3>
+                                    </div>
+                                    <p class="text-gray-700">{{ $person->occupation }}</p>
+                                </div>
+                            @endif
+
+                            {{-- تاريخ الوفاة --}}
+                            @if ($person->death_date)
+                                <div class="bg-gray-50 rounded-xl p-4">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <i class="fas fa-dove text-gray-600 text-xl"></i>
+                                        <h3 class="font-bold text-gray-800">تاريخ الوفاة</h3>
+                                    </div>
+                                    <p class="text-gray-700">{{ $person->death_date }}</p>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+
+                    {{-- الأب والأم --}}
+                    @if ($person->parent || $person->mother)
+                        <div class="p-6 lg:p-10 border-t border-green-200/60">
+                            <h2 class="text-2xl font-bold font-serif mb-6 text-green-700">الوالدين</h2>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                @if ($person->parent)
+                                    <a href="{{ route('people.profile.show', $person->parent->id) }}"
+                                        class="group bg-white rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-300 border border-green-200 hover:border-green-400">
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-16 h-16 rounded-full overflow-hidden border-2 border-green-300 flex-shrink-0">
+                                                @if ($person->parent->photo_url)
+                                                    <img src="{{ asset('storage/' . $person->parent->photo_url) }}" alt="{{ $person->parent->full_name }}" class="w-full h-full object-cover">
+                                                @else
+                                                    <div class="w-full h-full bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center">
+                                                        <i class="fas fa-male text-green-600 text-2xl"></i>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                            <div class="flex-grow">
+                                                <h3 class="font-bold text-gray-800 group-hover:text-green-600 transition-colors">{{ $person->parent->full_name }}</h3>
+                                                <p class="text-sm text-gray-600">الأب</p>
+                                                @if ($person->parent->death_date)
+                                                    <p class="text-xs text-gray-500 mt-1">رحمه الله</p>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </a>
+                                @endif
+
+                                @if ($person->mother)
+                                    <a href="{{ route('people.profile.show', $person->mother->id) }}"
+                                        class="group bg-white rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-300 border border-green-200 hover:border-green-400">
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-16 h-16 rounded-full overflow-hidden border-2 border-pink-300 flex-shrink-0">
+                                                @if ($person->mother->photo_url)
+                                                    <img src="{{ asset('storage/' . $person->mother->photo_url) }}" alt="{{ $person->mother->full_name }}" class="w-full h-full object-cover">
+                                                @else
+                                                    <div class="w-full h-full bg-gradient-to-br from-pink-100 to-pink-200 flex items-center justify-center">
+                                                        <i class="fas fa-female text-pink-600 text-2xl"></i>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                            <div class="flex-grow">
+                                                <h3 class="font-bold text-gray-800 group-hover:text-green-600 transition-colors">{{ $person->mother->full_name }}</h3>
+                                                <p class="text-sm text-gray-600">الأم</p>
+                                                @if ($person->mother->death_date)
+                                                    <p class="text-xs text-gray-500 mt-1">رحمها الله</p>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </a>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
+
+                    {{-- الأخوة --}}
+                    @if ($siblings && $siblings->count() > 0)
+                        <div class="p-6 lg:p-10 border-t border-green-200/60">
+                            <h2 class="text-2xl font-bold font-serif mb-6 text-green-700">الإخوة والأخوات</h2>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                                @foreach ($siblings as $sibling)
+                                    <a href="{{ route('people.profile.show', $sibling->id) }}"
+                                        class="group bg-white rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-300 border border-green-200 hover:border-green-400 text-center">
+                                        <div class="w-20 h-20 rounded-full overflow-hidden border-2 {{ $sibling->gender == 'male' ? 'border-blue-300' : 'border-pink-300' }} mx-auto mb-3">
+                                            @if ($sibling->photo_url)
+                                                <img src="{{ asset('storage/' . $sibling->photo_url) }}" alt="{{ $sibling->full_name }}" class="w-full h-full object-cover">
+                                            @else
+                                                <div class="w-full h-full bg-gradient-to-br {{ $sibling->gender == 'male' ? 'from-blue-100 to-blue-200' : 'from-pink-100 to-pink-200' }} flex items-center justify-center">
+                                                    <i class="fas {{ $sibling->gender == 'male' ? 'fa-male text-blue-600' : 'fa-female text-pink-600' }} text-3xl"></i>
+                                                </div>
+                                            @endif
+                                        </div>
+                                        <h3 class="font-bold text-sm text-gray-800 group-hover:text-green-600 transition-colors line-clamp-2">{{ $sibling->full_name }}</h3>
+                                        @if ($sibling->death_date)
+                                            <p class="text-xs text-gray-500 mt-1">{{ $sibling->gender == 'male' ? 'رحمه الله' : 'رحمها الله' }}</p>
+                                        @endif
+                                    </a>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
+                    {{-- الزوجات/الزوج --}}
+                    @if ($spouses && $spouses->count() > 0)
+                        <div class="p-6 lg:p-10 border-t border-green-200/60">
+                            <h2 class="text-2xl font-bold font-serif mb-6 text-green-700">{{ $person->gender == 'male' ? 'الزوجات' : 'الزوج' }}</h2>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                @foreach ($spouses as $spouse)
+                                    <a href="{{ route('people.profile.show', $spouse->id) }}"
+                                        class="group bg-white rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-300 border border-green-200 hover:border-green-400">
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-16 h-16 rounded-full overflow-hidden border-2 {{ $spouse->gender == 'male' ? 'border-blue-300' : 'border-pink-300' }} flex-shrink-0">
+                                                @if ($spouse->photo_url)
+                                                    <img src="{{ asset('storage/' . $spouse->photo_url) }}" alt="{{ $spouse->full_name }}" class="w-full h-full object-cover">
+                                                @else
+                                                    <div class="w-full h-full bg-gradient-to-br {{ $spouse->gender == 'male' ? 'from-blue-100 to-blue-200' : 'from-pink-100 to-pink-200' }} flex items-center justify-center">
+                                                        <i class="fas {{ $spouse->gender == 'male' ? 'fa-male text-blue-600' : 'fa-female text-pink-600' }} text-2xl"></i>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                            <div class="flex-grow">
+                                                <h3 class="font-bold text-gray-800 group-hover:text-green-600 transition-colors">{{ $spouse->full_name }}</h3>
+                                                <p class="text-sm text-gray-600">{{ $spouse->gender == 'male' ? 'زوج' : 'زوجة' }}</p>
+                                                @if ($spouse->death_date)
+                                                    <p class="text-xs text-gray-500 mt-1">{{ $spouse->gender == 'male' ? 'رحمه الله' : 'رحمها الله' }}</p>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </a>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
+                    {{-- الأبناء --}}
+                    @if ($children && $children->count() > 0)
+                        <div class="p-6 lg:p-10 border-t border-green-200/60">
+                            <h2 class="text-2xl font-bold font-serif mb-6 text-green-700">الأبناء</h2>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                                @foreach ($children as $child)
+                                    <a href="{{ route('people.profile.show', $child->id) }}"
+                                        class="group bg-white rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-300 border border-green-200 hover:border-green-400 text-center">
+                                        <div class="w-20 h-20 rounded-full overflow-hidden border-2 {{ $child->gender == 'male' ? 'border-blue-300' : 'border-pink-300' }} mx-auto mb-3">
+                                            @if ($child->photo_url)
+                                                <img src="{{ asset('storage/' . $child->photo_url) }}" alt="{{ $child->full_name }}" class="w-full h-full object-cover">
+                                            @else
+                                                <div class="w-full h-full bg-gradient-to-br {{ $child->gender == 'male' ? 'from-blue-100 to-blue-200' : 'from-pink-100 to-pink-200' }} flex items-center justify-center">
+                                                    <i class="fas {{ $child->gender == 'male' ? 'fa-male text-blue-600' : 'fa-female text-pink-600' }} text-3xl"></i>
+                                                </div>
+                                            @endif
+                                        </div>
+                                        <h3 class="font-bold text-sm text-gray-800 group-hover:text-green-600 transition-colors line-clamp-2">{{ $child->full_name }}</h3>
+                                        @if ($child->death_date)
+                                            <p class="text-xs text-gray-500 mt-1">{{ $child->gender == 'male' ? 'رحمه الله' : 'رحمها الله' }}</p>
+                                        @endif
+                                    </a>
+                                @endforeach
                             </div>
                         </div>
                     @endif

@@ -407,6 +407,35 @@
             </div>
         </section>
 
+        <!-- القسم الرابع (ب): ترتيب النساء حسب العمر -->
+        <section class="glass-effect p-4 md:p-6 rounded-2xl green-glow mb-6 md:mb-8 fade-in">
+            <div class="flex flex-col md:flex-row items-center gap-3 mb-4 md:mb-6">
+                <div class="text-center md:text-right">
+                    <h3 class="text-xl md:text-2xl font-bold gradient-text">ترتيب النساء حسب العمر</h3>
+                    <p class="text-xs md:text-sm text-gray-600 mt-1">الإناث الأحياء فقط</p>
+                </div>
+            </div>
+            <div class="space-y-2 max-h-96 md:max-h-[600px] overflow-y-auto">
+                @forelse($allFamilyFemalesByAge as $index => $person)
+                    <div class="flex items-center justify-between p-3 bg-white/50 rounded-lg hover:bg-white/70 transition">
+                        <div class="flex items-center gap-2 md:gap-3 min-w-0 flex-1">
+                            <div class="w-7 h-7 md:w-8 md:h-8 bg-gradient-to-br from-pink-400 to-pink-600 rounded-lg flex items-center justify-center text-white font-bold text-xs md:text-sm flex-shrink-0">
+                                {{ $index + 1 }}
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <div class="font-bold text-pink-600 text-sm md:text-base break-words">
+                                    {{ $person['full_name'] }}
+                                    <span class="text-pink-600 text-xs mr-1">♀</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    <p class="text-center text-gray-500 py-4">لا توجد بيانات</p>
+                @endforelse
+            </div>
+        </section>
+
         <!-- القسم الخامس: أكثر الأسماء تكراراً -->
         <section class="glass-effect p-4 md:p-6 rounded-2xl green-glow mb-6 md:mb-8 fade-in">
             <div class="flex flex-col md:flex-row items-center gap-3 mb-4 md:mb-6">

@@ -396,7 +396,7 @@
 
                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-3">
                     @foreach ($birthdayPersons as $person)
-                        <a href="{{ route('sila') }}#person-{{ $person->id }}"
+                        <a href="{{ route('people.profile.show', $person->id) }}"
                             class="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 bg-white card-hover">
                             <div class="aspect-square">
                                 @if ($person->photo_url)
