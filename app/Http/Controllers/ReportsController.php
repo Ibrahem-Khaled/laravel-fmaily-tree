@@ -84,6 +84,27 @@ class ReportsController extends Controller
             })
             ->values();
 
+        // ترتيب النساء الأحياء حسب العمر (من الأكبر للأصغر)
+        // بدون عرض العمر أو تاريخ الميلاد
+        $allFamilyFemalesByAge = Person::where('from_outside_the_family', false)
+            ->whereNull('death_date')
+            ->where('gender', 'female') // الإناث فقط
+            ->whereNotNull('birth_date') // فقط من لديهن تاريخ ميلاد
+            ->get()
+            ->map(function($person) {
+                return [
+                    'id' => $person->id,
+                    'full_name' => $person->full_name,
+                    'gender' => $person->gender,
+                    'birth_date_raw' => $person->birth_date ? $person->birth_date->timestamp : PHP_INT_MAX, // للترتيب فقط
+                ];
+            })
+            ->sortBy(function($person) {
+                // ترتيب من الأكبر للأصغر حسب تاريخ الميلاد
+                return $person['birth_date_raw'];
+            })
+            ->values();
+
         // إحصائيات حسب الجد مع حساب الأبناء والأحفاد بشكل متكرر
         $generationsData = $this->getGenerationsStatistics();
 
@@ -125,6 +146,7 @@ class ReportsController extends Controller
             'phdCount',
             'bachelorDegreeCount',
             'allFamilyMembersByAge',
+            'allFamilyFemalesByAge',
             'generationsData',
             'locationsStatistics',
             'mostCommonNames'
@@ -396,14 +418,32 @@ class ReportsController extends Controller
             return [];
         }
 
-        // جلب بيانات الأنساب بشكل محسن
-        $relatives = Person::select(['id', 'first_name', 'last_name', 'gender'])
+        // جلب بيانات الأنساب بشكل محسن مع تحميل علاقة parent للحصول على الاسم الكامل
+        // تحميل العلاقة بشكل متكرر حتى 5 مستويات للحصول على الاسم الكامل
+        $relatives = Person::with([
+            'parent' => function($query) {
+                $query->select('id', 'first_name', 'gender', 'parent_id');
+            },
+            'parent.parent' => function($query) {
+                $query->select('id', 'first_name', 'gender', 'parent_id');
+            },
+            'parent.parent.parent' => function($query) {
+                $query->select('id', 'first_name', 'gender', 'parent_id');
+            },
+            'parent.parent.parent.parent' => function($query) {
+                $query->select('id', 'first_name', 'gender', 'parent_id');
+            },
+            'parent.parent.parent.parent.parent' => function($query) {
+                $query->select('id', 'first_name', 'gender', 'parent_id');
+            }
+        ])
             ->whereIn('id', $relativesData)
             ->get()
             ->map(function($person) {
+                // استخدام accessor full_name للحصول على الاسم الكامل
                 return [
                     'id' => $person->id,
-                    'full_name' => $person->first_name . ($person->last_name ? ' ' . $person->last_name : ''),
+                    'full_name' => $person->full_name,
                     'gender' => $person->gender,
                 ];
             })
