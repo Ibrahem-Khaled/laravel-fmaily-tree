@@ -296,6 +296,11 @@
                 right: 10px;
             }
 
+            /* إظهار الأسماء دائماً على الهواتف (لا يوجد hover) */
+            .person-name-overlay {
+                opacity: 1 !important;
+            }
+
             .gallerySwiper,
             .coursesSwiper {
                 padding: 15px 40px 40px !important;
@@ -399,16 +404,10 @@
                         <a href="{{ route('people.profile.show', $person->id) }}"
                             class="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 bg-white card-hover">
                             <div class="aspect-square">
-                                @if ($person->photo_url)
-                                    <img src="{{ asset('storage/' . $person->photo_url) }}" alt="{{ $person->full_name }}"
-                                        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
-                                @else
-                                    <div class="w-full h-full gradient-secondary flex items-center justify-center">
-                                        <i class="fas {{ $person->gender == 'male' ? 'fa-male' : 'fa-female' }} text-white text-4xl md:text-5xl opacity-60"></i>
-                                    </div>
-                                @endif
+                                <img src="{{ $person->avatar }}" alt="{{ $person->full_name }}"
+                                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
                             </div>
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 person-name-overlay">
                                 <div class="absolute bottom-3 right-3 left-3 text-center">
                                     <p class="text-white text-sm md:text-base font-bold truncate drop-shadow-lg mb-1">
                                         {{ $person->full_name }}
