@@ -205,22 +205,22 @@
     @endcan
 
     <!-- Heading -->
-    @if(auth()->user()->can('padges.view') || auth()->user()->can('roles.manage') || auth()->user()->can('users.manage'))
+    @if(auth()->user()->can('padges.view') || auth()->user()->can('roles.manage') || auth()->user()->can('users.manage') || auth()->user()->can('site-content.view'))
     <div class="sidebar-heading">
         النظام والإعدادات
     </div>
     @endif
 
     <!-- Nav Item - System Management Collapse -->
-    @if(auth()->user()->can('padges.view') || auth()->user()->can('roles.manage') || auth()->user()->can('users.manage'))
-    <li class="nav-item {{ request()->routeIs(['padges.*', 'roles.*', 'users.*']) ? 'active' : '' }}">
+    @if(auth()->user()->can('padges.view') || auth()->user()->can('roles.manage') || auth()->user()->can('users.manage') || auth()->user()->can('site-content.view'))
+    <li class="nav-item {{ request()->routeIs(['padges.*', 'roles.*', 'users.*', 'dashboard.site-password-settings.*']) ? 'active' : '' }}">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSystem"
-           aria-expanded="{{ request()->routeIs(['padges.*', 'roles.*', 'users.*']) ? 'true' : 'false' }}"
+           aria-expanded="{{ request()->routeIs(['padges.*', 'roles.*', 'users.*', 'dashboard.site-password-settings.*']) ? 'true' : 'false' }}"
            aria-controls="collapseSystem">
             <i class="fas fa-fw fa-cogs"></i>
             <span>النظام والإعدادات</span>
         </a>
-        <div id="collapseSystem" class="collapse {{ request()->routeIs(['padges.*', 'roles.*', 'users.*']) ? 'show' : '' }}"
+        <div id="collapseSystem" class="collapse {{ request()->routeIs(['padges.*', 'roles.*', 'users.*', 'dashboard.site-password-settings.*']) ? 'show' : '' }}"
              aria-labelledby="headingSystem" data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">إدارة النظام:</h6>
@@ -238,6 +238,11 @@
                     <a class="collapse-item {{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}">
                         <i class="fas fa-fw fa-user-cog"></i> المستخدمون
                     </a>
+                @endcan
+                @can('site-content.view')
+                <a class="collapse-item {{ request()->routeIs('dashboard.site-password-settings.*') ? 'active' : '' }}" href="{{ route('dashboard.site-password-settings.index') }}">
+                    <i class="fas fa-fw fa-shield-alt"></i> إعدادات حماية الموقع
+                </a>
                 @endcan
             </div>
         </div>

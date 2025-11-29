@@ -37,6 +37,7 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\TrackVisit::class,
+            \App\Http\Middleware\SitePasswordProtection::class,
         ],
 
         'api' => [
@@ -68,5 +69,6 @@ class Kernel extends HttpKernel
         'role' => 'Spatie\\Permission\\Middleware\\RoleMiddleware',
         'permission' => 'Spatie\\Permission\\Middleware\\PermissionMiddleware',
         'role_or_permission' => 'Spatie\\Permission\\Middleware\\RoleOrPermissionMiddleware',
+        'site.password' => \App\Http\Middleware\SitePasswordProtection::class,
     ];
 }

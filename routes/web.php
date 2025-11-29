@@ -26,6 +26,7 @@ use App\Http\Controllers\StoriesPublicController;
 use App\Http\Controllers\admin\StoryController;
 use App\Http\Controllers\admin\VisitLogController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\SitePasswordController;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,6 +38,10 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
+// Routes for site password protection (must be before other routes)
+Route::get('/site-password', [SitePasswordController::class, 'show'])->name('site.password.show');
+Route::post('/site-password', [SitePasswordController::class, 'verify'])->name('site.password.verify');
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/programs/{program}', [ProgramPageController::class, 'show'])->name('programs.show');
@@ -182,6 +187,10 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::get('site-content', [\App\Http\Controllers\admin\SiteContentController::class, 'index'])->name('dashboard.site-content.index')->middleware(['permission:site-content.view']);
     Route::post('site-content/family-brief', [\App\Http\Controllers\admin\SiteContentController::class, 'updateFamilyBrief'])->name('dashboard.site-content.update-family-brief')->middleware(['permission:site-content.update']);
     Route::post('site-content/whats-new', [\App\Http\Controllers\admin\SiteContentController::class, 'updateWhatsNew'])->name('dashboard.site-content.update-whats-new')->middleware(['permission:site-content.update']);
+    
+    // Site Password Settings routes
+    Route::get('site-password-settings', [\App\Http\Controllers\admin\SitePasswordSettingsController::class, 'index'])->name('dashboard.site-password-settings.index')->middleware(['permission:site-content.view']);
+    Route::post('site-password-settings', [\App\Http\Controllers\admin\SitePasswordSettingsController::class, 'update'])->name('dashboard.site-password-settings.update')->middleware(['permission:site-content.update']);
     
     // Slideshow routes
     Route::get('slideshow', [\App\Http\Controllers\admin\SiteContentController::class, 'slideshow'])->name('dashboard.slideshow.index')->middleware(['permission:slideshow.view']);
