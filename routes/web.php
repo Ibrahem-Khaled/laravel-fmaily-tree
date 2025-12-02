@@ -248,6 +248,14 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::post('councils/{council}/update', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'update'])->name('dashboard.councils.update')->middleware(['permission:councils.update']);
     Route::post('councils/reorder', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'reorder'])->name('dashboard.councils.reorder')->middleware(['permission:councils.update']);
     Route::delete('councils/{council}', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'destroy'])->name('dashboard.councils.destroy')->middleware(['permission:councils.delete']);
+    
+    // Family Events routes
+    Route::get('events', [\App\Http\Controllers\admin\FamilyEventController::class, 'index'])->name('dashboard.events.index')->middleware(['permission:councils.view']);
+    Route::post('events', [\App\Http\Controllers\admin\FamilyEventController::class, 'store'])->name('dashboard.events.store')->middleware(['permission:councils.create']);
+    Route::get('events/{event}', [\App\Http\Controllers\admin\FamilyEventController::class, 'show'])->name('dashboard.events.show')->middleware(['permission:councils.view']);
+    Route::post('events/{event}/update', [\App\Http\Controllers\admin\FamilyEventController::class, 'update'])->name('dashboard.events.update')->middleware(['permission:councils.update']);
+    Route::post('events/reorder', [\App\Http\Controllers\admin\FamilyEventController::class, 'reorder'])->name('dashboard.events.reorder')->middleware(['permission:councils.update']);
+    Route::delete('events/{event}', [\App\Http\Controllers\admin\FamilyEventController::class, 'destroy'])->name('dashboard.events.destroy')->middleware(['permission:councils.delete']);
     Route::get('councils/{council}/manage', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'manage'])->name('dashboard.councils.manage')->middleware(['permission:councils.view']);
     Route::post('councils/{council}/images', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'storeImage'])->name('dashboard.councils.images.store')->middleware(['permission:councils.update']);
     Route::delete('councils/{council}/images/{image}', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'destroyImage'])->name('dashboard.councils.images.destroy')->middleware(['permission:councils.update']);

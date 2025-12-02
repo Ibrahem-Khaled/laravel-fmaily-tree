@@ -86,7 +86,7 @@
             <i class="fas fa-fw fa-home"></i>
             <span>الصفحة الرئيسية</span>
         </a>
-        <div id="collapseHome" class="collapse {{ request()->routeIs(['dashboard.site-content.*', 'dashboard.slideshow.*', 'dashboard.home-gallery.*', 'dashboard.courses.*', 'dashboard.programs.*', 'dashboard.councils.*']) ? 'show' : '' }}"
+        <div id="collapseHome" class="collapse {{ request()->routeIs(['dashboard.site-content.*', 'dashboard.slideshow.*', 'dashboard.home-gallery.*', 'dashboard.courses.*', 'dashboard.programs.*', 'dashboard.councils.*', 'dashboard.events.*']) ? 'show' : '' }}"
              aria-labelledby="headingHome" data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">إدارة الصفحة الرئيسية:</h6>
@@ -118,6 +118,11 @@
                 @can('councils.view')
                 <a class="collapse-item {{ request()->routeIs('dashboard.councils.*') ? 'active' : '' }}" href="{{ route('dashboard.councils.index') }}">
                     <i class="fas fa-fw fa-building"></i> مجالس العائلة
+                </a>
+                @endcan
+                @can('councils.view')
+                <a class="collapse-item {{ request()->routeIs('dashboard.events.*') ? 'active' : '' }}" href="{{ route('dashboard.events.index') }}">
+                    <i class="fas fa-fw fa-calendar-alt"></i> مناسبات العائلة
                 </a>
                 @endcan
             </div>

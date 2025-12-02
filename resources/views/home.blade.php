@@ -588,6 +588,125 @@
         </div>
     </section>
 
+    {{-- مناسبات العائلة --}}
+    <section class="py-2 md:py-4 lg:py-6 bg-white mobile-section">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+            <div class="text-right mb-3 md:mb-4">
+                <h2 class="text-lg sm:text-xl md:text-2xl font-bold text-gradient mb-1">مناسبات العائلة</h2>
+                <div
+                    class="w-16 md:w-24 h-0.5 md:h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent mr-0 mb-1 md:mb-2">
+                </div>
+            </div>
+
+            @if ($events && $events->count() > 0)
+                <div class="overflow-x-auto -mx-4 sm:mx-0">
+                    <div class="inline-block min-w-full align-middle">
+                        <div class="overflow-hidden shadow-lg rounded-lg">
+                            <table class="min-w-full divide-y divide-gray-200 bg-white">
+                                <thead class="gradient-primary text-white">
+                                    <tr>
+                                        <th scope="col"
+                                            class="px-2 py-1.5 md:px-3 md:py-2 text-xs font-bold uppercase tracking-wider text-right">
+                                            المناسبة</th>
+                                        <th scope="col"
+                                            class="px-2 py-1.5 md:px-3 md:py-2 text-xs font-bold uppercase tracking-wider text-right">
+                                            المدينة</th>
+                                        <th scope="col"
+                                            class="px-2 py-1.5 md:px-3 md:py-2 text-xs font-bold uppercase tracking-wider text-right">
+                                            الموقع</th>
+                                        <th scope="col"
+                                            class="px-2 py-1.5 md:px-3 md:py-2 text-xs font-bold uppercase tracking-wider text-right">
+                                            التاريخ</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    @foreach ($events as $event)
+                                        <tr class="hover:bg-gray-50 transition-colors cursor-pointer event-row"
+                                            data-event-id="{{ $event->id }}"
+                                            onclick="toggleEventDescription({{ $event->id }})">
+                                            <td class="px-2 py-1.5 md:px-3 md:py-2 whitespace-nowrap text-right"
+                                                dir="ltr">
+                                                <div class="flex items-center justify-end">
+                                                    <span
+                                                        class="text-xs font-semibold text-gray-900">{{ $event->title }}</span>
+                                                    <i
+                                                        class="fas fa-calendar-alt text-green-600 ml-1.5 text-xs"></i>
+                                                    @if ($event->description)
+                                                        <i
+                                                            class="fas fa-chevron-down text-green-500 mr-1.5 text-xs transition-transform duration-300 event-chevron-{{ $event->id }}"></i>
+                                                    @endif
+                                                </div>
+                                            </td>
+                                            <td class="px-2 py-1.5 md:px-3 md:py-2 text-right">
+                                                <span class="text-xs text-gray-700">
+                                                    {{ $event->city ?? '-' }}
+                                                </span>
+                                            </td>
+                                            <td class="px-2 py-1.5 md:px-3 md:py-2 text-right">
+                                                <span class="text-xs text-gray-700">
+                                                    {{ $event->location ?? '-' }}
+                                                </span>
+                                            </td>
+                                            <td class="px-2 py-1.5 md:px-3 md:py-2 whitespace-nowrap text-right">
+                                                <div class="text-right">
+                                                    <div class="text-xs font-medium text-gray-900 mb-1">
+                                                        {{ $event->event_date->format('Y-m-d') }}
+                                                    </div>
+                                                    @if ($event->show_countdown && $event->event_date->isFuture())
+                                                        <div class="event-countdown-{{ $event->id }} text-xs text-green-600 font-semibold text-right"
+                                                            data-event-date="{{ $event->event_date->format('Y-m-d H:i:s') }}">
+                                                            <span class="countdown-days"></span> يوم
+                                                            <span class="countdown-hours"></span> ساعة
+                                                            <span class="countdown-minutes"></span> دقيقة
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        @if ($event->description)
+                                            <tr
+                                                class="event-description-row event-description-{{ $event->id }} hidden">
+                                                <td colspan="4" class="px-2 py-0 md:px-3">
+                                                    <div
+                                                        class="event-description-content max-h-0 overflow-hidden transition-all duration-500 ease-in-out">
+                                                        <div
+                                                            class="bg-gradient-to-r from-green-50 to-emerald-50 border-r-4 border-green-500 rounded-lg p-3 md:p-4 my-1.5 shadow-md">
+                                                            <div class="flex items-start gap-2">
+                                                                <div class="flex-shrink-0 mt-0.5">
+                                                                    <i
+                                                                        class="fas fa-info-circle text-green-600 text-sm"></i>
+                                                                </div>
+                                                                <div class="flex-1">
+                                                                    <h4
+                                                                        class="text-xs md:text-sm font-semibold text-gray-800 mb-1.5 flex items-center gap-1.5">
+                                                                        <span>نبذة عن {{ $event->title }}</span>
+                                                                    </h4>
+                                                                    <div
+                                                                        class="text-xs text-gray-700 leading-relaxed whitespace-pre-line">
+                                                                        {{ $event->description }}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endif
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            @else
+                <div class="text-center py-6">
+                    <i class="fas fa-calendar-alt text-gray-400 text-3xl md:text-4xl mb-3"></i>
+                    <p class="text-gray-600 text-sm md:text-base">لا توجد مناسبات متاحة حالياً</p>
+                </div>
+            @endif
+        </div>
+    </section>
+
     {{-- Family Programs Section --}}
     <section class="py-6 md:py-8 lg:py-10 bg-gradient-to-br from-green-50 to-emerald-50 relative overflow-hidden">
         <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-200 rounded-full blur-3xl opacity-20"></div>
@@ -935,6 +1054,73 @@
                 }, 500);
             }
         }
+
+        // Toggle Event Description
+        function toggleEventDescription(eventId) {
+            const descriptionRow = document.querySelector(`.event-description-${eventId}`);
+            const content = descriptionRow?.querySelector('.event-description-content');
+            const chevron = document.querySelector(`.event-chevron-${eventId}`);
+
+            if (!descriptionRow || !content) return;
+
+            const isHidden = descriptionRow.classList.contains('hidden');
+
+            if (isHidden) {
+                // Show description
+                descriptionRow.classList.remove('hidden');
+                // Force reflow to ensure transition works
+                setTimeout(() => {
+                    content.style.maxHeight = content.scrollHeight + 'px';
+                }, 10);
+                if (chevron) {
+                    chevron.style.transform = 'rotate(180deg)';
+                }
+            } else {
+                // Hide description
+                content.style.maxHeight = '0';
+                if (chevron) {
+                    chevron.style.transform = 'rotate(0deg)';
+                }
+                // Wait for animation to complete before hiding row
+                setTimeout(() => {
+                    descriptionRow.classList.add('hidden');
+                }, 500);
+            }
+        }
+
+        // Countdown Timer for Events
+        function updateEventCountdowns() {
+            document.querySelectorAll('[class*="event-countdown-"]').forEach(function(countdownElement) {
+                const eventDateStr = countdownElement.getAttribute('data-event-date');
+                if (!eventDateStr) return;
+
+                const eventDate = new Date(eventDateStr);
+                const now = new Date();
+                const diff = eventDate - now;
+
+                if (diff <= 0) {
+                    countdownElement.innerHTML = '<span class="text-red-600">انتهت المناسبة</span>';
+                    return;
+                }
+
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+                const daysSpan = countdownElement.querySelector('.countdown-days');
+                const hoursSpan = countdownElement.querySelector('.countdown-hours');
+                const minutesSpan = countdownElement.querySelector('.countdown-minutes');
+
+                if (daysSpan) daysSpan.textContent = days;
+                if (hoursSpan) hoursSpan.textContent = hours;
+                if (minutesSpan) minutesSpan.textContent = minutes;
+            });
+        }
+
+        // Update countdown every minute
+        setInterval(updateEventCountdowns, 60000);
+        // Initial update
+        updateEventCountdowns();
     </script>
 </body>
 

@@ -8,6 +8,7 @@ use App\Models\SlideshowImage;
 use App\Models\HomeGalleryImage;
 use App\Models\Course;
 use App\Models\FamilyCouncil;
+use App\Models\FamilyEvent;
 use App\Models\Person;
 use App\Models\Article;
 use App\Models\Category;
@@ -60,6 +61,12 @@ class HomeController extends Controller
         $councils = FamilyCouncil::where('is_active', true)
             ->with('images')
             ->orderBy('display_order')
+            ->get();
+
+        // جلب مناسبات العائلة النشطة
+        $events = FamilyEvent::where('is_active', true)
+            ->orderBy('display_order')
+            ->orderBy('event_date')
             ->get();
 
         // جلب الأشخاص الذين ولدوا في مثل هذا اليوم (نفس اليوم والشهر)
@@ -172,6 +179,7 @@ class HomeController extends Controller
             'courses' => $courses,
             'programs' => $programs,
             'councils' => $councils,
+            'events' => $events,
             'birthdayPersons' => $birthdayPersons,
             'latestGraduates' => $latestGraduates,
             'bachelorTotalCount' => $bachelorTotalCount,
