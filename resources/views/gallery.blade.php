@@ -5,122 +5,803 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>معرض صور العائلة</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 
-    {{-- قم بتضمين ملف Tailwind CSS الخاص بمشروعك --}}
-    {{-- مثال: <link href="{{ asset('css/app.css') }}" rel="stylesheet"> --}}
-    <script src="https://cdn.tailwindcss.com"></script> {{-- للاختبار السريِّع  فقط --}}
-
-    {{-- استيراد خطوط جميلة من Google Fonts --}}
+    {{-- خطوط مميزة --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Amiri:wght@400;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;600;700;800;900&family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* --- الأنماط الأساسية (نفس الأنماط الأصلية) --- */
+        :root {
+            --primary: #0d9488;
+            --primary-dark: #0f766e;
+            --primary-light: #2dd4bf;
+            --secondary: #f59e0b;
+            --accent: #ec4899;
+            --dark: #0f172a;
+            --surface: #f8fafc;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Tajawal', sans-serif;
-            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);
+            font-family: 'Readex Pro', 'Noto Kufi Arabic', sans-serif;
+            background: var(--dark);
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        h1,
-        h2,
-        h3 {
-            font-family: 'Amiri', serif;
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Noto Kufi Arabic', sans-serif;
         }
 
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+        /* ===== الخلفية المتحركة ===== */
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(13, 148, 136, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(236, 72, 153, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(245, 158, 11, 0.08) 0%, transparent 60%),
+                linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
         }
 
-        .green-glow {
-            box-shadow: 0 0 40px rgba(34, 197, 94, 0.3);
+        .floating-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
         }
 
-        .green-glow-hover:hover {
-            box-shadow: 0 0 60px rgba(34, 197, 94, 0.5);
-            transform: translateY(-5px);
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.4;
+            animation: float 20s infinite ease-in-out;
         }
 
-        .gradient-text {
-            background: linear-gradient(135deg, #16a34a 0%, #22c55e 50%, #4ade80 100%);
+        .shape-1 {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            top: -100px;
+            right: -100px;
+            animation-delay: 0s;
+        }
+
+        .shape-2 {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, var(--accent), #f472b6);
+            bottom: -50px;
+            left: -50px;
+            animation-delay: -5s;
+        }
+
+        .shape-3 {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, var(--secondary), #fbbf24);
+            top: 50%;
+            left: 50%;
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(30px, -30px) scale(1.1); }
+            50% { transform: translate(-20px, 20px) scale(0.95); }
+            75% { transform: translate(20px, 30px) scale(1.05); }
+        }
+
+        /* ===== المحتوى الرئيسي ===== */
+        .main-content {
+            position: relative;
+            z-index: 10;
+        }
+
+        /* ===== هيدر المعرض ===== */
+        .gallery-hero {
+            padding: 2rem 1rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .gallery-title {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 0%, var(--primary-light) 50%, var(--secondary) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 40px rgba(45, 212, 191, 0.3);
         }
 
-        ::-webkit-scrollbar {
-            width: 10px;
+        .gallery-subtitle {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1rem;
+            font-weight: 400;
         }
 
-        ::-webkit-scrollbar-track {
-            background: #f0fdf4;
+        /* ===== الإحصائيات ===== */
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin: 1.5rem 0;
+            padding: 1rem;
         }
 
-        ::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, #22c55e, #16a34a);
-            border-radius: 5px;
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            padding: 0.75rem 1.25rem;
+            border-radius: 100px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
         }
 
-        ::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(180deg, #16a34a, #15803d);
+        .stat-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
         }
 
+        .stat-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .stat-icon.teal { background: linear-gradient(135deg, var(--primary), var(--primary-light)); }
+        .stat-icon.amber { background: linear-gradient(135deg, var(--secondary), #fbbf24); }
+        .stat-icon.pink { background: linear-gradient(135deg, var(--accent), #f472b6); }
+
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* ===== مسار التنقل ===== */
+        .breadcrumb-nav {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 1.5rem;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            margin: 0 1rem 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            flex-wrap: wrap;
+        }
+
+        .breadcrumb-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+
+        .breadcrumb-item:hover {
+            color: var(--primary-light);
+            background: rgba(45, 212, 191, 0.1);
+        }
+
+        .breadcrumb-item.active {
+            color: #fff;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            font-weight: 600;
+        }
+
+        .breadcrumb-separator {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* ===== شبكة الفئات ===== */
+        .categories-section {
+            padding: 0 1rem 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-title-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+        }
+
+        /* ===== بطاقات الفئات ===== */
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .category-card {
+            position: relative;
+            border-radius: 24px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: cardAppear 0.6s ease-out backwards;
+        }
+
+        .category-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: var(--primary);
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.3),
+                0 0 60px rgba(13, 148, 136, 0.2);
+        }
+
+        @keyframes cardAppear {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* معاينة الصور في البطاقة */
+        .card-preview {
+            position: relative;
+            aspect-ratio: 4/3;
+            overflow: hidden;
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 3px;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .preview-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: all 0.5s ease;
+            filter: brightness(0.8);
+        }
+
+        .category-card:hover .preview-image {
+            filter: brightness(1);
+            transform: scale(1.05);
+        }
+
+        .preview-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(13, 148, 136, 0.2), rgba(13, 148, 136, 0.05));
+            color: var(--primary-light);
+        }
+
+        /* التدرج فوق المعاينة */
+        .card-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 70%;
+            background: linear-gradient(to top, rgba(15, 23, 42, 0.95), transparent);
+            pointer-events: none;
+        }
+
+        /* محتوى البطاقة */
+        .card-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1.25rem;
+        }
+
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .card-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        /* شارة الفئة الجديدة */
+        .new-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: linear-gradient(135deg, var(--accent), #f472b6);
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.35rem 0.75rem;
+            border-radius: 100px;
+            animation: pulse 2s infinite;
+            z-index: 10;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.5); }
+            50% { box-shadow: 0 0 0 10px rgba(236, 72, 153, 0); }
+        }
+
+        /* شارة الفئات الفرعية */
+        .subcategories-badge {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: linear-gradient(135deg, var(--secondary), #fbbf24);
+            color: var(--dark);
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.35rem 0.75rem;
+            border-radius: 100px;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            z-index: 10;
+        }
+
+        /* ===== عرض الصور ===== */
+        .images-section {
+            padding: 0 1rem 2rem;
+            display: none;
+        }
+
+        .images-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .images-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        @media (min-width: 768px) {
+            .images-grid {
+                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            }
+        }
+
+        /* بطاقة الصورة */
+        .image-card {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: imageAppear 0.5s ease-out backwards;
+        }
+
+        .image-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            border-color: var(--primary);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes imageAppear {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .image-wrapper {
+            aspect-ratio: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: all 0.5s ease;
+        }
+
+        .image-card:hover .image-wrapper img {
+            transform: scale(1.1);
+        }
+
+        .image-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(15, 23, 42, 0.9), transparent 60%);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .image-card:hover .image-overlay {
+            opacity: 1;
+        }
+
+        .image-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .image-card:hover .image-info {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .image-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .image-author {
+            font-size: 0.75rem;
+            color: var(--primary-light);
+        }
+
+        /* شارات نوع الملف */
+        .file-type-badge {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            z-index: 5;
+        }
+
+        .file-type-badge.youtube {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: #fff;
+        }
+
+        .file-type-badge.pdf {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: #fff;
+        }
+
+        /* ===== رسالة لا توجد صور ===== */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 24px;
+            border: 1px dashed rgba(255, 255, 255, 0.1);
+        }
+
+        .empty-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+        }
+
+        .empty-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-text {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* ===== Modal النافذة المنبثقة ===== */
         .modal-backdrop {
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(5px);
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .modal-backdrop.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
         }
 
         .modal-content {
-            animation: slideUp 0.3s ease-out;
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border-radius: 24px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: modalSlide 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        @keyframes slideUp {
+        @keyframes modalSlide {
             from {
-                transform: translateY(100%);
+                transform: translateY(50px) scale(0.95);
                 opacity: 0;
             }
-
             to {
-                transform: translateY(0);
+                transform: translateY(0) scale(1);
                 opacity: 1;
             }
         }
 
-        .fullscreen-image {
-            max-height: 90vh;
-            max-width: 90vw;
-            object-fit: contain;
+        .modal-header {
+            padding: 1.25rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
-        /* أنماط الأشخاص المذكورين */
-        .mentioned-persons {
+        .modal-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(90deg);
+        }
+
+        .modal-preview {
+            aspect-ratio: 16/10;
+            overflow: hidden;
+        }
+
+        .modal-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .modal-body {
+            padding: 1.25rem;
+        }
+
+        .modal-info-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .modal-info-item:last-child {
+            border-bottom: none;
+        }
+
+        .modal-info-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: rgba(13, 148, 136, 0.2);
+            color: var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-info-label {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .modal-info-value {
+            font-size: 0.9rem;
+            color: #fff;
+            font-weight: 500;
+        }
+
+        .modal-actions {
+            padding: 1.25rem;
             display: flex;
             flex-direction: column;
-            align-items: flex-end;
-            gap: 4px;
-            margin-top: 8px;
+            gap: 0.75rem;
         }
 
-        .mentioned-person-tag {
-            background: linear-gradient(135deg, #22c55e, #16a34a);
-            color: white;
-            padding: 2px 8px;
+        .modal-btn {
+            padding: 0.875rem 1.25rem;
             border-radius: 12px;
-            font-size: 11px;
-            font-weight: 500;
-            white-space: nowrap;
+            border: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
 
-        /* Lazy loading styles */
+        .modal-btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #fff;
+        }
+
+        .modal-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(13, 148, 136, 0.3);
+        }
+
+        .modal-btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .modal-btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* ===== Fullscreen Modal ===== */
+        .fullscreen-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fullscreen-modal.active {
+            display: flex;
+        }
+
+        .fullscreen-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .fullscreen-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .fullscreen-image {
+            max-width: 90vw;
+            max-height: 90vh;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        /* ===== Lazy Loading ===== */
         .lazy-image {
             opacity: 0;
-            transition: opacity 0.2s ease; /* تقليل وقت الانتقال */
+            transition: opacity 0.4s ease;
         }
 
         .lazy-image.loaded {
@@ -128,596 +809,607 @@
         }
 
         .lazy-placeholder {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
-        }
-
-        @keyframes loading {
-            0% {
-                background-position: 200% 0;
-            }
-            100% {
-                background-position: -200% 0;
-            }
-        }
-
-        /* --- نهاية الأنماط الأساسية --- */
-
-        /* --- أنماط جديدة لعرض المجلدات --- */
-        .folder {
-            position: relative;
-            padding-top: 75%;
-            /* Aspect ratio 4:3 */
-            background-color: #a7f3d0;
-            border-radius: 0.75rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .folder:hover {
-            transform: translateY(-8px) scale(1.03);
-            box-shadow: 0 10px 20px rgba(34, 197, 94, 0.3);
-        }
-
-        .folder::before {
-            content: '';
             position: absolute;
-            top: -5%;
-            left: 5%;
-            width: 30%;
-            height: 10%;
-            background-color: #6ee7b7;
-            border-radius: 0.375rem 0.375rem 0 0;
-        }
-
-        .folder-preview {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            padding: 15% 5% 5% 5%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .folder-preview-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            grid-template-rows: repeat(2, 1fr);
-            gap: 4px;
-            width: 100%;
-            height: 100%;
-            background: #dcfce7;
-            border-radius: 0.25rem;
-            overflow: hidden;
-        }
-
-        .folder-preview-grid img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            opacity: 0.8;
-            transition: opacity 0.3s ease;
-        }
-
-        .folder:hover .folder-preview-grid img {
-            opacity: 1;
-        }
-
-        .folder-name {
-            margin-top: 0.75rem;
-            font-weight: 700;
-            color: #14532d;
-            text-align: center;
-            transition: color 0.3s ease;
-            font-family: 'Amiri', serif;
-        }
-
-        .folder-item:hover .folder-name {
-            color: #16a34a;
-        }
-
-        /* أيقونة المجلد الفارغ */
-        .folder-empty-icon {
-            color: #34d399;
-        }
-
-        /* أنماط شاشة عرض الصور */
-        #image-view-container {
-            display: none;
-            /* مخفي بشكل افتراضي */
-            animation: fadeIn 0.5s ease;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
-        }
-
-        /* أنماط الفلاتر المتقدمة */
-        .filter-type-btn {
-            padding: 8px 12px;
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.7);
-            border: 2px solid transparent;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        .filter-type-btn:hover {
-            background: rgba(34, 197, 94, 0.1);
-            border-color: rgba(34, 197, 94, 0.3);
-            transform: translateY(-2px);
-        }
-
-        .filter-type-btn.active {
-            background: linear-gradient(135deg, #22c55e, #16a34a);
-            color: white;
-            border-color: #16a34a;
-            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
-        }
-
-        /* أنماط المجلدات مع تأثيرات متقدمة */
-        .folder-item {
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .folder-item::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-            transition: left 0.6s ease;
-            z-index: 1;
-        }
-
-        .folder-item:hover::before {
-            left: 100%;
-        }
-
-        .folder-item:hover {
-            transform: translateY(-8px) scale(1.05);
-            box-shadow: 0 20px 40px rgba(34, 197, 94, 0.4);
-        }
-
-        /* تأثيرات النص المتحرك */
-        .gradient-text {
-            background: linear-gradient(135deg, #16a34a 0%, #22c55e 50%, #4ade80 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: gradientShift 3s ease-in-out infinite;
-        }
-
-        @keyframes gradientShift {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-        }
-
-        /* تأثيرات البطاقات */
-        .folder-preview-grid img {
-            transition: all 0.5s ease;
-        }
-
-        .folder-item:hover .folder-preview-grid img {
-            transform: scale(1.1);
-            filter: brightness(1.1) contrast(1.1);
-        }
-
-        /* تأثيرات البحث */
-        #search-input:focus {
-            outline: none;
-            border-color: #22c55e;
-            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
-            transform: scale(1.02);
-        }
-
-        /* تأثيرات الأزرار */
-        .btn-animated {
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-animated::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-
-        .btn-animated:hover::before {
-            width: 300px;
-            height: 300px;
-        }
-
-        /* تأثيرات التحميل */
-        .loading-shimmer {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            inset: 0;
+            background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
             background-size: 200% 100%;
             animation: shimmer 1.5s infinite;
         }
 
         @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
         }
 
-        /* تأثيرات الظهور */
-        .fade-in-up {
-            animation: fadeInUp 0.6s ease-out;
+        /* ===== Scrollbar ===== */
+        ::-webkit-scrollbar {
+            width: 8px;
         }
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, var(--primary), var(--primary-dark));
+            border-radius: 4px;
+        }
+
+        /* ===== Responsive ===== */
+        @media (max-width: 640px) {
+            .categories-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
             }
-            to {
-                opacity: 1;
-                transform: translateY(0);
+
+            .images-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.75rem;
+            }
+
+            .stats-bar {
+                gap: 0.75rem;
+            }
+
+            .stat-item {
+                padding: 0.5rem 0.875rem;
+            }
+
+            .breadcrumb-nav {
+                padding: 0.75rem 1rem;
             }
         }
 
-        /* تأثيرات النبض */
-        .pulse-effect {
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        /* أنماط PDF محسنة للهواتف */
-        .pdf-container {
-            max-height: 90vh;
-            max-width: 90vw;
-            width: 100%;
-            height: 100%;
+        /* ===== Mentioned Persons ===== */
+        .mentioned-persons {
             display: flex;
-            flex-direction: column;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
-        }
-
-        .pdf-header {
-            padding: 15px 20px;
-            background: #f8f9fa;
-            border-bottom: 1px solid #dee2e6;
-            border-radius: 8px 8px 0 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 0.35rem;
+            margin-top: 0.5rem;
         }
 
-        .pdf-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 40px 20px;
-            text-align: center;
-        }
-
-        /* تحسينات للهواتف */
-        @media (max-width: 768px) {
-            .pdf-container {
-                max-height: 95vh;
-                max-width: 95vw;
-                margin: 10px;
-            }
-
-            .pdf-header {
-                padding: 10px 15px;
-                flex-direction: column;
-                align-items: stretch;
-                gap: 10px;
-            }
-
-            .pdf-content {
-                padding: 20px 15px;
-            }
-
-            .pdf-content h3 {
-                font-size: 1.2rem;
-            }
-
-            .pdf-content p {
-                font-size: 0.9rem;
-            }
-
-            .pdf-content button {
-                padding: 10px 16px !important;
-                font-size: 13px !important;
-                margin: 5px;
-            }
+        .mentioned-tag {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #fff;
+            font-size: 0.65rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 100px;
+            font-weight: 500;
         }
     </style>
 </head>
 
-<body class="text-gray-800 relative overflow-x-hidden">
+<body>
     @include('partials.main-header')
 
-    <div class="container mx-auto px-4 py-4 lg:py-8 relative z-10">
+    <div class="animated-bg"></div>
+    <div class="floating-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+    </div>
 
+    <div class="main-content">
+        <!-- هيدر المعرض -->
+        <section class="gallery-hero">
+            <h1 class="gallery-title">معرض صور العائلة</h1>
+            <p class="gallery-subtitle">استكشف ذكريات وصور العائلة المميزة</p>
 
-        <div class="flex items-center justify-between mb-4 lg:hidden">
-            <h2 class="text-xl font-bold gradient-text">المعرض الذكي</h2>
-            <div class="flex items-center gap-2">
-                <button id="toggle-view-mode-btn"
-                    class="bg-white/80 p-2 rounded-full shadow-md hover:bg-white transition-all">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-700" fill="none"
-                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                    </svg>
-                </button>
-                <button id="toggle-filters-btn"
-                    class="bg-white/80 p-2 rounded-full shadow-md hover:bg-white transition-all">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-700" fill="none"
-                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M3 4h13M3 8h9m-9 4h6m4 0l4 4m0 0l4-4m-4 4v-8" />
-                    </svg>
-                </button>
-            </div>
-        </div>
-        <div class="flex flex-col lg:flex-row gap-8">
-
-
-
-            <div id="filters-backdrop" class="fixed top-16 left-0 right-0 bottom-0 bg-black/40 z-20 hidden lg:hidden"></div>
-            <aside id="filters-sidebar"
-                class="fixed lg:static top-16 right-0 bottom-0 lg:inset-y-0 z-30 w-full max-w-sm lg:max-w-none lg:w-1/4 h-[calc(100vh-4rem)] lg:h-auto bg-white/50 lg:bg-transparent backdrop-blur-lg lg:backdrop-blur-none p-4 lg:p-0 transform transition-transform duration-300 ease-in-out translate-x-full lg:translate-x-0">
-                <div class="glass-effect p-4 lg:p-6 rounded-3xl green-glow h-full lg:card-hover">
-                    <div class="flex items-center justify-between lg:block border-b border-green-200 pb-4 mb-4">
-                        <h3 class="text-xl lg:text-2xl font-bold gradient-text">الأقسام</h3>
-                        <button id="close-filters-btn" class="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition lg:hidden">
-                            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </button>
-                    </div>
-
-                    <ul class="space-y-2">
-                        <li>
-                            <a href="javascript:void(0);" onclick="showFolderView()"
-                                class="block px-3 lg:px-4 py-2 lg:py-3 rounded-xl lg:rounded-2xl transition-all duration-300 font-medium text-sm lg:text-base bg-white/70 hover:bg-green-50 hover:scale-105 hover:shadow-md">
-                                <span class="flex items-center gap-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 20 20"
-                                        fill="currentColor">
-                                        <path
-                                            d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
-                                    </svg>
-                                    كل المجلدات
-                                </span>
-                            </a>
-                        </li>
-
-
-                        <!-- جميع الفئات -->
-                        <li class="mt-4">
-                            <div class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">جميع الفئات</div>
-                            <div class="space-y-1">
-                                @foreach ($categories as $category)
-                                    <a href="javascript:void(0);" onclick="openCategoryView({{ $category->id }})"
-                                        class="block px-3 lg:px-4 py-2 lg:py-3 rounded-xl lg:rounded-2xl transition-all duration-300 font-medium text-sm lg:text-base bg-white/70 hover:bg-green-50 hover:scale-105 hover:shadow-md">
-                                        <span class="flex items-center justify-between">
-                                            <span>{{ $category->name }}</span>
-                                            <span class="text-xs text-gray-500">({{ $category->images_count }})</span>
-                                        </span>
-                                    </a>
-                                @endforeach
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-            </aside>
-            <main class="w-full lg:w-3/4">
-
-                <div id="folder-view-container">
-                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-4 gap-6">
-                        @foreach ($categories as $category)
-                            <div class="folder-item fade-in-up" onclick="openCategoryView({{ $category->id }})" style="animation-delay: {{ $loop->index * 0.1 }}s">
-                                <div class="folder">
-                                    <div class="folder-preview">
-                                        @if ($category->images->isNotEmpty())
-                                            <div class="folder-preview-grid">
-                                                @foreach ($category->images->take(4) as $image)
-                                                    <img src="{{ $image->getThumbnailUrl() }}" alt="Preview">
-                                                @endforeach
-                                            </div>
-                                        @else
-                                            <div class="w-full h-full flex items-center justify-center bg-green-200/50 rounded-md">
-                                                <svg class="w-1/2 h-1/2 folder-empty-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" />
-                                                </svg>
-                                            </div>
-                                        @endif
-                                    </div>
-                                    <!-- شارة الفئة الحديثة -->
-                                    @if($category->updated_at->diffInDays() <= 7)
-                                        <div class="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full pulse-effect">
-                                            جديد
-                                        </div>
-                                    @endif
-                                </div>
-                                <h3 class="folder-name">
-                                    {{ $category->name }}
-                                    <span class="text-sm text-gray-500">({{ $category->images_count }})</span>
-                                    <div class="text-xs text-gray-400 mt-1">
-                                        {{ $category->updated_at->diffForHumans() }}
-                                    </div>
-                                </h3>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-
-                <div id="image-view-container">
-                    <div class="flex items-center justify-between mb-6">
-                        <h2 id="category-title" class="text-3xl font-bold gradient-text"></h2>
-                        <button onclick="showFolderView()"
-                            class="bg-white/80 hover:bg-white transition-all shadow-md hover:shadow-lg text-green-700 font-bold py-2 px-4 rounded-full flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
-                                fill="currentColor">
-                                <path fill-rule="evenodd"
-                                    d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            العودة للمجلدات
-                        </button>
-                    </div>
-                    <div id="image-grid"
-                        class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
-                    </div>
-                    <div id="no-images-message"
-                        class="hidden flex flex-col items-center justify-center min-h-[400px] glass-effect rounded-2xl p-8">
-                        <svg class="w-20 h-20 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
-                            </path>
+            <!-- الإحصائيات -->
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <div class="stat-icon teal">
+                        <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/>
                         </svg>
-                        <h3 class="text-2xl font-bold gradient-text mt-6">هذا المجلد فارغ</h3>
-                        <p class="text-gray-600 mt-3 text-center">لا توجد صور في هذه الفئة حاليًا.</p>
+                    </div>
+                    <div>
+                        <div class="stat-value">{{ $stats['total_categories'] }}</div>
+                        <div class="stat-label">فئة</div>
                     </div>
                 </div>
+                <div class="stat-item">
+                    <div class="stat-icon amber">
+                        <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="stat-value">{{ $stats['total_images'] }}</div>
+                        <div class="stat-label">صورة</div>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon pink">
+                        <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="stat-value">{{ $stats['recent_uploads'] }}</div>
+                        <div class="stat-label">جديد هذا الأسبوع</div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-            </main>
-        </div>
+        <!-- مسار التنقل -->
+        <nav class="breadcrumb-nav" id="breadcrumb">
+            <div class="breadcrumb-item active" onclick="showRootCategories()">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                </svg>
+                <span>الرئيسية</span>
+            </div>
+        </nav>
+
+        <!-- قسم الفئات -->
+        <section class="categories-section" id="categories-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span class="section-title-icon">
+                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/>
+                        </svg>
+                    </span>
+                    <span id="section-title-text">جميع الفئات</span>
+                </h2>
+            </div>
+
+            <div class="categories-grid" id="categories-grid">
+                @foreach($categories as $index => $category)
+                    <div class="category-card" 
+                         style="animation-delay: {{ $index * 0.1 }}s"
+                         onclick="openCategory({{ $category->id }})">
+                        
+                        @if($category->updated_at && $category->updated_at->diffInDays() <= 7)
+                            <div class="new-badge">جديد</div>
+                        @endif
+
+                        @if($category->children->count() > 0)
+                            <div class="subcategories-badge">
+                                <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/>
+                                </svg>
+                                {{ $category->children->count() }}
+                            </div>
+                        @endif
+
+                        <div class="card-preview">
+                            <div class="preview-grid">
+                                @if($category->images->count() > 0)
+                                    @foreach($category->images->take(4) as $image)
+                                        <img src="{{ $image->getThumbnailUrl() }}" 
+                                             alt="Preview" 
+                                             class="preview-image">
+                                    @endforeach
+                                    @for($i = $category->images->count(); $i < 4; $i++)
+                                        <div class="preview-placeholder">
+                                            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                                            </svg>
+                                        </div>
+                                    @endfor
+                                @else
+                                    @for($i = 0; $i < 4; $i++)
+                                        <div class="preview-placeholder">
+                                            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                                            </svg>
+                                        </div>
+                                    @endfor
+                                @endif
+                            </div>
+                            <div class="card-overlay"></div>
+                        </div>
+
+                        <div class="card-content">
+                            <h3 class="card-title">
+                                @if($category->children->count() > 0)
+                                    <svg width="18" height="18" fill="var(--secondary)" viewBox="0 0 24 24">
+                                        <path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/>
+                                    </svg>
+                                @else
+                                    <svg width="18" height="18" fill="var(--primary-light)" viewBox="0 0 24 24">
+                                        <path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/>
+                                    </svg>
+                                @endif
+                                {{ $category->name }}
+                            </h3>
+                            <div class="card-meta">
+                                <span class="card-meta-item">
+                                    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2z"/>
+                                    </svg>
+                                    {{ $category->total_images_count ?? $category->images_count }} صورة
+                                </span>
+                                @if($category->children->count() > 0)
+                                    <span class="card-meta-item">
+                                        <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/>
+                                        </svg>
+                                        {{ $category->children->count() }} فئة فرعية
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </section>
+
+        <!-- قسم الصور -->
+        <section class="images-section" id="images-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span class="section-title-icon">
+                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                        </svg>
+                    </span>
+                    <span id="images-section-title">الصور</span>
+                </h2>
+            </div>
+
+            <div class="images-grid" id="images-grid"></div>
+
+            <div class="empty-state" id="empty-state" style="display: none;">
+                <div class="empty-icon">
+                    <svg width="32" height="32" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                    </svg>
+                </div>
+                <h3 class="empty-title">هذا المجلد فارغ</h3>
+                <p class="empty-text">لا توجد صور في هذه الفئة حالياً</p>
+            </div>
+        </section>
     </div>
 
-    <div id="imageOptionsModal" class="fixed inset-0 z-[100] hidden items-center justify-center">
-        <div class="modal-backdrop absolute inset-0" onclick="closeImageOptions()"></div>
-        <div
-            class="modal-content relative bg-white rounded-t-3xl md:rounded-3xl p-6 md:p-8 w-full max-w-md mx-auto mt-20 md:mt-0">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-xl md:text-2xl font-bold gradient-text">خيارات الملف</h3>
-                <button onclick="closeImageOptions()" class="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition">
-                    <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
-                        </path>
+    <!-- Modal خيارات الصورة -->
+    <div class="modal-backdrop" id="imageModal">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3 class="modal-title">تفاصيل الصورة</h3>
+                <button class="modal-close" onclick="closeImageModal()">
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
                     </svg>
                 </button>
             </div>
-            <div class="mb-6"><img id="modalImagePreview" src="" alt=""
-                    class="w-full h-48 md:h-64 object-cover rounded-2xl"></div>
-            <div class="mb-6 space-y-2">
-                <h4 id="modalImageTitle" class="font-bold text-lg text-gray-800"></h4>
-                <div id="modalImageAuthor" class="flex items-center gap-2 text-sm text-gray-600">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                            clip-rule="evenodd" />
-                    </svg>
-                    <span></span>
+            <div class="modal-preview">
+                <img id="modalImage" src="" alt="">
+            </div>
+            <div class="modal-body">
+                <div class="modal-info-item" id="modalTitleItem" style="display: none;">
+                    <div class="modal-info-icon">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="modal-info-label">العنوان</div>
+                        <div class="modal-info-value" id="modalTitle"></div>
+                    </div>
                 </div>
-                <div id="modalImageCategory"
-                    class="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium"></div>
-                <div id="modalImageMentionedPersons" class="mentioned-persons"></div>
+                <div class="modal-info-item" id="modalAuthorItem" style="display: none;">
+                    <div class="modal-info-icon">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="modal-info-label">المؤلف</div>
+                        <div class="modal-info-value" id="modalAuthor"></div>
+                    </div>
+                </div>
+                <div class="modal-info-item" id="modalCategoryItem" style="display: none;">
+                    <div class="modal-info-icon">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="modal-info-label">الفئة</div>
+                        <div class="modal-info-value" id="modalCategory"></div>
+                    </div>
+                </div>
+                <div id="modalMentionedPersons" style="display: none;"></div>
             </div>
-            <div class="flex flex-col gap-3">
-                <button onclick="viewFullscreen()"
-                    class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold py-3 px-4 rounded-2xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2">عرض
-                    بالحجم الكامل</button>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-primary" onclick="viewFullscreen()">
+                    <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+                    </svg>
+                    عرض بالحجم الكامل
+                </button>
+                <button class="modal-btn modal-btn-secondary" id="modalPdfBtn" style="display: none;" onclick="downloadCurrentPdf()">
+                    <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                    </svg>
+                    تحميل PDF
+                </button>
             </div>
         </div>
     </div>
 
-    <div id="fullscreenModal" class="fixed inset-0 z-[110] hidden">
-        <div class="modal-backdrop absolute inset-0 flex items-center justify-center p-4" onclick="closeFullscreen()">
-            <button onclick="closeFullscreen()"
-                class="absolute top-4 right-4 z-10 p-3 rounded-full bg-white/90 hover:bg-white transition">
-                <svg class="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
-                    </path>
-                </svg>
-            </button>
-            <img id="fullscreenImage" src="" alt="" class="fullscreen-image rounded-lg shadow-2xl"
-                onclick="event.stopPropagation()">
-        </div>
+    <!-- Fullscreen Modal -->
+    <div class="fullscreen-modal" id="fullscreenModal" onclick="closeFullscreen()">
+        <button class="fullscreen-close" onclick="closeFullscreen()">
+            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            </svg>
+        </button>
+        <img id="fullscreenImage" class="fullscreen-image" src="" alt="" onclick="event.stopPropagation()">
     </div>
-
 
     <script>
-        // قم بتمرير بيانات الفئات والصور من Laravel Controller إلى هنا
+        // بيانات الفئات والصور
         const galleryData = @json($categoriesWithImages);
+        const storageUrl = '{{ asset("storage") }}';
+        const pdfPlaceholder = '{{ asset("assets/img/base-pdf-img.jpg") }}';
 
         let currentImageData = null;
-        const folderView = document.getElementById('folder-view-container');
-        const imageView = document.getElementById('image-view-container');
-        const imageGrid = document.getElementById('image-grid');
-        const categoryTitle = document.getElementById('category-title');
-        const noImagesMessage = document.getElementById('no-images-message');
+        let breadcrumbPath = [];
 
+        // عرض الفئات الرئيسية
+        function showRootCategories() {
+            breadcrumbPath = [];
+            updateBreadcrumb();
+            document.getElementById('categories-section').style.display = 'block';
+            document.getElementById('images-section').classList.remove('active');
+            document.getElementById('section-title-text').textContent = 'جميع الفئات';
+            renderCategories(getRootCategories());
+        }
 
-        // ===== التعديل 4: إضافة كود JavaScript جديد للتحكم في القائمة الجانبية والفلاتر المتقدمة =====
-        document.addEventListener('DOMContentLoaded', function () {
-            const sidebar = document.getElementById('filters-sidebar');
-            const backdrop = document.getElementById('filters-backdrop');
-            const openBtn = document.getElementById('toggle-filters-btn');
-            const closeBtn = document.getElementById('close-filters-btn');
+        // الحصول على الفئات الرئيسية
+        function getRootCategories() {
+            return galleryData.filter(cat => !cat.parent_id);
+        }
 
+        // الحصول على الفئات الفرعية
+        function getChildCategories(parentId) {
+            return galleryData.filter(cat => cat.parent_id === parentId);
+        }
 
-            function openSidebar() {
-                sidebar.classList.remove('translate-x-full');
-                backdrop.classList.remove('hidden');
-                document.body.style.overflow = 'hidden'; // لمنع التمرير في الخلفية
+        // الحصول على فئة بالـ ID
+        function getCategoryById(id) {
+            return galleryData.find(cat => cat.id === id);
+        }
+
+        // فتح فئة
+        function openCategory(categoryId) {
+            const category = getCategoryById(categoryId);
+            if (!category) return;
+
+            const children = getChildCategories(categoryId);
+
+            // إضافة للمسار
+            breadcrumbPath.push({ id: category.id, name: category.name });
+            updateBreadcrumb();
+
+            if (children.length > 0) {
+                // عرض الفئات الفرعية مع صور الفئة الحالية
+                document.getElementById('section-title-text').textContent = category.name;
+                renderCategories(children);
+                
+                // إذا كانت هناك صور في الفئة الحالية، اعرضها أيضاً
+                if (category.images && category.images.length > 0) {
+                    showImagesSection(category);
+                }
+            } else {
+                // عرض الصور فقط
+                document.getElementById('categories-section').style.display = 'none';
+                showImagesSection(category);
+            }
+        }
+
+        // عرض الفئات
+        function renderCategories(categories) {
+            const grid = document.getElementById('categories-grid');
+            grid.innerHTML = '';
+
+            categories.forEach((category, index) => {
+                const children = getChildCategories(category.id);
+                const totalImages = countTotalImages(category);
+                const isNew = isRecentlyUpdated(category.updated_at);
+                const previewImages = category.images ? category.images.slice(0, 4) : [];
+
+                const card = document.createElement('div');
+                card.className = 'category-card';
+                card.style.animationDelay = `${index * 0.1}s`;
+                card.onclick = () => openCategory(category.id);
+
+                card.innerHTML = `
+                    ${isNew ? '<div class="new-badge">جديد</div>' : ''}
+                    ${children.length > 0 ? `
+                        <div class="subcategories-badge">
+                            <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/>
+                            </svg>
+                            ${children.length}
+                        </div>
+                    ` : ''}
+                    <div class="card-preview">
+                        <div class="preview-grid">
+                            ${renderPreviewImages(previewImages)}
+                        </div>
+                        <div class="card-overlay"></div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">
+                            <svg width="18" height="18" fill="${children.length > 0 ? 'var(--secondary)' : 'var(--primary-light)'}" viewBox="0 0 24 24">
+                                <path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/>
+                            </svg>
+                            ${category.name}
+                        </h3>
+                        <div class="card-meta">
+                            <span class="card-meta-item">
+                                <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2z"/>
+                                </svg>
+                                ${totalImages} صورة
+                            </span>
+                            ${children.length > 0 ? `
+                                <span class="card-meta-item">
+                                    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/>
+                                    </svg>
+                                    ${children.length} فئة فرعية
+                                </span>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        // رسم صور المعاينة
+        function renderPreviewImages(images) {
+            let html = '';
+            for (let i = 0; i < 4; i++) {
+                if (images[i]) {
+                    const imgUrl = images[i].thumbnail_path 
+                        ? `${storageUrl}/${images[i].thumbnail_path}`
+                        : (images[i].path ? `${storageUrl}/${images[i].path}` : pdfPlaceholder);
+                    html += `<img src="${imgUrl}" alt="Preview" class="preview-image">`;
+                } else {
+                    html += `
+                        <div class="preview-placeholder">
+                            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                            </svg>
+                        </div>
+                    `;
+                }
+            }
+            return html;
+        }
+
+        // حساب عدد الصور الكلي
+        function countTotalImages(category) {
+            let count = category.images ? category.images.length : 0;
+            const children = getChildCategories(category.id);
+            children.forEach(child => {
+                count += countTotalImages(child);
+            });
+            return count;
+        }
+
+        // التحقق من التحديث الحديث
+        function isRecentlyUpdated(dateString) {
+            if (!dateString) return false;
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffDays = Math.ceil((now - date) / (1000 * 60 * 60 * 24));
+            return diffDays <= 7;
+        }
+
+        // عرض قسم الصور
+        function showImagesSection(category) {
+            const section = document.getElementById('images-section');
+            const grid = document.getElementById('images-grid');
+            const emptyState = document.getElementById('empty-state');
+
+            document.getElementById('images-section-title').textContent = category.name;
+            section.classList.add('active');
+
+            if (!category.images || category.images.length === 0) {
+                grid.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
             }
 
-            function closeSidebar() {
-                sidebar.classList.add('translate-x-full');
-                backdrop.classList.add('hidden');
-                document.body.style.overflow = ''; // استعادة التمرير
+            grid.style.display = 'grid';
+            emptyState.style.display = 'none';
+            grid.innerHTML = '';
+
+            category.images.forEach((image, index) => {
+                const card = createImageCard(image, index);
+                grid.appendChild(card);
+            });
+
+            initLazyLoading();
+        }
+
+        // إنشاء بطاقة الصورة
+        function createImageCard(image, index) {
+            const card = document.createElement('div');
+            card.className = 'image-card';
+            card.style.animationDelay = `${index * 0.05}s`;
+
+            const isYouTube = image.media_type === 'youtube';
+            const isPdf = image.media_type === 'pdf';
+            const title = image.article?.title || '';
+            const author = image.article?.person?.name || '';
+
+            let thumbnailUrl = '';
+            if (isYouTube && image.youtube_url) {
+                const videoId = extractVideoId(image.youtube_url);
+                thumbnailUrl = image.thumbnail_path 
+                    ? `${storageUrl}/${image.thumbnail_path}`
+                    : (videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : '');
+            } else if (isPdf) {
+                thumbnailUrl = image.thumbnail_path 
+                    ? `${storageUrl}/${image.thumbnail_path}`
+                    : pdfPlaceholder;
+            } else {
+                thumbnailUrl = image.thumbnail_path 
+                    ? `${storageUrl}/${image.thumbnail_path}`
+                    : `${storageUrl}/${image.path}`;
             }
 
-            // عند الضغط على زر الفتح
-            if(openBtn) {
-                 openBtn.addEventListener('click', openSidebar);
-            }
+            const imageData = {
+                id: image.id,
+                path: image.path,
+                thumbnail_path: image.thumbnail_path,
+                youtube_url: image.youtube_url,
+                media_type: image.media_type,
+                file_size: image.file_size,
+                title: title,
+                author: author,
+                category: image.article?.category?.name || '',
+                mentioned_persons: image.mentioned_persons || []
+            };
 
-            // عند الضغط على زر الإغلاق
-            if(closeBtn) {
-                closeBtn.addEventListener('click', closeSidebar);
-            }
+            card.onclick = () => showImageOptions(imageData);
 
-            // عند الضغط على الخلفية المعتمة
-            if(backdrop) {
-                backdrop.addEventListener('click', closeSidebar);
-            }
+            card.innerHTML = `
+                ${isYouTube ? '<div class="file-type-badge youtube">YouTube</div>' : ''}
+                ${isPdf ? '<div class="file-type-badge pdf">PDF</div>' : ''}
+                <div class="image-wrapper">
+                    <img data-src="${thumbnailUrl}" alt="${title}" class="lazy-image">
+                    <div class="lazy-placeholder"></div>
+                </div>
+                <div class="image-overlay"></div>
+                <div class="image-info">
+                    ${title ? `<div class="image-title">${title}</div>` : ''}
+                    ${author ? `<div class="image-author">${author}</div>` : ''}
+                    ${renderMentionedPersons(image.mentioned_persons)}
+                </div>
+            `;
 
-        });
+            return card;
+        }
 
-        // استخراج معرف الفيديو من رابط يوتيوب
+        // رسم الأشخاص المذكورين
+        function renderMentionedPersons(persons) {
+            if (!persons || persons.length === 0) return '';
+            const validPersons = persons.filter(p => p && p.full_name);
+            if (validPersons.length === 0) return '';
+            
+            return `
+                <div class="mentioned-persons">
+                    ${validPersons.slice(0, 3).map(p => 
+                        `<span class="mentioned-tag">${p.full_name}</span>`
+                    ).join('')}
+                    ${validPersons.length > 3 ? `<span class="mentioned-tag">+${validPersons.length - 3}</span>` : ''}
+                </div>
+            `;
+        }
+
+        // استخراج معرف فيديو يوتيوب
         function extractVideoId(url) {
             if (!url) return '';
             const patterns = [
@@ -731,777 +1423,213 @@
             return '';
         }
 
-        // الحصول على نص آخر تحديث
-        function getLastUpdateText(dateString) {
-            const date = new Date(dateString);
-            const now = new Date();
-            const diffTime = Math.abs(now - date);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        // تحديث مسار التنقل
+        function updateBreadcrumb() {
+            const nav = document.getElementById('breadcrumb');
+            nav.innerHTML = `
+                <div class="breadcrumb-item ${breadcrumbPath.length === 0 ? 'active' : ''}" onclick="showRootCategories()">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                    </svg>
+                    <span>الرئيسية</span>
+                </div>
+            `;
 
-            if (diffDays === 1) return 'منذ يوم';
-            if (diffDays < 7) return `منذ ${diffDays} أيام`;
-            if (diffDays < 30) return `منذ ${Math.ceil(diffDays / 7)} أسابيع`;
-            return `منذ ${Math.ceil(diffDays / 30)} أشهر`;
-        }
-
-        // إضافة تأثيرات تفاعلية
-        function addInteractiveEffects() {
-            const folderItems = document.querySelectorAll('.folder-item');
-
-            folderItems.forEach((item, index) => {
-                // تأثير الظهور المتدرج
-                item.style.opacity = '0';
-                item.style.transform = 'translateY(30px)';
-
-                setTimeout(() => {
-                    item.style.transition = 'all 0.6s ease-out';
-                    item.style.opacity = '1';
-                    item.style.transform = 'translateY(0)';
-                }, index * 100);
-
-                // تأثير التمرير
-                item.addEventListener('mouseenter', () => {
-                    item.style.transform = 'translateY(-8px) scale(1.05)';
-                });
-
-                item.addEventListener('mouseleave', () => {
-                    item.style.transform = 'translateY(0) scale(1)';
-                });
+            breadcrumbPath.forEach((item, index) => {
+                const isLast = index === breadcrumbPath.length - 1;
+                nav.innerHTML += `
+                    <span class="breadcrumb-separator">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+                        </svg>
+                    </span>
+                    <div class="breadcrumb-item ${isLast ? 'active' : ''}" onclick="navigateToBreadcrumb(${index})">
+                        <span>${item.name}</span>
+                    </div>
+                `;
             });
         }
 
-        // تهيئة الإحصائيات الذكية
-        function initSmartStats() {
-            const totalCategories = allCategories.length;
-            const totalFiles = allCategories.reduce((sum, cat) => sum + cat.images.length, 0);
-
-            // حساب الرفعات الحديثة (آخر أسبوع)
-            const oneWeekAgo = new Date();
-            oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-            const recentUploads = allCategories.reduce((sum, cat) => {
-                return sum + cat.images.filter(img => new Date(img.created_at) > oneWeekAgo).length;
-            }, 0);
-
-            // حساب أنواع الملفات المختلفة
-            const fileTypes = new Set();
-            allCategories.forEach(cat => {
-                cat.images.forEach(img => fileTypes.add(img.media_type));
-            });
-
-            // تحديث الإحصائيات مع تأثيرات متحركة
-            animateCounter('total-categories', totalCategories);
-            animateCounter('total-files', totalFiles);
-            animateCounter('recent-uploads', recentUploads);
-            animateCounter('file-types', fileTypes.size);
+        // التنقل عبر مسار التنقل
+        function navigateToBreadcrumb(index) {
+            breadcrumbPath = breadcrumbPath.slice(0, index + 1);
+            const categoryId = breadcrumbPath[index].id;
+            breadcrumbPath.pop(); // سيتم إضافته مرة أخرى في openCategory
+            openCategory(categoryId);
         }
 
-        // تأثير عداد متحرك
-        function animateCounter(elementId, targetValue) {
-            const element = document.getElementById(elementId);
-            if (!element) return;
+        // عرض خيارات الصورة
+        function showImageOptions(imageData) {
+            currentImageData = imageData;
+            const modal = document.getElementById('imageModal');
+            const modalImage = document.getElementById('modalImage');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalAuthor = document.getElementById('modalAuthor');
+            const modalCategory = document.getElementById('modalCategory');
+            const pdfBtn = document.getElementById('modalPdfBtn');
 
-            let currentValue = 0;
-            const increment = targetValue / 50;
-            const timer = setInterval(() => {
-                currentValue += increment;
-                if (currentValue >= targetValue) {
-                    currentValue = targetValue;
-                    clearInterval(timer);
-                }
-                element.textContent = Math.floor(currentValue);
-            }, 30);
-        }
-
-        // تهيئة الفئات الذكية
-        function initSmartCategories() {
-            // الفئات الحديثة (آخر 3 فئات تم تحديثها)
-            const recentCategories = allCategories
-                .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at))
-                .slice(0, 3);
-
-            const recentContainer = document.getElementById('recent-categories');
-            if (recentContainer) {
-                recentContainer.innerHTML = recentCategories.map(cat =>
-                    `<a href="javascript:void(0);" onclick="openCategoryView(${cat.id})"
-                        class="block px-2 py-1 rounded-lg text-xs bg-green-100 hover:bg-green-200 transition-colors">
-                        <span class="flex items-center justify-between">
-                            <span>${cat.name}</span>
-                            <span class="text-green-600">${cat.images.length}</span>
-                        </span>
-                    </a>`
-                ).join('');
-            }
-
-            // الفئات المفضلة (الفئات التي تحتوي على أكثر من 10 ملفات)
-            const favoriteCategories = allCategories
-                .filter(cat => cat.images.length >= 10)
-                .sort((a, b) => b.images.length - a.images.length)
-                .slice(0, 3);
-
-            const favoriteContainer = document.getElementById('favorite-categories');
-            if (favoriteContainer) {
-                favoriteContainer.innerHTML = favoriteCategories.map(cat =>
-                    `<a href="javascript:void(0);" onclick="openCategoryView(${cat.id})"
-                        class="block px-2 py-1 rounded-lg text-xs bg-yellow-100 hover:bg-yellow-200 transition-colors">
-                        <span class="flex items-center justify-between">
-                            <span>${cat.name}</span>
-                            <span class="text-yellow-600">⭐ ${cat.images.length}</span>
-                        </span>
-                    </a>`
-                ).join('');
-            }
-        }
-        // ===== نهاية التعديل 4 =====
-
-        // دالة تهيئة Lazy Loading
-        function initLazyLoading() {
-            const lazyImages = document.querySelectorAll('.lazy-image');
-
-            if ('IntersectionObserver' in window) {
-                const imageObserver = new IntersectionObserver((entries, observer) => {
-                    entries.forEach(entry => {
-                        if (entry.isIntersecting) {
-                            const img = entry.target;
-                            const placeholder = img.nextElementSibling;
-
-                            img.src = img.dataset.src;
-                            img.onload = () => {
-                                img.classList.add('loaded');
-                                if (placeholder) {
-                                    placeholder.style.display = 'none';
-                                }
-                            };
-
-                            observer.unobserve(img);
-                        }
-                    });
-                }, {
-                    rootMargin: '100px 0px', // زيادة المسافة لتحميل أسرع
-                    threshold: 0.01
-                });
-
-                lazyImages.forEach(img => imageObserver.observe(img));
+            // تحديد الصورة
+            if (imageData.media_type === 'youtube' && imageData.youtube_url) {
+                const videoId = extractVideoId(imageData.youtube_url);
+                modalImage.src = imageData.thumbnail_path 
+                    ? `${storageUrl}/${imageData.thumbnail_path}`
+                    : `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+            } else if (imageData.media_type === 'pdf') {
+                modalImage.src = imageData.thumbnail_path 
+                    ? `${storageUrl}/${imageData.thumbnail_path}`
+                    : pdfPlaceholder;
+                pdfBtn.style.display = 'flex';
             } else {
-                // Fallback للمتصفحات القديمة
-                lazyImages.forEach(img => {
-                    img.src = img.dataset.src;
-                    img.classList.add('loaded');
-                    const placeholder = img.nextElementSibling;
-                    if (placeholder) {
-                        placeholder.style.display = 'none';
-                    }
-                });
-            }
-        }
-
-        // دالة لإعادة تهيئة Lazy Loading عند إضافة صور جديدة
-        function refreshLazyLoading() {
-            const newLazyImages = document.querySelectorAll('.lazy-image:not(.loaded)');
-            if (newLazyImages.length > 0) {
-                initLazyLoading();
-            }
-        }
-
-        // دالة لتنسيق حجم الملف
-        function formatFileSize(bytes) {
-            if (!bytes) return '';
-
-            const units = ['B', 'KB', 'MB', 'GB'];
-            let size = parseInt(bytes);
-            let unitIndex = 0;
-
-            while (size >= 1024 && unitIndex < units.length - 1) {
-                size /= 1024;
-                unitIndex++;
+                modalImage.src = `${storageUrl}/${imageData.path}`;
+                pdfBtn.style.display = 'none';
             }
 
-            return Math.round(size * 100) / 100 + ' ' + units[unitIndex];
-        }
+            // المعلومات
+            if (imageData.title) {
+                modalTitle.textContent = imageData.title;
+                document.getElementById('modalTitleItem').style.display = 'flex';
+            } else {
+                document.getElementById('modalTitleItem').style.display = 'none';
+            }
 
-        // دالة لإنشاء كود HTML لبطاقة الصورة
-        function createImageCard(image) {
-            const isYouTube = image.media_type === 'youtube' && image.youtube_url;
-            const isPdf = image.media_type === 'pdf' && image.path;
-            const imagePath = isYouTube ? null : image.path;
-            const title = image.article && image.article.title && image.article.title.trim() !== '' ? image.article.title : '';
-            const author = image.article && image.article.person ? image.article.person.name : '';
-            const categoryName = image.article && image.article.category ? image.article.category.name : '';
-            const articleId = image.article ? image.article.id : null;
+            if (imageData.author) {
+                modalAuthor.textContent = imageData.author;
+                document.getElementById('modalAuthorItem').style.display = 'flex';
+            } else {
+                document.getElementById('modalAuthorItem').style.display = 'none';
+            }
 
-            // إنشاء قائمة الأشخاص المذكورين
-            let mentionedPersonsHtml = '';
-            if (image.mentioned_persons && image.mentioned_persons.length > 0) {
-                // تصفية العناصر الفارغة أو null
-                const validPersons = image.mentioned_persons.filter(person =>
-                    person && person.full_name && person.full_name.trim() !== ''
-                );
+            if (imageData.category) {
+                modalCategory.textContent = imageData.category;
+                document.getElementById('modalCategoryItem').style.display = 'flex';
+            } else {
+                document.getElementById('modalCategoryItem').style.display = 'none';
+            }
 
+            // الأشخاص المذكورين
+            const mentionedDiv = document.getElementById('modalMentionedPersons');
+            if (imageData.mentioned_persons && imageData.mentioned_persons.length > 0) {
+                const validPersons = imageData.mentioned_persons.filter(p => p && p.full_name);
                 if (validPersons.length > 0) {
-                    mentionedPersonsHtml = `
-                        <div class="mentioned-persons">
-                            ${validPersons.map(person =>
-                                `<span class="mentioned-person-tag">${person.full_name}</span>`
-                            ).join('')}
-                        </div>
-                    `;
-                }
-            }
-
-            const imageData = JSON.stringify({
-                id: image.id,
-                path: imagePath,
-                thumbnail_path: image.thumbnail_path,
-                youtube_url: image.youtube_url,
-                media_type: image.media_type,
-                file_size: image.file_size,
-                file_extension: image.file_extension,
-                title: title,
-                author: author,
-                category: categoryName,
-                article_id: articleId,
-                mentioned_persons: image.mentioned_persons || []
-            });
-
-            if (isYouTube) {
-                // استخراج معرف الفيديو
-                let videoId = '';
-                const patterns = [
-                    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
-                    /youtube\.com\/watch\?.*v=([a-zA-Z0-9_-]{11})/
-                ];
-
-                for (let pattern of patterns) {
-                    const match = image.youtube_url.match(pattern);
-                    if (match) {
-                        videoId = match[1];
-                        break;
-                    }
-                }
-
-                // استخدام الصورة المصغرة المخصصة إذا كانت متاحة، وإلا استخدم الافتراضية
-                const thumbnailUrl = image.thumbnail_path ?
-                    `{{ asset('storage') }}/${image.thumbnail_path}` :
-                    (videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : '');
-
-                return `
-                    <div onclick='showImageOptions(${imageData})'
-                        class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer green-glow-hover transition-all duration-500">
-                        <div class="aspect-square overflow-hidden bg-gradient-to-br from-red-100 to-red-200">
-                            <img data-src="${thumbnailUrl}" alt="${title}"
-                                 class="lazy-image w-full h-full object-cover transition-all duration-700 group-hover:scale-110">
-                            <div class="lazy-placeholder absolute inset-0"></div>
-                            <div class="absolute inset-0 flex items-center justify-center">
-                                <div class="bg-red-600 text-white rounded-full p-3 opacity-80 group-hover:opacity-100 transition-opacity">
-                                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-                                    </svg>
+                    mentionedDiv.innerHTML = `
+                        <div class="modal-info-item">
+                            <div class="modal-info-icon">
+                                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="modal-info-label">الأشخاص المذكورون</div>
+                                <div class="mentioned-persons" style="margin-top: 0.5rem;">
+                                    ${validPersons.map(p => `<span class="mentioned-tag">${p.full_name}</span>`).join('')}
                                 </div>
                             </div>
                         </div>
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
-                        <div class="absolute bottom-0 left-0 right-0 p-3 text-white transform translate-y-full group-hover:translate-y-0 transition-all duration-500">
-                            ${title ? `<h4 class="font-bold text-sm line-clamp-1">${title}</h4>` : ''}
-                            ${author ? `<span class="text-xs text-red-200">${author}</span>` : ''}
-                            ${mentionedPersonsHtml}
-                        </div>
-                    </div>
-                `;
-            } else if (isPdf) {
-                // استخدام الصورة المصغرة المخصصة إذا كانت متاحة، وإلا استخدم الافتراضية
-                const thumbnailUrl = image.thumbnail_path ?
-                    `{{ asset('storage') }}/${image.thumbnail_path}` :
-                    '{{ asset("assets/img/base-pdf-img.jpg") }}';
-
-                return `
-                    <div onclick='showImageOptions(${imageData})'
-                        class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer green-glow-hover transition-all duration-500">
-                        <div class="aspect-square overflow-hidden bg-gradient-to-br from-orange-100 to-orange-200">
-                            <img data-src="${thumbnailUrl}" alt="PDF Document"
-                                 class="lazy-image w-full h-full object-cover transition-all duration-700 group-hover:scale-110">
-                            <div class="lazy-placeholder absolute inset-0"></div>
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
-                            <div class="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded-full font-bold">
-                                PDF
-                            </div>
-                            ${image.file_size ? `<div class="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded">${formatFileSize(image.file_size)}</div>` : ''}
-                        </div>
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
-                        <div class="absolute bottom-0 left-0 right-0 p-3 text-white transform translate-y-full group-hover:translate-y-0 transition-all duration-500">
-                            ${title ? `<h4 class="font-bold text-sm line-clamp-1">${title}</h4>` : ''}
-                            ${author ? `<span class="text-xs text-orange-200">${author}</span>` : ''}
-                            ${mentionedPersonsHtml}
-                        </div>
-                    </div>
-                `;
-            } else {
-                const storageUrl = `{{ asset('storage') }}/${imagePath}`;
-                return `
-                    <div onclick='showImageOptions(${imageData})'
-                        class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer green-glow-hover transition-all duration-500">
-                        <div class="aspect-square overflow-hidden bg-gradient-to-br from-green-100 to-green-200">
-                            <img data-src="${storageUrl}" alt="${title}"
-                                 class="lazy-image w-full h-full object-cover transition-all duration-700 group-hover:scale-110">
-                            <div class="lazy-placeholder absolute inset-0"></div>
-                        </div>
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
-                        <div class="absolute bottom-0 left-0 right-0 p-3 text-white transform translate-y-full group-hover:translate-y-0 transition-all duration-500">
-                            ${title ? `<h4 class="font-bold text-sm line-clamp-1">${title}</h4>` : ''}
-                            ${author ? `<span class="text-xs text-green-200">${author}</span>` : ''}
-                            ${mentionedPersonsHtml}
-                        </div>
-                    </div>
-                `;
-            }
-        }
-
-        // دالة لفتح مجلد وعرض الصور
-        function openCategoryView(categoryId) {
-            const category = galleryData.find(cat => cat.id === categoryId);
-            if (!category) return;
-
-            // تحديث العنوان
-            categoryTitle.textContent = category.name;
-
-            // مسح الشبكة القديمة
-            imageGrid.innerHTML = '';
-
-            if (category.images && category.images.length > 0) {
-                imageGrid.classList.remove('hidden');
-                noImagesMessage.classList.add('hidden');
-                category.images.forEach(image => {
-                    imageGrid.innerHTML += createImageCard(image);
-                });
-
-                // إعادة تهيئة Lazy Loading للصور الجديدة
-                setTimeout(() => {
-                    refreshLazyLoading();
-                }, 100);
-            } else {
-                imageGrid.classList.add('hidden');
-                noImagesMessage.classList.remove('hidden');
-            }
-
-            // تبديل الواجهات
-            folderView.style.display = 'none';
-            imageView.style.display = 'block';
-        }
-
-        // دالة للعودة إلى واجهة المجلدات
-        function showFolderView() {
-            imageView.style.display = 'none';
-            folderView.style.display = 'block';
-        }
-
-        /* --- الدوال الأصلية للنافذة المنبثقة (Modal) --- */
-        function showImageOptions(imageData) {
-            currentImageData = imageData;
-            const modal = document.getElementById('imageOptionsModal');
-            const previewImg = document.getElementById('modalImagePreview');
-
-            if (imageData.media_type === 'youtube' && imageData.youtube_url) {
-                // عرض فيديو يوتيوب
-                let videoId = '';
-                const patterns = [
-                    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
-                    /youtube\.com\/watch\?.*v=([a-zA-Z0-9_-]{11})/
-                ];
-
-                for (let pattern of patterns) {
-                    const match = imageData.youtube_url.match(pattern);
-                    if (match) {
-                        videoId = match[1];
-                        break;
-                    }
-                }
-
-                // استخدام الصورة المصغرة المخصصة إذا كانت متاحة، وإلا استخدم الافتراضية
-                if (imageData.thumbnail_path) {
-                    const storageBasePath = '{{ asset("storage") }}';
-                    previewImg.src = `${storageBasePath}/${imageData.thumbnail_path}`;
-                    previewImg.alt = 'صورة مصغرة مخصصة';
-                } else if (videoId) {
-                    const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
-                    previewImg.src = thumbnailUrl;
-                    previewImg.alt = 'فيديو يوتيوب';
-                }
-            } else if (imageData.media_type === 'pdf' && imageData.path) {
-                // عرض معاينة PDF
-                if (imageData.thumbnail_path) {
-                    const storageBasePath = '{{ asset("storage") }}';
-                    previewImg.src = `${storageBasePath}/${imageData.thumbnail_path}`;
-                    previewImg.alt = 'صورة مصغرة مخصصة';
-                } else {
-                    previewImg.src = '{{ asset("assets/img/base-pdf-img.jpg") }}';
-                    previewImg.alt = 'ملف PDF';
-                }
-
-                // إضافة زر تحميل PDF في النافذة المنبثقة (مرة واحدة فقط)
-                if (!modal.querySelector('.pdf-download-btn')) {
-                    const pdfDownloadBtn = document.createElement('button');
-                    pdfDownloadBtn.innerHTML = `
-                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
-                        </svg>
-                        تحميل PDF
                     `;
-                    pdfDownloadBtn.className = 'pdf-download-btn w-full bg-gradient-to-r from-red-500 to-red-600 text-white font-bold py-3 px-4 rounded-2xl hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-lg transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2 mt-3';
-                    pdfDownloadBtn.onclick = () => downloadPdf(`${storageBasePath}/${imageData.path}`);
-
-                    // إضافة الزر بعد زر "عرض بالحجم الكامل"
-                    const fullscreenBtn = modal.querySelector('button[onclick="viewFullscreen()"]');
-                    if (fullscreenBtn) {
-                        fullscreenBtn.parentNode.insertBefore(pdfDownloadBtn, fullscreenBtn.nextSibling);
-                    }
+                    mentionedDiv.style.display = 'block';
+                } else {
+                    mentionedDiv.style.display = 'none';
                 }
             } else {
-                // عرض صورة
-                const storageBasePath = '{{ asset("storage") }}';
-                previewImg.src = `${storageBasePath}/${imageData.path}`;
-                previewImg.alt = imageData.title || 'صورة';
+                mentionedDiv.style.display = 'none';
             }
 
-            // عرض العنوان فقط إذا كان موجوداً وغير فارغ
-            const titleElement = document.getElementById('modalImageTitle');
-            if (titleElement) {
-                if (imageData.title && imageData.title.trim() !== '') {
-                    titleElement.textContent = imageData.title;
-                    titleElement.style.display = 'block';
-                } else {
-                    titleElement.style.display = 'none';
-                }
-            }
-
-            const authorElement = document.getElementById('modalImageAuthor');
-            if (authorElement) {
-                const authorSpan = authorElement.querySelector('span');
-                if (authorSpan) {
-                    authorSpan.textContent = imageData.author || 'غير محدد';
-                    authorElement.style.display = imageData.author ? 'flex' : 'none';
-                }
-            }
-
-            const categoryElement = document.getElementById('modalImageCategory');
-            if (categoryElement) {
-                if (imageData.category) {
-                    categoryElement.textContent = '#' + imageData.category;
-                    categoryElement.style.display = 'inline-block';
-                } else {
-                    categoryElement.style.display = 'none';
-                }
-            }
-
-            // عرض الأشخاص المذكورين
-            const mentionedPersonsElement = document.getElementById('modalImageMentionedPersons');
-            if (mentionedPersonsElement) {
-                if (imageData.mentioned_persons && imageData.mentioned_persons.length > 0) {
-                    // تصفية العناصر الفارغة أو null
-                    const validPersons = imageData.mentioned_persons.filter(person =>
-                        person && person.full_name && person.full_name.trim() !== ''
-                    );
-
-                    if (validPersons.length > 0) {
-                        mentionedPersonsElement.innerHTML = validPersons.map(person =>
-                            `<span class="mentioned-person-tag">${person.full_name}</span>`
-                        ).join('');
-                        mentionedPersonsElement.style.display = 'flex';
-                    } else {
-                        mentionedPersonsElement.style.display = 'none';
-                    }
-                } else {
-                    mentionedPersonsElement.style.display = 'none';
-                }
-            }
-
-            const articleBtn = document.getElementById('viewArticleBtn');
-            if (articleBtn) {
-                articleBtn.style.display = imageData.article_id ? 'flex' : 'none';
-            }
-
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
+            modal.classList.add('active');
         }
 
-        function closeImageOptions() {
-            const modal = document.getElementById('imageOptionsModal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-
-            // تنظيف الأزرار المضافة ديناميكياً
-            const pdfDownloadBtn = modal.querySelector('.pdf-download-btn');
-            if (pdfDownloadBtn) {
-                pdfDownloadBtn.remove();
-            }
+        // إغلاق Modal
+        function closeImageModal() {
+            document.getElementById('imageModal').classList.remove('active');
         }
 
+        // عرض بالحجم الكامل
         function viewFullscreen() {
-            if (currentImageData) {
-                const fullscreenModal = document.getElementById('fullscreenModal');
-                const fullscreenImg = document.getElementById('fullscreenImage');
+            if (!currentImageData) return;
 
-                if (currentImageData.media_type === 'youtube' && currentImageData.youtube_url) {
-                    // عرض فيديو يوتيوب بالحجم الكامل
-                    let videoId = '';
-                    const patterns = [
-                        /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
-                        /youtube\.com\/watch\?.*v=([a-zA-Z0-9_-]{11})/
-                    ];
+            const modal = document.getElementById('fullscreenModal');
+            const img = document.getElementById('fullscreenImage');
 
-                    for (let pattern of patterns) {
-                        const match = currentImageData.youtube_url.match(pattern);
-                        if (match) {
-                            videoId = match[1];
-                            break;
-                        }
-                    }
-
-                    if (videoId) {
-                        // استبدال الصورة بـ iframe
-                        fullscreenImg.style.display = 'none';
-
-                        // إنشاء iframe إذا لم يكن موجوداً
-                        let iframe = fullscreenModal.querySelector('iframe');
-                        if (!iframe) {
-                            iframe = document.createElement('iframe');
-                            iframe.className = 'fullscreen-image rounded-lg shadow-2xl';
-                            iframe.style.maxHeight = '90vh';
-                            iframe.style.maxWidth = '90vw';
-                            iframe.style.width = '800px';
-                            iframe.style.height = '450px';
-                            iframe.setAttribute('frameborder', '0');
-                            iframe.setAttribute('allowfullscreen', '');
-                            fullscreenModal.querySelector('.modal-backdrop').appendChild(iframe);
-                        }
-
-                        iframe.src = `https://www.youtube.com/embed/${videoId}`;
-                        iframe.style.display = 'block';
-                    }
-                } else if (currentImageData.media_type === 'pdf' && currentImageData.path) {
-                    // عرض ملف PDF بالحجم الكامل
-                    const storageBasePath = '{{ asset("storage") }}';
-                    const pdfUrl = `${storageBasePath}/${currentImageData.path}`;
-
-                    // إخفاء الصورة
-                    fullscreenImg.style.display = 'none';
-
-                    // إخفاء أي iframe موجود
-                    let iframe = fullscreenModal.querySelector('iframe');
-                    if (iframe) {
-                        iframe.style.display = 'none';
-                    }
-
-                    // إنشاء container للـ PDF
-                    let pdfContainer = fullscreenModal.querySelector('.pdf-container');
-                    if (!pdfContainer) {
-                        pdfContainer = document.createElement('div');
-                        pdfContainer.className = 'pdf-container';
-                        pdfContainer.style.cssText = `
-                            max-height: 90vh;
-                            max-width: 90vw;
-                            width: 100%;
-                            height: 100%;
-                            display: flex;
-                            flex-direction: column;
-                            background: white;
-                            border-radius: 8px;
-                            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
-                        `;
-                        fullscreenModal.querySelector('.modal-backdrop').appendChild(pdfContainer);
-                    }
-
-                    // إنشاء header للـ PDF
-                    let pdfHeader = pdfContainer.querySelector('.pdf-header');
-                    if (!pdfHeader) {
-                        pdfHeader = document.createElement('div');
-                        pdfHeader.className = 'pdf-header';
-                        pdfHeader.style.cssText = `
-                            padding: 15px 20px;
-                            background: #f8f9fa;
-                            border-bottom: 1px solid #dee2e6;
-                            border-radius: 8px 8px 0 0;
-                            display: flex;
-                            justify-content: space-between;
-                            align-items: center;
-                        `;
-                        pdfContainer.appendChild(pdfHeader);
-                    }
-
-                    // إنشاء أزرار التحكم
-                    pdfHeader.innerHTML = `
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <svg width="20" height="20" fill="#dc3545" viewBox="0 0 24 24">
-                                <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
-                            </svg>
-                            <span style="font-weight: 600; color: #495057;">ملف PDF</span>
-                        </div>
-                        <div style="display: flex; gap: 10px;">
-                            <button onclick="downloadPdf('${pdfUrl}')" style="
-                                background: #28a745;
-                                color: white;
-                                border: none;
-                                padding: 8px 12px;
-                                border-radius: 4px;
-                                cursor: pointer;
-                                font-size: 12px;
-                            ">تحميل</button>
-                            <button onclick="openPdfInNewTab('${pdfUrl}')" style="
-                                background: #007bff;
-                                color: white;
-                                border: none;
-                                padding: 8px 12px;
-                                border-radius: 4px;
-                                cursor: pointer;
-                                font-size: 12px;
-                            ">فتح في تبويب جديد</button>
-                            <button onclick="openPdfWithGoogleViewer('${pdfUrl}')" style="
-                                background: #6f42c1;
-                                color: white;
-                                border: none;
-                                padding: 8px 12px;
-                                border-radius: 4px;
-                                cursor: pointer;
-                                font-size: 12px;
-                            ">عرض مع Google</button>
-                        </div>
-                    `;
-
-                    // إنشاء محتوى PDF
-                    let pdfContent = pdfContainer.querySelector('.pdf-content');
-                    if (!pdfContent) {
-                        pdfContent = document.createElement('div');
-                        pdfContent.className = 'pdf-content';
-                        pdfContent.style.cssText = `
-                            flex: 1;
-                            display: flex;
-                            flex-direction: column;
-                            align-items: center;
-                            justify-content: center;
-                            padding: 40px 20px;
-                            text-align: center;
-                        `;
-                        pdfContainer.appendChild(pdfContent);
-                    }
-
-                    // محتوى PDF
-                    pdfContent.innerHTML = `
-                        <div style="margin-bottom: 30px;">
-                            <svg width="80" height="80" fill="#dc3545" viewBox="0 0 24 24">
-                                <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
-                            </svg>
-                        </div>
-                        <h3 style="color: #495057; margin-bottom: 15px;">ملف PDF</h3>
-                        <p style="color: #6c757d; margin-bottom: 25px;">لعرض ملف PDF، يمكنك تحميله أو فتحه في تبويب جديد</p>
-                        <div style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
-                            <button onclick="downloadPdf('${pdfUrl}')" style="
-                                background: #28a745;
-                                color: white;
-                                border: none;
-                                padding: 12px 20px;
-                                border-radius: 6px;
-                                cursor: pointer;
-                                font-size: 14px;
-                                display: flex;
-                                align-items: center;
-                                gap: 8px;
-                            ">
-                                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
-                                </svg>
-                                تحميل الملف
-                            </button>
-                            <button onclick="openPdfInNewTab('${pdfUrl}')" style="
-                                background: #007bff;
-                                color: white;
-                                border: none;
-                                padding: 12px 20px;
-                                border-radius: 6px;
-                                cursor: pointer;
-                                font-size: 14px;
-                                display: flex;
-                                align-items: center;
-                                gap: 8px;
-                            ">
-                                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z"/>
-                                </svg>
-                                فتح في تبويب جديد
-                            </button>
-                            <button onclick="openPdfWithGoogleViewer('${pdfUrl}')" style="
-                                background: #6f42c1;
-                                color: white;
-                                border: none;
-                                padding: 12px 20px;
-                                border-radius: 6px;
-                                cursor: pointer;
-                                font-size: 14px;
-                                display: flex;
-                                align-items: center;
-                                gap: 8px;
-                            ">
-                                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M22.56,12.25C22.56,11.47 22.49,10.72 22.36,10H12V14.26H17.92C17.66,15.63 16.9,16.79 15.76,17.57V20.84H19.24C21.36,18.92 22.56,15.91 22.56,12.25M12,23C15.26,23 17.95,21.88 19.24,20.84L15.76,17.57C14.76,18.2 13.48,18.58 12,18.58C8.87,18.58 6.22,16.25 5.26,13H1.69V16.41C2.97,19.26 7.21,23 12,23M5.26,13C5.09,12.43 5,11.73 5,11C5,10.27 5.09,9.57 5.26,9V5.59H1.69C0.93,7.15 0.5,8.9 0.5,11C0.5,13.1 0.93,14.85 1.69,16.41L5.26,13M12,5C13.48,5 14.76,5.38 15.76,6.01L19.24,2.74C17.95,1.7 15.26,0.5 12,0.5C7.21,0.5 2.97,4.24 1.69,7.09L5.26,10.42C6.22,7.75 8.87,5 12,5Z"/>
-                                </svg>
-                                عرض مع Google
-                            </button>
-                        </div>
-                    `;
-
-                    pdfContainer.style.display = 'flex';
-                } else {
-                    // عرض صورة بالحجم الكامل
-                    let iframe = fullscreenModal.querySelector('iframe');
-                    if (iframe) {
-                        iframe.style.display = 'none';
-                    }
-
-                    const storageBasePath = '{{ asset("storage") }}';
-                    fullscreenImg.src = `${storageBasePath}/${currentImageData.path}`;
-                    fullscreenImg.style.display = 'block';
-                }
-
-                fullscreenModal.classList.remove('hidden');
-                fullscreenModal.classList.add('flex');
-                closeImageOptions();
+            if (currentImageData.media_type === 'youtube' && currentImageData.youtube_url) {
+                window.open(currentImageData.youtube_url, '_blank');
+                return;
             }
+
+            if (currentImageData.media_type === 'pdf') {
+                window.open(`${storageUrl}/${currentImageData.path}`, '_blank');
+                return;
+            }
+
+            img.src = `${storageUrl}/${currentImageData.path}`;
+            modal.classList.add('active');
+            closeImageModal();
         }
 
+        // إغلاق Fullscreen
         function closeFullscreen() {
-            document.getElementById('fullscreenModal').classList.add('hidden');
-            document.getElementById('fullscreenModal').classList.remove('flex');
+            document.getElementById('fullscreenModal').classList.remove('active');
+        }
 
-            // تنظيف العناصر المضافة ديناميكياً
-            const pdfContainer = document.querySelector('.pdf-container');
-            if (pdfContainer) {
-                pdfContainer.remove();
+        // تحميل PDF
+        function downloadCurrentPdf() {
+            if (currentImageData && currentImageData.path) {
+                const link = document.createElement('a');
+                link.href = `${storageUrl}/${currentImageData.path}`;
+                link.download = currentImageData.title || 'document.pdf';
+                link.target = '_blank';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
             }
         }
 
-        function viewArticle() {
-            if (currentImageData && currentImageData.article_id) {
-                window.location.href = `{{ url('/article') }}/${currentImageData.article_id}`;
+        // Lazy Loading
+        function initLazyLoading() {
+            const lazyImages = document.querySelectorAll('.lazy-image:not(.loaded)');
+
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const img = entry.target;
+                            img.src = img.dataset.src;
+                            img.onload = () => {
+                                img.classList.add('loaded');
+                                const placeholder = img.nextElementSibling;
+                                if (placeholder) placeholder.style.display = 'none';
+                            };
+                            observer.unobserve(img);
+                        }
+                    });
+                }, { rootMargin: '100px' });
+
+                lazyImages.forEach(img => observer.observe(img));
+            } else {
+                lazyImages.forEach(img => {
+                    img.src = img.dataset.src;
+                    img.classList.add('loaded');
+                });
             }
         }
 
-        // دوال مساعدة لـ PDF
-        function downloadPdf(pdfUrl) {
-            const link = document.createElement('a');
-            link.href = pdfUrl;
-            link.download = currentImageData.name || 'document.pdf';
-            link.target = '_blank';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
+        // إغلاق المودال بالضغط على Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeImageModal();
+                closeFullscreen();
+            }
+        });
 
-        function openPdfInNewTab(pdfUrl) {
-            window.open(pdfUrl, '_blank');
-        }
+        // إغلاق Modal بالنقر خارجه
+        document.getElementById('imageModal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                closeImageModal();
+            }
+        });
 
-        function openPdfWithGoogleViewer(pdfUrl) {
-            const googleViewerUrl = `https://docs.google.com/gview?url=${encodeURIComponent(pdfUrl)}&embedded=true`;
-            window.open(googleViewerUrl, '_blank');
-        }
+        // تهيئة الصفحة
+        document.addEventListener('DOMContentLoaded', () => {
+            showRootCategories();
+        });
     </script>
-
 </body>
-
 </html>

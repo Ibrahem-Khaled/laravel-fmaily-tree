@@ -15,33 +15,110 @@ class GalleryController extends Controller
      */
     public function index(Request $request)
     {
-        // 1. جلب الفئات الرئيسية لعرضها كمجلدات مع أول 4 صور للمعاينة
-        $categoriesForView = Category::whereHas('images')
-            ->whereNull('parent_id')
+        // دالة recursive لحساب عدد الصور الكلي (الفئة + الفئات الفرعية)
+        $countAllImages = function ($category) use (&$countAllImages) {
+            $count = $category->images_count ?? $category->images->count();
+            foreach ($category->children as $child) {
+                $count += $countAllImages($child);
+            }
+            return $count;
+        };
+
+        // دالة recursive للتحقق من وجود صور في الفئة أو أي من فئاتها الفرعية
+        $hasImages = function ($category) use (&$hasImages) {
+            // التحقق من وجود صور مباشرة في الفئة
+            if (($category->images_count ?? $category->images->count()) > 0) {
+                return true;
+            }
+            // التحقق من وجود صور في الفئات الفرعية
+            foreach ($category->children as $child) {
+                if ($hasImages($child)) {
+                    return true;
+                }
+            }
+            return false;
+        };
+
+        // دالة recursive لتحميل الفئات الفرعية التي تحتوي على صور فقط
+        $loadChildrenWithImages = function ($query) use (&$loadChildrenWithImages) {
+            $query->where('is_active', true)
+                  ->withCount('images')
+                  ->with([
+                      'images' => function ($q) {
+                          $q->select('id', 'path', 'thumbnail_path', 'article_id', 'media_type', 'youtube_url', 'category_id', 'created_at')
+                            ->latest()
+                            ->take(4);
+                      },
+                      'children' => $loadChildrenWithImages
+                  ])
+                  ->orderBy('sort_order');
+        };
+
+        // 1. جلب الفئات الرئيسية التي تحتوي على صور (مباشرة أو من خلال الفئات الفرعية)
+        $categories = Category::whereNull('parent_id')
             ->where('is_active', true)
-            ->with(['images' => function ($query) {
-                $query->select('id', 'path', 'thumbnail_path', 'article_id', 'media_type', 'youtube_url', 'created_at')->latest()->take(4);
-            }])
-            ->withCount('images') // لحساب عدد الصور في كل مجلد
-            ->orderBy('updated_at', 'desc') // ترتيب حسب آخر تحديث
+            ->with([
+                'images' => function ($query) {
+                    $query->select('id', 'path', 'thumbnail_path', 'article_id', 'media_type', 'youtube_url', 'category_id', 'created_at')
+                          ->latest()
+                          ->take(4);
+                },
+                'children' => $loadChildrenWithImages
+            ])
+            ->withCount('images')
+            ->orderBy('sort_order')
+            ->orderBy('updated_at', 'desc')
             ->get();
 
-        // 2. جلب نفس الفئات ولكن مع كل الصور والمعلومات المرتبطة بها لتمريرها إلى JavaScript
-        $categoriesForJs = Category::whereNull('parent_id')
-            ->where('is_active', true)
+        // تصفية الفئات: إزالة الفئات التي لا تحتوي على صور (لا مباشرة ولا في الفئات الفرعية)
+        $categories = $categories->filter(function ($category) use ($hasImages) {
+            return $hasImages($category);
+        });
+
+        // تصفية الفئات الفرعية أيضاً
+        $filterChildren = function ($category) use (&$filterChildren, $hasImages) {
+            $category->children = $category->children->filter(function ($child) use (&$filterChildren, $hasImages) {
+                if ($hasImages($child)) {
+                    $filterChildren($child);
+                    return true;
+                }
+                return false;
+            });
+        };
+        $categories->each($filterChildren);
+
+        // إضافة عدد الصور الكلي لكل فئة
+        $categories->each(function ($category) use ($countAllImages) {
+            $category->total_images_count = $countAllImages($category);
+        });
+
+        // 2. جلب الفئات التي تحتوي على صور فقط للـ JavaScript
+        $categoriesForJs = Category::where('is_active', true)
+            ->whereHas('images') // فقط الفئات التي تحتوي على صور
             ->with([
                 'images' => function ($query) {
                     $query->with(['article:id,title,person_id,category_id', 'article.person:id,name', 'article.category:id,name', 'mentionedPersons'])
                           ->select('id', 'name', 'path', 'thumbnail_path', 'youtube_url', 'media_type', 'file_size', 'file_extension', 'article_id', 'category_id', 'created_at')
-                          ->orderBy('created_at', 'desc'); // ترتيب الصور داخل كل فئة حسب التاريخ
-                }
+                          ->orderBy('created_at', 'desc');
+                },
+                'parent:id,name',
+                'children:id,name,parent_id'
             ])
-            ->orderBy('updated_at', 'desc') // ترتيب الفئات حسب آخر تحديث
+            ->orderBy('sort_order')
+            ->orderBy('updated_at', 'desc')
             ->get();
 
+        // إحصائيات عامة
+        $stats = [
+            'total_categories' => Category::where('is_active', true)->count(),
+            'total_images' => Image::count(),
+            'recent_uploads' => Image::where('created_at', '>=', now()->subDays(7))->count(),
+        ];
+
         return view('gallery', [
-            'categories' => $categoriesForView, // للاستخدام في عرض المجلدات
-            'categoriesWithImages' => $categoriesForJs, // للاستخدام في JavaScript
+            'categories' => $categories,
+            'categoriesWithImages' => $categoriesForJs,
+            'stats' => $stats,
         ]);
     }
 
@@ -71,7 +148,7 @@ class GalleryController extends Controller
         // جلب السنوات المتاحة (من أول سنة مقال)
         $firstArticleYear = Article::selectRaw('YEAR(MIN(created_at)) as year')
             ->value('year');
-        
+
         $currentYear = date('Y');
         $selectedYear = $request->get('year', null); // لا يوجد سنة محددة افتراضياً
 
@@ -108,7 +185,7 @@ class GalleryController extends Controller
         if ($request->has('degree')) {
             $degree = $request->degree;
             $categoryIds = [];
-            
+
             if ($degree === 'phd') {
                 $categoryIds = \App\Models\Category::where(function($query) {
                     $query->where('name', 'like', '%دكتوراه%')
@@ -128,7 +205,7 @@ class GalleryController extends Controller
                           ->orWhere('name', 'like', '%ليسانس%');
                 })->pluck('id');
             }
-            
+
             if (!empty($categoryIds)) {
                 $query->whereIn('category_id', $categoryIds);
                 $isFiltered = true;
@@ -147,12 +224,12 @@ class GalleryController extends Controller
 
         // جلب السنوات المتاحة حسب الفئة المحددة
         $availableYearsQuery = Article::selectRaw('YEAR(created_at) as year');
-        
+
         // إذا تم اختيار فئة معينة، اعرض فقط السنوات التي تحتوي على مقالات في هذه الفئة
         if ($request->has('category')) {
             $availableYearsQuery->where('category_id', $request->category);
         }
-        
+
         $availableYears = $availableYearsQuery
             ->distinct()
             ->orderBy('year', 'desc')
@@ -175,17 +252,17 @@ class GalleryController extends Controller
                 $filterYear = $currentYear;
             }
         }
-        
+
         // جلب التصنيفات مع عدد المقالات حسب السنة المحددة
         $categoriesQuery = Category::query();
-        
+
         if ($filterYear) {
             // إضافة فلترة السنة للتصنيفات
             $categoriesQuery->whereHas('articles', function($q) use ($filterYear) {
                 $q->whereYear('created_at', $filterYear);
             });
         }
-        
+
         $categories = $categoriesQuery
             ->where('is_active', true)
             ->withCount(['articles' => function($q) use ($filterYear) {
@@ -208,7 +285,7 @@ class GalleryController extends Controller
             $totalArticlesQuery->whereYear('created_at', $filterYear);
         }
         $totalArticles = $totalArticlesQuery->count();
-        
+
         // عدد الكتّاب حسب السنة المحددة
         $totalAuthorsQuery = Person::query();
         if ($filterYear) {
@@ -217,7 +294,7 @@ class GalleryController extends Controller
             });
         }
         $totalAuthors = $totalAuthorsQuery->count();
-        
+
         $totalImages = Image::count(); // عدد الصور يبقى كما هو
 
         return view('articles', compact(
