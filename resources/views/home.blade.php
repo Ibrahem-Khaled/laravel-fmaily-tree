@@ -624,17 +624,19 @@
                                         <tr class="hover:bg-gray-50 transition-colors cursor-pointer event-row"
                                             data-event-id="{{ $event->id }}"
                                             onclick="toggleEventDescription({{ $event->id }})">
-                                            <td class="px-2 py-1.5 md:px-3 md:py-2 whitespace-nowrap text-right"
+                                            <td class="px-2 py-1.5 md:px-3 md:py-2 text-right"
                                                 dir="ltr">
-                                                <div class="flex items-center justify-end">
+                                                <div class="flex items-start justify-end gap-1.5">
                                                     <span
-                                                        class="text-xs font-semibold text-gray-900">{{ $event->title }}</span>
-                                                    <i
-                                                        class="fas fa-calendar-alt text-green-600 ml-1.5 text-xs"></i>
-                                                    @if ($event->description)
+                                                        class="text-xs font-semibold text-gray-900 break-words flex-1 text-right">{{ $event->title }}</span>
+                                                    <div class="flex items-center gap-1 flex-shrink-0">
                                                         <i
-                                                            class="fas fa-chevron-down text-green-500 mr-1.5 text-xs transition-transform duration-300 event-chevron-{{ $event->id }}"></i>
-                                                    @endif
+                                                            class="fas fa-calendar-alt text-green-600 text-xs"></i>
+                                                        @if ($event->description)
+                                                            <i
+                                                                class="fas fa-chevron-down text-green-500 text-xs transition-transform duration-300 event-chevron-{{ $event->id }}"></i>
+                                                        @endif
+                                                    </div>
                                                 </div>
                                             </td>
                                             <td class="px-2 py-1.5 md:px-3 md:py-2 text-right">

@@ -196,10 +196,17 @@
                                         
                                         <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
                                             <div class="btn-group btn-group-sm shadow-sm">
+                                                <a href="{{ route('programs.show', $program) }}" 
+                                                   target="_blank"
+                                                   class="btn btn-outline-success border-0"
+                                                   title="معاينة"
+                                                   style="border-radius: 6px 0 0 0;">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
                                                 <a href="{{ route('dashboard.programs.manage', $program) }}"
                                                    class="btn btn-outline-primary border-0"
                                                    title="إدارة التفاصيل"
-                                                   style="border-radius: 6px 0 0 0;">
+                                                   style="border-radius: 0;">
                                                     <i class="fas fa-folder-open"></i>
                                                 </a>
                                                 <button type="button" 
