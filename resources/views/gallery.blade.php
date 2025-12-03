@@ -48,7 +48,7 @@
             width: 100%;
             height: 100%;
             z-index: 0;
-            background: 
+            background:
                 radial-gradient(ellipse at 20% 20%, rgba(13, 148, 136, 0.15) 0%, transparent 50%),
                 radial-gradient(ellipse at 80% 80%, rgba(236, 72, 153, 0.1) 0%, transparent 50%),
                 radial-gradient(ellipse at 50% 50%, rgba(245, 158, 11, 0.08) 0%, transparent 60%),
@@ -286,7 +286,7 @@
         .category-card:hover {
             transform: translateY(-8px) scale(1.02);
             border-color: var(--primary);
-            box-shadow: 
+            box-shadow:
                 0 20px 40px rgba(0, 0, 0, 0.3),
                 0 0 60px rgba(13, 148, 136, 0.2);
         }
@@ -958,13 +958,9 @@
 
             <div class="categories-grid" id="categories-grid">
                 @foreach($categories as $index => $category)
-                    <div class="category-card" 
+                    <div class="category-card"
                          style="animation-delay: {{ $index * 0.1 }}s"
                          onclick="openCategory({{ $category->id }})">
-                        
-                        @if($category->updated_at && $category->updated_at->diffInDays() <= 7)
-                            <div class="new-badge">جديد</div>
-                        @endif
 
                         @if($category->children->count() > 0)
                             <div class="subcategories-badge">
@@ -979,8 +975,8 @@
                             <div class="preview-grid">
                                 @if($category->images->count() > 0)
                                     @foreach($category->images->take(4) as $image)
-                                        <img src="{{ $image->getThumbnailUrl() }}" 
-                                             alt="Preview" 
+                                        <img src="{{ $image->getThumbnailUrl() }}"
+                                             alt="Preview"
                                              class="preview-image">
                                     @endforeach
                                     @for($i = $category->images->count(); $i < 4; $i++)
@@ -1191,7 +1187,7 @@
                 // عرض الفئات الفرعية مع صور الفئة الحالية
                 document.getElementById('section-title-text').textContent = category.name;
                 renderCategories(children);
-                
+
                 // إذا كانت هناك صور في الفئة الحالية، اعرضها أيضاً
                 if (category.images && category.images.length > 0) {
                     showImagesSection(category);
@@ -1270,7 +1266,7 @@
             let html = '';
             for (let i = 0; i < 4; i++) {
                 if (images[i]) {
-                    const imgUrl = images[i].thumbnail_path 
+                    const imgUrl = images[i].thumbnail_path
                         ? `${storageUrl}/${images[i].thumbnail_path}`
                         : (images[i].path ? `${storageUrl}/${images[i].path}` : pdfPlaceholder);
                     html += `<img src="${imgUrl}" alt="Preview" class="preview-image">`;
@@ -1347,15 +1343,15 @@
             let thumbnailUrl = '';
             if (isYouTube && image.youtube_url) {
                 const videoId = extractVideoId(image.youtube_url);
-                thumbnailUrl = image.thumbnail_path 
+                thumbnailUrl = image.thumbnail_path
                     ? `${storageUrl}/${image.thumbnail_path}`
                     : (videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : '');
             } else if (isPdf) {
-                thumbnailUrl = image.thumbnail_path 
+                thumbnailUrl = image.thumbnail_path
                     ? `${storageUrl}/${image.thumbnail_path}`
                     : pdfPlaceholder;
             } else {
-                thumbnailUrl = image.thumbnail_path 
+                thumbnailUrl = image.thumbnail_path
                     ? `${storageUrl}/${image.thumbnail_path}`
                     : `${storageUrl}/${image.path}`;
             }
@@ -1398,10 +1394,10 @@
             if (!persons || persons.length === 0) return '';
             const validPersons = persons.filter(p => p && p.full_name);
             if (validPersons.length === 0) return '';
-            
+
             return `
                 <div class="mentioned-persons">
-                    ${validPersons.slice(0, 3).map(p => 
+                    ${validPersons.slice(0, 3).map(p =>
                         `<span class="mentioned-tag">${p.full_name}</span>`
                     ).join('')}
                     ${validPersons.length > 3 ? `<span class="mentioned-tag">+${validPersons.length - 3}</span>` : ''}
@@ -1471,11 +1467,11 @@
             // تحديد الصورة
             if (imageData.media_type === 'youtube' && imageData.youtube_url) {
                 const videoId = extractVideoId(imageData.youtube_url);
-                modalImage.src = imageData.thumbnail_path 
+                modalImage.src = imageData.thumbnail_path
                     ? `${storageUrl}/${imageData.thumbnail_path}`
                     : `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
             } else if (imageData.media_type === 'pdf') {
-                modalImage.src = imageData.thumbnail_path 
+                modalImage.src = imageData.thumbnail_path
                     ? `${storageUrl}/${imageData.thumbnail_path}`
                     : pdfPlaceholder;
                 pdfBtn.style.display = 'flex';
