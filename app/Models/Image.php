@@ -27,6 +27,7 @@ class Image extends BaseModel
         'program_title',
         'program_description',
         'program_order',
+        'program_is_active',
         'program_id',
         'program_media_order',
         'gallery_id'
@@ -237,6 +238,7 @@ class Image extends BaseModel
     public static function getActivePrograms()
     {
         return self::where('is_program', true)
+            ->where('program_is_active', true)
             ->whereNotNull('path')
             ->where(function($query) {
                 $query->whereNull('youtube_url')

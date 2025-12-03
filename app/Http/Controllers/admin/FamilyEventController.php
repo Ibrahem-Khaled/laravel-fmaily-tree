@@ -39,7 +39,7 @@ class FamilyEventController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string|max:10000',
             'city' => 'nullable|string|max:255',
-            'location' => 'nullable|string|max:500',
+            'location' => 'nullable|url|max:500',
             'event_date' => 'required|date',
         ]);
 
@@ -69,7 +69,7 @@ class FamilyEventController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string|max:10000',
             'city' => 'nullable|string|max:255',
-            'location' => 'nullable|string|max:500',
+            'location' => 'nullable|url|max:500',
             'event_date' => 'required|date',
         ]);
 

@@ -55,12 +55,48 @@
             </div>
         </div>
 
-        <div class="col-xl-4 col-md-6 mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-left-success shadow h-100 py-2" style="border-left: 0.25rem solid #1cc88a !important;">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                برامج مفعلة
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['active'] ?? 0 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2" style="border-left: 0.25rem solid #f6c23e !important;">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                برامج معطلة
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['inactive'] ?? 0 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-times-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2" style="border-left: 0.25rem solid #36b9cc !important;">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
                                 برامج بوصف
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['with_description'] ?? 0 }}</div>
@@ -73,12 +109,12 @@
             </div>
         </div>
 
-        <div class="col-xl-4 col-md-6 mb-4">
-            <div class="card border-left-info shadow h-100 py-2" style="border-left: 0.25rem solid #36b9cc !important;">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-secondary shadow h-100 py-2" style="border-left: 0.25rem solid #858796 !important;">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">
                                 برامج حديثة (30 يوم)
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['recent'] ?? 0 }}</div>
@@ -117,11 +153,22 @@
                                             <img src="{{ asset('storage/' . $program->path) }}" 
                                                  alt="{{ $program->program_title ?? $program->name }}"
                                                  class="card-img-top" 
-                                                 style="height: 220px; object-fit: cover; cursor: move; transition: transform 0.3s ease;">
+                                                 style="height: 220px; object-fit: cover; cursor: move; transition: transform 0.3s ease; {{ $program->program_is_active ? '' : 'opacity: 0.5; filter: grayscale(100%);' }}">
                                             <div class="position-absolute top-0 right-0 m-2">
                                                 <i class="fas fa-grip-vertical text-white bg-dark rounded p-2 shadow" 
                                                    style="cursor: move; opacity: 0.9; font-size: 0.9rem;" 
                                                    title="اسحب لإعادة الترتيب"></i>
+                                            </div>
+                                            <div class="position-absolute top-0 left-0 m-2">
+                                                @if($program->program_is_active)
+                                                    <span class="badge badge-success shadow-sm px-2 py-1" style="font-size: 0.75rem;">
+                                                        <i class="fas fa-check-circle mr-1"></i>مفعل
+                                                    </span>
+                                                @else
+                                                    <span class="badge badge-warning shadow-sm px-2 py-1" style="font-size: 0.75rem;">
+                                                        <i class="fas fa-times-circle mr-1"></i>معطل
+                                                    </span>
+                                                @endif
                                             </div>
                                             <div class="position-absolute bottom-0 right-0 m-2">
                                                 <span class="badge badge-dark shadow-sm px-2 py-1" style="font-size: 0.75rem;">
@@ -152,7 +199,7 @@
                                                 <a href="{{ route('dashboard.programs.manage', $program) }}"
                                                    class="btn btn-outline-primary border-0"
                                                    title="إدارة التفاصيل"
-                                                   style="border-radius: 6px 0 0 6px;">
+                                                   style="border-radius: 6px 0 0 0;">
                                                     <i class="fas fa-folder-open"></i>
                                                 </a>
                                                 <button type="button" 
@@ -162,6 +209,17 @@
                                                         style="border-radius: 0;">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
+                                                <form action="{{ route('dashboard.programs.toggle', $program) }}" 
+                                                      method="POST" 
+                                                      class="d-inline">
+                                                    @csrf
+                                                    <button type="submit" 
+                                                            class="btn {{ $program->program_is_active ? 'btn-outline-warning' : 'btn-outline-success' }} border-0" 
+                                                            title="{{ $program->program_is_active ? 'إلغاء التفعيل' : 'تفعيل' }}"
+                                                            style="border-radius: 0;">
+                                                        <i class="fas {{ $program->program_is_active ? 'fa-toggle-on' : 'fa-toggle-off' }}"></i>
+                                                    </button>
+                                                </form>
                                                 <form action="{{ route('dashboard.programs.destroy', $program) }}" 
                                                       method="POST" 
                                                       class="d-inline"

@@ -159,7 +159,10 @@
                                             @if($event->location)
                                                 <p class="card-text text-muted small mb-1" style="font-size: 0.8rem;">
                                                     <i class="fas fa-location-dot text-info mr-1"></i>
-                                                    {{ Str::limit($event->location, 60) }}
+                                                    <a href="{{ $event->location }}" target="_blank" rel="noopener noreferrer" class="text-info">
+                                                        عرض الموقع على الخريطة
+                                                        <i class="fas fa-external-link-alt mr-1" style="font-size: 0.7rem;"></i>
+                                                    </a>
                                                 </p>
                                             @endif
                                             <p class="card-text text-muted small mb-1" style="font-size: 0.8rem;">
@@ -286,15 +289,19 @@
                             @enderror
                         </div>
                         <div class="form-group col-md-6">
-                            <label for="location" class="font-weight-bold">الموقع (اختياري)</label>
-                            <input type="text" name="location" id="location" 
+                            <label for="location" class="font-weight-bold">رابط الموقع (اختياري)</label>
+                            <input type="url" name="location" id="location" 
                                    class="form-control @error('location') is-invalid @enderror" 
                                    value="{{ old('location') }}" 
-                                   placeholder="أدخل الموقع..."
+                                   placeholder="https://maps.google.com/..."
                                    maxlength="500">
                             @error('location')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
+                            <small class="form-text text-muted">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                أدخل رابط الموقع (مثل رابط Google Maps)
+                            </small>
                         </div>
                     </div>
 
@@ -387,11 +394,15 @@
                                    maxlength="255">
                         </div>
                         <div class="form-group col-md-6">
-                            <label for="edit_location" class="font-weight-bold">الموقع (اختياري)</label>
-                            <input type="text" name="location" id="edit_location" 
+                            <label for="edit_location" class="font-weight-bold">رابط الموقع (اختياري)</label>
+                            <input type="url" name="location" id="edit_location" 
                                    class="form-control" 
-                                   placeholder="أدخل الموقع..."
+                                   placeholder="https://maps.google.com/..."
                                    maxlength="500">
+                            <small class="form-text text-muted">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                أدخل رابط الموقع (مثل رابط Google Maps)
+                            </small>
                         </div>
                     </div>
 

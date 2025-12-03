@@ -642,10 +642,18 @@
                                                     {{ $event->city ?? '-' }}
                                                 </span>
                                             </td>
-                                            <td class="px-2 py-1.5 md:px-3 md:py-2 text-right">
-                                                <span class="text-xs text-gray-700">
-                                                    {{ $event->location ?? '-' }}
-                                                </span>
+                                            <td class="px-2 py-1.5 md:px-3 md:py-2 whitespace-nowrap text-xs font-medium text-right">
+                                                @if ($event->location)
+                                                    <a href="{{ $event->location }}" target="_blank" rel="noopener noreferrer"
+                                                        class="inline-flex items-center gap-1.5 text-blue-600 hover:text-blue-800 transition-colors group"
+                                                        title="فتح الموقع على الخريطة" onclick="event.stopPropagation();">
+                                                        <i class="fas fa-map-marker-alt text-xs group-hover:scale-110 transition-transform"></i>
+                                                        <span class="text-xs">عرض الموقع</span>
+                                                        <i class="fas fa-external-link-alt text-[10px] opacity-70 group-hover:opacity-100 transition-opacity"></i>
+                                                    </a>
+                                                @else
+                                                    <span class="text-gray-400">-</span>
+                                                @endif
                                             </td>
                                             <td class="px-2 py-1.5 md:px-3 md:py-2 whitespace-nowrap text-right">
                                                 <div class="text-right">

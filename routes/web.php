@@ -224,6 +224,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::get('programs/{program}', [\App\Http\Controllers\admin\ProgramController::class, 'show'])->name('dashboard.programs.show')->middleware(['permission:programs.view']);
     Route::post('programs/{program}/update', [\App\Http\Controllers\admin\ProgramController::class, 'update'])->name('dashboard.programs.update')->middleware(['permission:programs.update']);
     Route::post('programs/reorder', [\App\Http\Controllers\admin\ProgramController::class, 'reorder'])->name('dashboard.programs.reorder')->middleware(['permission:programs.update']);
+    Route::post('programs/{program}/toggle', [\App\Http\Controllers\admin\ProgramController::class, 'toggle'])->name('dashboard.programs.toggle')->middleware(['permission:programs.update']);
     Route::delete('programs/{program}', [\App\Http\Controllers\admin\ProgramController::class, 'destroy'])->name('dashboard.programs.destroy')->middleware(['permission:programs.delete']);
     Route::get('programs/{program}/manage', [\App\Http\Controllers\admin\ProgramController::class, 'manage'])->name('dashboard.programs.manage')->middleware(['permission:programs.view']);
     Route::post('programs/{program}/media', [\App\Http\Controllers\admin\ProgramController::class, 'storeMedia'])->name('dashboard.programs.media.store')->middleware(['permission:programs.update']);

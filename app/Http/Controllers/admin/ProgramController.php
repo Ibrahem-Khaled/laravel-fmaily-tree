@@ -25,6 +25,8 @@ class ProgramController extends Controller
         // إحصائيات البرامج
         $stats = [
             'total' => Image::where('is_program', true)->count(),
+            'active' => Image::where('is_program', true)->where('program_is_active', true)->count(),
+            'inactive' => Image::where('is_program', true)->where('program_is_active', false)->count(),
             'with_description' => Image::where('is_program', true)->whereNotNull('program_description')->count(),
             'recent' => Image::where('is_program', true)->where('created_at', '>=', now()->subDays(30))->count(),
         ];
@@ -55,6 +57,7 @@ class ProgramController extends Controller
             'program_title' => $request->program_title,
             'program_description' => $request->program_description,
             'program_order' => $lastOrder + 1,
+            'program_is_active' => true, // البرامج الجديدة مفعلة افتراضياً
             'is_program' => true,
             'media_type' => 'image',
             'category_id' => $request->category_id,
@@ -181,6 +184,23 @@ class ProgramController extends Controller
         });
 
         return response()->json(['success' => true, 'message' => 'تم إعادة الترتيب بنجاح']);
+    }
+
+    /**
+     * تفعيل/تعطيل برنامج
+     */
+    public function toggle(Image $program)
+    {
+        abort_unless($program->is_program, 404);
+
+        $program->update([
+            'program_is_active' => !$program->program_is_active
+        ]);
+
+        $status = $program->program_is_active ? 'تم تفعيل البرنامج بنجاح' : 'تم إلغاء تفعيل البرنامج بنجاح';
+
+        return redirect()->route('dashboard.programs.index')
+            ->with('success', $status);
     }
 
     /**
