@@ -40,6 +40,7 @@ class FamilyEventController extends Controller
             'description' => 'nullable|string|max:10000',
             'city' => 'nullable|string|max:255',
             'location' => 'nullable|url|max:500',
+            'location_name' => 'nullable|string|max:255',
             'event_date' => 'required|date',
         ]);
 
@@ -50,6 +51,7 @@ class FamilyEventController extends Controller
             'description' => $request->description,
             'city' => $request->city,
             'location' => $request->location,
+            'location_name' => $request->location_name,
             'event_date' => $request->event_date,
             'show_countdown' => $request->has('show_countdown') ? true : false,
             'display_order' => $lastOrder + 1,
@@ -70,6 +72,7 @@ class FamilyEventController extends Controller
             'description' => 'nullable|string|max:10000',
             'city' => 'nullable|string|max:255',
             'location' => 'nullable|url|max:500',
+            'location_name' => 'nullable|string|max:255',
             'event_date' => 'required|date',
         ]);
 
@@ -78,6 +81,7 @@ class FamilyEventController extends Controller
             'description' => $request->description,
             'city' => $request->city,
             'location' => $request->location,
+            'location_name' => $request->location_name,
             'event_date' => $request->event_date,
             'show_countdown' => $request->has('show_countdown') ? true : false,
             'is_active' => $request->has('is_active') ? true : false,
@@ -97,6 +101,7 @@ class FamilyEventController extends Controller
             'description' => $event->description,
             'city' => $event->city,
             'location' => $event->location,
+            'location_name' => $event->location_name,
             'event_date' => $event->event_date->format('Y-m-d\TH:i'),
             'show_countdown' => $event->show_countdown,
             'is_active' => $event->is_active,

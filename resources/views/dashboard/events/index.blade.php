@@ -306,6 +306,22 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="location_name" class="font-weight-bold">اسم المكان (اختياري)</label>
+                        <input type="text" name="location_name" id="location_name" 
+                               class="form-control @error('location_name') is-invalid @enderror" 
+                               value="{{ old('location_name') }}" 
+                               placeholder="مثال: قاعة المؤتمرات - فندق الماريوت..."
+                               maxlength="255">
+                        @error('location_name')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        <small class="form-text text-muted">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            سيظهر هذا الاسم بدلاً من "عرض الموقع" في الصفحة الرئيسية
+                        </small>
+                    </div>
+
+                    <div class="form-group">
                         <label for="event_date" class="font-weight-bold">
                             تاريخ المناسبة <span class="text-danger">*</span>
                         </label>
@@ -407,6 +423,18 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="edit_location_name" class="font-weight-bold">اسم المكان (اختياري)</label>
+                        <input type="text" name="location_name" id="edit_location_name" 
+                               class="form-control" 
+                               placeholder="مثال: قاعة المؤتمرات - فندق الماريوت..."
+                               maxlength="255">
+                        <small class="form-text text-muted">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            سيظهر هذا الاسم بدلاً من "عرض الموقع" في الصفحة الرئيسية
+                        </small>
+                    </div>
+
+                    <div class="form-group">
                         <label for="edit_event_date" class="font-weight-bold">
                             تاريخ المناسبة <span class="text-danger">*</span>
                         </label>
@@ -462,6 +490,7 @@
                 document.getElementById('edit_description').value = data.description || '';
                 document.getElementById('edit_city').value = data.city || '';
                 document.getElementById('edit_location').value = data.location || '';
+                document.getElementById('edit_location_name').value = data.location_name || '';
                 document.getElementById('edit_event_date').value = data.event_date;
                 document.getElementById('edit_show_countdown').checked = data.show_countdown;
                 document.getElementById('edit_is_active').checked = data.is_active;

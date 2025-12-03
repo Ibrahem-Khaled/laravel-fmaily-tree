@@ -13,6 +13,7 @@ class FamilyEvent extends BaseModel
         'description',
         'city',
         'location',
+        'location_name',
         'event_date',
         'show_countdown',
         'display_order',

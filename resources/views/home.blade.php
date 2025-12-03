@@ -648,7 +648,7 @@
                                                         class="inline-flex items-center gap-1.5 text-blue-600 hover:text-blue-800 transition-colors group"
                                                         title="فتح الموقع على الخريطة" onclick="event.stopPropagation();">
                                                         <i class="fas fa-map-marker-alt text-xs group-hover:scale-110 transition-transform"></i>
-                                                        <span class="text-xs">عرض الموقع</span>
+                                                        <span class="text-xs">{{ $event->location_name ?? 'عرض الموقع' }}</span>
                                                         <i class="fas fa-external-link-alt text-[10px] opacity-70 group-hover:opacity-100 transition-opacity"></i>
                                                     </a>
                                                 @else
@@ -664,8 +664,6 @@
                                                         <div class="event-countdown-{{ $event->id }} text-xs text-green-600 font-semibold text-right"
                                                             data-event-date="{{ $event->event_date->format('Y-m-d H:i:s') }}">
                                                             <span class="countdown-days"></span> يوم
-                                                            <span class="countdown-hours"></span> ساعة
-                                                            <span class="countdown-minutes"></span> دقيقة
                                                         </div>
                                                     @endif
                                                 </div>
@@ -1111,17 +1109,11 @@
                     return;
                 }
 
+                // حساب الأيام فقط
                 const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
 
                 const daysSpan = countdownElement.querySelector('.countdown-days');
-                const hoursSpan = countdownElement.querySelector('.countdown-hours');
-                const minutesSpan = countdownElement.querySelector('.countdown-minutes');
-
                 if (daysSpan) daysSpan.textContent = days;
-                if (hoursSpan) hoursSpan.textContent = hours;
-                if (minutesSpan) minutesSpan.textContent = minutes;
             });
         }
 
