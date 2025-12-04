@@ -13,6 +13,7 @@ use App\Models\Person;
 use App\Models\Article;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
@@ -26,7 +27,15 @@ class HomeController extends Controller
         $slideshowImages = SlideshowImage::getActiveSlideshowImages();
 
         // جلب صور معرض الصفحة الرئيسية (أو آخر 8 صور من المعرض كبديل)
-        $latestGalleryImages = HomeGalleryImage::getActiveGalleryImages();
+        // إذا كان المستخدم مسجل دخول، اجلب جميع الصور (المفعلة وغير المفعلة)
+        if (Auth::check()) {
+            $latestGalleryImages = HomeGalleryImage::with('category:id,name')
+                ->orderBy('order')
+                ->take(8)
+                ->get();
+        } else {
+            $latestGalleryImages = HomeGalleryImage::getActiveGalleryImages();
+        }
 
         // إذا لم توجد صور في معرض الصفحة الرئيسية، استخدم الصور من المعرض العام
         if ($latestGalleryImages->isEmpty()) {
@@ -51,23 +60,76 @@ class HomeController extends Controller
         // جلب قسم ما الجديد
         $whatsNew = SiteContent::getContent('whats_new', 'آخر أخبار عائلة السريع');
 
-        // جلب الدورات النشطة
-        $courses = Course::getActiveCourses();
+        // جلب الدورات
+        // إذا كان المستخدم مسجل دخول، اجلب جميع الدورات (المفعلة وغير المفعلة)
+        if (Auth::check()) {
+            $courses = Course::orderBy('order')->get();
+        } else {
+            $courses = Course::getActiveCourses();
+        }
 
         // جلب برامج السريع
-        $programs = Image::getActivePrograms();
+        // إذا كان المستخدم مسجل دخول، اجلب جميع البرامج (المفعلة وغير المفعلة)
+        if (Auth::check()) {
+            $programs = Image::where('is_program', true)
+                ->whereNotNull('path')
+                ->where(function($query) {
+                    $query->whereNull('youtube_url')
+                          ->where(function($q) {
+                              $q->where('media_type', 'image')
+                                ->orWhereNull('media_type');
+                          });
+                })
+                ->orderBy('program_order')
+                ->get();
+        } else {
+            $programs = Image::getActivePrograms();
+        }
 
-        // جلب مجالس العائلة النشطة مع الصور
-        $councils = FamilyCouncil::where('is_active', true)
-            ->with('images')
-            ->orderBy('display_order')
-            ->get();
+        // جلب عناصر نفتخر بهم
+        // إذا كان المستخدم مسجل دخول، اجلب جميع العناصر (المفعلة وغير المفعلة)
+        // وإلا اجلب فقط العناصر المفعلة
+        if (Auth::check()) {
+            $proudOf = Image::where('is_proud_of', true)
+                ->whereNotNull('path')
+                ->where(function($query) {
+                    $query->whereNull('youtube_url')
+                          ->where(function($q) {
+                              $q->where('media_type', 'image')
+                                ->orWhereNull('media_type');
+                          });
+                })
+                ->orderBy('proud_of_order')
+                ->get();
+        } else {
+            $proudOf = Image::getActiveProudOf();
+        }
 
-        // جلب مناسبات العائلة النشطة
-        $events = FamilyEvent::where('is_active', true)
-            ->orderBy('display_order')
-            ->orderBy('event_date')
-            ->get();
+        // جلب مجالس العائلة مع الصور
+        // إذا كان المستخدم مسجل دخول، اجلب جميع المجالس (المفعلة وغير المفعلة)
+        if (Auth::check()) {
+            $councils = FamilyCouncil::with('images')
+                ->orderBy('display_order')
+                ->get();
+        } else {
+            $councils = FamilyCouncil::where('is_active', true)
+                ->with('images')
+                ->orderBy('display_order')
+                ->get();
+        }
+
+        // جلب مناسبات العائلة
+        // إذا كان المستخدم مسجل دخول، اجلب جميع المناسبات (المفعلة وغير المفعلة)
+        if (Auth::check()) {
+            $events = FamilyEvent::orderBy('display_order')
+                ->orderBy('event_date')
+                ->get();
+        } else {
+            $events = FamilyEvent::where('is_active', true)
+                ->orderBy('display_order')
+                ->orderBy('event_date')
+                ->get();
+        }
 
         // جلب الأشخاص الذين ولدوا في مثل هذا اليوم (نفس اليوم والشهر)
         $today = now();
@@ -178,6 +240,7 @@ class HomeController extends Controller
             'whatsNew' => $whatsNew,
             'courses' => $courses,
             'programs' => $programs,
+            'proudOf' => $proudOf,
             'councils' => $councils,
             'events' => $events,
             'birthdayPersons' => $birthdayPersons,

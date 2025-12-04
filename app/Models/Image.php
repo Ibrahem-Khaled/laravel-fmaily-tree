@@ -30,7 +30,12 @@ class Image extends BaseModel
         'program_is_active',
         'program_id',
         'program_media_order',
-        'gallery_id'
+        'gallery_id',
+        'is_proud_of',
+        'proud_of_title',
+        'proud_of_description',
+        'proud_of_order',
+        'proud_of_is_active'
     ];
 
     public function article(): BelongsTo
@@ -248,6 +253,25 @@ class Image extends BaseModel
                       });
             })
             ->orderBy('program_order')
+            ->get();
+    }
+
+    /**
+     * جلب عناصر نفتخر بهم النشطة مرتبة
+     */
+    public static function getActiveProudOf()
+    {
+        return self::where('is_proud_of', true)
+            ->where('proud_of_is_active', true)
+            ->whereNotNull('path')
+            ->where(function($query) {
+                $query->whereNull('youtube_url')
+                      ->where(function($q) {
+                          $q->where('media_type', 'image')
+                            ->orWhereNull('media_type');
+                      });
+            })
+            ->orderBy('proud_of_order')
             ->get();
     }
 }

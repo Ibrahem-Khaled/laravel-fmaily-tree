@@ -11,7 +11,7 @@ class ProgramPageController extends Controller
      */
     public function show(Image $program)
     {
-        abort_unless($program->is_program, 404);
+        abort_unless($program->is_program || $program->is_proud_of, 404);
 
         $program->load(['mediaItems', 'programLinks', 'programGalleries.images']);
 

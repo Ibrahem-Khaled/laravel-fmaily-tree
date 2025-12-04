@@ -242,6 +242,29 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::post('programs/{program}/galleries/{gallery}/media/{media}/update', [\App\Http\Controllers\admin\ProgramController::class, 'updateGalleryMedia'])->name('dashboard.programs.galleries.media.update')->middleware(['permission:programs.update']);
     Route::delete('programs/{program}/galleries/{gallery}/media/{media}', [\App\Http\Controllers\admin\ProgramController::class, 'destroyGalleryMedia'])->name('dashboard.programs.galleries.media.destroy')->middleware(['permission:programs.update']);
     
+    // Proud Of routes
+    Route::get('proud-of', [\App\Http\Controllers\admin\ProudOfController::class, 'index'])->name('dashboard.proud-of.index')->middleware(['permission:programs.view']);
+    Route::post('proud-of', [\App\Http\Controllers\admin\ProudOfController::class, 'store'])->name('dashboard.proud-of.store')->middleware(['permission:programs.create']);
+    Route::get('proud-of/{item}', [\App\Http\Controllers\admin\ProudOfController::class, 'show'])->name('dashboard.proud-of.show')->middleware(['permission:programs.view']);
+    Route::post('proud-of/{item}/update', [\App\Http\Controllers\admin\ProudOfController::class, 'update'])->name('dashboard.proud-of.update')->middleware(['permission:programs.update']);
+    Route::post('proud-of/reorder', [\App\Http\Controllers\admin\ProudOfController::class, 'reorder'])->name('dashboard.proud-of.reorder')->middleware(['permission:programs.update']);
+    Route::post('proud-of/{item}/toggle', [\App\Http\Controllers\admin\ProudOfController::class, 'toggle'])->name('dashboard.proud-of.toggle')->middleware(['permission:programs.update']);
+    Route::delete('proud-of/{item}', [\App\Http\Controllers\admin\ProudOfController::class, 'destroy'])->name('dashboard.proud-of.destroy')->middleware(['permission:programs.delete']);
+    Route::get('proud-of/{item}/manage', [\App\Http\Controllers\admin\ProudOfController::class, 'manage'])->name('dashboard.proud-of.manage')->middleware(['permission:programs.view']);
+    Route::post('proud-of/{item}/media', [\App\Http\Controllers\admin\ProudOfController::class, 'storeMedia'])->name('dashboard.proud-of.media.store')->middleware(['permission:programs.update']);
+    Route::post('proud-of/{item}/media/{media}/update', [\App\Http\Controllers\admin\ProudOfController::class, 'updateMedia'])->name('dashboard.proud-of.media.update')->middleware(['permission:programs.update']);
+    Route::delete('proud-of/{item}/media/{media}', [\App\Http\Controllers\admin\ProudOfController::class, 'destroyMedia'])->name('dashboard.proud-of.media.destroy')->middleware(['permission:programs.update']);
+    Route::post('proud-of/{item}/media/reorder', [\App\Http\Controllers\admin\ProudOfController::class, 'reorderMedia'])->name('dashboard.proud-of.media.reorder')->middleware(['permission:programs.update']);
+    Route::post('proud-of/{item}/links', [\App\Http\Controllers\admin\ProudOfController::class, 'storeLink'])->name('dashboard.proud-of.links.store')->middleware(['permission:programs.update']);
+    Route::delete('proud-of/{item}/links/{link}', [\App\Http\Controllers\admin\ProudOfController::class, 'destroyLink'])->name('dashboard.proud-of.links.destroy')->middleware(['permission:programs.update']);
+    Route::post('proud-of/{item}/links/reorder', [\App\Http\Controllers\admin\ProudOfController::class, 'reorderLinks'])->name('dashboard.proud-of.links.reorder')->middleware(['permission:programs.update']);
+    Route::post('proud-of/{item}/galleries', [\App\Http\Controllers\admin\ProudOfController::class, 'storeGallery'])->name('dashboard.proud-of.galleries.store')->middleware(['permission:programs.update']);
+    Route::post('proud-of/{item}/galleries/{gallery}/update', [\App\Http\Controllers\admin\ProudOfController::class, 'updateGallery'])->name('dashboard.proud-of.galleries.update')->middleware(['permission:programs.update']);
+    Route::delete('proud-of/{item}/galleries/{gallery}', [\App\Http\Controllers\admin\ProudOfController::class, 'destroyGallery'])->name('dashboard.proud-of.galleries.destroy')->middleware(['permission:programs.update']);
+    Route::post('proud-of/{item}/galleries/{gallery}/media', [\App\Http\Controllers\admin\ProudOfController::class, 'storeGalleryMedia'])->name('dashboard.proud-of.galleries.media.store')->middleware(['permission:programs.update']);
+    Route::post('proud-of/{item}/galleries/{gallery}/media/{media}/update', [\App\Http\Controllers\admin\ProudOfController::class, 'updateGalleryMedia'])->name('dashboard.proud-of.galleries.media.update')->middleware(['permission:programs.update']);
+    Route::delete('proud-of/{item}/galleries/{gallery}/media/{media}', [\App\Http\Controllers\admin\ProudOfController::class, 'destroyGalleryMedia'])->name('dashboard.proud-of.galleries.media.destroy')->middleware(['permission:programs.update']);
+    
     // Family Councils routes
     Route::get('councils', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'index'])->name('dashboard.councils.index')->middleware(['permission:councils.view']);
     Route::post('councils', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'store'])->name('dashboard.councils.store')->middleware(['permission:councils.create']);

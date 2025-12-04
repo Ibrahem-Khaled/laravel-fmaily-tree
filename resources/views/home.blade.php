@@ -450,7 +450,7 @@
                         @foreach ($latestGalleryImages as $galleryImage)
                             <div class="swiper-slide">
                                 <div
-                                    class="relative group overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300">
+                                    class="relative group overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 {{ !$galleryImage->is_active && Auth::check() ? 'opacity-60 grayscale' : '' }}">
                                     @if (isset($galleryImage->image_url))
                                         <img src="{{ $galleryImage->image_url }}"
                                             alt="{{ $galleryImage->name ?? 'صورة' }}"
@@ -459,6 +459,13 @@
                                         <img src="{{ asset('storage/' . $galleryImage->path) }}"
                                             alt="{{ $galleryImage->name ?? 'صورة' }}"
                                             class="w-full h-32 md:h-40 lg:h-48 object-cover transition-transform duration-500 group-hover:scale-110">
+                                    @endif
+                                    @if (!$galleryImage->is_active && Auth::check())
+                                        <div class="absolute top-2 right-2 z-10">
+                                            <span class="bg-yellow-500 text-white text-[8px] px-1.5 py-0.5 rounded-full font-bold">
+                                                معطل
+                                            </span>
+                                        </div>
                                     @endif
                                     <div
                                         class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -520,7 +527,7 @@
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     @foreach ($councils as $council)
-                                        <tr class="hover:bg-gray-50 transition-colors cursor-pointer council-row"
+                                        <tr class="hover:bg-gray-50 transition-colors cursor-pointer council-row {{ !$council->is_active && Auth::check() ? 'opacity-60' : '' }}"
                                             data-council-id="{{ $council->id }}"
                                             onclick="toggleCouncilDescription({{ $council->id }})">
                                             <td class="px-2 py-1.5 md:px-3 md:py-2 whitespace-nowrap text-right"
@@ -532,6 +539,11 @@
                                                     @if ($council->description)
                                                         <i
                                                             class="fas fa-chevron-down text-green-500 mr-1.5 text-xs transition-transform duration-300 council-chevron-{{ $council->id }}"></i>
+                                                    @endif
+                                                    @if (!$council->is_active && Auth::check())
+                                                        <span class="bg-yellow-500 text-white text-[8px] px-1.5 py-0.5 rounded-full font-bold mr-1">
+                                                            معطل
+                                                        </span>
                                                     @endif
                                                 </div>
                                             </td>
@@ -634,7 +646,7 @@
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200">
                                         @foreach ($events as $event)
-                                            <tr class="hover:bg-gray-50 transition-colors cursor-pointer event-row"
+                                            <tr class="hover:bg-gray-50 transition-colors cursor-pointer event-row {{ !$event->is_active && Auth::check() ? 'opacity-60' : '' }}"
                                                 data-event-id="{{ $event->id }}"
                                                 onclick="toggleEventDescription({{ $event->id }})">
                                                 <td class="px-2 py-1.5 md:px-3 md:py-2 text-right" dir="ltr">
@@ -646,6 +658,11 @@
                                                             @if ($event->description)
                                                                 <i
                                                                     class="fas fa-chevron-down text-green-500 text-xs transition-transform duration-300 event-chevron-{{ $event->id }}"></i>
+                                                            @endif
+                                                            @if (!$event->is_active && Auth::check())
+                                                                <span class="bg-yellow-500 text-white text-[8px] px-1.5 py-0.5 rounded-full font-bold">
+                                                                    معطل
+                                                                </span>
                                                             @endif
                                                         </div>
                                                     </div>
@@ -748,12 +765,19 @@
                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-3">
                     @foreach ($programs as $program)
                         <a href="{{ route('programs.show', $program) }}"
-                            class="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 bg-white card-hover">
+                            class="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 bg-white card-hover {{ !$program->program_is_active && Auth::check() ? 'opacity-60 grayscale' : '' }}">
                             <div class="aspect-square p-2 md:p-3">
                                 <img src="{{ asset('storage/' . $program->path) }}"
                                     alt="{{ $program->program_title ?? ($program->name ?? 'برنامج') }}"
                                     class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
                             </div>
+                            @if (!$program->program_is_active && Auth::check())
+                                <div class="absolute top-2 right-2 z-10">
+                                    <span class="bg-yellow-500 text-white text-[8px] px-1.5 py-0.5 rounded-full font-bold">
+                                        معطل
+                                    </span>
+                                </div>
+                            @endif
                             <div
                                 class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                 <div class="absolute bottom-2 right-2 left-2 text-center">
@@ -769,6 +793,54 @@
                 <div class="text-center py-8">
                     <i class="fas fa-calendar-alt text-gray-300 text-4xl mb-3"></i>
                     <p class="text-gray-500 text-sm md:text-base">لا توجد برامج متاحة حالياً</p>
+                </div>
+            @endif
+        </div>
+    </section>
+
+    {{-- Proud Of Section --}}
+    <section class="py-4 md:py-6 lg:py-8 bg-gradient-to-br from-green-50 to-emerald-50 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-200 rounded-full blur-3xl opacity-20"></div>
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
+            <div class="text-right mb-4 md:mb-6">
+                <h2 class="text-lg sm:text-xl md:text-2xl font-bold text-gradient section-title mb-2">
+                    🌟 نفتخر بهم
+                </h2>
+                <p class="text-gray-600 text-xs md:text-sm mt-2">فعاليات وأنشطة متنوعة</p>
+            </div>
+
+            @if ($proudOf && $proudOf->count() > 0)
+                <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-2 md:gap-3">
+                    @foreach ($proudOf as $item)
+                        <a href="{{ route('programs.show', $item) }}"
+                            class="group relative overflow-hidden rounded-full shadow-lg hover:shadow-2xl transition-all duration-500 bg-white card-hover {{ !$item->proud_of_is_active ? 'opacity-60 grayscale' : '' }}">
+                            <div class="aspect-square">
+                                <img src="{{ asset('storage/' . $item->path) }}"
+                                    alt="{{ $item->proud_of_title ?? ($item->name ?? 'عنصر') }}"
+                                    class="w-full h-full object-cover rounded-full transition-transform duration-500 group-hover:scale-110">
+                            </div>
+                            @if (!$item->proud_of_is_active && Auth::check())
+                                <div class="absolute top-1 left-1 z-10">
+                                    <span class="bg-yellow-500 text-white text-[8px] px-1.5 py-0.5 rounded-full font-bold">
+                                        معطل
+                                    </span>
+                                </div>
+                            @endif
+                            <div
+                                class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full">
+                                <div class="absolute bottom-2 right-2 left-2 text-center">
+                                    <p class="text-white text-xs font-bold line-clamp-2 drop-shadow-lg">
+                                        {{ $item->proud_of_title ?? ($item->name ?? 'عنصر') }}
+                                    </p>
+                                </div>
+                            </div>
+                        </a>
+                    @endforeach
+                </div>
+            @else
+                <div class="text-center py-8">
+                    <i class="fas fa-calendar-alt text-gray-300 text-4xl mb-3"></i>
+                    <p class="text-gray-500 text-sm md:text-base">لا توجد عناصر متاحة حالياً</p>
                 </div>
             @endif
         </div>
@@ -871,7 +943,7 @@
                         @foreach ($courses as $course)
                             <div class="swiper-slide">
                                 <div
-                                    class="glass-card rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 h-full flex flex-col">
+                                    class="glass-card rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 h-full flex flex-col {{ !$course->is_active && Auth::check() ? 'opacity-60 grayscale' : '' }}">
                                     <div class="relative h-32 md:h-36 gradient-primary overflow-hidden">
                                         @if ($course->image_url)
                                             <img src="{{ $course->image_url }}" alt="{{ $course->title }}"
@@ -880,6 +952,13 @@
                                             <div class="absolute inset-0 flex items-center justify-center">
                                                 <i
                                                     class="fas fa-book-open text-white text-4xl opacity-30 animate-float"></i>
+                                            </div>
+                                        @endif
+                                        @if (!$course->is_active && Auth::check())
+                                            <div class="absolute top-2 right-2 z-10">
+                                                <span class="bg-yellow-500 text-white text-[8px] px-1.5 py-0.5 rounded-full font-bold">
+                                                    معطل
+                                                </span>
                                             </div>
                                         @endif
                                     </div>

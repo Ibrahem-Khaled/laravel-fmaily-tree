@@ -8,7 +8,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $program->program_title ?? ($program->name ?? 'برنامج') }} - منصة برامج عائلة السريع</title>
+    <title>@if($program->is_proud_of){{ $program->proud_of_title ?? ($program->name ?? 'عنصر') }}@else{{ $program->program_title ?? ($program->name ?? 'برنامج') }}@endif - منصة برامج عائلة السريع</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -226,9 +226,17 @@
                             <div>
                                 <h1
                                     class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 leading-relaxed font-serif bg-gradient-to-r from-emerald-600 to-teal-500 text-transparent bg-clip-text">
-                                    {{ $program->program_title ?? ($program->name ?? 'برنامج') }}
+                                    @if($program->is_proud_of)
+                                        {{ $program->proud_of_title ?? ($program->name ?? 'عنصر') }}
+                                    @else
+                                        {{ $program->program_title ?? ($program->name ?? 'برنامج') }}
+                                    @endif
                                 </h1>
-                                @if ($program->program_description)
+                                @if ($program->is_proud_of && $program->proud_of_description)
+                                    <div class="text-gray-600 leading-relaxed text-lg program-description">
+                                        {!! $program->proud_of_description !!}
+                                    </div>
+                                @elseif($program->program_description)
                                     <div class="text-gray-600 leading-relaxed text-lg program-description">
                                         {!! $program->program_description !!}
                                     </div>
