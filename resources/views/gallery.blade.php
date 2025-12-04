@@ -1207,7 +1207,6 @@
             categories.forEach((category, index) => {
                 const children = getChildCategories(category.id);
                 const totalImages = countTotalImages(category);
-                const isNew = isRecentlyUpdated(category.updated_at);
                 const previewImages = category.images ? category.images.slice(0, 4) : [];
 
                 const card = document.createElement('div');
@@ -1216,7 +1215,6 @@
                 card.onclick = () => openCategory(category.id);
 
                 card.innerHTML = `
-                    ${isNew ? '<div class="new-badge">جديد</div>' : ''}
                     ${children.length > 0 ? `
                         <div class="subcategories-badge">
                             <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24">

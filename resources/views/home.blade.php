@@ -426,10 +426,6 @@
 
                                 </div>
                             </div>
-                            <div
-                                class="absolute top-2 right-2 bg-yellow-400 text-white text-xs px-2 py-1 rounded-full shadow-lg">
-                                🎉
-                            </div>
                         </a>
                     @endforeach
                 </div>
@@ -854,14 +850,6 @@
                         </a>
                     @endif
                 </div>
-
-                {{-- <div class="text-center">
-                    <a href="{{ route('gallery.articles') }}"
-                        class="inline-flex items-center gap-2 px-6 py-3 gradient-secondary text-white font-bold text-sm md:text-base rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 hover:scale-105">
-                        <span>استكشف المزيد</span>
-                        <i class="fas fa-arrow-left"></i>
-                    </a>
-                </div> --}}
             </div>
         </section>
     @endif
