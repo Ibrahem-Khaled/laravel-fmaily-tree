@@ -612,8 +612,6 @@
     </section>
 
     {{-- مناسبات العائلة --}}
-    @if (Auth::check())
-
         <section class="py-2 md:py-4 lg:py-6 bg-white mobile-section">
             <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
                 <div class="text-right mb-3 md:mb-4">
@@ -675,18 +673,15 @@
                                                 <td
                                                     class="px-2 py-1.5 md:px-3 md:py-2 whitespace-nowrap text-xs font-medium text-right">
                                                     @if ($event->location)
-                                                        <a href="{{ $event->location }}" target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            class="inline-flex items-center gap-1.5 text-blue-600 hover:text-blue-800 transition-colors group"
-                                                            title="فتح الموقع على الخريطة"
-                                                            onclick="event.stopPropagation();">
-                                                            <i
-                                                                class="fas fa-map-marker-alt text-xs group-hover:scale-110 transition-transform"></i>
-                                                            <span
-                                                                class="text-xs">{{ $event->location_name ?? 'عرض الموقع' }}</span>
-                                                            <i
-                                                                class="fas fa-external-link-alt text-[10px] opacity-70 group-hover:opacity-100 transition-opacity"></i>
-                                                        </a>
+                                                        <div class="relative inline-block">
+                                                            <a href="{{ $event->location }}" target="_blank" rel="noopener noreferrer"
+                                                                class="inline-flex items-center justify-center text-blue-600 hover:text-blue-800 group cursor-pointer transition-colors"
+                                                                onclick="event.stopPropagation();"
+                                                                title="{{ $event->location_name ?? 'فتح الموقع على الخريطة' }}">
+                                                                <i class="fas fa-map-marked-alt text-xs group-hover:scale-110 transition-transform"></i>
+                                                            </a>
+
+                                                        </div>
                                                     @else
                                                         <span class="text-gray-400">-</span>
                                                     @endif
@@ -748,7 +743,6 @@
                 @endif
             </div>
         </section>
-    @endif
 
     {{-- Family Programs Section --}}
     <section class="py-6 md:py-8 lg:py-10 bg-gradient-to-br from-green-50 to-emerald-50 relative overflow-hidden">
@@ -799,7 +793,7 @@
     </section>
 
     {{-- Proud Of Section --}}
-    <section class="py-4 md:py-6 lg:py-8 bg-gradient-to-br from-green-50 to-emerald-50 relative overflow-hidden">
+    {{-- <section class="py-4 md:py-6 lg:py-8 bg-gradient-to-br from-green-50 to-emerald-50 relative overflow-hidden">
         <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-200 rounded-full blur-3xl opacity-20"></div>
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
             <div class="text-right mb-4 md:mb-6">
@@ -844,7 +838,7 @@
                 </div>
             @endif
         </div>
-    </section>
+    </section> --}}
 
     {{-- Graduates Section --}}
     @php
@@ -1227,6 +1221,7 @@
         setInterval(updateEventCountdowns, 60000);
         // Initial update
         updateEventCountdowns();
+
     </script>
 </body>
 
