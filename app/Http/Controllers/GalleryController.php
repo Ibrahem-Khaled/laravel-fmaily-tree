@@ -116,21 +116,40 @@ class GalleryController extends Controller
         });
 
         // 2. جلب الفئات للـ JavaScript
-        // للمستخدمين المسجلين: اعرض جميع الفئات (المتاحة وغير المتاحة) والفئات الفرعية
-        // للزوار: اعرض فقط الفئات المتاحة التي تحتوي على صور
+        // الفئات التي تحتوي على صور مباشرة أو لديها فئات فرعية تحتوي على صور
         $categoriesForJsQuery = Category::query();
         
         if ($isAuthenticated) {
             // للمستخدمين المسجلين: اعرض جميع الفئات (المتاحة وغير المتاحة) والفئات الفرعية
-            // الفئات التي تحتوي على صور أو الفئات الفرعية (حتى لو لم تحتوِ على صور)
+            // الفئات التي تحتوي على صور مباشرة أو لديها فئات فرعية تحتوي على صور
             $categoriesForJsQuery->where(function($q) {
-                $q->whereHas('images')
+                $q->whereHas('images') // الفئات التي تحتوي على صور مباشرة
+                  ->orWhereHas('children', function($childQuery) {
+                      // الفئات التي لديها فئات فرعية تحتوي على صور مباشرة
+                      $childQuery->whereHas('images');
+                  })
+                  ->orWhereHas('children.children', function($grandChildQuery) {
+                      // الفئات التي لديها فئات فرعية من المستوى الثاني تحتوي على صور
+                      $grandChildQuery->whereHas('images');
+                  })
                   ->orWhereNotNull('parent_id'); // الفئات الفرعية حتى لو لم تحتوِ على صور
             });
         } else {
-            // للزوار: فقط الفئات المتاحة التي تحتوي على صور
+            // للزوار: فقط الفئات المتاحة التي تحتوي على صور مباشرة أو لديها فئات فرعية متاحة تحتوي على صور
             $categoriesForJsQuery->where('is_active', true)
-                                ->whereHas('images');
+                                ->where(function($q) {
+                                    $q->whereHas('images') // الفئات التي تحتوي على صور مباشرة
+                                      ->orWhereHas('children', function($childQuery) {
+                                          // الفئات التي لديها فئات فرعية متاحة تحتوي على صور مباشرة
+                                          $childQuery->where('is_active', true)
+                                                     ->whereHas('images');
+                                      })
+                                      ->orWhereHas('children.children', function($grandChildQuery) {
+                                          // الفئات التي لديها فئات فرعية من المستوى الثاني متاحة تحتوي على صور
+                                          $grandChildQuery->where('is_active', true)
+                                                          ->whereHas('images');
+                                      });
+                                });
         }
         
         $categoriesForJs = $categoriesForJsQuery
