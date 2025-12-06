@@ -1209,16 +1209,6 @@
     <script>
         // بيانات الفئات والصور
         const galleryData = @json($categoriesWithImages);
-        console.log('Gallery Data:', galleryData);
-        console.log('Total Categories:', galleryData.length);
-        
-        // التحقق من الفئات الفرعية
-        galleryData.forEach(cat => {
-            if (cat.parent_id) {
-                console.log('Subcategory:', cat.name, 'Parent ID:', cat.parent_id);
-            }
-        });
-        
         const storageUrl = '{{ asset("storage") }}';
         const pdfPlaceholder = '{{ asset("assets/img/base-pdf-img.jpg") }}';
 
@@ -1237,29 +1227,36 @@
 
         // الحصول على الفئات الرئيسية
         function getRootCategories() {
-            return galleryData.filter(cat => !cat.parent_id);
+            return galleryData.filter(cat => !cat.parent_id || cat.parent_id === null);
         }
 
         // الحصول على الفئات الفرعية
         function getChildCategories(parentId) {
-            return galleryData.filter(cat => cat.parent_id === parentId);
+            // تحويل parentId إلى number للتأكد من المقارنة الصحيحة
+            const parentIdNum = parseInt(parentId);
+            return galleryData.filter(cat => {
+                // تحويل parent_id إلى number أيضاً
+                const catParentId = cat.parent_id ? parseInt(cat.parent_id) : null;
+                return catParentId === parentIdNum;
+            });
         }
 
         // الحصول على فئة بالـ ID
         function getCategoryById(id) {
-            return galleryData.find(cat => cat.id === id);
+            // تحويل id إلى number للتأكد من المقارنة الصحيحة
+            const idNum = parseInt(id);
+            return galleryData.find(cat => {
+                const catId = cat.id ? parseInt(cat.id) : null;
+                return catId === idNum;
+            });
         }
 
         // فتح فئة
         function openCategory(categoryId) {
             const category = getCategoryById(categoryId);
-            if (!category) {
-                console.error('Category not found:', categoryId);
-                return;
-            }
+            if (!category) return;
 
             const children = getChildCategories(categoryId);
-            console.log('Category:', category.name, 'Children:', children.length, children);
 
             // إضافة للمسار
             breadcrumbPath.push({ id: category.id, name: category.name });
