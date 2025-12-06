@@ -152,6 +152,23 @@ class GalleryController extends Controller
                                 });
         }
         
+        // دالة recursive لتحميل الفئات الفرعية بشكل كامل
+        $loadChildrenRecursive = function ($query) use (&$loadChildrenRecursive, $isAuthenticated) {
+            if (!$isAuthenticated) {
+                $query->where('is_active', true);
+            }
+            $query->select('id', 'name', 'parent_id', 'is_active', 'sort_order')
+                  ->with([
+                      'images' => function ($imgQuery) {
+                          $imgQuery->with(['article:id,title,person_id,category_id', 'article.person:id,name', 'article.category:id,name', 'mentionedPersons'])
+                                   ->select('id', 'name', 'path', 'thumbnail_path', 'youtube_url', 'media_type', 'file_size', 'file_extension', 'article_id', 'category_id', 'created_at')
+                                   ->orderBy('created_at', 'desc');
+                      },
+                      'children' => $loadChildrenRecursive
+                  ])
+                  ->orderBy('sort_order');
+        };
+        
         $categoriesForJs = $categoriesForJsQuery
             ->select('id', 'name', 'parent_id', 'is_active', 'sort_order')
             ->with([
@@ -161,11 +178,54 @@ class GalleryController extends Controller
                           ->orderBy('created_at', 'desc');
                 },
                 'parent:id,name',
-                'children:id,name,parent_id,is_active'
+                'children' => $loadChildrenRecursive
             ])
             ->orderBy('sort_order')
             ->orderBy('updated_at', 'desc')
             ->get();
+        
+        // جلب جميع الفئات الفرعية للفئات التي تم جلبها (recursive)
+        $parentIds = $categoriesForJs->pluck('id')->toArray();
+        $allLoadedIds = $categoriesForJs->pluck('id')->toArray();
+        
+        // جلب الفئات الفرعية بشكل recursive حتى لا توجد فئات فرعية جديدة
+        while (!empty($parentIds)) {
+            $childrenQuery = Category::whereIn('parent_id', $parentIds);
+            
+            if (!$isAuthenticated) {
+                $childrenQuery->where('is_active', true);
+            }
+            
+            $children = $childrenQuery
+                ->select('id', 'name', 'parent_id', 'is_active', 'sort_order')
+                ->with([
+                    'images' => function ($query) {
+                        $query->with(['article:id,title,person_id,category_id', 'article.person:id,name', 'article.category:id,name', 'mentionedPersons'])
+                              ->select('id', 'name', 'path', 'thumbnail_path', 'youtube_url', 'media_type', 'file_size', 'file_extension', 'article_id', 'category_id', 'created_at')
+                              ->orderBy('created_at', 'desc');
+                    },
+                    'children' => $loadChildrenRecursive
+                ])
+                ->orderBy('sort_order')
+                ->get();
+            
+            // إضافة الفئات الفرعية الجديدة فقط
+            $newChildren = $children->reject(function ($child) use ($allLoadedIds) {
+                return in_array($child->id, $allLoadedIds);
+            });
+            
+            if ($newChildren->isEmpty()) {
+                break;
+            }
+            
+            // دمج الفئات الفرعية الجديدة
+            $categoriesForJs = $categoriesForJs->merge($newChildren);
+            
+            // تحديث IDs للجولة التالية
+            $newIds = $newChildren->pluck('id')->toArray();
+            $allLoadedIds = array_merge($allLoadedIds, $newIds);
+            $parentIds = $newIds;
+        }
 
         // إحصائيات عامة
         $stats = [
