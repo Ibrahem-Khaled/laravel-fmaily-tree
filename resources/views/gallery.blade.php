@@ -1209,6 +1209,16 @@
     <script>
         // بيانات الفئات والصور
         const galleryData = @json($categoriesWithImages);
+        console.log('Gallery Data:', galleryData);
+        console.log('Total Categories:', galleryData.length);
+        
+        // التحقق من الفئات الفرعية
+        galleryData.forEach(cat => {
+            if (cat.parent_id) {
+                console.log('Subcategory:', cat.name, 'Parent ID:', cat.parent_id);
+            }
+        });
+        
         const storageUrl = '{{ asset("storage") }}';
         const pdfPlaceholder = '{{ asset("assets/img/base-pdf-img.jpg") }}';
 
@@ -1243,25 +1253,33 @@
         // فتح فئة
         function openCategory(categoryId) {
             const category = getCategoryById(categoryId);
-            if (!category) return;
+            if (!category) {
+                console.error('Category not found:', categoryId);
+                return;
+            }
 
             const children = getChildCategories(categoryId);
+            console.log('Category:', category.name, 'Children:', children.length, children);
 
             // إضافة للمسار
             breadcrumbPath.push({ id: category.id, name: category.name });
             updateBreadcrumb();
 
             if (children.length > 0) {
-                // عرض الفئات الفرعية مع صور الفئة الحالية
+                // عرض الفئات الفرعية
+                document.getElementById('categories-section').style.display = 'block';
                 document.getElementById('section-title-text').textContent = category.name;
                 renderCategories(children);
 
                 // إذا كانت هناك صور في الفئة الحالية، اعرضها أيضاً
                 if (category.images && category.images.length > 0) {
                     showImagesSection(category);
+                } else {
+                    // إخفاء قسم الصور إذا لم تكن هناك صور مباشرة
+                    document.getElementById('images-section').classList.remove('active');
                 }
             } else {
-                // عرض الصور فقط
+                // لا توجد فئات فرعية - عرض الصور فقط
                 document.getElementById('categories-section').style.display = 'none';
                 showImagesSection(category);
             }
@@ -1396,12 +1414,16 @@
             document.getElementById('images-section-title').textContent = category.name;
             section.classList.add('active');
 
+            // التحقق من وجود صور مباشرة
             if (!category.images || category.images.length === 0) {
+                // لا توجد صور مباشرة - إخفاء قسم الصور
                 grid.style.display = 'none';
-                emptyState.style.display = 'block';
+                emptyState.style.display = 'none';
+                section.classList.remove('active');
                 return;
             }
 
+            // عرض الصور المباشرة
             grid.style.display = 'grid';
             emptyState.style.display = 'none';
             grid.innerHTML = '';
