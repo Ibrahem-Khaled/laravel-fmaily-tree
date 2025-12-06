@@ -39,24 +39,47 @@ class GalleryController extends Controller
             return false;
         };
 
+        // التحقق من تسجيل الدخول
+        $isAuthenticated = auth()->check();
+
         // دالة recursive لتحميل الفئات الفرعية التي تحتوي على صور فقط
-        $loadChildrenWithImages = function ($query) use (&$loadChildrenWithImages) {
-            $query->where('is_active', true)
-                  ->withCount('images')
-                  ->with([
-                      'images' => function ($q) {
-                          $q->select('id', 'path', 'thumbnail_path', 'article_id', 'media_type', 'youtube_url', 'category_id', 'created_at')
-                            ->latest()
-                            ->take(4);
-                      },
-                      'children' => $loadChildrenWithImages
-                  ])
-                  ->orderBy('sort_order');
+        $loadChildrenWithImages = function ($query) use (&$loadChildrenWithImages, $isAuthenticated) {
+            // إذا كان المستخدم مسجل دخول، اعرض جميع الفئات (المتاحة وغير المتاحة)
+            if ($isAuthenticated) {
+                $query->withCount('images')
+                      ->with([
+                          'images' => function ($q) {
+                              $q->select('id', 'path', 'thumbnail_path', 'article_id', 'media_type', 'youtube_url', 'category_id', 'created_at')
+                                ->latest()
+                                ->take(4);
+                          },
+                          'children' => $loadChildrenWithImages
+                      ])
+                      ->orderBy('sort_order');
+            } else {
+                $query->where('is_active', true)
+                      ->withCount('images')
+                      ->with([
+                          'images' => function ($q) {
+                              $q->select('id', 'path', 'thumbnail_path', 'article_id', 'media_type', 'youtube_url', 'category_id', 'created_at')
+                                ->latest()
+                                ->take(4);
+                          },
+                          'children' => $loadChildrenWithImages
+                      ])
+                      ->orderBy('sort_order');
+            }
         };
 
         // 1. جلب الفئات الرئيسية التي تحتوي على صور (مباشرة أو من خلال الفئات الفرعية)
-        $categories = Category::whereNull('parent_id')
-            ->where('is_active', true)
+        $categoriesQuery = Category::whereNull('parent_id');
+        
+        // إذا كان المستخدم غير مسجل دخول، اعرض فقط الفئات المتاحة
+        if (!$isAuthenticated) {
+            $categoriesQuery->where('is_active', true);
+        }
+        
+        $categories = $categoriesQuery
             ->with([
                 'images' => function ($query) {
                     $query->select('id', 'path', 'thumbnail_path', 'article_id', 'media_type', 'youtube_url', 'category_id', 'created_at')
@@ -92,9 +115,26 @@ class GalleryController extends Controller
             $category->total_images_count = $countAllImages($category);
         });
 
-        // 2. جلب الفئات التي تحتوي على صور فقط للـ JavaScript
-        $categoriesForJs = Category::where('is_active', true)
-            ->whereHas('images') // فقط الفئات التي تحتوي على صور
+        // 2. جلب الفئات للـ JavaScript
+        // للمستخدمين المسجلين: اعرض جميع الفئات (المتاحة وغير المتاحة) والفئات الفرعية
+        // للزوار: اعرض فقط الفئات المتاحة التي تحتوي على صور
+        $categoriesForJsQuery = Category::query();
+        
+        if ($isAuthenticated) {
+            // للمستخدمين المسجلين: اعرض جميع الفئات (المتاحة وغير المتاحة) والفئات الفرعية
+            // الفئات التي تحتوي على صور أو الفئات الفرعية (حتى لو لم تحتوِ على صور)
+            $categoriesForJsQuery->where(function($q) {
+                $q->whereHas('images')
+                  ->orWhereNotNull('parent_id'); // الفئات الفرعية حتى لو لم تحتوِ على صور
+            });
+        } else {
+            // للزوار: فقط الفئات المتاحة التي تحتوي على صور
+            $categoriesForJsQuery->where('is_active', true)
+                                ->whereHas('images');
+        }
+        
+        $categoriesForJs = $categoriesForJsQuery
+            ->select('id', 'name', 'parent_id', 'is_active', 'sort_order')
             ->with([
                 'images' => function ($query) {
                     $query->with(['article:id,title,person_id,category_id', 'article.person:id,name', 'article.category:id,name', 'mentionedPersons'])
@@ -102,7 +142,7 @@ class GalleryController extends Controller
                           ->orderBy('created_at', 'desc');
                 },
                 'parent:id,name',
-                'children:id,name,parent_id'
+                'children:id,name,parent_id,is_active'
             ])
             ->orderBy('sort_order')
             ->orderBy('updated_at', 'desc')
@@ -119,6 +159,7 @@ class GalleryController extends Controller
             'categories' => $categories,
             'categoriesWithImages' => $categoriesForJs,
             'stats' => $stats,
+            'isAuthenticated' => $isAuthenticated,
         ]);
     }
 

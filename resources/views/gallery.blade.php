@@ -420,6 +420,61 @@
             z-index: 10;
         }
 
+        /* تمييز الفئات غير المتاحة */
+        .category-card.inactive {
+            opacity: 0.7;
+            border-color: rgba(255, 255, 255, 0.15);
+            position: relative;
+        }
+
+        .category-card.inactive::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 24px;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .category-card.inactive:hover {
+            opacity: 0.85;
+        }
+
+        .inactive-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: linear-gradient(135deg, rgba(107, 114, 128, 0.9), rgba(75, 85, 99, 0.9));
+            color: #fff;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 0.35rem 0.75rem;
+            border-radius: 100px;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            z-index: 10;
+            backdrop-filter: blur(10px);
+        }
+
+        /* تمييز الفئات الفرعية */
+        .category-card.subcategory {
+            border-left: 3px solid var(--secondary);
+        }
+
+        .subcategory-indicator {
+            position: absolute;
+            top: 0.5rem;
+            left: 0.5rem;
+            width: 8px;
+            height: 8px;
+            background: var(--secondary);
+            border-radius: 50%;
+            z-index: 10;
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.6);
+        }
+
         /* ===== عرض الصور ===== */
         .images-section {
             padding: 0 1rem 2rem;
@@ -958,9 +1013,22 @@
 
             <div class="categories-grid" id="categories-grid">
                 @foreach($categories as $index => $category)
-                    <div class="category-card"
+                    <div class="category-card {{ !$category->is_active ? 'inactive' : '' }} {{ $category->parent_id ? 'subcategory' : '' }}"
                          style="animation-delay: {{ $index * 0.1 }}s"
                          onclick="openCategory({{ $category->id }})">
+
+                        @if(!$category->is_active && $isAuthenticated)
+                            <div class="inactive-badge">
+                                <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                </svg>
+                                غير متاحة
+                            </div>
+                        @endif
+
+                        @if($category->parent_id)
+                            <div class="subcategory-indicator"></div>
+                        @endif
 
                         @if($category->children->count() > 0)
                             <div class="subcategories-badge">
@@ -1204,17 +1272,36 @@
             const grid = document.getElementById('categories-grid');
             grid.innerHTML = '';
 
+            const isAuthenticated = {{ $isAuthenticated ? 'true' : 'false' }};
+
             categories.forEach((category, index) => {
                 const children = getChildCategories(category.id);
                 const totalImages = countTotalImages(category);
                 const previewImages = category.images ? category.images.slice(0, 4) : [];
+                
+                // تحديد الفئات غير المتاحة والفئات الفرعية
+                const isInactive = category.is_active === false;
+                const isSubcategory = category.parent_id !== null;
+                
+                let cardClasses = 'category-card';
+                if (isInactive) cardClasses += ' inactive';
+                if (isSubcategory) cardClasses += ' subcategory';
 
                 const card = document.createElement('div');
-                card.className = 'category-card';
+                card.className = cardClasses;
                 card.style.animationDelay = `${index * 0.1}s`;
                 card.onclick = () => openCategory(category.id);
 
                 card.innerHTML = `
+                    ${isInactive && isAuthenticated ? `
+                        <div class="inactive-badge">
+                            <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                            </svg>
+                            غير متاحة
+                        </div>
+                    ` : ''}
+                    ${isSubcategory ? '<div class="subcategory-indicator"></div>' : ''}
                     ${children.length > 0 ? `
                         <div class="subcategories-badge">
                             <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24">
