@@ -122,7 +122,7 @@
         }
 
         .gallery-title {
-            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-size: clamp(1.5rem, 5vw, 3.5rem);
             font-weight: 800;
             background: linear-gradient(135deg, #fff 0%, var(--primary-light) 50%, var(--secondary) 100%);
             -webkit-background-clip: text;
@@ -130,11 +130,12 @@
             background-clip: text;
             margin-bottom: 0.5rem;
             text-shadow: 0 0 40px rgba(45, 212, 191, 0.3);
+            line-height: 1.2;
         }
 
         .gallery-subtitle {
             color: rgba(255, 255, 255, 0.6);
-            font-size: 1rem;
+            font-size: clamp(0.875rem, 2vw, 1rem);
             font-weight: 400;
         }
 
@@ -158,6 +159,8 @@
             border-radius: 100px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             transition: all 0.3s ease;
+            min-width: 0;
+            flex: 1 1 auto;
         }
 
         .stat-item:hover {
@@ -202,6 +205,8 @@
             margin: 0 1rem 1.5rem;
             border: 1px solid rgba(255, 255, 255, 0.05);
             flex-wrap: wrap;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .breadcrumb-item {
@@ -214,6 +219,9 @@
             transition: all 0.3s ease;
             padding: 0.5rem 1rem;
             border-radius: 8px;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
         }
 
         .breadcrumb-item:hover {
@@ -281,6 +289,8 @@
             cursor: pointer;
             transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             animation: cardAppear 0.6s ease-out backwards;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
 
         .category-card:hover {
@@ -289,6 +299,10 @@
             box-shadow:
                 0 20px 40px rgba(0, 0, 0, 0.3),
                 0 0 60px rgba(13, 148, 136, 0.2);
+        }
+
+        .category-card:active {
+            transform: translateY(-4px) scale(0.98);
         }
 
         @keyframes cardAppear {
@@ -513,12 +527,18 @@
             cursor: pointer;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             animation: imageAppear 0.5s ease-out backwards;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
 
         .image-card:hover {
             transform: translateY(-5px) scale(1.02);
             border-color: var(--primary);
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .image-card:active {
+            transform: translateY(-2px) scale(0.98);
         }
 
         @keyframes imageAppear {
@@ -891,27 +911,314 @@
         }
 
         /* ===== Responsive ===== */
-        @media (max-width: 640px) {
+        @media (max-width: 768px) {
+            .gallery-hero {
+                padding: 1.5rem 0.5rem;
+            }
+
+            .gallery-title {
+                font-size: 1.75rem;
+                margin-bottom: 0.25rem;
+            }
+
+            .gallery-subtitle {
+                font-size: 0.875rem;
+            }
+
+            .stats-bar {
+                gap: 0.5rem;
+                margin: 1rem 0;
+                padding: 0.5rem;
+            }
+
+            .stat-item {
+                padding: 0.5rem 0.75rem;
+                gap: 0.5rem;
+            }
+
+            .stat-icon {
+                width: 28px;
+                height: 28px;
+                font-size: 0.875rem;
+            }
+
+            .stat-value {
+                font-size: 1rem;
+            }
+
+            .stat-label {
+                font-size: 0.65rem;
+            }
+
+            .breadcrumb-nav {
+                padding: 0.75rem 0.5rem;
+                margin: 0 0.5rem 1rem;
+                gap: 0.25rem;
+            }
+
+            .breadcrumb-item {
+                padding: 0.375rem 0.75rem;
+                font-size: 0.75rem;
+            }
+
+            .categories-section {
+                padding: 0 0.5rem 1.5rem;
+            }
+
+            .section-header {
+                margin-bottom: 1rem;
+            }
+
+            .section-title {
+                font-size: 1.125rem;
+                gap: 0.5rem;
+            }
+
+            .section-title-icon {
+                width: 32px;
+                height: 32px;
+            }
+
             .categories-grid {
                 grid-template-columns: repeat(2, 1fr);
-                gap: 1rem;
+                gap: 0.75rem;
+            }
+
+            .category-card {
+                border-radius: 16px;
+            }
+
+            .card-preview {
+                aspect-ratio: 16/9;
+            }
+
+            .card-content {
+                padding: 1rem;
+            }
+
+            .card-title {
+                font-size: 1rem;
+                margin-bottom: 0.375rem;
+            }
+
+            .card-meta {
+                font-size: 0.75rem;
+                gap: 0.75rem;
+            }
+
+            .subcategories-badge,
+            .inactive-badge {
+                top: 0.75rem;
+                font-size: 0.6rem;
+                padding: 0.25rem 0.5rem;
+            }
+
+            .subcategories-badge {
+                left: 0.75rem;
+            }
+
+            .inactive-badge {
+                right: 0.75rem;
+            }
+
+            .subcategory-indicator {
+                top: 0.375rem;
+                left: 0.375rem;
+                width: 6px;
+                height: 6px;
+            }
+
+            .images-section {
+                padding: 0 0.5rem 1.5rem;
             }
 
             .images-grid {
                 grid-template-columns: repeat(2, 1fr);
-                gap: 0.75rem;
+                gap: 0.5rem;
+            }
+
+            .image-card {
+                border-radius: 12px;
+            }
+
+            .image-title {
+                font-size: 0.75rem;
+            }
+
+            .image-author {
+                font-size: 0.65rem;
+            }
+
+            .file-type-badge {
+                top: 0.5rem;
+                right: 0.5rem;
+                padding: 0.25rem 0.5rem;
+                font-size: 0.6rem;
+            }
+
+            .modal-content {
+                max-width: 95vw;
+                margin: 1rem;
+                border-radius: 16px;
+            }
+
+            .modal-header {
+                padding: 1rem;
+            }
+
+            .modal-title {
+                font-size: 1rem;
+            }
+
+            .modal-body {
+                padding: 1rem;
+            }
+
+            .modal-actions {
+                padding: 1rem;
+            }
+
+            .modal-btn {
+                padding: 0.75rem 1rem;
+                font-size: 0.875rem;
+            }
+
+            .empty-state {
+                padding: 2rem 1rem;
+            }
+
+            .empty-icon {
+                width: 60px;
+                height: 60px;
+                margin-bottom: 1rem;
+            }
+
+            .empty-title {
+                font-size: 1rem;
+            }
+
+            .empty-text {
+                font-size: 0.875rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .gallery-hero {
+                padding: 1rem 0.5rem;
+            }
+
+            .gallery-title {
+                font-size: 1.5rem;
             }
 
             .stats-bar {
-                gap: 0.75rem;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.5rem;
             }
 
             .stat-item {
-                padding: 0.5rem 0.875rem;
+                justify-content: center;
+                width: 100%;
+            }
+
+            .categories-grid {
+                gap: 0.5rem;
+            }
+
+            .images-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.5rem;
             }
 
             .breadcrumb-nav {
-                padding: 0.75rem 1rem;
+                padding: 0.5rem;
+                margin: 0 0.25rem 0.75rem;
+            }
+
+            .breadcrumb-item {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.7rem;
+                white-space: nowrap;
+            }
+
+            .card-content {
+                padding: 0.75rem;
+            }
+
+            .card-title {
+                font-size: 0.9rem;
+            }
+
+            .card-meta {
+                flex-direction: column;
+                gap: 0.5rem;
+                align-items: flex-start;
+            }
+
+            .card-meta-item {
+                font-size: 0.7rem;
+            }
+
+            .preview-grid {
+                gap: 2px;
+            }
+
+            .mentioned-persons {
+                gap: 0.25rem;
+            }
+
+            .mentioned-tag {
+                font-size: 0.6rem;
+                padding: 0.15rem 0.4rem;
+            }
+
+            .fullscreen-close {
+                top: 0.5rem;
+                right: 0.5rem;
+                width: 40px;
+                height: 40px;
+            }
+
+            .fullscreen-image {
+                max-width: 95vw;
+                max-height: 85vh;
+            }
+        }
+
+        /* تحسينات إضافية للشاشات الصغيرة جداً */
+        @media (max-width: 360px) {
+            .gallery-title {
+                font-size: 1.25rem;
+            }
+
+            .stat-item {
+                padding: 0.5rem;
+            }
+
+            .stat-icon {
+                width: 24px;
+                height: 24px;
+            }
+
+            .stat-value {
+                font-size: 0.9rem;
+            }
+
+            .category-card {
+                border-radius: 12px;
+            }
+
+            .card-content {
+                padding: 0.5rem;
+            }
+
+            .card-title {
+                font-size: 0.85rem;
+            }
+
+            .section-title {
+                font-size: 1rem;
             }
         }
 
@@ -1293,11 +1600,11 @@
                 const children = getChildCategories(category.id);
                 const totalImages = countTotalImages(category);
                 const previewImages = category.images ? category.images.slice(0, 4) : [];
-                
+
                 // تحديد الفئات غير المتاحة والفئات الفرعية
                 const isInactive = category.is_active === false;
                 const isSubcategory = category.parent_id !== null;
-                
+
                 let cardClasses = 'category-card';
                 if (isInactive) cardClasses += ' inactive';
                 if (isSubcategory) cardClasses += ' subcategory';

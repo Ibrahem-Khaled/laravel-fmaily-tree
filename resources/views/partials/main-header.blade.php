@@ -357,6 +357,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         const mobileMenuButton = document.getElementById('mobile-menu-btn');
         const mainNav = document.getElementById('main-nav');
+        const headerBrand = document.querySelector('.header-brand');
 
         if (mobileMenuButton && mainNav) {
             // فتح/إغلاق القائمة
@@ -374,6 +375,46 @@
                     !mobileMenuButton.contains(event.target)
                 ) {
                     mainNav.classList.remove('is-open');
+                }
+            });
+        }
+
+        // ميزة الضغط 3 مرات على "تواصل عائلة السريع" لفتح صفحة تسجيل الدخول
+        if (headerBrand) {
+            let clickCount = 0;
+            let clickTimer = null;
+            const CLICK_TIMEOUT = 2000; // 2 ثانية - الوقت المسموح بين الضغطات
+            const REQUIRED_CLICKS = 3; // عدد الضغطات المطلوبة
+            let isRedirecting = false; // لمنع الانتقال المتعدد
+
+            headerBrand.addEventListener('click', function(event) {
+                // إذا كان الانتقال قيد التنفيذ، تجاهل الضغطات
+                if (isRedirecting) {
+                    event.preventDefault();
+                    return;
+                }
+
+                clickCount++;
+                
+                // إعادة تعيين العداد بعد انتهاء الوقت المحدد
+                if (clickTimer) {
+                    clearTimeout(clickTimer);
+                }
+                
+                clickTimer = setTimeout(function() {
+                    // إعادة تعيين العداد بعد انتهاء الوقت
+                    clickCount = 0;
+                }, CLICK_TIMEOUT);
+
+                // إذا تم الضغط 3 مرات خلال الوقت المحدد
+                if (clickCount >= REQUIRED_CLICKS) {
+                    event.preventDefault(); // منع الانتقال للصفحة الرئيسية
+                    clickCount = 0;
+                    clearTimeout(clickTimer);
+                    isRedirecting = true;
+                    
+                    // توجيه المستخدم لصفحة تسجيل الدخول
+                    window.location.href = '{{ route("login") }}';
                 }
             });
         }
