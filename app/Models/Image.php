@@ -246,7 +246,7 @@ class Image extends BaseModel
     {
         return !empty($this->thumbnail_path);
     }
-
+    
     /**
      * جلب البرامج النشطة مرتبة
      */
