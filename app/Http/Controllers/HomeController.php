@@ -12,6 +12,7 @@ use App\Models\FamilyEvent;
 use App\Models\Person;
 use App\Models\Article;
 use App\Models\Category;
+use App\Models\ImportantLink;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -70,8 +71,10 @@ class HomeController extends Controller
 
         // جلب برامج السريع
         // إذا كان المستخدم مسجل دخول، اجلب جميع البرامج (المفعلة وغير المفعلة)
+        // استبعاد البرامج الفرعية (التي لها program_id)
         if (Auth::check()) {
             $programs = Image::where('is_program', true)
+                ->whereNull('program_id') // استبعاد البرامج الفرعية
                 ->whereNotNull('path')
                 ->where(function($query) {
                     $query->whereNull('youtube_url')
@@ -233,6 +236,14 @@ class HomeController extends Controller
                 return $article;
             }));
 
+        // جلب الروابط المهمة
+        // إذا كان المستخدم مسجل دخول، اجلب جميع الروابط (المفعلة وغير المفعلة)
+        if (Auth::check()) {
+            $importantLinks = ImportantLink::orderBy('order')->get();
+        } else {
+            $importantLinks = ImportantLink::getActiveLinks();
+        }
+
         return view('home', [
             'latestImages' => $slideshowImages,
             'latestGalleryImages' => $latestGalleryImages,
@@ -248,6 +259,7 @@ class HomeController extends Controller
             'bachelorTotalCount' => $bachelorTotalCount,
             'masterTotalCount' => $masterTotalCount,
             'phdTotalCount' => $phdTotalCount,
+            'importantLinks' => $importantLinks,
         ]);
     }
 }

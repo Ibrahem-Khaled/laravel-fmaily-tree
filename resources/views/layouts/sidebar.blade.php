@@ -120,6 +120,11 @@
                     <i class="fas fa-fw fa-star"></i> نفتخر بهم
                 </a>
                 @endcan
+                @can('site-content.view')
+                <a class="collapse-item {{ request()->routeIs('dashboard.important-links.*') ? 'active' : '' }}" href="{{ route('dashboard.important-links.index') }}">
+                    <i class="fas fa-fw fa-link"></i> الروابط المهمة
+                </a>
+                @endcan
                 @can('councils.view')
                 <a class="collapse-item {{ request()->routeIs('dashboard.councils.*') ? 'active' : '' }}" href="{{ route('dashboard.councils.index') }}">
                     <i class="fas fa-fw fa-building"></i> مجالس العائلة

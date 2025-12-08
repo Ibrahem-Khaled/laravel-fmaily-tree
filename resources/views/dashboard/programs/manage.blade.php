@@ -179,6 +179,14 @@
                 @endif
             </a>
         </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" id="sub-programs-tab" data-toggle="tab" href="#sub-programs" role="tab">
+                <i class="fas fa-sitemap mr-2"></i>البرامج الفرعية
+                @if($subPrograms->count() > 0)
+                    <span class="badge badge-primary ml-2">{{ $subPrograms->count() }}</span>
+                @endif
+            </a>
+        </li>
     </ul>
 
     {{-- Tab Content --}}
@@ -188,6 +196,7 @@
         @include('dashboard.programs.partials._images')
         @include('dashboard.programs.partials._videos')
         @include('dashboard.programs.partials._links')
+        @include('dashboard.programs.partials._sub_programs')
     </div>
 </div>
 
@@ -339,10 +348,10 @@
             const preview = $('#imagesPreview');
             const container = $('#previewContainer');
             const count = $('#imagesCount');
-            
+
             container.empty();
             count.text(files.length);
-            
+
             if (files.length > 0) {
                 preview.show();
                 Array.from(files).forEach((file, index) => {
@@ -377,7 +386,7 @@
             document.getElementById('edit_media_id').value = mediaId;
             document.getElementById('edit_media_name').value = mediaName || '';
             document.getElementById('edit_media_description').value = mediaDescription || '';
-            
+
             const programId = {{ $program->id }};
             document.getElementById('editMediaForm').action = '{{ url("/dashboard/programs") }}/' + programId + '/media/' + mediaId + '/update';
         }
@@ -398,13 +407,13 @@
                 const galleryId = this.getAttribute('data-gallery-id');
                 const galleryTitle = this.getAttribute('data-gallery-title') || '';
                 const galleryDescription = this.getAttribute('data-gallery-description') || '';
-                
+
                 document.getElementById('edit_gallery_title').value = galleryTitle;
                 document.getElementById('edit_gallery_description').value = galleryDescription;
-                
+
                 const programId = {{ $program->id }};
                 document.getElementById('editGalleryForm').action = '{{ url("/dashboard/programs") }}/' + programId + '/galleries/' + galleryId + '/update';
-                
+
                 $('#editGalleryModal').modal('show');
             });
         });
@@ -416,13 +425,13 @@
                 const mediaName = this.getAttribute('data-media-name') || '';
                 const mediaDescription = this.getAttribute('data-media-description') || '';
                 const galleryId = this.getAttribute('data-gallery-id');
-                
+
                 document.getElementById('edit_gallery_media_name').value = mediaName;
                 document.getElementById('edit_gallery_media_description').value = mediaDescription;
-                
+
                 const programId = {{ $program->id }};
                 document.getElementById('editGalleryMediaForm').action = '{{ url("/dashboard/programs") }}/' + programId + '/galleries/' + galleryId + '/media/' + mediaId + '/update';
-                
+
                 $('#editGalleryMediaModal').modal('show');
             });
         });

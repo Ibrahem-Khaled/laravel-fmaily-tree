@@ -96,6 +96,16 @@ class Image extends BaseModel
         return $this->hasMany(ProgramGallery::class, 'program_id')->orderBy('gallery_order');
     }
 
+    /**
+     * Sub-programs (برامج فرعية) attached to this program.
+     */
+    public function subPrograms(): HasMany
+    {
+        return $this->hasMany(self::class, 'program_id')
+            ->where('is_program', true)
+            ->orderBy('program_order');
+    }
+
     protected static function booted(): void
     {
         static::deleting(function (Image $image) {
@@ -236,13 +246,14 @@ class Image extends BaseModel
     {
         return !empty($this->thumbnail_path);
     }
-    
+
     /**
      * جلب البرامج النشطة مرتبة
      */
     public static function getActivePrograms()
     {
         return self::where('is_program', true)
+            ->whereNull('program_id') // استبعاد البرامج الفرعية
             ->where('program_is_active', true)
             ->whereNotNull('path')
             ->where(function($query) {

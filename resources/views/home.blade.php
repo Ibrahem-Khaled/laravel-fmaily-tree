@@ -924,6 +924,65 @@
         </section>
     @endif
 
+        {{-- Important Links Section --}}
+        @if ($importantLinks && $importantLinks->count() > 0)
+        <section class="py-6 md:py-8 lg:py-10 bg-white relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-48 h-48 bg-blue-100 rounded-full blur-3xl opacity-20"></div>
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
+                <div class="text-right mb-6 md:mb-8">
+                    <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">
+                        🔗 روابط مهمة
+                    </h2>
+                    <p class="text-gray-600 text-xs md:text-sm mt-2">روابط مفيدة ومهمة للعائلة</p>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
+                    @foreach ($importantLinks as $link)
+                        <a href="{{ $link->url }}"
+                           @if($link->open_in_new_tab) target="_blank" rel="noopener noreferrer" @endif
+                           class="group relative overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50 p-4 md:p-5 card-hover border border-gray-200 {{ !$link->is_active && Auth::check() ? 'opacity-60 grayscale' : '' }}">
+                            <div class="flex flex-col items-center text-center">
+                                @if ($link->icon)
+                                    <div class="w-12 h-12 md:w-16 md:h-16 rounded-full gradient-primary flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300">
+                                        <i class="{{ $link->icon }} text-white text-xl md:text-2xl"></i>
+                                    </div>
+                                @else
+                                    <div class="w-12 h-12 md:w-16 md:h-16 rounded-full gradient-primary flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300">
+                                        <i class="fas fa-link text-white text-xl md:text-2xl"></i>
+                                    </div>
+                                @endif
+
+                                <h3 class="text-sm md:text-base font-bold text-gray-800 mb-1 line-clamp-2 group-hover:text-green-600 transition-colors">
+                                    {{ $link->title }}
+                                </h3>
+
+                                @if ($link->description)
+                                    <p class="text-xs text-gray-600 line-clamp-2 mt-1">
+                                        {{ $link->description }}
+                                    </p>
+                                @endif
+
+                                @if (!$link->is_active && Auth::check())
+                                    <div class="absolute top-2 right-2 z-10">
+                                        <span class="bg-yellow-500 text-white text-[8px] px-1.5 py-0.5 rounded-full font-bold">
+                                            معطل
+                                        </span>
+                                    </div>
+                                @endif
+
+                                @if ($link->open_in_new_tab)
+                                    <div class="absolute bottom-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <i class="fas fa-external-link-alt text-gray-400 text-xs"></i>
+                                    </div>
+                                @endif
+                            </div>
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+        </section>
+    @endif
+
     {{-- Courses Section --}}
     <section class="py-6 md:py-8 lg:py-10 bg-gradient-to-br from-gray-50 to-green-50/50 relative overflow-hidden">
         <div class="absolute top-0 left-0 w-64 h-64 bg-green-200 rounded-full blur-3xl opacity-20"></div>

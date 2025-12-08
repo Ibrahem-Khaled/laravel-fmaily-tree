@@ -68,6 +68,15 @@ Route::prefix('api')->group(function () {
     Route::get('/person/{father}/wives', [FamilyTreeController::class, 'getWives']);
     Route::get('/person/{id}/stories/count', [StoriesPublicController::class, 'countForPerson']);
     Route::get('/person/{id}/friendships/count', [FamilyTreeController::class, 'getFriendshipsCount']);
+
+    // WhatsApp Group Message Routes
+    Route::get('/generations', [FamilyTreeController::class, 'getGenerations']);
+    Route::get('/generation/{level}/whatsapp', [FamilyTreeController::class, 'getGenerationWithWhatsApp']);
+    Route::get('/persons/search', [FamilyTreeController::class, 'searchPersons']);
+    Route::get('/persons/search/whatsapp', [FamilyTreeController::class, 'searchPersonsWithWhatsApp']);
+    Route::get('/person/{id}/whatsapp', [FamilyTreeController::class, 'getPersonWithWhatsApp']);
+    Route::get('/person/{id}/children/whatsapp', [FamilyTreeController::class, 'getChildrenWithWhatsApp']);
+    Route::get('/person/{id}/descendants/whatsapp', [FamilyTreeController::class, 'getDescendantsWithWhatsApp']);
 });
 
 // Routes for friendships
@@ -98,12 +107,12 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard')->middleware(['permission:dashboard.view']);
 
     Route::resource('people', PersonController::class)->middleware(['permission:people.view|people.create|people.update|people.delete']);
-    
+
     // Routes for managing person contact accounts
     Route::post('people/{person}/contact-accounts', [\App\Http\Controllers\admin\PersonContactAccountController::class, 'store'])->name('people.contact-accounts.store')->middleware(['permission:people.update']);
     Route::put('people/{person}/contact-accounts/{contactAccountId}', [\App\Http\Controllers\admin\PersonContactAccountController::class, 'update'])->name('people.contact-accounts.update')->middleware(['permission:people.update'])->where(['contactAccountId' => '[0-9]+']);
     Route::delete('people/{person}/contact-accounts/{contactAccountId}', [\App\Http\Controllers\admin\PersonContactAccountController::class, 'destroy'])->name('people.contact-accounts.destroy')->middleware(['permission:people.update'])->where(['contactAccountId' => '[0-9]+']);
-    
+
     // Routes for managing person locations
     Route::post('people/{person}/locations', [\App\Http\Controllers\admin\PersonLocationController::class, 'store'])->name('people.locations.store')->middleware(['permission:people.update']);
     Route::put('people/{person}/locations/{personLocation}', [\App\Http\Controllers\admin\PersonLocationController::class, 'update'])->name('people.locations.update')->middleware(['permission:people.update']);
@@ -187,11 +196,19 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::get('site-content', [\App\Http\Controllers\admin\SiteContentController::class, 'index'])->name('dashboard.site-content.index')->middleware(['permission:site-content.view']);
     Route::post('site-content/family-brief', [\App\Http\Controllers\admin\SiteContentController::class, 'updateFamilyBrief'])->name('dashboard.site-content.update-family-brief')->middleware(['permission:site-content.update']);
     Route::post('site-content/whats-new', [\App\Http\Controllers\admin\SiteContentController::class, 'updateWhatsNew'])->name('dashboard.site-content.update-whats-new')->middleware(['permission:site-content.update']);
-    
+
+    // Important Links routes
+    Route::get('important-links', [\App\Http\Controllers\admin\ImportantLinkController::class, 'index'])->name('dashboard.important-links.index')->middleware(['permission:site-content.view']);
+    Route::post('important-links', [\App\Http\Controllers\admin\ImportantLinkController::class, 'store'])->name('dashboard.important-links.store')->middleware(['permission:site-content.update']);
+    Route::put('important-links/{importantLink}', [\App\Http\Controllers\admin\ImportantLinkController::class, 'update'])->name('dashboard.important-links.update')->middleware(['permission:site-content.update']);
+    Route::post('important-links/reorder', [\App\Http\Controllers\admin\ImportantLinkController::class, 'reorder'])->name('dashboard.important-links.reorder')->middleware(['permission:site-content.update']);
+    Route::delete('important-links/{importantLink}', [\App\Http\Controllers\admin\ImportantLinkController::class, 'destroy'])->name('dashboard.important-links.destroy')->middleware(['permission:site-content.update']);
+    Route::post('important-links/{importantLink}/toggle', [\App\Http\Controllers\admin\ImportantLinkController::class, 'toggle'])->name('dashboard.important-links.toggle')->middleware(['permission:site-content.update']);
+
     // Site Password Settings routes
     Route::get('site-password-settings', [\App\Http\Controllers\admin\SitePasswordSettingsController::class, 'index'])->name('dashboard.site-password-settings.index')->middleware(['permission:site-content.view']);
     Route::post('site-password-settings', [\App\Http\Controllers\admin\SitePasswordSettingsController::class, 'update'])->name('dashboard.site-password-settings.update')->middleware(['permission:site-content.update']);
-    
+
     // Slideshow routes
     Route::get('slideshow', [\App\Http\Controllers\admin\SiteContentController::class, 'slideshow'])->name('dashboard.slideshow.index')->middleware(['permission:slideshow.view']);
     Route::get('slideshow/{slideshowImage}', [\App\Http\Controllers\admin\SiteContentController::class, 'getSlideshowImage'])->name('dashboard.slideshow.show')->middleware(['permission:slideshow.view']);
@@ -200,7 +217,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::post('slideshow/reorder', [\App\Http\Controllers\admin\SiteContentController::class, 'reorderSlideshow'])->name('dashboard.slideshow.reorder')->middleware(['permission:slideshow.update']);
     Route::delete('slideshow/{slideshowImage}', [\App\Http\Controllers\admin\SiteContentController::class, 'removeSlideshowImage'])->name('dashboard.slideshow.remove')->middleware(['permission:slideshow.delete']);
     Route::post('slideshow/{slideshowImage}/toggle', [\App\Http\Controllers\admin\SiteContentController::class, 'toggleSlideshowImage'])->name('dashboard.slideshow.toggle')->middleware(['permission:slideshow.update']);
-    
+
     // Home Gallery routes
     Route::get('home-gallery', [\App\Http\Controllers\admin\SiteContentController::class, 'homeGallery'])->name('dashboard.home-gallery.index')->middleware(['permission:home-gallery.view']);
     Route::post('home-gallery/add', [\App\Http\Controllers\admin\SiteContentController::class, 'addHomeGalleryImage'])->name('dashboard.home-gallery.add')->middleware(['permission:home-gallery.create']);
@@ -208,7 +225,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::post('home-gallery/reorder', [\App\Http\Controllers\admin\SiteContentController::class, 'reorderHomeGallery'])->name('dashboard.home-gallery.reorder')->middleware(['permission:home-gallery.update']);
     Route::delete('home-gallery/{homeGalleryImage}', [\App\Http\Controllers\admin\SiteContentController::class, 'removeHomeGalleryImage'])->name('dashboard.home-gallery.remove')->middleware(['permission:home-gallery.delete']);
     Route::post('home-gallery/{homeGalleryImage}/toggle', [\App\Http\Controllers\admin\SiteContentController::class, 'toggleHomeGalleryImage'])->name('dashboard.home-gallery.toggle')->middleware(['permission:home-gallery.update']);
-    
+
     // Courses routes
     Route::get('courses', [\App\Http\Controllers\admin\CourseController::class, 'index'])->name('dashboard.courses.index')->middleware(['permission:courses.view']);
     Route::post('courses', [\App\Http\Controllers\admin\CourseController::class, 'store'])->name('dashboard.courses.store')->middleware(['permission:courses.create']);
@@ -217,7 +234,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::post('courses/reorder', [\App\Http\Controllers\admin\CourseController::class, 'reorder'])->name('dashboard.courses.reorder')->middleware(['permission:courses.update']);
     Route::delete('courses/{course}', [\App\Http\Controllers\admin\CourseController::class, 'destroy'])->name('dashboard.courses.destroy')->middleware(['permission:courses.delete']);
     Route::post('courses/{course}/toggle', [\App\Http\Controllers\admin\CourseController::class, 'toggle'])->name('dashboard.courses.toggle')->middleware(['permission:courses.update']);
-    
+
     // Programs routes
     Route::get('programs', [\App\Http\Controllers\admin\ProgramController::class, 'index'])->name('dashboard.programs.index')->middleware(['permission:programs.view']);
     Route::post('programs', [\App\Http\Controllers\admin\ProgramController::class, 'store'])->name('dashboard.programs.store')->middleware(['permission:programs.create']);
@@ -241,7 +258,11 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::post('programs/{program}/galleries/{gallery}/media', [\App\Http\Controllers\admin\ProgramController::class, 'storeGalleryMedia'])->name('dashboard.programs.galleries.media.store')->middleware(['permission:programs.update']);
     Route::post('programs/{program}/galleries/{gallery}/media/{media}/update', [\App\Http\Controllers\admin\ProgramController::class, 'updateGalleryMedia'])->name('dashboard.programs.galleries.media.update')->middleware(['permission:programs.update']);
     Route::delete('programs/{program}/galleries/{gallery}/media/{media}', [\App\Http\Controllers\admin\ProgramController::class, 'destroyGalleryMedia'])->name('dashboard.programs.galleries.media.destroy')->middleware(['permission:programs.update']);
-    
+    // Sub-Programs routes
+    Route::post('programs/{program}/sub-programs', [\App\Http\Controllers\admin\ProgramController::class, 'attachSubProgram'])->name('dashboard.programs.sub-programs.attach')->middleware(['permission:programs.update']);
+    Route::delete('programs/{program}/sub-programs/{subProgram}', [\App\Http\Controllers\admin\ProgramController::class, 'detachSubProgram'])->name('dashboard.programs.sub-programs.detach')->middleware(['permission:programs.update']);
+    Route::post('programs/{program}/sub-programs/reorder', [\App\Http\Controllers\admin\ProgramController::class, 'reorderSubPrograms'])->name('dashboard.programs.sub-programs.reorder')->middleware(['permission:programs.update']);
+
     // Proud Of routes
     Route::get('proud-of', [\App\Http\Controllers\admin\ProudOfController::class, 'index'])->name('dashboard.proud-of.index')->middleware(['permission:programs.view']);
     Route::post('proud-of', [\App\Http\Controllers\admin\ProudOfController::class, 'store'])->name('dashboard.proud-of.store')->middleware(['permission:programs.create']);
@@ -264,7 +285,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::post('proud-of/{item}/galleries/{gallery}/media', [\App\Http\Controllers\admin\ProudOfController::class, 'storeGalleryMedia'])->name('dashboard.proud-of.galleries.media.store')->middleware(['permission:programs.update']);
     Route::post('proud-of/{item}/galleries/{gallery}/media/{media}/update', [\App\Http\Controllers\admin\ProudOfController::class, 'updateGalleryMedia'])->name('dashboard.proud-of.galleries.media.update')->middleware(['permission:programs.update']);
     Route::delete('proud-of/{item}/galleries/{gallery}/media/{media}', [\App\Http\Controllers\admin\ProudOfController::class, 'destroyGalleryMedia'])->name('dashboard.proud-of.galleries.media.destroy')->middleware(['permission:programs.update']);
-    
+
     // Family Councils routes
     Route::get('councils', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'index'])->name('dashboard.councils.index')->middleware(['permission:councils.view']);
     Route::post('councils', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'store'])->name('dashboard.councils.store')->middleware(['permission:councils.create']);
@@ -272,7 +293,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::post('councils/{council}/update', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'update'])->name('dashboard.councils.update')->middleware(['permission:councils.update']);
     Route::post('councils/reorder', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'reorder'])->name('dashboard.councils.reorder')->middleware(['permission:councils.update']);
     Route::delete('councils/{council}', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'destroy'])->name('dashboard.councils.destroy')->middleware(['permission:councils.delete']);
-    
+
     // Family Events routes
     Route::get('events', [\App\Http\Controllers\admin\FamilyEventController::class, 'index'])->name('dashboard.events.index')->middleware(['permission:councils.view']);
     Route::post('events', [\App\Http\Controllers\admin\FamilyEventController::class, 'store'])->name('dashboard.events.store')->middleware(['permission:councils.create']);
@@ -284,7 +305,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::post('councils/{council}/images', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'storeImage'])->name('dashboard.councils.images.store')->middleware(['permission:councils.update']);
     Route::delete('councils/{council}/images/{image}', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'destroyImage'])->name('dashboard.councils.images.destroy')->middleware(['permission:councils.update']);
     Route::post('councils/{council}/images/reorder', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'reorderImages'])->name('dashboard.councils.images.reorder')->middleware(['permission:councils.update']);
-    
+
     // Products Store routes
     Route::prefix('products')->name('products.')->middleware(['permission:products.view|products.create|products.update|products.delete'])->group(function () {
         // Categories
@@ -294,14 +315,14 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
         Route::delete('categories/{category}', [\App\Http\Controllers\admin\ProductCategoryController::class, 'destroy'])->name('categories.destroy');
         Route::post('categories/{category}/toggle', [\App\Http\Controllers\admin\ProductCategoryController::class, 'toggle'])->name('categories.toggle');
         Route::post('categories/reorder', [\App\Http\Controllers\admin\ProductCategoryController::class, 'reorder'])->name('categories.reorder');
-        
+
         // Subcategories
         Route::get('subcategories', [\App\Http\Controllers\admin\ProductSubcategoryController::class, 'index'])->name('subcategories.index');
         Route::post('subcategories', [\App\Http\Controllers\admin\ProductSubcategoryController::class, 'store'])->name('subcategories.store');
         Route::put('subcategories/{subcategory}', [\App\Http\Controllers\admin\ProductSubcategoryController::class, 'update'])->name('subcategories.update');
         Route::delete('subcategories/{subcategory}', [\App\Http\Controllers\admin\ProductSubcategoryController::class, 'destroy'])->name('subcategories.destroy');
         Route::post('subcategories/{subcategory}/toggle', [\App\Http\Controllers\admin\ProductSubcategoryController::class, 'toggle'])->name('subcategories.toggle');
-        
+
         // Products
         Route::get('/', [\App\Http\Controllers\admin\ProductController::class, 'index'])->name('index');
         Route::get('create', [\App\Http\Controllers\admin\ProductController::class, 'create'])->name('create');

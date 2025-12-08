@@ -4,699 +4,868 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تواصل عائلة السريِّع </title>
+    <title>تواصل عائلة السريِّع</title>
 
     {{-- 🎨 Stylesheets --}}
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.rtl.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         :root {
             --primary-color: #37a05c;
+            --primary-light: #4ade80;
+            --primary-dark: #166534;
             --light-green: #DCF2DD;
             --dark-green: #145147;
             --light-gray: #f8f9fa;
             --border-color: #dee2e6;
-
-            /* ألوان/خصائص الحداد */
             --mourning: #1b1b1b;
-
-            /* تحسينات حركة وتوهّج */
             --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
-            --shadow-soft: 0 6px 18px rgba(0, 0, 0, 0.08);
-            --shadow-strong: 0 14px 36px rgba(0, 0, 0, 0.12);
+            --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.08);
+            --shadow-strong: 0 16px 48px rgba(0, 0, 0, 0.15);
+            --shadow-glow: 0 0 40px rgba(55, 160, 92, 0.3);
+            --gradient-primary: linear-gradient(135deg, var(--primary-color) 0%, var(--dark-green) 100%);
+            --gradient-light: linear-gradient(180deg, var(--light-green) 0%, #fff 100%);
+            --card-radius: 20px;
+            --card-width: 150px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            background: var(--light-gray);
+            background: var(--gradient-light);
             font-family: 'Alexandria', sans-serif;
-        }
-
-        /* --- START: Tree View Styles --- */
-        .tree-section {
-            background: linear-gradient(180deg, var(--light-green) 0%, #FFF 100%);
-            padding-top: 120px; /* مساحة كافية للهيدر الثابت */
-            padding-bottom: 50px;
             min-height: 100vh;
-            overflow-x: auto;
         }
 
-        .tree-title-sec {
-            margin-bottom: 2rem;
-            text-align: center;
-        }
-
-        .tree-title-sec h3 {
-            color: var(--dark-green);
-            font-weight: 700;
-        }
-
-        .accordion-group-item,
-        .accordion-item {
-            position: relative;
-            width: 200px;
-            border: 1px solid var(--border-color) !important;
-            border-radius: 12px;
-            box-shadow: var(--shadow-soft);
-            transition: transform 300ms var(--ease-smooth), box-shadow 300ms var(--ease-smooth), background-color 300ms var(--ease-smooth);
-            background-color: #fff;
-            overflow: visible; /* للسماح بتموضع العناصر الداخلية */
-        }
-
-        .accordion-group-item + .accordion-group-item,
-        .accordion-item + .accordion-item {
-            margin-top: 10px;
-        }
-
-        .accordion-group-item:hover,
-        .accordion-item:hover {
-            transform: translateY(-6px);
-            box-shadow: var(--shadow-strong);
-        }
-
-        /* ظهور انسيابي عند دخول العناصر إلى الشاشة */
-        .reveal { opacity: 0; transform: translateY(16px); }
-        .reveal.in-view { opacity: 1; transform: translateY(0); transition: opacity 500ms var(--ease-smooth), transform 500ms var(--ease-smooth); }
-
-        .accordion-collapse {
-            position: absolute;
-            right: 100%;
-            width: 200px;
+        /* ===== خلفية متحركة ===== */
+        .bg-pattern {
+            position: fixed;
             top: 0;
-            padding-right: 25px;
-            z-index: 10;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.4;
+            background-image:
+                radial-gradient(circle at 20% 80%, rgba(55, 160, 92, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(20, 81, 71, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(220, 242, 221, 0.3) 0%, transparent 30%);
         }
 
-        .accordion-button {
-            border-radius: 11px 11px 0 0 !important;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 10px;
-            flex-direction: column;
-            transition: background-color 250ms var(--ease-smooth), color 250ms var(--ease-smooth), box-shadow 250ms var(--ease-smooth);
-        }
-
-        .accordion-button::after { display: none; }
-        .accordion-button:focus { box-shadow: none; }
-
-        .accordion-button.photo-bg {
-            background-size: cover;
-            background-position: center;
+        /* ===== القسم الرئيسي ===== */
+        .tree-section {
             position: relative;
+            padding-top: 100px;
+            padding-bottom: 60px;
+            min-height: 100vh;
+            z-index: 1;
+        }
+
+        /* ===== العنوان الرئيسي ===== */
+        .hero-header {
+            text-align: center;
+            padding: 2rem 1rem 3rem;
+            position: relative;
+        }
+
+        .hero-title {
+            font-size: clamp(1.75rem, 5vw, 3rem);
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.75rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .hero-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: var(--gradient-primary);
+            border-radius: 2px;
+        }
+
+        .hero-subtitle {
+            color: var(--dark-green);
+            font-size: 1rem;
+            font-weight: 400;
+            opacity: 0.8;
+            margin-top: 1rem;
+        }
+
+        /* ===== حاوية الشجرة ===== */
+        .tree-container {
+            padding: 1rem;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* ===== الشجرة الأفقية (أعمدة) ===== */
+        .tree-horizontal {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            gap: 20px;
+            padding: 1rem;
+            min-width: max-content;
+        }
+
+        /* ===== العمود (يحتوي البطاقات بالطول) ===== */
+        .tree-column {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            position: relative;
+        }
+
+        /* ===== عنصر الشجرة (البطاقة + الأبناء) ===== */
+        .tree-item {
+            position: relative;
+        }
+
+        /* ===== بطاقة الشخص ===== */
+        .person-card {
+            position: relative;
+            width: var(--card-width);
+            background: #fff;
+            border-radius: var(--card-radius);
+            box-shadow: var(--shadow-soft);
+            overflow: hidden;
+            transition: all 400ms var(--ease-smooth);
+            border: 2px solid transparent;
+            flex-shrink: 0;
+        }
+
+        .person-card::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: calc(var(--card-radius) + 2px);
+            background: var(--gradient-primary);
+            opacity: 0;
+            z-index: -1;
+            transition: opacity 300ms var(--ease-smooth);
+        }
+
+        .person-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: var(--shadow-strong), var(--shadow-glow);
+        }
+
+        .person-card:hover::before {
+            opacity: 1;
+        }
+
+        .person-card.active {
+            border-color: var(--primary-color);
+            box-shadow: var(--shadow-strong), var(--shadow-glow);
+        }
+
+        .person-card.active::before {
+            opacity: 1;
+        }
+
+        /* ===== محتوى البطاقة ===== */
+        .card-header-section {
+            position: relative;
+            padding: 1rem 0.5rem 0.75rem;
+            text-align: center;
+            cursor: pointer;
+            background: linear-gradient(180deg, rgba(220, 242, 221, 0.5) 0%, transparent 100%);
+        }
+
+        .card-header-section.has-photo {
+            padding: 0;
+            min-height: 160px;
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
-            min-height: 180px;
-            padding: 0.75rem;
-            color: #fff !important;
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+            background-size: cover;
+            background-position: center;
+            overflow: hidden;
         }
-        .accordion-button.photo-bg::before {
+
+        .card-header-section.has-photo::before {
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.12) 60%);
-            border-radius: inherit;
+            background: linear-gradient(to top, rgba(20, 81, 71, 0.95) 0%, rgba(20, 81, 71, 0.4) 50%, transparent 100%);
             z-index: 1;
-            transition: background 300ms var(--ease-smooth);
         }
-        .accordion-button.photo-bg .person-name {
-            font-weight: 600;
+
+        .card-header-section.has-photo .person-name {
+            position: relative;
             z-index: 2;
-            color: #fff !important;
-            margin-top: auto;
+            color: #fff;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+            padding: 0.75rem 0.5rem;
         }
-        .accordion-button.photo-bg .person-photo-container { display: none; }
 
-        .accordion-button:not(.photo-bg) { gap: 10px; background-color: #fff; }
-
-        .accordion-button .person-photo-container {
-            width: 120px !important;
-            height: 120px !important;
-            margin-bottom: 10px;
-        }
-        .accordion-button .person-photo-container .icon-placeholder { font-size: 5rem !important; }
-
-        .accordion-button:not(.photo-bg) .person-name { color: #333; font-weight: 600; }
-
-        .accordion-button:not(.collapsed) { color: white !important; }
-        .accordion-button.photo-bg:not(.collapsed) {
-            box-shadow: inset 0 0 0 3px var(--dark-green);
-            background-color: transparent !important;
-        }
-        .accordion-button:not(.photo-bg):not(.collapsed) { background-color: var(--dark-green) !important; }
-        .accordion-button:not(.photo-bg):not(.collapsed) .person-name { color: #fff; }
-
-        .person-photo-container {
-            position: relative; /* مهم لوضع البادج داخل الصورة */
-            background-color: var(--light-green);
+        /* ===== صورة الشخص ===== */
+        .person-avatar {
+            position: relative;
+            width: 85px;
+            height: 85px;
+            margin: 0 auto 0.5rem;
+            border-radius: 50%;
+            background: var(--light-green);
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 3px solid #fff;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border: 4px solid #fff;
+            box-shadow: 0 4px 20px rgba(55, 160, 92, 0.25);
             overflow: hidden;
-            border-radius: 50%;
+            transition: all 300ms var(--ease-smooth);
         }
-        .person-photo-container img {
+
+        .person-card:hover .person-avatar {
+            transform: scale(1.05);
+            box-shadow: 0 8px 30px rgba(55, 160, 92, 0.35);
+        }
+
+        .person-avatar img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
-        .person-photo-container .icon-placeholder { color: var(--primary-color); }
 
-        /* أيقونة قديمة للوفاة — نخفيها عندما نستخدم شارة الحداد */
-        .deceased-icon {
+        .person-avatar .avatar-icon {
+            font-size: 2.25rem;
+            color: var(--primary-color);
+        }
+
+        /* ===== اسم الشخص ===== */
+        .person-name {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--dark-green);
+            line-height: 1.3;
+            margin: 0;
+        }
+
+        /* ===== شارة الحداد ===== */
+        .mourning-badge {
             position: absolute;
-            bottom: 0; left: 0;
-            width: 24px; height: 24px;
-            background-color: rgba(0, 0, 0, 0.6);
-            color: #fff; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 12px; border: 1px solid #fff;
-        }
-
-        .actions-bar {
-            width: 100%;
-            display: flex;
-            border-top: 1px solid var(--border-color);
-            background: linear-gradient(180deg, #fafafa 0%, #f3f4f6 100%);
-            border-radius: 0 0 12px 12px;
-        }
-        .actions-bar .btn {
-            flex: 1; font-size: 13px; padding: 10px 6px; color: var(--dark-green); border-radius: 0;
-            transition: background-color 200ms var(--ease-smooth), color 200ms var(--ease-smooth), transform 150ms var(--ease-smooth);
-            position: relative; overflow: hidden;
-        }
-        .actions-bar .btn:hover { background-color: #e9ecef; transform: translateY(-1px); }
-        .actions-bar .btn:first-child { border-radius: 0 0 11px 0; }
-        .actions-bar .btn:last-child { border-radius: 0 0 0 11px; }
-
-        /* تأثير تموّج بسيط لزر الإجراءات (بدون JS إضافي) */
-        .actions-bar .btn::after {
-            content: '';
-            position: absolute;
-            inset: auto 50% 50% auto;
-            width: 0; height: 0;
-            background: rgba(20, 81, 71, 0.12);
-            border-radius: 50%;
-            transform: translate(50%, 50%);
-            transition: width 400ms var(--ease-smooth), height 400ms var(--ease-smooth), opacity 400ms var(--ease-smooth);
-            opacity: 0;
-        }
-        .actions-bar .btn:hover::after { width: 220px; height: 220px; opacity: 1; }
-
-        .modal-header { background-color: var(--dark-green); color: #fff; }
-        .modal-header .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
-
-        /* تحسين مظهر المودال بالكامل */
-        .modal-content {
-            border: 0;
-            border-radius: 16px;
-            box-shadow: 0 24px 64px rgba(0,0,0,0.18);
-            background: linear-gradient(180deg, #ffffff 0%, #f9fbfa 100%);
-        }
-        .modal-body { padding: 1.25rem 1.25rem 1.5rem 1.25rem; }
-
-        /* زر نداء الإجراء (لأزرار مثل معرض الصور والقصص) */
-        .btn-cta {
-            display: inline-flex; align-items: center; justify-content: center;
-            background: linear-gradient(135deg, #2fb76e 0%, #1f9a57 100%);
-            color: #fff !important; border: 0 !important;
-            padding: 12px 20px; border-radius: 25px;
-            gap: 8px;
-            box-shadow: 0 12px 30px rgba(47, 183, 110, 0.28);
-            transition: transform 160ms var(--ease-smooth), box-shadow 200ms var(--ease-smooth), filter 200ms var(--ease-smooth);
-            text-decoration: none;
+            top: 0.5rem;
+            left: 0.5rem;
+            background: linear-gradient(135deg, #1b1b1b, #3a3a3a);
+            color: #fff;
+            font-size: 0.65rem;
             font-weight: 600;
-            font-size: 0.95rem;
-        }
-        .btn-cta:hover { transform: translateY(-2px) scale(1.05); box-shadow: 0 18px 38px rgba(31, 154, 87, 0.32); filter: brightness(1.02); }
-        .btn-cta:active { transform: translateY(0) scale(1); box-shadow: 0 10px 22px rgba(31, 154, 87, 0.28); }
-        .btn-cta i { font-size: 1.1rem; }
-
-        #personDetailModal .person-photo-container {
-            border-radius: 12px;
-            cursor: zoom-in;
-            border: 4px solid var(--light-green);
+            padding: 0.3rem 0.5rem;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            white-space: nowrap;
         }
 
-        .modal-body .icon-placeholder-lg { font-size: 5rem; color: var(--primary-color); }
-
-        .detail-row {
-            display: flex; align-items: flex-start;
-            background: linear-gradient(180deg, #fcfcfc 0%, #f4f6f5 100%);
-            padding: 12px; border-radius: 10px; margin-bottom: 12px;
-            border: 1px solid #eef2f1;
-            transition: transform 200ms var(--ease-smooth), box-shadow 200ms var(--ease-smooth);
-            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        .is-deceased .person-avatar {
+            box-shadow: 0 0 0 3px var(--mourning), 0 4px 20px rgba(0, 0, 0, 0.2);
         }
-        .detail-row:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(0,0,0,0.08); }
 
-        /* تصميم عصري لحسابات التواصل */
-        .contact-accounts-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+        /* ===== زر التفاصيل ===== */
+        .card-actions {
+            display: flex;
+            border-top: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 0.6rem 0.4rem;
+            background: transparent;
+            border: none;
+            color: var(--dark-green);
+            font-size: 0.75rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 200ms var(--ease-smooth);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .action-btn:hover {
+            background: var(--light-green);
+            color: var(--primary-dark);
+        }
+
+        .action-btn:active {
+            transform: scale(0.95);
+        }
+
+        .action-btn i {
+            font-size: 0.8rem;
+        }
+
+        /* ===== خط الاتصال الأفقي ===== */
+        .connection-line {
+            position: absolute;
+            right: 100%;
+            top: 50%;
+            width: 20px;
+            height: 3px;
+            background: var(--gradient-primary);
+            border-radius: 2px;
+            transform: translateY(-50%) scaleX(0);
+            transform-origin: left center;
+            transition: transform 400ms var(--ease-smooth);
+            z-index: 1;
+        }
+
+        .tree-item.expanded > .person-card .connection-line {
+            transform: translateY(-50%) scaleX(1);
+        }
+
+        /* ===== حاوية الأبناء ===== */
+        .children-container {
+            position: absolute;
+            right: calc(100% + 20px);
+            top: 0;
+            display: none;
+            flex-direction: column;
             gap: 12px;
-            margin-top: 12px;
+            z-index: 10;
         }
 
-        .contact-account-item {
+        .children-container.show {
+            display: flex;
+        }
+
+        /* ===== مؤشر التحميل ===== */
+        .loading-state {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 16px 12px;
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-            border: 2px solid #e9ecef;
-            border-radius: 16px;
-            transition: all 300ms var(--ease-smooth);
-            text-decoration: none;
+            padding: 3rem;
+            gap: 1rem;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--light-green);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
             color: var(--dark-green);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .contact-account-item::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            opacity: 0;
-            transition: opacity 300ms var(--ease-smooth);
-        }
-
-        .contact-account-item:hover {
-            transform: translateY(-4px) scale(1.05);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
-        }
-
-        .contact-account-item:hover::before {
-            opacity: 0.1;
-        }
-
-        .contact-icon {
-            font-size: 2rem;
-            color: var(--primary-color); /* لون افتراضي */
-            margin-bottom: 8px;
-            transition: all 300ms var(--ease-smooth);
-            z-index: 1;
-            position: relative;
-        }
-
-        .contact-label {
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-align: center;
-            line-height: 1.2;
-            z-index: 1;
-            position: relative;
-            transition: all 300ms var(--ease-smooth);
-            max-width: 100%;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .contact-account-item:hover .contact-label {
-            white-space: normal;
-            word-break: break-word;
-        }
-
-        /* ألوان WhatsApp */
-        .contact-account-item.whatsapp {
-            border-color: #25D366;
-        }
-        .contact-account-item.whatsapp .contact-icon {
-            color: #25D366;
-        }
-        .contact-account-item.whatsapp .contact-label {
-            color: #128C7E;
-        }
-        .contact-account-item.whatsapp::before {
-            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
-        }
-        .contact-account-item.whatsapp:hover {
-            border-color: #25D366;
-            box-shadow: 0 12px 24px rgba(37, 211, 102, 0.3);
-        }
-
-        /* ألوان Facebook */
-        .contact-account-item.facebook {
-            border-color: #1877F2;
-        }
-        .contact-account-item.facebook .contact-icon {
-            color: #1877F2;
-        }
-        .contact-account-item.facebook .contact-label {
-            color: #1877F2;
-        }
-        .contact-account-item.facebook::before {
-            background: linear-gradient(135deg, #1877F2 0%, #0C63D4 100%);
-        }
-        .contact-account-item.facebook:hover {
-            border-color: #1877F2;
-            box-shadow: 0 12px 24px rgba(24, 119, 242, 0.3);
-        }
-
-        /* ألوان Instagram */
-        .contact-account-item.instagram {
-            border-color: #E4405F;
-        }
-        .contact-account-item.instagram .contact-icon {
-            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            display: inline-block; /* مهم لـ background-clip */
-        }
-        .contact-account-item.instagram .contact-label {
-            color: #E4405F;
-        }
-        .contact-account-item.instagram::before {
-            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-        }
-        .contact-account-item.instagram:hover {
-            border-color: #E4405F;
-            box-shadow: 0 12px 24px rgba(228, 64, 95, 0.3);
-        }
-
-        /* ألوان Twitter/X */
-        .contact-account-item.twitter,
-        .contact-account-item.x {
-            border-color: #1DA1F2;
-        }
-        .contact-account-item.twitter .contact-icon,
-        .contact-account-item.x .contact-icon {
-            color: #1DA1F2;
-        }
-        .contact-account-item.twitter .contact-label,
-        .contact-account-item.x .contact-label {
-            color: #1DA1F2;
-        }
-        .contact-account-item.twitter::before,
-        .contact-account-item.x::before {
-            background: linear-gradient(135deg, #1DA1F2 0%, #0d8bd9 100%);
-        }
-        .contact-account-item.twitter:hover,
-        .contact-account-item.x:hover {
-            border-color: #1DA1F2;
-            box-shadow: 0 12px 24px rgba(29, 161, 242, 0.3);
-        }
-
-        /* ألوان LinkedIn */
-        .contact-account-item.linkedin {
-            border-color: #0077B5;
-        }
-        .contact-account-item.linkedin .contact-icon {
-            color: #0077B5;
-        }
-        .contact-account-item.linkedin .contact-label {
-            color: #0077B5;
-        }
-        .contact-account-item.linkedin::before {
-            background: linear-gradient(135deg, #0077B5 0%, #005885 100%);
-        }
-        .contact-account-item.linkedin:hover {
-            border-color: #0077B5;
-            box-shadow: 0 12px 24px rgba(0, 119, 181, 0.3);
-        }
-
-        /* ألوان Telegram */
-        .contact-account-item.telegram {
-            border-color: #0088cc;
-        }
-        .contact-account-item.telegram .contact-icon {
-            color: #0088cc;
-        }
-        .contact-account-item.telegram .contact-label {
-            color: #0088cc;
-        }
-        .contact-account-item.telegram::before {
-            background: linear-gradient(135deg, #0088cc 0%, #006699 100%);
-        }
-        .contact-account-item.telegram:hover {
-            border-color: #0088cc;
-            box-shadow: 0 12px 24px rgba(0, 136, 204, 0.3);
-        }
-
-        /* ألوان افتراضية للحسابات الأخرى */
-        .contact-account-item:not(.whatsapp):not(.facebook):not(.instagram):not(.twitter):not(.x):not(.linkedin):not(.telegram) {
-            border-color: var(--primary-color);
-        }
-        .contact-account-item:not(.whatsapp):not(.facebook):not(.instagram):not(.twitter):not(.x):not(.linkedin):not(.telegram) .contact-icon {
-            color: var(--primary-color);
-        }
-        .contact-account-item:not(.whatsapp):not(.facebook):not(.instagram):not(.twitter):not(.x):not(.linkedin):not(.telegram) .contact-label {
-            color: var(--dark-green);
-        }
-        .contact-account-item:not(.whatsapp):not(.facebook):not(.instagram):not(.twitter):not(.x):not(.linkedin):not(.telegram)::before {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--dark-green) 100%);
-        }
-        .contact-account-item:not(.whatsapp):not(.facebook):not(.instagram):not(.twitter):not(.x):not(.linkedin):not(.telegram):hover {
-            border-color: var(--primary-color);
-            box-shadow: 0 12px 24px rgba(55, 160, 92, 0.25);
-        }
-
-        @media (max-width: 768px) {
-            .contact-accounts-grid {
-                grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
-                gap: 8px;
-            }
-            .contact-icon {
-                font-size: 1.5rem;
-            }
-            .contact-label {
-                font-size: 0.65rem;
-            }
-        }
-
-        /* تصميم حقول القبر الصغيرة في سطر واحد */
-        .grave-fields-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            align-items: center;
-        }
-
-        .grave-field-small {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
-            background: linear-gradient(180deg, #fcfcfc 0%, #f4f6f5 100%);
-            border: 1px solid #eef2f1;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-        }
-
-        .grave-field-small i {
-            color: var(--primary-color);
             font-size: 0.9rem;
+            font-weight: 500;
         }
 
-        .grave-field-small strong {
+        /* ===== حالة فارغة ===== */
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
             color: var(--dark-green);
-            font-weight: 600;
+            opacity: 0.7;
         }
 
-        .grave-location-link {
+        .empty-state i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        /* ===== أنيميشن الظهور ===== */
+        .fade-in {
+            animation: fadeIn 500ms var(--ease-smooth) forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .stagger-1 { animation-delay: 0ms; }
+        .stagger-2 { animation-delay: 60ms; }
+        .stagger-3 { animation-delay: 120ms; }
+        .stagger-4 { animation-delay: 180ms; }
+        .stagger-5 { animation-delay: 240ms; }
+
+        /* ===== المودال ===== */
+        .modal-content {
+            border: 0;
+            border-radius: 24px;
+            box-shadow: 0 32px 80px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(180deg, #ffffff 0%, #f9fbfa 100%);
+            overflow: hidden;
+        }
+
+        .modal-header {
+            background: var(--gradient-primary);
+            color: #fff;
+            padding: 1.25rem 1.5rem;
+            border: 0;
+        }
+
+        .modal-header .modal-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .modal-header .btn-close {
+            filter: invert(1) grayscale(100%) brightness(200%);
+            opacity: 0.8;
+        }
+
+        .modal-header .btn-close:hover {
+            opacity: 1;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        /* ===== صفوف التفاصيل ===== */
+        .detail-card {
+            background: linear-gradient(180deg, #fcfcfc 0%, #f4f6f5 100%);
+            padding: 1rem;
+            border-radius: 16px;
+            margin-bottom: 1rem;
+            border: 1px solid #eef2f1;
+            transition: all 200ms var(--ease-smooth);
+        }
+
+        .detail-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        }
+
+        .detail-label {
+            font-size: 0.75rem;
+            color: #666;
+            margin-bottom: 0.25rem;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: var(--dark-green);
+            font-size: 0.95rem;
+        }
+
+        /* ===== زر CTA ===== */
+        .btn-cta {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 32px;
-            height: 32px;
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--dark-green) 100%);
-            color: #fff;
-            border-radius: 50%;
-            text-decoration: none;
+            background: var(--gradient-primary);
+            color: #fff !important;
+            border: 0 !important;
+            padding: 0.75rem 1.25rem;
+            border-radius: 50px;
+            gap: 8px;
+            box-shadow: 0 8px 24px rgba(55, 160, 92, 0.3);
             transition: all 200ms var(--ease-smooth);
-            box-shadow: 0 2px 6px rgba(55, 160, 92, 0.25);
-        }
-
-        .grave-location-link:hover {
-            transform: scale(1.1);
-            box-shadow: 0 4px 12px rgba(55, 160, 92, 0.35);
-            color: #fff;
-        }
-
-        .grave-location-link i {
+            text-decoration: none;
+            font-weight: 600;
             font-size: 0.9rem;
         }
 
-        /* Desktop: Single column layout */
-        .detail-row-container {
-            display: grid;
-            grid-template-columns: 1fr;
+        .btn-cta:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 12px 32px rgba(55, 160, 92, 0.4);
+        }
+
+        .btn-cta:active {
+            transform: translateY(0) scale(1);
+        }
+
+        /* ===== بطاقات العلاقات ===== */
+        .relation-card {
+            display: flex;
+            align-items: center;
             gap: 12px;
+            background: #fff;
+            padding: 12px;
+            border-radius: 16px;
+            border: 2px solid #eef2f1;
+            cursor: pointer;
+            transition: all 200ms var(--ease-smooth);
         }
 
-        /* Mobile: 2 columns layout for small details */
-        @media (max-width: 768px) {
-            .detail-row {
-                gap: 4px;
-                padding: 10px;
-            }
-            .detail-row-container {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 10px;
-            }
-            .detail-row-container > .detail-row {
-                margin-bottom: 0;
-                font-size: 0.85rem;
-            }
-        }
-
-        .spouse-card, .child-card, .parent-card, .friend-card {
-            display: flex; align-items: center; gap: 12px;
-            background-color: #fff; padding: 12px; border-radius: 10px;
-            border: 1px solid var(--border-color);
-            transition: transform 180ms var(--ease-smooth), box-shadow 200ms var(--ease-smooth), border-color 200ms var(--ease-smooth);
-            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-        }
-        .child-card.clickable, .parent-card.clickable, .friend-card.clickable { cursor: pointer; }
-        .child-card.clickable:hover, .parent-card.clickable:hover, .friend-card.clickable:hover {
-            background-color: var(--light-green);
-            transform: translateY(-3px);
-            box-shadow: 0 14px 28px rgba(0,0,0,0.10);
+        .relation-card:hover {
             border-color: var(--primary-color);
-        }
-        .spouse-card img, .child-card img, .parent-card img, .friend-card img {
-            width: 45px; height: 45px; border-radius: 50%; object-fit: cover;
-        }
-        .spouse-card .icon-placeholder-sm, .child-card .icon-placeholder-sm, .parent-card .icon-placeholder-sm, .friend-card .icon-placeholder-sm {
-            font-size: 1.5rem; color: var(--primary-color);
-            width: 45px; height: 45px; background-color: var(--light-gray);
-            border-radius: 50%; display: flex; justify-content: center; align-items: center;
+            background: var(--light-green);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(55, 160, 92, 0.15);
         }
 
-        /* تحسين عرض حالة الوفاة */
-        .spouse-card.is-deceased small, .child-card.is-deceased small, .parent-card.is-deceased small, .friend-card.is-deceased small {
-            color: #dc3545 !important;
+        .relation-card img,
+        .relation-card .avatar-placeholder {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .relation-card .avatar-placeholder {
+            background: var(--light-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-size: 1.25rem;
+        }
+
+        .relation-info strong {
+            display: block;
+            color: var(--dark-green);
+            font-size: 0.9rem;
+        }
+
+        .relation-info small {
+            color: #666;
+            font-size: 0.75rem;
+        }
+
+        .relation-card.is-deceased .relation-info small {
+            color: #dc3545;
             font-weight: 600;
         }
 
-        .article-card {
-            display: flex; align-items: center; gap: 15px;
-            background-color: var(--light-gray);
-            padding: 12px; border-radius: 8px; border: 1px solid var(--border-color);
-            transition: all 0.2s; text-decoration: none; color: var(--dark-green);
-            margin-bottom: 10px;
+        /* ===== حسابات التواصل ===== */
+        .contact-grid {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
         }
-        .article-card:hover { background-color: var(--light-green); border-color: var(--primary-color); transform: translateY(-2px); color: var(--dark-green); }
-        .article-card i { font-size: 1.5rem; color: var(--primary-color); }
 
-        .biography-wrapper { position: relative; }
-        .biography-text { white-space: pre-wrap; margin-bottom: 0; transition: max-height 0.4s ease-out; overflow: hidden; }
+        .contact-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+            background: #fff;
+            border: 2px solid #eef2f1;
+            border-radius: 12px;
+            text-decoration: none;
+            transition: all 200ms var(--ease-smooth);
+            min-width: 50px;
+        }
+
+        .contact-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+        }
+
+        .contact-item i {
+            font-size: 1.25rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .contact-item span {
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        .contact-item.whatsapp { border-color: #25D366; }
+        .contact-item.whatsapp i { color: #25D366; }
+        .contact-item.whatsapp span { color: #128C7E; }
+
+        .contact-item.facebook { border-color: #1877F2; }
+        .contact-item.facebook i, .contact-item.facebook span { color: #1877F2; }
+
+        .contact-item.instagram { border-color: #E4405F; }
+        .contact-item.instagram i {
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .contact-item.instagram span { color: #E4405F; }
+
+        .contact-item.twitter { border-color: #1DA1F2; }
+        .contact-item.twitter i, .contact-item.twitter span { color: #1DA1F2; }
+
+        .contact-item.telegram { border-color: #0088cc; }
+        .contact-item.telegram i, .contact-item.telegram span { color: #0088cc; }
+
+        .contact-item.linkedin { border-color: #0077B5; }
+        .contact-item.linkedin i, .contact-item.linkedin span { color: #0077B5; }
+
+        /* ===== السيرة الذاتية ===== */
+        .biography-wrapper {
+            position: relative;
+        }
+
+        .biography-text {
+            white-space: pre-wrap;
+            transition: max-height 400ms var(--ease-smooth);
+            overflow: hidden;
+        }
+
         .biography-text.collapsed {
-            max-height: 88px;
+            max-height: 100px;
             -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
             mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
         }
+
         .read-more-btn {
-            background: none; border: none; color: var(--primary-color); font-weight: bold; cursor: pointer;
-            padding: 5px 0; margin-top: 5px; display: none;
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-weight: 700;
+            cursor: pointer;
+            padding: 0.5rem 0;
+            font-family: inherit;
         }
 
-        /* ====== تمييز ذكي للمتوفّين (بدون تظليل الصور) ====== */
-        .is-deceased .deceased-icon { display: none !important; } /* أخفي الأيقونة القديمة */
+        /* ===== Responsive ===== */
+        @media (max-width: 768px) {
+            :root {
+                --card-width: 120px;
+                --card-radius: 16px;
+            }
 
-        /* إطار/هالة حداد حول الصورة */
-        .is-deceased .person-photo-container {
-            box-shadow: 0 0 0 3px var(--mourning), 0 0 0 6px #fff;
+            .tree-section {
+                padding-top: 80px;
+            }
+
+            .hero-header {
+                padding: 1.5rem 0.5rem 2rem;
+            }
+
+            .hero-title {
+                font-size: 1.5rem;
+            }
+
+            .hero-subtitle {
+                font-size: 0.85rem;
+            }
+
+            .tree-container {
+                padding: 0.5rem;
+            }
+
+            .tree-horizontal {
+                gap: 12px;
+                padding: 0.5rem;
+            }
+
+            .tree-column {
+                gap: 10px;
+            }
+
+            .tree-item {
+                gap: 12px;
+            }
+
+            .card-header-section {
+                padding: 0.75rem 0.4rem 0.5rem;
+            }
+
+            .card-header-section.has-photo {
+                min-height: 130px;
+            }
+
+            .person-avatar {
+                width: 65px;
+                height: 65px;
+            }
+
+            .person-avatar .avatar-icon {
+                font-size: 1.75rem;
+            }
+
+            .person-name {
+                font-size: 0.75rem;
+            }
+
+            .mourning-badge {
+                font-size: 0.55rem;
+                padding: 0.25rem 0.4rem;
+            }
+
+            .action-btn {
+                padding: 0.5rem 0.3rem;
+                font-size: 0.65rem;
+            }
+
+            .action-btn i {
+                font-size: 0.7rem;
+            }
+
+            .connection-line {
+                width: 12px;
+                right: 100%;
+            }
+
+            .children-container {
+                right: calc(100% + 12px);
+            }
+
+            .modal-body {
+                padding: 1rem;
+            }
+
+            .detail-card {
+                padding: 0.75rem;
+            }
+
+            .btn-cta {
+                padding: 0.6rem 1rem;
+                font-size: 0.8rem;
+            }
+
+            .relation-card {
+                padding: 10px;
+                gap: 10px;
+            }
+
+            .relation-card img,
+            .relation-card .avatar-placeholder {
+                width: 40px;
+                height: 40px;
+            }
+
+            .contact-grid {
+                gap: 6px;
+            }
+
+            .contact-item {
+                padding: 0.4rem;
+                min-width: 45px;
+            }
+
+            .contact-item i {
+                font-size: 1.1rem;
+            }
+
+            .contact-item span {
+                font-size: 0.6rem;
+            }
         }
-        /* شريط أسود صغير مائل على الصورة */
-        .is-deceased .person-photo-container::after {
-            content: "";
-            position: absolute;
-            inset: auto 8px 8px auto;
-            width: 38%;
-            height: 6px;
-            background: var(--mourning);
-            transform: rotate(-20deg);
-            opacity: 0.9;
+
+        @media (max-width: 480px) {
+            :root {
+                --card-width: 100px;
+            }
+
+            .hero-title {
+                font-size: 1.25rem;
+            }
+
+            .tree-horizontal {
+                gap: 8px;
+            }
+
+            .tree-item {
+                gap: 8px;
+            }
+
+            .tree-column {
+                gap: 8px;
+            }
+
+            .person-avatar {
+                width: 55px;
+                height: 55px;
+            }
+
+            .person-avatar .avatar-icon {
+                font-size: 1.5rem;
+            }
+
+            .person-name {
+                font-size: 0.7rem;
+            }
+
+            .card-header-section.has-photo {
+                min-height: 110px;
+            }
+
+            .action-btn {
+                font-size: 0.6rem;
+                padding: 0.4rem 0.2rem;
+            }
+
+            .connection-line {
+                width: 8px;
+                right: 100%;
+            }
+
+            .children-container {
+                right: calc(100% + 8px);
+            }
+        }
+
+        /* ===== دعم تقليل الحركة ===== */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* ===== Scrollbar ===== */
+        ::-webkit-scrollbar {
+            height: 8px;
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--light-green);
             border-radius: 4px;
         }
 
-        /* ====== بادج حداد داخل حدود الصورة (للكروت خارج المودال) ====== */
-        .mourning-badge {
-            position: absolute;
-            top: 8px;
-            inset-inline-end: 8px; /* يمين في RTL */
-            background: linear-gradient(135deg, #000, #2e2e2e);
-            color: #fff;
-            font-weight: 700;
-            font-size: .75rem;
-            padding: 4px 8px;
-            border-radius: 6px;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            z-index: 3;
-            box-shadow: 0 2px 8px rgba(0,0,0,.25);
-        }
-        .mourning-badge i { font-size: .85rem; }
-
-        /* عند صور الخلفية (photo-bg) — نضعها داخل الزر نفسه */
-        .accordion-button.photo-bg { position: relative; }
-        .accordion-button.photo-bg .mourning-badge {
-            position: absolute;
-            top: 8px;
-            inset-inline-end: 8px;
-            z-index: 3; /* فوق التدرج ::before */
+        ::-webkit-scrollbar-thumb {
+            background: var(--gradient-primary);
+            border-radius: 4px;
         }
 
-        /* تعطيل إطار/شارة الحداد داخل مودال التفاصيل فقط */
-        #personDetailModal .is-deceased .person-photo-container {
-            box-shadow: none;
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--dark-green);
         }
-        #personDetailModal .is-deceased .person-photo-container::after {
-            display: none;
-        }
-
-        /* احترام تفضيل تقليل الحركة */
-        @media (prefers-reduced-motion: reduce) {
-            * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
-            .reveal { opacity: 1 !important; transform: none !important; }
-        }
-
-        /* --- START: Mobile Responsive Styles --- */
-        @media (max-width: 768px) {
-            .tree-section { padding-top: 90px; padding-left: 2px; padding-right: 2px; }
-
-            .accordion-group-item, .accordion-item { width: 110px; }
-            .accordion-collapse { width: 110px; padding-right: 10px; }
-
-            .accordion-button:not(.photo-bg) .person-photo-container {
-                width: 60px !important; height: 60px !important; margin-bottom: 5px;
-            }
-            .accordion-button .person-photo-container .icon-placeholder { font-size: 2.2rem !important; }
-            .accordion-button.photo-bg { min-height: 120px; }
-
-            .accordion-button .person-name { font-size: 0.75rem; line-height: 1.2; }
-
-            .actions-bar .btn { font-size: 9px; padding: 4px 2px; }
-
-            .deceased-icon { width: 18px; height: 18px; font-size: 10px; bottom: 2px; left: 2px; }
-
-            .mourning-badge {
-                inset-inline-end: 6px;
-                top: 6px;
-                font-size: .70rem;
-                padding: 3px 6px;
-            }
-        }
-        /* --- END: Mobile Responsive Styles --- */
     </style>
 </head>
 
 <body>
+    <div class="bg-pattern"></div>
 
     {{-- تضمين الهيدر من الملف المنفصل --}}
     @include('partials.main-header')
@@ -704,17 +873,18 @@
     <main>
         <section class="tree-section">
             <div class="container-fluid">
-                <div class="tree-title-sec">
-                    <h3>تواصل عائلة السريِّع </h3>
+                <div class="hero-header">
+                    <h1 class="hero-title">تواصل عائلة السريِّع</h1>
+                    <p class="hero-subtitle">استكشف شجرة العائلة الممتدة</p>
                 </div>
 
-                <div class="p-3">
-                    <div class="accordion" id="tree_level_0">
-                        <div class="text-center py-5">
-                            <div class="spinner-border text-success" style="width: 3rem; height: 3rem;" role="status">
-                                <span class="visually-hidden">Loading...</span>
+                <div class="tree-container">
+                    <div class="tree-horizontal" id="tree_root">
+                        <div class="tree-column" id="tree_level_0">
+                            <div class="loading-state">
+                                <div class="loading-spinner"></div>
+                                <p class="loading-text">جاري تحميل شجرة العائلة...</p>
                             </div>
-                            <p class="mt-3 text-muted">جاري تحميل تواصل العائلة...</p>
                         </div>
                     </div>
                 </div>
@@ -722,12 +892,11 @@
         </section>
     </main>
 
-    {{-- Modals --}}
+    {{-- Modal --}}
     <div class="modal fade" id="personDetailModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    {{-- زر رجوع داخل نفس المودال --}}
                     <button type="button" id="modalBackBtn" class="btn btn-light btn-sm me-2 d-none">
                         <i class="fa-solid fa-arrow-right"></i> رجوع
                     </button>
@@ -739,71 +908,30 @@
         </div>
     </div>
 
+    {{-- مكون زر WhatsApp العائم --}}
+    {{-- <x-whatsapp-group-button /> --}}
+
     {{-- Scripts --}}
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const API_BASE_URL = '/api';
+            const treeRoot = document.getElementById('tree_root');
             const treeContainer = document.getElementById('tree_level_0');
             const personDetailModalEl = document.getElementById('personDetailModal');
             const personModal = new bootstrap.Modal(personDetailModalEl);
             const modalBackBtn = document.getElementById('modalBackBtn');
-
-            // ====== ستاك للتاريخ داخل نفس المودال ======
             const modalHistory = [];
 
             function updateBackBtn() {
-                if (modalHistory.length > 1) {
-                    modalBackBtn.classList.remove('d-none');
-                } else {
-                    modalBackBtn.classList.add('d-none');
-                }
-            }
-
-            function initTooltips(root = document) {
-                const tooltipTriggerList = [].slice.call(root.querySelectorAll('[data-bs-toggle="tooltip"]'));
-                tooltipTriggerList.forEach(el => {
-                    if (!bootstrap.Tooltip.getInstance(el)) {
-                        new bootstrap.Tooltip(el);
-                    }
-                });
-            }
-
-            // ====== ظهور تدريجي للعناصر عند التمرير ======
-            function initRevealAnimations(root = document) {
-                try {
-                    const elements = root.querySelectorAll('.accordion-group-item, .accordion-item');
-                    if (!elements || elements.length === 0) return;
-
-                    // ضع كلاس reveal كبداية
-                    elements.forEach(el => el.classList.add('reveal'));
-
-                    if ('IntersectionObserver' in window) {
-                        const observer = new IntersectionObserver((entries) => {
-                            entries.forEach(entry => {
-                                if (entry.isIntersecting) {
-                                    entry.target.classList.add('in-view');
-                                    observer.unobserve(entry.target);
-                                }
-                            });
-                        }, { rootMargin: '60px 0px', threshold: 0.1 });
-
-                        elements.forEach(el => observer.observe(el));
-                    } else {
-                        // متصفحات قديمة: أظهر مباشرة
-                        elements.forEach(el => el.classList.add('in-view'));
-                    }
-                } catch (e) {
-                    console.warn('Reveal animations init failed', e);
-                }
+                modalBackBtn.classList.toggle('d-none', modalHistory.length <= 1);
             }
 
             async function fetchAPI(endpoint) {
                 try {
-                    // إضافة timeout للاستعلامات لتجنب الانتظار الطويل
                     const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 ثانية timeout
+                    const timeoutId = setTimeout(() => controller.abort(), 15000);
 
                     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
                         signal: controller.signal,
@@ -814,210 +942,157 @@
                     });
 
                     clearTimeout(timeoutId);
-
                     if (!response.ok) throw new Error(`API Error: ${response.status}`);
                     return await response.json();
                 } catch (error) {
                     console.error('API Fetch Error:', error);
-                    if (error.name === 'AbortError') {
-                        treeContainer.innerHTML =
-                            `<div class="alert alert-warning text-center">استغرق التحميل وقتاً طويلاً. يرجى المحاولة مرة أخرى.</div>`;
-                    } else {
-                        treeContainer.innerHTML =
-                            `<div class="alert alert-danger text-center">حدث خطأ أثناء تحميل البيانات. يرجى المحاولة مرة أخرى.</div>`;
-                    }
                     return null;
                 }
             }
 
-            /**
-             * إنشاء صورة الشخص
-             * @param {object} person
-             * @param {'sm'|'md'|'lg'} size
-             * @param {boolean} showBadge إظهار بادج "في ذمة الله" أم لا
-             */
-            function createPhoto(person, size = 'md', showBadge = true) {
-                const sizes = {
-                    sm: { container: '45px', icon: '1.5rem' },
-                    md: { container: '120px', icon: '5rem' },
-                    lg: { container: '150px', icon: '6rem' }
-                };
-                const currentSize = sizes[size] || sizes['md'];
-                const iconClass = person.gender === 'female' ? 'fa-female' : 'fa-male';
-                const iconContainerClass = size === 'sm' ? 'icon-placeholder-sm' : (size === 'lg' ? 'icon-placeholder-lg' : 'icon-placeholder');
-
-                const photoHtml = person.photo_url
-                    ? `<img src="${person.photo_url}" alt="${person.first_name}"
-                         loading="lazy"
-                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">`
-                    : '';
-
-                const iconHtml = `
-                    <div class="${iconContainerClass}" style="display:${person.photo_url ? 'none' : 'flex'};">
-                        <i class="fas ${iconClass}"></i>
-                    </div>`;
-
-                // لا نظهر البادج إن كان showBadge=false (المودال)
-                const badgeHtml = (person.death_date && showBadge)
-                    ? `<span class="mourning-badge" role="note" aria-label="متوفى${person.death_date ? ' - توفي في: ' + person.death_date : ''}">
-                            <i class="fa-solid fa-dove"></i>
-                       </span>`
-                    : '';
-
-                // الأيقونة القديمة تبقى موجودة لكن مخفية عبر CSS
-                const deceasedIconHtml = person.death_date
-                    ? `<div class="deceased-icon"><i class="fas fa-dove"></i></div>`
-                    : '';
-
-                return `
-                    <div class="person-photo-container" style="width:${currentSize.container}; height:${currentSize.container};">
-                        ${photoHtml}
-                        ${iconHtml}
-                        ${badgeHtml}
-                        ${deceasedIconHtml}
-                    </div>`;
-            }
-
-            function createPersonNode(person, level = 0, groupKey = 'root') {
+            function createPersonCard(person, level = 0, staggerIndex = 0) {
                 const hasChildren = person.children_count > 0;
                 const isDeceased = !!person.death_date;
-
-                const parentSelector = (level === 0) ? `#tree_level_0` : `#tree_level_${level}_${groupKey}`;
-                const uniqueId = `person_${person.id}_level_${level}`;
-                const itemClass = (level === 0) ? 'accordion-group-item' : 'accordion-item';
                 const hasPhoto = !!person.photo_url;
+                const iconClass = person.gender === 'female' ? 'fa-female' : 'fa-male';
+                const mourningText = isDeceased ? (person.gender === 'female' ? 'رحمها الله' : 'رحمه الله') : '';
 
-                const bgClass = hasPhoto ? 'photo-bg' : '';
-                const bgStyle = hasPhoto
-                    ? `style="background-image: url('${person.photo_url}');"`
-                    : '';
+                const photoSection = hasPhoto
+                    ? `<div class="card-header-section has-photo" style="background-image: url('${person.photo_url}');" data-person-id="${person.id}" data-level="${level}">
+                            ${isDeceased ? `<span class="mourning-badge">${mourningText}</span>` : ''}
+                            <span class="person-name">${person.first_name}</span>
+                       </div>`
+                    : `<div class="card-header-section" data-person-id="${person.id}" data-level="${level}">
+                            ${isDeceased ? `<span class="mourning-badge">${mourningText}</span>` : ''}
+                            <div class="person-avatar">
+                                <i class="fas ${iconClass} avatar-icon"></i>
+                            </div>
+                            <span class="person-name">${person.first_name}</span>
+                       </div>`;
 
-                const btnLabel = isDeceased
-                    ? `${person.first_name}`  /* لا نكتب "في ذمة الله" */
-                    : person.first_name;
-
-                const buttonContent = `
-                    ${hasPhoto ? `
-                        <!-- خارج المودال: نظهر البادج -->
-
-                    ` : createPhoto(person, 'md', true)}
-                    <span class="person-name">${person.first_name}</span>
-                `;
-
-                const childrenAccordionId = `tree_level_${level + 1}_${person.id}`;
-
-                const buttonOrDiv = hasChildren
-                    ? `<button class="accordion-button collapsed ${bgClass}" type="button"
-                            data-bs-toggle="collapse"
-                            data-bs-target="#collapse_${uniqueId}"
-                            onclick="loadChildren(this)"
-                            data-person-id="${person.id}"
-                            data-level="${level + 1}"
-                            data-group-key="${person.id}"
-                            aria-label="${btnLabel}"
-                            ${bgStyle}>
-                        ${buttonContent}
-                    </button>`
-                    : `<div class="accordion-button collapsed ${bgClass}"
-                            aria-label="${btnLabel}"
-                            ${bgStyle}>
-                        ${buttonContent}
-                    </div>`;
+                const staggerClass = staggerIndex <= 5 ? `stagger-${staggerIndex}` : '';
 
                 return `
-                    <div class="${itemClass} ${isDeceased ? 'is-deceased' : ''}">
-                        <h2 class="accordion-header">${buttonOrDiv}</h2>
-                        <div class="actions-bar">
-                            <button class="btn" onclick="showPersonDetails(${person.id})">
-                                <i class="fas fa-info-circle me-1"></i> التفاصيل
-                            </button>
+                    <div class="tree-item fade-in ${staggerClass}" data-person-id="${person.id}">
+                        <div class="person-card ${isDeceased ? 'is-deceased' : ''}">
+                            ${photoSection}
+                            <div class="card-actions">
+                                <button class="action-btn" onclick="showPersonDetails(${person.id})">
+                                    <i class="fas fa-info-circle"></i>
+                                    <span>التفاصيل</span>
+                                </button>
+                            </div>
+                            ${hasChildren ? `<div class="connection-line"></div>` : ''}
                         </div>
-                        ${hasChildren ? `
-                            <div id="collapse_${uniqueId}" class="accordion-collapse collapse" data-bs-parent="${parentSelector}">
-                                <div class="accordion-body p-0">
-                                    <div class="accordion" id="${childrenAccordionId}"></div>
-                                </div>
-                            </div>` : ''}
-                    </div>`;
+                        ${hasChildren ? `<div class="children-container" id="children_${person.id}"></div>` : ''}
+                    </div>
+                `;
             }
 
-            window.loadChildren = async (buttonElement) => {
-                if (buttonElement.dataset.loaded === 'true') return;
+            async function loadInitialTree() {
+                const data = await fetchAPI('/family-tree');
 
-                const personId = buttonElement.dataset.personId;
-                const level = parseInt(buttonElement.dataset.level, 10);
-                const groupKey = buttonElement.dataset.groupKey;
+                if (data && data.tree && data.tree.length > 0) {
+                    treeContainer.innerHTML = data.tree.map((person, index) =>
+                        createPersonCard(person, 0, index + 1)
+                    ).join('');
 
-                const childrenAccordionId = `tree_level_${level}_${groupKey}`;
-                const childrenContainer = document.getElementById(childrenAccordionId);
-                if (!childrenContainer) return;
-
-                // إظهار مؤشر تحميل محسن
-                childrenContainer.innerHTML = `
-                    <div class="p-2 text-center text-muted small">
-                        <div class="spinner-border spinner-border-sm me-2" role="status"></div>
-                        جارٍ التحميل...
-                    </div>`;
-
-                const data = await fetchAPI(`/person/${personId}/children`);
-                childrenContainer.innerHTML = '';
-
-                if (data && data.children && data.children.length > 0) {
-                    // استخدام DocumentFragment لتحسين الأداء
-                    const fragment = document.createDocumentFragment();
-
-                    data.children.forEach(child => {
-                        const childDiv = document.createElement('div');
-                        childDiv.innerHTML = createPersonNode(child, level, groupKey);
-                        fragment.appendChild(childDiv);
-                    });
-
-                    childrenContainer.appendChild(fragment);
-                    initTooltips(childrenContainer);
-
-                    // تفعيل تأثير الظهور للعناصر المضافة
-                    initRevealAnimations(childrenContainer);
-
-                    // تطبيق Stagger على العناصر المُضافة
-                    try {
-                        const newItems = childrenContainer.querySelectorAll('.accordion-item');
-                        let delay = 0;
-                        newItems.forEach(item => {
-                            item.classList.add('reveal');
-                            setTimeout(() => item.classList.add('in-view'), delay);
-                            delay += 60; // 60ms بين كل عنصر لظهور سلس
-                        });
-                    } catch (_) {}
-
-                    // إظهار رسالة نجاح إذا كانت البيانات من cache
-                    if (data.cached) {
-                        console.log(`تم تحميل أبناء الشخص ${personId} من الذاكرة المؤقتة`);
-                    }
+                    initCardClicks();
                 } else {
-                    childrenContainer.innerHTML = `<div class="p-2 text-center text-muted small">لا يوجد أبناء.</div>`;
-                }
-                buttonElement.dataset.loaded = 'true';
-            };
-
-            window.toggleBiography = (btn) => {
-                const wrapper = btn.closest('.biography-wrapper');
-                const textElement = wrapper.querySelector('.biography-text');
-                textElement.classList.toggle('collapsed');
-                btn.textContent = textElement.classList.contains('collapsed') ? 'عرض المزيد' : 'عرض أقل';
-            };
-
-            function setupBiography() {
-                const textElement = document.getElementById('biographyText');
-                if (!textElement) return;
-                const btnElement = document.getElementById('readMoreBtn');
-                const collapsedHeight = 88;
-                if (textElement.scrollHeight > collapsedHeight) {
-                    textElement.classList.add('collapsed');
-                    btnElement.style.display = 'inline-block';
+                    treeContainer.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-tree"></i>
+                            <p>لا توجد بيانات لعرضها</p>
+                        </div>
+                    `;
                 }
             }
 
-            // ====== نسخة تدعم Stack + History API ======
+            function initCardClicks() {
+                document.querySelectorAll('.card-header-section').forEach(header => {
+                    // Remove old listeners by cloning
+                    const newHeader = header.cloneNode(true);
+                    header.parentNode.replaceChild(newHeader, header);
+                });
+
+                document.querySelectorAll('.card-header-section').forEach(header => {
+                    header.addEventListener('click', async function() {
+                        const personId = this.dataset.personId;
+                        const level = parseInt(this.dataset.level, 10);
+                        const treeItem = this.closest('.tree-item');
+                        const card = this.closest('.person-card');
+                        const childrenContainer = document.getElementById(`children_${personId}`);
+
+                        if (!childrenContainer) return;
+
+                        // Toggle - إذا كان مفتوح اغلقه
+                        if (treeItem.classList.contains('expanded')) {
+                            treeItem.classList.remove('expanded');
+                            card.classList.remove('active');
+                            childrenContainer.classList.remove('show');
+                            return;
+                        }
+
+                        // إغلاق الأشقاء في نفس المستوى
+                        const parentColumn = treeItem.parentElement;
+                        parentColumn.querySelectorAll(':scope > .tree-item.expanded').forEach(item => {
+                            item.classList.remove('expanded');
+                            item.querySelector('.person-card')?.classList.remove('active');
+                            item.querySelector('.children-container')?.classList.remove('show');
+                        });
+
+                        treeItem.classList.add('expanded');
+                        card.classList.add('active');
+
+                        // تحميل الأبناء إذا لم يتم تحميلهم
+                        if (!childrenContainer.dataset.loaded) {
+                            childrenContainer.innerHTML = `
+                                <div class="loading-state" style="padding: 1rem;">
+                                    <div class="loading-spinner" style="width: 30px; height: 30px;"></div>
+                                </div>
+                            `;
+                            childrenContainer.classList.add('show');
+
+                            const data = await fetchAPI(`/person/${personId}/children`);
+
+                            if (data && data.children && data.children.length > 0) {
+                                childrenContainer.innerHTML = data.children.map((child, index) =>
+                                    createPersonCard(child, level + 1, index + 1)
+                                ).join('');
+                                childrenContainer.dataset.loaded = 'true';
+                                initCardClicks();
+                            } else {
+                                childrenContainer.innerHTML = `
+                                    <div class="empty-state" style="padding: 1rem;">
+                                        <p style="font-size: 0.75rem;">لا يوجد أبناء</p>
+                                    </div>
+                                `;
+                                childrenContainer.dataset.loaded = 'true';
+                            }
+                        } else {
+                            childrenContainer.classList.add('show');
+                        }
+                    });
+                });
+            }
+
+            function createPhoto(person, size = 'md') {
+                const sizes = {
+                    sm: { container: '48px', icon: '1.25rem' },
+                    lg: { container: '120px', icon: '3rem' }
+                };
+                const currentSize = sizes[size] || sizes['lg'];
+                const iconClass = person.gender === 'female' ? 'fa-female' : 'fa-male';
+
+                if (person.photo_url) {
+                    return `<img src="${person.photo_url}" alt="${person.first_name}"
+                            style="width: ${currentSize.container}; height: ${currentSize.container}; border-radius: 50%; object-fit: cover;">`;
+                }
+                return `<div class="avatar-placeholder" style="width: ${currentSize.container}; height: ${currentSize.container}; font-size: ${currentSize.icon};">
+                            <i class="fas ${iconClass}"></i>
+                        </div>`;
+            }
+
             window.showPersonDetails = async (personId, { push = true } = {}) => {
                 const modalBody = document.getElementById('modalBodyContent');
 
@@ -1029,286 +1104,221 @@
                 personModal.show();
                 updateBackBtn();
 
-                // إظهار مؤشر تحميل محسن
                 modalBody.innerHTML = `
-                    <div class="text-center p-5">
-                        <div class="spinner-border text-success" style="width: 3rem; height: 3rem;"></div>
-                        <p class="mt-3">جاري تحميل التفاصيل...</p>
-                        <small class="text-muted">قد يستغرق هذا بضع ثوانٍ</small>
-                    </div>`;
+                    <div class="loading-state">
+                        <div class="loading-spinner"></div>
+                        <p class="loading-text">جاري تحميل التفاصيل...</p>
+                    </div>
+                `;
 
                 const data = await fetchAPI(`/person/${personId}`);
                 if (!data || !data.person) {
-                    modalBody.innerHTML = `<div class="alert alert-danger">فشل تحميل البيانات.</div>`;
+                    modalBody.innerHTML = `<div class="alert alert-danger text-center">فشل تحميل البيانات</div>`;
                     return;
-                }
-
-                // إظهار رسالة نجاح إذا كانت البيانات من cache
-                if (data.cached) {
-                    console.log(`تم تحميل تفاصيل الشخص ${personId} من الذاكرة المؤقتة`);
                 }
 
                 const person = data.person;
 
-                const createDetailRow = (icon, label, value) => !value ? '' :
-                    `<div class="detail-row">
-                        <div><small class="text-muted">${label}</small><p class="mb-0 fw-bold">${value}</p></div>
+                const createDetailCard = (label, value) => !value ? '' :
+                    `<div class="col-6 col-md-4">
+                        <div class="detail-card">
+                            <div class="detail-label">${label}</div>
+                            <div class="detail-value">${value}</div>
+                        </div>
                     </div>`;
-
-                const createDetailRowWithLink = (icon, label, value, link) => !value ? '' :
-                    `<div class="detail-row">
-                        <div><small class="text-muted">${label}</small><p class="mb-0 fw-bold"><a href="${link}" target="_blank">${value}</a></p></div>
-                    </div>`;
-
-                /* 🚫 لا نظهر "في ذمة الله" كنص داخل المودال */
-                /* نُبقي فقط الإطار الأسود حول الصورة عبر كلاس is-deceased */
-
-                let articlesHtml = '';
-                if (person.articles && person.articles.length > 0) {
-                    articlesHtml = `<h5>المقالات</h5>`;
-                    person.articles.forEach(article => {
-                        const articleUrl = `/article/${article.id}`;
-                        articlesHtml += `
-                            <a href="${articleUrl}" target="_blank" class="article-card">
-                                <i class="fas fa-book-open"></i>
-                                <div>
-                                    <strong>${article.title}</strong>
-                                    <small class="d-block text-muted">اضغط لعرض المقال</small>
-                                </div>
-                            </a>`;
-                    });
-                }
 
                 let parentsHtml = '';
                 if (person.parent || person.mother) {
-                    parentsHtml = '<h5>الوالدين</h5><div class="row g-2">';
+                    parentsHtml = '<h6 class="mb-3"><i class="fas fa-users me-2"></i>الوالدين</h6><div class="row g-2 mb-4">';
                     if (person.parent) {
-                        const parentStatusText = person.parent.death_date ? '(رحمه الله)' : 'الأب';
+                        const statusText = person.parent.death_date ? '(رحمه الله)' : 'الأب';
                         parentsHtml += `
-                            <div class="col-md-6">
-                                <div class="parent-card clickable ${person.parent.death_date ? 'is-deceased' : ''}" onclick="showPersonDetails(${person.parent.id})">
-                                    ${createPhoto(person.parent, 'sm', false)}
-                                    <div><strong>${person.parent.first_name}</strong><small class="d-block text-muted">${parentStatusText}</small></div>
+                            <div class="col-6">
+                                <div class="relation-card ${person.parent.death_date ? 'is-deceased' : ''}" onclick="showPersonDetails(${person.parent.id})">
+                                    ${createPhoto(person.parent, 'sm')}
+                                    <div class="relation-info">
+                                        <strong>${person.parent.first_name}</strong>
+                                        <small>${statusText}</small>
+                                    </div>
                                 </div>
                             </div>`;
                     }
                     if (person.mother) {
-                        const motherStatusText = person.mother.death_date ? '(رحمها الله)' : 'الأم';
+                        const statusText = person.mother.death_date ? '(رحمها الله)' : 'الأم';
                         parentsHtml += `
-                            <div class="col-md-6">
-                                <div class="parent-card clickable ${person.mother.death_date ? 'is-deceased' : ''}" onclick="showPersonDetails(${person.mother.id})">
-                                    ${createPhoto(person.mother, 'sm', false)}
-                                    <div><strong>${person.mother.first_name}</strong><small class="d-block text-muted">${motherStatusText}</small></div>
+                            <div class="col-6">
+                                <div class="relation-card ${person.mother.death_date ? 'is-deceased' : ''}" onclick="showPersonDetails(${person.mother.id})">
+                                    ${createPhoto(person.mother, 'sm')}
+                                    <div class="relation-info">
+                                        <strong>${person.mother.first_name}</strong>
+                                        <small>${statusText}</small>
+                                    </div>
                                 </div>
                             </div>`;
                     }
-                    parentsHtml += '</div><hr class="my-4">';
+                    parentsHtml += '</div>';
                 }
 
                 let spousesHtml = '';
                 if (person.spouses && person.spouses.length > 0) {
-                    const spouseLabel = person.gender === 'female' ? 'الزوج' : 'الزوجات';
-                    spousesHtml = `
-                        <h5>${spouseLabel}</h5>
-                        <div class="row g-2">`;
+                    const label = person.gender === 'female' ? 'الزوج' : 'الزوجات';
+                    spousesHtml = `<h6 class="mb-3"><i class="fas fa-heart me-2"></i>${label}</h6><div class="row g-2 mb-4">`;
                     person.spouses.forEach(spouse => {
-                        let spouseStatusText;
-                        if (spouse.death_date) {
-                            spouseStatusText = spouse.gender === 'female' ? '(رحمها الله)' : '(رحمه الله)';
-                        } else {
-                            spouseStatusText = spouse.gender === 'female' ? 'زوجة' : 'زوج';
-                        }
-
-                        // بناء full_name يدوياً - للأشخاص من خارج العائلة قد لا يكون full_name متوفراً بشكل صحيح
-                        let spouseFullName = '';
-                        if (spouse.full_name && spouse.full_name.trim() !== '') {
-                            // إذا كان full_name موجوداً وصحيحاً، استخدمه
-                            spouseFullName = spouse.full_name;
-                        } else if (spouse.first_name) {
-                            // بناء الاسم من first_name و last_name
-                            spouseFullName = spouse.first_name;
-                            if (spouse.last_name && spouse.last_name.trim() !== '') {
-                                spouseFullName += ' ' + spouse.last_name;
-                            }
-                        } else {
-                            spouseFullName = 'غير معروف';
-                        }
-
+                        const statusText = spouse.death_date
+                            ? (spouse.gender === 'female' ? '(رحمها الله)' : '(رحمه الله)')
+                            : (spouse.gender === 'female' ? 'زوجة' : 'زوج');
+                        const fullName = spouse.full_name || spouse.first_name || 'غير معروف';
                         spousesHtml += `
-                            <div class="col-md-6">
-                                <div class="spouse-card clickable ${spouse.death_date ? 'is-deceased' : ''}" onclick="showPersonDetails(${spouse.id})">
-                                    ${createPhoto(spouse, 'sm', false)}
-                                    <div>
-                                        <strong>${spouseFullName}</strong>
-                                        <small class="d-block text-muted">${spouseStatusText}</small>
+                            <div class="col-6">
+                                <div class="relation-card ${spouse.death_date ? 'is-deceased' : ''}" onclick="showPersonDetails(${spouse.id})">
+                                    ${createPhoto(spouse, 'sm')}
+                                    <div class="relation-info">
+                                        <strong>${fullName}</strong>
+                                        <small>${statusText}</small>
                                     </div>
                                 </div>
                             </div>`;
                     });
-                    spousesHtml += '</div><hr class="my-4">';
+                    spousesHtml += '</div>';
                 }
+
+                let childrenHtml = person.children_count > 0
+                    ? `<h6 class="mb-3"><i class="fas fa-child me-2"></i>الأبناء (${person.children_count})</h6>
+                       <div class="row g-2 mb-4" id="modalChildrenList">
+                           <div class="col-12 text-center text-muted py-3">جاري التحميل...</div>
+                       </div>`
+                    : '';
 
                 let biographyHtml = '';
-                if (person.biography && person.biography.trim() !== '') {
+                if (person.biography && person.biography.trim()) {
                     biographyHtml = `
-                        <div class="biography-wrapper">
-                            <h5>نبذة عن</h5>
+                        <h6 class="mb-3"><i class="fas fa-book me-2"></i>نبذة</h6>
+                        <div class="biography-wrapper mb-4">
                             <p id="biographyText" class="biography-text">${person.biography}</p>
-                            <button id="readMoreBtn" class="read-more-btn" onclick="toggleBiography(this)">عرض المزيد</button>
-                        </div>
-                        <hr class="my-4">`;
+                            <button id="readMoreBtn" class="read-more-btn d-none" onclick="toggleBiography(this)">عرض المزيد</button>
+                        </div>`;
                 }
 
-                let childrenHtml = (person.children_count > 0)
-                    ? `<h5>الأبناء (${person.children_count})</h5><div id="modalChildrenList" class="row g-2"></div>`
-                    : '';
+                let contactsHtml = '';
+                if (person.contact_accounts && person.contact_accounts.length > 0) {
+                    contactsHtml = `<div class="contact-grid">`;
+                    person.contact_accounts.forEach(account => {
+                        const brandIcons = ['whatsapp', 'facebook', 'instagram', 'twitter', 'linkedin', 'telegram'];
+                        const iconClass = brandIcons.includes(account.type) ? 'fab' : 'fas';
+                        const typeClass = account.type ? account.type.toLowerCase() : '';
+                        contactsHtml += `
+                            <a href="${account.url}" target="_blank" class="contact-item ${typeClass}" title="${account.label || account.value || account.type}">
+                                <i class="${iconClass} ${account.icon || 'fa-link'}"></i>
+                                ${account.label ? `<span>${account.label}</span>` : ''}
+                            </a>`;
+                    });
+                    contactsHtml += '</div>';
+                }
 
-                // زر معرض الصور
-                let galleryButtonHtml = (person.images_count > 0)
-                    ? `<a class="btn-cta" onclick="openPersonGallery(${person.id})" role="button" href="javascript:void(0)" title="معرض الصور">
-                            <i class="fas fa-images"></i>
-                            <span>الصور</span>
-                        </a>`
-                    : '';
+                let galleryBtn = person.images_count > 0
+                    ? `<a class="btn-cta" onclick="openPersonGallery(${person.id})" href="javascript:void(0)">
+                            <i class="fas fa-images"></i> الصور
+                       </a>` : '';
 
-                // Placeholder زر القصص (سيتم إظهاره بعد فحص العداد)
-                const storiesBtnPlaceholder = `<div id="personStoriesButton"></div>`;
-
-                // Placeholder زر الأصدقاء (سيتم إظهاره بعد فحص العداد)
-                const friendshipsBtnPlaceholder = `<div id="personFriendshipsButton"></div>`;
-
-                document.getElementById('modalBodyContent').innerHTML = `
+                modalBody.innerHTML = `
                     <div class="row g-4">
                         <div class="col-lg-4 text-center">
-                            <div class="d-inline-block ${person.death_date ? 'is-deceased' : ''}">${createPhoto(person, 'lg', false)}</div>
-                            <h4 class="mt-3 mb-1">${person.full_name || person.first_name}</h4>
-                            ${person.death_date ? `<p class="text-muted mb-2">${person.gender === 'female' ? 'رحمها الله' : 'رحمه الله'}</p>` : ''}
-                            <div class="d-flex justify-content-center gap-2 mb-4 flex-wrap">
-                                ${galleryButtonHtml}
-                                ${storiesBtnPlaceholder}
-                                ${friendshipsBtnPlaceholder}
+                            <div class="mb-3 ${person.death_date ? 'is-deceased' : ''}">
+                                ${createPhoto(person, 'lg')}
+                            </div>
+                            <h4 class="mb-1">${person.full_name || person.first_name}</h4>
+                            ${person.death_date ? `<p class="text-muted small mb-3">${person.gender === 'female' ? 'رحمها الله' : 'رحمه الله'}</p>` : ''}
+                            ${contactsHtml}
+                            <div class="d-flex justify-content-center gap-2 flex-wrap mb-4">
+                                ${galleryBtn}
+                                <div id="personStoriesButton"></div>
+                                <div id="personFriendshipsButton"></div>
                             </div>
                         </div>
                         <div class="col-lg-8">
-                            <div class="detail-row-container">
-                                ${person.gender === 'male' ? createDetailRow('fa-birthday-cake', 'تاريخ الميلاد', person.birth_date) : ''}
-                                ${person.gender === 'male' && person.age ? createDetailRow('fa-calendar-alt', 'العمر', `${person.age} سنة`) : ''}
-                                ${createDetailRow('fa-map-marked-alt', 'مكان الميلاد', person.birth_place)}
-                                ${createDetailRow('fa-map-marker-alt', 'مكان الإقامة', person.location)}
-                                ${createDetailRow('fa-briefcase', 'المهنة', person.occupation)}
-                                ${person.death_date ? createDetailRow('fa-dove', 'تاريخ الوفاة', person.death_date) : ''}
-                                ${createDetailRow('fa-tombstone-alt', 'مكان الوفاة', person.death_place)}
-                                ${(person.cemetery || person.grave_number || person.cemetery_location) ? `
-                                    <div class="detail-row">
-                                        <div style="width: 100%;">
-                                            <small class="text-muted d-block mb-2">معلومات القبر</small>
-                                            <div class="grave-fields-row">
-                                                ${person.cemetery ? `
-                                                    <div class="grave-field-small">
-                                                        <i class="fas fa-building"></i>
-                                                        <strong>${person.cemetery}</strong>
-                                                    </div>
-                                                ` : ''}
-                                                ${person.grave_number ? `
-                                                    <div class="grave-field-small">
-                                                        <i class="fas fa-hashtag"></i>
-                                                        <strong>${person.grave_number}</strong>
-                                                    </div>
-                                                ` : ''}
-                                                ${person.cemetery_location ? (() => {
-                                                    const locationUrl = person.cemetery_location.startsWith('http://') || person.cemetery_location.startsWith('https://')
-                                                        ? person.cemetery_location
-                                                        : `https://${person.cemetery_location}`;
-                                                    return `
-                                                        <a href="${locationUrl}" target="_blank" class="grave-location-link" title="موقع القبر على الخريطة: ${person.cemetery_location}">
-                                                            <i class="fas fa-location-dot"></i>
-                                                        </a>
-                                                    `;
-                                                })() : ''}
-                                            </div>
-                                        </div>
-                                    </div>
-                                ` : ''}
+                            <div class="row g-2 mb-4">
+                                ${person.gender === 'male' ? createDetailCard('تاريخ الميلاد', person.birth_date) : ''}
+                                ${person.gender === 'male' && person.age ? createDetailCard('العمر', `${person.age} سنة`) : ''}
+                                ${createDetailCard('مكان الميلاد', person.birth_place)}
+                                ${createDetailCard('مكان الإقامة', person.location)}
+                                ${createDetailCard('المهنة', person.occupation)}
+                                ${person.death_date ? createDetailCard('تاريخ الوفاة', person.death_date) : ''}
+                                ${createDetailCard('مكان الوفاة', person.death_place)}
+                                ${createDetailCard('المقبرة', person.cemetery)}
                             </div>
-                            ${person.locations && person.locations.length > 0 ? `
-                                <hr class="my-4">
-                                <h5>المواقع</h5>
-                                <div class="row g-2">
-                                    ${person.locations.map(loc => `
-                                        <div class="col-md-6">
-                                            <div class="detail-row">
-                                                <div>
-                                                    <small class="text-muted">${loc.label || 'موقع'}</small>
-                                                    <p class="mb-0 fw-bold">${loc.name}</p>
-                                                    ${loc.is_primary ? '<span class="badge bg-success">أساسي</span>' : ''}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    `).join('')}
-                                </div>
-                            ` : ''}
-                            ${person.contact_accounts && person.contact_accounts.length > 0 ? `
-                                <hr class="my-4">
-                                <h5>حسابات التواصل</h5>
-                                <div class="contact-accounts-grid">
-                                    ${person.contact_accounts.map(account => {
-                                        // تحديد نوع الكلاس حسب نوع الحساب
-                                        const brandIcons = ['whatsapp', 'facebook', 'instagram', 'twitter', 'linkedin', 'telegram'];
-                                        const iconClass = brandIcons.includes(account.type) ? 'fab' : 'fas';
-                                        const iconName = account.icon || 'fa-link';
-
-                                        // إضافة class للألوان الأصلية
-                                        const accountTypeClass = account.type ? account.type.toLowerCase() : '';
-
-                                        return `
-                                        <a href="${account.url}" target="_blank" class="contact-account-item ${accountTypeClass}"
-                                           title="${account.value}${account.label ? ' - ' + account.label : ''}">
-                                            <i class="${iconClass} ${iconName} contact-icon"></i>
-                                            ${account.label ? `<span class="contact-label">${account.label}</span>` : ''}
-                                        </a>
-                                        `;
-                                    }).join('')}
-                                </div>
-                            ` : ''}
-                            <hr class="my-4">
                             ${parentsHtml}
                             ${spousesHtml}
                             ${biographyHtml}
                             ${childrenHtml}
-                            ${articlesHtml}
                         </div>
-                    </div>`;
+                    </div>
+                `;
 
                 setupBiography();
-
                 if (person.children_count > 0) loadModalChildren(person.id);
-
-                // جلب عداد القصص لهذا الشخص لإظهار زر القصص عند الحاجة
-                insertStoriesButton(person.id, person.full_name);
-
-                // جلب عداد الأصدقاء لهذا الشخص لإظهار زر الأصدقاء عند الحاجة
+                insertStoriesButton(person.id);
                 insertFriendshipsButton(person.id);
             };
 
-            async function insertStoriesButton(personId, personFullName) {
+            function setupBiography() {
+                const textEl = document.getElementById('biographyText');
+                const btnEl = document.getElementById('readMoreBtn');
+                if (!textEl || !btnEl) return;
+                if (textEl.scrollHeight > 100) {
+                    textEl.classList.add('collapsed');
+                    btnEl.classList.remove('d-none');
+                }
+            }
+
+            window.toggleBiography = (btn) => {
+                const text = document.getElementById('biographyText');
+                text.classList.toggle('collapsed');
+                btn.textContent = text.classList.contains('collapsed') ? 'عرض المزيد' : 'عرض أقل';
+            };
+
+            async function loadModalChildren(personId) {
+                const container = document.getElementById('modalChildrenList');
+                if (!container) return;
+
+                const data = await fetchAPI(`/person/${personId}/children-details`);
+                container.innerHTML = '';
+
+                if (data && data.children && data.children.length > 0) {
+                    data.children.forEach(child => {
+                        const statusText = child.death_date
+                            ? (child.gender === 'male' ? '(رحمه الله)' : '(رحمها الله)')
+                            : (child.gender === 'female' ? 'ابنة' : 'ابن');
+                        container.innerHTML += `
+                            <div class="col-6 col-md-4">
+                                <div class="relation-card ${child.death_date ? 'is-deceased' : ''}" onclick="showPersonDetails(${child.id})">
+                                    ${createPhoto(child, 'sm')}
+                                    <div class="relation-info">
+                                        <strong>${child.first_name}</strong>
+                                        <small>${statusText}</small>
+                                    </div>
+                                </div>
+                            </div>`;
+                    });
+                } else {
+                    container.innerHTML = `<div class="col-12 text-center text-muted py-2">لا يوجد أبناء مسجلين</div>`;
+                }
+            }
+
+            async function insertStoriesButton(personId) {
                 try {
                     const res = await fetch(`/api/person/${personId}/stories/count`, { headers: { 'Accept': 'application/json' }});
                     if (!res.ok) return;
                     const data = await res.json();
-                    if (data && data.count && data.count > 0) {
+                    if (data && data.count > 0) {
                         const holder = document.getElementById('personStoriesButton');
                         if (holder) {
                             holder.innerHTML = `
-                                <a class="btn-cta" href="/stories/person/${personId}" title="أحداث وقصص">
-                                    <i class="fas fa-book-open"></i>
-                                    <span>كتب وابحاث</span>
-                                </a>
-                            `;
+                                <a class="btn-cta" href="/stories/person/${personId}">
+                                    <i class="fas fa-book-open"></i> كتب وأبحاث
+                                </a>`;
                         }
                     }
-                } catch (e) {
-                    console.warn('Failed to fetch stories count', e);
-                }
+                } catch (e) { console.warn('Stories count failed', e); }
             }
 
             async function insertFriendshipsButton(personId) {
@@ -1316,128 +1326,22 @@
                     const res = await fetch(`/api/person/${personId}/friendships/count`, { headers: { 'Accept': 'application/json' }});
                     if (!res.ok) return;
                     const data = await res.json();
-                    if (data && data.count && data.count > 0) {
+                    if (data && data.count > 0) {
                         const holder = document.getElementById('personFriendshipsButton');
                         if (holder) {
                             holder.innerHTML = `
-                                <a class="btn-cta" href="javascript:void(0)" onclick="showFriendships(${personId})" title="الأصدقاء">
-                                    <i class="fas fa-user-friends"></i>
-                                    <span>الأصدقاء</span>
-                                </a>
-                            `;
+                                <a class="btn-cta" href="javascript:void(0)" onclick="showFriendships(${personId})">
+                                    <i class="fas fa-user-friends"></i> الأصدقاء
+                                </a>`;
                         }
                     }
-                } catch (e) {
-                    console.warn('Failed to fetch friendships count', e);
-                }
+                } catch (e) { console.warn('Friendships count failed', e); }
             }
 
-            window.showFriendships = (personId) => {
-                window.open(`/person/${personId}/friends`, '_blank');
-            };
+            window.showFriendships = (personId) => window.open(`/person/${personId}/friends`, '_blank');
+            window.openPersonGallery = (personId) => window.open(`/person-gallery/${personId}`, '_blank');
 
-            // تم إزالة openFriendshipDetails - الآن يتم عرض التفاصيل في مودال في صفحة الأصدقاء
-
-            async function loadModalChildren(personId) {
-                const childrenContainer = document.getElementById('modalChildrenList');
-                if (!childrenContainer) return;
-                childrenContainer.innerHTML =
-                    `<div class="col-12 text-center text-muted p-3">جاري تحميل الأبناء...</div>`;
-                const data = await fetchAPI(`/person/${personId}/children-details`);
-                childrenContainer.innerHTML = '';
-                if (data && data.children && data.children.length > 0) {
-                    data.children.forEach(child => {
-                        let statusText;
-                        if (child.death_date) {
-                            statusText = child.gender === 'male' ? '(رحمه الله)' : '(رحمها الله)';
-                        } else {
-                            statusText = child.gender === 'female' ? 'ابنة' : 'ابن';
-                        }
-
-                        childrenContainer.innerHTML += `
-                            <div class="col-md-6">
-                                <div class="child-card clickable ${child.death_date ? 'is-deceased' : ''}" onclick="showPersonDetails(${child.id})">
-                                    ${createPhoto(child, 'sm', false)}
-                                    <div>
-                                        <strong>${child.first_name}</strong>
-                                        <small class="d-block text-muted">${statusText}</small>
-                                    </div>
-                                </div>
-                            </div>`;
-                    });
-                } else {
-                    childrenContainer.innerHTML =
-                        `<div class="col-12 text-center text-muted p-3">لا يوجد أبناء مسجلين.</div>`;
-                }
-            }
-
-            async function loadInitialTree() {
-                // إظهار مؤشر تحميل محسن
-                treeContainer.innerHTML = `
-                    <div class="text-center py-5">
-                        <div class="spinner-border text-success" style="width: 3rem; height: 3rem;" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                        <p class="mt-3 text-muted">جاري تحميل تواصل العائلة...</p>
-                        <small class="text-muted">قد يستغرق هذا بضع ثوانٍ</small>
-                    </div>`;
-
-                const data = await fetchAPI('/family-tree');
-                if (data && data.tree && data.tree.length > 0) {
-                    // استخدام DocumentFragment لتحسين الأداء
-                    const fragment = document.createDocumentFragment();
-
-                    data.tree.forEach(person => {
-                        const personDiv = document.createElement('div');
-                        personDiv.innerHTML = createPersonNode(person, 0, 'root');
-                        fragment.appendChild(personDiv);
-                    });
-
-                    treeContainer.innerHTML = '';
-                    treeContainer.appendChild(fragment);
-                    initTooltips(treeContainer);
-
-                    // تفعيل تأثير الظهور للعناصر الأساسية
-                    initRevealAnimations(treeContainer);
-
-                    // تطبيق Stagger على المستوى الأول
-                    try {
-                        const topItems = treeContainer.querySelectorAll('.accordion-group-item');
-                        let delay = 0;
-                        topItems.forEach(item => {
-                            item.classList.add('reveal');
-                            setTimeout(() => item.classList.add('in-view'), delay);
-                            delay += 80; // إيقاع أبطأ على المستوى الأعلى
-                        });
-                    } catch (_) {}
-
-                    // إظهار رسالة نجاح إذا كانت البيانات من cache
-                    if (data.cached) {
-                        console.log('تم تحميل البيانات من الذاكرة المؤقتة');
-                    }
-                } else {
-                    treeContainer.innerHTML =
-                        '<div class="alert alert-warning text-center">لا توجد بيانات لعرضها في تواصل العائلة.</div>';
-                }
-            }
-
-            // إغلاق أي collapse مفتوح في نفس المستوى عند فتح آخر (حفاظًا على الاتساق)
-            document.addEventListener('show.bs.collapse', function(event) {
-                const collapseElement = event.target;
-                const parentSelector = collapseElement.getAttribute('data-bs-parent');
-                if (!parentSelector) return;
-                const parentAccordion = document.querySelector(parentSelector);
-                if (!parentAccordion) return;
-                const openCollapses = parentAccordion.querySelectorAll('.accordion-collapse.show');
-                openCollapses.forEach(openCollapse => {
-                    if (openCollapse !== collapseElement) {
-                        const bsCollapseInstance = bootstrap.Collapse.getInstance(openCollapse);
-                        if (bsCollapseInstance) bsCollapseInstance.hide();
-                    }
-                });
-            });
-
-            // ====== زر الرجوع داخل المودال ======
+            // Modal back button
             modalBackBtn.addEventListener('click', () => {
                 if (modalHistory.length > 1) {
                     modalHistory.pop();
@@ -1450,7 +1354,7 @@
                 }
             });
 
-            // ====== تنظيف التاريخ عند غلق المودال ======
+            // Clean up on modal close
             personDetailModalEl.addEventListener('hidden.bs.modal', () => {
                 modalHistory.length = 0;
                 updateBackBtn();
@@ -1459,7 +1363,7 @@
                 }
             });
 
-            // ====== دعم زر Back/Forward في المتصفح/الموبايل للتنقل داخل المودال ======
+            // Handle browser back/forward
             window.addEventListener('popstate', (event) => {
                 const state = event.state;
                 if (state && state.personId) {
@@ -1470,29 +1374,19 @@
                     const idx = modalHistory.lastIndexOf(state.personId);
                     if (idx !== -1) modalHistory.splice(idx + 1);
                     updateBackBtn();
-                } else {
-                    if (document.body.classList.contains('modal-open')) {
-                        personModal.hide();
-                    }
+                } else if (document.body.classList.contains('modal-open')) {
+                    personModal.hide();
                 }
             });
 
-            // ====== دالة فتح معرض الصور ======
-            window.openPersonGallery = (personId) => {
-                window.open(`/person-gallery/${personId}`, '_blank');
-            };
-
+            // Load tree
             loadInitialTree();
 
-            // ====== فتح مودال الشخص عند تحميل الصفحة مع hash ======
+            // Handle hash on load
             if (location.hash.startsWith('#person-')) {
-                const personIdMatch = location.hash.match(/#person-(\d+)/);
-                if (personIdMatch) {
-                    const personId = personIdMatch[1];
-                    // انتظر تحميل الشجرة أولاً ثم افتح المودال
-                    setTimeout(() => {
-                        window.showPersonDetails(personId, { push: false });
-                    }, 1000);
+                const match = location.hash.match(/#person-(\d+)/);
+                if (match) {
+                    setTimeout(() => window.showPersonDetails(match[1], { push: false }), 1000);
                 }
             }
         });

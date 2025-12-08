@@ -154,6 +154,9 @@ class ProgramController extends Controller
 
         $program->programLinks()->delete();
 
+        // فك ربط البرامج الفرعية
+        $program->subPrograms()->update(['program_id' => null]);
+
         $program->update([
             'is_program' => false,
             'program_title' => null,
@@ -210,10 +213,12 @@ class ProgramController extends Controller
     {
         abort_unless($program->is_program, 404);
 
-        $program->load(['mediaItems', 'programLinks', 'programGalleries']);
+        $program->load(['mediaItems', 'programLinks', 'programGalleries', 'subPrograms']);
 
         $galleryMedia = $program->mediaItems->filter(function (Image $media) {
-            return ($media->media_type === 'image' || is_null($media->media_type)) && is_null($media->gallery_id);
+            return ($media->media_type === 'image' || is_null($media->media_type))
+                && is_null($media->gallery_id)
+                && !$media->is_program; // استبعاد البرامج الفرعية
         });
 
         $videoMedia = $program->mediaItems->filter(function (Image $media) {
@@ -226,6 +231,7 @@ class ProgramController extends Controller
             'videoMedia' => $videoMedia,
             'programLinks' => $program->programLinks,
             'programGalleries' => $program->programGalleries,
+            'subPrograms' => $program->subPrograms,
         ]);
     }
 
@@ -639,5 +645,85 @@ class ProgramController extends Controller
         return redirect()
             ->route('dashboard.programs.manage', $program)
             ->with('success', 'تم حذف الصورة من المعرض بنجاح');
+    }
+
+    /**
+     * إضافة برنامج فرعي للبرنامج (ربط برنامج موجود ببرنامج آخر).
+     */
+    public function attachSubProgram(Request $request, Image $program)
+    {
+        abort_unless($program->is_program, 404);
+
+        $request->validate([
+            'sub_program_id' => 'required|exists:images,id',
+        ]);
+
+        $subProgram = Image::findOrFail($request->sub_program_id);
+
+        // التأكد من أن البرنامج المحدد هو برنامج وليس وسيط
+        abort_unless($subProgram->is_program, 404);
+
+        // التأكد من عدم ربط البرنامج بنفسه
+        abort_if($subProgram->id === $program->id, 400, 'لا يمكن ربط البرنامج بنفسه');
+
+        // التأكد من عدم ربط البرنامج ببرنامج فرعي آخر
+        if ($subProgram->program_id) {
+            return redirect()
+                ->route('dashboard.programs.manage', $program)
+                ->withErrors(['sub_program_id' => 'هذا البرنامج مرتبط ببرنامج آخر بالفعل']);
+        }
+
+        // الحصول على آخر ترتيب
+        $lastOrder = $program->subPrograms()->max('program_order') ?? 0;
+
+        $subProgram->update([
+            'program_id' => $program->id,
+            'program_order' => $lastOrder + 1,
+        ]);
+
+        return redirect()
+            ->route('dashboard.programs.manage', $program)
+            ->with('success', 'تم إضافة البرنامج الفرعي بنجاح');
+    }
+
+    /**
+     * فك ربط برنامج فرعي من البرنامج.
+     */
+    public function detachSubProgram(Image $program, Image $subProgram)
+    {
+        abort_unless($program->is_program, 404);
+        abort_unless($subProgram->is_program && $subProgram->program_id === $program->id, 404);
+
+        $subProgram->update([
+            'program_id' => null,
+        ]);
+
+        return redirect()
+            ->route('dashboard.programs.manage', $program)
+            ->with('success', 'تم فك ربط البرنامج الفرعي بنجاح');
+    }
+
+    /**
+     * إعادة ترتيب البرامج الفرعية.
+     */
+    public function reorderSubPrograms(Request $request, Image $program)
+    {
+        abort_unless($program->is_program, 404);
+
+        $request->validate([
+            'orders' => 'required|array',
+            'orders.*' => 'required|integer|exists:images,id',
+        ]);
+
+        DB::transaction(function () use ($request, $program) {
+            foreach ($request->orders as $order => $subProgramId) {
+                Image::where('id', $subProgramId)
+                    ->where('program_id', $program->id)
+                    ->where('is_program', true)
+                    ->update(['program_order' => $order + 1]);
+            }
+        });
+
+        return response()->json(['success' => true]);
     }
 }

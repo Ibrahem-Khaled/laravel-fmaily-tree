@@ -260,6 +260,62 @@
             </header>
 
             <div class="p-6 lg:p-10 space-y-14">
+                {{-- البرامج الفرعية --}}
+                @if ($subPrograms->isNotEmpty())
+                    <section>
+                        <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+                            <div>
+                                <h2
+                                    class="text-2xl lg:text-3xl font-bold font-serif bg-gradient-to-r from-emerald-600 to-teal-500 text-transparent bg-clip-text">
+                                    البرامج الفرعية</h2>
+                                <p class="text-sm text-gray-500 mt-1">انقر على أي برنامج لعرض التفاصيل</p>
+                            </div>
+                            <span
+                                class="px-3 py-1 bg-emerald-50 text-emerald-600 text-sm rounded-full border border-emerald-100">
+                                {{ $subPrograms->count() }} برنامج
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+                            @foreach ($subPrograms as $subProgram)
+                                <a href="{{ route('programs.show', $subProgram) }}"
+                                    class="group block bg-white rounded-2xl overflow-hidden border border-white/60 shadow-md hover:shadow-xl transition-all duration-300 sub-program-card">
+                                    @php
+                                        $subProgramImage = $subProgram->cover_image_path ?? $subProgram->path;
+                                    @endphp
+                                    @if ($subProgramImage)
+                                        <div class="relative h-48 overflow-hidden">
+                                            <img src="{{ asset('storage/' . $subProgramImage) }}"
+                                                alt="{{ $subProgram->program_title ?? $subProgram->name }}"
+                                                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                                            <div
+                                                class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent">
+                                            </div>
+                                        </div>
+                                    @else
+                                        <div class="h-48 bg-gradient-to-br from-emerald-100 to-teal-100 flex items-center justify-center">
+                                            <i class="fas fa-folder-open text-4xl text-emerald-400"></i>
+                                        </div>
+                                    @endif
+                                    <div class="p-5">
+                                        <h3 class="text-xl font-semibold text-gray-800 mb-2 line-clamp-2">
+                                            {{ $subProgram->program_title ?? ($subProgram->name ?? 'برنامج') }}
+                                        </h3>
+                                        @if ($subProgram->program_description)
+                                            <p class="text-sm text-gray-600 line-clamp-3">
+                                                {{ Str::limit(strip_tags($subProgram->program_description), 100) }}
+                                            </p>
+                                        @endif
+                                        <div class="mt-4 flex items-center gap-2 text-emerald-600 text-sm font-medium">
+                                            <span>عرض التفاصيل</span>
+                                            <i class="fas fa-arrow-left transition-transform group-hover:-translate-x-1"></i>
+                                        </div>
+                                    </div>
+                                </a>
+                            @endforeach
+                        </div>
+                    </section>
+                @endif
+
                 {{-- معارض الصور --}}
                 @if ($programGalleries->isNotEmpty())
                     @foreach ($programGalleries as $gallery)
