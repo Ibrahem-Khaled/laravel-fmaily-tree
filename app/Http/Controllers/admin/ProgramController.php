@@ -691,10 +691,10 @@ class ProgramController extends Controller
      */
     public function detachSubProgram(Image $program, $subProgram)
     {
-        abort_unless($program->is_program, 404);
+        // abort_unless($program->is_program, 404);
 
         $subProgram = Image::findOrFail($subProgram);
-        abort_unless($subProgram->is_program && $subProgram->program_id === $program->id, 404);
+        // abort_unless($subProgram->is_program && $subProgram->program_id === $program->id, 404);
 
         $subProgram->update([
             'program_id' => null,
