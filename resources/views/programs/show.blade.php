@@ -46,11 +46,31 @@
                                 transform: 'scale(1)'
                             },
                         },
+                        slideUp: {
+                            from: {
+                                opacity: '0',
+                                transform: 'translateY(20px)'
+                            },
+                            to: {
+                                opacity: '1',
+                                transform: 'translateY(0)'
+                            },
+                        },
+                        shimmer: {
+                            '0%': {
+                                backgroundPosition: '-1000px 0'
+                            },
+                            '100%': {
+                                backgroundPosition: '1000px 0'
+                            },
+                        },
                     },
                     animation: {
                         'float': 'float 9s ease-in-out infinite',
                         'pulse-soft': 'pulse-soft 6s ease-in-out infinite',
                         'fade-in': 'fadeIn 0.3s ease-out',
+                        'slide-up': 'slideUp 0.5s ease-out',
+                        'shimmer': 'shimmer 2s linear infinite',
                     },
                     boxShadow: {
                         'emerald-glow': '0 0 35px rgba(16, 185, 129, 0.25)',
@@ -163,6 +183,60 @@
             border-radius: 0.5rem;
             margin: 1rem 0;
         }
+
+        /* تحسينات إضافية للجداول */
+        table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        table tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        table tbody tr:hover {
+            background-color: rgba(16, 185, 129, 0.05);
+        }
+
+        /* تأثيرات الكروت */
+        .stat-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: right 0.5s;
+        }
+
+        .stat-card:hover::before {
+            right: 100%;
+        }
+
+        /* تحسينات للصور */
+        .image-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .image-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, transparent 50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .image-card:hover::after {
+            opacity: 1;
+        }
     </style>
 </head>
 
@@ -221,11 +295,25 @@
                 @endif
 
                 <div class="p-6 lg:p-10 -mt-24 relative z-10">
-                    <div class="bg-white/95 backdrop-blur rounded-3xl p-6 lg:p-8 border border-white/60 shadow-lg">
-                        <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
-                            <div>
+                    <div class="bg-white/95 backdrop-blur-md rounded-3xl p-6 lg:p-8 border border-white/60 shadow-2xl relative overflow-hidden">
+                        {{-- خلفية زخرفية --}}
+                        <div class="absolute top-0 left-0 w-64 h-64 bg-gradient-to-br from-emerald-100/30 to-teal-100/30 rounded-full blur-3xl -z-0"></div>
+                        <div class="absolute bottom-0 right-0 w-64 h-64 bg-gradient-to-tl from-emerald-100/30 to-teal-100/30 rounded-full blur-3xl -z-0"></div>
+
+                        <div class="relative z-10 flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+                            <div class="flex-1">
+                                <div class="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-full text-xs font-bold mb-4 shadow-lg">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+                                    </svg>
+                                    @if($program->is_proud_of)
+                                        نفتخر بهم
+                                    @else
+                                        برنامج
+                                    @endif
+                                </div>
                                 <h1
-                                    class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 leading-relaxed font-serif bg-gradient-to-r from-emerald-600 to-teal-500 text-transparent bg-clip-text">
+                                    class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 leading-relaxed font-serif bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-600 text-transparent bg-clip-text">
                                     @if($program->is_proud_of)
                                         {{ $program->proud_of_title ?? ($program->name ?? 'عنصر') }}
                                     @else
@@ -241,19 +329,27 @@
                                         {!! $program->program_description !!}
                                     </div>
                                 @endif
-                            </div>
-                            {{-- <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 w-full md:w-64">
-                                <h2 class="font-semibold text-emerald-600 flex items-center gap-2 mb-3">
-                                    <i class="fas fa-info-circle"></i>
-                                    معلومات سريعة
-                                </h2>
-                                <div class="space-y-2 text-sm text-gray-600">
-                                    <div class="flex items-center gap-2"><i class="fas fa-calendar-alt text-emerald-500"></i><span>تاريخ الإنشاء:</span><span class="font-medium">{{ $program->created_at->format('d/m/Y') }}</span></div>
-                                    <div class="flex items-center gap-2"><i class="fas fa-clock text-emerald-500"></i><span>آخر تحديث:</span><span class="font-medium">{{ $program->updated_at->diffForHumans() }}</span></div>
-                                    <div class="flex items-center gap-2"><i class="fas fa-images text-emerald-500"></i><span>عدد الصور:</span><span class="font-medium">{{ $galleryMedia->count() }}</span></div>
-                                    <div class="flex items-center gap-2"><i class="fab fa-youtube text-emerald-500"></i><span>عدد الفيديوهات:</span><span class="font-medium">{{ $videoMedia->count() }}</span></div>
+
+                                {{-- معلومات سريعة محسّنة --}}
+                                <div class="mt-6 flex flex-wrap items-center gap-4 text-sm">
+                                    <div class="flex items-center gap-2 text-gray-600">
+                                        <div class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+                                            <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                            </svg>
+                                        </div>
+                                        <span class="font-medium">{{ $program->created_at->format('d/m/Y') }}</span>
+                                    </div>
+                                    <div class="flex items-center gap-2 text-gray-600">
+                                        <div class="w-8 h-8 rounded-lg bg-teal-100 flex items-center justify-center">
+                                            <svg class="w-4 h-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                        </div>
+                                        <span class="font-medium">{{ $program->updated_at->diffForHumans() }}</span>
+                                    </div>
                                 </div>
-                            </div> --}}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -262,52 +358,67 @@
             <div class="p-6 lg:p-10 space-y-14">
                 {{-- البرامج الفرعية --}}
                 @if ($subPrograms->isNotEmpty())
-                    <section>
-                        <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
-                            <div>
-                                <h2
-                                    class="text-2xl lg:text-3xl font-bold font-serif bg-gradient-to-r from-emerald-600 to-teal-500 text-transparent bg-clip-text">
-                                    البرامج الفرعية</h2>
-                                <p class="text-sm text-gray-500 mt-1">انقر على أي برنامج لعرض التفاصيل</p>
+                    <section class="relative">
+                        <div class="flex flex-wrap items-center justify-between gap-3 mb-8">
+                            <div class="flex items-center gap-4">
+                                <div class="w-1 h-12 bg-gradient-to-b from-emerald-500 to-teal-500 rounded-full"></div>
+                                <div>
+                                    <h2
+                                        class="text-2xl lg:text-3xl font-bold font-serif bg-gradient-to-r from-emerald-600 to-teal-500 text-transparent bg-clip-text">
+                                        البرامج الفرعية</h2>
+                                    <p class="text-sm text-gray-500 mt-1">انقر على أي برنامج لعرض التفاصيل</p>
+                                </div>
                             </div>
                             <span
-                                class="px-3 py-1 bg-emerald-50 text-emerald-600 text-sm rounded-full border border-emerald-100">
+                                class="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm rounded-full font-semibold shadow-lg">
                                 {{ $subPrograms->count() }} برنامج
                             </span>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
                             @foreach ($subPrograms as $subProgram)
                                 <a href="{{ route('programs.show', $subProgram) }}"
-                                    class="group block bg-white rounded-2xl overflow-hidden border border-white/60 shadow-md hover:shadow-xl transition-all duration-300 sub-program-card">
+                                    class="group block bg-white/90 backdrop-blur-sm rounded-3xl overflow-hidden border border-emerald-100/50 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 sub-program-card">
                                     @php
                                         $subProgramImage = $subProgram->cover_image_path ?? $subProgram->path;
                                     @endphp
                                     @if ($subProgramImage)
-                                        <div class="relative h-48 overflow-hidden">
+                                        <div class="relative h-56 overflow-hidden">
                                             <img src="{{ asset('storage/' . $subProgramImage) }}"
                                                 alt="{{ $subProgram->program_title ?? $subProgram->name }}"
-                                                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                                                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-125">
                                             <div
-                                                class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent">
+                                                class="absolute inset-0 bg-gradient-to-t from-emerald-900/90 via-emerald-900/40 to-transparent group-hover:from-emerald-900/95 transition-all duration-500">
+                                            </div>
+                                            <div class="absolute top-4 left-4">
+                                                <span class="px-3 py-1 bg-white/90 backdrop-blur-sm text-emerald-700 text-xs font-bold rounded-full shadow-lg">
+                                                    برنامج فرعي
+                                                </span>
                                             </div>
                                         </div>
                                     @else
-                                        <div class="h-48 bg-gradient-to-br from-emerald-100 to-teal-100 flex items-center justify-center">
-                                            <i class="fas fa-folder-open text-4xl text-emerald-400"></i>
+                                        <div class="h-56 bg-gradient-to-br from-emerald-100 via-teal-100 to-emerald-50 flex items-center justify-center group-hover:from-emerald-200 group-hover:via-teal-200 transition-all duration-500">
+                                            <div class="text-center">
+                                                <svg class="w-16 h-16 text-emerald-400 mx-auto mb-2 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                                </svg>
+                                                <p class="text-emerald-600 font-semibold">برنامج فرعي</p>
+                                            </div>
                                         </div>
                                     @endif
-                                    <div class="p-5">
-                                        <h3 class="text-xl font-semibold text-gray-800 mb-2 line-clamp-2">
+                                    <div class="p-6">
+                                        <h3 class="text-xl font-bold text-gray-800 mb-3 line-clamp-2 group-hover:text-emerald-600 transition-colors duration-300">
                                             {{ $subProgram->program_title ?? ($subProgram->name ?? 'برنامج') }}
                                         </h3>
                                         @if ($subProgram->program_description)
-                                            <p class="text-sm text-gray-600 line-clamp-3">
-                                                {{ Str::limit(strip_tags($subProgram->program_description), 100) }}
+                                            <p class="text-sm text-gray-600 line-clamp-3 leading-relaxed mb-4">
+                                                {{ Str::limit(strip_tags($subProgram->program_description), 120) }}
                                             </p>
                                         @endif
-                                        <div class="mt-4 flex items-center gap-2 text-emerald-600 text-sm font-medium">
+                                        <div class="flex items-center gap-2 text-emerald-600 text-sm font-semibold group-hover:gap-4 transition-all duration-300">
                                             <span>عرض التفاصيل</span>
-                                            <i class="fas fa-arrow-left transition-transform group-hover:-translate-x-1"></i>
+                                            <svg class="w-4 h-4 transition-transform group-hover:-translate-x-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                                            </svg>
                                         </div>
                                     </div>
                                 </a>
@@ -319,19 +430,22 @@
                 {{-- معارض الصور --}}
                 @if ($programGalleries->isNotEmpty())
                     @foreach ($programGalleries as $gallery)
-                        <section>
-                            <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
-                                <div>
-                                    <h2
-                                        class="text-2xl lg:text-3xl font-bold font-serif bg-gradient-to-r from-emerald-600 to-teal-500 text-transparent bg-clip-text">
-                                        {{ $gallery->title }}
-                                    </h2>
-                                    @if ($gallery->description)
-                                        <p class="text-gray-600 text-sm mt-2">{{ $gallery->description }}</p>
-                                    @endif
+                        <section class="relative">
+                            <div class="flex flex-wrap items-center justify-between gap-3 mb-8">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-1 h-12 bg-gradient-to-b from-emerald-500 to-teal-500 rounded-full"></div>
+                                    <div>
+                                        <h2
+                                            class="text-2xl lg:text-3xl font-bold font-serif bg-gradient-to-r from-emerald-600 to-teal-500 text-transparent bg-clip-text">
+                                            {{ $gallery->title }}
+                                        </h2>
+                                        @if ($gallery->description)
+                                            <p class="text-gray-600 text-sm mt-2">{{ $gallery->description }}</p>
+                                        @endif
+                                    </div>
                                 </div>
                                 <span
-                                    class="px-3 py-1 bg-emerald-50 text-emerald-600 text-sm rounded-full border border-emerald-100">
+                                    class="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm rounded-full font-semibold shadow-lg">
                                     {{ $gallery->images->count() }} صورة
                                 </span>
                             </div>
@@ -345,35 +459,44 @@
                                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
                                     @foreach ($gallery->images as $index => $image)
                                         <div
-                                            class="group relative overflow-hidden rounded-2xl border border-white/60 shadow-md hover:shadow-xl transition-all duration-300 bg-white">
-                                            <div class="cursor-pointer"
+                                            class="group relative overflow-hidden rounded-2xl border border-emerald-100/50 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-white/90 backdrop-blur-sm">
+                                            <div class="cursor-pointer relative overflow-hidden"
                                                 onclick="openLightbox({{ $galleryStartIndex + $index }})">
                                                 <img src="{{ asset('storage/' . $image->path) }}"
                                                     alt="{{ $image->name ?? '' }}"
-                                                    class="w-full h-48 md:h-52 object-cover transition-transform duration-500 group-hover:scale-105">
+                                                    class="w-full h-48 md:h-56 object-cover transition-transform duration-700 group-hover:scale-125">
                                                 <div
-                                                    class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                                    class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                                                </div>
+                                                <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                                    <div class="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-xl">
+                                                        <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path>
+                                                        </svg>
+                                                    </div>
                                                 </div>
                                             </div>
                                             @if ($image->name || $image->description)
-                                                <div class="p-3">
+                                                <div class="p-4 bg-white">
                                                     @if ($image->name)
-                                                        <h3 class="font-semibold text-base line-clamp-1 text-gray-800 mb-1">
+                                                        <h3 class="font-bold text-base line-clamp-1 text-gray-800 mb-2 group-hover:text-emerald-600 transition-colors">
                                                             {{ $image->name }}</h3>
                                                     @endif
                                                     @if ($image->description)
-                                                        <p class="text-sm text-gray-600 line-clamp-2">
+                                                        <p class="text-sm text-gray-600 line-clamp-2 leading-relaxed">
                                                             {{ $image->description }}</p>
                                                     @endif
                                                 </div>
                                             @endif
                                             @if (Auth::check())
                                                 <div
-                                                    class="absolute top-2 left-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+                                                    class="absolute top-3 left-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
                                                     <a href="{{ route('dashboard.programs.manage', $program) }}"
-                                                        class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-lg shadow-lg transition-colors"
+                                                        class="bg-blue-500 hover:bg-blue-600 text-white p-2.5 rounded-xl shadow-xl transition-all duration-300 hover:scale-110"
                                                         title="تعديل الصورة">
-                                                        <i class="fas fa-edit text-sm"></i>
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                                        </svg>
                                                     </a>
                                                 </div>
                                             @endif
@@ -392,49 +515,62 @@
 
 
                 @if ($galleryMedia->isNotEmpty())
-                    <section>
-                        <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
-                            <div>
-                                <h2
-                                    class="text-2xl lg:text-3xl font-bold font-serif bg-gradient-to-r from-emerald-600 to-teal-500 text-transparent bg-clip-text">
-                                    {{ $program->name ?? ($program->program_title ?? 'معرض الصور') }}</h2>
+                    <section class="relative">
+                        <div class="flex flex-wrap items-center justify-between gap-3 mb-8">
+                            <div class="flex items-center gap-4">
+                                <div class="w-1 h-12 bg-gradient-to-b from-emerald-500 to-teal-500 rounded-full"></div>
+                                <div>
+                                    <h2
+                                        class="text-2xl lg:text-3xl font-bold font-serif bg-gradient-to-r from-emerald-600 to-teal-500 text-transparent bg-clip-text">
+                                        {{ $program->name ?? ($program->program_title ?? 'معرض الصور') }}</h2>
+                                    <p class="text-sm text-gray-500 mt-1">مجموعة مختارة من الصور</p>
+                                </div>
                             </div>
                             <span
-                                class="px-3 py-1 bg-emerald-50 text-emerald-600 text-sm rounded-full border border-emerald-100">
+                                class="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm rounded-full font-semibold shadow-lg">
                                 {{ $galleryMedia->count() }} صورة
                             </span>
                         </div>
                         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
                             @foreach ($galleryMedia as $index => $media)
                                 <div
-                                    class="group relative overflow-hidden rounded-2xl border border-white/60 shadow-md hover:shadow-xl transition-all duration-300 bg-white">
-                                    <div class="cursor-pointer" onclick="openLightbox({{ $index }})">
+                                    class="group relative overflow-hidden rounded-2xl border border-emerald-100/50 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-white/90 backdrop-blur-sm">
+                                    <div class="cursor-pointer relative overflow-hidden" onclick="openLightbox({{ $index }})">
                                         <img src="{{ asset('storage/' . $media->path) }}"
                                             alt="{{ $media->name ?? '' }}"
-                                            class="w-full h-48 md:h-52 object-cover transition-transform duration-500 group-hover:scale-105">
+                                            class="w-full h-48 md:h-56 object-cover transition-transform duration-700 group-hover:scale-125">
                                         <div
-                                            class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                            class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                                        </div>
+                                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                            <div class="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-xl">
+                                                <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path>
+                                                </svg>
+                                            </div>
                                         </div>
                                     </div>
                                     @if ($media->name || $media->description)
-                                        <div class="p-3">
+                                        <div class="p-4 bg-white">
                                             @if ($media->name)
-                                                <h3 class="font-semibold text-base line-clamp-1 text-gray-800 mb-1">
+                                                <h3 class="font-bold text-base line-clamp-1 text-gray-800 mb-2 group-hover:text-emerald-600 transition-colors">
                                                     {{ $media->name }}</h3>
                                             @endif
                                             @if ($media->description)
-                                                <p class="text-sm text-gray-600 line-clamp-2">
+                                                <p class="text-sm text-gray-600 line-clamp-2 leading-relaxed">
                                                     {{ $media->description }}</p>
                                             @endif
                                         </div>
                                     @endif
                                     @if (Auth::check())
                                         <div
-                                            class="absolute top-2 left-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+                                            class="absolute top-3 left-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
                                             <a href="{{ route('dashboard.programs.manage', $program) }}"
-                                                class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-lg shadow-lg transition-colors"
+                                                class="bg-blue-500 hover:bg-blue-600 text-white p-2.5 rounded-xl shadow-xl transition-all duration-300 hover:scale-110"
                                                 title="تعديل الصورة">
-                                                <i class="fas fa-edit text-sm"></i>
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                                </svg>
                                             </a>
                                             <form
                                                 action="{{ route('dashboard.programs.media.destroy', [$program, $media]) }}"
@@ -444,9 +580,11 @@
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit"
-                                                    class="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg shadow-lg transition-colors"
+                                                    class="bg-red-500 hover:bg-red-600 text-white p-2.5 rounded-xl shadow-xl transition-all duration-300 hover:scale-110"
                                                     title="حذف الصورة">
-                                                    <i class="fas fa-trash text-sm"></i>
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                    </svg>
                                                 </button>
                                             </form>
                                         </div>
@@ -458,37 +596,50 @@
                 @endif
 
                 @if ($videoMedia->isNotEmpty())
-                    <section>
-                        <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
-                            <div>
-                                <h2
-                                    class="text-2xl lg:text-3xl font-bold font-serif bg-gradient-to-r from-emerald-600 to-teal-500 text-transparent bg-clip-text">
-                                    مقتطفات الفيديو</h2>
-                                <p class="text-sm text-gray-500 mt-1">لقطات مختارة تسلط الضوء على البرنامج</p>
+                    <section class="relative">
+                        <div class="flex flex-wrap items-center justify-between gap-3 mb-8">
+                            <div class="flex items-center gap-4">
+                                <div class="w-1 h-12 bg-gradient-to-b from-red-500 to-red-600 rounded-full"></div>
+                                <div>
+                                    <h2
+                                        class="text-2xl lg:text-3xl font-bold font-serif bg-gradient-to-r from-red-600 to-red-500 text-transparent bg-clip-text">
+                                        مقتطفات الفيديو</h2>
+                                    <p class="text-sm text-gray-500 mt-1">لقطات مختارة تسلط الضوء على البرنامج</p>
+                                </div>
                             </div>
                             <span
-                                class="px-3 py-1 bg-emerald-50 text-emerald-600 text-sm rounded-full border border-emerald-100">
+                                class="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white text-sm rounded-full font-semibold shadow-lg">
                                 {{ $videoMedia->count() }} فيديو
                             </span>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
                             @foreach ($videoMedia as $video)
                                 <div
-                                    class="bg-white rounded-2xl overflow-hidden border border-white/60 shadow-md hover:shadow-xl transition-shadow duration-300">
-                                    <div class="relative w-full overflow-hidden" style="padding-top: 56.25%;">
+                                    class="group bg-white/90 backdrop-blur-sm rounded-3xl overflow-hidden border border-red-100/50 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
+                                    <div class="relative w-full overflow-hidden rounded-t-3xl" style="padding-top: 56.25%;">
                                         <iframe src="{{ $video->getYouTubeEmbedUrl() }}"
-                                            class="absolute inset-0 w-full h-full" allowfullscreen></iframe>
+                                            class="absolute inset-0 w-full h-full group-hover:scale-105 transition-transform duration-700" allowfullscreen></iframe>
+                                        <div class="absolute top-4 left-4">
+                                            <span class="px-3 py-1 bg-red-500/90 backdrop-blur-sm text-white text-xs font-bold rounded-full shadow-lg">
+                                                <svg class="w-3 h-3 inline ml-1" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                                                </svg>
+                                                يوتيوب
+                                            </span>
+                                        </div>
                                     </div>
-                                    <div class="p-5 space-y-3">
-                                        <h3 class="text-xl font-semibold text-gray-800">
+                                    <div class="p-6 space-y-4">
+                                        <h3 class="text-xl font-bold text-gray-800 group-hover:text-red-600 transition-colors">
                                             {{ $video->name ?? 'مقطع فيديو' }}</h3>
                                         @if ($video->description)
                                             <p class="text-sm text-gray-600 leading-relaxed">{{ $video->description }}
                                             </p>
                                         @endif
                                         <a href="{{ $video->youtube_url }}" target="_blank"
-                                            class="inline-flex items-center gap-2 text-emerald-600 hover:text-emerald-700 text-sm font-medium transition-colors">
-                                            <i class="fas fa-external-link-alt"></i>
+                                            class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl text-sm font-semibold hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                                            </svg>
                                             مشاهدة على يوتيوب
                                         </a>
                                     </div>
@@ -499,49 +650,70 @@
                 @endif
 
                 @if ($programLinks->isNotEmpty())
-                    <section>
-                        <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
-                            <div>
-                                <h2
-                                    class="text-2xl lg:text-3xl font-bold font-serif bg-gradient-to-r from-emerald-600 to-teal-500 text-transparent bg-clip-text">
-                                    روابط مفيدة</h2>
-                                <p class="text-sm text-gray-500 mt-1">مصادر ومراجع تعزز محتوى البرنامج</p>
+                    <section class="relative">
+                        <div class="flex flex-wrap items-center justify-between gap-3 mb-8">
+                            <div class="flex items-center gap-4">
+                                <div class="w-1 h-12 bg-gradient-to-b from-blue-500 to-blue-600 rounded-full"></div>
+                                <div>
+                                    <h2
+                                        class="text-2xl lg:text-3xl font-bold font-serif bg-gradient-to-r from-blue-600 to-blue-500 text-transparent bg-clip-text">
+                                        روابط مفيدة</h2>
+                                    <p class="text-sm text-gray-500 mt-1">مصادر ومراجع تعزز محتوى البرنامج</p>
+                                </div>
                             </div>
                             <span
-                                class="px-3 py-1 bg-emerald-50 text-emerald-600 text-sm rounded-full border border-emerald-100">
+                                class="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm rounded-full font-semibold shadow-lg">
                                 {{ $programLinks->count() }} رابط
                             </span>
                         </div>
-                        <div class="space-y-3">
+                        <div class="space-y-4">
                             @foreach ($programLinks as $link)
                                 <a href="{{ $link->url }}" target="_blank"
-                                    class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 lg:p-5 bg-white border border-emerald-100 rounded-2xl hover:border-emerald-300 transition-shadow shadow-sm hover:shadow-lg">
-                                    <div>
-                                        <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                                            <i class="fas fa-link text-emerald-500"></i>
-                                            {{ $link->title }}
-                                        </h3>
+                                    class="group flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 lg:p-6 bg-white/90 backdrop-blur-sm border border-blue-100/50 rounded-2xl hover:border-blue-300 transition-all duration-300 shadow-lg hover:shadow-2xl hover:-translate-y-1">
+                                    <div class="flex-1">
+                                        <div class="flex items-center gap-3 mb-2">
+                                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                                                </svg>
+                                            </div>
+                                            <h3 class="text-lg font-bold text-gray-800 group-hover:text-blue-600 transition-colors">
+                                                {{ $link->title }}
+                                            </h3>
+                                        </div>
                                         @if ($link->description)
-                                            <p class="text-sm text-gray-600 mt-1">{{ $link->description }}</p>
+                                            <p class="text-sm text-gray-600 mt-2 leading-relaxed">{{ $link->description }}</p>
                                         @endif
-                                        <p class="text-xs text-gray-400 mt-2 break-all">{{ $link->url }}</p>
+                                        <p class="text-xs text-gray-400 mt-3 break-all font-mono bg-gray-50 px-3 py-2 rounded-lg">{{ $link->url }}</p>
                                     </div>
-                                    <span class="flex items-center gap-2 text-emerald-600 text-sm font-semibold">
-                                        الانتقال
-                                        <i class="fas fa-arrow-left"></i>
-                                    </span>
+                                    <div class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl text-sm font-semibold shadow-lg group-hover:shadow-xl group-hover:scale-105 transition-all duration-300">
+                                        <span>الانتقال</span>
+                                        <svg class="w-4 h-4 transition-transform group-hover:-translate-x-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                                        </svg>
+                                    </div>
                                 </a>
                             @endforeach
                         </div>
                     </section>
                 @endif
 
-                @if ($galleryMedia->isEmpty() && $videoMedia->isEmpty() && $programLinks->isEmpty() && $programGalleries->isEmpty())
+                @if ($galleryMedia->isEmpty() && $videoMedia->isEmpty() && $programLinks->isEmpty() && $programGalleries->isEmpty() && $subPrograms->isEmpty())
                     <div
-                        class="bg-white/90 backdrop-blur-md border border-white/60 rounded-3xl p-10 text-center shadow-lg">
-                        <i class="fas fa-hourglass-half text-4xl text-emerald-500 mb-4"></i>
-                        <p class="text-lg text-gray-600">لم يتم إضافة محتوى تفصيلي لهذا البرنامج بعد. ترقبوا تحديثات
-                            قادمة قريباً.</p>
+                        class="bg-gradient-to-br from-white/90 via-emerald-50/50 to-white/90 backdrop-blur-md border border-emerald-100/50 rounded-3xl p-12 text-center shadow-xl relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-full h-full opacity-10">
+                            <div class="absolute top-10 left-10 w-32 h-32 bg-emerald-400 rounded-full blur-3xl"></div>
+                            <div class="absolute bottom-10 right-10 w-32 h-32 bg-teal-400 rounded-full blur-3xl"></div>
+                        </div>
+                        <div class="relative z-10">
+                            <div class="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-emerald-400 to-teal-400 rounded-full flex items-center justify-center shadow-lg">
+                                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-800 mb-3">قريباً</h3>
+                            <p class="text-lg text-gray-600 leading-relaxed">لم يتم إضافة محتوى تفصيلي لهذا البرنامج بعد.<br>ترقبوا تحديثات قادمة قريباً.</p>
+                        </div>
                     </div>
                 @endif
             </div>

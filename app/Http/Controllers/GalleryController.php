@@ -278,15 +278,9 @@ class GalleryController extends Controller
             $isFiltered = true;
             $selectedYear = $request->year;
         } else {
-            // إذا تم اختيار فئة معينة ولم يتم اختيار سنة، اعرض كل المقالات للفئة
-            // إذا لم يتم اختيار فئة، استخدم السلوك الافتراضي (السنة الحالية)
-            if (!$request->has('category')) {
-                $hasCurrentYearArticles = Article::whereYear('created_at', $currentYear)->exists();
-                if ($hasCurrentYearArticles) {
-                    $query->whereYear('created_at', $currentYear);
-                    $selectedYear = $currentYear;
-                }
-            }
+            // عندما يكون "الكل" مختار (لا فئة ولا سنة)، اعرض جميع المقالات من جميع السنوات
+            // لا نضيف أي فلترة على السنة
+            $selectedYear = null;
         }
 
         // فلترة حسب القسم
@@ -342,10 +336,11 @@ class GalleryController extends Controller
             $isFiltered = true;
         }
 
-        // جلب السنوات المتاحة حسب الفئة المحددة
+        // جلب السنوات المتاحة
         $availableYearsQuery = Article::selectRaw('YEAR(created_at) as year');
 
         // إذا تم اختيار فئة معينة، اعرض فقط السنوات التي تحتوي على مقالات في هذه الفئة
+        // إذا لم يتم اختيار فئة، اعرض جميع السنوات المتاحة
         if ($request->has('category')) {
             $availableYearsQuery->where('category_id', $request->category);
         }
@@ -365,13 +360,6 @@ class GalleryController extends Controller
 
         // تحديد السنة المستخدمة للفلترة
         $filterYear = ($request->has('year') && $request->year != '') ? $request->year : null;
-        // إذا تم اختيار فئة ولم يتم اختيار سنة، لا نستخدم فلترة السنة في الإحصائيات
-        if (!$filterYear && !$request->has('category')) {
-            $hasCurrentYearArticles = Article::whereYear('created_at', $currentYear)->exists();
-            if ($hasCurrentYearArticles) {
-                $filterYear = $currentYear;
-            }
-        }
 
         // جلب التصنيفات مع عدد المقالات حسب السنة المحددة
         $categoriesQuery = Category::query();

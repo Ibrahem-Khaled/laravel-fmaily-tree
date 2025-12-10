@@ -332,7 +332,7 @@
 
                     {{-- Dropdown للسنوات وأزرار العرض جنب بعض --}}
                     <div class="flex flex-row gap-2 lg:gap-4 items-center">
-                        @if(request('category') && isset($availableYears) && count($availableYears) > 0)
+                        @if(isset($availableYears) && count($availableYears) > 0)
                         <div class="flex-shrink-0 lg:flex-none">
                             <select id="yearFilter" onchange="filterByYear(this.value)"
                                 class="w-24 lg:w-auto px-2 lg:px-6 py-1.5 lg:py-4 bg-white/70 border lg:border-2 border-green-200 rounded-xl lg:rounded-2xl
