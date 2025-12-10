@@ -106,6 +106,7 @@
                         <thead class="table-light">
                             <tr>
                                 <th>الأم المرضعة</th>
+                                <th>الأب (زوج الأم)</th>
                                 <th>الطفل المرتضع</th>
                                 <th>تاريخ البداية</th>
                                 <th>تاريخ النهاية</th>
@@ -129,6 +130,22 @@
                                                 <small class="text-muted">{{ $breastfeeding->nursingMother->first_name }} {{ $breastfeeding->nursingMother->last_name }}</small>
                                             </div>
                                         </div>
+                                    </td>
+                                    <td>
+                                        @if($breastfeeding->breastfeedingFather)
+                                            <div class="d-flex align-items-center">
+                                                <img src="{{ $breastfeeding->breastfeedingFather->avatar }}"
+                                                     alt="{{ $breastfeeding->breastfeedingFather->first_name }}"
+                                                     class="rounded-circle me-2"
+                                                     width="32" height="32">
+                                                <div>
+                                                    <div class="fw-semibold">{{ $breastfeeding->breastfeedingFather->full_name }}</div>
+                                                    <small class="text-muted">{{ $breastfeeding->breastfeedingFather->first_name }} {{ $breastfeeding->breastfeedingFather->last_name }}</small>
+                                                </div>
+                                            </div>
+                                        @else
+                                            <span class="text-muted">غير محدد</span>
+                                        @endif
                                     </td>
                                     <td>
                                         <div class="d-flex align-items-center">
@@ -265,6 +282,30 @@
                                     @error('nursing_mother_id') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                                 </div>
                                 <div class="col-md-6 mb-3">
+                                    <label for="breastfeeding_father_id" class="form-label">الأب (زوج الأم)</label>
+                                    @if($nursing_mother_id && count($husbandsList) > 0)
+                                        <select wire:model="breastfeeding_father_id" class="form-select @error('breastfeeding_father_id') is-invalid @enderror" id="breastfeeding_father_id">
+                                            <option value="">-- اختر الأب --</option>
+                                            @foreach($husbandsList as $husband)
+                                                <option value="{{ $husband['id'] }}">{{ $husband['name'] }}</option>
+                                            @endforeach
+                                        </select>
+                                    @elseif($nursing_mother_id)
+                                        <div class="alert alert-info mb-0">
+                                            <i class="fas fa-info-circle me-2"></i>
+                                            لا يوجد أزواج مسجلين لهذه الأم
+                                        </div>
+                                    @else
+                                        <div class="alert alert-warning mb-0">
+                                            <i class="fas fa-exclamation-triangle me-2"></i>
+                                            يرجى اختيار الأم أولاً
+                                        </div>
+                                    @endif
+                                    @error('breastfeeding_father_id') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
                                     <label for="breastfed_child_id" class="form-label">الطفل المرتضع <span class="text-danger">*</span></label>
                                     <div class="position-relative">
                                         <div class="input-group mb-2">
@@ -366,6 +407,30 @@
                                     <input type="hidden" wire:model="nursing_mother_id" id="edit_nursing_mother_id">
                                     @error('nursing_mother_id') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                                 </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="edit_breastfeeding_father_id" class="form-label">الأب (زوج الأم)</label>
+                                    @if($nursing_mother_id && count($husbandsList) > 0)
+                                        <select wire:model="breastfeeding_father_id" class="form-select @error('breastfeeding_father_id') is-invalid @enderror" id="edit_breastfeeding_father_id">
+                                            <option value="">-- اختر الأب --</option>
+                                            @foreach($husbandsList as $husband)
+                                                <option value="{{ $husband['id'] }}">{{ $husband['name'] }}</option>
+                                            @endforeach
+                                        </select>
+                                    @elseif($nursing_mother_id)
+                                        <div class="alert alert-info mb-0">
+                                            <i class="fas fa-info-circle me-2"></i>
+                                            لا يوجد أزواج مسجلين لهذه الأم
+                                        </div>
+                                    @else
+                                        <div class="alert alert-warning mb-0">
+                                            <i class="fas fa-exclamation-triangle me-2"></i>
+                                            يرجى اختيار الأم أولاً
+                                        </div>
+                                    @endif
+                                    @error('breastfeeding_father_id') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                                </div>
+                            </div>
+                            <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label for="edit_breastfed_child_id" class="form-label">الطفل المرتضع <span class="text-danger">*</span></label>
                                     <div class="position-relative">

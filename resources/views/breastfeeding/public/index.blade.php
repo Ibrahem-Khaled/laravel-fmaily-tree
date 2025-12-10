@@ -1182,6 +1182,14 @@
                                                 <img src="{{ $mother['avatar'] }}" alt="{{ $mother['name'] }}" class="mother-photo">
                                                 <div class="mother-info">
                                                     <div class="mother-name">{{ $mother['name'] }}</div>
+                                                    @if(isset($mother['husband']) && $mother['husband'])
+                                                        <div style="font-size: 0.85rem; color: #37a05c; margin-top: 3px; font-weight: 600;">
+                                                            <i class="fas fa-male"></i> زوجها: {{ $mother['husband']['name'] }}
+                                                            @if($mother['husband']['is_divorced'])
+                                                                <span style="color: #999; font-size: 0.75rem;">(مطلق)</span>
+                                                            @endif
+                                                        </div>
+                                                    @endif
                                                     <div class="mother-children-count">{{ count($mother['children']) }} طفل</div>
                                                 </div>
                                             </div>
@@ -1338,11 +1346,22 @@
                 const childrenGrid = document.getElementById('childrenGrid');
 
                 // ملء رأس العائلة
+                let husbandInfo = '';
+                if (mother.husband) {
+                    const divorcedText = mother.husband.is_divorced ? ' <span style="color: #999; font-size: 0.9rem;">(مطلق)</span>' : '';
+                    husbandInfo = `
+                        <p style="margin-top: 8px; color: #37a05c; font-weight: 600;">
+                            <i class="fas fa-male"></i> زوجها: ${mother.husband.name}${divorcedText}
+                        </p>
+                    `;
+                }
+                
                 familyHeader.innerHTML = `
                     <div class="family-mother-info">
                         <img src="${mother.avatar}" alt="${mother.name}" class="mother-photo-large">
                         <div class="family-mother-details">
                             <h4>${mother.name}</h4>
+                            ${husbandInfo}
                             <p><i class="fas fa-baby"></i> أم مرضعة لـ ${mother.children.length} طفل</p>
                         </div>
                     </div>

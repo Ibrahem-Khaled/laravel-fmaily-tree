@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Breastfeeding;
 use App\Models\Person;
+use App\Models\Marriage;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -36,11 +37,44 @@ class BreastfeedingPublicController extends Controller
 
         // تنظيم البيانات
         $mothersData = $nursingMothers->map(function($mother) {
+            // جلب جميع أزواج الأم المرضعة (حتى المطلقين)
+            $marriages = Marriage::where('wife_id', $mother->id)
+                ->with('husband')
+                ->orderBy('married_at', 'desc')
+                ->get();
+            
+            // جلب الزوج الحالي (النشط) أو الأول إذا لم يكن هناك زوج نشط
+            $currentHusband = null;
+            $activeMarriage = $marriages->first(function($marriage) {
+                return !$marriage->isDivorced();
+            });
+            
+            if ($activeMarriage && $activeMarriage->husband) {
+                $currentHusband = [
+                    'id' => $activeMarriage->husband->id,
+                    'name' => $activeMarriage->husband->full_name,
+                    'first_name' => $activeMarriage->husband->first_name,
+                    'avatar' => $activeMarriage->husband->avatar,
+                    'is_divorced' => false,
+                ];
+            } elseif ($marriages->isNotEmpty() && $marriages->first()->husband) {
+                // إذا لم يكن هناك زوج نشط، نأخذ الأول (مطلق)
+                $firstHusband = $marriages->first()->husband;
+                $currentHusband = [
+                    'id' => $firstHusband->id,
+                    'name' => $firstHusband->full_name,
+                    'first_name' => $firstHusband->first_name,
+                    'avatar' => $firstHusband->avatar,
+                    'is_divorced' => true,
+                ];
+            }
+            
             return [
                 'id' => $mother->id,
                 'name' => $mother->full_name,
                 'first_name' => $mother->first_name,
                 'avatar' => $mother->avatar,
+                'husband' => $currentHusband, // زوج الأم المرضعة
                 'children' => $mother->nursingRelationships->map(function($relationship) {
                     return [
                         'id' => $relationship->breastfedChild->id,

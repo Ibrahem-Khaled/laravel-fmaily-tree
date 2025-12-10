@@ -345,7 +345,7 @@
                                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
                                     @foreach ($gallery->images as $index => $image)
                                         <div
-                                            class="group relative overflow-hidden rounded-2xl border border-white/60 shadow-md hover:shadow-xl transition-all duration-300">
+                                            class="group relative overflow-hidden rounded-2xl border border-white/60 shadow-md hover:shadow-xl transition-all duration-300 bg-white">
                                             <div class="cursor-pointer"
                                                 onclick="openLightbox({{ $galleryStartIndex + $index }})">
                                                 <img src="{{ asset('storage/' . $image->path) }}"
@@ -354,19 +354,19 @@
                                                 <div
                                                     class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                                 </div>
-                                                @if ($image->name || $image->description)
-                                                    <div class="absolute bottom-3 right-3 left-3 bg-white/90 backdrop-blur-sm rounded-lg p-2">
-                                                        @if ($image->name)
-                                                            <h3 class="font-semibold text-base line-clamp-1 text-black">
-                                                                {{ $image->name }}</h3>
-                                                        @endif
-                                                        @if ($image->description)
-                                                            <p class="text-xs text-gray-700 mt-1 line-clamp-2">
-                                                                {{ $image->description }}</p>
-                                                        @endif
-                                                    </div>
-                                                @endif
                                             </div>
+                                            @if ($image->name || $image->description)
+                                                <div class="p-3">
+                                                    @if ($image->name)
+                                                        <h3 class="font-semibold text-base line-clamp-1 text-gray-800 mb-1">
+                                                            {{ $image->name }}</h3>
+                                                    @endif
+                                                    @if ($image->description)
+                                                        <p class="text-sm text-gray-600 line-clamp-2">
+                                                            {{ $image->description }}</p>
+                                                    @endif
+                                                </div>
+                                            @endif
                                             @if (Auth::check())
                                                 <div
                                                     class="absolute top-2 left-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
@@ -407,7 +407,7 @@
                         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
                             @foreach ($galleryMedia as $index => $media)
                                 <div
-                                    class="group relative overflow-hidden rounded-2xl border border-white/60 shadow-md hover:shadow-xl transition-all duration-300">
+                                    class="group relative overflow-hidden rounded-2xl border border-white/60 shadow-md hover:shadow-xl transition-all duration-300 bg-white">
                                     <div class="cursor-pointer" onclick="openLightbox({{ $index }})">
                                         <img src="{{ asset('storage/' . $media->path) }}"
                                             alt="{{ $media->name ?? '' }}"
@@ -415,19 +415,19 @@
                                         <div
                                             class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                         </div>
-                                        @if ($media->name || $media->description)
-                                            <div class="absolute bottom-3 right-3 left-3 bg-white/90 backdrop-blur-sm rounded-lg p-2">
-                                                @if ($media->name)
-                                                    <h3 class="font-semibold text-base line-clamp-1 text-black">
-                                                        {{ $media->name }}</h3>
-                                                @endif
-                                                @if ($media->description)
-                                                    <p class="text-xs text-gray-700 mt-1 line-clamp-2">
-                                                        {{ $media->description }}</p>
-                                                @endif
-                                            </div>
-                                        @endif
                                     </div>
+                                    @if ($media->name || $media->description)
+                                        <div class="p-3">
+                                            @if ($media->name)
+                                                <h3 class="font-semibold text-base line-clamp-1 text-gray-800 mb-1">
+                                                    {{ $media->name }}</h3>
+                                            @endif
+                                            @if ($media->description)
+                                                <p class="text-sm text-gray-600 line-clamp-2">
+                                                    {{ $media->description }}</p>
+                                            @endif
+                                        </div>
+                                    @endif
                                     @if (Auth::check())
                                         <div
                                             class="absolute top-2 left-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">

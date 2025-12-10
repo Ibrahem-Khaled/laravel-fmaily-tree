@@ -11,6 +11,7 @@ class Breastfeeding extends BaseModel
 
     protected $fillable = [
         'nursing_mother_id',
+        'breastfeeding_father_id',
         'breastfed_child_id',
         'start_date',
         'end_date',
@@ -30,6 +31,14 @@ class Breastfeeding extends BaseModel
     public function nursingMother(): BelongsTo
     {
         return $this->belongsTo(Person::class, 'nursing_mother_id');
+    }
+
+    /**
+     * Get the breastfeeding father (الأب - زوج الأم)
+     */
+    public function breastfeedingFather(): BelongsTo
+    {
+        return $this->belongsTo(Person::class, 'breastfeeding_father_id');
     }
 
     /**

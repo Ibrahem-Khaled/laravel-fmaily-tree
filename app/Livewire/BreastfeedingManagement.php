@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Breastfeeding;
 use App\Models\Person;
+use App\Models\Marriage;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
@@ -15,6 +16,7 @@ class BreastfeedingManagement extends Component
 
     // Properties for form
     public $nursing_mother_id = '';
+    public $breastfeeding_father_id = '';
     public $breastfed_child_id = '';
     public $start_date = '';
     public $end_date = '';
@@ -31,7 +33,9 @@ class BreastfeedingManagement extends Component
     public $searchBreastfedChild = '';
     // Autocomplete inputs for modals
     public $motherSearch = '';
+    public $fatherSearch = '';
     public $childSearch = '';
+    public $husbandsList = []; // قائمة الأزواج للأم المختارة
     public $statusFilter = 'all'; // all, active, inactive
     public $sortBy = 'created_at';
     public $sortDirection = 'desc';
@@ -45,6 +49,7 @@ class BreastfeedingManagement extends Component
 
     protected $rules = [
         'nursing_mother_id' => 'required|exists:persons,id',
+        'breastfeeding_father_id' => 'nullable|exists:persons,id',
         'breastfed_child_id' => 'required|exists:persons,id|different:nursing_mother_id',
         'start_date' => 'nullable|date|before_or_equal:today',
         'end_date' => 'nullable|date|after_or_equal:start_date',
@@ -55,6 +60,7 @@ class BreastfeedingManagement extends Component
     protected $messages = [
         'nursing_mother_id.required' => 'يجب اختيار الأم المرضعة',
         'nursing_mother_id.exists' => 'الأم المرضعة المختارة غير موجودة',
+        'breastfeeding_father_id.exists' => 'الأب المختار غير موجود',
         'breastfed_child_id.required' => 'يجب اختيار الطفل المرتضع',
         'breastfed_child_id.exists' => 'الطفل المرتضع المختار غير موجود',
         'breastfed_child_id.different' => 'لا يمكن أن تكون الأم المرضعة والطفل المرتضع نفس الشخص',
@@ -72,7 +78,7 @@ class BreastfeedingManagement extends Component
 
     public function render()
     {
-        $query = Breastfeeding::with(['nursingMother', 'breastfedChild']);
+        $query = Breastfeeding::with(['nursingMother', 'breastfeedingFather', 'breastfedChild']);
 
         // Apply general search filter
         if ($this->search) {
@@ -160,6 +166,7 @@ class BreastfeedingManagement extends Component
 
         Breastfeeding::create([
             'nursing_mother_id' => $this->nursing_mother_id,
+            'breastfeeding_father_id' => $this->breastfeeding_father_id ?: null,
             'breastfed_child_id' => $this->breastfed_child_id,
             'start_date' => $this->start_date ?: null,
             'end_date' => $this->end_date ?: null,
@@ -178,6 +185,7 @@ class BreastfeedingManagement extends Component
 
         $this->editingId = $id;
         $this->nursing_mother_id = $breastfeeding->nursing_mother_id;
+        $this->breastfeeding_father_id = $breastfeeding->breastfeeding_father_id ?? '';
         $this->breastfed_child_id = $breastfeeding->breastfed_child_id;
         $this->start_date = $breastfeeding->start_date?->format('Y-m-d');
         $this->end_date = $breastfeeding->end_date?->format('Y-m-d');
@@ -185,7 +193,11 @@ class BreastfeedingManagement extends Component
         $this->is_active = $breastfeeding->is_active;
         // Prefill autocomplete inputs with current selections
         $this->motherSearch = $breastfeeding->nursingMother?->full_name ?? '';
+        $this->fatherSearch = $breastfeeding->breastfeedingFather?->full_name ?? '';
         $this->childSearch = $breastfeeding->breastfedChild?->full_name ?? '';
+        
+        // جلب الأزواج للأم المختارة
+        $this->loadHusbands();
 
         $this->showEditModal = true;
     }
@@ -217,6 +229,7 @@ class BreastfeedingManagement extends Component
 
         $breastfeeding->update([
             'nursing_mother_id' => $this->nursing_mother_id,
+            'breastfeeding_father_id' => $this->breastfeeding_father_id ?: null,
             'breastfed_child_id' => $this->breastfed_child_id,
             'start_date' => $this->start_date ?: null,
             'end_date' => $this->end_date ?: null,
@@ -266,6 +279,7 @@ class BreastfeedingManagement extends Component
     public function resetForm()
     {
         $this->nursing_mother_id = '';
+        $this->breastfeeding_father_id = '';
         $this->breastfed_child_id = '';
         $this->start_date = '';
         $this->end_date = '';
@@ -274,7 +288,9 @@ class BreastfeedingManagement extends Component
         $this->editingId = null;
         $this->isEditing = false;
         $this->motherSearch = '';
+        $this->fatherSearch = '';
         $this->childSearch = '';
+        $this->husbandsList = [];
         $this->resetErrorBag();
     }
 
@@ -316,6 +332,17 @@ class BreastfeedingManagement extends Component
     {
         $this->resetPage();
     }
+    
+    /**
+     * عند تغيير الأم، جلب الأزواج تلقائياً
+     */
+    public function updatedNursingMotherId()
+    {
+        $this->loadHusbands();
+        // إعادة تعيين اختيار الأب عند تغيير الأم
+        $this->breastfeeding_father_id = '';
+        $this->fatherSearch = '';
+    }
 
     public function clearSearch()
     {
@@ -338,6 +365,57 @@ class BreastfeedingManagement extends Component
         $this->nursing_mother_id = $person->id;
         $this->motherSearch = $person->full_name;
         $this->resetValidation('nursing_mother_id');
+        
+        // جلب جميع الأزواج (حتى المطلقين)
+        $this->loadHusbands();
+        
+        // إعادة تعيين اختيار الأب
+        $this->breastfeeding_father_id = '';
+        $this->fatherSearch = '';
+    }
+    
+    /**
+     * جلب جميع أزواج الأم المختارة (حتى المطلقين)
+     */
+    public function loadHusbands()
+    {
+        if (!$this->nursing_mother_id) {
+            $this->husbandsList = [];
+            return;
+        }
+        
+        // جلب جميع الزيجات للأم (حتى المطلقين)
+        $marriages = Marriage::where('wife_id', $this->nursing_mother_id)
+            ->with('husband')
+            ->orderBy('married_at', 'desc')
+            ->get();
+        
+        $this->husbandsList = $marriages->map(function ($marriage) {
+            $husband = $marriage->husband;
+            $status = $marriage->isDivorced() ? ' (مطلق)' : ' (نشط)';
+            return [
+                'id' => $husband->id,
+                'name' => $husband->full_name . $status,
+                'full_name' => $husband->full_name,
+                'first_name' => $husband->first_name,
+                'last_name' => $husband->last_name,
+                'is_divorced' => $marriage->isDivorced(),
+            ];
+        })->toArray();
+    }
+    
+    /**
+     * اختيار الأب من قائمة الأزواج
+     */
+    public function selectBreastfeedingFather($fatherId)
+    {
+        $father = Person::find($fatherId);
+        if (!$father) {
+            return;
+        }
+        $this->breastfeeding_father_id = $father->id;
+        $this->fatherSearch = $father->full_name;
+        $this->resetValidation('breastfeeding_father_id');
     }
 
     public function selectBreastfedChild($personId)
