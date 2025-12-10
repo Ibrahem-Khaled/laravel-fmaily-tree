@@ -1119,13 +1119,77 @@
 
                 const person = data.person;
 
-                const createDetailCard = (label, value) => !value ? '' :
-                    `<div class="col-6 col-md-4">
+                // دالة تحويل التاريخ الميلادي للهجري (خوارزمية دقيقة)
+                const gregorianToHijri = (gregorianDate) => {
+                    if (!gregorianDate) return '';
+                    
+                    try {
+                        const date = new Date(gregorianDate);
+                        let year = date.getFullYear();
+                        let month = date.getMonth() + 1;
+                        let day = date.getDate();
+                        
+                        // حساب اليوم اليولياني
+                        let jd = Math.floor((1461 * (year + 4800 + Math.floor((month - 14) / 12))) / 4) +
+                                 Math.floor((367 * (month - 2 - 12 * Math.floor((month - 14) / 12))) / 12) -
+                                 Math.floor((3 * Math.floor((year + 4900 + Math.floor((month - 14) / 12)) / 100)) / 4) +
+                                 day - 32075;
+                        
+                        // تحويل للتقويم الهجري
+                        let l = jd - 1948440 + 10632;
+                        let n = Math.floor((l - 1) / 10631);
+                        l = l - 10631 * n + 354;
+                        let j = Math.floor((10985 - l) / 5316) * Math.floor((50 * l) / 17719) + 
+                               Math.floor(l / 5670) * Math.floor((43 * l) / 15238);
+                        l = l - Math.floor((30 - j) / 15) * Math.floor((17719 * j) / 50) - 
+                            Math.floor(j / 16) * Math.floor((15238 * j) / 43) + 29;
+                        let m = Math.floor((24 * l) / 709);
+                        let d = l - Math.floor((709 * m) / 24);
+                        let y = 30 * n + j - 30;
+                        
+                        const hijriMonths = ['محرم', 'صفر', 'ربيع الأول', 'ربيع الثاني', 'جمادى الأولى', 'جمادى الثانية', 
+                                           'رجب', 'شعبان', 'رمضان', 'شوال', 'ذو القعدة', 'ذو الحجة'];
+                        
+                        return `${d} ${hijriMonths[m - 1]} ${y}هـ`;
+                    } catch (e) {
+                        console.error('Error converting date:', e);
+                        return '';
+                    }
+                };
+                
+                // دالة لعرض التاريخ بالميلادي والهجري
+                const formatDateWithHijri = (dateString) => {
+                    if (!dateString) return '';
+                    
+                    try {
+                        const date = new Date(dateString);
+                        const gregorian = date.toLocaleDateString('ar-SA', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                        });
+                        const hijri = gregorianToHijri(dateString);
+                        
+                        return hijri ? `${gregorian}<br><small style="color: #666; font-size: 0.85em;">${hijri}</small>` : gregorian;
+                    } catch (e) {
+                        return dateString;
+                    }
+                };
+
+                const createDetailCard = (label, value) => {
+                    if (!value) return '';
+                    
+                    // إذا كان الحقل تاريخ، اعرضه بالميلادي والهجري
+                    const isDateField = label.includes('تاريخ');
+                    const displayValue = isDateField ? formatDateWithHijri(value) : value;
+                    
+                    return `<div class="col-6 col-md-4">
                         <div class="detail-card">
                             <div class="detail-label">${label}</div>
-                            <div class="detail-value">${value}</div>
+                            <div class="detail-value">${displayValue}</div>
                         </div>
                     </div>`;
+                };
 
                 let parentsHtml = '';
                 if (person.parent || person.mother) {
