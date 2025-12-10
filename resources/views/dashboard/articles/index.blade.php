@@ -202,7 +202,7 @@
                                     </td>
 
                                     <td>{{ optional($article->category)->name ?? '-' }}</td>
-                                    <td>{{ optional($article->person)->name ?? '-' }}</td>
+                                    <td>{{ optional($article->person)->full_name ?? '-' }}</td>
 
                                     {{-- الصور --}}
                                     <td>
