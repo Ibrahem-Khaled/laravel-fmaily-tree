@@ -11,8 +11,8 @@ class PersonContactAccountController extends Controller
 {
     public function __construct()
     {
-        // التحقق من الصلاحيات في الـ constructor
-        $this->middleware('permission:people.update');
+        // التحقق من الصلاحيات في الـ constructor (استثناء destroy)
+        $this->middleware('permission:people.update')->except(['destroy']);
     }
 
     public function store(Request $request, Person $person)
