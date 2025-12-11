@@ -5,7 +5,9 @@
             <div style="width:120px;height:90px;position:relative;background:#000;border-radius:4px;overflow:hidden;">
                 <img src="{{ $img->getYouTubeThumbnail() }}"
                      style="width:100%;height:100%;object-fit:cover;"
-                     class="img-thumbnail">
+                     class="img-thumbnail"
+                     loading="lazy"
+                     alt="{{ $img->name ?? 'فيديو يوتيوب' }}">
                 <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-size:24px;">
                     <i class="fab fa-youtube"></i>
                 </div>
@@ -22,7 +24,10 @@
             </div>
         @else
             <img src="{{ $img->path ? asset('storage/' . $img->path) : asset('img/no-image.png') }}"
-                style="width:120px;height:90px;object-fit:cover;" class="img-thumbnail">
+                style="width:120px;height:90px;object-fit:cover;"
+                class="img-thumbnail"
+                loading="lazy"
+                alt="{{ $img->name ?? 'صورة' }}">
         @endif
     </td>
     <td>{{ $img->name ?? '-' }}</td>
