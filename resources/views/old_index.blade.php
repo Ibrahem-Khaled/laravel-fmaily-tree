@@ -1395,7 +1395,16 @@
                                 ${person.gender === 'male' ? createDetailCard('تاريخ الميلاد', person.birth_date) : ''}
                                 ${person.gender === 'male' && person.age ? createDetailCard('العمر', `${person.age} سنة`) : ''}
                                 ${createDetailCard('مكان الميلاد', person.birth_place)}
-                                ${createDetailCard('مكان الإقامة', person.location?.name || person.location, person.location?.url)}
+                                ${(() => {
+                                    if (!person.location) return '';
+                                    const locationName = typeof person.location === 'string'
+                                        ? person.location
+                                        : (person.location.name || '');
+                                    const locationUrl = typeof person.location === 'object' && person.location.url
+                                        ? person.location.url
+                                        : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locationName)}`;
+                                    return createDetailCard('مكان الإقامة', locationName, locationUrl);
+                                })()}
                                 ${createDetailCard('المهنة', person.occupation)}
                                 ${person.death_date ? createDetailCard('تاريخ الوفاة', person.death_date) : ''}
                                 ${createDetailCard('مكان الوفاة', person.death_place)}
