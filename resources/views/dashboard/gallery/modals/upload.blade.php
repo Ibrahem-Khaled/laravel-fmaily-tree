@@ -14,9 +14,15 @@
                     <label>اختر الفئة</label>
                     <div class="input-group">
                         <select name="category_id" id="uploadCategorySelect" class="form-control" required>
-                            @foreach ($categories as $cat)
-                                <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-                            @endforeach
+                            @if(isset($categoriesForUpload))
+                                @foreach ($categoriesForUpload as $cat)
+                                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                @endforeach
+                            @elseif(isset($categories))
+                                @foreach ($categories as $cat)
+                                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                @endforeach
+                            @endif
                         </select>
                         <div class="input-group-append">
                             <button class="btn btn-outline-secondary" type="button" data-toggle="modal"

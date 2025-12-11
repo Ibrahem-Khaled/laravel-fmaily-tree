@@ -16,45 +16,84 @@ class ImageController extends Controller
 
     public function index(Request $request)
     {
-        $search     = $request->get('search');
-        $categoryId = $request->get('category_id');
-        $personSearch = $request->get('person_search');
+        $search = $request->get('search');
+        $perPage = 15; // عدد الفئات في كل صفحة
 
         // إحصائيات
-        $imagesCount          = Image::whereNotNull('category_id')->count();
+        $imagesCount = Image::whereNotNull('category_id')->count();
         $categoriesWithImages = Category::whereHas('images')->count();
 
-        // فئات لديها صور فقط
-        $categories = Category::whereHas('images')
+        // دالة recursive للتحقق من وجود صور في الفئة أو أي من فئاتها الفرعية
+        $hasImages = function ($category) use (&$hasImages) {
+            // التحقق من وجود صور مباشرة في الفئة
+            if (Image::where('category_id', $category->id)->exists()) {
+                return true;
+            }
+            // التحقق من وجود صور في الفئات الفرعية
+            $children = Category::where('parent_id', $category->id)->get();
+            foreach ($children as $child) {
+                if ($hasImages($child)) {
+                    return true;
+                }
+            }
+            return false;
+        };
+
+        // جلب الفئات التي تحتوي على صور مباشرة أو فئات فرعية تحتوي على صور
+        $categoriesQuery = Category::query()
+            ->where(function($q) {
+                // فئات تحتوي على صور مباشرة
+                $q->whereHas('images')
+                  // أو فئات لديها فئات فرعية تحتوي على صور
+                  ->orWhereHas('children', function($childQuery) {
+                      $childQuery->whereHas('images')
+                                 // أو فئات فرعية لديها فئات فرعية تحتوي على صور
+                                 ->orWhereHas('children', function($grandChildQuery) {
+                                     $grandChildQuery->whereHas('images');
+                                 });
+                  });
+            })
+            ->when($search, fn($q) => $q->where('name', 'like', "%{$search}%"))
+            ->with(['parent', 'children' => function($query) {
+                $query->whereHas('images')
+                      ->withCount('images')
+                      ->orderBy('sort_order')
+                      ->orderBy('name');
+            }])
             ->withCount('images')
             ->orderBy('sort_order')
-            ->orderBy('name')
-            ->get();
+            ->orderBy('name');
 
-        // صور المعرض (خاص بالفئات فقط)
-        $imagesQ = Image::with(['category', 'mentionedPersons'])
-            ->whereNotNull('category_id')
-            ->when($search, fn($q) => $q->where('name', 'like', "%{$search}%"))
-            ->when($personSearch, fn($q) => $q->whereHas('mentionedPersons', function($query) use ($personSearch) {
-                $query->where('person_id', $personSearch);
-            }));
+        $categories = $categoriesQuery->paginate($perPage);
 
-        if ($categoryId) {
-            $imagesQ->where('category_id', $categoryId);
-        }
+        // حساب العدد الكلي للصور لكل فئة (بما في ذلك الفئات الفرعية)
+        $categories->getCollection()->transform(function($category) {
+            // حساب عدد الصور في الفئة الرئيسية
+            $directImagesCount = Image::where('category_id', $category->id)->count();
 
-        $images = $imagesQ->latest('id')->paginate(24)->withQueryString();
+            // حساب عدد الصور في الفئات الفرعية
+            $subcategoryImagesCount = 0;
+            $subcategoryIds = Category::where('parent_id', $category->id)->pluck('id');
+            if ($subcategoryIds->isNotEmpty()) {
+                $subcategoryImagesCount = Image::whereIn('category_id', $subcategoryIds)->count();
+            }
+
+            $category->total_images_count = $directImagesCount + $subcategoryImagesCount;
+            return $category;
+        });
+
+        // جلب الفئات لرفع الصور (للمودال)
+        $categoriesForUpload = Category::orderBy('sort_order')->orderBy('name')->get();
 
         // جلب الأشخاص للمنشن في مودال رفع الصور
         $people = Person::get();
 
         return view('dashboard.gallery.index', compact(
             'search',
-            'categoryId',
-            'images',
             'imagesCount',
             'categoriesWithImages',
             'categories',
+            'categoriesForUpload',
             'people'
         ));
     }
@@ -184,6 +223,43 @@ class ImageController extends Controller
         });
 
         return back()->with('success', 'تم حذف الصور المحددة.');
+    }
+
+    /**
+     * نقل جماعي للصور إلى فئة جديدة
+     */
+    public function bulkMove(Request $request)
+    {
+        $request->validate([
+            'ids' => ['required', 'array'],
+            'ids.*' => ['exists:images,id'],
+            'target_category_id' => ['required', 'exists:categories,id']
+        ]);
+
+        $ids = $request->input('ids', []);
+        $targetCategoryId = $request->input('target_category_id');
+
+        $images = Image::whereIn('id', $ids)
+            ->whereNotNull('category_id') // تأكيد أنها ضمن المعرض
+            ->get();
+
+        if ($images->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'لم يتم العثور على صور صحيحة للنقل'
+            ], 400);
+        }
+
+        DB::transaction(function () use ($images, $targetCategoryId) {
+            foreach ($images as $image) {
+                $image->update(['category_id' => $targetCategoryId]);
+            }
+        });
+
+        return response()->json([
+            'success' => true,
+            'message' => 'تم نقل ' . $images->count() . ' صورة بنجاح'
+        ]);
     }
 
 
@@ -426,6 +502,81 @@ class ImageController extends Controller
                 'message' => 'حدث خطأ أثناء إعادة الترتيب: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * عرض صفحة فئة معينة مع جميع صورها مع pagination
+     */
+    public function showCategory(Request $request, Category $category)
+    {
+        $search = $request->get('search');
+        $personSearch = $request->get('person_search');
+        $perPage = 20; // عدد الصور في كل صفحة
+
+        // التحقق من أن الفئة لديها صور
+        $imagesCount = Image::where('category_id', $category->id)->count();
+
+        if ($imagesCount === 0) {
+            return redirect()->route('dashboard.images.index')
+                ->with('warning', 'هذه الفئة لا تحتوي على صور');
+        }
+
+        // جلب الصور مع pagination
+        $imagesQuery = Image::with(['category.parent', 'mentionedPersons'])
+            ->where('category_id', $category->id)
+            ->when($search, fn($q) => $q->where('name', 'like', "%{$search}%"))
+            ->when($personSearch, fn($q) => $q->whereHas('mentionedPersons', function($query) use ($personSearch) {
+                $query->where('person_id', $personSearch);
+            }));
+
+        $images = $imagesQuery->latest('id')->paginate($perPage);
+
+        // جلب جميع الفئات للنقل
+        $allCategoriesForMove = Category::with('parent')
+            ->where('id', '!=', $category->id) // استثناء الفئة الحالية
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+
+        // جلب الفئات لرفع الصور (للمودال)
+        $categories = Category::whereHas('images')
+            ->withCount('images')
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+
+        // جلب الأشخاص للمنشن
+        $people = Person::get();
+
+        // حساب إحصائيات الفئة
+        $categoryImagesCount = Image::where('category_id', $category->id)->count();
+
+        // إذا كانت فئة فرعية، جلب الفئة الرئيسية
+        $parentCategory = $category->parent;
+
+        // جلب الفئات الفرعية لهذه الفئة (إذا كانت رئيسية)
+        $subcategories = [];
+        if (!$parentCategory) {
+            $subcategories = Category::where('parent_id', $category->id)
+                ->withCount('images')
+                ->orderBy('sort_order')
+                ->orderBy('name')
+                ->get();
+        }
+
+        return view('dashboard.gallery.category', compact(
+            'category',
+            'parentCategory',
+            'subcategories',
+            'images',
+            'imagesCount',
+            'categoryImagesCount',
+            'search',
+            'personSearch',
+            'allCategoriesForMove',
+            'categories',
+            'people'
+        ));
     }
 
     /**

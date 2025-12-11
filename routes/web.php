@@ -142,11 +142,13 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
 
     // معرض الصور
     Route::get('images/index',        [ImageController::class, 'index'])->name('dashboard.images.index')->middleware(['permission:images.view']);
+    Route::get('gallery/category/{category}', [ImageController::class, 'showCategory'])->name('dashboard.gallery.category')->middleware(['permission:images.view']);
     Route::get('images/{image}/edit', [ImageController::class, 'edit'])->name('images.edit')->middleware(['permission:images.view']);
     Route::put('images/{image}',      [ImageController::class, 'update'])->name('images.update')->middleware(['permission:images.update']);
     Route::post('gallery/upload', [ImageController::class, 'store'])->name('gallery.store')->middleware(['permission:images.upload']);
     Route::delete('images/{image}', [ImageController::class, 'destroy'])->name('images.destroy')->middleware(['permission:images.delete']);
     Route::delete('images',         [ImageController::class, 'bulkDestroy'])->name('images.bulk-destroy')->middleware(['permission:images.delete']);
+    Route::post('images/bulk-move', [ImageController::class, 'bulkMove'])->name('images.bulk-move')->middleware(['permission:images.update']);
     Route::delete('images/{image}/remove-person/{person}', [ImageController::class, 'removePerson'])->name('images.remove-person')->middleware(['permission:images.update']);
     Route::post('images/{image}/reorder-persons', [ImageController::class, 'reorderPersons'])->name('images.reorder-persons')->middleware(['permission:images.update']);
     Route::get('images/{image}/download', [ImageController::class, 'download'])->name('images.download')->middleware(['permission:images.view']);
