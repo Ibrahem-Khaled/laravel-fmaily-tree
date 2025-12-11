@@ -630,6 +630,32 @@
         .contact-item.linkedin { border-color: #0077B5; }
         .contact-item.linkedin i, .contact-item.linkedin span { color: #0077B5; }
 
+        /* ===== المواقع (Google Maps) ===== */
+        .location-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.6rem;
+            background: #fff;
+            border: 2px solid #eef2f1;
+            border-radius: 12px;
+            text-decoration: none;
+            transition: all 200ms var(--ease-smooth);
+            width: 44px;
+            height: 44px;
+        }
+
+        .location-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+            border-color: #ea4335;
+        }
+
+        .location-item i {
+            font-size: 1.25rem;
+            color: #ea4335;
+        }
+
         /* ===== السيرة الذاتية ===== */
         .biography-wrapper {
             position: relative;
@@ -776,6 +802,16 @@
             }
 
             .contact-item i {
+                font-size: 1.1rem;
+            }
+
+            .location-item {
+                padding: 0.5rem;
+                width: 40px;
+                height: 40px;
+            }
+
+            .location-item i {
                 font-size: 1.1rem;
             }
         }
@@ -1298,19 +1334,40 @@
                         </div>`;
                 }
 
-                let contactsHtml = '';
-                if (person.contact_accounts && person.contact_accounts.length > 0) {
-                    contactsHtml = `<div class="contact-grid">`;
-                    person.contact_accounts.forEach(account => {
-                        const brandIcons = ['whatsapp', 'facebook', 'instagram', 'twitter', 'linkedin', 'telegram'];
-                        const iconClass = brandIcons.includes(account.type) ? 'fab' : 'fas';
-                        const typeClass = account.type ? account.type.toLowerCase() : '';
-                        contactsHtml += `
-                            <a href="${account.url}" target="_blank" class="contact-item ${typeClass}" title="${account.label || account.value || account.type}">
-                                <i class="${iconClass} ${account.icon || 'fa-link'}"></i>
-                            </a>`;
-                    });
-                    contactsHtml += '</div>';
+                // دمج وسائل التواصل والمواقع في نفس الـ grid
+                let contactsAndLocationsHtml = '';
+                const hasContacts = person.contact_accounts && person.contact_accounts.length > 0;
+                const hasLocations = person.locations && person.locations.length > 0;
+
+                if (hasContacts || hasLocations) {
+                    contactsAndLocationsHtml = `<div class="contact-grid">`;
+
+                    // إضافة وسائل التواصل
+                    if (hasContacts) {
+                        person.contact_accounts.forEach(account => {
+                            const brandIcons = ['whatsapp', 'facebook', 'instagram', 'twitter', 'linkedin', 'telegram'];
+                            const iconClass = brandIcons.includes(account.type) ? 'fab' : 'fas';
+                            const typeClass = account.type ? account.type.toLowerCase() : '';
+                            contactsAndLocationsHtml += `
+                                <a href="${account.url}" target="_blank" class="contact-item ${typeClass}" title="${account.label || account.value || account.type}">
+                                    <i class="${iconClass} ${account.icon || 'fa-link'}"></i>
+                                </a>`;
+                        });
+                    }
+
+                    // إضافة المواقع (Google Maps)
+                    if (hasLocations) {
+                        person.locations.forEach(location => {
+                            const locationUrl = location.url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location.name)}`;
+                            const locationTitle = location.label ? `${location.label} - ${location.name}` : location.name;
+                            contactsAndLocationsHtml += `
+                                <a href="${locationUrl}" target="_blank" class="location-item" title="${locationTitle}">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </a>`;
+                        });
+                    }
+
+                    contactsAndLocationsHtml += '</div>';
                 }
 
                 let galleryBtn = person.images_count > 0
@@ -1326,7 +1383,7 @@
                             </div>
                             <h4 class="mb-1">${person.full_name || person.first_name}</h4>
                             ${person.death_date ? `<p class="text-muted small mb-3">${person.gender === 'female' ? 'رحمها الله' : 'رحمه الله'}</p>` : ''}
-                            ${contactsHtml}
+                            ${contactsAndLocationsHtml}
                             <div class="d-flex justify-content-center gap-2 flex-wrap mb-4">
                                 ${galleryBtn}
                                 <div id="personStoriesButton"></div>
