@@ -113,10 +113,10 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::put('people/{person}/contact-accounts/{contactAccountId}', [\App\Http\Controllers\admin\PersonContactAccountController::class, 'update'])->name('people.contact-accounts.update')->middleware(['permission:people.update'])->where(['contactAccountId' => '[0-9]+']);
     Route::delete('people/{person}/contact-accounts/{contactAccountId}', [\App\Http\Controllers\admin\PersonContactAccountController::class, 'destroy'])->name('people.contact-accounts.destroy')->where(['contactAccountId' => '[0-9]+']);
 
-    // Routes for managing person locations
-    Route::post('people/{person}/locations', [\App\Http\Controllers\admin\PersonLocationController::class, 'store'])->name('people.locations.store')->middleware(['permission:people.update']);
-    Route::put('people/{person}/locations/{personLocation}', [\App\Http\Controllers\admin\PersonLocationController::class, 'update'])->name('people.locations.update')->middleware(['permission:people.update']);
-    Route::delete('people/{person}/locations/{personLocation}', [\App\Http\Controllers\admin\PersonLocationController::class, 'destroy'])->name('people.locations.destroy')->middleware(['permission:people.update']);
+    // Routes for managing person locations - متاح لجميع المستخدمين المسجلين
+    Route::post('people/{person}/locations', [\App\Http\Controllers\admin\PersonLocationController::class, 'store'])->name('people.locations.store');
+    Route::put('people/{person}/locations/{personLocation}', [\App\Http\Controllers\admin\PersonLocationController::class, 'update'])->name('people.locations.update');
+    Route::delete('people/{person}/locations/{personLocation}', [\App\Http\Controllers\admin\PersonLocationController::class, 'destroy'])->name('people.locations.destroy');
     Route::delete('/people/{person}/photo', [PersonController::class, 'removePhoto'])->name('people.removePhoto')->middleware(['permission:people.update']);
     Route::post('/people/reorder', [PersonController::class, 'reorder'])->name('people.reorder')->middleware(['permission:people.update']);
     Route::get('/people/search', [PersonController::class, 'search'])->name('people.search')->middleware(['permission:people.view']);

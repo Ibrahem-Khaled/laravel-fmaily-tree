@@ -15,6 +15,7 @@ class PersonLocationController extends Controller
         $validated = $request->validate([
             'location_id' => 'required|exists:locations,id',
             'label' => 'nullable|string|max:100',
+            'url' => 'nullable|url|max:1000',
             'is_primary' => 'nullable|boolean',
             'sort_order' => 'nullable|integer|min:0',
         ]);
@@ -33,8 +34,10 @@ class PersonLocationController extends Controller
         return redirect()->back()->with('success', 'تم إضافة الموقع بنجاح');
     }
 
-    public function update(Request $request, Person $person, PersonLocation $personLocation)
+    public function update(Request $request, Person $person, $personLocationId)
     {
+        $personLocation = PersonLocation::findOrFail($personLocationId);
+        
         // التأكد من أن الموقع يخص الشخص المحدد
         if ($personLocation->person_id !== $person->id) {
             abort(403);
@@ -43,6 +46,7 @@ class PersonLocationController extends Controller
         $validated = $request->validate([
             'location_id' => 'required|exists:locations,id',
             'label' => 'nullable|string|max:100',
+            'url' => 'nullable|url|max:1000',
             'is_primary' => 'nullable|boolean',
             'sort_order' => 'nullable|integer|min:0',
         ]);
@@ -57,8 +61,10 @@ class PersonLocationController extends Controller
         return redirect()->back()->with('success', 'تم تحديث الموقع بنجاح');
     }
 
-    public function destroy(Person $person, PersonLocation $personLocation)
+    public function destroy(Person $person, $personLocationId)
     {
+        $personLocation = PersonLocation::findOrFail($personLocationId);
+        
         // التأكد من أن الموقع يخص الشخص المحدد
         if ($personLocation->person_id !== $person->id) {
             abort(403);

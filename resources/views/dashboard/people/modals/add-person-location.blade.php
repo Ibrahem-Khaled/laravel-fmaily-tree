@@ -25,6 +25,11 @@
                         <input type="text" name="label" class="form-control" placeholder="مثل: مكان الإقامة، مكان العمل">
                     </div>
                     <div class="form-group">
+                        <label>رابط الموقع (اختياري)</label>
+                        <input type="url" name="url" class="form-control" placeholder="https://maps.google.com/...">
+                        <small class="form-text text-muted">رابط جوجل ماب أو أي رابط آخر للموقع</small>
+                    </div>
+                    <div class="form-group">
                         <div class="form-check">
                             <input type="checkbox" name="is_primary" value="1" class="form-check-input" id="is_primary_add{{ $person->id }}">
                             <label class="form-check-label" for="is_primary_add{{ $person->id }}">

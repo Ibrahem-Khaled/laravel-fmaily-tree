@@ -209,7 +209,8 @@ class FamilyTreeController extends Controller
             'articles:id,title,person_id',
             'friendships.friend:id,first_name,last_name,gender,birth_date,death_date,photo_url',
             'contactAccounts:id,person_id,type,value,label,sort_order', // حسابات التواصل
-            'locations:id,name,normalized_name' // لوكيشنات متعددة
+            'locations:id,name,normalized_name', // لوكيشنات متعددة
+            'personLocations:id,person_id,location_id,label,url,is_primary' // تحميل personLocations مع url
         ])
         ->withCount(['mentionedImages', 'friendships'])
         ->findOrFail($id);
@@ -347,7 +348,16 @@ class FamilyTreeController extends Controller
 
         if ($fullDetails) {
             $data['occupation'] = $person->occupation;
-            $data['location'] = $person->location_display ?? null; // استخدام location_display accessor
+            // إرسال location كـ object يحتوي على name و url
+            if ($person->location) {
+                $primaryLocation = $person->personLocations()->where('is_primary', true)->first();
+                $data['location'] = [
+                    'name' => $person->location->name,
+                    'url' => $primaryLocation->url ?? null
+                ];
+            } else {
+                $data['location'] = null;
+            }
             $data['biography'] = $person->biography;
 
             // إضافة حسابات التواصل
@@ -371,6 +381,7 @@ class FamilyTreeController extends Controller
                         'id' => $location->id,
                         'name' => $location->name,
                         'label' => $location->pivot->label,
+                        'url' => $location->pivot->url,
                         'is_primary' => $location->pivot->is_primary,
                     ];
                 })->toArray();

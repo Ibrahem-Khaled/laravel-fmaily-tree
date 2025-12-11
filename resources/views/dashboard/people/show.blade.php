@@ -504,6 +504,22 @@
                                                         <i class="fas fa-trash"></i>
                                                     </button>
                                                 </form>
+                                            @else
+                                                {{-- إضافة إمكانية إنشاء personLocation إذا لم يكن موجوداً --}}
+                                                <form action="{{ route('people.locations.store', $person->id) }}" method="POST" class="d-inline">
+                                                    @csrf
+                                                    <input type="hidden" name="location_id" value="{{ $location->id }}">
+                                                    <button type="submit" class="btn btn-sm btn-circle btn-success"
+                                                        title="ربط الموقع">
+                                                        <i class="fas fa-link"></i>
+                                                    </button>
+                                                </form>
+                                                <button type="button" class="btn btn-sm btn-circle btn-primary"
+                                                    data-toggle="modal"
+                                                    data-target="#addPersonLocationModal{{ $person->id }}"
+                                                    title="إضافة موقع">
+                                                    <i class="fas fa-plus"></i>
+                                                </button>
                                             @endif
                                         </td>
                                     </tr>

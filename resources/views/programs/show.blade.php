@@ -347,7 +347,7 @@
                                             </svg>
                                         </div>
                                         <span class="font-medium">{{ $program->updated_at->diffForHumans() }}</span>
-                                    </div>
+                            </div>
                                 </div>
                             </div>
                         </div>
@@ -362,11 +362,11 @@
                         <div class="flex flex-wrap items-center justify-between gap-3 mb-8">
                             <div class="flex items-center gap-4">
                                 <div class="w-1 h-12 bg-gradient-to-b from-emerald-500 to-teal-500 rounded-full"></div>
-                                <div>
-                                    <h2
-                                        class="text-2xl lg:text-3xl font-bold font-serif bg-gradient-to-r from-emerald-600 to-teal-500 text-transparent bg-clip-text">
-                                        البرامج الفرعية</h2>
-                                    <p class="text-sm text-gray-500 mt-1">انقر على أي برنامج لعرض التفاصيل</p>
+                            <div>
+                                <h2
+                                    class="text-2xl lg:text-3xl font-bold font-serif bg-gradient-to-r from-emerald-600 to-teal-500 text-transparent bg-clip-text">
+                                    البرامج الفرعية</h2>
+                                <p class="text-sm text-gray-500 mt-1">انقر على أي برنامج لعرض التفاصيل</p>
                                 </div>
                             </div>
                             <span
@@ -434,14 +434,14 @@
                             <div class="flex flex-wrap items-center justify-between gap-3 mb-8">
                                 <div class="flex items-center gap-4">
                                     <div class="w-1 h-12 bg-gradient-to-b from-emerald-500 to-teal-500 rounded-full"></div>
-                                    <div>
-                                        <h2
-                                            class="text-2xl lg:text-3xl font-bold font-serif bg-gradient-to-r from-emerald-600 to-teal-500 text-transparent bg-clip-text">
-                                            {{ $gallery->title }}
-                                        </h2>
-                                        @if ($gallery->description)
-                                            <p class="text-gray-600 text-sm mt-2">{{ $gallery->description }}</p>
-                                        @endif
+                                <div>
+                                    <h2
+                                        class="text-2xl lg:text-3xl font-bold font-serif bg-gradient-to-r from-emerald-600 to-teal-500 text-transparent bg-clip-text">
+                                        {{ $gallery->title }}
+                                    </h2>
+                                    @if ($gallery->description)
+                                        <p class="text-gray-600 text-sm mt-2">{{ $gallery->description }}</p>
+                                    @endif
                                     </div>
                                 </div>
                                 <span
@@ -519,10 +519,10 @@
                         <div class="flex flex-wrap items-center justify-between gap-3 mb-8">
                             <div class="flex items-center gap-4">
                                 <div class="w-1 h-12 bg-gradient-to-b from-emerald-500 to-teal-500 rounded-full"></div>
-                                <div>
-                                    <h2
-                                        class="text-2xl lg:text-3xl font-bold font-serif bg-gradient-to-r from-emerald-600 to-teal-500 text-transparent bg-clip-text">
-                                        {{ $program->name ?? ($program->program_title ?? 'معرض الصور') }}</h2>
+                            <div>
+                                <h2
+                                    class="text-2xl lg:text-3xl font-bold font-serif bg-gradient-to-r from-emerald-600 to-teal-500 text-transparent bg-clip-text">
+                                    {{ $program->name ?? ($program->program_title ?? 'معرض الصور') }}</h2>
                                     <p class="text-sm text-gray-500 mt-1">مجموعة مختارة من الصور</p>
                                 </div>
                             </div>
@@ -600,11 +600,11 @@
                         <div class="flex flex-wrap items-center justify-between gap-3 mb-8">
                             <div class="flex items-center gap-4">
                                 <div class="w-1 h-12 bg-gradient-to-b from-red-500 to-red-600 rounded-full"></div>
-                                <div>
-                                    <h2
+                            <div>
+                                <h2
                                         class="text-2xl lg:text-3xl font-bold font-serif bg-gradient-to-r from-red-600 to-red-500 text-transparent bg-clip-text">
-                                        مقتطفات الفيديو</h2>
-                                    <p class="text-sm text-gray-500 mt-1">لقطات مختارة تسلط الضوء على البرنامج</p>
+                                    مقتطفات الفيديو</h2>
+                                <p class="text-sm text-gray-500 mt-1">لقطات مختارة تسلط الضوء على البرنامج</p>
                                 </div>
                             </div>
                             <span
@@ -654,11 +654,11 @@
                         <div class="flex flex-wrap items-center justify-between gap-3 mb-8">
                             <div class="flex items-center gap-4">
                                 <div class="w-1 h-12 bg-gradient-to-b from-blue-500 to-blue-600 rounded-full"></div>
-                                <div>
-                                    <h2
+                            <div>
+                                <h2
                                         class="text-2xl lg:text-3xl font-bold font-serif bg-gradient-to-r from-blue-600 to-blue-500 text-transparent bg-clip-text">
-                                        روابط مفيدة</h2>
-                                    <p class="text-sm text-gray-500 mt-1">مصادر ومراجع تعزز محتوى البرنامج</p>
+                                    روابط مفيدة</h2>
+                                <p class="text-sm text-gray-500 mt-1">مصادر ومراجع تعزز محتوى البرنامج</p>
                                 </div>
                             </div>
                             <span
@@ -678,8 +678,8 @@
                                                 </svg>
                                             </div>
                                             <h3 class="text-lg font-bold text-gray-800 group-hover:text-blue-600 transition-colors">
-                                                {{ $link->title }}
-                                            </h3>
+                                            {{ $link->title }}
+                                        </h3>
                                         </div>
                                         @if ($link->description)
                                             <p class="text-sm text-gray-600 mt-2 leading-relaxed">{{ $link->description }}</p>

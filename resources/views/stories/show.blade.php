@@ -41,7 +41,7 @@
 
         <div class="glass rounded-2xl p-6 md:p-8 shadow-md">
             @if($story->content)
-                <h2 class="text-2xl font-bold mb-3">النص</h2>
+                {{-- <h2 class="text-2xl font-bold mb-3">النص</h2> --}}
                 <p class="text-gray-800 whitespace-pre-line leading-8">{{ $story->content }}</p>
                 <hr class="my-6">
             @endif

@@ -13,6 +13,7 @@ class PersonLocation extends Model
         'person_id',
         'location_id',
         'label',
+        'url',
         'is_primary',
         'sort_order',
     ];

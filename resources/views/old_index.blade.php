@@ -170,7 +170,7 @@
         }
 
         .person-card:hover::before {
-            opacity: 1;
+            opacity: 0;
         }
 
         .person-card.active {
@@ -194,28 +194,16 @@
         .card-header-section.has-photo {
             padding: 0;
             min-height: 160px;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
+            display: block;
             background-size: cover;
             background-position: center;
             overflow: hidden;
         }
 
-        .card-header-section.has-photo::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(to top, rgba(20, 81, 71, 0.95) 0%, rgba(20, 81, 71, 0.4) 50%, transparent 100%);
-            z-index: 1;
-        }
-
-        .card-header-section.has-photo .person-name {
-            position: relative;
-            z-index: 2;
-            color: #fff;
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+        .person-name-container {
             padding: 0.75rem 0.5rem;
+            text-align: center;
+            background: transparent;
         }
 
         /* ===== صورة الشخص ===== */
@@ -306,10 +294,6 @@
             gap: 4px;
         }
 
-        .action-btn:hover {
-            background: var(--light-green);
-            color: var(--primary-dark);
-        }
 
         .action-btn:active {
             transform: scale(0.95);
@@ -479,6 +463,26 @@
             font-size: 0.95rem;
         }
 
+        .detail-value a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: all 200ms var(--ease-smooth);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .detail-value a:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        .detail-value a svg {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+        }
+
         /* ===== زر CTA ===== */
         .btn-cta {
             display: inline-flex;
@@ -572,16 +576,16 @@
 
         .contact-item {
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 0.5rem;
+            padding: 0.6rem;
             background: #fff;
             border: 2px solid #eef2f1;
             border-radius: 12px;
             text-decoration: none;
             transition: all 200ms var(--ease-smooth);
-            min-width: 50px;
+            width: 44px;
+            height: 44px;
         }
 
         .contact-item:hover {
@@ -591,14 +595,6 @@
 
         .contact-item i {
             font-size: 1.25rem;
-            margin-bottom: 0.25rem;
-        }
-
-        .contact-item span {
-            font-size: 0.65rem;
-            font-weight: 600;
-            text-align: center;
-            line-height: 1.2;
         }
 
         .contact-item.whatsapp { border-color: #25D366; }
@@ -765,16 +761,13 @@
             }
 
             .contact-item {
-                padding: 0.4rem;
-                min-width: 45px;
+                padding: 0.5rem;
+                width: 40px;
+                height: 40px;
             }
 
             .contact-item i {
                 font-size: 1.1rem;
-            }
-
-            .contact-item span {
-                font-size: 0.6rem;
             }
         }
 
@@ -960,6 +953,8 @@
                 const photoSection = hasPhoto
                     ? `<div class="card-header-section has-photo" style="background-image: url('${person.photo_url}');" data-person-id="${person.id}" data-level="${level}">
                             ${isDeceased ? `<span class="mourning-badge">${mourningText}</span>` : ''}
+                       </div>
+                       <div class="person-name-container">
                             <span class="person-name">${person.first_name}</span>
                        </div>`
                     : `<div class="card-header-section" data-person-id="${person.id}" data-level="${level}">
@@ -1163,30 +1158,61 @@
                     
                     try {
                         const date = new Date(dateString);
-                        const gregorian = date.toLocaleDateString('ar-SA', {
+                        
+                        // عرض التاريخ الميلادي بشكل صريح (إجبار التقويم الميلادي)
+                        const gregorian = date.toLocaleDateString('en-US', {
                             year: 'numeric',
                             month: 'long',
-                            day: 'numeric'
+                            day: 'numeric',
+                            calendar: 'gregory'
                         });
+                        
+                        // تحويل أسماء الأشهر للعربية
+                        const englishMonths = ['January', 'February', 'March', 'April', 'May', 'June', 
+                                              'July', 'August', 'September', 'October', 'November', 'December'];
+                        const arabicMonths = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+                                            'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                        
+                        let gregorianArabic = gregorian;
+                        englishMonths.forEach((eng, index) => {
+                            gregorianArabic = gregorianArabic.replace(eng, arabicMonths[index]);
+                        });
+                        
+                        // أو استخدام طريقة مباشرة لتجنب مشاكل toLocaleDateString
+                        const year = date.getFullYear();
+                        const month = date.getMonth();
+                        const day = date.getDate();
+                        const gregorianFormatted = `${day} ${arabicMonths[month]} ${year}`;
+                        
                         const hijri = gregorianToHijri(dateString);
                         
-                        return hijri ? `${gregorian}<br><small style="color: #666; font-size: 0.85em;">${hijri}</small>` : gregorian;
+                        return hijri ? `${gregorianFormatted}<br><small style="color: #666; font-size: 0.85em;">${hijri}</small>` : gregorianFormatted;
                     } catch (e) {
                         return dateString;
                     }
                 };
 
-                const createDetailCard = (label, value) => {
+                const createDetailCard = (label, value, url = null) => {
                     if (!value) return '';
                     
                     // إذا كان الحقل تاريخ، اعرضه بالميلادي والهجري
                     const isDateField = label.includes('تاريخ');
                     const displayValue = isDateField ? formatDateWithHijri(value) : value;
                     
+                    // إذا كان هناك رابط، اجعل النص قابل للضغط
+                    const valueContent = url 
+                        ? `<a href="${url}" target="_blank" rel="noopener noreferrer">
+                                ${displayValue}
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                                </svg>
+                           </a>`
+                        : displayValue;
+                    
                     return `<div class="col-6 col-md-4">
                         <div class="detail-card">
                             <div class="detail-label">${label}</div>
-                            <div class="detail-value">${displayValue}</div>
+                            <div class="detail-value">${valueContent}</div>
                         </div>
                     </div>`;
                 };
@@ -1273,7 +1299,6 @@
                         contactsHtml += `
                             <a href="${account.url}" target="_blank" class="contact-item ${typeClass}" title="${account.label || account.value || account.type}">
                                 <i class="${iconClass} ${account.icon || 'fa-link'}"></i>
-                                ${account.label ? `<span>${account.label}</span>` : ''}
                             </a>`;
                     });
                     contactsHtml += '</div>';
@@ -1304,7 +1329,7 @@
                                 ${person.gender === 'male' ? createDetailCard('تاريخ الميلاد', person.birth_date) : ''}
                                 ${person.gender === 'male' && person.age ? createDetailCard('العمر', `${person.age} سنة`) : ''}
                                 ${createDetailCard('مكان الميلاد', person.birth_place)}
-                                ${createDetailCard('مكان الإقامة', person.location)}
+                                ${createDetailCard('مكان الإقامة', person.location?.name || person.location, person.location?.url)}
                                 ${createDetailCard('المهنة', person.occupation)}
                                 ${person.death_date ? createDetailCard('تاريخ الوفاة', person.death_date) : ''}
                                 ${createDetailCard('مكان الوفاة', person.death_place)}
@@ -1378,7 +1403,7 @@
                         if (holder) {
                             holder.innerHTML = `
                                 <a class="btn-cta" href="/stories/person/${personId}">
-                                    <i class="fas fa-book-open"></i> كتب وأبحاث
+                                    <i class="fas fa-book-open"></i> قصص
                                 </a>`;
                         }
                     }
