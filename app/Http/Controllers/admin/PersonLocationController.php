@@ -29,6 +29,15 @@ class PersonLocationController extends Controller
         $validated['sort_order'] = $validated['sort_order'] ?? $person->personLocations()->max('sort_order') + 1 ?? 0;
         $validated['is_primary'] = $validated['is_primary'] ?? false;
 
+        // تنظيف الرابط قبل الحفظ
+        if (isset($validated['url']) && $validated['url']) {
+            $validated['url'] = trim($validated['url']);
+            // إذا كان الرابط فارغاً بعد التنظيف، اجعله null
+            if ($validated['url'] === '') {
+                $validated['url'] = null;
+            }
+        }
+
         PersonLocation::create($validated);
 
         // مسح الـ cache للشخص
@@ -53,6 +62,15 @@ class PersonLocationController extends Controller
         // إذا تم تحديد موقع أساسي، إلغاء الأساسية من المواقع الأخرى
         if ($validated['is_primary'] ?? false) {
             $person->personLocations()->where('id', '!=', $personLocation->id)->update(['is_primary' => false]);
+        }
+
+        // تنظيف الرابط قبل التحديث
+        if (isset($validated['url']) && $validated['url']) {
+            $validated['url'] = trim($validated['url']);
+            // إذا كان الرابط فارغاً بعد التنظيف، اجعله null
+            if ($validated['url'] === '') {
+                $validated['url'] = null;
+            }
         }
 
         $personLocation->update($validated);

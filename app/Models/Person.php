@@ -43,7 +43,7 @@ class Person extends BaseModel
     {
         // ✅ الخطوة 2: تطبيق الـ Scope بشكل دائم على الموديل
         static::addGlobalScope(new OrderedScope);
-        
+
         // تحديث عداد الأشخاص عند ربط أو فك ربط شخص بمكان
         static::saved(function ($person) {
             if ($person->isDirty('location_id')) {
@@ -55,7 +55,7 @@ class Person extends BaseModel
                         $oldLocation->save();
                     }
                 }
-                
+
                 // تحديث العداد للمكان الجديد
                 if ($person->location_id) {
                     $newLocation = Location::find($person->location_id);
@@ -66,7 +66,7 @@ class Person extends BaseModel
                 }
             }
         });
-        
+
         static::deleted(function ($person) {
             if ($person->location_id) {
                 $location = Location::find($person->location_id);
@@ -135,7 +135,7 @@ class Person extends BaseModel
 
         $startDate = $this->birth_date->format('Y-m-d');
         $endDate = $this->death_date ? $this->death_date->format('Y-m-d') : 'حتى الآن';
-        
+
         return $startDate . ' - ' . $endDate;
     }
 
