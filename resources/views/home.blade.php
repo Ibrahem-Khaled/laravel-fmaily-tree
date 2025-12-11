@@ -497,6 +497,89 @@
         </div>
     </section>
 
+    {{-- Family News Section --}}
+    @if ($familyNews && $familyNews->count() > 0)
+        <section class="py-6 md:py-8 lg:py-10 bg-white relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-48 h-48 bg-blue-100 rounded-full blur-3xl opacity-20"></div>
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
+                <div class="text-right mb-6 md:mb-8">
+                    <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">
+                        📰 أخبار العائلة
+                    </h2>
+                    <p class="text-gray-600 text-xs md:text-sm mt-2">آخر أخبار وأحداث العائلة</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                    @foreach ($familyNews as $news)
+                        <a href="{{ route('family-news.show', $news->id) }}"
+                            class="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 bg-white card-hover {{ !$news->is_active && Auth::check() ? 'opacity-60 grayscale' : '' }}">
+                            @if ($news->main_image_url)
+                                <div class="relative h-48 md:h-56 overflow-hidden">
+                                    <img src="{{ $news->main_image_url }}" alt="{{ $news->title }}"
+                                        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                                    @if (!$news->is_active && Auth::check())
+                                        <div class="absolute top-2 right-2 z-10">
+                                            <span class="bg-yellow-500 text-white text-[8px] px-1.5 py-0.5 rounded-full font-bold">
+                                                معطل
+                                            </span>
+                                        </div>
+                                    @endif
+                                    @if ($news->images->count() > 0)
+                                        <div class="absolute top-2 left-2 z-10">
+                                            <span class="bg-black/50 text-white text-[8px] px-2 py-1 rounded-full font-bold backdrop-blur-sm">
+                                                <i class="fas fa-images mr-1"></i>{{ $news->images->count() }} صور
+                                            </span>
+                                        </div>
+                                    @endif
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
+                                </div>
+                            @else
+                                <div class="relative h-48 md:h-56 gradient-primary flex items-center justify-center">
+                                    <i class="fas fa-newspaper text-white text-4xl opacity-40"></i>
+                                </div>
+                            @endif
+
+                            <div class="p-4 md:p-5">
+                                <h3 class="text-base md:text-lg font-bold text-gray-800 mb-2 line-clamp-2 group-hover:text-green-600 transition-colors">
+                                    {{ $news->title }}
+                                </h3>
+
+                                @if ($news->summary)
+                                    <p class="text-gray-600 text-xs md:text-sm mb-3 line-clamp-3">
+                                        {{ $news->summary }}
+                                    </p>
+                                @else
+                                    <p class="text-gray-600 text-xs md:text-sm mb-3 line-clamp-3">
+                                        {{ Str::limit(strip_tags($news->content), 120) }}
+                                    </p>
+                                @endif
+
+                                <div class="flex items-center justify-between text-xs text-gray-500">
+                                    @if ($news->published_at)
+                                        <span class="flex items-center gap-1">
+                                            <i class="fas fa-calendar"></i>
+                                            {{ $news->published_at->format('Y-m-d') }}
+                                        </span>
+                                    @endif
+                                    <span class="flex items-center gap-1">
+                                        <i class="fas fa-eye"></i>
+                                        {{ $news->views_count }} مشاهدة
+                                    </span>
+                                </div>
+
+                                <div class="mt-3 pt-3 border-t border-gray-200">
+                                    <span class="text-green-600 text-xs md:text-sm font-semibold group-hover:underline">
+                                        اقرأ المزيد <i class="fas fa-arrow-left mr-1"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+        </section>
+    @endif
+
     {{-- Family Councils Section --}}
     <section class="py-2 md:py-4 lg:py-6 bg-white mobile-section">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">

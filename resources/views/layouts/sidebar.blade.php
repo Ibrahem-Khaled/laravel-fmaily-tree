@@ -79,14 +79,14 @@
 
     <!-- Nav Item - Home Page Management -->
     @if(auth()->user()->can('site-content.view') || auth()->user()->can('slideshow.view') || auth()->user()->can('home-gallery.view') || auth()->user()->can('courses.view') || auth()->user()->can('programs.view') || auth()->user()->can('councils.view'))
-    <li class="nav-item {{ request()->routeIs(['dashboard.site-content.*', 'dashboard.slideshow.*', 'dashboard.home-gallery.*', 'dashboard.courses.*', 'dashboard.programs.*', 'dashboard.proud-of.*', 'dashboard.councils.*']) ? 'active' : '' }}">
+    <li class="nav-item {{ request()->routeIs(['dashboard.site-content.*', 'dashboard.slideshow.*', 'dashboard.home-gallery.*', 'dashboard.courses.*', 'dashboard.programs.*', 'dashboard.proud-of.*', 'dashboard.councils.*', 'dashboard.family-news.*']) ? 'active' : '' }}">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseHome"
-           aria-expanded="{{ request()->routeIs(['dashboard.site-content.*', 'dashboard.slideshow.*', 'dashboard.home-gallery.*', 'dashboard.courses.*', 'dashboard.programs.*', 'dashboard.proud-of.*', 'dashboard.councils.*']) ? 'true' : 'false' }}"
+           aria-expanded="{{ request()->routeIs(['dashboard.site-content.*', 'dashboard.slideshow.*', 'dashboard.home-gallery.*', 'dashboard.courses.*', 'dashboard.programs.*', 'dashboard.proud-of.*', 'dashboard.councils.*', 'dashboard.family-news.*']) ? 'true' : 'false' }}"
            aria-controls="collapseHome">
             <i class="fas fa-fw fa-home"></i>
             <span>الصفحة الرئيسية</span>
         </a>
-        <div id="collapseHome" class="collapse {{ request()->routeIs(['dashboard.site-content.*', 'dashboard.slideshow.*', 'dashboard.home-gallery.*', 'dashboard.courses.*', 'dashboard.programs.*', 'dashboard.proud-of.*', 'dashboard.councils.*', 'dashboard.events.*']) ? 'show' : '' }}"
+        <div id="collapseHome" class="collapse {{ request()->routeIs(['dashboard.site-content.*', 'dashboard.slideshow.*', 'dashboard.home-gallery.*', 'dashboard.courses.*', 'dashboard.programs.*', 'dashboard.proud-of.*', 'dashboard.councils.*', 'dashboard.events.*', 'dashboard.family-news.*']) ? 'show' : '' }}"
              aria-labelledby="headingHome" data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">إدارة الصفحة الرئيسية:</h6>
@@ -133,6 +133,11 @@
                 @can('councils.view')
                 <a class="collapse-item {{ request()->routeIs('dashboard.events.*') ? 'active' : '' }}" href="{{ route('dashboard.events.index') }}">
                     <i class="fas fa-fw fa-calendar-alt"></i> مناسبات العائلة
+                </a>
+                @endcan
+                @can('councils.view')
+                <a class="collapse-item {{ request()->routeIs('dashboard.family-news.*') ? 'active' : '' }}" href="{{ route('dashboard.family-news.index') }}">
+                    <i class="fas fa-fw fa-newspaper"></i> أخبار العائلة
                 </a>
                 @endcan
             </div>

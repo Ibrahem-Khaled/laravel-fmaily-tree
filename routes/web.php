@@ -15,6 +15,7 @@ use App\Http\Controllers\admin\RoleController;
 use App\Http\Controllers\admin\UserController;
 use App\Http\Controllers\admin\ArticleController as AdminArticleController;
 use App\Http\Controllers\BreastfeedingPublicController;
+use App\Http\Controllers\FamilyNewsController;
 use App\Http\Controllers\FamilyTreeController;
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\HomeController;
@@ -88,6 +89,9 @@ Route::get('/people/profile/{person}', [HomePersonController::class, 'show'])->n
 // Public stories pages (distinct names to avoid admin resource conflicts)
 Route::get('/stories/person/{person}', [StoriesPublicController::class, 'personStories'])->name('public.stories.person');
 Route::get('/stories/{story}', [StoriesPublicController::class, 'show'])->name('public.stories.show');
+
+// Public Family News Routes
+Route::get('/family-news/{id}', [FamilyNewsController::class, 'show'])->name('family-news.show');
 
 // Public Breastfeeding Routes
 Route::get('/breastfeeding', [BreastfeedingPublicController::class, 'index'])->name('breastfeeding.public.index');
@@ -305,6 +309,19 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::post('councils/{council}/images', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'storeImage'])->name('dashboard.councils.images.store')->middleware(['permission:councils.update']);
     Route::delete('councils/{council}/images/{image}', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'destroyImage'])->name('dashboard.councils.images.destroy')->middleware(['permission:councils.update']);
     Route::post('councils/{council}/images/reorder', [\App\Http\Controllers\admin\FamilyCouncilController::class, 'reorderImages'])->name('dashboard.councils.images.reorder')->middleware(['permission:councils.update']);
+
+    // Family News routes
+    Route::get('family-news', [\App\Http\Controllers\admin\FamilyNewsController::class, 'index'])->name('dashboard.family-news.index')->middleware(['permission:councils.view']);
+    Route::get('family-news/create', [\App\Http\Controllers\admin\FamilyNewsController::class, 'create'])->name('dashboard.family-news.create')->middleware(['permission:councils.create']);
+    Route::post('family-news', [\App\Http\Controllers\admin\FamilyNewsController::class, 'store'])->name('dashboard.family-news.store')->middleware(['permission:councils.create']);
+    Route::get('family-news/{familyNews}/edit', [\App\Http\Controllers\admin\FamilyNewsController::class, 'edit'])->name('dashboard.family-news.edit')->middleware(['permission:councils.update']);
+    Route::put('family-news/{familyNews}', [\App\Http\Controllers\admin\FamilyNewsController::class, 'update'])->name('dashboard.family-news.update')->middleware(['permission:councils.update']);
+    Route::delete('family-news/{familyNews}', [\App\Http\Controllers\admin\FamilyNewsController::class, 'destroy'])->name('dashboard.family-news.destroy')->middleware(['permission:councils.delete']);
+    Route::post('family-news/reorder', [\App\Http\Controllers\admin\FamilyNewsController::class, 'reorder'])->name('dashboard.family-news.reorder')->middleware(['permission:councils.update']);
+    Route::post('family-news/{familyNews}/toggle', [\App\Http\Controllers\admin\FamilyNewsController::class, 'toggle'])->name('dashboard.family-news.toggle')->middleware(['permission:councils.update']);
+    Route::post('family-news/{familyNews}/add-image', [\App\Http\Controllers\admin\FamilyNewsController::class, 'addImage'])->name('dashboard.family-news.add-image')->middleware(['permission:councils.update']);
+    Route::delete('family-news/images/{image}', [\App\Http\Controllers\admin\FamilyNewsController::class, 'deleteImage'])->name('dashboard.family-news.delete-image')->middleware(['permission:councils.update']);
+    Route::post('family-news/{familyNews}/reorder-images', [\App\Http\Controllers\admin\FamilyNewsController::class, 'reorderImages'])->name('dashboard.family-news.reorder-images')->middleware(['permission:councils.update']);
 
     // Products Store routes
     Route::prefix('products')->name('products.')->middleware(['permission:products.view|products.create|products.update|products.delete'])->group(function () {

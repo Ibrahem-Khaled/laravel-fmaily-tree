@@ -321,47 +321,30 @@
             position: relative;
             aspect-ratio: 4/3;
             overflow: hidden;
-        }
-
-        .preview-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            grid-template-rows: repeat(2, 1fr);
-            gap: 3px;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .preview-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: all 0.5s ease;
-            filter: brightness(0.8);
-        }
-
-        .category-card:hover .preview-image {
-            filter: brightness(1);
-            transform: scale(1.05);
-        }
-
-        .preview-placeholder {
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, rgba(13, 148, 136, 0.2), rgba(13, 148, 136, 0.05));
-            color: var(--primary-light);
+            background: rgba(255, 255, 255, 0.03);
         }
 
-        /* التدرج فوق المعاينة */
-        .card-overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 70%;
-            background: linear-gradient(to top, rgba(15, 23, 42, 0.95), transparent);
-            pointer-events: none;
+        .category-icon-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        .category-icon {
+            color: var(--primary-light);
+            opacity: 0.6;
+            transition: all 0.3s ease;
+        }
+
+        .category-card:hover .category-icon {
+            opacity: 1;
+            transform: scale(1.1);
+            color: var(--primary);
         }
 
         /* محتوى البطاقة */
@@ -1160,9 +1143,6 @@
                 font-size: 0.7rem;
             }
 
-            .preview-grid {
-                gap: 2px;
-            }
 
             .mentioned-persons {
                 gap: 0.25rem;
@@ -1347,31 +1327,11 @@
                         @endif
 
                         <div class="card-preview">
-                            <div class="preview-grid">
-                                @if($category->images->count() > 0)
-                                    @foreach($category->images->take(4) as $image)
-                                        <img src="{{ $image->getThumbnailUrl() }}"
-                                             alt="Preview"
-                                             class="preview-image">
-                                    @endforeach
-                                    @for($i = $category->images->count(); $i < 4; $i++)
-                                        <div class="preview-placeholder">
-                                            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                                                <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
-                                            </svg>
-                                        </div>
-                                    @endfor
-                                @else
-                                    @for($i = 0; $i < 4; $i++)
-                                        <div class="preview-placeholder">
-                                            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                                                <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
-                                            </svg>
-                                        </div>
-                                    @endfor
-                                @endif
+                            <div class="category-icon-wrapper">
+                                <svg width="64" height="64" fill="currentColor" viewBox="0 0 24 24" class="category-icon">
+                                    <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                                </svg>
                             </div>
-                            <div class="card-overlay"></div>
                         </div>
 
                         <div class="card-content">
@@ -1633,10 +1593,11 @@
                         </div>
                     ` : ''}
                     <div class="card-preview">
-                        <div class="preview-grid">
-                            ${renderPreviewImages(previewImages)}
+                        <div class="category-icon-wrapper">
+                            <svg width="64" height="64" fill="currentColor" viewBox="0 0 24 24" class="category-icon">
+                                <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                            </svg>
                         </div>
-                        <div class="card-overlay"></div>
                     </div>
                     <div class="card-content">
                         <h3 class="card-title">
@@ -1666,28 +1627,6 @@
 
                 grid.appendChild(card);
             });
-        }
-
-        // رسم صور المعاينة
-        function renderPreviewImages(images) {
-            let html = '';
-            for (let i = 0; i < 4; i++) {
-                if (images[i]) {
-                    const imgUrl = images[i].thumbnail_path
-                        ? `${storageUrl}/${images[i].thumbnail_path}`
-                        : (images[i].path ? `${storageUrl}/${images[i].path}` : pdfPlaceholder);
-                    html += `<img src="${imgUrl}" alt="Preview" class="preview-image">`;
-                } else {
-                    html += `
-                        <div class="preview-placeholder">
-                            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
-                            </svg>
-                        </div>
-                    `;
-                }
-            }
-            return html;
         }
 
         // حساب عدد الصور الكلي

@@ -99,6 +99,7 @@ class AdminPermissionsSeeder extends Seeder
             'padges.view', 'padges.create', 'padges.update',
             'images.view', 'images.upload',
             'dashboard.view', 'dashboard.stats',
+            'councils.view', 'councils.create', 'councils.update', 'councils.delete',
         ])->get();
         $editorRole->syncPermissions($editorPermissions);
 

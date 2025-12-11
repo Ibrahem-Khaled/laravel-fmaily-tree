@@ -13,6 +13,7 @@ use App\Models\Person;
 use App\Models\Article;
 use App\Models\Category;
 use App\Models\ImportantLink;
+use App\Models\FamilyNews;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -244,6 +245,18 @@ class HomeController extends Controller
             $importantLinks = ImportantLink::getActiveLinks();
         }
 
+        // جلب أخبار العائلة
+        // إذا كان المستخدم مسجل دخول، اجلب جميع الأخبار (المفعلة وغير المفعلة)
+        if (Auth::check()) {
+            $familyNews = FamilyNews::with('images')
+                ->orderBy('display_order')
+                ->orderBy('published_at', 'desc')
+                ->take(8)
+                ->get();
+        } else {
+            $familyNews = FamilyNews::getActiveNews(8);
+        }
+
         return view('home', [
             'latestImages' => $slideshowImages,
             'latestGalleryImages' => $latestGalleryImages,
@@ -260,6 +273,7 @@ class HomeController extends Controller
             'masterTotalCount' => $masterTotalCount,
             'phdTotalCount' => $phdTotalCount,
             'importantLinks' => $importantLinks,
+            'familyNews' => $familyNews,
         ]);
     }
 }
