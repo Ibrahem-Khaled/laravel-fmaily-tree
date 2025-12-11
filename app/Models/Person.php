@@ -193,7 +193,7 @@ class Person extends BaseModel
     public function locations()
     {
         return $this->belongsToMany(Location::class, 'person_locations')
-                    ->withPivot('label', 'is_primary', 'sort_order')
+                    ->withPivot('label', 'url', 'is_primary', 'sort_order')
                     ->withTimestamps()
                     ->orderBy('person_locations.sort_order');
     }

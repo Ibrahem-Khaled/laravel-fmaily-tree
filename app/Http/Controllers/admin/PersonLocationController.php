@@ -31,6 +31,10 @@ class PersonLocationController extends Controller
 
         PersonLocation::create($validated);
 
+        // مسح الـ cache للشخص
+        cache()->forget("person_details_{$person->id}");
+        cache()->forget("person_children_details_{$person->id}");
+
         return redirect()->back()->with('success', 'تم إضافة الموقع بنجاح');
     }
 
@@ -53,14 +57,23 @@ class PersonLocationController extends Controller
 
         $personLocation->update($validated);
 
+        // مسح الـ cache للشخص
+        cache()->forget("person_details_{$person->id}");
+        cache()->forget("person_children_details_{$person->id}");
+
         return redirect()->back()->with('success', 'تم تحديث الموقع بنجاح');
     }
 
     public function destroy(Person $person, $personLocationId)
     {
         $personLocation = PersonLocation::findOrFail($personLocationId);
+        $personId = $personLocation->person_id;
 
         $personLocation->delete();
+
+        // مسح الـ cache للشخص
+        cache()->forget("person_details_{$personId}");
+        cache()->forget("person_children_details_{$personId}");
 
         return redirect()->back()->with('success', 'تم حذف الموقع بنجاح');
     }
