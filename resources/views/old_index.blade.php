@@ -200,9 +200,14 @@
         }
 
         .person-name-container {
-            padding: 0.75rem 0.5rem;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 0.5rem 0.5rem;
             text-align: center;
-            background: transparent;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.6) 50%, transparent 100%);
+            z-index: 2;
         }
 
         /* ===== صورة الشخص ===== */
@@ -242,9 +247,14 @@
         .person-name {
             font-size: 0.85rem;
             font-weight: 700;
-            color: var(--dark-green);
+            color: #fff;
             line-height: 1.3;
             margin: 0;
+        }
+
+        .card-header-section:not(.has-photo) .person-name {
+            color: var(--dark-green);
+            text-shadow: none;
         }
 
         /* ===== شارة الحداد ===== */
@@ -952,9 +962,9 @@
                 const photoSection = hasPhoto
                     ? `<div class="card-header-section has-photo" style="background-image: url('${person.photo_url}');" data-person-id="${person.id}" data-level="${level}">
                             ${isDeceased ? `<span class="mourning-badge">${mourningText}</span>` : ''}
-                       </div>
-                       <div class="person-name-container">
-                            <span class="person-name">${person.first_name}</span>
+                            <div class="person-name-container">
+                                <span class="person-name">${person.first_name}</span>
+                            </div>
                        </div>`
                     : `<div class="card-header-section" data-person-id="${person.id}" data-level="${level}">
                             ${isDeceased ? `<span class="mourning-badge">${mourningText}</span>` : ''}

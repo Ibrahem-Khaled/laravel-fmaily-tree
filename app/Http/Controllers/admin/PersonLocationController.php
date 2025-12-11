@@ -37,11 +37,6 @@ class PersonLocationController extends Controller
     public function update(Request $request, Person $person, $personLocationId)
     {
         $personLocation = PersonLocation::findOrFail($personLocationId);
-        
-        // التأكد من أن الموقع يخص الشخص المحدد
-        if ($personLocation->person_id !== $person->id) {
-            abort(403);
-        }
 
         $validated = $request->validate([
             'location_id' => 'required|exists:locations,id',
@@ -64,11 +59,6 @@ class PersonLocationController extends Controller
     public function destroy(Person $person, $personLocationId)
     {
         $personLocation = PersonLocation::findOrFail($personLocationId);
-        
-        // التأكد من أن الموقع يخص الشخص المحدد
-        if ($personLocation->person_id !== $person->id) {
-            abort(403);
-        }
 
         $personLocation->delete();
 
