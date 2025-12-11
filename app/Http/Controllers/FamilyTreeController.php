@@ -377,13 +377,27 @@ class FamilyTreeController extends Controller
             // إضافة لوكيشنات متعددة
             if ($person->relationLoaded('locations')) {
                 $data['locations'] = $person->locations->map(function($location) {
-                    // التأكد من أن url يتم إرساله حتى لو كان null
-                    $url = $location->pivot->url ?? null;
+                    // جلب الرابط من pivot - التأكد من وجوده
+                    $url = null;
+                    if (isset($location->pivot) && isset($location->pivot->url)) {
+                        $url = $location->pivot->url;
+                        // تنظيف الرابط
+                        if ($url) {
+                            $url = trim($url);
+                            // إذا كان فارغاً بعد التنظيف، اجعله null
+                            if ($url === '') {
+                                $url = null;
+                            }
+                        } else {
+                            $url = null;
+                        }
+                    }
+
                     return [
                         'id' => $location->id,
                         'name' => $location->name,
                         'label' => $location->pivot->label ?? null,
-                        'url' => $url ? trim($url) : null, // تنظيف الرابط وإرسال null إذا كان فارغاً
+                        'url' => $url, // إرسال الرابط حتى لو كان null
                         'is_primary' => $location->pivot->is_primary ?? false,
                     ];
                 })->toArray();

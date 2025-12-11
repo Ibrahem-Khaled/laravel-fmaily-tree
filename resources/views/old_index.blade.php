@@ -1355,26 +1355,26 @@
                         });
                     }
 
-                    // إضافة المواقع (Google Maps)
+                    // إضافة المواقع (Google Maps) - فقط إذا كان هناك رابط محفوظ
                     if (hasLocations) {
                         person.locations.forEach(location => {
-                            // استخدام الرابط المحفوظ فقط إذا كان موجوداً وليس فارغاً وصحيحاً
-                            let locationUrl;
                             const savedUrl = location.url;
 
-                            // التحقق من وجود رابط محفوظ وصحيح
-                            if (savedUrl && typeof savedUrl === 'string' && savedUrl.trim() !== '' && savedUrl.startsWith('http')) {
-                                locationUrl = savedUrl.trim();
-                            } else {
-                                // إنشاء رابط Google Maps تلقائياً فقط إذا لم يكن هناك رابط محفوظ صحيح
-                                locationUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location.name)}`;
-                            }
+                            // عرض الأيقونة فقط إذا كان هناك رابط محفوظ وليس فارغاً
+                            if (savedUrl && typeof savedUrl === 'string' && savedUrl.trim() !== '') {
+                                let locationUrl = savedUrl.trim();
+                                // إذا كان الرابط لا يبدأ بـ http أو https، أضف https://
+                                if (!locationUrl.match(/^https?:\/\//i)) {
+                                    locationUrl = 'https://' + locationUrl;
+                                }
 
-                            const locationTitle = location.label ? `${location.label} - ${location.name}` : location.name;
-                            contactsAndLocationsHtml += `
-                                <a href="${locationUrl}" target="_blank" class="location-item" title="${locationTitle}">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                </a>`;
+                                const locationTitle = location.label ? `${location.label} - ${location.name}` : location.name;
+                                contactsAndLocationsHtml += `
+                                    <a href="${locationUrl}" target="_blank" class="location-item" title="${locationTitle}">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                    </a>`;
+                            }
+                            // إذا لم يكن هناك رابط، لا نعرض الأيقونة
                         });
                     }
 
