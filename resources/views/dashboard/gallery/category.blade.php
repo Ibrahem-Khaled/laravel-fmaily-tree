@@ -36,8 +36,8 @@
             @if($parentCategory)
                 <x-stats-card icon="fas fa-folder" title="الفئة الرئيسية" :value="$parentCategory->name" color="info" />
             @endif
-            @if($subcategories->count() > 0)
-                <x-stats-card icon="fas fa-folder-tree" title="الفئات الفرعية" :value="$subcategories->count()" color="warning" />
+            @if(count($subcategories) > 0)
+                <x-stats-card icon="fas fa-folder-tree" title="الفئات الفرعية" :value="count($subcategories)" color="warning" />
             @endif
         </div>
 

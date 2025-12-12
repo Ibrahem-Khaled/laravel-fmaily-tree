@@ -237,6 +237,45 @@
         .image-card:hover::after {
             opacity: 1;
         }
+
+        /* تحسينات كاردات البرامج الفرعية */
+        .sub-program-card {
+            position: relative;
+            background: white;
+        }
+
+        .sub-program-card::before {
+            content: '';
+            position: absolute;
+            inset: -3px;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.1), rgba(20, 184, 166, 0.15));
+            border-radius: 1.5rem;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border: 2px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .sub-program-card:hover::before {
+            opacity: 1;
+        }
+
+        .sub-program-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, #10b981, #14b8a6);
+            border-radius: 1.5rem 0 0 1.5rem;
+            opacity: 0.6;
+        }
+
+        .sub-program-card:hover::after {
+            opacity: 1;
+            width: 6px;
+        }
     </style>
 </head>
 
@@ -358,26 +397,29 @@
             <div class="p-6 lg:p-10 space-y-14">
                 {{-- البرامج الفرعية --}}
                 @if ($subPrograms->isNotEmpty())
-                    <section class="relative">
-                        <div class="flex flex-wrap items-center justify-between gap-3 mb-8">
+                    <section class="relative mb-12">
+                        <div class="flex flex-wrap items-center justify-between gap-3 mb-8 p-6 bg-gradient-to-r from-emerald-50/80 via-white to-teal-50/80 rounded-2xl border-2 border-emerald-400 shadow-lg backdrop-blur-sm">
                             <div class="flex items-center gap-4">
-                                <div class="w-1 h-12 bg-gradient-to-b from-emerald-500 to-teal-500 rounded-full"></div>
+                                <div class="w-2 h-14 bg-gradient-to-b from-emerald-500 to-teal-500 rounded-full shadow-lg"></div>
                             <div>
                                 <h2
-                                    class="text-2xl lg:text-3xl font-bold font-serif bg-gradient-to-r from-emerald-600 to-teal-500 text-transparent bg-clip-text">
-                                    البرامج الفرعية</h2>
-                                <p class="text-sm text-gray-500 mt-1">انقر على أي برنامج لعرض التفاصيل</p>
+                                    class="text-2xl lg:text-3xl font-bold font-serif bg-gradient-to-r from-emerald-600 to-teal-500 text-transparent bg-clip-text drop-shadow-sm">
+                                    البرامج والانشطة</h2>
+                                {{-- <p class="text-sm text-gray-500 mt-1">انقر على أي برنامج لعرض التفاصيل</p> --}}
                                 </div>
                             </div>
                             <span
-                                class="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm rounded-full font-semibold shadow-lg">
+                                class="px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm rounded-full font-semibold shadow-xl border-2 border-emerald-400/30">
                                 {{ $subPrograms->count() }} برنامج
                             </span>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
                             @foreach ($subPrograms as $subProgram)
                                 <a href="{{ route('programs.show', $subProgram) }}"
-                                    class="group block bg-white/90 backdrop-blur-sm rounded-3xl overflow-hidden border border-emerald-100/50 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 sub-program-card">
+                                    class="group block bg-white rounded-3xl overflow-hidden border-2 border-emerald-500 shadow-xl hover:shadow-emerald-glow transition-all duration-500 hover:-translate-y-2 sub-program-card relative isolate">
+                                    {{-- خلفية مميزة للكارد --}}
+                                    <div class="absolute inset-0 bg-gradient-to-br from-emerald-50/50 via-white to-teal-50/30 rounded-3xl -z-10"></div>
+                                    <div class="absolute inset-0 border-2 border-emerald-500/40 rounded-3xl -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                                     @php
                                         $subProgramImage = $subProgram->cover_image_path ?? $subProgram->path;
                                     @endphp
@@ -405,16 +447,16 @@
                                             </div>
                                         </div>
                                     @endif
-                                    <div class="p-6">
-                                        <h3 class="text-xl font-bold text-gray-800 mb-3 line-clamp-2 group-hover:text-emerald-600 transition-colors duration-300">
+                                    <div class="p-6 relative bg-white/95 backdrop-blur-sm">
+                                        <h3 class="text-xl font-bold text-gray-800 mb-3 line-clamp-2 group-hover:text-emerald-600 transition-colors duration-300 relative z-10">
                                             {{ $subProgram->program_title ?? ($subProgram->name ?? 'برنامج') }}
                                         </h3>
                                         @if ($subProgram->program_description)
-                                            <p class="text-sm text-gray-600 line-clamp-3 leading-relaxed mb-4">
+                                            <p class="text-sm text-gray-600 line-clamp-3 leading-relaxed mb-4 relative z-10">
                                                 {{ Str::limit(strip_tags($subProgram->program_description), 120) }}
                                             </p>
                                         @endif
-                                        <div class="flex items-center gap-2 text-emerald-600 text-sm font-semibold group-hover:gap-4 transition-all duration-300">
+                                        <div class="flex items-center gap-2 text-emerald-600 text-sm font-semibold group-hover:gap-4 transition-all duration-300 relative z-10">
                                             <span>عرض التفاصيل</span>
                                             <svg class="w-4 h-4 transition-transform group-hover:-translate-x-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>

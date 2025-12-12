@@ -439,7 +439,7 @@
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
             <div class="text-right mb-6 md:mb-8">
                 <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">
-                    📸 معرض الصور
+                    معرض الصور
                 </h2>
                 <p class="text-gray-600 text-xs md:text-sm mt-2">لحظات جميلة من حياة العائلة</p>
             </div>
@@ -837,7 +837,7 @@
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
             <div class="text-right mb-6 md:mb-8">
                 <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">
-                    🎯 برامج العائلة
+                    برامج العائلة
                 </h2>
                 <p class="text-gray-600 text-xs md:text-sm mt-2">فعاليات وأنشطة متنوعة</p>
             </div>
@@ -884,8 +884,8 @@
         <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-200 rounded-full blur-3xl opacity-20"></div>
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
             <div class="text-right mb-4 md:mb-6">
-                <h2 class="text-lg sm:text-xl md:text-2xl font-bold text-gradient section-title mb-2">
-                    🌟 نفتخر بهم
+                    <h2 class="text-lg sm:text-xl md:text-2xl font-bold text-gradient section-title mb-2">
+                    نفتخر بهم
                 </h2>
                 <p class="text-gray-600 text-xs md:text-sm mt-2">فعاليات وأنشطة متنوعة</p>
             </div>
@@ -948,7 +948,7 @@
             <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
                 <div class="text-right mb-6 md:mb-8">
                     <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">
-                        🎓 الشهادات العلمية
+                        الشهادات العلمية
                     </h2>
                     <p class="text-gray-600 text-xs md:text-sm mt-2">نفخر بإنجازاتهم الأكاديمية</p>
                 </div>
@@ -1014,7 +1014,7 @@
             <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
                 <div class="text-right mb-6 md:mb-8">
                     <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">
-                        🔗 روابط مهمة
+                        مواقع تهمك
                     </h2>
                     <p class="text-gray-600 text-xs md:text-sm mt-2">روابط مفيدة ومهمة للعائلة</p>
                 </div>
@@ -1072,7 +1072,7 @@
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
             <div class="text-right mb-6 md:mb-8">
                 <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">
-                    📚 دورات أكاديمية السريع
+                    دورات أكاديمية السريع
                 </h2>
                 <p class="text-gray-600 text-xs md:text-sm mt-2">تعلم وتطور مع دوراتنا المتميزة</p>
             </div>
