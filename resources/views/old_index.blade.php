@@ -1358,10 +1358,11 @@
                     // إضافة المواقع (Google Maps) - فقط إذا كان هناك رابط محفوظ
                     if (hasLocations) {
                         person.locations.forEach(location => {
+                            // جلب الرابط مباشرة من location
                             const savedUrl = location.url;
 
                             // عرض الأيقونة فقط إذا كان هناك رابط محفوظ وليس فارغاً
-                            if (savedUrl && typeof savedUrl === 'string' && savedUrl.trim() !== '') {
+                            if (savedUrl !== null && savedUrl !== undefined && typeof savedUrl === 'string' && savedUrl.trim() !== '') {
                                 let locationUrl = savedUrl.trim();
                                 // إذا كان الرابط لا يبدأ بـ http أو https، أضف https://
                                 if (!locationUrl.match(/^https?:\/\//i)) {

@@ -210,7 +210,10 @@ class FamilyTreeController extends Controller
             'friendships.friend:id,first_name,last_name,gender,birth_date,death_date,photo_url',
             'contactAccounts:id,person_id,type,value,label,sort_order', // حسابات التواصل
             'locations:id,name,normalized_name', // لوكيشنات متعددة
-            'personLocations:id,person_id,location_id,label,url,is_primary' // تحميل personLocations مع url
+            'personLocations' => function($query) {
+                $query->select('id', 'person_id', 'location_id', 'label', 'url', 'is_primary', 'sort_order');
+            },
+            'personLocations.location:id,name' // تحميل location مع personLocations للحصول على الاسم
         ])
         ->withCount(['mentionedImages', 'friendships'])
         ->findOrFail($id);
@@ -374,33 +377,33 @@ class FamilyTreeController extends Controller
                 })->toArray();
             }
 
-            // إضافة لوكيشنات متعددة
-            if ($person->relationLoaded('locations')) {
-                $data['locations'] = $person->locations->map(function($location) {
-                    // جلب الرابط من pivot - التأكد من وجوده
+            // إضافة لوكيشنات متعددة - استخدام personLocations مباشرة للحصول على url
+            if ($person->relationLoaded('personLocations')) {
+                $data['locations'] = $person->personLocations->map(function($personLocation) {
+                    // جلب الرابط مباشرة من personLocations (بدون pivot)
                     $url = null;
-                    if (isset($location->pivot) && isset($location->pivot->url)) {
-                        $url = $location->pivot->url;
-                        // تنظيف الرابط
-                        if ($url) {
-                            $url = trim($url);
-                            // إذا كان فارغاً بعد التنظيف، اجعله null
-                            if ($url === '') {
-                                $url = null;
-                            }
-                        } else {
+                    if (isset($personLocation->url) && $personLocation->url) {
+                        $url = trim($personLocation->url);
+                        // إذا كان فارغاً بعد التنظيف، اجعله null
+                        if ($url === '') {
                             $url = null;
                         }
                     }
 
+                    // جلب اسم الموقع من العلاقة location
+                    $locationName = $personLocation->location ? $personLocation->location->name : '';
+
                     return [
-                        'id' => $location->id,
-                        'name' => $location->name,
-                        'label' => $location->pivot->label ?? null,
+                        'id' => $personLocation->location_id,
+                        'name' => $locationName,
+                        'label' => $personLocation->label ?? null,
                         'url' => $url, // إرسال الرابط حتى لو كان null
-                        'is_primary' => $location->pivot->is_primary ?? false,
+                        'is_primary' => $personLocation->is_primary ?? false,
                     ];
-                })->toArray();
+                })->filter(function($location) {
+                    // تصفية المواقع التي ليس لها اسم (في حالة عدم تحميل location)
+                    return !empty($location['name']);
+                })->values()->toArray();
             }
 
             if ($person->parent) {
