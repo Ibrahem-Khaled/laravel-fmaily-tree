@@ -16,11 +16,12 @@ class BreastfeedingPublicController extends Controller
     public function index(Request $request): View
     {
         $search = $request->get('search');
+        $viewMode = $request->get('view_mode', 'mothers'); // 'mothers' or 'children'
 
-        // جلب الأمهات المرضعات مع أطفالهم
+        // جلب الأمهات المرضعات مع أطفالهم والأب من الرضاعة
         $nursingMothersQuery = Person::where('gender', 'female')
             ->whereHas('nursingRelationships')
-            ->with(['nursingRelationships.breastfedChild']);
+            ->with(['nursingRelationships.breastfedChild', 'nursingRelationships.breastfeedingFather']);
 
         if ($search) {
             $nursingMothersQuery->where(function($query) use ($search) {
@@ -35,46 +36,13 @@ class BreastfeedingPublicController extends Controller
 
         $nursingMothers = $nursingMothersQuery->get();
 
-        // تنظيم البيانات
+        // تنظيم البيانات حسب الأمهات
         $mothersData = $nursingMothers->map(function($mother) {
-            // جلب جميع أزواج الأم المرضعة (حتى المطلقين)
-            $marriages = Marriage::where('wife_id', $mother->id)
-                ->with('husband')
-                ->orderBy('married_at', 'desc')
-                ->get();
-            
-            // جلب الزوج الحالي (النشط) أو الأول إذا لم يكن هناك زوج نشط
-            $currentHusband = null;
-            $activeMarriage = $marriages->first(function($marriage) {
-                return !$marriage->isDivorced();
-            });
-            
-            if ($activeMarriage && $activeMarriage->husband) {
-                $currentHusband = [
-                    'id' => $activeMarriage->husband->id,
-                    'name' => $activeMarriage->husband->full_name,
-                    'first_name' => $activeMarriage->husband->first_name,
-                    'avatar' => $activeMarriage->husband->avatar,
-                    'is_divorced' => false,
-                ];
-            } elseif ($marriages->isNotEmpty() && $marriages->first()->husband) {
-                // إذا لم يكن هناك زوج نشط، نأخذ الأول (مطلق)
-                $firstHusband = $marriages->first()->husband;
-                $currentHusband = [
-                    'id' => $firstHusband->id,
-                    'name' => $firstHusband->full_name,
-                    'first_name' => $firstHusband->first_name,
-                    'avatar' => $firstHusband->avatar,
-                    'is_divorced' => true,
-                ];
-            }
-            
             return [
                 'id' => $mother->id,
                 'name' => $mother->full_name,
                 'first_name' => $mother->first_name,
                 'avatar' => $mother->avatar,
-                'husband' => $currentHusband, // زوج الأم المرضعة
                 'children' => $mother->nursingRelationships->map(function($relationship) {
                     return [
                         'id' => $relationship->breastfedChild->id,
@@ -86,11 +54,51 @@ class BreastfeedingPublicController extends Controller
                         'duration_months' => $relationship->duration_in_months,
                         'is_active' => $relationship->is_active,
                         'notes' => $relationship->notes,
-                        'relationship_id' => $relationship->id
+                        'relationship_id' => $relationship->id,
+                        'breastfeeding_father' => $relationship->breastfeedingFather ? [
+                            'id' => $relationship->breastfeedingFather->id,
+                            'name' => $relationship->breastfeedingFather->full_name,
+                            'first_name' => $relationship->breastfeedingFather->first_name,
+                            'avatar' => $relationship->breastfeedingFather->avatar,
+                        ] : null
                     ];
                 })
             ];
         });
+
+        // تنظيم البيانات حسب الأطفال المرتضعين
+        $childrenData = collect();
+        foreach ($nursingMothers as $mother) {
+            foreach ($mother->nursingRelationships as $relationship) {
+                $childrenData->push([
+                    'id' => $relationship->breastfedChild->id,
+                    'name' => $relationship->breastfedChild->full_name,
+                    'first_name' => $relationship->breastfedChild->first_name,
+                    'avatar' => $relationship->breastfedChild->avatar,
+                    'start_date' => $relationship->start_date?->format('Y/m/d'),
+                    'end_date' => $relationship->end_date?->format('Y/m/d'),
+                    'duration_months' => $relationship->duration_in_months,
+                    'is_active' => $relationship->is_active,
+                    'notes' => $relationship->notes,
+                    'relationship_id' => $relationship->id,
+                    'nursing_mother' => [
+                        'id' => $mother->id,
+                        'name' => $mother->full_name,
+                        'first_name' => $mother->first_name,
+                        'avatar' => $mother->avatar,
+                    ],
+                    'breastfeeding_father' => $relationship->breastfeedingFather ? [
+                        'id' => $relationship->breastfeedingFather->id,
+                        'name' => $relationship->breastfeedingFather->full_name,
+                        'first_name' => $relationship->breastfeedingFather->first_name,
+                        'avatar' => $relationship->breastfeedingFather->avatar,
+                    ] : null
+                ]);
+            }
+        }
+
+        // ترتيب الأطفال حسب الاسم
+        $childrenData = $childrenData->sortBy('first_name')->values();
 
         // الإحصائيات
         $stats = [
@@ -100,7 +108,7 @@ class BreastfeedingPublicController extends Controller
             'active_breastfeeding' => Breastfeeding::where('is_active', true)->count(),
         ];
 
-        return view('breastfeeding.public.index', compact('mothersData', 'stats', 'search'));
+        return view('breastfeeding.public.index', compact('mothersData', 'childrenData', 'stats', 'search', 'viewMode'));
     }
 
     /**

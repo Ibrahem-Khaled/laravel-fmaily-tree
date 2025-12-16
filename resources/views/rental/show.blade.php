@@ -146,11 +146,11 @@
                                class="w-full px-4 py-3 rounded-xl border-2 border-orange-200 focus:border-orange-500 focus:outline-none" required>
                     </div>
 
-                    <div>
+                    {{-- <div>
                         <label class="block text-gray-700 font-medium mb-2">البريد الإلكتروني</label>
                         <input type="email" name="email" value="{{ old('email', auth()->user()->email ?? '') }}"
                                class="w-full px-4 py-3 rounded-xl border-2 border-orange-200 focus:border-orange-500 focus:outline-none">
-                    </div>
+                    </div> --}}
 
                     <div>
                         <label class="block text-gray-700 font-medium mb-2">تاريخ بداية الاستعارة <span class="text-red-500">*</span></label>

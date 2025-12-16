@@ -161,10 +161,9 @@ class FamilyTreeController extends Controller
             'childrenFromMother as children_from_mother_count'
         ])->get();
 
-        // جلب علاقات الرضاعة للأبناء
+        // جلب علاقات الرضاعة للأبناء (جميع علاقات الرضاعة لكل طفل بغض النظر عن الأم المرضعة)
         $childrenIds = $children->pluck('id');
         $breastfeedingRelations = \App\Models\Breastfeeding::whereIn('breastfed_child_id', $childrenIds)
-            ->where('nursing_mother_id', $person->id)
             ->get()
             ->keyBy('breastfed_child_id');
 
@@ -176,7 +175,7 @@ class FamilyTreeController extends Controller
             } else {
                 $childData['children_count'] = $child->children_count ?? 0;
             }
-            
+
             // إضافة معلومات الرضاعة إذا كان الابن من الرضاعة
             $breastfeeding = $breastfeedingRelations->get($child->id);
             if ($breastfeeding) {
@@ -187,7 +186,7 @@ class FamilyTreeController extends Controller
             } else {
                 $childData['is_breastfeeding_child'] = false;
             }
-            
+
             return $childData;
         })->toArray());
 
@@ -233,20 +232,21 @@ class FamilyTreeController extends Controller
                 $query->select('id', 'person_id', 'location_id', 'label', 'url', 'is_primary', 'sort_order');
             },
             'personLocations.location:id,name', // تحميل location مع personLocations للحصول على الاسم
-            'breastfedRelationships.nursingMother:id,first_name,last_name,gender,photo_url' // تحميل علاقات الرضاعة
+            'breastfedRelationships.nursingMother:id,first_name,last_name,gender,photo_url', // تحميل علاقات الرضاعة - الأم المرضعة
+            'breastfedRelationships.breastfeedingFather:id,first_name,last_name,gender,photo_url' // تحميل علاقات الرضاعة - الأب من الرضاعة
         ])
         ->withCount(['mentionedImages', 'friendships'])
         ->findOrFail($id);
 
         $personData = $this->formatPersonData($person, true);
-        
+
         // إضافة معلومات "أم من الرضاعة" إذا كان الشخص مرتضعًا من أم ليست أمه البيولوجية
         if ($person->breastfedRelationships && $person->breastfedRelationships->isNotEmpty()) {
             $breastfeedingMothers = $person->breastfedRelationships->map(function($relationship) use ($person) {
                 $nursingMother = $relationship->nursingMother;
                 // أم من الرضاعة هي التي ليست الأم البيولوجية
                 $isBreastfeedingMother = $nursingMother && $nursingMother->id !== $person->mother_id;
-                
+
                 return [
                     'id' => $nursingMother->id ?? null,
                     'name' => $nursingMother->full_name ?? 'غير معروف',
@@ -260,8 +260,35 @@ class FamilyTreeController extends Controller
             })->filter(function($mother) {
                 return $mother['is_breastfeeding_mother']; // فقط الأمهات من الرضاعة (ليست الأم البيولوجية)
             })->values();
-            
+
             $personData['breastfeeding_mothers'] = $breastfeedingMothers;
+        }
+
+        // إضافة معلومات "أب من الرضاعة" إذا كان الشخص مرتضعًا
+        if ($person->breastfedRelationships && $person->breastfedRelationships->isNotEmpty()) {
+            $breastfeedingFathers = $person->breastfedRelationships
+                ->filter(function($relationship) {
+                    return $relationship->breastfeedingFather !== null;
+                })
+                ->map(function($relationship) {
+                    $father = $relationship->breastfeedingFather;
+                    return [
+                        'id' => $father->id ?? null,
+                        'name' => $father->full_name ?? 'غير معروف',
+                        'first_name' => $father->first_name ?? '',
+                        'photo_url' => $father->photo_url ?? null,
+                        'death_date' => $father->death_date?->format('Y-m-d'),
+                        'notes' => $relationship->notes,
+                        'start_date' => $relationship->start_date?->format('Y-m-d'),
+                        'end_date' => $relationship->end_date?->format('Y-m-d'),
+                    ];
+                })
+                ->unique('id')
+                ->values();
+
+            if ($breastfeedingFathers->isNotEmpty()) {
+                $personData['breastfeeding_fathers'] = $breastfeedingFathers;
+            }
         }
 
         // في كارد التفاصيل، نضمن عرض العدد الصحيح للأبناء (بما في ذلك أبناء الأمهات)
@@ -317,10 +344,9 @@ class FamilyTreeController extends Controller
             'childrenFromMother as children_from_mother_count'
         ])->get();
 
-        // جلب علاقات الرضاعة للأبناء
+        // جلب علاقات الرضاعة للأبناء (جميع علاقات الرضاعة لكل طفل بغض النظر عن الأم المرضعة)
         $childrenIds = $children->pluck('id');
         $breastfeedingRelations = \App\Models\Breastfeeding::whereIn('breastfed_child_id', $childrenIds)
-            ->where('nursing_mother_id', $person->id)
             ->get()
             ->keyBy('breastfed_child_id');
 
@@ -332,7 +358,7 @@ class FamilyTreeController extends Controller
             } else {
                 $childData['children_count'] = $child->children_count ?? 0;
             }
-            
+
             // إضافة معلومات الرضاعة إذا كان الابن من الرضاعة
             $breastfeeding = $breastfeedingRelations->get($child->id);
             if ($breastfeeding) {
@@ -343,7 +369,7 @@ class FamilyTreeController extends Controller
             } else {
                 $childData['is_breastfeeding_child'] = false;
             }
-            
+
             return $childData;
         })->toArray());
 
