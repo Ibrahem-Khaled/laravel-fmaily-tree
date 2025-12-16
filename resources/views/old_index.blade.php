@@ -181,6 +181,34 @@
             opacity: 1;
         }
 
+        /* ===== بطاقة ابن الرضاعة ===== */
+        .person-card.is-breastfeeding {
+            border-color: #ec4899;
+            background: linear-gradient(135deg, #fce4ec 0%, #fff 100%);
+        }
+
+        .person-card.is-breastfeeding::before {
+            background: linear-gradient(90deg, #ec4899, #fce4ec);
+        }
+
+        .person-card.is-breastfeeding:hover {
+            box-shadow: 0 12px 30px rgba(236, 72, 153, 0.25), 0 0 20px rgba(236, 72, 153, 0.15);
+        }
+
+        .breastfeeding-badge {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: linear-gradient(135deg, #ec4899, #be185d);
+            color: #fff;
+            font-size: 0.6rem;
+            font-weight: 600;
+            padding: 0.2rem 0.4rem;
+            border-radius: 12px;
+            z-index: 5;
+            box-shadow: 0 2px 8px rgba(236, 72, 153, 0.3);
+        }
+
         /* ===== محتوى البطاقة ===== */
         .card-header-section {
             position: relative;
@@ -573,6 +601,17 @@
             font-weight: 600;
         }
 
+        .relation-card.is-breastfeeding {
+            border-color: #ec4899;
+            background: linear-gradient(135deg, #fce4ec 0%, #fff 100%);
+        }
+
+        .relation-card.is-breastfeeding:hover {
+            border-color: #be185d;
+            background: linear-gradient(135deg, #fce4ec 0%, #fff 100%);
+            box-shadow: 0 8px 24px rgba(236, 72, 153, 0.2);
+        }
+
         /* ===== حسابات التواصل ===== */
         .contact-grid {
             display: flex;
@@ -946,6 +985,21 @@
         </div>
     </div>
 
+    {{-- Modal ملاحظات الرضاعة --}}
+    <div class="modal fade" id="breastfeedingNotesModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header" style="background: linear-gradient(135deg, #ec4899, #be185d); color: #fff;">
+                    <h5 class="modal-title"><i class="fas fa-baby me-2"></i>ملاحظات الرضاعة</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="breastfeedingNotesContent">
+                    <!-- سيتم ملؤها بواسطة JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
     {{-- مكون زر WhatsApp العائم --}}
     {{-- <x-whatsapp-group-button /> --}}
 
@@ -992,18 +1046,21 @@
                 const hasChildren = person.children_count > 0;
                 const isDeceased = !!person.death_date;
                 const hasPhoto = !!person.photo_url;
+                const isBreastfeeding = person.is_breastfeeding_child || false;
                 const iconClass = person.gender === 'female' ? 'fa-female' : 'fa-male';
                 const mourningText = isDeceased ? (person.gender === 'female' ? 'رحمها الله' : 'رحمه الله') : '';
 
                 const photoSection = hasPhoto
-                    ? `<div class="card-header-section has-photo" style="background-image: url('${person.photo_url}');" data-person-id="${person.id}" data-level="${level}">
+                    ? `<div class="card-header-section has-photo" style="background-image: url('${person.photo_url}');" data-person-id="${person.id}" data-level="${level}" data-is-breastfeeding="${isBreastfeeding}" data-breastfeeding-notes="${(person.breastfeeding_notes || '').replace(/"/g, '&quot;')}" data-breastfeeding-start="${person.breastfeeding_start_date || ''}" data-breastfeeding-end="${person.breastfeeding_end_date || ''}">
                             ${isDeceased ? `<span class="mourning-badge">${mourningText}</span>` : ''}
+                            ${isBreastfeeding ? `<span class="breastfeeding-badge"><i class="fas fa-baby"></i> رضاعة</span>` : ''}
                             <div class="person-name-container">
                                 <span class="person-name">${person.first_name}</span>
                             </div>
                        </div>`
-                    : `<div class="card-header-section" data-person-id="${person.id}" data-level="${level}">
+                    : `<div class="card-header-section" data-person-id="${person.id}" data-level="${level}" data-is-breastfeeding="${isBreastfeeding}" data-breastfeeding-notes="${(person.breastfeeding_notes || '').replace(/"/g, '&quot;')}" data-breastfeeding-start="${person.breastfeeding_start_date || ''}" data-breastfeeding-end="${person.breastfeeding_end_date || ''}">
                             ${isDeceased ? `<span class="mourning-badge">${mourningText}</span>` : ''}
+                            ${isBreastfeeding ? `<span class="breastfeeding-badge"><i class="fas fa-baby"></i> رضاعة</span>` : ''}
                             <div class="person-avatar">
                                 <i class="fas ${iconClass} avatar-icon"></i>
                             </div>
@@ -1014,7 +1071,7 @@
 
                 return `
                     <div class="tree-item fade-in ${staggerClass}" data-person-id="${person.id}">
-                        <div class="person-card ${isDeceased ? 'is-deceased' : ''}">
+                        <div class="person-card ${isDeceased ? 'is-deceased' : ''} ${isBreastfeeding ? 'is-breastfeeding' : ''}">
                             ${photoSection}
                             <div class="card-actions">
                                 <button class="action-btn" onclick="showPersonDetails(${person.id})">
@@ -1056,7 +1113,18 @@
                 });
 
                 document.querySelectorAll('.card-header-section').forEach(header => {
-                    header.addEventListener('click', async function() {
+                    header.addEventListener('click', async function(e) {
+                        // إذا كان ابن رضاعة، اعرض ملاحظات الرضاعة بدلاً من فتح الأبناء
+                        const isBreastfeeding = this.dataset.isBreastfeeding === 'true';
+                        if (isBreastfeeding) {
+                            e.stopPropagation();
+                            const notes = this.dataset.breastfeedingNotes || '';
+                            const startDate = this.dataset.breastfeedingStart || '';
+                            const endDate = this.dataset.breastfeedingEnd || '';
+                            showBreastfeedingNotes(this.dataset.personId, notes, startDate, endDate);
+                            return;
+                        }
+                        
                         const personId = this.dataset.personId;
                         const level = parseInt(this.dataset.level, 10);
                         const treeItem = this.closest('.tree-item');
@@ -1292,6 +1360,46 @@
                             </div>`;
                     }
                     parentsHtml += '</div>';
+                    
+                    // إضافة معلومات "أم من الرضاعة" إذا كانت موجودة
+                    if (person.breastfeeding_mothers && person.breastfeeding_mothers.length > 0) {
+                        parentsHtml += '<h6 class="mb-3 mt-3"><i class="fas fa-baby me-2"></i>أم من الرضاعة</h6><div class="row g-2 mb-4">';
+                        person.breastfeeding_mothers.forEach(breastfeedingMother => {
+                            const statusText = breastfeedingMother.death_date ? '(رحمها الله)' : 'أم من الرضاعة';
+                            const notes = (breastfeedingMother.notes || '').replace(/"/g, '&quot;');
+                            const startDate = breastfeedingMother.start_date || '';
+                            const endDate = breastfeedingMother.end_date || '';
+                            parentsHtml += `
+                                <div class="col-6">
+                                    <div class="relation-card" 
+                                         data-person-id="${breastfeedingMother.id}"
+                                         data-breastfeeding-notes="${notes}"
+                                         data-breastfeeding-start="${startDate}"
+                                         data-breastfeeding-end="${endDate}"
+                                         style="cursor: pointer;">
+                                        ${createPhoto(breastfeedingMother, 'sm')}
+                                        <div class="relation-info">
+                                            <strong>${breastfeedingMother.name}</strong>
+                                            <small style="color: #ec4899;">${statusText}</small>
+                                        </div>
+                                    </div>
+                                </div>`;
+                        });
+                        
+                        // إضافة event listeners لأمهات الرضاعة
+                        setTimeout(() => {
+                            document.querySelectorAll('.relation-card[data-breastfeeding-notes]').forEach(card => {
+                                if (!card.dataset.personId) return;
+                                card.addEventListener('click', function() {
+                                    const notes = this.dataset.breastfeedingNotes || '';
+                                    const startDate = this.dataset.breastfeedingStart || '';
+                                    const endDate = this.dataset.breastfeedingEnd || '';
+                                    showBreastfeedingNotes(this.dataset.personId, notes, startDate, endDate);
+                                });
+                            });
+                        }, 100);
+                        parentsHtml += '</div>';
+                    }
                 }
 
                 let spousesHtml = '';
@@ -1455,16 +1563,42 @@
                         const statusText = child.death_date
                             ? (child.gender === 'male' ? '(رحمه الله)' : '(رحمها الله)')
                             : (child.gender === 'female' ? 'ابنة' : 'ابن');
+                        const isBreastfeeding = child.is_breastfeeding_child || false;
+                        const breastfeedingClass = isBreastfeeding ? 'is-breastfeeding' : '';
+                        const notes = (child.breastfeeding_notes || '').replace(/"/g, '&quot;');
+                        const startDate = child.breastfeeding_start_date || '';
+                        const endDate = child.breastfeeding_end_date || '';
                         container.innerHTML += `
                             <div class="col-6 col-md-4">
-                                <div class="relation-card ${child.death_date ? 'is-deceased' : ''}" onclick="showPersonDetails(${child.id})">
+                                <div class="relation-card ${child.death_date ? 'is-deceased' : ''} ${breastfeedingClass}" 
+                                     data-person-id="${child.id}"
+                                     data-is-breastfeeding="${isBreastfeeding}"
+                                     data-breastfeeding-notes="${notes}"
+                                     data-breastfeeding-start="${startDate}"
+                                     data-breastfeeding-end="${endDate}"
+                                     style="cursor: pointer;">
                                     ${createPhoto(child, 'sm')}
                                     <div class="relation-info">
                                         <strong>${child.first_name}</strong>
-                                        <small>${statusText}</small>
+                                        <small>${statusText}${isBreastfeeding ? ' <span style="color: #ec4899;">(من الرضاعة)</span>' : ''}</small>
                                     </div>
                                 </div>
                             </div>`;
+                    });
+                    
+                    // إضافة event listeners للأبناء في الـ modal
+                    container.querySelectorAll('.relation-card').forEach(card => {
+                        card.addEventListener('click', function() {
+                            const isBreastfeeding = this.dataset.isBreastfeeding === 'true';
+                            if (isBreastfeeding) {
+                                const notes = this.dataset.breastfeedingNotes || '';
+                                const startDate = this.dataset.breastfeedingStart || '';
+                                const endDate = this.dataset.breastfeedingEnd || '';
+                                showBreastfeedingNotes(this.dataset.personId, notes, startDate, endDate);
+                            } else {
+                                showPersonDetails(this.dataset.personId);
+                            }
+                        });
                     });
                 } else {
                     container.innerHTML = `<div class="col-12 text-center text-muted py-2">لا يوجد أبناء مسجلين</div>`;
@@ -1507,6 +1641,38 @@
 
             window.showFriendships = (personId) => window.open(`/person/${personId}/friends`, '_blank');
             window.openPersonGallery = (personId) => window.open(`/person-gallery/${personId}`, '_blank');
+
+            // دالة عرض ملاحظات الرضاعة
+            window.showBreastfeedingNotes = (personId, notes, startDate, endDate) => {
+                const modal = new bootstrap.Modal(document.getElementById('breastfeedingNotesModal'));
+                const content = document.getElementById('breastfeedingNotesContent');
+                
+                let notesHtml = '';
+                if (notes && notes.trim()) {
+                    notesHtml = `<div class="mb-3">
+                        <h6 class="mb-2"><i class="fas fa-sticky-note me-2"></i>الملاحظات:</h6>
+                        <p style="white-space: pre-wrap; line-height: 1.8; color: #555;">${notes}</p>
+                    </div>`;
+                } else {
+                    notesHtml = `<div class="alert alert-info text-center">
+                        <i class="fas fa-info-circle me-2"></i>لا توجد ملاحظات مسجلة عن هذه الرضاعة
+                    </div>`;
+                }
+                
+                let datesHtml = '';
+                if (startDate || endDate) {
+                    datesHtml = `<div class="mt-3 p-3" style="background: #f8f9fa; border-radius: 12px;">
+                        <h6 class="mb-2"><i class="fas fa-calendar me-2"></i>تواريخ الرضاعة:</h6>
+                        <div class="row">
+                            ${startDate ? `<div class="col-6"><strong>تاريخ البداية:</strong><br>${startDate}</div>` : ''}
+                            ${endDate ? `<div class="col-6"><strong>تاريخ النهاية:</strong><br>${endDate}</div>` : ''}
+                        </div>
+                    </div>`;
+                }
+                
+                content.innerHTML = notesHtml + datesHtml;
+                modal.show();
+            };
 
             // Modal back button
             modalBackBtn.addEventListener('click', () => {

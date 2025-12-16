@@ -18,35 +18,45 @@ class ProductController extends Controller
         $categoryId = $request->query('category_id');
         $subcategoryId = $request->query('subcategory_id');
         $search = $request->query('search');
-        
+        $type = $request->query('type', 'all'); // all, rental, normal
+
         $query = Product::with(['category', 'subcategory', 'owner', 'location']);
-        
+
+        // Filter by type (rental/normal)
+        if ($type === 'rental') {
+            $query->where('is_rental', true);
+        } elseif ($type === 'normal') {
+            $query->where('is_rental', false);
+        }
+
         if ($categoryId) {
             $query->where('product_category_id', $categoryId);
         }
-        
+
         if ($subcategoryId) {
             $query->where('product_subcategory_id', $subcategoryId);
         }
-        
+
         if ($search) {
             $query->where(function($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                   ->orWhere('description', 'like', "%{$search}%");
             });
         }
-        
+
         $products = $query->ordered()->paginate(20)->appends($request->query());
         $categories = ProductCategory::active()->ordered()->get();
         $subcategories = ProductSubcategory::active()->ordered()->get();
-        
+
         $stats = [
             'total' => Product::count(),
             'active' => Product::active()->count(),
             'inactive' => Product::where('is_active', false)->count(),
+            'rental' => Product::where('is_rental', true)->count(),
+            'normal' => Product::where('is_rental', false)->count(),
         ];
-        
-        return view('dashboard.products.index', compact('products', 'categories', 'subcategories', 'categoryId', 'subcategoryId', 'search', 'stats'));
+
+        return view('dashboard.products.index', compact('products', 'categories', 'subcategories', 'categoryId', 'subcategoryId', 'search', 'stats', 'type'));
     }
 
     public function create()
@@ -55,7 +65,7 @@ class ProductController extends Controller
         $subcategories = ProductSubcategory::active()->ordered()->get();
         $persons = Person::orderBy('first_name')->orderBy('last_name')->get();
         $locations = Location::ordered()->get();
-        
+
         return view('dashboard.products.create', compact('categories', 'subcategories', 'persons', 'locations'));
     }
 
@@ -83,9 +93,9 @@ class ProductController extends Controller
             'name', 'description', 'price',
             'contact_phone', 'contact_whatsapp', 'contact_email',
             'contact_instagram', 'contact_facebook',
-            'product_category_id', 'product_subcategory_id', 'owner_id', 'location_id', 'is_active'
+            'product_category_id', 'product_subcategory_id', 'owner_id', 'location_id', 'is_active', 'is_rental'
         ]);
-        
+
         // معالجة المميزات من textarea
         if ($request->has('features') && is_array($request->features)) {
             $features = array_filter(array_map('trim', $request->features));
@@ -95,14 +105,15 @@ class ProductController extends Controller
             $features = array_filter(array_map('trim', explode("\n", $request->features)));
             $data['features'] = !empty($features) ? $features : null;
         }
-        
+
         if ($request->hasFile('main_image')) {
             $data['main_image'] = $request->file('main_image')->store('products', 'public');
         }
 
         $lastOrder = Product::max('sort_order') ?? 0;
         $data['sort_order'] = $lastOrder + 1;
-        $data['is_active'] = $request->has('is_active') ? true : false;
+        $data['is_active'] = $request->input('is_active', 0) == 1;
+        $data['is_rental'] = $request->input('is_rental', 0) == 1;
 
         Product::create($data);
 
@@ -119,7 +130,7 @@ class ProductController extends Controller
             ->get();
         $persons = Person::orderBy('first_name')->orderBy('last_name')->get();
         $locations = Location::ordered()->get();
-        
+
         return view('dashboard.products.edit', compact('product', 'categories', 'subcategories', 'persons', 'locations'));
     }
 
@@ -141,15 +152,16 @@ class ProductController extends Controller
             'owner_id' => 'nullable|exists:persons,id',
             'location_id' => 'nullable|exists:locations,id',
             'is_active' => 'boolean',
+            'is_rental' => 'boolean',
         ]);
 
         $data = $request->only([
             'name', 'description', 'price',
             'contact_phone', 'contact_whatsapp', 'contact_email',
             'contact_instagram', 'contact_facebook',
-            'product_category_id', 'product_subcategory_id', 'owner_id', 'location_id', 'is_active'
+            'product_category_id', 'product_subcategory_id', 'owner_id', 'location_id', 'is_active', 'is_rental'
         ]);
-        
+
         // معالجة المميزات من textarea
         if ($request->has('features') && is_array($request->features)) {
             $features = array_filter(array_map('trim', $request->features));
@@ -159,7 +171,7 @@ class ProductController extends Controller
             $features = array_filter(array_map('trim', explode("\n", $request->features)));
             $data['features'] = !empty($features) ? $features : null;
         }
-        
+
         if ($request->hasFile('main_image')) {
             if ($product->main_image) {
                 Storage::disk('public')->delete($product->main_image);
@@ -167,7 +179,8 @@ class ProductController extends Controller
             $data['main_image'] = $request->file('main_image')->store('products', 'public');
         }
 
-        $data['is_active'] = $request->has('is_active') ? true : false;
+        $data['is_active'] = $request->input('is_active', 0) == 1;
+        $data['is_rental'] = $request->input('is_rental', 0) == 1;
 
         $product->update($data);
 
@@ -190,11 +203,7 @@ class ProductController extends Controller
     public function toggle(Product $product)
     {
         $product->update(['is_active' => !$product->is_active]);
-        
-        return response()->json([
-            'success' => true,
-            'is_active' => $product->is_active,
-            'message' => $product->is_active ? 'تم تفعيل المنتج' : 'تم إلغاء تفعيل المنتج'
-        ]);
+
+        return back()->with('success', $product->is_active ? 'تم تفعيل المنتج' : 'تم إلغاء تفعيل المنتج');
     }
 }

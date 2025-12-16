@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Product extends BaseModel
 {
@@ -25,12 +26,14 @@ class Product extends BaseModel
         'owner_id',
         'location_id',
         'is_active',
+        'is_rental',
         'sort_order',
     ];
 
     protected $casts = [
         'price' => 'decimal:2',
         'is_active' => 'boolean',
+        'is_rental' => 'boolean',
         'sort_order' => 'integer',
         'features' => 'array',
     ];
@@ -55,9 +58,24 @@ class Product extends BaseModel
         return $this->belongsTo(Location::class);
     }
 
+    public function rentalRequests(): HasMany
+    {
+        return $this->hasMany(RentalRequest::class);
+    }
+
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
+    }
+
+    public function scopeRental($query)
+    {
+        return $query->where('is_rental', true);
+    }
+
+    public function scopeNotRental($query)
+    {
+        return $query->where('is_rental', false);
     }
 
     public function scopeOrdered($query)

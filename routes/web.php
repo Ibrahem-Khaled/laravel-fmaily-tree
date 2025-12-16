@@ -105,6 +105,25 @@ Route::prefix('store')->name('store.')->group(function () {
     Route::get('{product}', [\App\Http\Controllers\ProductStoreController::class, 'show'])->name('show');
 });
 
+// Rental Store Routes
+Route::prefix('rental')->name('rental.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\RentalStoreController::class, 'index'])->name('index');
+    Route::get('{product}', [\App\Http\Controllers\RentalStoreController::class, 'show'])->name('show');
+    Route::post('{product}/request', [\App\Http\Controllers\RentalRequestController::class, 'store'])->name('request');
+});
+
+// User Rental Requests
+Route::middleware('auth')->prefix('my-rentals')->name('my-rentals.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\RentalRequestController::class, 'index'])->name('index');
+    Route::get('{request}', [\App\Http\Controllers\RentalRequestController::class, 'show'])->name('show');
+});
+
+// Health Websites Routes
+Route::prefix('health-websites')->name('health-websites.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\HealthWebsiteController::class, 'index'])->name('index');
+    Route::get('{website}', [\App\Http\Controllers\HealthWebsiteController::class, 'show'])->name('show');
+});
+
 
 Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
 
@@ -351,6 +370,25 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
         Route::delete('{product}', [\App\Http\Controllers\admin\ProductController::class, 'destroy'])->name('destroy');
         Route::post('{product}/toggle', [\App\Http\Controllers\admin\ProductController::class, 'toggle'])->name('toggle');
     });
+
+    // Rental Requests Management
+    Route::prefix('rental-requests')->name('dashboard.rental-requests.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\admin\RentalRequestAdminController::class, 'index'])->name('index');
+        Route::get('{request}', [\App\Http\Controllers\admin\RentalRequestAdminController::class, 'show'])->name('show');
+        Route::patch('{request}/status', [\App\Http\Controllers\admin\RentalRequestAdminController::class, 'updateStatus'])->name('update-status');
+    });
+
+    // Health Websites Management
+    Route::resource('health-websites', \App\Http\Controllers\admin\HealthWebsiteAdminController::class)->names([
+        'index' => 'dashboard.health-websites.index',
+        'create' => 'dashboard.health-websites.create',
+        'store' => 'dashboard.health-websites.store',
+        'show' => 'dashboard.health-websites.show',
+        'edit' => 'dashboard.health-websites.edit',
+        'update' => 'dashboard.health-websites.update',
+        'destroy' => 'dashboard.health-websites.destroy',
+    ]);
+    Route::post('health-websites/{healthWebsite}/toggle', [\App\Http\Controllers\admin\HealthWebsiteAdminController::class, 'toggle'])->name('dashboard.health-websites.toggle');
 });
 
 require __DIR__ . '/auth.php';

@@ -167,6 +167,17 @@
             color: var(--accent-color);
         }
 
+        .mother-name a,
+        .child-name a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .mother-name a:hover,
+        .child-name a:hover {
+            text-decoration: underline;
+        }
+
         .mother-children-count {
             font-size: 0.9rem;
             color: #666;
@@ -290,6 +301,15 @@
             color: var(--dark-green);
             font-size: 1rem;
             margin-bottom: 5px;
+        }
+
+        .mobile-child-name a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .mobile-child-name a:hover {
+            text-decoration: underline;
         }
 
         .mobile-child-dates {
@@ -1179,12 +1199,19 @@
                                              data-mother-id="{{ $mother['id'] }}">
                                             <div class="children-count">{{ count($mother['children']) }}</div>
                                             <div class="d-flex align-items-center">
-                                                <img src="{{ $mother['avatar'] }}" alt="{{ $mother['name'] }}" class="mother-photo">
+                                                <a href="{{ route('people.profile.show', $mother['id']) }}" onclick="event.stopPropagation();" class="text-decoration-none">
+                                                    <img src="{{ $mother['avatar'] }}" alt="{{ $mother['name'] }}" class="mother-photo">
+                                                </a>
                                                 <div class="mother-info">
-                                                    <div class="mother-name">{{ $mother['name'] }}</div>
+                                                    <a href="{{ route('people.profile.show', $mother['id']) }}" onclick="event.stopPropagation();" class="text-decoration-none">
+                                                        <div class="mother-name">{{ $mother['name'] }}</div>
+                                                    </a>
                                                     @if(isset($mother['husband']) && $mother['husband'])
                                                         <div style="font-size: 0.85rem; color: #37a05c; margin-top: 3px; font-weight: 600;">
-                                                            <i class="fas fa-male"></i> زوجها: {{ $mother['husband']['name'] }}
+                                                            <i class="fas fa-male"></i> زوجها: 
+                                                            <a href="{{ route('people.profile.show', $mother['husband']['id']) }}" onclick="event.stopPropagation();" class="text-decoration-none" style="color: #37a05c;">
+                                                                {{ $mother['husband']['name'] }}
+                                                            </a>
                                                             @if($mother['husband']['is_divorced'])
                                                                 <span style="color: #999; font-size: 0.75rem;">(مطلق)</span>
                                                             @endif
@@ -1291,9 +1318,15 @@
                              data-child-name="${child.name}">
                             <div class="mobile-child-main-info">
                                 <div class="mobile-child-header">
-                                    <img src="${child.avatar}" alt="${child.name}" class="mobile-child-photo">
+                                    <a href="/people/profile/${child.id}" onclick="event.stopPropagation();">
+                                        <img src="${child.avatar}" alt="${child.name}" class="mobile-child-photo">
+                                    </a>
                                     <div class="mobile-child-info">
-                                        <div class="mobile-child-name">${child.name}</div>
+                                        <div class="mobile-child-name">
+                                            <a href="/people/profile/${child.id}" onclick="event.stopPropagation();" style="color: inherit; text-decoration: none;">
+                                                ${child.name}
+                                            </a>
+                                        </div>
                                         <div class="mobile-child-dates">
                                             ${child.start_date ? `من: ${child.start_date}` : ''}
                                             ${child.end_date ? `إلى: ${child.end_date}` : ''}
@@ -1351,16 +1384,21 @@
                     const divorcedText = mother.husband.is_divorced ? ' <span style="color: #999; font-size: 0.9rem;">(مطلق)</span>' : '';
                     husbandInfo = `
                         <p style="margin-top: 8px; color: #37a05c; font-weight: 600;">
-                            <i class="fas fa-male"></i> زوجها: ${mother.husband.name}${divorcedText}
+                            <i class="fas fa-male"></i> زوجها: 
+                            <a href="/people/profile/${mother.husband.id}" onclick="event.stopPropagation();" style="color: #37a05c; text-decoration: none;">
+                                ${mother.husband.name}
+                            </a>${divorcedText}
                         </p>
                     `;
                 }
                 
                 familyHeader.innerHTML = `
                     <div class="family-mother-info">
-                        <img src="${mother.avatar}" alt="${mother.name}" class="mother-photo-large">
+                        <a href="/people/profile/${mother.id}" onclick="event.stopPropagation();">
+                            <img src="${mother.avatar}" alt="${mother.name}" class="mother-photo-large">
+                        </a>
                         <div class="family-mother-details">
-                            <h4>${mother.name}</h4>
+                            <h4><a href="/people/profile/${mother.id}" onclick="event.stopPropagation();" style="color: inherit; text-decoration: none;">${mother.name}</a></h4>
                             ${husbandInfo}
                             <p><i class="fas fa-baby"></i> أم مرضعة لـ ${mother.children.length} طفل</p>
                         </div>
@@ -1373,9 +1411,15 @@
                         <div class="child-card" onclick="showNotes(${child.relationship_id})"
                              data-child-id="${child.relationship_id}">
                             <div class="child-header">
-                                <img src="${child.avatar}" alt="${child.name}" class="child-photo">
+                                <a href="/people/profile/${child.id}" onclick="event.stopPropagation();">
+                                    <img src="${child.avatar}" alt="${child.name}" class="child-photo">
+                                </a>
                                 <div class="child-info">
-                                    <div class="child-name">${child.name}</div>
+                                    <div class="child-name">
+                                        <a href="/people/profile/${child.id}" onclick="event.stopPropagation();" style="color: inherit; text-decoration: none;">
+                                            ${child.name}
+                                        </a>
+                                    </div>
                                     <div class="child-dates">
                                         ${child.start_date ? `من: ${child.start_date}` : ''}
                                         ${child.end_date ? `إلى: ${child.end_date}` : ''}

@@ -195,14 +195,20 @@
             <div class="bg-gradient-to-br from-pink-100/50 to-purple-100/50 p-8 lg:p-12">
                 <div class="flex flex-col lg:flex-row items-center gap-8">
                     <div class="relative">
-                        <img src="{{ $person->avatar }}" alt="{{ $person->first_name }}"
-                            class="w-40 h-40 rounded-full object-cover border-6 border-white shadow-xl">
+                        <a href="{{ route('people.profile.show', $person) }}">
+                            <img src="{{ $person->avatar }}" alt="{{ $person->first_name }}"
+                                class="w-40 h-40 rounded-full object-cover border-6 border-white shadow-xl hover:border-pink-400 transition-all duration-300">
+                        </a>
                         <div class="absolute -bottom-4 -right-4 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg">
                             <i class="fas fa-baby text-2xl animate-heartbeat"></i>
                         </div>
                     </div>
                     <div class="text-center lg:text-right flex-grow">
-                        <h1 class="text-4xl lg:text-5xl font-bold text-gray-800 mb-4 font-serif">{{ $person->full_name }}</h1>
+                        <h1 class="text-4xl lg:text-5xl font-bold text-gray-800 mb-4 font-serif">
+                            <a href="{{ route('people.profile.show', $person) }}" class="text-gray-800 hover:text-pink-600 transition-colors duration-300">
+                                {{ $person->full_name }}
+                            </a>
+                        </h1>
                         <div class="flex flex-wrap justify-center lg:justify-start gap-4 text-lg">
                             @if($nursingRelationships->isNotEmpty() && $breastfedRelationships->isNotEmpty())
                                 <span class="inline-flex items-center gap-2 px-4 py-2 bg-pink-100 text-pink-800 rounded-full font-medium">
@@ -251,11 +257,17 @@
                             <!-- رأس بطاقة العلاقة -->
                             <div class="bg-gradient-to-br from-pink-50/50 to-warm-pink/30 p-6 lg:p-8">
                                 <div class="flex flex-col lg:flex-row items-center gap-6">
-                                    <img src="{{ $relationship->breastfedChild->avatar }}"
-                                         alt="{{ $relationship->breastfedChild->first_name }}"
-                                         class="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg">
+                                    <a href="{{ route('people.profile.show', $relationship->breastfedChild) }}">
+                                        <img src="{{ $relationship->breastfedChild->avatar }}"
+                                             alt="{{ $relationship->breastfedChild->first_name }}"
+                                             class="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg hover:border-pink-400 transition-all duration-300">
+                                    </a>
                                     <div class="text-center lg:text-right flex-grow">
-                                        <h3 class="text-2xl font-bold text-gray-800 mb-2 font-serif">{{ $relationship->breastfedChild->full_name }}</h3>
+                                        <h3 class="text-2xl font-bold text-gray-800 mb-2 font-serif">
+                                            <a href="{{ route('people.profile.show', $relationship->breastfedChild) }}" class="text-gray-800 hover:text-pink-600 transition-colors duration-300">
+                                                {{ $relationship->breastfedChild->full_name }}
+                                            </a>
+                                        </h3>
                                         <p class="text-gray-600 text-lg">
                                             <i class="fas fa-child text-purple-500"></i> الطفل المرتضع
                                         </p>
@@ -341,11 +353,17 @@
                             <!-- رأس بطاقة العلاقة -->
                             <div class="bg-gradient-to-br from-purple-50/50 to-indigo-50/30 p-6 lg:p-8">
                                 <div class="flex flex-col lg:flex-row items-center gap-6">
-                                    <img src="{{ $relationship->nursingMother->avatar }}"
-                                         alt="{{ $relationship->nursingMother->first_name }}"
-                                         class="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg">
+                                    <a href="{{ route('people.profile.show', $relationship->nursingMother) }}">
+                                        <img src="{{ $relationship->nursingMother->avatar }}"
+                                             alt="{{ $relationship->nursingMother->first_name }}"
+                                             class="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg hover:border-purple-400 transition-all duration-300">
+                                    </a>
                                     <div class="text-center lg:text-right flex-grow">
-                                        <h3 class="text-2xl font-bold text-gray-800 mb-2 font-serif">{{ $relationship->nursingMother->full_name }}</h3>
+                                        <h3 class="text-2xl font-bold text-gray-800 mb-2 font-serif">
+                                            <a href="{{ route('people.profile.show', $relationship->nursingMother) }}" class="text-gray-800 hover:text-purple-600 transition-colors duration-300">
+                                                {{ $relationship->nursingMother->full_name }}
+                                            </a>
+                                        </h3>
                                         <p class="text-gray-600 text-lg">
                                             <i class="fas fa-female text-pink-500"></i> الأم المرضعة
                                         </p>

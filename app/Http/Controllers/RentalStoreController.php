@@ -7,7 +7,7 @@ use App\Models\ProductCategory;
 use App\Models\ProductSubcategory;
 use Illuminate\Http\Request;
 
-class ProductStoreController extends Controller
+class RentalStoreController extends Controller
 {
     public function index(Request $request)
     {
@@ -16,7 +16,9 @@ class ProductStoreController extends Controller
         $personId = $request->query('person');
         $search = $request->query('search');
 
-        $query = Product::with(['category', 'subcategory', 'owner', 'location'])->active()->notRental();
+        $query = Product::with(['category', 'subcategory', 'owner', 'location'])
+            ->active()
+            ->rental();
 
         if ($categoryId) {
             $query->where('product_category_id', $categoryId);
@@ -39,25 +41,30 @@ class ProductStoreController extends Controller
 
         $products = $query->ordered()->paginate(12)->appends($request->query());
         $categories = ProductCategory::active()->withCount(['products' => function($q) {
-            $q->active()->notRental();
+            $q->active()->rental();
         }])->ordered()->get();
 
-        // جلب الأشخاص أصحاب المنتجات مع عدد منتجات كل شخص
+        // جلب الأشخاص أصحاب المنتجات المؤجرة مع عدد منتجات كل شخص
         $productOwners = \App\Models\Person::whereHas('products', function($q) {
-            $q->active()->notRental();
+            $q->active()->rental();
         })
         ->withCount(['products' => function($q) {
-            $q->active()->notRental();
+            $q->active()->rental();
         }])
         ->orderBy('first_name')
         ->orderBy('last_name')
         ->get();
 
-        return view('store.index', compact('products', 'categories', 'categoryId', 'subcategoryId', 'personId', 'search', 'productOwners'));
+        return view('rental.index', compact('products', 'categories', 'categoryId', 'subcategoryId', 'personId', 'search', 'productOwners'));
     }
 
     public function show(Product $product)
     {
+        // التأكد من أن المنتج مؤجر ونشط
+        if (!$product->is_rental || !$product->is_active) {
+            abort(404);
+        }
+
         $product->load(['category', 'subcategory', 'owner', 'location']);
 
         // منتجات مشابهة من نفس الفئة
@@ -65,41 +72,11 @@ class ProductStoreController extends Controller
             ->where('product_category_id', $product->product_category_id)
             ->where('id', '!=', $product->id)
             ->active()
-            ->notRental()
+            ->rental()
             ->ordered()
             ->limit(4)
             ->get();
 
-        return view('store.show', compact('product', 'relatedProducts'));
-    }
-
-    public function category(ProductCategory $category)
-    {
-        $category->load(['subcategories' => function($q) {
-            $q->active()->ordered();
-        }]);
-
-        $products = Product::with(['category', 'subcategory', 'owner', 'location'])
-            ->where('product_category_id', $category->id)
-            ->active()
-            ->notRental()
-            ->ordered()
-            ->paginate(12);
-
-        return view('store.category', compact('category', 'products'));
-    }
-
-    public function subcategory(ProductSubcategory $subcategory)
-    {
-        $subcategory->load('category');
-
-        $products = Product::with(['category', 'subcategory', 'owner', 'location'])
-            ->where('product_subcategory_id', $subcategory->id)
-            ->active()
-            ->notRental()
-            ->ordered()
-            ->paginate(12);
-
-        return view('store.subcategory', compact('subcategory', 'products'));
+        return view('rental.show', compact('product', 'relatedProducts'));
     }
 }

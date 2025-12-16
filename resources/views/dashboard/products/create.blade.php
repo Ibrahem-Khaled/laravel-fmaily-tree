@@ -19,14 +19,14 @@
         <div class="card-body">
             <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                
+
                 <div class="row">
                     <div class="col-md-8">
                         <h5 class="mb-3">معلومات المنتج</h5>
-                        
+
                         <div class="form-group">
                             <label>اسم المنتج <span class="text-danger">*</span></label>
-                            <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" 
+                            <input type="text" name="name" class="form-control @error('name') is-invalid @enderror"
                                    value="{{ old('name') }}" required>
                             @error('name')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -35,7 +35,7 @@
 
                         <div class="form-group">
                             <label>الوصف</label>
-                            <textarea name="description" class="form-control @error('description') is-invalid @enderror" 
+                            <textarea name="description" class="form-control @error('description') is-invalid @enderror"
                                       rows="4">{{ old('description') }}</textarea>
                             @error('description')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -44,7 +44,7 @@
 
                         <div class="form-group">
                             <label>المميزات (كل مميزة في سطر)</label>
-                            <textarea name="features" class="form-control" rows="5" 
+                            <textarea name="features" class="form-control" rows="5"
                                       placeholder="مثال:&#10;جودة عالية&#10;سعر مناسب&#10;تصميم عصري"></textarea>
                             <small class="text-muted">يمكنك إضافة مميزات متعددة، كل مميزة في سطر منفصل</small>
                         </div>
@@ -53,8 +53,8 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>السعر (ر.س) <span class="text-danger">*</span></label>
-                                    <input type="number" name="price" step="0.01" min="0" 
-                                           class="form-control @error('price') is-invalid @enderror" 
+                                    <input type="number" name="price" step="0.01" min="0"
+                                           class="form-control @error('price') is-invalid @enderror"
                                            value="{{ old('price') }}" required>
                                     @error('price')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -70,12 +70,12 @@
                         </div>
 
                         <h5 class="mb-3 mt-4">الفئات</h5>
-                        
+
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>الفئة الرئيسية <span class="text-danger">*</span></label>
-                                    <select name="product_category_id" id="categorySelect" 
+                                    <select name="product_category_id" id="categorySelect"
                                             class="form-control @error('product_category_id') is-invalid @enderror" required>
                                         <option value="">اختر الفئة</option>
                                         @foreach($categories as $cat)
@@ -92,7 +92,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>الفئة الفرعية</label>
-                                    <select name="product_subcategory_id" id="subcategorySelect" 
+                                    <select name="product_subcategory_id" id="subcategorySelect"
                                             class="form-control">
                                         <option value="">اختر الفئة الفرعية</option>
                                     </select>
@@ -101,7 +101,7 @@
                         </div>
 
                         <h5 class="mb-3 mt-4">معلومات إضافية</h5>
-                        
+
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
@@ -138,41 +138,48 @@
                         </div>
 
                         <div class="form-check mt-3">
-                            <input type="checkbox" name="is_active" class="form-check-input" id="isActive" checked>
+                            <input type="hidden" name="is_active" value="0">
+                            <input type="checkbox" name="is_active" class="form-check-input" id="isActive" value="1" {{ old('is_active', true) ? 'checked' : '' }}>
                             <label class="form-check-label" for="isActive">تفعيل المنتج</label>
+                        </div>
+
+                        <div class="form-check mt-2">
+                            <input type="hidden" name="is_rental" value="0">
+                            <input type="checkbox" name="is_rental" class="form-check-input" id="isRental" value="1" {{ old('is_rental') ? 'checked' : '' }}>
+                            <label class="form-check-label" for="isRental">منتج للتأجير (سيظهر في متجر الاستعارة فقط)</label>
                         </div>
                     </div>
 
                     <div class="col-md-4">
                         <h5 class="mb-3">معلومات التواصل</h5>
-                        
+
                         <div class="form-group">
                             <label>رقم الهاتف</label>
-                            <input type="text" name="contact_phone" class="form-control" 
+                            <input type="text" name="contact_phone" class="form-control"
                                    value="{{ old('contact_phone') }}" placeholder="05xxxxxxxx">
                         </div>
 
                         <div class="form-group">
                             <label>واتساب</label>
-                            <input type="text" name="contact_whatsapp" class="form-control" 
+                            <input type="text" name="contact_whatsapp" class="form-control"
                                    value="{{ old('contact_whatsapp') }}" placeholder="05xxxxxxxx">
                         </div>
 
                         <div class="form-group">
                             <label>البريد الإلكتروني</label>
-                            <input type="email" name="contact_email" class="form-control" 
+                            <input type="email" name="contact_email" class="form-control"
                                    value="{{ old('contact_email') }}">
                         </div>
 
                         <div class="form-group">
                             <label>إنستقرام</label>
-                            <input type="text" name="contact_instagram" class="form-control" 
+                            <input type="text" name="contact_instagram" class="form-control"
                                    value="{{ old('contact_instagram') }}" placeholder="@username">
                         </div>
 
                         <div class="form-group">
                             <label>فيسبوك</label>
-                            <input type="text" name="contact_facebook" class="form-control" 
+                            <input type="text" name="contact_facebook" class="form-control"
                                    value="{{ old('contact_facebook') }}" placeholder="رابط الصفحة">
                         </div>
                     </div>
@@ -194,13 +201,13 @@
 @push('scripts')
 <script>
     const subcategories = @json($subcategories);
-    
+
     document.getElementById('categorySelect').addEventListener('change', function() {
         const categoryId = this.value;
         const subcategorySelect = document.getElementById('subcategorySelect');
-        
+
         subcategorySelect.innerHTML = '<option value="">اختر الفئة الفرعية</option>';
-        
+
         if (categoryId) {
             const filtered = subcategories.filter(s => s.product_category_id == categoryId);
             filtered.forEach(sub => {
@@ -211,7 +218,7 @@
             });
         }
     });
-    
+
     // Trigger on page load if category is already selected
     if (document.getElementById('categorySelect').value) {
         document.getElementById('categorySelect').dispatchEvent(new Event('change'));

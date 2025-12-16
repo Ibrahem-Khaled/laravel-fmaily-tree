@@ -1,64 +1,77 @@
 {{-- ====================================================================== --}}
-{{-- | ملف الهيدر المنفصل (كود مخصص بالكامل بدون Bootstrap) | --}}
+{{-- | Header Component - Clean & Modern Design | --}}
 {{-- ====================================================================== --}}
 
 <style>
-    /* --- المتغيرات الأساسية --- */
+    /* ===== CSS Variables ===== */
     :root {
         --header-bg: #145147;
         --header-accent: #37a05c;
-        --header-text: rgba(255, 255, 255, 0.8);
+        --header-text: rgba(255, 255, 255, 0.85);
         --header-text-hover: #ffffff;
         --header-height: 70px;
-        /* ارتفاع الهيدر */
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    /* --- الهيكل العام للهيدر --- */
+    /* ===== Header Container ===== */
     .custom-header {
-        background-color: var(--header-bg);
+        background: linear-gradient(135deg, var(--header-bg) 0%, #0f3d35 100%);
         height: var(--header-height);
         width: 100%;
+        position: sticky;
+        top: 0;
         z-index: 1000;
-        position: relative;
-        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
-        border-bottom: 2px solid var(--header-accent);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        border-bottom: 3px solid var(--header-accent);
     }
 
     .header-container {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        height: 100%;
-        padding: 0 1rem;
-        /* مساحة على الأطراف */
         max-width: 1400px;
         margin: 0 auto;
+        height: 100%;
+        padding: 0 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 2.5rem;
+        position: relative;
     }
 
-    /* --- الشعار --- */
+    /* Separator between brand and navigation */
+    .header-separator {
+        width: 2px;
+        height: 50%;
+        background: linear-gradient(180deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.15) 20%,
+            rgba(255, 255, 255, 0.25) 50%,
+            rgba(255, 255, 255, 0.15) 80%,
+            transparent 100%);
+        border-radius: 2px;
+        flex-shrink: 0;
+    }
+
+    /* ===== Brand Logo - Enhanced Design ===== */
     .header-brand {
         display: flex;
         align-items: center;
         gap: 0.75rem;
-        font-size: 1.25rem;
+        font-size: 1.2rem;
         font-weight: 700;
         color: var(--header-text-hover);
         text-decoration: none;
-        border: 2px solid rgba(255, 255, 255, 0.3);
-        padding: 0.6rem 1.2rem;
-        border-radius: 8px;
-        transition: all 0.3s ease;
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
-        backdrop-filter: blur(10px);
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        transition: var(--transition);
+        white-space: nowrap;
         position: relative;
-        overflow: hidden;
-        cursor: pointer;
+        background: linear-gradient(135deg, rgba(55, 160, 92, 0.25) 0%, rgba(55, 160, 92, 0.15) 100%);
+        border: 2px solid rgba(55, 160, 92, 0.4);
         box-shadow:
-            0 4px 8px rgba(0, 0, 0, 0.2),
-            0 2px 4px rgba(0, 0, 0, 0.1),
-            inset 0 1px 0 rgba(255, 255, 255, 0.3),
-            inset 0 -1px 0 rgba(0, 0, 0, 0.2);
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            0 4px 12px rgba(0, 0, 0, 0.2),
+            inset 0 1px 0 rgba(255, 255, 255, 0.15),
+            0 0 20px rgba(55, 160, 92, 0.1);
+        overflow: hidden;
+        flex-shrink: 0;
     }
 
     .header-brand::before {
@@ -69,64 +82,70 @@
         width: 100%;
         height: 100%;
         background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-        transition: left 0.5s ease;
+        transition: left 0.6s ease;
     }
 
     .header-brand:hover::before {
         left: 100%;
     }
 
-    .header-brand::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        border-radius: 6px;
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%);
-        pointer-events: none;
-    }
-
     .header-brand:hover {
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.15) 100%);
-        border-color: rgba(255, 255, 255, 0.6);
-        transform: translateY(-2px);
+        background: linear-gradient(135deg, rgba(55, 160, 92, 0.35) 0%, rgba(55, 160, 92, 0.25) 100%);
+        border-color: rgba(55, 160, 92, 0.6);
+        transform: translateY(-2px) scale(1.02);
         box-shadow:
-            0 6px 12px rgba(0, 0, 0, 0.25),
-            0 4px 8px rgba(0, 0, 0, 0.15),
-            inset 0 2px 4px rgba(255, 255, 255, 0.4),
-            inset 0 -2px 4px rgba(0, 0, 0, 0.2);
-        color: #ffffff;
+            0 6px 16px rgba(0, 0, 0, 0.25),
+            inset 0 1px 0 rgba(255, 255, 255, 0.25),
+            0 0 30px rgba(55, 160, 92, 0.2);
+        color: var(--header-text-hover);
     }
 
     .header-brand:active {
         transform: translateY(0);
-        box-shadow:
-            0 2px 4px rgba(0, 0, 0, 0.2),
-            inset 0 1px 2px rgba(0, 0, 0, 0.3);
     }
 
     .header-brand i {
-        transition: transform 0.3s ease;
-        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+        font-size: 1.5rem;
+        color: var(--header-accent);
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        transition: var(--transition);
+        position: relative;
+        z-index: 1;
+        animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+        50% {
+            opacity: 0.8;
+            transform: scale(1.05);
+        }
     }
 
     .header-brand:hover i {
-        transform: rotate(15deg) scale(1.1);
-        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+        animation: none;
+        transform: rotate(15deg) scale(1.15);
+        color: #4fd675;
+        filter: drop-shadow(0 3px 6px rgba(79, 214, 117, 0.4));
     }
 
     .header-brand span {
         position: relative;
         z-index: 1;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        letter-spacing: 0.5px;
     }
 
-    /* --- قائمة الروابط الرئيسية --- */
+    /* ===== Navigation ===== */
     .header-nav {
         display: flex;
         align-items: center;
-        gap: 0.25rem;
+        flex: 1;
+        justify-content: flex-end;
+        gap: 0.5rem;
     }
 
     .header-nav-list {
@@ -135,288 +154,695 @@
         margin: 0;
         padding: 0;
         gap: 0.25rem;
+        align-items: center;
     }
 
     .header-nav .nav-link {
-        display: block;
-        padding: 0 0.75rem;
-        height: var(--header-height);
-        line-height: var(--header-height);
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.5rem 0.9rem;
         color: var(--header-text);
         text-decoration: none;
         font-weight: 500;
+        font-size: 0.9rem;
+        border-radius: 6px;
+        transition: var(--transition);
+        white-space: nowrap;
         position: relative;
-        transition: color 0.3s ease;
+    }
+
+    .header-nav .nav-link i {
+        font-size: 0.9rem;
     }
 
     .header-nav .nav-link:hover {
+        background: rgba(255, 255, 255, 0.1);
         color: var(--header-text-hover);
-    }
-
-    /* --- حركة الخط السفلي --- */
-    .header-nav .nav-link::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 0;
-        height: 3px;
-        background-color: var(--header-accent);
-        transition: width 0.3s ease;
-    }
-
-    .header-nav .nav-link:hover::after,
-    .header-nav .nav-link.active::after {
-        width: 60%;
     }
 
     .header-nav .nav-link.active {
+        background: rgba(55, 160, 92, 0.2);
         color: var(--header-text-hover);
-        font-weight: 700;
+        font-weight: 600;
     }
 
-    /* --- أزرار الإجراءات (لوحة التحكم) --- */
-    .header-actions {
-        display: flex;
-        align-items: center;
+    .header-nav .nav-link.active::after {
+        content: '';
+        position: absolute;
+        bottom: -3px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60%;
+        height: 2px;
+        background: var(--header-accent);
+        border-radius: 2px;
     }
 
-    .dashboard-link {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.5rem 1rem;
-        border: 1px solid rgba(255, 255, 255, 0.5);
-        color: var(--header-text);
-        border-radius: 6px;
-        text-decoration: none;
-        transition: all 0.3s ease;
+    /* ===== Dropdown ===== */
+    .header-nav .dropdown {
+        position: relative;
     }
 
-    .dashboard-link:hover {
-        background-color: #fff;
-        color: var(--header-bg);
-    }
-
-    /* --- زر قائمة الجوال --- */
-    .mobile-menu-toggle {
-        display: none;
-        /* مخفي في الشاشات الكبيرة */
-        background: none;
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        border-radius: 5px;
-        padding: 0.5rem;
+    .header-nav .dropdown-toggle {
         cursor: pointer;
     }
 
-    .mobile-menu-toggle .icon-bar {
-        display: block;
-        width: 22px;
-        height: 2px;
-        background-color: var(--header-text-hover);
-        margin: 4px 0;
+    .header-nav .dropdown-toggle::after {
+        content: '\f107';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        margin-right: 0.4rem;
+        font-size: 0.75rem;
+        transition: transform 0.3s ease;
+        display: inline-block;
     }
 
-    /* --- التجاوب مع شاشات الجوال (Responsive) --- */
-    @media (max-width: 992px) {
+    .header-nav .dropdown-toggle[aria-expanded="true"]::after {
+        transform: rotate(180deg);
+    }
 
-        .header-nav,
-        .header-actions {
+    .header-nav .dropdown-menu {
+        position: absolute;
+        top: calc(100% + 8px);
+        right: 0;
+        min-width: 240px;
+        background: var(--header-bg);
+        border-radius: 8px;
+        padding: 0.5rem 0;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-8px);
+        transition: var(--transition);
+        z-index: 1001;
+        display: none;
+    }
+
+    .header-nav .dropdown-menu.show {
+        display: block;
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    .header-nav .dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1.25rem;
+        color: var(--header-text);
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: var(--transition);
+        border: none;
+        background: none;
+        width: 100%;
+        text-align: right;
+    }
+
+    .header-nav .dropdown-item i {
+        font-size: 1rem;
+        width: 18px;
+        text-align: center;
+    }
+
+    .header-nav .dropdown-item:hover,
+    .header-nav .dropdown-item.active {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--header-text-hover);
+    }
+
+    .header-nav .dropdown-divider {
+        height: 1px;
+        margin: 0.5rem 0;
+        background: rgba(255, 255, 255, 0.15);
+        border: none;
+    }
+
+    /* ===== Mobile Menu Toggle ===== */
+    .mobile-menu-toggle {
+        display: none;
+        background: rgba(255, 255, 255, 0.1);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 8px;
+        padding: 0.5rem;
+        cursor: pointer;
+        flex-direction: column;
+        gap: 5px;
+        width: 44px;
+        height: 44px;
+        justify-content: center;
+        align-items: center;
+        transition: var(--transition);
+    }
+
+    .mobile-menu-toggle:hover {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .mobile-menu-toggle .icon-bar {
+        width: 24px;
+        height: 3px;
+        background: var(--header-text-hover);
+        border-radius: 3px;
+        transition: var(--transition);
+    }
+
+    .mobile-menu-toggle.active {
+        background: rgba(55, 160, 92, 0.2);
+        border-color: var(--header-accent);
+    }
+
+    .mobile-menu-toggle.active .icon-bar:nth-child(1) {
+        transform: rotate(45deg) translate(6px, 6px);
+    }
+
+    .mobile-menu-toggle.active .icon-bar:nth-child(2) {
+        opacity: 0;
+    }
+
+    .mobile-menu-toggle.active .icon-bar:nth-child(3) {
+        transform: rotate(-45deg) translate(7px, -7px);
+    }
+
+    /* ===== Responsive Design - Mobile First ===== */
+    @media (max-width: 992px) {
+        .header-container {
+            padding: 0 1rem;
+            gap: 1rem;
+        }
+
+        .header-separator {
             display: none;
-            /* إخفاء القائمة والأزرار */
+        }
+
+        .header-brand {
+            font-size: 1rem;
+            padding: 0.55rem 1rem;
+            gap: 0.6rem;
+        }
+
+        .header-brand i {
+            font-size: 1.2rem;
+            animation: none;
+        }
+
+        .header-nav {
+            display: none;
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 1rem;
+            right: 1rem;
+            background: var(--header-bg);
+            flex-direction: column;
+            padding: 0.75rem 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            border: 2px solid var(--header-accent);
+            border-radius: 12px;
+            max-height: 70vh;
+            overflow-y: auto;
+            z-index: 999;
+        }
+
+        .header-nav.is-open {
+            display: flex;
+        }
+
+        .header-nav-list {
+            flex-direction: column;
+            width: 100%;
+            gap: 0.3rem;
+            padding: 0.5rem;
+        }
+
+        .header-nav .nav-link {
+            width: calc(100% - 1rem);
+            margin: 0 auto;
+            padding: 0.7rem 1rem;
+            justify-content: flex-start;
+            border-radius: 8px;
+            border-bottom: none;
+            font-size: 0.9rem;
+        }
+
+        .header-nav .nav-link:last-child {
+            border-bottom: none;
+        }
+
+        .header-nav .nav-link.active {
+            background: rgba(55, 160, 92, 0.25);
+            border-right: 3px solid var(--header-accent);
+        }
+
+        .header-nav .nav-link.active::after {
+            display: none;
+        }
+
+        /* Dropdown on Mobile - Always Hidden by Default */
+        .header-nav .dropdown-menu {
+            position: static;
+            display: none !important;
+            opacity: 1;
+            visibility: visible;
+            transform: none;
+            box-shadow: none;
+            border: none;
+            border-radius: 8px;
+            margin: 0.3rem auto 0;
+            padding: 0;
+            background: rgba(0, 0, 0, 0.2);
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease, margin 0.3s ease;
+            width: calc(100% - 1rem);
+        }
+
+        .header-nav .dropdown-menu.show {
+            display: block !important;
+            max-height: 250px;
+            padding: 0.5rem 0;
+            margin-top: 0.3rem;
+        }
+
+        .header-nav .dropdown-item {
+            padding: 0.7rem 1.5rem;
+            font-size: 0.85rem;
+        }
+
+        .header-nav .dropdown-divider {
+            margin: 0.4rem 1rem;
+        }
+
+        /* Scrollbar styling for mobile menu */
+        .header-nav::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .header-nav::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        .header-nav::-webkit-scrollbar-thumb {
+            background: var(--header-accent);
+            border-radius: 10px;
+        }
+
+        .header-nav::-webkit-scrollbar-thumb:hover {
+            background: #4fd675;
         }
 
         .mobile-menu-toggle {
-            display: block;
-            /* إظهار زر القائمة */
-        }
-
-        .header-container {
-            padding: 0 1rem;
-        }
-
-        /* تنسيقات القائمة المنسدلة للجوال */
-        .header-nav.is-open {
             display: flex;
-            flex-direction: column;
-            position: absolute;
-            top: var(--header-height);
-            left: 0;
-            right: 0;
-            background-color: var(--header-bg);
-            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
-            padding: 1rem 0;
-            border-top: 1px solid var(--header-accent);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .header-container {
+            padding: 0 0.75rem;
         }
 
-        .header-nav.is-open .header-nav-list {
-            flex-direction: column;
-            width: 100%;
-            align-items: center;
+        .header-brand {
+            font-size: 0.9rem;
+            padding: 0.5rem 0.85rem;
+            gap: 0.5rem;
         }
 
-        .header-nav.is-open .nav-link {
-            height: auto;
-            line-height: 1;
-            padding: 1rem;
-            width: 100%;
-            text-align: center;
+        .header-brand i {
+            font-size: 1.1rem;
         }
 
-        .header-nav.is-open .nav-link::after {
-            bottom: 5px;
-            /* تعديل مكان الخط */
+        .header-brand span {
+            font-size: 0.9rem;
         }
 
-        .header-nav.is-open .header-actions {
-            display: block;
-            margin-top: 1rem;
+        .header-nav {
+            left: 0.75rem;
+            right: 0.75rem;
+            max-height: 65vh;
+            padding: 0.6rem 0;
+        }
+
+        .header-nav-list {
+            padding: 0.4rem;
+            gap: 0.25rem;
+        }
+
+        .header-nav .nav-link {
+            font-size: 0.88rem;
+            padding: 0.65rem 0.9rem;
+            width: calc(100% - 0.8rem);
+        }
+
+        .header-nav .dropdown-menu {
+            width: calc(100% - 0.8rem);
+        }
+
+        .header-nav .dropdown-item {
+            padding: 0.6rem 1.25rem;
+            font-size: 0.83rem;
+        }
+
+        .mobile-menu-toggle {
+            width: 40px;
+            height: 40px;
+        }
+
+        .mobile-menu-toggle .icon-bar {
+            width: 22px;
+            height: 2.5px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .header-container {
+            padding: 0 0.5rem;
+        }
+
+        .header-brand {
+            font-size: 0.85rem;
+            padding: 0.45rem 0.75rem;
+            gap: 0.4rem;
+        }
+
+        .header-brand i {
+            font-size: 1rem;
+        }
+
+        .header-brand span {
+            font-size: 0.85rem;
+        }
+
+        .header-nav {
+            left: 0.5rem;
+            right: 0.5rem;
+            max-height: 60vh;
+            padding: 0.5rem 0;
+        }
+
+        .header-nav-list {
+            padding: 0.35rem;
+            gap: 0.2rem;
+        }
+
+        .header-nav .nav-link {
+            padding: 0.6rem 0.8rem;
+            font-size: 0.85rem;
+            width: calc(100% - 0.7rem);
+        }
+
+        .header-nav .dropdown-menu {
+            width: calc(100% - 0.7rem);
+            max-height: 200px;
+        }
+
+        .header-nav .dropdown-item {
+            padding: 0.55rem 1.1rem;
+            font-size: 0.8rem;
+        }
+
+        .mobile-menu-toggle {
+            width: 38px;
+            height: 38px;
+            padding: 0.4rem;
         }
     }
 </style>
 
 <header class="custom-header">
     <div class="header-container">
-
-        <a class="header-brand" href="{{ route('sila') }}" title="الرجوع للصفحة الرئيسية - شجرة العائلة">
-            <span>تواصل عائلة السريِّع</span>
+        {{-- Brand Logo - Enhanced --}}
+        <a class="header-brand" href="{{ route('sila') }}" title="الرجوع للصفحة الرئيسية">
             <i class="fas fa-sitemap"></i>
+            <span>تواصل عائلة السريِّع</span>
         </a>
 
+        {{-- Separator --}}
+        <div class="header-separator"></div>
+
+        {{-- Navigation Menu --}}
         <nav class="header-nav" id="main-nav">
             <ul class="header-nav-list">
                 <li>
-                    <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}"
-                        href="{{ route('home') }}">الرئيسية</a>
+                    <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">
+                        الرئيسية
+                    </a>
                 </li>
                 <li>
                     <a class="nav-link {{ request()->routeIs('sila') ? 'active' : '' }}" href="{{ route('sila') }}">
-                        <i class="fas fa-sitemap me-1"></i>صلة
+                        <i class="fas fa-sitemap"></i>
+                        صلة
                     </a>
                 </li>
-                {{-- <li>
-                    <a class="nav-link {{ request()->routeIs('family-tree') ? 'active' : '' }}" href="{{ route('family-tree') }}">العرض الجديد</a>
-                </li> --}}
                 <li>
-                    <a class="nav-link {{ request()->routeIs('gallery.index') ? 'active' : '' }}"
-                        href="{{ route('gallery.index') }}">معرض الصور</a>
+                    <a class="nav-link {{ request()->routeIs('gallery.index') ? 'active' : '' }}" href="{{ route('gallery.index') }}">
+                        معرض الصور
+                    </a>
                 </li>
                 <li>
-                    <a class="nav-link {{ request()->routeIs('gallery.articles') ? 'active' : '' }}"
-                        href="{{ route('gallery.articles') }}">شهادات و أبحاث</a>
+                    <a class="nav-link {{ request()->routeIs('gallery.articles') ? 'active' : '' }}" href="{{ route('gallery.articles') }}">
+                        شهادات و أبحاث
+                    </a>
                 </li>
                 <li>
-                    <a class="nav-link {{ request()->routeIs('persons.badges') ? 'active' : '' }}"
-                        href="{{ route('persons.badges') }}">
+                    <a class="nav-link {{ request()->routeIs('persons.badges') ? 'active' : '' }}" href="{{ route('persons.badges') }}">
                         طلاب طموح
                     </a>
                 </li>
                 <li>
-                    <a class="nav-link {{ request()->routeIs('breastfeeding.public.*') ? 'active' : '' }}"
-                        href="{{ route('breastfeeding.public.index') }}">
-                        <i class="fas fa-baby me-1"></i>الرضاعة
+                    <a class="nav-link {{ request()->routeIs('breastfeeding.public.*') ? 'active' : '' }}" href="{{ route('breastfeeding.public.index') }}">
+                        <i class="fas fa-baby"></i>
+                        الرضاعة
                     </a>
                 </li>
+                @auth
+                <li class="dropdown">
+                    <a class="nav-link dropdown-toggle {{ request()->routeIs(['rental.*', 'health-websites.*', 'my-rentals.*']) ? 'active' : '' }}"
+                       href="#"
+                       role="button"
+                       onclick="toggleDropdown(event, this)"
+                       aria-expanded="false"
+                       aria-haspopup="true">
+                        <i class="fas fa-heartbeat"></i>
+                        <span>الصحة واللياقة</span>
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="healthFitnessDropdown">
+                        <a class="dropdown-item {{ request()->routeIs('rental.*') ? 'active' : '' }}" href="{{ route('rental.index') }}">
+                            <i class="fas fa-dumbbell"></i>
+                            <span>استعارة الأدوات الرياضية</span>
+                        </a>
+                        <a class="dropdown-item {{ request()->routeIs('health-websites.*') ? 'active' : '' }}" href="{{ route('health-websites.index') }}">
+                            <i class="fas fa-globe"></i>
+                            <span>مواقع مهتمة بالصحة</span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item {{ request()->routeIs('my-rentals.*') ? 'active' : '' }}" href="{{ route('my-rentals.index') }}">
+                            <i class="fas fa-list"></i>
+                            <span>طلبات الاستعارة الخاصة بي</span>
+                        </a>
+                    </div>
+                </li>
+                @endauth
                 @if (auth()->check())
                     <li>
-                        <a class="nav-link {{ request()->routeIs('store.*') ? 'active' : '' }}"
-                            href="{{ route('store.index') }}">
-                            <i class="fas fa-shopping-bag me-1"></i>متجر الأسر المنتجة
+                        <a class="nav-link {{ request()->routeIs('store.*') ? 'active' : '' }}" href="{{ route('store.index') }}">
+                            <i class="fas fa-shopping-bag"></i>
+                            متجر الأسر المنتجة
                         </a>
                     </li>
                 @endif
                 <li>
-                    <a class="nav-link {{ request()->routeIs('reports.index') ? 'active' : '' }}"
-                        href="{{ route('reports.index') }}">
+                    <a class="nav-link {{ request()->routeIs('reports.index') ? 'active' : '' }}" href="{{ route('reports.index') }}">
                         التقارير
                     </a>
                 </li>
-                {{-- <li>
-                    <a class="nav-link {{ request()->routeIs('about') ? 'active' : '' }}" href="#">عن العائلة</a>
-                </li> --}}
             </ul>
-            {{-- <div class="header-actions">
-                <a href="{{ route('dashboard') }}" class="dashboard-link">
-                    <i class="fas fa-tachometer-alt"></i>
-                    <span>لوحة التحكم</span>
-                </a>
-            </div> --}}
         </nav>
 
+        {{-- Mobile Menu Toggle --}}
         <button class="mobile-menu-toggle" id="mobile-menu-btn" aria-label="Toggle navigation">
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
         </button>
-
     </div>
 </header>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const mobileMenuButton = document.getElementById('mobile-menu-btn');
+    (function() {
+        'use strict';
+
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
         const mainNav = document.getElementById('main-nav');
-        const headerBrand = document.querySelector('.header-brand');
 
-        if (mobileMenuButton && mainNav) {
-            // فتح/إغلاق القائمة
-            mobileMenuButton.addEventListener('click', function(event) {
-                event.stopPropagation(); // علشان ما يقفلش من نفس الكليك
-                mainNav.classList.toggle('is-open');
-            });
-
-            // لو ضغط في أي مكان في الصفحة يقفل القائمة
-            document.addEventListener('click', function(event) {
-                // شرط: يكون الضغط خارج الـ nav وخارج زر القائمة
-                if (
-                    mainNav.classList.contains('is-open') &&
-                    !mainNav.contains(event.target) &&
-                    !mobileMenuButton.contains(event.target)
-                ) {
-                    mainNav.classList.remove('is-open');
+        // Initialize: Close all dropdowns on mobile
+        function closeAllDropdowns() {
+            document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                menu.classList.remove('show');
+                const toggle = menu.previousElementSibling;
+                if (toggle && toggle.classList.contains('dropdown-toggle')) {
+                    toggle.setAttribute('aria-expanded', 'false');
                 }
             });
         }
 
-        // ميزة الضغط 3 مرات على "تواصل عائلة السريع" لفتح صفحة تسجيل الدخول
+        // Close dropdowns when mobile menu closes
+        if (mainNav) {
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.attributeName === 'class') {
+                        if (!mainNav.classList.contains('is-open')) {
+                            closeAllDropdowns();
+                        }
+                    }
+                });
+            });
+
+            observer.observe(mainNav, {
+                attributes: true,
+                attributeFilter: ['class']
+            });
+        }
+
+        // Mobile Menu Toggle
+        if (mobileMenuBtn && mainNav) {
+            mobileMenuBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                mainNav.classList.toggle('is-open');
+                mobileMenuBtn.classList.toggle('active');
+
+                // Close all dropdowns when opening mobile menu
+                if (!mainNav.classList.contains('is-open')) {
+                    closeAllDropdowns();
+                }
+            });
+
+            // Close menu when clicking outside
+            document.addEventListener('click', function(e) {
+                if (mainNav.classList.contains('is-open') &&
+                    !mainNav.contains(e.target) &&
+                    !mobileMenuBtn.contains(e.target)) {
+                    mainNav.classList.remove('is-open');
+                    mobileMenuBtn.classList.remove('active');
+                    closeAllDropdowns();
+                }
+            });
+        }
+
+        // Dropdown Toggle Function
+        window.toggleDropdown = function(event, element) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+
+            const menu = element.nextElementSibling;
+            if (!menu || !menu.classList.contains('dropdown-menu')) {
+                return;
+            }
+
+            const isOpen = menu.classList.contains('show');
+
+            // Close all other dropdowns
+            document.querySelectorAll('.dropdown-menu.show').forEach(m => {
+                if (m !== menu) {
+                    m.classList.remove('show');
+                    const toggle = m.previousElementSibling;
+                    if (toggle && toggle.classList.contains('dropdown-toggle')) {
+                        toggle.setAttribute('aria-expanded', 'false');
+                    }
+                }
+            });
+
+            // Toggle current dropdown
+            if (isOpen) {
+                menu.classList.remove('show');
+                element.setAttribute('aria-expanded', 'false');
+            } else {
+                menu.classList.add('show');
+                element.setAttribute('aria-expanded', 'true');
+            }
+        };
+
+        // Close dropdown when clicking outside (desktop only)
+        document.addEventListener('click', function(e) {
+            if (window.innerWidth > 992) {
+                if (!e.target.closest('.dropdown')) {
+                    closeAllDropdowns();
+                }
+            }
+        });
+
+        // Close dropdown when clicking on item
+        document.querySelectorAll('.dropdown-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const menu = this.closest('.dropdown-menu');
+                if (menu) {
+                    menu.classList.remove('show');
+                    const toggle = menu.previousElementSibling;
+                    if (toggle) {
+                        toggle.setAttribute('aria-expanded', 'false');
+                    }
+                    // Close mobile menu if open
+                    if (mainNav && mainNav.classList.contains('is-open')) {
+                        mainNav.classList.remove('is-open');
+                        if (mobileMenuBtn) {
+                            mobileMenuBtn.classList.remove('active');
+                        }
+                    }
+                }
+            });
+        });
+
+        // Triple click on brand to go to login
+        const headerBrand = document.querySelector('.header-brand');
         if (headerBrand) {
             let clickCount = 0;
             let clickTimer = null;
-            const CLICK_TIMEOUT = 2000; // 2 ثانية - الوقت المسموح بين الضغطات
-            const REQUIRED_CLICKS = 3; // عدد الضغطات المطلوبة
-            let isRedirecting = false; // لمنع الانتقال المتعدد
+            const CLICK_TIMEOUT = 2000;
+            const REQUIRED_CLICKS = 3;
+            let isRedirecting = false;
 
-            headerBrand.addEventListener('click', function(event) {
-                // إذا كان الانتقال قيد التنفيذ، تجاهل الضغطات
+            headerBrand.addEventListener('click', function(e) {
                 if (isRedirecting) {
-                    event.preventDefault();
+                    e.preventDefault();
                     return;
                 }
 
                 clickCount++;
-                
-                // إعادة تعيين العداد بعد انتهاء الوقت المحدد
-                if (clickTimer) {
-                    clearTimeout(clickTimer);
-                }
-                
-                clickTimer = setTimeout(function() {
-                    // إعادة تعيين العداد بعد انتهاء الوقت
+                if (clickTimer) clearTimeout(clickTimer);
+
+                clickTimer = setTimeout(() => {
                     clickCount = 0;
                 }, CLICK_TIMEOUT);
 
-                // إذا تم الضغط 3 مرات خلال الوقت المحدد
                 if (clickCount >= REQUIRED_CLICKS) {
-                    event.preventDefault(); // منع الانتقال للصفحة الرئيسية
+                    e.preventDefault();
                     clickCount = 0;
                     clearTimeout(clickTimer);
                     isRedirecting = true;
-                    
-                    // توجيه المستخدم لصفحة تسجيل الدخول
                     window.location.href = '{{ route("login") }}';
                 }
             });
         }
-    });
+
+        // Ensure dropdowns are closed on page load (mobile)
+        if (window.innerWidth <= 992) {
+            closeAllDropdowns();
+        }
+
+        // Close dropdowns on window resize to mobile
+        let resizeTimer;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function() {
+                if (window.innerWidth <= 992) {
+                    closeAllDropdowns();
+                }
+            }, 250);
+        });
+    })();
 </script>

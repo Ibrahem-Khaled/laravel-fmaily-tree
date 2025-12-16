@@ -225,6 +225,36 @@
     @endcan
 
     <!-- Heading -->
+    <div class="sidebar-heading">
+        الصحة واللياقة
+    </div>
+
+    <!-- Nav Item - Health & Fitness Collapse -->
+    <li class="nav-item {{ request()->routeIs(['dashboard.rental-requests.*', 'dashboard.health-websites.*']) ? 'active' : '' }}">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseHealthFitness"
+           aria-expanded="{{ request()->routeIs(['dashboard.rental-requests.*', 'dashboard.health-websites.*']) ? 'true' : 'false' }}"
+           aria-controls="collapseHealthFitness">
+            <i class="fas fa-fw fa-heartbeat"></i>
+            <span>الصحة واللياقة</span>
+            @if(isset($pendingRentalRequestsCount) && $pendingRentalRequestsCount > 0)
+                <span class="badge badge-danger badge-counter" style="font-size: 0.75rem; padding: 0.25rem 0.5rem; border-radius: 0.35rem; margin-right: 0.5rem;">{{ $pendingRentalRequestsCount }}</span>
+            @endif
+        </a>
+        <div id="collapseHealthFitness" class="collapse {{ request()->routeIs(['dashboard.rental-requests.*', 'dashboard.health-websites.*']) ? 'show' : '' }}"
+             aria-labelledby="headingHealthFitness" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">إدارة الصحة واللياقة:</h6>
+                <a class="collapse-item {{ request()->routeIs('dashboard.rental-requests.*') ? 'active' : '' }}" href="{{ route('dashboard.rental-requests.index') }}">
+                    <i class="fas fa-fw fa-hand-holding"></i> طلبات الاستعارة
+                </a>
+                <a class="collapse-item {{ request()->routeIs('dashboard.health-websites.*') ? 'active' : '' }}" href="{{ route('dashboard.health-websites.index') }}">
+                    <i class="fas fa-fw fa-globe"></i> المواقع الصحية
+                </a>
+            </div>
+        </div>
+    </li>
+
+    <!-- Heading -->
     @if(auth()->user()->can('padges.view') || auth()->user()->can('roles.manage') || auth()->user()->can('users.manage') || auth()->user()->can('site-content.view'))
     <div class="sidebar-heading">
         النظام والإعدادات
