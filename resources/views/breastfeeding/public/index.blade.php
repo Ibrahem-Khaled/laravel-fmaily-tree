@@ -218,6 +218,323 @@
             font-weight: 500;
         }
 
+        /* Info Card Styles */
+        .info-card-wrapper {
+            margin-bottom: 30px;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .info-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 25px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            border: 2px solid #e8f5e9;
+            overflow: hidden;
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .info-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            left: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #37a05c, #4ade80, #37a05c);
+            background-size: 200% 100%;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(55, 160, 92, 0.2);
+        }
+
+        .info-card-header {
+            background: linear-gradient(135deg, #37a05c 0%, #145147 100%);
+            padding: 25px 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: white;
+        }
+
+        .info-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-title {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            flex: 1;
+        }
+
+        .info-card-body {
+            padding: 30px;
+        }
+
+        .info-intro {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #333;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-radius: 15px;
+            border-right: 4px solid #37a05c;
+            position: relative;
+        }
+
+        .info-intro::before {
+            content: '"';
+            position: absolute;
+            top: -10px;
+            right: 20px;
+            font-size: 4rem;
+            color: #37a05c;
+            opacity: 0.2;
+            font-family: serif;
+        }
+
+        .info-list {
+            margin-bottom: 25px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            padding: 18px;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 15px;
+            border: 2px solid #e8f5e9;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .info-item::before {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, #37a05c, #4ade80);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .info-item:hover {
+            transform: translateX(-5px);
+            box-shadow: 0 5px 20px rgba(55, 160, 92, 0.15);
+            border-color: #37a05c;
+        }
+
+        .info-item:hover::before {
+            transform: scaleY(1);
+        }
+
+        .info-item-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #37a05c, #4ade80);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+            box-shadow: 0 4px 15px rgba(55, 160, 92, 0.3);
+        }
+
+        .info-item-content {
+            flex: 1;
+            font-size: 1rem;
+            line-height: 1.7;
+            color: #444;
+        }
+
+        .info-item-content strong {
+            color: #145147;
+            font-weight: 700;
+        }
+
+        .info-summary {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            padding: 20px;
+            background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+            border-radius: 15px;
+            border: 2px solid #fed7aa;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .info-summary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #f59e0b, #fbbf24);
+            border-radius: 15px 15px 0 0;
+        }
+
+        .summary-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+        }
+
+        .summary-content {
+            flex: 1;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: #78350f;
+        }
+
+        .summary-content strong {
+            color: #92400e;
+            font-weight: 700;
+        }
+
+        .info-note {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            padding: 20px;
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            border-radius: 15px;
+            border: 2px solid #fecaca;
+            position: relative;
+        }
+
+        .info-note::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #ef4444, #f87171);
+            border-radius: 15px 15px 0 0;
+        }
+
+        .note-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #ef4444, #f87171);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        .note-content {
+            flex: 1;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: #7f1d1d;
+        }
+
+        .note-content strong {
+            color: #991b1b;
+            font-weight: 700;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .info-card-wrapper {
+                margin-bottom: 20px;
+            }
+
+            .info-card-header {
+                padding: 20px;
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .info-icon {
+                width: 45px;
+                height: 45px;
+                font-size: 1.3rem;
+            }
+
+            .info-title {
+                font-size: 1.3rem;
+            }
+
+            .info-card-body {
+                padding: 20px;
+            }
+
+            .info-intro {
+                font-size: 1rem;
+                padding: 15px;
+            }
+
+            .info-item {
+                padding: 15px;
+            }
+
+            .info-item-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 1.1rem;
+            }
+
+            .info-item-content {
+                font-size: 0.95rem;
+            }
+
+            .info-summary,
+            .info-note {
+                padding: 15px;
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .summary-icon,
+            .note-icon {
+                margin: 0 auto;
+            }
+        }
+
         /* List Section */
         .list-section {
             background: white;
@@ -835,6 +1152,79 @@
             <div class="container-fluid">
                 <div class="section-title">
                     <h2><i class="fas fa-baby text-success"></i> علاقات الرضاعة</h2>
+                </div>
+
+                {{-- بطاقة معلومات الرضاعة --}}
+                <div class="info-card-wrapper">
+                    <div class="info-card">
+                        <div class="info-card-header">
+                            <div class="info-icon">
+                                <i class="fas fa-info-circle"></i>
+                            </div>
+                            <h3 class="info-title">معلومات مهمة عن الرضاعة</h3>
+                        </div>
+                        <div class="info-card-body">
+                            <p class="info-intro">
+                                الرضاعة تجعل الطفل من أهل الأسرة من ناحية المحارم فقط. فإذا رضع طفل أقل من سنتين خمس رضعات مشبعات من امرأة، تصبح هذه المرأة أمه بالرضاعة، ويصبح زوجها أباه بالرضاعة لأن اللبن يُنسب إليه أيضًا.
+                            </p>
+
+                            <div class="info-list">
+                                <div class="info-item">
+                                    <div class="info-item-icon">
+                                        <i class="fas fa-users"></i>
+                                    </div>
+                                    <div class="info-item-content">
+                                        <strong>إخوان وأخوات الأم</strong> يصيرون خالات وأخوالًا له بالرضاعة.
+                                    </div>
+                                </div>
+
+                                <div class="info-item">
+                                    <div class="info-item-icon">
+                                        <i class="fas fa-user-friends"></i>
+                                    </div>
+                                    <div class="info-item-content">
+                                        <strong>إخوان وأخوات الأب</strong> يصيرون أعمامًا وعمّات بالرضاعة.
+                                    </div>
+                                </div>
+
+                                <div class="info-item">
+                                    <div class="info-item-icon">
+                                        <i class="fas fa-child"></i>
+                                    </div>
+                                    <div class="info-item-content">
+                                        <strong>أبناء الأم أو الأب</strong> من أي زواج يصبحون إخوة له بالرضاعة.
+                                    </div>
+                                </div>
+
+                                <div class="info-item">
+                                    <div class="info-item-icon">
+                                        <i class="fas fa-chess-king"></i>
+                                    </div>
+                                    <div class="info-item-content">
+                                        <strong>والدا الأم والأب</strong> يصبحون أجدادًا له بالرضاعة.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="info-summary">
+                                <div class="summary-icon">
+                                    <i class="fas fa-lightbulb"></i>
+                                </div>
+                                <div class="summary-content">
+                                    <strong>وباختصار:</strong> كل قريب بالنسب يتحول لنفس القريب بالرضاعة إذا كان اللبن واحدًا.
+                                </div>
+                            </div>
+
+                            <div class="info-note">
+                                <div class="note-icon">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <div class="note-content">
+                                    <strong>ملاحظة مهمة:</strong> الرضاعة تعطي محرمية وتحريم زواج فقط، ولا تغيّر النسب، ولا تُورث، ولا توجب نفقة.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 {{-- زر التبديل بين الوضعين --}}
