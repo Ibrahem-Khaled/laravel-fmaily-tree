@@ -558,6 +558,8 @@
             border: 2px solid #eef2f1;
             cursor: pointer;
             transition: all 200ms var(--ease-smooth);
+            min-height: 72px;
+            height: 100%;
         }
 
         .relation-card:hover {
@@ -585,15 +587,25 @@
             font-size: 1.25rem;
         }
 
+        .relation-info {
+            flex: 1;
+            min-width: 0;
+        }
+
         .relation-info strong {
             display: block;
             color: var(--dark-green);
             font-size: 0.9rem;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
 
         .relation-info small {
             color: #666;
             font-size: 0.75rem;
+            display: block;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
 
         .relation-card.is-deceased .relation-info small {
@@ -1612,8 +1624,8 @@
                         const startDate = child.breastfeeding_start_date || '';
                         const endDate = child.breastfeeding_end_date || '';
                         container.innerHTML += `
-                            <div class="col-6 col-md-4">
-                                <div class="relation-card ${child.death_date ? 'is-deceased' : ''} ${breastfeedingClass}"
+                            <div class="col-6 col-md-4 d-flex">
+                                <div class="relation-card ${child.death_date ? 'is-deceased' : ''} ${breastfeedingClass} w-100"
                                      data-person-id="${child.id}"
                                      data-is-breastfeeding="${isBreastfeeding}"
                                      data-breastfeeding-notes="${notes}"
@@ -1621,7 +1633,7 @@
                                      data-breastfeeding-end="${endDate}"
                                      style="cursor: pointer;">
                                     ${createPhoto(child, 'sm')}
-                                    <div class="relation-info">
+                                    <div class="relation-info flex-grow-1">
                                         <strong>${child.first_name}</strong>
                                         <small>${statusText}${isBreastfeeding ? ' <span style="color: #ec4899;">(من الرضاعة)</span>' : ''}</small>
                                     </div>

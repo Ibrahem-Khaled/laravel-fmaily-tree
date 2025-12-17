@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Person;
 use App\Models\Marriage;
+use App\Models\Breastfeeding;
 use Illuminate\Http\Request;
 
 class FamilyTreeController extends Controller
@@ -161,13 +162,9 @@ class FamilyTreeController extends Controller
             'childrenFromMother as children_from_mother_count'
         ])->get();
 
-        // جلب علاقات الرضاعة للأبناء (جميع علاقات الرضاعة لكل طفل بغض النظر عن الأم المرضعة)
-        $childrenIds = $children->pluck('id');
-        $breastfeedingRelations = \App\Models\Breastfeeding::whereIn('breastfed_child_id', $childrenIds)
-            ->get()
-            ->keyBy('breastfed_child_id');
-
-        $childrenData = array_values($children->map(function (Person $child) use ($breastfeedingRelations) {
+        // في الشجرة الرئيسية، نعرض فقط الأبناء الحقيقيين بدون علامة من الرضاعة
+        // الأبناء من الرضاعة لن يظهروا في الشجرة، فقط في تفاصيل العضو
+        $childrenData = array_values($children->map(function (Person $child) {
             $childData = $this->formatPersonData($child);
             // إظهار العدد الصحيح للذكور والإناث
             if ($child->gender === 'female') {
@@ -176,16 +173,8 @@ class FamilyTreeController extends Controller
                 $childData['children_count'] = $child->children_count ?? 0;
             }
 
-            // إضافة معلومات الرضاعة إذا كان الابن من الرضاعة
-            $breastfeeding = $breastfeedingRelations->get($child->id);
-            if ($breastfeeding) {
-                $childData['is_breastfeeding_child'] = true;
-                $childData['breastfeeding_notes'] = $breastfeeding->notes;
-                $childData['breastfeeding_start_date'] = $breastfeeding->start_date?->format('Y-m-d');
-                $childData['breastfeeding_end_date'] = $breastfeeding->end_date?->format('Y-m-d');
-            } else {
-                $childData['is_breastfeeding_child'] = false;
-            }
+            // الأبناء في الشجرة هم دائماً أبناء حقيقيين
+            $childData['is_breastfeeding_child'] = false;
 
             return $childData;
         })->toArray());
@@ -308,7 +297,7 @@ class FamilyTreeController extends Controller
         ]);
     }
 
-    // API لجلب أبناء شخص معين في كارد التفاصيل (يشمل أبناء الأمهات)
+    // API لجلب أبناء شخص معين في كارد التفاصيل (يشمل أبناء الأمهات والأبناء من الرضاعة)
     public function getChildrenForDetails($id)
     {
         $cacheKey = "person_children_details_{$id}";
@@ -337,20 +326,113 @@ class FamilyTreeController extends Controller
             $childrenQuery->where('parent_id', $person->id);
         }
 
-        // جلب الأبناء مع عدد أبنائهم محسن للأداء
-        $children = $childrenQuery->with('location:id,name,normalized_name') // تحميل علاقة location
+        // جلب الأبناء الحقيقيين مع عدد أبنائهم محسن للأداء
+        $realChildren = $childrenQuery->with('location:id,name,normalized_name') // تحميل علاقة location
             ->withCount([
             'children as children_count',
             'childrenFromMother as children_from_mother_count'
         ])->get();
 
-        // جلب علاقات الرضاعة للأبناء (جميع علاقات الرضاعة لكل طفل بغض النظر عن الأم المرضعة)
-        $childrenIds = $children->pluck('id');
-        $breastfeedingRelations = \App\Models\Breastfeeding::whereIn('breastfed_child_id', $childrenIds)
-            ->get()
-            ->keyBy('breastfed_child_id');
+        // جلب الأبناء من الرضاعة (فقط في تفاصيل العضو)
+        // الأبناء من الرضاعة هم الأطفال الذين رضعوا من زوجة الشخص (للذكور) أو من الأم نفسها (للإناث) وليسوا أبناء حقيقيين
+        $breastfeedingChildren = collect();
 
-        $childrenData = array_values($children->map(function (Person $child) use ($breastfeedingRelations) {
+        if ($person->gender === 'male') {
+            // للذكور: جلب الأبناء من الرضاعة (الذين رضعوا من زوجة الشخص)
+            // جلب زوجات الشخص - استخدام get() ثم pluck() لتجنب غموض العمود id
+            $wives = $person->wives()->get()->pluck('id');
+
+            if ($wives->isNotEmpty()) {
+                // جلب علاقات الرضاعة حيث:
+                // 1. الأم المرضعة هي إحدى زوجات الشخص
+                // 2. الأب من الرضاعة هو الشخص نفسه (أو null إذا كان من خارج العائلة)
+                // 3. الطفل ليس ابناً حقيقياً للشخص (أو ليس له parent_id محدد)
+                $breastfeedingRelations = Breastfeeding::whereIn('nursing_mother_id', $wives)
+                    ->where(function($query) use ($person) {
+                        $query->where('breastfeeding_father_id', $person->id)
+                              ->orWhereNull('breastfeeding_father_id');
+                    })
+                    ->whereHas('breastfedChild', function($query) use ($person) {
+                        $query->where(function($q) use ($person) {
+                            $q->where('parent_id', '!=', $person->id)
+                              ->orWhereNull('parent_id');
+                        });
+                    })
+                    ->with(['breastfedChild' => function($query) {
+                        $query->with('location:id,name,normalized_name')
+                              ->withCount([
+                                  'children as children_count',
+                                  'childrenFromMother as children_from_mother_count'
+                              ]);
+                    }])
+                    ->get();
+
+                // تحويل علاقات الرضاعة إلى أطفال مع معلومات الرضاعة
+                $breastfeedingChildren = $breastfeedingRelations->map(function($relation) {
+                    $child = $relation->breastfedChild;
+                    if (!$child) return null;
+
+                    $childData = $this->formatPersonData($child);
+                    // إظهار العدد الصحيح للذكور والإناث
+                    if ($child->gender === 'female') {
+                        $childData['children_count'] = $child->children_from_mother_count ?? 0;
+                    } else {
+                        $childData['children_count'] = $child->children_count ?? 0;
+                    }
+
+                    // إضافة معلومات الرضاعة
+                    $childData['is_breastfeeding_child'] = true;
+                    $childData['breastfeeding_notes'] = $relation->notes;
+                    $childData['breastfeeding_start_date'] = $relation->start_date?->format('Y-m-d');
+                    $childData['breastfeeding_end_date'] = $relation->end_date?->format('Y-m-d');
+
+                    return $childData;
+                })->filter()->values();
+            }
+        } elseif ($person->gender === 'female') {
+            // للإناث: جلب جميع الأبناء من الرضاعة (الذين رضعوا من الأم نفسها وليسوا أبناء حقيقيين)
+            // يمكن أن يكونوا من خارج العائلة (mother_id = null)
+            $breastfeedingRelations = Breastfeeding::where('nursing_mother_id', $person->id)
+                ->whereHas('breastfedChild', function($query) use ($person) {
+                    $query->where(function($q) use ($person) {
+                        $q->where('mother_id', '!=', $person->id)
+                          ->orWhereNull('mother_id');
+                    });
+                })
+                ->with(['breastfedChild' => function($query) {
+                    $query->with('location:id,name,normalized_name')
+                          ->withCount([
+                              'children as children_count',
+                              'childrenFromMother as children_from_mother_count'
+                          ]);
+                }])
+                ->get();
+
+            // تحويل علاقات الرضاعة إلى أطفال مع معلومات الرضاعة
+            $breastfeedingChildren = $breastfeedingRelations->map(function($relation) {
+                $child = $relation->breastfedChild;
+                if (!$child) return null;
+
+                $childData = $this->formatPersonData($child);
+                // إظهار العدد الصحيح للذكور والإناث
+                if ($child->gender === 'female') {
+                    $childData['children_count'] = $child->children_from_mother_count ?? 0;
+                } else {
+                    $childData['children_count'] = $child->children_count ?? 0;
+                }
+
+                // إضافة معلومات الرضاعة
+                $childData['is_breastfeeding_child'] = true;
+                $childData['breastfeeding_notes'] = $relation->notes;
+                $childData['breastfeeding_start_date'] = $relation->start_date?->format('Y-m-d');
+                $childData['breastfeeding_end_date'] = $relation->end_date?->format('Y-m-d');
+
+                return $childData;
+            })->filter()->values();
+        }
+
+        // معالجة الأبناء الحقيقيين
+        $realChildrenData = $realChildren->map(function (Person $child) {
             $childData = $this->formatPersonData($child);
             // إظهار العدد الصحيح للذكور والإناث
             if ($child->gender === 'female') {
@@ -359,19 +441,17 @@ class FamilyTreeController extends Controller
                 $childData['children_count'] = $child->children_count ?? 0;
             }
 
-            // إضافة معلومات الرضاعة إذا كان الابن من الرضاعة
-            $breastfeeding = $breastfeedingRelations->get($child->id);
-            if ($breastfeeding) {
-                $childData['is_breastfeeding_child'] = true;
-                $childData['breastfeeding_notes'] = $breastfeeding->notes;
-                $childData['breastfeeding_start_date'] = $breastfeeding->start_date?->format('Y-m-d');
-                $childData['breastfeeding_end_date'] = $breastfeeding->end_date?->format('Y-m-d');
-            } else {
-                $childData['is_breastfeeding_child'] = false;
-            }
+            // الأبناء الحقيقيين ليسوا من الرضاعة
+            $childData['is_breastfeeding_child'] = false;
 
             return $childData;
-        })->toArray());
+        });
+
+        // دمج الأبناء الحقيقيين والأبناء من الرضاعة
+        // نستخدم unique('id') للتأكد من عدم تكرار الأطفال (في حالة كان طفل رضع من زوجة وأيضاً هو ابن حقيقي)
+        $allChildren = $realChildrenData->merge($breastfeedingChildren)->unique('id')->values();
+
+        $childrenData = array_values($allChildren->toArray());
 
         // حفظ البيانات في cache لمدة 15 دقيقة
         cache()->put($cacheKey, $childrenData, 900);
