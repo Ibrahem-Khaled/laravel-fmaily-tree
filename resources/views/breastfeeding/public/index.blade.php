@@ -368,12 +368,42 @@
         }
 
         /* Card Styles */
+        .person-card-mobile-wrapper {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        @media (min-width: 769px) {
+            .person-card-mobile-wrapper {
+                display: flex;
+            }
+        }
+
+        .person-photo-outside {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid white;
+            box-shadow: var(--shadow-md);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .person-photo-outside:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-lg);
+        }
+
         .person-card {
             background: linear-gradient(135deg, white 0%, var(--light-gray) 100%);
             border: 2px solid var(--border-color);
             border-radius: 15px;
             padding: 18px;
-            margin-bottom: 12px;
+            flex: 1;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
@@ -521,6 +551,30 @@
             padding: 20px;
             margin-bottom: 25px;
             border: 2px solid var(--accent-color);
+        }
+
+        .details-header-wrapper {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .details-header-photo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid white;
+            box-shadow: var(--shadow-md);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .details-header-photo:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-lg);
         }
 
         .details-title {
@@ -729,6 +783,121 @@
             color: #555;
         }
 
+        .notes-btn {
+            background: linear-gradient(135deg, var(--accent-color), var(--dark-green));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+            box-shadow: var(--shadow-sm);
+            width: 100%;
+            justify-content: center;
+        }
+
+        @media (min-width: 769px) {
+            .notes-btn {
+                width: auto;
+            }
+        }
+
+        .notes-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            background: linear-gradient(135deg, var(--dark-green), var(--accent-color));
+        }
+
+        .notes-btn i {
+            font-size: 0.85rem;
+        }
+
+        .child-notes-section {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid var(--border-color);
+            display: none;
+        }
+
+        .child-notes-section.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .child-details-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid var(--light-green);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .mobile-parents-section {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid var(--light-green);
+            display: none;
+        }
+
+        .mobile-parents-section.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        .show-parents-btn {
+            background: linear-gradient(135deg, var(--accent-color), var(--dark-green));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 16px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+            box-shadow: var(--shadow-sm);
+            width: 100%;
+            justify-content: center;
+        }
+
+        .show-parents-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            background: linear-gradient(135deg, var(--dark-green), var(--accent-color));
+        }
+
+        .show-parents-btn:active {
+            transform: translateY(0);
+        }
+
+        .show-parents-btn i {
+            font-size: 0.9rem;
+        }
+
+        /* إظهار زر عرض الأب والأم على الهواتف فقط */
+        @media (max-width: 768px) {
+            .show-parents-btn {
+                display: inline-flex !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .show-parents-btn {
+                display: none !important;
+                visibility: hidden !important;
+            }
+        }
+
         .empty-state {
             text-align: center;
             padding: 50px 30px;
@@ -834,9 +1003,22 @@
                 margin-bottom: 15px;
             }
 
+            .person-card-mobile-wrapper {
+                flex-direction: row;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .person-photo-outside {
+                width: 60px;
+                height: 60px;
+                flex-shrink: 0;
+            }
+
             .person-card {
                 padding: 15px;
                 margin-bottom: 10px;
+                width: 100%;
             }
 
             .person-photo {
@@ -894,6 +1076,27 @@
 
             .detail-dates {
                 font-size: 0.8rem;
+            }
+
+            .details-header-wrapper {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .details-header-photo {
+                width: 70px;
+                height: 70px;
+                margin-bottom: 15px;
+            }
+
+            .notes-btn, .show-parents-btn {
+                font-size: 0.85rem;
+                padding: 10px 16px;
+            }
+
+            .show-parents-btn {
+                display: inline-flex !important;
             }
 
             .view-mode-toggle {
@@ -1064,22 +1267,21 @@
                                 @if($mothersData->isNotEmpty())
                                     <div id="mothersList">
                                         @foreach($mothersData as $mother)
-                                            <div class="person-card" onclick="showMotherDetails({{ $mother['id'] }}, event)"
-                                                 data-mother-id="{{ $mother['id'] }}">
-                                                <div class="d-flex align-items-center">
-                                                    <img src="{{ $mother['avatar'] }}" alt="{{ $mother['name'] }}" class="person-photo" onclick="event.stopPropagation(); window.location.href='{{ route('people.profile.show', $mother['id']) }}';">
+                                            <div class="person-card-mobile-wrapper" data-mother-id="{{ $mother['id'] }}">
+                                                <img src="{{ $mother['avatar'] }}" alt="{{ $mother['name'] }}" class="person-photo-outside" onclick="window.location.href='{{ route('people.profile.show', $mother['id']) }}';">
+                                                <div class="person-card" onclick="showMotherDetails({{ $mother['id'] }}, event)">
                                                     <div class="person-info">
                                                         <div class="person-name">{{ $mother['name'] }}</div>
                                                         <div class="person-meta">{{ count($mother['children']) }} طفل مرتضع</div>
                                                     </div>
-                                                </div>
-                                                <div class="card-hint">
-                                                    <i class="fas fa-info-circle"></i> اضغط على البطاقة لعرض التفاصيل
-                                                </div>
-                                                {{-- عرض الأبناء على الهواتف --}}
-                                                <div class="mobile-children-section" id="mobileChildren_{{ $mother['id'] }}" style="display: none;">
-                                                    <div class="details-grid" id="mobileChildrenGrid_{{ $mother['id'] }}">
-                                                        <!-- سيتم ملؤها بواسطة JavaScript -->
+                                                    <div class="card-hint">
+                                                        <i class="fas fa-info-circle"></i> اضغط على البطاقة لعرض التفاصيل
+                                                    </div>
+                                                    {{-- عرض الأبناء على الهواتف --}}
+                                                    <div class="mobile-children-section" id="mobileChildren_{{ $mother['id'] }}" style="display: none;">
+                                                        <div class="details-grid" id="mobileChildrenGrid_{{ $mother['id'] }}">
+                                                            <!-- سيتم ملؤها بواسطة JavaScript -->
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -1114,10 +1316,9 @@
                                 @if(isset($childrenData) && $childrenData->isNotEmpty())
                                     <div id="childrenList">
                                         @foreach($childrenData as $child)
-                                            <div class="person-card" onclick="showChildDetails({{ $child['id'] }})"
-                                                 data-child-id="{{ $child['id'] }}">
-                                                <div class="d-flex align-items-center">
-                                                    <img src="{{ $child['avatar'] }}" alt="{{ $child['name'] }}" class="person-photo" onclick="event.stopPropagation(); window.location.href='{{ route('people.profile.show', $child['id']) }}';">
+                                            <div class="person-card-mobile-wrapper" data-child-id="{{ $child['id'] }}">
+                                                <img src="{{ $child['avatar'] }}" alt="{{ $child['name'] }}" class="person-photo-outside" onclick="window.location.href='{{ route('people.profile.show', $child['id']) }}';">
+                                                <div class="person-card" onclick="showChildDetails({{ $child['id'] }})">
                                                     <div class="person-info">
                                                         <div class="person-name">{{ $child['name'] }}</div>
                                                         <div class="person-meta">
@@ -1126,9 +1327,15 @@
                                                             @endif
                                                         </div>
                                                     </div>
-                                                </div>
-                                                <div class="card-hint">
-                                                    <i class="fas fa-info-circle"></i> اضغط على البطاقة لعرض التفاصيل
+                                                    <button class="show-parents-btn" onclick="event.stopPropagation(); showChildParentsMobile({{ $child['id'] }});">
+                                                        <i class="fas fa-users"></i> عرض الأب والأم من الرضاعة
+                                                    </button>
+                                                    <div class="mobile-parents-section" id="mobileParents_{{ $child['id'] }}">
+                                                        <!-- سيتم ملؤها بواسطة JavaScript -->
+                                                    </div>
+                                                    <div class="card-hint">
+                                                        <i class="fas fa-info-circle"></i> اضغط على البطاقة لعرض التفاصيل
+                                                    </div>
                                                 </div>
                                             </div>
                                         @endforeach
@@ -1194,12 +1401,12 @@
             }
 
             // إزالة التحديد من جميع الأمهات
-            document.querySelectorAll('.person-card').forEach(card => {
+            document.querySelectorAll('.person-card-mobile-wrapper .person-card').forEach(card => {
                 card.classList.remove('active');
             });
 
             // تحديد الأم المختارة
-            const selectedCard = document.querySelector(`[data-mother-id="${motherId}"]`);
+            const selectedCard = document.querySelector(`.person-card-mobile-wrapper[data-mother-id="${motherId}"] .person-card`);
             if (selectedCard) {
                 selectedCard.classList.add('active');
             }
@@ -1228,14 +1435,7 @@
                                         <i class="fas fa-male"></i> الأب من الرضاعة:
                                     </div>
                                     <div class="father-name">
-                                        ${child.breastfeeding_father.name}
-                                        <a href="/people/profile/${child.breastfeeding_father.id}"
-                                           onclick="event.stopPropagation();"
-                                           class="profile-link"
-                                           style="display: inline-block; margin-right: 8px;"
-                                           title="عرض الملف الشخصي">
-                                            <i class="fas fa-user-circle"></i>
-                                        </a>
+                                        <a href="/people/profile/${child.breastfeeding_father.id}" onclick="event.stopPropagation();" style="color: var(--accent-color); text-decoration: none;">${child.breastfeeding_father.name}</a>
                                     </div>
                                 </div>
                             `;
@@ -1243,7 +1443,7 @@
 
                         return `
                             <div class="detail-card" data-relationship-id="${child.relationship_id}">
-                                <div class="detail-header" onclick="showChildNotesMobile(event, ${child.relationship_id}, '${child.name.replace(/'/g, "\\'")}')">
+                                <div class="detail-header">
                                     <img src="${child.avatar}" alt="${child.name}" class="detail-photo" onclick="event.stopPropagation(); window.location.href='/people/profile/${child.id}';">
                                     <div class="detail-info">
                                         <div class="detail-name">${child.name}</div>
@@ -1255,6 +1455,17 @@
                                     </div>
                                 </div>
                                 ${fatherHtml}
+                                <button class="notes-btn" onclick="event.stopPropagation(); toggleNotes(${child.relationship_id});" style="margin-top: 10px;">
+                                    <i class="fas fa-sticky-note"></i> عرض الملاحظات
+                                </button>
+                                <div class="child-notes-section" id="childNotes_${child.relationship_id}">
+                                    <div class="notes-title" style="font-size: 0.9rem; margin-top: 10px;">
+                                        <i class="fas fa-sticky-note"></i> ملاحظات
+                                    </div>
+                                    <div class="notes-content">
+                                        ${child.notes || 'لا توجد ملاحظات مسجلة'}
+                                    </div>
+                                </div>
                             </div>
                         `;
                     }).join('');
@@ -1274,6 +1485,11 @@
                     document.querySelectorAll('.mobile-children-section').forEach(section => {
                         if (section !== mobileChildrenSection) {
                             section.style.display = 'none';
+                            // إزالة معلومات الأم من البطاقات الأخرى
+                            const otherMotherInfo = section.querySelector('.mobile-mother-info');
+                            if (otherMotherInfo) {
+                                otherMotherInfo.remove();
+                            }
                         }
                     });
                     // إزالة جميع الملاحظات المفتوحة
@@ -1301,14 +1517,7 @@
                                         <i class="fas fa-male"></i> الأب من الرضاعة:
                                     </div>
                                     <div class="father-name">
-                                        ${child.breastfeeding_father.name}
-                                        <a href="/people/profile/${child.breastfeeding_father.id}"
-                                           onclick="event.stopPropagation();"
-                                           class="profile-link"
-                                           style="display: inline-block; margin-right: 8px;"
-                                           title="عرض الملف الشخصي">
-                                            <i class="fas fa-user-circle"></i>
-                                        </a>
+                                        <a href="/people/profile/${child.breastfeeding_father.id}" onclick="event.stopPropagation();" style="color: var(--accent-color); text-decoration: none;">${child.breastfeeding_father.name}</a>
                                     </div>
                                 </div>
                             `;
@@ -1316,7 +1525,7 @@
 
                         return `
                             <div class="detail-card" data-relationship-id="${child.relationship_id}">
-                                <div class="detail-header" onclick="showChildNotes(${child.relationship_id})">
+                                <div class="detail-header">
                                     <img src="${child.avatar}" alt="${child.name}" class="detail-photo" onclick="event.stopPropagation(); window.location.href='/people/profile/${child.id}';">
                                     <div class="detail-info">
                                         <div class="detail-name">${child.name}</div>
@@ -1328,6 +1537,17 @@
                                     </div>
                                 </div>
                                 ${fatherHtml}
+                                <button class="notes-btn" onclick="event.stopPropagation(); toggleNotes(${child.relationship_id});">
+                                    <i class="fas fa-sticky-note"></i> عرض الملاحظات
+                                </button>
+                                <div class="child-notes-section" id="childNotes_${child.relationship_id}">
+                                    <div class="notes-title" style="font-size: 0.9rem; margin-top: 10px;">
+                                        <i class="fas fa-sticky-note"></i> ملاحظات
+                                    </div>
+                                    <div class="notes-content">
+                                        ${child.notes || 'لا توجد ملاحظات مسجلة'}
+                                    </div>
+                                </div>
                             </div>
                         `;
                     }).join('');
@@ -1341,20 +1561,11 @@
                 }
 
                 detailsSection.innerHTML = `
-                    <div class="details-header">
-                        <div class="d-flex align-items-center">
-                            <img src="${mother.avatar}" alt="${mother.name}" class="detail-photo" style="width: 70px; height: 70px;">
-                            <div class="ms-3">
-                                <div class="details-title">${mother.name}</div>
-                                <p class="mb-0"><i class="fas fa-baby"></i> أم مرضعة لـ ${mother.children.length} طفل</p>
-                                <a href="/people/profile/${mother.id}"
-                                   onclick="event.stopPropagation();"
-                                   class="profile-link"
-                                   style="margin-top: 8px;"
-                                   title="عرض الملف الشخصي">
-                                    <i class="fas fa-user-circle"></i> عرض الملف الشخصي
-                                </a>
-                            </div>
+                    <div class="details-header-wrapper">
+                        <img src="${mother.avatar}" alt="${mother.name}" class="details-header-photo" onclick="window.location.href='/people/profile/${mother.id}';" title="عرض الملف الشخصي">
+                        <div class="details-header">
+                            <div class="details-title">${mother.name}</div>
+                            <p class="mb-0"><i class="fas fa-baby"></i> أم مرضعة لـ ${mother.children.length} طفل</p>
                         </div>
                     </div>
                     <div class="details-grid">
@@ -1373,12 +1584,12 @@
         // عرض تفاصيل الطفل (لوضع الأطفال)
         function showChildDetails(childId) {
             // إزالة التحديد من جميع الأطفال
-            document.querySelectorAll('.person-card').forEach(card => {
+            document.querySelectorAll('.person-card-mobile-wrapper .person-card').forEach(card => {
                 card.classList.remove('active');
             });
 
             // تحديد الطفل المختار
-            const selectedCard = document.querySelector(`[data-child-id="${childId}"]`);
+            const selectedCard = document.querySelector(`.person-card-mobile-wrapper[data-child-id="${childId}"] .person-card`);
             if (selectedCard) {
                 selectedCard.classList.add('active');
             }
@@ -1401,18 +1612,12 @@
                     motherHtml = `
                         <div class="detail-card">
                             <div class="detail-header">
-                                <img src="${child.nursing_mother.avatar}" alt="${child.nursing_mother.name}" class="detail-photo">
+                                <img src="${child.nursing_mother.avatar}" alt="${child.nursing_mother.name}" class="detail-photo" onclick="event.stopPropagation(); window.location.href='/people/profile/${child.nursing_mother.id}';">
                                 <div class="detail-info">
                                     <div class="father-info-label">
                                         <i class="fas fa-female"></i> الأم المرضعة:
                                     </div>
                                     <div class="detail-name">${child.nursing_mother.name}</div>
-                                    <a href="/people/profile/${child.nursing_mother.id}"
-                                       onclick="event.stopPropagation();"
-                                       class="profile-link"
-                                       title="عرض الملف الشخصي">
-                                        <i class="fas fa-user-circle"></i> عرض الملف الشخصي
-                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -1424,18 +1629,12 @@
                     fatherHtml = `
                         <div class="detail-card">
                             <div class="detail-header">
-                                <img src="${child.breastfeeding_father.avatar}" alt="${child.breastfeeding_father.name}" class="detail-photo">
+                                <img src="${child.breastfeeding_father.avatar}" alt="${child.breastfeeding_father.name}" class="detail-photo" onclick="event.stopPropagation(); window.location.href='/people/profile/${child.breastfeeding_father.id}';">
                                 <div class="detail-info">
                                     <div class="father-info-label">
                                         <i class="fas fa-male"></i> الأب من الرضاعة:
                                     </div>
                                     <div class="detail-name">${child.breastfeeding_father.name}</div>
-                                    <a href="/people/profile/${child.breastfeeding_father.id}"
-                                       onclick="event.stopPropagation();"
-                                       class="profile-link"
-                                       title="عرض الملف الشخصي">
-                                        <i class="fas fa-user-circle"></i> عرض الملف الشخصي
-                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -1443,36 +1642,34 @@
                 }
 
                 detailsSection.innerHTML = `
-                    <div class="details-header">
-                        <div class="d-flex align-items-center">
-                            <img src="${child.avatar}" alt="${child.name}" class="detail-photo" style="width: 70px; height: 70px;">
-                            <div class="ms-3">
-                                <div class="details-title">${child.name}</div>
-                                <p class="mb-0">
-                                    ${child.start_date ? `من: ${child.start_date}` : ''}
-                                    ${child.end_date ? `إلى: ${child.end_date}` : ''}
-                                    ${child.duration_months ? ` (${child.duration_months} شهر)` : ''}
-                                </p>
-                                <a href="/people/profile/${child.id}"
-                                   onclick="event.stopPropagation();"
-                                   class="profile-link"
-                                   style="margin-top: 8px;"
-                                   title="عرض الملف الشخصي">
-                                    <i class="fas fa-user-circle"></i> عرض الملف الشخصي
-                                </a>
+                    <div class="details-header-wrapper">
+                        <img src="${child.avatar}" alt="${child.name}" class="details-header-photo" onclick="window.location.href='/people/profile/${child.id}';" title="عرض الملف الشخصي">
+                        <div class="details-header">
+                            <div class="details-title">${child.name}</div>
+                            <p class="mb-0">
+                                ${child.start_date ? `من: ${child.start_date}` : ''}
+                                ${child.end_date ? `إلى: ${child.end_date}` : ''}
+                                ${child.duration_months ? ` (${child.duration_months} شهر)` : ''}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="text-center mt-3">
+                        <button class="notes-btn" onclick="toggleChildDetails(${child.id});">
+                            <i class="fas fa-eye"></i> عرض التفاصيل
+                        </button>
+                    </div>
+                    <div class="child-details-section" id="childDetailsSection_${child.id}" style="display: none;">
+                        <div class="details-grid">
+                            ${motherHtml}
+                            ${fatherHtml}
+                        </div>
+                        <div class="notes-section mt-3" id="notesSection">
+                            <div class="notes-title">
+                                <i class="fas fa-sticky-note"></i> ملاحظات
                             </div>
-                        </div>
-                    </div>
-                    <div class="details-grid">
-                        ${motherHtml}
-                        ${fatherHtml}
-                    </div>
-                    <div class="notes-section show" id="notesSection">
-                        <div class="notes-title">
-                            <i class="fas fa-sticky-note"></i> ملاحظات
-                        </div>
-                        <div class="notes-content">
-                            ${child.notes || 'لا توجد ملاحظات مسجلة'}
+                            <div class="notes-content">
+                                ${child.notes || 'لا توجد ملاحظات مسجلة'}
+                            </div>
                         </div>
                     </div>
                 `;
@@ -1550,7 +1747,40 @@
             }
         }
 
-        // عرض ملاحظات الطفل
+        // إظهار/إخفاء ملاحظات الطفل في بطاقات الأبناء
+        function toggleNotes(relationshipId) {
+            console.log('toggleNotes called with relationshipId:', relationshipId);
+            const notesSection = document.getElementById(`childNotes_${relationshipId}`);
+            if (notesSection) {
+                notesSection.classList.toggle('show');
+                console.log('Notes section toggled, show class:', notesSection.classList.contains('show'));
+            } else {
+                console.log('Notes section not found for relationshipId:', relationshipId);
+            }
+        }
+
+        // إظهار/إخفاء ملاحظات الطفل في وضع عرض الأطفال
+        function toggleChildNotes(childId) {
+            const notesSection = document.getElementById('notesSection');
+            if (notesSection) {
+                notesSection.classList.toggle('show');
+            }
+        }
+
+        // إظهار/إخفاء تفاصيل الطفل (الأب والأم والملاحظات) في وضع عرض الأطفال
+        function toggleChildDetails(childId) {
+            const detailsSection = document.getElementById(`childDetailsSection_${childId}`);
+            if (detailsSection) {
+                const isVisible = detailsSection.style.display === 'block';
+                detailsSection.style.display = isVisible ? 'none' : 'block';
+
+                if (!isVisible) {
+                    detailsSection.style.animation = 'fadeIn 0.3s ease';
+                }
+            }
+        }
+
+        // عرض ملاحظات الطفل (للتوافق مع الكود القديم)
         function showChildNotes(relationshipId) {
             // إزالة التحديد من جميع البطاقات
             document.querySelectorAll('.detail-card').forEach(card => {
@@ -1574,7 +1804,7 @@
 
             if (!selectedChild) return;
 
-            // عرض الملاحظات
+            // عرض الملاحظات في قسم الملاحظات الرئيسي
             const notesSection = document.getElementById('notesSection');
             if (notesSection) {
                 notesSection.classList.add('show');
@@ -1649,6 +1879,91 @@
 
             console.log('Breastfeeding page initialized');
         });
+
+        // عرض الأب والأم من الرضاعة على الهواتف (لوضع الأطفال)
+        function showChildParentsMobile(childId) {
+            console.log('showChildParentsMobile called with childId:', childId);
+            // العثور على بيانات الطفل
+            const child = childrenData.find(c => c.id === childId);
+            if (!child) {
+                console.log('Child not found');
+                return;
+            }
+
+            const parentsSection = document.getElementById(`mobileParents_${childId}`);
+            if (!parentsSection) {
+                console.log('Parents section not found');
+                return;
+            }
+
+            // إغلاق جميع أقسام الأب والأم الأخرى
+            document.querySelectorAll('.mobile-parents-section').forEach(section => {
+                if (section !== parentsSection) {
+                    section.classList.remove('show');
+                }
+            });
+
+            // تبديل حالة القسم الحالي
+            const isCurrentlyVisible = parentsSection.classList.contains('show');
+            parentsSection.classList.toggle('show');
+
+            if (!isCurrentlyVisible) {
+                let parentsHtml = '';
+
+                // الأم المرضعة
+                if (child.nursing_mother) {
+                    parentsHtml += `
+                        <div class="detail-card" style="margin-bottom: 12px;">
+                            <div class="detail-header">
+                                <img src="${child.nursing_mother.avatar}" alt="${child.nursing_mother.name}" class="detail-photo" onclick="event.stopPropagation(); window.location.href='/people/profile/${child.nursing_mother.id}';">
+                                <div class="detail-info">
+                                    <div class="father-info-label">
+                                        <i class="fas fa-female"></i> الأم المرضعة:
+                                    </div>
+                                    <div class="detail-name">${child.nursing_mother.name}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // الأب من الرضاعة
+                if (child.breastfeeding_father) {
+                    parentsHtml += `
+                        <div class="detail-card">
+                            <div class="detail-header">
+                                <img src="${child.breastfeeding_father.avatar}" alt="${child.breastfeeding_father.name}" class="detail-photo" onclick="event.stopPropagation(); window.location.href='/people/profile/${child.breastfeeding_father.id}';">
+                                <div class="detail-info">
+                                    <div class="father-info-label">
+                                        <i class="fas fa-male"></i> الأب من الرضاعة:
+                                    </div>
+                                    <div class="detail-name">${child.breastfeeding_father.name}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                if (!parentsHtml) {
+                    parentsHtml = `
+                        <div class="empty-state" style="padding: 20px;">
+                            <i class="fas fa-info-circle"></i>
+                            <p>لا توجد معلومات عن الأب والأم من الرضاعة</p>
+                        </div>
+                    `;
+                }
+
+                parentsSection.innerHTML = parentsHtml;
+
+                // تمرير سلس للقسم
+                setTimeout(() => {
+                    parentsSection.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'nearest'
+                    });
+                }, 100);
+            }
+        }
 
         // إعادة تحميل البيانات عند تغيير حجم الشاشة
         window.addEventListener('resize', function() {
