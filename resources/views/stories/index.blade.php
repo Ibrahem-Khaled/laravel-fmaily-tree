@@ -9,7 +9,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body{font-family:'Tajawal',sans-serif;background:linear-gradient(135deg,#f0fdf4 0%,#dcfce7 50%,#bbf7d0 100%);min-height:100vh}
+        body{font-family:'Tajawal',sans-serif;background:linear-gradient(135deg,#f0fdf4 0%,#dcfce7 50%,#bbf7d0 100%);min-height:100vh;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;font-feature-settings:"liga" 1,"kern" 1}
+        *{font-feature-settings:"liga" 1,"kern" 1;text-rendering:optimizeLegibility}
+        body,body *{unicode-bidi:embed;direction:rtl}
+        [dir="rtl"]{unicode-bidi:embed}
         h1,h2,h3{font-family:'Amiri',serif}
         .glass{background:rgba(255,255,255,.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.3)}
         .gradient-text{background:linear-gradient(135deg,#16a34a 0%,#22c55e 50%,#4ade80 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
@@ -66,6 +69,10 @@
             -webkit-box-orient: vertical;
             overflow: hidden;
             text-overflow: ellipsis;
+            text-rendering: optimizeLegibility;
+            font-feature-settings: "liga" 1, "kern" 1;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         .read-more-btn {

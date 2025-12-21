@@ -101,15 +101,6 @@
             background: var(--gradient-primary);
             border-radius: 2px;
         }
-
-        .hero-subtitle {
-            color: var(--dark-green);
-            font-size: 1rem;
-            font-weight: 400;
-            opacity: 0.8;
-            margin-top: 1rem;
-        }
-
         /* ===== حاوية الشجرة ===== */
         .tree-container {
             padding: 1rem;
@@ -752,11 +743,6 @@
             .hero-title {
                 font-size: 1.5rem;
             }
-
-            .hero-subtitle {
-                font-size: 0.85rem;
-            }
-
             .tree-container {
                 padding: 0.5rem;
             }
@@ -964,7 +950,6 @@
             <div class="container-fluid">
                 <div class="hero-header">
                     <h1 class="hero-title">تواصل عائلة السريِّع</h1>
-                    <p class="hero-subtitle">استكشف شجرة العائلة الممتدة</p>
                 </div>
 
                 <div class="tree-container">

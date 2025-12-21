@@ -29,14 +29,14 @@
 
     <!-- Nav Item - Family Management Collapse -->
     @if(auth()->user()->can('people.view') || auth()->user()->can('marriages.view') || auth()->user()->can('breastfeeding.view') || auth()->user()->can('locations.view') || auth()->user()->can('friendships.view'))
-    <li class="nav-item {{ request()->routeIs(['people.*', 'marriages.*', 'breastfeeding.*', 'locations.*', 'friendships.*']) ? 'active' : '' }}">
+    <li class="nav-item {{ request()->routeIs(['people.*', 'marriages.*', 'breastfeeding.*', 'locations.*', 'friendships.*', 'dashboard.quran-competitions.*']) ? 'active' : '' }}">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseFamily"
-           aria-expanded="{{ request()->routeIs(['people.*', 'marriages.*', 'breastfeeding.*', 'locations.*', 'friendships.*']) ? 'true' : 'false' }}"
+           aria-expanded="{{ request()->routeIs(['people.*', 'marriages.*', 'breastfeeding.*', 'locations.*', 'friendships.*', 'dashboard.quran-competitions.*']) ? 'true' : 'false' }}"
            aria-controls="collapseFamily">
             <i class="fas fa-fw fa-sitemap"></i>
             <span>إدارة العائلة</span>
         </a>
-        <div id="collapseFamily" class="collapse {{ request()->routeIs(['people.*', 'marriages.*', 'breastfeeding.*', 'locations.*', 'friendships.*']) ? 'show' : '' }}"
+        <div id="collapseFamily" class="collapse {{ request()->routeIs(['people.*', 'marriages.*', 'breastfeeding.*', 'locations.*', 'friendships.*', 'dashboard.quran-competitions.*']) ? 'show' : '' }}"
              aria-labelledby="headingFamily" data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">إدارة العائلة:</h6>
@@ -55,6 +55,9 @@
                     <i class="fas fa-fw fa-baby"></i> الرضاعة
                 </a>
                 @endcan
+                <a class="collapse-item {{ request()->routeIs('dashboard.quran-competitions.*') ? 'active' : '' }}" href="{{ route('dashboard.quran-competitions.index') }}">
+                    <i class="fas fa-fw fa-quran"></i> مسابقة القرآن الكريم
+                </a>
                 @can('friendships.view')
                 <a class="collapse-item {{ request()->routeIs('friendships.*') ? 'active' : '' }}" href="{{ route('friendships.index') }}">
                     <i class="fas fa-fw fa-user-friends"></i> الأصدقاء

@@ -440,4 +440,12 @@ class Person extends BaseModel
         }
         return null;
     }
+
+    /**
+     * العلاقة مع مسابقات القرآن الكريم (الفائزين)
+     */
+    public function quranCompetitionWinners()
+    {
+        return $this->hasMany(QuranCompetitionWinner::class, 'person_id');
+    }
 }

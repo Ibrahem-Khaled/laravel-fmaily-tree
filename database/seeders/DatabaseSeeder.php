@@ -13,7 +13,8 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             AdminPermissionsSeeder::class,
-            ProductStoreSeeder::class,
+            // ProductStoreSeeder::class,
+            QuranCompetitionSeeder::class,
             // يمكن إضافة سيدرات أخرى هنا
         ]);
     }

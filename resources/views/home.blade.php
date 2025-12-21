@@ -173,6 +173,51 @@
             border-radius: 5px;
         }
 
+        /* Gallery Modal */
+        #galleryModal {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        #galleryModalImageContainer,
+        #galleryModalVideoContainer {
+            animation: zoomIn 0.3s ease-out;
+        }
+
+        @keyframes zoomIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        #galleryModalInfo {
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         /* Animations */
         @keyframes fadeInUp {
             from {
@@ -399,7 +444,7 @@
     </section>
 
     {{-- Born Today Section --}}
-    @if ($birthdayPersons && $birthdayPersons->count() > 0)
+    {{-- @if ($birthdayPersons && $birthdayPersons->count() > 0)
         <section class="py-6 md:py-8 lg:py-10 bg-white relative overflow-hidden">
             <div class="absolute top-0 right-0 w-48 h-48 bg-green-100 rounded-full blur-3xl opacity-30"></div>
             <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
@@ -431,7 +476,7 @@
                 </div>
             </div>
         </section>
-    @endif
+    @endif --}}
 
     {{-- Gallery Section --}}
     <section class="py-6 md:py-8 lg:py-10 bg-gradient-to-br from-gray-50 to-green-50/50 relative overflow-hidden">
@@ -439,7 +484,7 @@
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
             <div class="text-right mb-6 md:mb-8">
                 <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">
-                    معرض الصور
+                    اخترنا لك
                 </h2>
                 <p class="text-gray-600 text-xs md:text-sm mt-2">لحظات جميلة من حياة العائلة</p>
             </div>
@@ -450,17 +495,26 @@
                         @foreach ($latestGalleryImages as $galleryImage)
                             <div class="swiper-slide">
                                 <div
-                                    class="relative group overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 {{ !$galleryImage->is_active && Auth::check() ? 'opacity-60 grayscale' : '' }}">
+                                    class="relative group overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer gallery-item {{ isset($galleryImage->is_active) && !$galleryImage->is_active && Auth::check() ? 'opacity-60 grayscale' : '' }}"
+                                    data-media-type="{{ $galleryImage->media_type ?? 'image' }}"
+                                    data-image-url="{{ isset($galleryImage->image_url) ? $galleryImage->image_url : (isset($galleryImage->path) ? asset('storage/' . $galleryImage->path) : (isset($galleryImage->image_path) ? asset('storage/' . $galleryImage->image_path) : '')) }}"
+                                    data-youtube-url="{{ $galleryImage->youtube_url ?? '' }}"
+                                    data-image-name="{{ $galleryImage->name ?? 'صورة' }}"
+                                    data-category-name="{{ $galleryImage->category->name ?? '' }}">
                                     @if (isset($galleryImage->image_url))
                                         <img src="{{ $galleryImage->image_url }}"
                                             alt="{{ $galleryImage->name ?? 'صورة' }}"
                                             class="w-full h-32 md:h-40 lg:h-48 object-cover transition-transform duration-500 group-hover:scale-110">
-                                    @else
+                                    @elseif (isset($galleryImage->image_path))
+                                        <img src="{{ asset('storage/' . $galleryImage->image_path) }}"
+                                            alt="{{ $galleryImage->name ?? 'صورة' }}"
+                                            class="w-full h-32 md:h-40 lg:h-48 object-cover transition-transform duration-500 group-hover:scale-110">
+                                    @elseif (isset($galleryImage->path))
                                         <img src="{{ asset('storage/' . $galleryImage->path) }}"
                                             alt="{{ $galleryImage->name ?? 'صورة' }}"
                                             class="w-full h-32 md:h-40 lg:h-48 object-cover transition-transform duration-500 group-hover:scale-110">
                                     @endif
-                                    @if (!$galleryImage->is_active && Auth::check())
+                                    @if (isset($galleryImage->is_active) && !$galleryImage->is_active && Auth::check())
                                         <div class="absolute top-2 right-2 z-10">
                                             <span class="bg-yellow-500 text-white text-[8px] px-1.5 py-0.5 rounded-full font-bold">
                                                 معطل
@@ -1164,6 +1218,32 @@
 
     {{-- @include('partials.main-footer') --}}
 
+    {{-- Gallery Modal --}}
+    <div id="galleryModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/90 backdrop-blur-sm" style="display: none;">
+        <div class="relative w-full h-full flex items-center justify-center p-4">
+            <button id="closeGalleryModal" class="absolute top-4 right-4 z-50 text-white hover:text-gray-300 transition-colors bg-black/50 rounded-full p-3 hover:bg-black/70">
+                <i class="fas fa-times text-2xl"></i>
+            </button>
+
+            <div class="relative max-w-7xl w-full h-full flex items-center justify-center">
+                <div id="galleryModalImageContainer" class="hidden w-full h-full flex items-center justify-center">
+                    <img id="galleryModalImage" src="" alt="" class="max-w-full max-h-full object-contain rounded-lg">
+                </div>
+
+                <div id="galleryModalVideoContainer" class="hidden w-full h-full flex items-center justify-center">
+                    <div class="w-full" style="max-width: 90vw; aspect-ratio: 16/9;">
+                        <iframe id="galleryModalVideo" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="w-full h-full rounded-lg"></iframe>
+                    </div>
+                </div>
+            </div>
+
+            <div id="galleryModalInfo" class="absolute bottom-4 right-4 left-4 text-white text-center bg-black/50 backdrop-blur-sm rounded-lg p-4">
+                <h3 id="galleryModalTitle" class="text-xl font-bold mb-1"></h3>
+                <p id="galleryModalCategory" class="text-sm text-gray-300"></p>
+            </div>
+        </div>
+    </div>
+
     <!-- Swiper JS -->
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script>
@@ -1367,6 +1447,99 @@
         setInterval(updateEventCountdowns, 60000);
         // Initial update
         updateEventCountdowns();
+
+        // Gallery Modal Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const galleryModal = document.getElementById('galleryModal');
+            const closeGalleryModal = document.getElementById('closeGalleryModal');
+            const galleryModalImageContainer = document.getElementById('galleryModalImageContainer');
+            const galleryModalVideoContainer = document.getElementById('galleryModalVideoContainer');
+            const galleryModalImage = document.getElementById('galleryModalImage');
+            const galleryModalVideo = document.getElementById('galleryModalVideo');
+            const galleryModalTitle = document.getElementById('galleryModalTitle');
+            const galleryModalCategory = document.getElementById('galleryModalCategory');
+            const galleryModalInfo = document.getElementById('galleryModalInfo');
+
+            // Open gallery item
+            document.querySelectorAll('.gallery-item').forEach(function(item) {
+                item.addEventListener('click', function() {
+                    const mediaType = this.getAttribute('data-media-type');
+                    const imageUrl = this.getAttribute('data-image-url');
+                    const youtubeUrl = this.getAttribute('data-youtube-url');
+                    const imageName = this.getAttribute('data-image-name');
+                    const categoryName = this.getAttribute('data-category-name');
+
+                    // Set title and category
+                    galleryModalTitle.textContent = imageName;
+                    galleryModalCategory.textContent = categoryName ? categoryName : '';
+                    galleryModalInfo.style.display = (imageName || categoryName) ? 'block' : 'none';
+
+                    // Check if it's a YouTube video
+                    if (mediaType === 'youtube' && youtubeUrl) {
+                        // Extract video ID from YouTube URL
+                        let videoId = '';
+                        const patterns = [
+                            /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+                            /youtube\.com\/watch\?.*v=([a-zA-Z0-9_-]{11})/
+                        ];
+
+                        for (let pattern of patterns) {
+                            const match = youtubeUrl.match(pattern);
+                            if (match) {
+                                videoId = match[1];
+                                break;
+                            }
+                        }
+
+                        if (videoId) {
+                            galleryModalVideo.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+                            galleryModalImageContainer.classList.add('hidden');
+                            galleryModalVideoContainer.classList.remove('hidden');
+                        } else {
+                            // Fallback to image if video ID extraction fails
+                            galleryModalImage.src = imageUrl;
+                            galleryModalVideoContainer.classList.add('hidden');
+                            galleryModalImageContainer.classList.remove('hidden');
+                        }
+                    } else {
+                        // Regular image
+                        galleryModalImage.src = imageUrl;
+                        galleryModalVideoContainer.classList.add('hidden');
+                        galleryModalImageContainer.classList.remove('hidden');
+                        galleryModalVideo.src = ''; // Clear video if switching to image
+                    }
+
+                    // Show modal
+                    galleryModal.classList.remove('hidden');
+                    galleryModal.style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
+                });
+            });
+
+            // Close modal
+            function closeModal() {
+                galleryModal.classList.add('hidden');
+                galleryModal.style.display = 'none';
+                document.body.style.overflow = '';
+                galleryModalVideo.src = ''; // Stop video playback
+            }
+
+            closeGalleryModal.addEventListener('click', closeModal);
+
+            // Close on background click
+            galleryModal.addEventListener('click', function(e) {
+                if (e.target === galleryModal) {
+                    closeModal();
+                }
+            });
+
+            // Close on Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && !galleryModal.classList.contains('hidden')) {
+                    closeModal();
+                }
+            });
+        });
 
     </script>
 </body>

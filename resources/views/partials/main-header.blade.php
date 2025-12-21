@@ -612,6 +612,13 @@
                         طلاب طموح
                     </a>
                 </li>
+                @auth
+                <li>
+                    <a class="nav-link {{ request()->routeIs('quran-competitions.*') ? 'active' : '' }}" href="{{ route('quran-competitions.index') }}">
+                        مسابقة القرآن الكريم
+                    </a>
+                </li>
+                @endauth
                 <li>
                     <a class="nav-link {{ request()->routeIs('breastfeeding.public.*') ? 'active' : '' }}" href="{{ route('breastfeeding.public.index') }}">
                         <i class="fas fa-baby"></i>

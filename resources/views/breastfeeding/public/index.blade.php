@@ -1321,11 +1321,11 @@
                                                 <div class="person-card" onclick="showChildDetails({{ $child['id'] }})">
                                                     <div class="person-info">
                                                         <div class="person-name">{{ $child['name'] }}</div>
-                                                        <div class="person-meta">
+                                                        {{-- <div class="person-meta">
                                                             @if($child['nursing_mother'])
                                                                 أمه: {{ $child['nursing_mother']['name'] }}
                                                             @endif
-                                                        </div>
+                                                        </div> --}}
                                                     </div>
                                                     <button class="show-parents-btn" onclick="event.stopPropagation(); showChildParentsMobile({{ $child['id'] }});">
                                                         <i class="fas fa-users"></i> عرض الأب والأم من الرضاعة

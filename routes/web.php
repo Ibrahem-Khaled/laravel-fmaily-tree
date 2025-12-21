@@ -16,6 +16,7 @@ use App\Http\Controllers\admin\UserController;
 use App\Http\Controllers\admin\ArticleController as AdminArticleController;
 use App\Http\Controllers\BreastfeedingPublicController;
 use App\Http\Controllers\FamilyNewsController;
+use App\Http\Controllers\QuranCompetitionPublicController;
 use App\Http\Controllers\FamilyTreeController;
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\HomeController;
@@ -96,6 +97,10 @@ Route::get('/family-news/{id}', [FamilyNewsController::class, 'show'])->name('fa
 // Public Breastfeeding Routes
 Route::get('/breastfeeding', [BreastfeedingPublicController::class, 'index'])->name('breastfeeding.public.index');
 Route::get('/breastfeeding/{person}', [BreastfeedingPublicController::class, 'show'])->name('breastfeeding.public.show');
+
+// Public Quran Competitions Routes
+Route::get('/quran-competitions', [\App\Http\Controllers\QuranCompetitionPublicController::class, 'index'])->name('quran-competitions.index');
+Route::get('/quran-competitions/{id}', [\App\Http\Controllers\QuranCompetitionPublicController::class, 'show'])->name('quran-competitions.show');
 
 // Public Store Routes
 Route::prefix('store')->name('store.')->group(function () {
@@ -205,6 +210,21 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::patch('breastfeeding/{breastfeeding}/toggle-status', [BreastfeedingController::class, 'toggleStatus'])->name('breastfeeding.toggle-status')->middleware(['permission:breastfeeding.update']);
     Route::get('breastfeeding/nursing-mothers/search', [BreastfeedingController::class, 'getNursingMothers'])->name('breastfeeding.nursing-mothers.search')->middleware(['permission:breastfeeding.view']);
     Route::get('breastfeeding/breastfed-children/search', [BreastfeedingController::class, 'getBreastfedChildren'])->name('breastfeeding.breastfed-children.search')->middleware(['permission:breastfeeding.view']);
+
+    // Quran Competitions routes (Admin)
+    Route::resource('quran-competitions', \App\Http\Controllers\admin\QuranCompetitionController::class)->names([
+        'index' => 'dashboard.quran-competitions.index',
+        'create' => 'dashboard.quran-competitions.create',
+        'store' => 'dashboard.quran-competitions.store',
+        'show' => 'dashboard.quran-competitions.show',
+        'edit' => 'dashboard.quran-competitions.edit',
+        'update' => 'dashboard.quran-competitions.update',
+        'destroy' => 'dashboard.quran-competitions.destroy',
+    ]);
+    Route::post('quran-competitions/{quranCompetition}/winners', [\App\Http\Controllers\admin\QuranCompetitionController::class, 'addWinner'])->name('dashboard.quran-competitions.add-winner');
+    Route::delete('quran-competitions/winners/{winner}', [\App\Http\Controllers\admin\QuranCompetitionController::class, 'removeWinner'])->name('dashboard.quran-competitions.remove-winner');
+    Route::post('quran-competitions/{quranCompetition}/media', [\App\Http\Controllers\admin\QuranCompetitionController::class, 'addMedia'])->name('dashboard.quran-competitions.add-media');
+    Route::delete('quran-competitions/media/{media}', [\App\Http\Controllers\admin\QuranCompetitionController::class, 'removeMedia'])->name('dashboard.quran-competitions.remove-media');
 
     // Stories routes
     Route::resource('stories', StoryController::class)->middleware(['permission:stories.view|stories.create|stories.update|stories.delete']);
