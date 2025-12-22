@@ -392,6 +392,32 @@
                 font-size: 1.125rem;
             }
         }
+
+        /* Team Media Grid - Instagram Style */
+        .team-media-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.375rem;
+        }
+
+        .team-media-grid > * {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Ensure equal height cards */
+        @media (min-width: 768px) {
+            .grid.grid-cols-1.md\\:grid-cols-2 > div {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .team-media-grid {
+                flex: 1;
+                min-height: 0;
+            }
+        }
     </style>
 </head>
 
@@ -467,7 +493,7 @@
     <section class="py-4 md:py-8 lg:py-10 bg-white relative overflow-hidden">
         <div class="absolute top-0 right-0 w-64 h-64 bg-green-100/20 rounded-full blur-3xl"></div>
         <div class="absolute bottom-0 left-0 w-64 h-64 bg-emerald-100/20 rounded-full blur-3xl"></div>
-        
+
         <div class="container mx-auto px-3 sm:px-4 lg:px-8 max-w-7xl relative z-10">
             {{-- Header with Excitement --}}
             <div class="text-center mb-4 md:mb-6">
@@ -515,45 +541,54 @@
                 </div>
             </div>
 
-            {{-- Teams with VS --}}
+            {{-- Teams --}}
             <div class="relative">
-                {{-- VS Badge - Visible on all screens --}}
-                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
-                    <div class="bg-gradient-to-br from-red-500 to-orange-500 text-white w-10 h-10 md:w-16 md:h-16 rounded-full flex items-center justify-center shadow-2xl border-2 md:border-4 border-white font-black text-sm md:text-2xl">
-                        VS
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6 relative items-stretch">
                     {{-- Team 1: نجد العذية --}}
-                    <div class="bg-gradient-to-br from-gray-50 to-white rounded-xl md:rounded-2xl p-3 md:p-4 border border-gray-200 shadow-md">
-                        <div class="text-center mb-2 md:mb-3">
+                    <div class="bg-gradient-to-br from-gray-50 to-white rounded-xl md:rounded-2xl p-3 md:p-4 border border-gray-200 shadow-md relative z-10">
+                        <div class="text-center mb-3 md:mb-4">
                             <h3 class="text-base md:text-lg font-bold text-gray-800 mb-1">نجد العذية</h3>
                             <div class="w-12 md:w-16 h-0.5 bg-gradient-to-r from-green-500 to-emerald-500 mx-auto rounded-full"></div>
                         </div>
-                        
-                        {{-- Compact Images --}}
-                        <div class="grid grid-cols-1 gap-1.5 md:gap-2 mb-2 md:mb-3">
-                            <div class="aspect-square rounded-md md:rounded-lg overflow-hidden cursor-pointer team-media hover:scale-105 transition-transform duration-300 shadow-sm"
-                                data-media-type="image"
-                                data-image-url="{{ asset('assets/img/jadah/2.jpeg') }}">
-                                <img src="{{ asset('assets/img/jadah/2.jpeg') }}" 
-                                    alt="نجد العذية" 
-                                    class="w-full h-full object-cover">
-                            </div>
-                        </div>
 
-                        {{-- Compact Video --}}
-                        <div class="relative rounded-md md:rounded-lg overflow-hidden cursor-pointer team-media shadow-sm group"
-                            data-media-type="video"
-                            data-video-url="{{ asset('assets/img/jadah/1 - Trim.mp4') }}">
-                            <div class="aspect-video bg-black/50 relative">
+                        {{-- Instagram-style Grid Layout --}}
+                        <div class="team-media-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(3, minmax(0, 1fr)); gap: 0.375rem; height: 100%; min-height: 400px;">
+                            {{-- Large Video - Spans 2 columns and 2 rows --}}
+                            <div class="rounded-md md:rounded-lg overflow-hidden cursor-pointer team-media hover:scale-[1.02] transition-transform duration-300 shadow-md relative"
+                                style="grid-column: 1 / 3; grid-row: 1 / 3;"
+                                data-media-type="video"
+                                data-video-url="{{ asset('assets/img/jadah/1 - Trim.mp4') }}">
                                 <video class="w-full h-full object-cover" muted>
                                     <source src="{{ asset('assets/img/jadah/1 - Trim.mp4') }}" type="video/mp4">
                                 </video>
+                                <div class="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
+                                    <div class="w-10 h-10 md:w-14 md:h-14 bg-red-600 rounded-full flex items-center justify-center shadow-xl transform group-hover:scale-110 transition-transform">
+                                        <i class="fas fa-play text-white text-sm md:text-lg mr-0.5"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Image --}}
+                            <div class="rounded-md md:rounded-lg overflow-hidden cursor-pointer team-media hover:scale-105 transition-transform duration-300 shadow-sm"
+                                style="grid-column: 1 / 2; grid-row: 3 / 4;"
+                                data-media-type="image"
+                                data-image-url="{{ asset('assets/img/jadah/2.jpeg') }}">
+                                <img src="{{ asset('assets/img/jadah/2.jpeg') }}"
+                                    alt="نجد العذية"
+                                    class="w-full h-full object-cover">
+                            </div>
+
+                            {{-- Video 2 --}}
+                            <div class="rounded-md md:rounded-lg overflow-hidden cursor-pointer team-media shadow-sm group relative"
+                                style="grid-column: 2 / 3; grid-row: 3 / 4;"
+                                data-media-type="video"
+                                data-video-url="{{ asset('assets/img/jadah/2 - Trim.mp4') }}">
+                                <video class="w-full h-full object-cover" muted>
+                                    <source src="{{ asset('assets/img/jadah/2 - Trim.mp4') }}" type="video/mp4">
+                                </video>
                                 <div class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-colors">
-                                    <div class="w-8 h-8 md:w-12 md:h-12 bg-red-600 rounded-full flex items-center justify-center shadow-xl transform group-hover:scale-110 transition-transform">
-                                        <i class="fas fa-play text-white text-xs md:text-base mr-0.5"></i>
+                                    <div class="w-6 h-6 md:w-8 md:h-8 bg-red-600 rounded-full flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform">
+                                        <i class="fas fa-play text-white text-[10px] md:text-xs mr-0.5"></i>
                                     </div>
                                 </div>
                             </div>
@@ -561,57 +596,61 @@
                     </div>
 
                     {{-- Team 2: Jeddah Waves --}}
-                    <div class="bg-gradient-to-br from-gray-50 to-white rounded-xl md:rounded-2xl p-3 md:p-4 border border-gray-200 shadow-md">
-                        <div class="text-center mb-2 md:mb-3">
+                    <div class="bg-gradient-to-br from-gray-50 to-white rounded-xl md:rounded-2xl p-3 md:p-4 border border-gray-200 shadow-md relative z-10">
+                        <div class="text-center mb-3 md:mb-4">
                             <h3 class="text-base md:text-lg font-bold text-gray-800 mb-1">Jeddah Waves</h3>
                             <div class="w-12 md:w-16 h-0.5 bg-gradient-to-r from-green-500 to-emerald-500 mx-auto rounded-full"></div>
                         </div>
-                        
-                        {{-- Compact Images --}}
-                        <div class="grid grid-cols-2 gap-1.5 md:gap-2 mb-2 md:mb-3">
-                            <div class="aspect-square rounded-md md:rounded-lg overflow-hidden cursor-pointer team-media hover:scale-105 transition-transform duration-300 shadow-sm"
-                                data-media-type="image"
-                                data-image-url="{{ asset('assets/img/jeddah-waves/2.jpeg') }}">
-                                <img src="{{ asset('assets/img/jeddah-waves/2.jpeg') }}" 
-                                    alt="Jeddah Waves" 
-                                    class="w-full h-full object-cover">
-                            </div>
-                            <div class="aspect-square rounded-md md:rounded-lg overflow-hidden cursor-pointer team-media hover:scale-105 transition-transform duration-300 shadow-sm"
-                                data-media-type="image"
-                                data-image-url="{{ asset('assets/img/jeddah-waves/3.jpeg') }}">
-                                <img src="{{ asset('assets/img/jeddah-waves/3.jpeg') }}" 
-                                    alt="Jeddah Waves" 
-                                    class="w-full h-full object-cover">
-                            </div>
-                            <div class="aspect-square rounded-md md:rounded-lg overflow-hidden cursor-pointer team-media hover:scale-105 transition-transform duration-300 shadow-sm"
-                                data-media-type="image"
-                                data-image-url="{{ asset('assets/img/jeddah-waves/4.jpeg') }}">
-                                <img src="{{ asset('assets/img/jeddah-waves/4.jpeg') }}" 
-                                    alt="Jeddah Waves" 
-                                    class="w-full h-full object-cover">
-                            </div>
-                            <div class="aspect-square rounded-md md:rounded-lg overflow-hidden cursor-pointer team-media hover:scale-105 transition-transform duration-300 shadow-sm"
-                                data-media-type="image"
-                                data-image-url="{{ asset('assets/img/jeddah-waves/5.jpeg') }}">
-                                <img src="{{ asset('assets/img/jeddah-waves/5.jpeg') }}" 
-                                    alt="Jeddah Waves" 
-                                    class="w-full h-full object-cover">
-                            </div>
-                        </div>
 
-                        {{-- Compact Video --}}
-                        <div class="relative rounded-md md:rounded-lg overflow-hidden cursor-pointer team-media shadow-sm group"
-                            data-media-type="video"
-                            data-video-url="{{ asset('assets/img/jeddah-waves/1.mp4') }}">
-                            <div class="aspect-video bg-black/50 relative">
+                        {{-- Instagram-style Grid Layout --}}
+                        <div class="team-media-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(4, minmax(0, 1fr)); gap: 0.375rem; height: 100%; min-height: 400px;">
+                            {{-- Large Video - Spans 2 columns and 2 rows --}}
+                            <div class="rounded-md md:rounded-lg overflow-hidden cursor-pointer team-media shadow-sm group relative hover:scale-[1.02] transition-transform duration-300 shadow-md"
+                                style="grid-column: 1 / 3; grid-row: 1 / 3;"
+                                data-media-type="video"
+                                data-video-url="{{ asset('assets/img/jeddah-waves/1.mp4') }}">
                                 <video class="w-full h-full object-cover" muted>
                                     <source src="{{ asset('assets/img/jeddah-waves/1.mp4') }}" type="video/mp4">
                                 </video>
-                                <div class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-colors">
-                                    <div class="w-8 h-8 md:w-12 md:h-12 bg-red-600 rounded-full flex items-center justify-center shadow-xl transform group-hover:scale-110 transition-transform">
-                                        <i class="fas fa-play text-white text-xs md:text-base mr-0.5"></i>
+                                <div class="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
+                                    <div class="w-10 h-10 md:w-14 md:h-14 bg-red-600 rounded-full flex items-center justify-center shadow-xl transform group-hover:scale-110 transition-transform">
+                                        <i class="fas fa-play text-white text-sm md:text-lg mr-0.5"></i>
                                     </div>
                                 </div>
+                            </div>
+
+                            {{-- 4 Small Images --}}
+                            <div class="rounded-md md:rounded-lg overflow-hidden cursor-pointer team-media hover:scale-105 transition-transform duration-300 shadow-sm"
+                                style="grid-column: 1 / 2; grid-row: 3 / 4;"
+                                data-media-type="image"
+                                data-image-url="{{ asset('assets/img/jeddah-waves/2.jpeg') }}">
+                                <img src="{{ asset('assets/img/jeddah-waves/2.jpeg') }}"
+                                    alt="Jeddah Waves"
+                                    class="w-full h-full object-cover">
+                            </div>
+                            <div class="rounded-md md:rounded-lg overflow-hidden cursor-pointer team-media hover:scale-105 transition-transform duration-300 shadow-sm"
+                                style="grid-column: 2 / 3; grid-row: 3 / 4;"
+                                data-media-type="image"
+                                data-image-url="{{ asset('assets/img/jeddah-waves/3.jpeg') }}">
+                                <img src="{{ asset('assets/img/jeddah-waves/3.jpeg') }}"
+                                    alt="Jeddah Waves"
+                                    class="w-full h-full object-cover">
+                            </div>
+                            <div class="rounded-md md:rounded-lg overflow-hidden cursor-pointer team-media hover:scale-105 transition-transform duration-300 shadow-sm"
+                                style="grid-column: 1 / 2; grid-row: 4 / 5;"
+                                data-media-type="image"
+                                data-image-url="{{ asset('assets/img/jeddah-waves/4.jpeg') }}">
+                                <img src="{{ asset('assets/img/jeddah-waves/4.jpeg') }}"
+                                    alt="Jeddah Waves"
+                                    class="w-full h-full object-cover">
+                            </div>
+                            <div class="rounded-md md:rounded-lg overflow-hidden cursor-pointer team-media hover:scale-105 transition-transform duration-300 shadow-sm"
+                                style="grid-column: 2 / 3; grid-row: 4 / 5;"
+                                data-media-type="image"
+                                data-image-url="{{ asset('assets/img/jeddah-waves/5.jpeg') }}">
+                                <img src="{{ asset('assets/img/jeddah-waves/5.jpeg') }}"
+                                    alt="Jeddah Waves"
+                                    class="w-full h-full object-cover">
                             </div>
                         </div>
                     </div>
@@ -1395,15 +1434,21 @@
     {{-- @include('partials.main-footer') --}}
 
     {{-- Gallery Modal --}}
-    <div id="galleryModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/90 backdrop-blur-sm" style="display: none;">
-        <div class="relative w-full h-full flex items-center justify-center p-4">
-            <button id="closeGalleryModal" class="absolute top-4 right-4 z-50 text-white hover:text-gray-300 transition-colors bg-black/50 rounded-full p-3 hover:bg-black/70">
-                <i class="fas fa-times text-2xl"></i>
+    <div id="galleryModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/95 backdrop-blur-sm" style="display: none;">
+        <div class="relative w-full h-full flex items-center justify-center p-2 md:p-4">
+            {{-- Close Button - Top Right --}}
+            <button id="closeGalleryModal" class="absolute top-2 right-2 md:top-4 md:right-4 z-50 text-white hover:text-gray-300 transition-all bg-red-600/90 hover:bg-red-600 rounded-full p-2.5 md:p-3 shadow-2xl hover:scale-110 active:scale-95">
+                <i class="fas fa-times text-lg md:text-2xl"></i>
             </button>
+
+            {{-- Close Hint Text - Top Left (Mobile) --}}
+            <div class="absolute top-2 left-2 md:hidden z-40 bg-black/60 text-white text-[10px] px-2 py-1 rounded-lg backdrop-blur-sm">
+                <i class="fas fa-hand-pointer mr-1"></i> اضغط للخروج
+            </div>
 
             <div class="relative max-w-7xl w-full h-full flex items-center justify-center">
                 <div id="galleryModalImageContainer" class="hidden w-full h-full flex items-center justify-center">
-                    <img id="galleryModalImage" src="" alt="" class="max-w-full max-h-full object-contain rounded-lg">
+                    <img id="galleryModalImage" src="" alt="" class="max-w-full max-h-full object-contain rounded-lg cursor-pointer" onclick="closeModal()">
                 </div>
 
                 <div id="galleryModalVideoContainer" class="hidden w-full h-full flex items-center justify-center">
@@ -1422,9 +1467,17 @@
                 </div>
             </div>
 
-            <div id="galleryModalInfo" class="absolute bottom-4 right-4 left-4 text-white text-center bg-black/50 backdrop-blur-sm rounded-lg p-4">
-                <h3 id="galleryModalTitle" class="text-xl font-bold mb-1"></h3>
-                <p id="galleryModalCategory" class="text-sm text-gray-300"></p>
+            {{-- Info and Close Button - Bottom --}}
+            <div id="galleryModalInfo" class="absolute bottom-2 md:bottom-4 right-2 left-2 md:right-4 md:left-4 text-white text-center bg-black/70 backdrop-blur-md rounded-lg p-3 md:p-4">
+                <h3 id="galleryModalTitle" class="text-base md:text-xl font-bold mb-1"></h3>
+                <p id="galleryModalCategory" class="text-xs md:text-sm text-gray-300 mb-2"></p>
+                {{-- Close Button - Bottom (Mobile) --}}
+                <button onclick="closeModal()" class="md:hidden mt-2 bg-red-600 hover:bg-red-700 text-white text-xs px-4 py-2 rounded-lg transition-all font-semibold">
+                    <i class="fas fa-times mr-1"></i> إغلاق
+                </button>
+                <div class="hidden md:block text-xs text-gray-400 mt-2">
+                    <i class="fas fa-info-circle mr-1"></i> اضغط على X أو اضغط ESC للخروج
+                </div>
             </div>
         </div>
     </div>
@@ -1639,8 +1692,10 @@
             const closeGalleryModal = document.getElementById('closeGalleryModal');
             const galleryModalImageContainer = document.getElementById('galleryModalImageContainer');
             const galleryModalVideoContainer = document.getElementById('galleryModalVideoContainer');
+            const galleryModalLocalVideoContainer = document.getElementById('galleryModalLocalVideoContainer');
             const galleryModalImage = document.getElementById('galleryModalImage');
             const galleryModalVideo = document.getElementById('galleryModalVideo');
+            const galleryModalLocalVideo = document.getElementById('galleryModalLocalVideo');
             const galleryModalTitle = document.getElementById('galleryModalTitle');
             const galleryModalCategory = document.getElementById('galleryModalCategory');
             const galleryModalInfo = document.getElementById('galleryModalInfo');
@@ -1701,34 +1756,70 @@
                 });
             });
 
-            // Close modal
-            function closeModal() {
+            // Close modal function - Make it globally accessible
+            window.closeModal = function() {
                 galleryModal.classList.add('hidden');
                 galleryModal.style.display = 'none';
                 document.body.style.overflow = '';
-                galleryModalVideo.src = ''; // Stop YouTube video playback
+
+                // Stop YouTube video playback
+                galleryModalVideo.src = '';
+
+                // Stop local video playback
                 if (galleryModalLocalVideo) {
                     galleryModalLocalVideo.pause();
                     galleryModalLocalVideo.currentTime = 0;
-                    galleryModalLocalVideo.querySelector('source').src = '';
+                    const source = galleryModalLocalVideo.querySelector('source');
+                    if (source) {
+                        source.src = '';
+                    }
+                    galleryModalLocalVideo.load();
                 }
+
+                // Hide all containers
+                if (galleryModalImageContainer) galleryModalImageContainer.classList.add('hidden');
+                if (galleryModalVideoContainer) galleryModalVideoContainer.classList.add('hidden');
+                if (galleryModalLocalVideoContainer) galleryModalLocalVideoContainer.classList.add('hidden');
+            };
+
+            // Close on button click
+            if (closeGalleryModal) {
+                closeGalleryModal.addEventListener('click', window.closeModal);
             }
 
-            closeGalleryModal.addEventListener('click', closeModal);
-
-            // Close on background click
+            // Close on background click (click outside content)
             galleryModal.addEventListener('click', function(e) {
-                if (e.target === galleryModal) {
-                    closeModal();
+                // Close if clicking on the modal background (not on content)
+                if (e.target === galleryModal || e.target.closest('#galleryModalInfo') === null &&
+                    e.target.closest('#galleryModalImageContainer') === null &&
+                    e.target.closest('#galleryModalVideoContainer') === null &&
+                    e.target.closest('#galleryModalLocalVideoContainer') === null &&
+                    e.target !== closeGalleryModal) {
+                    window.closeModal();
                 }
             });
 
             // Close on Escape key
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape' && !galleryModal.classList.contains('hidden')) {
-                    closeModal();
+                    window.closeModal();
                 }
             });
+
+            // Close on swipe down (mobile)
+            let touchStartY = 0;
+            let touchEndY = 0;
+            galleryModal.addEventListener('touchstart', function(e) {
+                touchStartY = e.changedTouches[0].screenY;
+            }, { passive: true });
+
+            galleryModal.addEventListener('touchend', function(e) {
+                touchEndY = e.changedTouches[0].screenY;
+                // Swipe down to close (more than 100px)
+                if (touchStartY - touchEndY > 100) {
+                    window.closeModal();
+                }
+            }, { passive: true });
         });
 
         // Match Countdown Timer
@@ -1777,7 +1868,7 @@
                     const imageUrl = this.getAttribute('data-image-url');
                     const videoUrl = this.getAttribute('data-video-url');
                     const youtubeUrl = this.getAttribute('data-youtube-url');
-                    
+
                     // Find team name - search in parent container
                     const teamCard = this.closest('.bg-gradient-to-br');
                     const teamName = teamCard ? (teamCard.querySelector('h3')?.textContent || '') : '';
