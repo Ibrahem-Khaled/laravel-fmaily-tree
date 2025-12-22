@@ -371,6 +371,26 @@
             .coursesSwiper .swiper-button-prev::after {
                 font-size: 16px;
             }
+
+        /* Match Section Styles */
+        .team-media {
+            transition: all 0.3s ease;
+        }
+
+        .team-media:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        @media (max-width: 640px) {
+            #matchCountdown {
+                gap: 0.5rem;
+            }
+
+            #countdownDays,
+            #countdownHours {
+                font-size: 1.125rem;
+            }
         }
     </style>
 </head>
@@ -443,6 +463,163 @@
         @endif
     </section>
 
+    {{-- Match Section - ترقبو --}}
+    <section class="py-4 md:py-8 lg:py-10 bg-white relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-green-100/20 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 left-0 w-64 h-64 bg-emerald-100/20 rounded-full blur-3xl"></div>
+        
+        <div class="container mx-auto px-3 sm:px-4 lg:px-8 max-w-7xl relative z-10">
+            {{-- Header with Excitement --}}
+            <div class="text-center mb-4 md:mb-6">
+                <div class="inline-block bg-gradient-to-r from-red-500 to-orange-500 text-white text-[10px] md:text-xs font-bold px-3 py-1 rounded-full mb-2 md:mb-3 shadow-lg">
+                    <i class="fas fa-fire mr-1"></i> المباراة التاريخية
+                </div>
+                <h2 class="text-xl sm:text-2xl md:text-3xl font-extrabold text-gradient mb-2 md:mb-3">
+                    ترقبو
+                </h2>
+                <div class="flex flex-wrap items-center justify-center gap-2 md:gap-3 text-gray-600 text-[11px] md:text-sm">
+                    <div class="flex items-center gap-1">
+                        <i class="fas fa-calendar-alt text-green-600 text-[10px] md:text-xs"></i>
+                        <span>27 ديسمبر 2025</span>
+                    </div>
+                    <span class="text-gray-400">•</span>
+                    <div class="flex items-center gap-1">
+                        <i class="fas fa-clock text-green-600 text-[10px] md:text-xs"></i>
+                        <span>4:00 عصراً</span>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Compact Countdown Timer --}}
+            <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl md:rounded-2xl p-3 md:p-5 mb-4 md:mb-6 border border-green-200/50 shadow-lg">
+                <div class="text-center mb-2 md:mb-3">
+                    <p class="text-gray-700 text-[10px] md:text-xs mb-1.5 md:mb-2 font-semibold">الوقت المتبقي</p>
+                    <div id="matchCountdown" class="flex items-center justify-center gap-1.5 md:gap-3">
+                        <div class="bg-white rounded-lg md:rounded-xl px-2.5 md:px-4 py-1.5 md:py-2.5 border border-green-300 shadow-md min-w-[50px] md:min-w-[70px]">
+                            <div class="text-lg md:text-2xl lg:text-3xl font-bold text-gradient" id="countdownDays">0</div>
+                            <div class="text-[9px] md:text-xs text-gray-600 mt-0.5">يوم</div>
+                        </div>
+                        <div class="text-green-600 text-lg md:text-xl font-bold">:</div>
+                        <div class="bg-white rounded-lg md:rounded-xl px-2.5 md:px-4 py-1.5 md:py-2.5 border border-green-300 shadow-md min-w-[50px] md:min-w-[70px]">
+                            <div class="text-lg md:text-2xl lg:text-3xl font-bold text-gradient" id="countdownHours">0</div>
+                            <div class="text-[9px] md:text-xs text-gray-600 mt-0.5">ساعة</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <a href="https://alsorayia.com/programs/996" target="_blank" rel="noopener noreferrer"
+                        class="inline-flex items-center gap-1.5 gradient-primary text-white px-4 md:px-6 py-1.5 md:py-2 rounded-lg md:rounded-xl font-bold text-[11px] md:text-sm hover:shadow-lg transition-all shadow-md transform hover:scale-105">
+                        <span>عرض التفاصيل</span>
+                        <i class="fas fa-arrow-left text-[10px] md:text-xs"></i>
+                    </a>
+                </div>
+            </div>
+
+            {{-- Teams with VS --}}
+            <div class="relative">
+                {{-- VS Badge - Visible on all screens --}}
+                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
+                    <div class="bg-gradient-to-br from-red-500 to-orange-500 text-white w-10 h-10 md:w-16 md:h-16 rounded-full flex items-center justify-center shadow-2xl border-2 md:border-4 border-white font-black text-sm md:text-2xl">
+                        VS
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                    {{-- Team 1: نجد العذية --}}
+                    <div class="bg-gradient-to-br from-gray-50 to-white rounded-xl md:rounded-2xl p-3 md:p-4 border border-gray-200 shadow-md">
+                        <div class="text-center mb-2 md:mb-3">
+                            <h3 class="text-base md:text-lg font-bold text-gray-800 mb-1">نجد العذية</h3>
+                            <div class="w-12 md:w-16 h-0.5 bg-gradient-to-r from-green-500 to-emerald-500 mx-auto rounded-full"></div>
+                        </div>
+                        
+                        {{-- Compact Images --}}
+                        <div class="grid grid-cols-1 gap-1.5 md:gap-2 mb-2 md:mb-3">
+                            <div class="aspect-square rounded-md md:rounded-lg overflow-hidden cursor-pointer team-media hover:scale-105 transition-transform duration-300 shadow-sm"
+                                data-media-type="image"
+                                data-image-url="{{ asset('assets/img/jadah/2.jpeg') }}">
+                                <img src="{{ asset('assets/img/jadah/2.jpeg') }}" 
+                                    alt="نجد العذية" 
+                                    class="w-full h-full object-cover">
+                            </div>
+                        </div>
+
+                        {{-- Compact Video --}}
+                        <div class="relative rounded-md md:rounded-lg overflow-hidden cursor-pointer team-media shadow-sm group"
+                            data-media-type="video"
+                            data-video-url="{{ asset('assets/img/jadah/1 - Trim.mp4') }}">
+                            <div class="aspect-video bg-black/50 relative">
+                                <video class="w-full h-full object-cover" muted>
+                                    <source src="{{ asset('assets/img/jadah/1 - Trim.mp4') }}" type="video/mp4">
+                                </video>
+                                <div class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-colors">
+                                    <div class="w-8 h-8 md:w-12 md:h-12 bg-red-600 rounded-full flex items-center justify-center shadow-xl transform group-hover:scale-110 transition-transform">
+                                        <i class="fas fa-play text-white text-xs md:text-base mr-0.5"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Team 2: Jeddah Waves --}}
+                    <div class="bg-gradient-to-br from-gray-50 to-white rounded-xl md:rounded-2xl p-3 md:p-4 border border-gray-200 shadow-md">
+                        <div class="text-center mb-2 md:mb-3">
+                            <h3 class="text-base md:text-lg font-bold text-gray-800 mb-1">Jeddah Waves</h3>
+                            <div class="w-12 md:w-16 h-0.5 bg-gradient-to-r from-green-500 to-emerald-500 mx-auto rounded-full"></div>
+                        </div>
+                        
+                        {{-- Compact Images --}}
+                        <div class="grid grid-cols-2 gap-1.5 md:gap-2 mb-2 md:mb-3">
+                            <div class="aspect-square rounded-md md:rounded-lg overflow-hidden cursor-pointer team-media hover:scale-105 transition-transform duration-300 shadow-sm"
+                                data-media-type="image"
+                                data-image-url="{{ asset('assets/img/jeddah-waves/2.jpeg') }}">
+                                <img src="{{ asset('assets/img/jeddah-waves/2.jpeg') }}" 
+                                    alt="Jeddah Waves" 
+                                    class="w-full h-full object-cover">
+                            </div>
+                            <div class="aspect-square rounded-md md:rounded-lg overflow-hidden cursor-pointer team-media hover:scale-105 transition-transform duration-300 shadow-sm"
+                                data-media-type="image"
+                                data-image-url="{{ asset('assets/img/jeddah-waves/3.jpeg') }}">
+                                <img src="{{ asset('assets/img/jeddah-waves/3.jpeg') }}" 
+                                    alt="Jeddah Waves" 
+                                    class="w-full h-full object-cover">
+                            </div>
+                            <div class="aspect-square rounded-md md:rounded-lg overflow-hidden cursor-pointer team-media hover:scale-105 transition-transform duration-300 shadow-sm"
+                                data-media-type="image"
+                                data-image-url="{{ asset('assets/img/jeddah-waves/4.jpeg') }}">
+                                <img src="{{ asset('assets/img/jeddah-waves/4.jpeg') }}" 
+                                    alt="Jeddah Waves" 
+                                    class="w-full h-full object-cover">
+                            </div>
+                            <div class="aspect-square rounded-md md:rounded-lg overflow-hidden cursor-pointer team-media hover:scale-105 transition-transform duration-300 shadow-sm"
+                                data-media-type="image"
+                                data-image-url="{{ asset('assets/img/jeddah-waves/5.jpeg') }}">
+                                <img src="{{ asset('assets/img/jeddah-waves/5.jpeg') }}" 
+                                    alt="Jeddah Waves" 
+                                    class="w-full h-full object-cover">
+                            </div>
+                        </div>
+
+                        {{-- Compact Video --}}
+                        <div class="relative rounded-md md:rounded-lg overflow-hidden cursor-pointer team-media shadow-sm group"
+                            data-media-type="video"
+                            data-video-url="{{ asset('assets/img/jeddah-waves/1.mp4') }}">
+                            <div class="aspect-video bg-black/50 relative">
+                                <video class="w-full h-full object-cover" muted>
+                                    <source src="{{ asset('assets/img/jeddah-waves/1.mp4') }}" type="video/mp4">
+                                </video>
+                                <div class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-colors">
+                                    <div class="w-8 h-8 md:w-12 md:h-12 bg-red-600 rounded-full flex items-center justify-center shadow-xl transform group-hover:scale-110 transition-transform">
+                                        <i class="fas fa-play text-white text-xs md:text-base mr-0.5"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     {{-- Born Today Section --}}
     {{-- @if ($birthdayPersons && $birthdayPersons->count() > 0)
         <section class="py-6 md:py-8 lg:py-10 bg-white relative overflow-hidden">
@@ -486,7 +663,6 @@
                 <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">
                     اخترنا لك
                 </h2>
-                <p class="text-gray-600 text-xs md:text-sm mt-2">لحظات جميلة من حياة العائلة</p>
             </div>
 
             @if ($latestGalleryImages->count() > 0)
@@ -1235,6 +1411,15 @@
                         <iframe id="galleryModalVideo" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="w-full h-full rounded-lg"></iframe>
                     </div>
                 </div>
+
+                <div id="galleryModalLocalVideoContainer" class="hidden w-full h-full flex items-center justify-center">
+                    <div class="w-full" style="max-width: 90vw; aspect-ratio: 16/9;">
+                        <video id="galleryModalLocalVideo" controls autoplay class="w-full h-full rounded-lg">
+                            <source src="" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                </div>
             </div>
 
             <div id="galleryModalInfo" class="absolute bottom-4 right-4 left-4 text-white text-center bg-black/50 backdrop-blur-sm rounded-lg p-4">
@@ -1521,7 +1706,12 @@
                 galleryModal.classList.add('hidden');
                 galleryModal.style.display = 'none';
                 document.body.style.overflow = '';
-                galleryModalVideo.src = ''; // Stop video playback
+                galleryModalVideo.src = ''; // Stop YouTube video playback
+                if (galleryModalLocalVideo) {
+                    galleryModalLocalVideo.pause();
+                    galleryModalLocalVideo.currentTime = 0;
+                    galleryModalLocalVideo.querySelector('source').src = '';
+                }
             }
 
             closeGalleryModal.addEventListener('click', closeModal);
@@ -1538,6 +1728,113 @@
                 if (e.key === 'Escape' && !galleryModal.classList.contains('hidden')) {
                     closeModal();
                 }
+            });
+        });
+
+        // Match Countdown Timer
+        function updateMatchCountdown() {
+            const matchDate = new Date('2025-12-27T16:00:00');
+            const now = new Date();
+            const diff = matchDate - now;
+
+            if (diff <= 0) {
+                document.getElementById('countdownDays').textContent = '0';
+                document.getElementById('countdownHours').textContent = '0';
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+
+            document.getElementById('countdownDays').textContent = days;
+            document.getElementById('countdownHours').textContent = hours;
+        }
+
+        // Update countdown every hour
+        document.addEventListener('DOMContentLoaded', function() {
+            updateMatchCountdown();
+            setInterval(updateMatchCountdown, 3600000); // Update every hour
+        });
+
+        // Team Media Modal Handlers
+        document.addEventListener('DOMContentLoaded', function() {
+            const galleryModal = document.getElementById('galleryModal');
+            const closeGalleryModal = document.getElementById('closeGalleryModal');
+            const galleryModalImageContainer = document.getElementById('galleryModalImageContainer');
+            const galleryModalVideoContainer = document.getElementById('galleryModalVideoContainer');
+            const galleryModalLocalVideoContainer = document.getElementById('galleryModalLocalVideoContainer');
+            const galleryModalImage = document.getElementById('galleryModalImage');
+            const galleryModalVideo = document.getElementById('galleryModalVideo');
+            const galleryModalLocalVideo = document.getElementById('galleryModalLocalVideo');
+            const galleryModalTitle = document.getElementById('galleryModalTitle');
+            const galleryModalCategory = document.getElementById('galleryModalCategory');
+            const galleryModalInfo = document.getElementById('galleryModalInfo');
+
+            // Open team media
+            document.querySelectorAll('.team-media').forEach(function(item) {
+                item.addEventListener('click', function() {
+                    const mediaType = this.getAttribute('data-media-type');
+                    const imageUrl = this.getAttribute('data-image-url');
+                    const videoUrl = this.getAttribute('data-video-url');
+                    const youtubeUrl = this.getAttribute('data-youtube-url');
+                    
+                    // Find team name - search in parent container
+                    const teamCard = this.closest('.bg-gradient-to-br');
+                    const teamName = teamCard ? (teamCard.querySelector('h3')?.textContent || '') : '';
+
+                    // Set title
+                    galleryModalTitle.textContent = teamName;
+                    galleryModalCategory.textContent = '';
+                    galleryModalInfo.style.display = teamName ? 'block' : 'none';
+
+                    // Hide all containers first
+                    galleryModalImageContainer.classList.add('hidden');
+                    galleryModalVideoContainer.classList.add('hidden');
+                    galleryModalLocalVideoContainer.classList.add('hidden');
+
+                    // Check media type
+                    if (mediaType === 'youtube' && youtubeUrl) {
+                        // YouTube video
+                        let videoId = '';
+                        const patterns = [
+                            /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+                            /youtube\.com\/watch\?.*v=([a-zA-Z0-9_-]{11})/
+                        ];
+
+                        for (let pattern of patterns) {
+                            const match = youtubeUrl.match(pattern);
+                            if (match) {
+                                videoId = match[1];
+                                break;
+                            }
+                        }
+
+                        if (videoId) {
+                            galleryModalVideo.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+                            galleryModalVideoContainer.classList.remove('hidden');
+                        } else {
+                            // Fallback to image
+                            galleryModalImage.src = imageUrl || '';
+                            galleryModalImageContainer.classList.remove('hidden');
+                        }
+                    } else if (mediaType === 'video' && videoUrl) {
+                        // Local video
+                        galleryModalLocalVideo.querySelector('source').src = videoUrl;
+                        galleryModalLocalVideo.load();
+                        galleryModalLocalVideoContainer.classList.remove('hidden');
+                    } else {
+                        // Regular image
+                        galleryModalImage.src = imageUrl || '';
+                        galleryModalImageContainer.classList.remove('hidden');
+                        galleryModalVideo.src = ''; // Clear YouTube video
+                        galleryModalLocalVideo.querySelector('source').src = ''; // Clear local video
+                    }
+
+                    // Show modal
+                    galleryModal.classList.remove('hidden');
+                    galleryModal.style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
+                });
             });
         });
 
