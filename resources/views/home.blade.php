@@ -620,13 +620,6 @@
                                 <img src="{{ asset('assets/img/jeddah-waves/4.jpeg') }}" alt="Jeddah Waves" class="w-full h-full object-cover transition-transform duration-300 group-hover/thumb:scale-110">
                                 <div class="absolute inset-0 bg-black/0 group-hover/thumb:bg-black/20 transition-colors"></div>
                             </div>
-                            {{-- Thumbnail 4 --}}
-                            <div class="flex-1 relative overflow-hidden rounded-lg cursor-pointer team-media group/thumb hover:z-10"
-                                data-media-type="image"
-                                data-image-url="{{ asset('assets/img/jeddah-waves/2.jpeg') }}">
-                                <img src="{{ asset('assets/img/jeddah-waves/2.jpeg') }}" alt="Jeddah Waves" class="w-full h-full object-cover transition-transform duration-300 group-hover/thumb:scale-110">
-                                <div class="absolute inset-0 bg-black/0 group-hover/thumb:bg-black/20 transition-colors"></div>
-                            </div>
                         </div>
                     </div>
                 </div>
