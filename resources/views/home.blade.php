@@ -620,6 +620,19 @@
                                 <img src="{{ asset('assets/img/jeddah-waves/4.jpeg') }}" alt="Jeddah Waves" class="w-full h-full object-cover transition-transform duration-300 group-hover/thumb:scale-110">
                                 <div class="absolute inset-0 bg-black/0 group-hover/thumb:bg-black/20 transition-colors"></div>
                             </div>
+                            {{-- Thumbnail 4 (New Video) --}}
+                            <div class="flex-1 relative overflow-hidden rounded-lg cursor-pointer team-media group/thumb hover:z-10 bg-gradient-to-br from-green-800 to-green-900"
+                                data-media-type="video"
+                                data-video-url="{{ asset('assets/img/jeddah-waves/new-vid.mp4') }}">
+                                <video class="video-thumbnail w-full h-full object-cover" muted playsinline webkit-playsinline preload="auto">
+                                    <source src="{{ asset('assets/img/jeddah-waves/new-vid.mp4') }}#t=0.5" type="video/mp4">
+                                </video>
+                                <div class="absolute inset-0 flex items-center justify-center bg-black/20 group-hover/thumb:bg-black/30 transition-colors">
+                                    <div class="w-8 h-8 md:w-10 md:h-10 bg-white/90 rounded-full flex items-center justify-center shadow-lg">
+                                        <i class="fas fa-play text-green-600 text-xs md:text-sm mr-0.5"></i>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
