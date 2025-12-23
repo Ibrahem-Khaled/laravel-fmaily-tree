@@ -209,15 +209,6 @@
                                             
                                             <!-- Dark Overlay for Text Readability -->
                                             <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
-                                            
-                                            <!-- Year Badge -->
-                                            <div class="absolute top-2 left-2 md:top-5 md:left-5 z-20">
-                                                <div class="bg-gradient-to-r from-primary-700 to-primary-500 text-white px-2 py-1 md:px-5 md:py-2.5 rounded-full text-xs md:text-base font-bold shadow-lg shadow-primary-700/40 flex items-center gap-1 md:gap-2">
-                                                    <i class="fas fa-calendar-alt text-xs"></i>
-                                                    <span class="hidden md:inline">{{ $competition->hijri_year }} هـ</span>
-                                                    <span class="md:hidden">{{ $competition->hijri_year }}</span>
-                                                </div>
-                                            </div>
                                         </div>
 
                                         <!-- Content -->
@@ -294,15 +285,6 @@
                                             
                                             <!-- Dark Overlay for Text Readability -->
                                             <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
-                                            
-                                            <!-- Year Badge -->
-                                            <div class="absolute top-2 left-2 md:top-5 md:left-5 z-20">
-                                                <div class="bg-gradient-to-r from-gray-700 to-gray-600 text-white px-2 py-1 md:px-5 md:py-2.5 rounded-full text-xs md:text-base font-bold shadow-lg flex items-center gap-1 md:gap-2 group-hover:from-primary-700 group-hover:to-primary-500 transition-all">
-                                                    <i class="fas fa-calendar-alt text-xs"></i>
-                                                    <span class="hidden md:inline">{{ $competition->hijri_year }} هـ</span>
-                                                    <span class="md:hidden">{{ $competition->hijri_year }}</span>
-                                                </div>
-                                            </div>
                                         </div>
 
                                         <!-- Content -->
