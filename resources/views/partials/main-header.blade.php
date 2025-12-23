@@ -615,7 +615,7 @@
                 @auth
                 <li>
                     <a class="nav-link {{ request()->routeIs('quran-competitions.*') ? 'active' : '' }}" href="{{ route('quran-competitions.index') }}">
-                        مسابقة القرآن الكريم
+                        القرآن والسنة
                     </a>
                 </li>
                 @endauth

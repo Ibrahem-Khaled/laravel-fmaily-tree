@@ -545,11 +545,11 @@
                         {{-- Thumbnails Row (30%) --}}
                         <div class="h-[30%] flex gap-1.5 p-1.5 bg-gray-50">
                             {{-- Thumbnail 1 (Video) --}}
-                            <div class="flex-1 relative overflow-hidden rounded-lg cursor-pointer team-media group/thumb hover:z-10"
+                            <div class="flex-1 relative overflow-hidden rounded-lg cursor-pointer team-media group/thumb hover:z-10 bg-gradient-to-br from-green-800 to-green-900"
                                 data-media-type="video"
                                 data-video-url="{{ asset('assets/img/jadah/1 - Trim.mp4') }}">
-                                <video class="video-thumbnail w-full h-full object-cover" muted playsinline webkit-playsinline preload="metadata">
-                                    <source src="{{ asset('assets/img/jadah/1 - Trim.mp4') }}" type="video/mp4">
+                                <video class="video-thumbnail w-full h-full object-cover" muted playsinline webkit-playsinline preload="auto">
+                                    <source src="{{ asset('assets/img/jadah/1 - Trim.mp4') }}#t=0.5" type="video/mp4">
                                 </video>
                                 <div class="absolute inset-0 flex items-center justify-center bg-black/20 group-hover/thumb:bg-black/30 transition-colors">
                                     <div class="w-8 h-8 md:w-10 md:h-10 bg-white/90 rounded-full flex items-center justify-center shadow-lg">
@@ -558,11 +558,11 @@
                                 </div>
                             </div>
                             {{-- Thumbnail 2 (Video) --}}
-                            <div class="flex-1 relative overflow-hidden rounded-lg cursor-pointer team-media group/thumb hover:z-10"
+                            <div class="flex-1 relative overflow-hidden rounded-lg cursor-pointer team-media group/thumb hover:z-10 bg-gradient-to-br from-green-800 to-green-900"
                                 data-media-type="video"
                                 data-video-url="{{ asset('assets/img/jadah/2 - Trim.mp4') }}">
-                                <video class="video-thumbnail w-full h-full object-cover" muted playsinline webkit-playsinline preload="metadata">
-                                    <source src="{{ asset('assets/img/jadah/2 - Trim.mp4') }}" type="video/mp4">
+                                <video class="video-thumbnail w-full h-full object-cover" muted playsinline webkit-playsinline preload="auto">
+                                    <source src="{{ asset('assets/img/jadah/2 - Trim.mp4') }}#t=0.5" type="video/mp4">
                                 </video>
                                 <div class="absolute inset-0 flex items-center justify-center bg-black/20 group-hover/thumb:bg-black/30 transition-colors">
                                     <div class="w-8 h-8 md:w-10 md:h-10 bg-white/90 rounded-full flex items-center justify-center shadow-lg">
@@ -594,11 +594,11 @@
                         {{-- Thumbnails Row (30%) --}}
                         <div class="h-[30%] flex gap-1.5 p-1.5 bg-gray-50">
                             {{-- Thumbnail 1 (Video) --}}
-                            <div class="flex-1 relative overflow-hidden rounded-lg cursor-pointer team-media group/thumb hover:z-10"
+                            <div class="flex-1 relative overflow-hidden rounded-lg cursor-pointer team-media group/thumb hover:z-10 bg-gradient-to-br from-green-800 to-green-900"
                                 data-media-type="video"
                                 data-video-url="{{ asset('assets/img/jeddah-waves/1.mp4') }}">
-                                <video class="video-thumbnail w-full h-full object-cover" muted playsinline webkit-playsinline preload="metadata">
-                                    <source src="{{ asset('assets/img/jeddah-waves/1.mp4') }}" type="video/mp4">
+                                <video class="video-thumbnail w-full h-full object-cover" muted playsinline webkit-playsinline preload="auto">
+                                    <source src="{{ asset('assets/img/jeddah-waves/1.mp4') }}#t=0.5" type="video/mp4">
                                 </video>
                                 <div class="absolute inset-0 flex items-center justify-center bg-black/20 group-hover/thumb:bg-black/30 transition-colors">
                                     <div class="w-8 h-8 md:w-10 md:h-10 bg-white/90 rounded-full flex items-center justify-center shadow-lg">
@@ -1824,48 +1824,16 @@
             updateMatchCountdown();
             setInterval(updateMatchCountdown, 60000); // Update every minute
 
-            // Generate video thumbnails from first frame
-            function generateVideoThumbnail(video) {
-                if (video.readyState >= 2) {
-                    // Video metadata is loaded
-                    const canvas = document.createElement('canvas');
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-                    // Set as poster
-                    video.poster = canvas.toDataURL('image/jpeg');
-                }
-            }
-
-            // Generate thumbnails for all video elements
+            // Generate video thumbnails - iOS compatible
             document.querySelectorAll('.video-thumbnail').forEach(function(video) {
-                // Try to generate thumbnail when metadata is loaded
+                // Set time to get a frame for thumbnail display
                 video.addEventListener('loadedmetadata', function() {
-                    generateVideoThumbnail(this);
+                    // Seek to 0.5 seconds to show a frame
+                    this.currentTime = 0.5;
                 });
 
-                // Fallback: try after a short delay
-                setTimeout(function() {
-                    if (!video.poster && video.readyState >= 2) {
-                        generateVideoThumbnail(video);
-                    }
-                }, 500);
-
-                // Set currentTime to 0.1 seconds to get a frame
-                video.addEventListener('loadeddata', function() {
-                    if (this.readyState >= 2) {
-                        this.currentTime = 0.1;
-                    }
-                });
-
-                // Generate thumbnail when time is updated
-                video.addEventListener('seeked', function() {
-                    if (!this.poster) {
-                        generateVideoThumbnail(this);
-                    }
-                });
+                // For iOS: Force load
+                video.load();
             });
         });
 
