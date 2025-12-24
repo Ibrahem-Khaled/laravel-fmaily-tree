@@ -166,6 +166,7 @@
                                 @include('dashboard.categories.modals.edit', [
                                     'category' => $category,
                                     'allCategories' => $allCategories,
+                                    'persons' => $persons ?? collect(),
                                 ])
                                 @include('dashboard.categories.modals.delete', ['category' => $category])
 
@@ -207,7 +208,12 @@
     </style>
 @endpush
 
+@push('styles')
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-ui-dist@1.13.2/jquery-ui.min.css">
+@endpush
+
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/jquery-ui-dist@1.13.2/jquery-ui.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <script>
         // عرض اسم الملف المختار في حقول رفع الصور

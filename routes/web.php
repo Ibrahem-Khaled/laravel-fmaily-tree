@@ -101,6 +101,10 @@ Route::get('/breastfeeding/{person}', [BreastfeedingPublicController::class, 'sh
 // Public Quran Competitions Routes
 Route::get('/quran-competitions', [\App\Http\Controllers\QuranCompetitionPublicController::class, 'index'])->name('quran-competitions.index');
 Route::get('/quran-competitions/{id}', [\App\Http\Controllers\QuranCompetitionPublicController::class, 'show'])->name('quran-competitions.show');
+Route::get('/quran-competitions/category/{category}', [\App\Http\Controllers\QuranCompetitionPublicController::class, 'showByCategory'])->name('quran-competitions.category');
+
+// Public Quran Categories Routes
+Route::get('/quran-categories/{category}', [\App\Http\Controllers\QuranCategoryController::class, 'show'])->name('quran-categories.show');
 
 // Public Store Routes
 Route::prefix('store')->name('store.')->group(function () {
@@ -186,6 +190,9 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::post('categories/delete-empty', [CategoryController::class, 'deleteEmpty'])->name('categories.delete-empty')->middleware(['permission:categories.delete']);
     Route::post('categories/{category}/toggle-active', [CategoryController::class, 'toggleActive'])->name('categories.toggle-active')->middleware(['permission:categories.update']);
     Route::post('categories/update-order', [CategoryController::class, 'updateOrder'])->name('categories.update-order')->middleware(['permission:categories.update']);
+    Route::post('categories/{category}/managers', [CategoryController::class, 'addManager'])->name('categories.add-manager')->middleware(['permission:categories.update']);
+    Route::delete('categories/managers/{manager}', [CategoryController::class, 'removeManager'])->name('categories.remove-manager')->middleware(['permission:categories.update']);
+    Route::post('categories/{category}/managers/update-order', [CategoryController::class, 'updateManagerOrder'])->name('categories.update-manager-order')->middleware(['permission:categories.update']);
 
     // Locations routes
     Route::get('locations/find-similar', [LocationController::class, 'findSimilar'])->name('locations.find-similar')->middleware(['permission:locations.view']);

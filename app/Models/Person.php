@@ -448,4 +448,12 @@ class Person extends BaseModel
     {
         return $this->hasMany(QuranCompetitionWinner::class, 'person_id');
     }
+
+    /**
+     * العلاقة مع القائمين على برامج القرآن (الفئات)
+     */
+    public function quranCategoryManagers()
+    {
+        return $this->hasMany(QuranCategoryManager::class);
+    }
 }

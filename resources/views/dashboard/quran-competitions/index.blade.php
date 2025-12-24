@@ -35,6 +35,124 @@
         </div>
     @endif
 
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">إجمالي المسابقات</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['total'] }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-trophy fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">المسابقات النشطة</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['active'] }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">إجمالي الفائزين</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['total_winners'] }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">إجمالي الوسائط</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['total_media'] }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-images fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Additional Statistics -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-secondary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">المسابقات المعطلة</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['inactive'] }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-ban fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">مسابقات مع فئة</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['with_category'] }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-folder fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">مسابقات بدون فئة</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['without_category'] }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-folder-open fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Competitions Table -->
     <div class="card shadow-sm border-0">
         <div class="card-header bg-white border-bottom">
@@ -49,10 +167,12 @@
                         <thead>
                             <tr>
                                 <th>العنوان</th>
+                                <th>الفئة</th>
                                 <th>السنة الهجرية</th>
                                 <th>تاريخ البداية</th>
                                 <th>تاريخ النهاية</th>
                                 <th>الفائزون</th>
+                                <th>الوسائط</th>
                                 <th>الحالة</th>
                                 <th>الإجراءات</th>
                             </tr>
@@ -65,18 +185,67 @@
                                         @if($competition->cover_image)
                                             <br><small class="text-muted"><i class="fas fa-image"></i> يوجد صورة</small>
                                         @endif
+                                        @if($competition->description)
+                                            <br><small class="text-muted">{{ Str::limit($competition->description, 50) }}</small>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if($competition->category)
+                                            <span class="badge badge-primary">
+                                                <i class="fas fa-folder mr-1"></i>
+                                                {{ $competition->category->name }}
+                                            </span>
+                                            @if($competition->category->parent)
+                                                <br><small class="text-muted">
+                                                    <i class="fas fa-level-up-alt mr-1"></i>
+                                                    {{ $competition->category->parent->name }}
+                                                </small>
+                                            @endif
+                                        @else
+                                            <span class="badge badge-secondary">بدون فئة</span>
+                                        @endif
                                     </td>
                                     <td>{{ $competition->hijri_year }} هـ</td>
-                                    <td>{{ $competition->start_date ? $competition->start_date->format('Y-m-d') : '-' }}</td>
-                                    <td>{{ $competition->end_date ? $competition->end_date->format('Y-m-d') : '-' }}</td>
                                     <td>
-                                        <span class="badge badge-info">{{ $competition->winners->count() }} فائز</span>
+                                        @if($competition->start_date)
+                                            {{ $competition->start_date->format('Y-m-d') }}
+                                            <br><small class="text-muted">{{ $competition->start_date->format('d/m/Y') }}</small>
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if($competition->end_date)
+                                            {{ $competition->end_date->format('Y-m-d') }}
+                                            <br><small class="text-muted">{{ $competition->end_date->format('d/m/Y') }}</small>
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-info">
+                                            <i class="fas fa-trophy mr-1"></i>
+                                            {{ $competition->winners->count() }} فائز
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-secondary">
+                                            <i class="fas fa-images mr-1"></i>
+                                            {{ $competition->media->count() }} وسائط
+                                        </span>
                                     </td>
                                     <td>
                                         @if($competition->is_active)
-                                            <span class="badge badge-success">نشط</span>
+                                            <span class="badge badge-success">
+                                                <i class="fas fa-check-circle mr-1"></i>نشط
+                                            </span>
                                         @else
-                                            <span class="badge badge-secondary">معطل</span>
+                                            <span class="badge badge-secondary">
+                                                <i class="fas fa-ban mr-1"></i>معطل
+                                            </span>
+                                        @endif
+                                        @if($competition->display_order > 0)
+                                            <br><small class="text-muted">ترتيب: {{ $competition->display_order }}</small>
                                         @endif
                                     </td>
                                     <td>

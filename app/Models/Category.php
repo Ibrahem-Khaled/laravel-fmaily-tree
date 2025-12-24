@@ -59,6 +59,16 @@ class Category extends BaseModel
         return $this->hasMany(Image::class);
     }
 
+    public function quranCompetitions(): HasMany
+    {
+        return $this->hasMany(QuranCompetition::class);
+    }
+
+    public function managers(): HasMany
+    {
+        return $this->hasMany(QuranCategoryManager::class)->orderBy('sort_order');
+    }
+
     // سكوبات
     public function scopeRoots($q)
     {

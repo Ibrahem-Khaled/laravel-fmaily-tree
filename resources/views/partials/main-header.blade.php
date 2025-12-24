@@ -32,7 +32,8 @@
         padding: 0 1.5rem;
         display: flex;
         align-items: center;
-        gap: 2.5rem;
+        justify-content: space-between;
+        gap: 1.5rem;
         position: relative;
     }
 
@@ -72,6 +73,8 @@
             0 0 20px rgba(55, 160, 92, 0.1);
         overflow: hidden;
         flex-shrink: 0;
+        margin-right: auto;
+        min-width: 0;
     }
 
     .header-brand::before {
@@ -146,6 +149,7 @@
         flex: 1;
         justify-content: flex-end;
         gap: 0.5rem;
+        min-width: 0;
     }
 
     .header-nav-list {
@@ -153,50 +157,75 @@
         list-style: none;
         margin: 0;
         padding: 0;
-        gap: 0.25rem;
+        gap: 0.5rem;
         align-items: center;
+        flex: 1;
+        justify-content: flex-end;
+        min-width: 0;
+    }
+
+    .header-nav-list > li {
+        display: flex;
+        flex: 0 1 auto;
+        min-width: 0;
     }
 
     .header-nav .nav-link {
         display: flex;
         align-items: center;
-        gap: 0.4rem;
-        padding: 0.5rem 0.9rem;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.65rem 1rem;
         color: var(--header-text);
         text-decoration: none;
         font-weight: 500;
         font-size: 0.9rem;
-        border-radius: 6px;
-        transition: var(--transition);
+        border-radius: 8px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         white-space: nowrap;
         position: relative;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid transparent;
+        width: 100%;
+        text-align: center;
     }
 
     .header-nav .nav-link i {
-        font-size: 0.9rem;
+        font-size: 1rem;
+        transition: transform 0.3s ease;
     }
 
     .header-nav .nav-link:hover {
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.15);
         color: var(--header-text-hover);
+        border-color: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .header-nav .nav-link:hover i {
+        transform: scale(1.1);
     }
 
     .header-nav .nav-link.active {
-        background: rgba(55, 160, 92, 0.2);
+        background: linear-gradient(135deg, rgba(55, 160, 92, 0.25) 0%, rgba(55, 160, 92, 0.15) 100%);
         color: var(--header-text-hover);
         font-weight: 600;
+        border-color: rgba(55, 160, 92, 0.4);
+        box-shadow: 0 4px 12px rgba(55, 160, 92, 0.2);
     }
 
     .header-nav .nav-link.active::after {
         content: '';
         position: absolute;
-        bottom: -3px;
+        bottom: -2px;
         left: 50%;
         transform: translateX(-50%);
-        width: 60%;
-        height: 2px;
-        background: var(--header-accent);
-        border-radius: 2px;
+        width: 70%;
+        height: 3px;
+        background: linear-gradient(90deg, transparent, var(--header-accent), transparent);
+        border-radius: 3px;
+        box-shadow: 0 0 8px var(--header-accent);
     }
 
     /* ===== Dropdown ===== */
@@ -224,54 +253,95 @@
 
     .header-nav .dropdown-menu {
         position: absolute;
-        top: calc(100% + 8px);
+        top: calc(100% + 12px);
         right: 0;
-        min-width: 240px;
-        background: var(--header-bg);
-        border-radius: 8px;
-        padding: 0.5rem 0;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        min-width: 280px;
+        background: linear-gradient(135deg, var(--header-bg) 0%, #0f3d35 100%);
+        border-radius: 12px;
+        padding: 0.75rem 0;
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.15);
         opacity: 0;
         visibility: hidden;
-        transform: translateY(-8px);
-        transition: var(--transition);
+        transform: translateY(-12px) scale(0.95);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         z-index: 1001;
         display: none;
+        backdrop-filter: blur(10px);
     }
 
     .header-nav .dropdown-menu.show {
         display: block;
         opacity: 1;
         visibility: visible;
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
     }
 
     .header-nav .dropdown-item {
         display: flex;
         align-items: center;
         gap: 0.75rem;
-        padding: 0.75rem 1.25rem;
+        padding: 0.85rem 1.5rem;
         color: var(--header-text);
         text-decoration: none;
-        font-size: 0.9rem;
-        transition: var(--transition);
+        font-size: 0.95rem;
+        font-weight: 500;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         border: none;
         background: none;
         width: 100%;
         text-align: right;
+        position: relative;
+        margin: 0.15rem 0.5rem;
+        border-radius: 8px;
+    }
+
+    .header-nav .dropdown-item::before {
+        content: '';
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 3px;
+        height: 0;
+        background: var(--header-accent);
+        border-radius: 0 4px 4px 0;
+        transition: height 0.3s ease;
     }
 
     .header-nav .dropdown-item i {
-        font-size: 1rem;
-        width: 18px;
+        font-size: 1.1rem;
+        width: 22px;
         text-align: center;
+        transition: transform 0.3s ease, color 0.3s ease;
     }
 
-    .header-nav .dropdown-item:hover,
-    .header-nav .dropdown-item.active {
-        background: rgba(255, 255, 255, 0.1);
+    .header-nav .dropdown-item:hover {
+        background: rgba(255, 255, 255, 0.12);
         color: var(--header-text-hover);
+        transform: translateX(-5px);
+        padding-right: 1.75rem;
+    }
+
+    .header-nav .dropdown-item:hover::before {
+        height: 60%;
+    }
+
+    .header-nav .dropdown-item:hover i {
+        transform: scale(1.15);
+        color: var(--header-accent);
+    }
+
+    .header-nav .dropdown-item.active {
+        background: linear-gradient(90deg, rgba(55, 160, 92, 0.2) 0%, rgba(55, 160, 92, 0.1) 100%);
+        color: var(--header-text-hover);
+        font-weight: 600;
+    }
+
+    .header-nav .dropdown-item.active::before {
+        height: 70%;
+        background: var(--header-accent);
+        box-shadow: 0 0 8px var(--header-accent);
     }
 
     .header-nav .dropdown-divider {
@@ -333,6 +403,28 @@
         .header-container {
             padding: 0 1rem;
             gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .mobile-menu-toggle {
+            order: -1;
+            margin-left: auto;
+            z-index: 1001;
+        }
+
+        .header-nav {
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .header-separator {
@@ -369,6 +461,7 @@
 
         .header-nav.is-open {
             display: flex;
+            animation: slideDown 0.3s ease-out;
         }
 
         .header-nav-list {
@@ -376,16 +469,37 @@
             width: 100%;
             gap: 0.3rem;
             padding: 0.5rem;
+            flex-wrap: nowrap;
+        }
+
+        .header-nav-list > li {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
         }
 
         .header-nav .nav-link {
-            width: calc(100% - 1rem);
-            margin: 0 auto;
-            padding: 0.7rem 1rem;
+            width: 100%;
+            margin: 0;
+            padding: 0.85rem 1.5rem;
             justify-content: flex-start;
             border-radius: 8px;
             border-bottom: none;
             font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .header-nav .dropdown {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header-nav .nav-link i {
+            font-size: 1rem;
+            width: 24px;
+            text-align: center;
+            margin-left: 0.5rem;
         }
 
         .header-nav .nav-link:last-child {
@@ -402,34 +516,72 @@
         }
 
         /* Dropdown on Mobile - Always Hidden by Default */
+        .header-nav .dropdown {
+            width: 100%;
+        }
+
         .header-nav .dropdown-menu {
             position: static;
             display: none !important;
-            opacity: 1;
-            visibility: visible;
-            transform: none;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-5px);
             box-shadow: none;
             border: none;
             border-radius: 8px;
-            margin: 0.3rem auto 0;
+            margin: 0.5rem 0 0 0;
             padding: 0;
-            background: rgba(0, 0, 0, 0.2);
+            background: rgba(0, 0, 0, 0.25);
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.3s ease, padding 0.3s ease, margin 0.3s ease;
-            width: calc(100% - 1rem);
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+                        padding 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+                        margin 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                        opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                        transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                        visibility 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 100%;
+            border-radius: 0 0 8px 8px;
         }
 
         .header-nav .dropdown-menu.show {
             display: block !important;
-            max-height: 250px;
+            max-height: 500px;
             padding: 0.5rem 0;
-            margin-top: 0.3rem;
+            margin-top: 0.5rem;
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
         }
 
         .header-nav .dropdown-item {
-            padding: 0.7rem 1.5rem;
+            padding: 0.75rem 2rem;
             font-size: 0.85rem;
+            transition: all 0.2s ease;
+            border-radius: 0;
+            margin: 0;
+            background: rgba(0, 0, 0, 0.15);
+        }
+
+        .header-nav .dropdown-item:first-child {
+            border-radius: 0;
+        }
+
+        .header-nav .dropdown-item:last-child {
+            border-radius: 0 0 8px 8px;
+        }
+
+        .header-nav .dropdown-item i {
+            font-size: 0.9rem;
+            width: 20px;
+            text-align: center;
+            margin-left: 0.5rem;
+        }
+
+        .header-nav .dropdown-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(0);
+            padding-right: 2rem;
         }
 
         .header-nav .dropdown-divider {
@@ -613,10 +765,36 @@
                     </a>
                 </li>
                 @auth
-                <li>
-                    <a class="nav-link {{ request()->routeIs('quran-competitions.*') ? 'active' : '' }}" href="{{ route('quran-competitions.index') }}">
-                        القرآن والسنة
+                <li class="dropdown">
+                    <a class="nav-link dropdown-toggle {{ request()->routeIs('quran-competitions.*') || request()->routeIs('quran-categories.*') ? 'active' : '' }}"
+                       href="#"
+                       role="button"
+                       onclick="toggleDropdown(event, this)"
+                       aria-expanded="false"
+                       aria-haspopup="true">
+                        <i class="fas fa-quran"></i>
+                        <span>القرآن والسنة</span>
                     </a>
+                    <div class="dropdown-menu" aria-labelledby="quranDropdown">
+                        @php
+                            $quranCategories = \App\Models\Category::whereHas('quranCompetitions', function($q) {
+                                $q->where('is_active', true);
+                            })->ordered()->active()->get();
+                        @endphp
+                        @if($quranCategories->count() > 0)
+                            @foreach($quranCategories as $category)
+                                <a class="dropdown-item {{ request()->routeIs('quran-categories.show') && request()->route('category') == $category->id ? 'active' : '' }}" href="{{ route('quran-categories.show', $category) }}">
+                                    <i class="fas fa-folder"></i>
+                                    <span>{{ $category->name }}</span>
+                                </a>
+                            @endforeach
+                        @else
+                            <a class="dropdown-item" href="{{ route('quran-competitions.index') }}">
+                                <i class="fas fa-trophy"></i>
+                                <span>المسابقات</span>
+                            </a>
+                        @endif
+                    </div>
                 </li>
                 @endauth
                 <li>

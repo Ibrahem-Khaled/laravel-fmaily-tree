@@ -42,6 +42,28 @@
                         </div>
 
                         <div class="form-group">
+                            <label for="category_id">الفئة</label>
+                            <div class="input-group">
+                                <select class="form-control @error('category_id') is-invalid @enderror" id="category_id" name="category_id">
+                                    <option value="">— اختر الفئة —</option>
+                                    @foreach($categories as $cat)
+                                        <option value="{{ $cat->id }}" {{ old('category_id', $quranCompetition->category_id) == $cat->id ? 'selected' : '' }}>
+                                            {{ $cat->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#quickCategoryModal">
+                                        <i class="fas fa-plus"></i> إنشاء فئة جديدة
+                                    </button>
+                                </div>
+                            </div>
+                            @error('category_id')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
                             <label for="description">وصف المسابقة</label>
                             <textarea class="form-control @error('description') is-invalid @enderror" id="description" name="description" rows="5">{{ old('description', $quranCompetition->description) }}</textarea>
                             @error('description')
@@ -134,5 +156,8 @@
         }
     }
 </script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+@include('dashboard.quran-competitions.modals.quick-category')
 @endsection
 

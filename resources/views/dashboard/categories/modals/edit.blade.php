@@ -55,6 +55,67 @@
                             <label class="custom-file-label" for="image-{{ $category->id }}">اختر ملف جديد...</label>
                         </div>
                     </div>
+
+                    {{-- قسم القائمون على البرنامج (للفئات القرآن فقط) --}}
+                    <hr class="my-4">
+                    <div class="form-group">
+                        <label class="font-weight-bold">
+                            <i class="fas fa-users text-primary"></i>
+                            القائمون على البرنامج
+                            <small class="text-muted">(للفئات القرآن فقط)</small>
+                        </label>
+                        
+                        {{-- قائمة القائمين الحاليين --}}
+                        <div id="managers-list-{{ $category->id }}" class="mb-3">
+                            @php
+                                $currentManagers = $category->managers()->with('person')->orderBy('sort_order')->get();
+                            @endphp
+                            @if($currentManagers->count() > 0)
+                                <div class="list-group" id="sortable-managers-{{ $category->id }}">
+                                    @foreach($currentManagers as $manager)
+                                        <div class="list-group-item d-flex justify-content-between align-items-center" data-manager-id="{{ $manager->id }}">
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-grip-vertical text-muted mr-2" style="cursor: move;"></i>
+                                                <img src="{{ $manager->person->avatar }}" alt="{{ $manager->person->full_name }}" class="rounded-circle mr-2" width="32" height="32">
+                                                <span>{{ $manager->person->full_name }}</span>
+                                            </div>
+                                            <button type="button" class="btn btn-sm btn-danger remove-manager-btn" data-manager-id="{{ $manager->id }}" data-category-id="{{ $category->id }}">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @else
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i>
+                                    لا يوجد قائمون على البرنامج حالياً
+                                </div>
+                            @endif
+                        </div>
+
+                        {{-- إضافة قائم جديد --}}
+                        <div class="input-group">
+                            <select class="form-control" id="person-select-{{ $category->id }}">
+                                <option value="">-- اختر شخص --</option>
+                                @if(isset($persons))
+                                    @foreach($persons as $person)
+                                        @php
+                                            $isManager = $category->managers()->where('person_id', $person->id)->exists();
+                                        @endphp
+                                        @if(!$isManager)
+                                            <option value="{{ $person->id }}">{{ $person->full_name }}</option>
+                                        @endif
+                                    @endforeach
+                                @endif
+                            </select>
+                            <div class="input-group-append">
+                                <button type="button" class="btn btn-primary add-manager-btn" data-category-id="{{ $category->id }}">
+                                    <i class="fas fa-plus"></i> إضافة
+                                </button>
+                            </div>
+                        </div>
+                        <small class="text-muted">يمكنك سحب العناصر لتغيير الترتيب</small>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">إغلاق</button>
@@ -64,3 +125,108 @@
         </div>
     </div>
 </div>
+
+{{-- JavaScript لإدارة القائمين على البرنامج --}}
+<script>
+$(document).ready(function() {
+    const categoryId = {{ $category->id }};
+    
+    // إضافة قائم جديد
+    $(document).on('click', '.add-manager-btn[data-category-id="' + categoryId + '"]', function() {
+        const personId = $('#person-select-' + categoryId).val();
+        if (!personId) {
+            alert('يرجى اختيار شخص');
+            return;
+        }
+
+        const btn = $(this);
+        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> جاري الإضافة...');
+
+        $.ajax({
+            url: '{{ route("categories.add-manager", $category->id) }}',
+            method: 'POST',
+            data: {
+                person_id: personId,
+                _token: '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    alert(response.message);
+                    // إعادة تحميل القائمة
+                    location.reload();
+                }
+            },
+            error: function(xhr) {
+                const message = xhr.responseJSON?.message || 'حدث خطأ أثناء الإضافة';
+                alert(message);
+                btn.prop('disabled', false).html('<i class="fas fa-plus"></i> إضافة');
+            }
+        });
+    });
+
+    // حذف قائم
+    $(document).on('click', '.remove-manager-btn[data-category-id="' + categoryId + '"]', function() {
+        const managerId = $(this).data('manager-id');
+        if (!confirm('هل أنت متأكد من حذف هذا القائم على البرنامج؟')) {
+            return;
+        }
+
+        const btn = $(this);
+        btn.prop('disabled', true);
+
+        $.ajax({
+            url: '/dashboard/categories/managers/' + managerId,
+            method: 'DELETE',
+            data: {
+                _token: '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    alert(response.message);
+                    // إعادة تحميل القائمة
+                    location.reload();
+                }
+            },
+            error: function(xhr) {
+                alert('حدث خطأ أثناء الحذف');
+                btn.prop('disabled', false);
+            }
+        });
+    });
+
+    // ترتيب القائمين (Sortable) - يحتاج jQuery UI
+    @if(isset($currentManagers) && $currentManagers->count() > 0)
+    if (typeof $.fn.sortable !== 'undefined') {
+        $('#sortable-managers-' + categoryId).sortable({
+            handle: '.fa-grip-vertical',
+            update: function(event, ui) {
+                const items = [];
+                $('#sortable-managers-' + categoryId + ' > div').each(function(index) {
+                    items.push({
+                        id: $(this).data('manager-id'),
+                        sort_order: index + 1
+                    });
+                });
+
+            $.ajax({
+                url: '{{ route("categories.update-manager-order", $category->id) }}',
+                method: 'POST',
+                    data: {
+                        items: items,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // يمكن إضافة رسالة نجاح هنا
+                        }
+                    },
+                    error: function() {
+                        alert('حدث خطأ أثناء تحديث الترتيب');
+                    }
+                });
+            }
+        });
+    }
+    @endif
+});
+</script>

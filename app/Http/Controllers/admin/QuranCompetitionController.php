@@ -7,6 +7,7 @@ use App\Models\QuranCompetition;
 use App\Models\QuranCompetitionWinner;
 use App\Models\QuranCompetitionMedia;
 use App\Models\Person;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -20,8 +21,22 @@ class QuranCompetitionController extends Controller
      */
     public function index(): View
     {
-        $competitions = QuranCompetition::ordered()->get();
-        return view('dashboard.quran-competitions.index', compact('competitions'));
+        $competitions = QuranCompetition::with(['category', 'winners', 'media'])
+            ->ordered()
+            ->get();
+        
+        // إحصائيات
+        $stats = [
+            'total' => QuranCompetition::count(),
+            'active' => QuranCompetition::where('is_active', true)->count(),
+            'inactive' => QuranCompetition::where('is_active', false)->count(),
+            'total_winners' => QuranCompetitionWinner::count(),
+            'total_media' => QuranCompetitionMedia::count(),
+            'with_category' => QuranCompetition::whereNotNull('category_id')->count(),
+            'without_category' => QuranCompetition::whereNull('category_id')->count(),
+        ];
+        
+        return view('dashboard.quran-competitions.index', compact('competitions', 'stats'));
     }
 
     /**
@@ -29,7 +44,21 @@ class QuranCompetitionController extends Controller
      */
     public function create(): View
     {
-        return view('dashboard.quran-competitions.create');
+        // جلب الفئات التي لديها مسابقات قرآن (أو الفئات الفرعية التي لديها مسابقات)
+        $categories = Category::whereHas('quranCompetitions', function($q) {
+            $q->where('is_active', true);
+        })
+        ->orWhereHas('children.quranCompetitions', function($q) {
+            $q->where('is_active', true);
+        })
+        ->ordered()
+        ->active()
+        ->get();
+        
+        // جلب قائمة الأشخاص لإدارة القائمين على البرنامج
+        $persons = \App\Models\Person::orderBy('first_name')->orderBy('last_name')->get();
+        
+        return view('dashboard.quran-competitions.create', compact('categories', 'persons'));
     }
 
     /**
@@ -46,6 +75,7 @@ class QuranCompetitionController extends Controller
             'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'is_active' => 'boolean',
             'display_order' => 'integer|min:0',
+            'category_id' => 'nullable|exists:categories,id',
         ], [
             'title.required' => 'عنوان المسابقة مطلوب',
             'hijri_year.required' => 'السنة الهجرية مطلوبة',
@@ -82,7 +112,29 @@ class QuranCompetitionController extends Controller
      */
     public function edit(QuranCompetition $quranCompetition): View
     {
-        return view('dashboard.quran-competitions.edit', compact('quranCompetition'));
+        // جلب الفئات التي لديها مسابقات قرآن (أو الفئات الفرعية التي لديها مسابقات)
+        // بالإضافة إلى الفئة الحالية للمسابقة (إن وجدت) حتى لو لم تعد لديها مسابقات
+        $categories = Category::where(function($q) use ($quranCompetition) {
+            $q->whereHas('quranCompetitions', function($query) {
+                $query->where('is_active', true);
+            })
+            ->orWhereHas('children.quranCompetitions', function($query) {
+                $query->where('is_active', true);
+            });
+            
+            // إضافة الفئة الحالية للمسابقة إن وجدت
+            if ($quranCompetition->category_id) {
+                $q->orWhere('id', $quranCompetition->category_id);
+            }
+        })
+        ->ordered()
+        ->active()
+        ->get();
+        
+        // جلب قائمة الأشخاص لإدارة القائمين على البرنامج
+        $persons = Person::orderBy('first_name')->orderBy('last_name')->get();
+        
+        return view('dashboard.quran-competitions.edit', compact('quranCompetition', 'categories', 'persons'));
     }
 
     /**
@@ -99,6 +151,7 @@ class QuranCompetitionController extends Controller
             'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'is_active' => 'boolean',
             'display_order' => 'integer|min:0',
+            'category_id' => 'nullable|exists:categories,id',
         ], [
             'title.required' => 'عنوان المسابقة مطلوب',
             'hijri_year.required' => 'السنة الهجرية مطلوبة',

@@ -18,6 +18,7 @@ class QuranCompetition extends BaseModel
         'cover_image',
         'is_active',
         'display_order',
+        'category_id',
     ];
 
     protected $casts = [
@@ -41,6 +42,14 @@ class QuranCompetition extends BaseModel
     public function media()
     {
         return $this->hasMany(QuranCompetitionMedia::class, 'competition_id')->orderBy('sort_order');
+    }
+
+    /**
+     * العلاقة مع الفئة
+     */
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
     }
 
     /**

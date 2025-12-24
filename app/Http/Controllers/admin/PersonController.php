@@ -297,29 +297,59 @@ class PersonController extends Controller
 
     public function search(Request $request)
     {
-        $searchTerm = $request->input('term', '');
+        $searchTerm = trim($request->input('term', ''));
 
         // نقوم بالبحث فقط إذا أدخل المستخدم حرفين على الأقل
         if (strlen($searchTerm) < 2) {
             return response()->json(['results' => []]);
         }
 
-        // بناء الاستعلام للبحث في الاسم الأول والأخير
-        // استخدام CONCAT لجعل البحث أكثر كفاءة في قاعدة البيانات
-        $people = Person::query()
-            ->select(
-                'id',
-                DB::raw("CONCAT(first_name, ' ', last_name) as text") // تجهيز النص للعرض في Select2
-            )
-            ->where(function ($query) use ($searchTerm) {
-                $query->where('first_name', 'LIKE', "%{$searchTerm}%")
-                    ->orWhere('last_name', 'LIKE', "%{$searchTerm}%");
-            })
-            ->limit(20) // نحدد عدد النتائج لتجنب إغراق المتصفح
-            ->get();
+        try {
+            // بناء الاستعلام للبحث في الاسم الأول والأخير
+            // تحميل علاقة parent بشكل متداخل للحصول على full_name accessor
+            $people = Person::query()
+                ->with(['parent.parent.parent']) // تحميل حتى 3 مستويات للحصول على full_name
+                ->where(function ($query) use ($searchTerm) {
+                    $query->where('first_name', 'LIKE', "%{$searchTerm}%")
+                        ->orWhere('last_name', 'LIKE', "%{$searchTerm}%")
+                        ->orWhereRaw("CONCAT(COALESCE(first_name, ''), ' ', COALESCE(last_name, '')) LIKE ?", ["%{$searchTerm}%"]);
+                })
+                ->limit(50) // زيادة العدد للبحث الأفضل
+                ->get();
 
-        // إرجاع النتائج بالصيغة المطلوبة لمكتبة Select2
-        return response()->json(['results' => $people]);
+            // استخدام full_name accessor للعرض
+            $results = $people->map(function ($person) {
+                try {
+                    return [
+                        'id' => $person->id,
+                        'text' => $person->full_name ?? ($person->first_name . ' ' . $person->last_name),
+                        'full_name' => $person->full_name ?? ($person->first_name . ' ' . $person->last_name),
+                        'first_name' => $person->first_name ?? '',
+                        'last_name' => $person->last_name ?? '',
+                        'photo_url' => $person->photo_url ?? null,
+                        'gender' => $person->gender ?? 'male',
+                    ];
+                } catch (\Exception $e) {
+                    // في حالة الخطأ، إرجاع البيانات الأساسية
+                    return [
+                        'id' => $person->id,
+                        'text' => ($person->first_name ?? '') . ' ' . ($person->last_name ?? ''),
+                        'full_name' => ($person->first_name ?? '') . ' ' . ($person->last_name ?? ''),
+                        'first_name' => $person->first_name ?? '',
+                        'last_name' => $person->last_name ?? '',
+                        'photo_url' => $person->photo_url ?? null,
+                        'gender' => $person->gender ?? 'male',
+                    ];
+                }
+            });
+
+            // إرجاع النتائج بالصيغة المطلوبة لمكتبة Select2
+            return response()->json(['results' => $results->values()->all()]);
+        } catch (\Exception $e) {
+            // في حالة الخطأ، إرجاع مصفوفة فارغة
+            \Log::error('Error in PersonController@search: ' . $e->getMessage());
+            return response()->json(['results' => []], 500);
+        }
     }
 
     public function show(Person $person)

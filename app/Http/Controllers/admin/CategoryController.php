@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Category\UpdateCategoryRequest;
 use App\Http\Requests\QuickStoreCategoryRequest;
 use App\Models\Category;
+use App\Models\QuranCategoryManager;
+use App\Models\Person;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -26,6 +28,20 @@ class CategoryController extends Controller
 
         $category = Category::create($data);
 
+        // إضافة القائمين على البرنامج إن وجدوا
+        if ($request->has('managers') && is_array($request->managers)) {
+            $sortOrder = 1;
+            foreach ($request->managers as $personId) {
+                if ($personId) {
+                    QuranCategoryManager::create([
+                        'category_id' => $category->id,
+                        'person_id' => $personId,
+                        'sort_order' => $sortOrder++,
+                    ]);
+                }
+            }
+        }
+
         // نُرجع الفئة الجديدة كي نضيفها للقائمة (حتى لو لا تملك مقالات بعد)
         return response()->json([
             'ok' => true,
@@ -40,6 +56,7 @@ class CategoryController extends Controller
     public function index(Request $request)
     {
         $filter = $request->query('filter', 'all');
+        $persons = Person::orderBy('first_name')->orderBy('last_name')->get();
         $search = $request->query('search');
         $perPage = (int) $request->query('per_page', 15);
         $allCategories = Category::all();
@@ -115,7 +132,7 @@ class CategoryController extends Controller
         ];
 
 
-        return view('dashboard.categories.index', compact('categories', 'filter', 'search', 'stats', 'allCategories'));
+        return view('dashboard.categories.index', compact('categories', 'filter', 'search', 'stats', 'allCategories', 'persons'));
     }
 
     public function update(UpdateCategoryRequest $request, Category $category)
@@ -217,6 +234,89 @@ class CategoryController extends Controller
 
         foreach ($request->items as $item) {
             Category::where('id', $item['id'])->update(['sort_order' => $item['sort_order']]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'تم تحديث الترتيب بنجاح'
+        ]);
+    }
+
+    /**
+     * إضافة قائم على البرنامج للفئة
+     */
+    public function addManager(Request $request, Category $category): JsonResponse
+    {
+        $validated = $request->validate([
+            'person_id' => 'required|exists:persons,id',
+            'sort_order' => 'nullable|integer|min:0',
+        ], [
+            'person_id.required' => 'يجب اختيار الشخص',
+            'person_id.exists' => 'الشخص المختار غير موجود',
+        ]);
+
+        // التحقق من عدم تكرار الشخص في نفس الفئة
+        $existing = QuranCategoryManager::where('category_id', $category->id)
+            ->where('person_id', $validated['person_id'])
+            ->first();
+
+        if ($existing) {
+            return response()->json([
+                'success' => false,
+                'message' => 'هذا الشخص موجود بالفعل في القائمة'
+            ], 422);
+        }
+
+        $validated['category_id'] = $category->id;
+        if (!isset($validated['sort_order'])) {
+            $maxOrder = QuranCategoryManager::where('category_id', $category->id)->max('sort_order') ?? 0;
+            $validated['sort_order'] = $maxOrder + 1;
+        }
+
+        $manager = QuranCategoryManager::create($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'تم إضافة القائم على البرنامج بنجاح',
+            'manager' => [
+                'id' => $manager->id,
+                'person' => [
+                    'id' => $manager->person->id,
+                    'name' => $manager->person->full_name,
+                    'avatar' => $manager->person->avatar,
+                ]
+            ]
+        ]);
+    }
+
+    /**
+     * حذف قائم على البرنامج
+     */
+    public function removeManager(QuranCategoryManager $manager): JsonResponse
+    {
+        $manager->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'تم حذف القائم على البرنامج بنجاح'
+        ]);
+    }
+
+    /**
+     * تحديث ترتيب القائمين على البرنامج
+     */
+    public function updateManagerOrder(Request $request, Category $category): JsonResponse
+    {
+        $request->validate([
+            'items' => 'required|array',
+            'items.*.id' => 'required|exists:quran_category_managers,id',
+            'items.*.sort_order' => 'required|integer',
+        ]);
+
+        foreach ($request->items as $item) {
+            QuranCategoryManager::where('id', $item['id'])
+                ->where('category_id', $category->id)
+                ->update(['sort_order' => $item['sort_order']]);
         }
 
         return response()->json([

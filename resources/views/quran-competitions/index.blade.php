@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
+
     <script>
         tailwind.config = {
             theme: {
@@ -64,7 +64,7 @@
 
         .bg-mesh {
             background-color: #f0fdf4;
-            background-image: 
+            background-image:
                 radial-gradient(at 40% 20%, rgba(55, 160, 92, 0.1) 0px, transparent 50%),
                 radial-gradient(at 80% 0%, rgba(20, 81, 71, 0.1) 0px, transparent 50%),
                 radial-gradient(at 0% 50%, rgba(74, 222, 128, 0.1) 0px, transparent 50%),
@@ -196,7 +196,7 @@
                             <article class="slide-up stagger-{{ $index + 1 }} group">
                                 <a href="{{ route('quran-competitions.show', $competition->id) }}" class="block">
                                     <div class="glass-card rounded-xl md:rounded-3xl overflow-hidden shadow-lg md:shadow-xl hover:shadow-xl md:hover:shadow-2xl transition-all duration-500 border border-gray-100 hover:border-primary-300 hover:-translate-y-1 md:hover:-translate-y-3 card-shine">
-                                        
+
                                         <!-- Image Container -->
                                         <div class="relative h-32 md:h-64 overflow-hidden bg-gradient-to-br from-primary-100 to-primary-50">
                                             @if($competition->cover_image)
@@ -206,7 +206,7 @@
                                                     <div class="text-2xl md:text-6xl text-primary-400/30 font-bold">{{ $competition->hijri_year }} هـ</div>
                                                 </div>
                                             @endif
-                                            
+
                                             <!-- Dark Overlay for Text Readability -->
                                             <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
                                         </div>
@@ -216,7 +216,7 @@
                                             <h3 class="text-sm md:text-xl font-bold text-gray-800 mb-2 md:mb-3 group-hover:text-primary-600 transition-colors line-clamp-2">
                                                 {{ $competition->title }}
                                             </h3>
-                                            
+
                                             @if($competition->description)
                                                 <p class="text-gray-500 text-xs md:text-sm leading-relaxed mb-3 md:mb-5 line-clamp-2 hidden md:block">
                                                     {{ Str::limit($competition->description, 100) }}
@@ -272,7 +272,7 @@
                             <article class="slide-up stagger-{{ $index + 1 }} group">
                                 <a href="{{ route('quran-competitions.show', $competition->id) }}" class="block">
                                     <div class="glass-card rounded-xl md:rounded-3xl overflow-hidden shadow-lg md:shadow-xl hover:shadow-xl md:hover:shadow-2xl transition-all duration-500 border border-gray-100 hover:border-primary-300 hover:-translate-y-1 md:hover:-translate-y-3 card-shine">
-                                        
+
                                         <!-- Image Container -->
                                         <div class="relative h-32 md:h-64 overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50">
                                             @if($competition->cover_image)
@@ -282,7 +282,7 @@
                                                     <div class="text-2xl md:text-6xl text-gray-400/30 font-bold">{{ $competition->hijri_year }} هـ</div>
                                                 </div>
                                             @endif
-                                            
+
                                             <!-- Dark Overlay for Text Readability -->
                                             <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
                                         </div>
@@ -292,7 +292,7 @@
                                             <h3 class="text-sm md:text-xl font-bold text-gray-800 mb-2 md:mb-3 group-hover:text-primary-600 transition-colors line-clamp-2">
                                                 {{ $competition->title }}
                                             </h3>
-                                            
+
                                             @if($competition->description)
                                                 <p class="text-gray-500 text-xs md:text-sm leading-relaxed mb-3 md:mb-5 line-clamp-2 hidden md:block">
                                                     {{ Str::limit($competition->description, 100) }}
