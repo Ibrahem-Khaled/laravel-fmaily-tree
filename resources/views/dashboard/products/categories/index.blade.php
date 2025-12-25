@@ -35,6 +35,21 @@
         </div>
     @endif
 
+    @if($errors->any())
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+            <i class="fas fa-exclamation-circle mr-2"></i>
+            <strong>يرجى تصحيح الأخطاء التالية:</strong>
+            <ul class="mb-0 mt-2">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    @endif
+
     <!-- Statistics Cards -->
     <div class="row mb-4">
         <div class="col-xl-4 col-md-6 mb-4">
@@ -188,18 +203,30 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <label>اسم الفئة <span class="text-danger">*</span></label>
-                        <input type="text" name="name" class="form-control" required>
+                        <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" 
+                               value="{{ old('name') }}" required>
+                        @error('name')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="form-group">
                         <label>الوصف</label>
-                        <textarea name="description" class="form-control" rows="3"></textarea>
+                        <textarea name="description" class="form-control @error('description') is-invalid @enderror" rows="3">{{ old('description') }}</textarea>
+                        @error('description')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="form-group">
                         <label>الصورة</label>
-                        <input type="file" name="image" class="form-control-file" accept="image/*">
+                        <input type="file" name="image" class="form-control-file @error('image') is-invalid @enderror" accept="image/*">
+                        @error('image')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="form-check">
-                        <input type="checkbox" name="is_active" class="form-check-input" id="addIsActive" checked>
+                        <input type="hidden" name="is_active" value="0">
+                        <input type="checkbox" name="is_active" class="form-check-input" id="addIsActive" value="1" 
+                               {{ old('is_active', true) ? 'checked' : '' }}>
                         <label class="form-check-label" for="addIsActive">تفعيل الفئة</label>
                     </div>
                 </div>
@@ -228,19 +255,31 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <label>اسم الفئة <span class="text-danger">*</span></label>
-                        <input type="text" name="name" id="editName" class="form-control" required>
+                        <input type="text" name="name" id="editName" class="form-control @error('name') is-invalid @enderror" 
+                               value="{{ old('name') }}" required>
+                        @error('name')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="form-group">
                         <label>الوصف</label>
-                        <textarea name="description" id="editDescription" class="form-control" rows="3"></textarea>
+                        <textarea name="description" id="editDescription" class="form-control @error('description') is-invalid @enderror" rows="3">{{ old('description') }}</textarea>
+                        @error('description')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="form-group">
                         <label>الصورة</label>
-                        <input type="file" name="image" class="form-control-file" accept="image/*">
+                        <input type="file" name="image" class="form-control-file @error('image') is-invalid @enderror" accept="image/*">
                         <small class="text-muted">اتركه فارغاً للاحتفاظ بالصورة الحالية</small>
+                        @error('image')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="form-check">
-                        <input type="checkbox" name="is_active" class="form-check-input" id="editIsActive">
+                        <input type="hidden" name="is_active" value="0">
+                        <input type="checkbox" name="is_active" class="form-check-input" id="editIsActive" value="1" 
+                               {{ old('is_active') ? 'checked' : '' }}>
                         <label class="form-check-label" for="editIsActive">تفعيل الفئة</label>
                     </div>
                 </div>
@@ -266,8 +305,29 @@
         document.getElementById('editIsActive').checked = category.is_active;
         document.getElementById('editForm').action = `{{ url('dashboard/products/categories') }}/${id}`;
         
+        // إزالة رسائل الخطأ السابقة
+        document.querySelectorAll('#editModal .is-invalid').forEach(el => {
+            el.classList.remove('is-invalid');
+        });
+        document.querySelectorAll('#editModal .invalid-feedback').forEach(el => {
+            el.remove();
+        });
+        
         $('#editModal').modal('show');
     }
+
+    // إعادة فتح النماذج عند وجود أخطاء
+    $(document).ready(function() {
+        @if($errors->any() && old('_token'))
+            @if(session('edit_category_id'))
+                // إعادة فتح نموذج التعديل
+                editCategory({{ session('edit_category_id') }});
+            @else
+                // إعادة فتح نموذج الإضافة
+                $('#addModal').modal('show');
+            @endif
+        @endif
+    });
 </script>
 @endpush
 @endsection

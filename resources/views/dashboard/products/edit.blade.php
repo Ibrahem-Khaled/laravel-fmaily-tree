@@ -85,7 +85,8 @@
                                 <div class="form-group">
                                     <label>الفئة الرئيسية <span class="text-danger">*</span></label>
                                     <select name="product_category_id" id="categorySelect"
-                                            class="form-control @error('product_category_id') is-invalid @enderror" required>
+                                            class="form-control @error('product_category_id') is-invalid @enderror" required
+                                            onchange="updateSubcategories()">
                                         <option value="">اختر الفئة</option>
                                         @foreach($categories as $cat)
                                             <option value="{{ $cat->id }}"
@@ -214,34 +215,78 @@
 
 @push('scripts')
 <script>
-    const subcategories = @json($subcategories);
-    const currentCategoryId = {{ $product->product_category_id }};
-    const currentSubcategoryId = {{ $product->product_subcategory_id ?? 'null' }};
+// البيانات من السيرفر
+var subcategoriesData = @json($subcategories);
+var currentCategoryId = {{ $product->product_category_id ?? 'null' }};
+var currentSubcategoryId = {{ $product->product_subcategory_id ?? 'null' }};
 
-    function updateSubcategories() {
-        const categoryId = document.getElementById('categorySelect').value;
-        const subcategorySelect = document.getElementById('subcategorySelect');
+// دالة لتحديث الفئات الفرعية - يجب أن تكون global
+function updateSubcategories() {
+    var categorySelect = document.getElementById('categorySelect');
+    var subcategorySelect = document.getElementById('subcategorySelect');
+    
+    if (!categorySelect || !subcategorySelect) {
+        console.log('Elements not found');
+        return;
+    }
+    
+    var categoryId = categorySelect.value;
+    var previousSubcategoryId = subcategorySelect.value;
 
-        subcategorySelect.innerHTML = '<option value="">اختر الفئة الفرعية</option>';
+    // مسح القائمة
+    subcategorySelect.innerHTML = '<option value="">اختر الفئة الفرعية</option>';
 
-        if (categoryId) {
-            const filtered = subcategories.filter(s => s.product_category_id == categoryId);
-            filtered.forEach(sub => {
-                const option = document.createElement('option');
+    if (categoryId && subcategoriesData && subcategoriesData.length > 0) {
+        var categoryIdNum = parseInt(categoryId);
+        
+        // البحث عن الفئات الفرعية التابعة لهذه الفئة
+        for (var i = 0; i < subcategoriesData.length; i++) {
+            var sub = subcategoriesData[i];
+            var subCategoryId = parseInt(sub.product_category_id);
+            
+            if (subCategoryId === categoryIdNum) {
+                var option = document.createElement('option');
                 option.value = sub.id;
                 option.textContent = sub.name;
-                if (currentSubcategoryId && sub.id == currentSubcategoryId) {
+                
+                // تحديد الفئة الفرعية الحالية فقط إذا كانت تابعة للفئة المختارة
+                if (currentSubcategoryId && parseInt(sub.id) === parseInt(currentSubcategoryId) && categoryIdNum === parseInt(currentCategoryId)) {
                     option.selected = true;
                 }
+                
                 subcategorySelect.appendChild(option);
-            });
+            }
         }
+
+        // إذا تم تغيير الفئة الرئيسية والفئة الفرعية الحالية لا تتبع الفئة الجديدة، قم بإعادة تعيينها
+        if (categoryIdNum !== parseInt(currentCategoryId) && previousSubcategoryId) {
+            var found = false;
+            for (var j = 0; j < subcategoriesData.length; j++) {
+                if (parseInt(subcategoriesData[j].id) === parseInt(previousSubcategoryId) && 
+                    parseInt(subcategoriesData[j].product_category_id) === categoryIdNum) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                subcategorySelect.value = '';
+            }
+        }
+    } else {
+        subcategorySelect.value = '';
     }
+}
 
-    document.getElementById('categorySelect').addEventListener('change', updateSubcategories);
-
-    // Initialize on page load
-    updateSubcategories();
+// عند تحميل الصفحة
+window.onload = function() {
+    var categorySelect = document.getElementById('categorySelect');
+    var subcategorySelect = document.getElementById('subcategorySelect');
+    
+    if (categorySelect && subcategorySelect) {
+        // تشغيل عند تحميل الصفحة
+        updateSubcategories();
+    }
+};
 </script>
 @endpush
 @endsection

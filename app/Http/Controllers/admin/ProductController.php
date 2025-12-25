@@ -10,6 +10,7 @@ use App\Models\Person;
 use App\Models\Location;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class ProductController extends Controller
 {
@@ -62,7 +63,8 @@ class ProductController extends Controller
     public function create()
     {
         $categories = ProductCategory::active()->ordered()->get();
-        $subcategories = ProductSubcategory::active()->ordered()->get();
+        // تحميل جميع الفئات الفرعية (نشطة وغير نشطة) لإتاحة الاختيار
+        $subcategories = ProductSubcategory::ordered()->get();
         $persons = Person::orderBy('first_name')->orderBy('last_name')->get();
         $locations = Location::ordered()->get();
 
@@ -124,10 +126,8 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $categories = ProductCategory::active()->ordered()->get();
-        $subcategories = ProductSubcategory::where('product_category_id', $product->product_category_id)
-            ->active()
-            ->ordered()
-            ->get();
+        // تحميل جميع الفئات الفرعية (نشطة وغير نشطة) لإتاحة الاختيار
+        $subcategories = ProductSubcategory::ordered()->get();
         $persons = Person::orderBy('first_name')->orderBy('last_name')->get();
         $locations = Location::ordered()->get();
 
@@ -148,7 +148,12 @@ class ProductController extends Controller
             'contact_facebook' => 'nullable|string|max:255',
             'main_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'product_category_id' => 'required|exists:product_categories,id',
-            'product_subcategory_id' => 'nullable|exists:product_subcategories,id',
+            'product_subcategory_id' => [
+                'nullable',
+                Rule::exists('product_subcategories', 'id')->where(function ($query) use ($request) {
+                    return $query->where('product_category_id', $request->product_category_id);
+                }),
+            ],
             'owner_id' => 'nullable|exists:persons,id',
             'location_id' => 'nullable|exists:locations,id',
             'is_active' => 'boolean',
@@ -181,6 +186,18 @@ class ProductController extends Controller
 
         $data['is_active'] = $request->input('is_active', 0) == 1;
         $data['is_rental'] = $request->input('is_rental', 0) == 1;
+
+        // إعادة تعيين الفئة الفرعية إذا تم تغيير الفئة الرئيسية والفئة الفرعية الحالية لا تتبع الفئة الجديدة
+        if ($request->has('product_category_id') && $request->product_category_id != $product->product_category_id) {
+            if ($request->has('product_subcategory_id') && $request->product_subcategory_id) {
+                $subcategory = ProductSubcategory::find($request->product_subcategory_id);
+                if (!$subcategory || $subcategory->product_category_id != $request->product_category_id) {
+                    $data['product_subcategory_id'] = null;
+                }
+            } else {
+                $data['product_subcategory_id'] = null;
+            }
+        }
 
         $product->update($data);
 

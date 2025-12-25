@@ -383,6 +383,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
 
         // Subcategories
         Route::get('subcategories', [\App\Http\Controllers\admin\ProductSubcategoryController::class, 'index'])->name('subcategories.index');
+        Route::get('subcategories/by-category/{category}', [\App\Http\Controllers\admin\ProductSubcategoryController::class, 'getByCategory'])->name('subcategories.by-category');
         Route::post('subcategories', [\App\Http\Controllers\admin\ProductSubcategoryController::class, 'store'])->name('subcategories.store');
         Route::put('subcategories/{subcategory}', [\App\Http\Controllers\admin\ProductSubcategoryController::class, 'update'])->name('subcategories.update');
         Route::delete('subcategories/{subcategory}', [\App\Http\Controllers\admin\ProductSubcategoryController::class, 'destroy'])->name('subcategories.destroy');

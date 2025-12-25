@@ -126,7 +126,7 @@
                 <div class="row">
                     <div class="col-md-3">
                         <label>الفئة</label>
-                        <select name="category_id" class="form-control" onchange="this.form.submit()">
+                        <select name="category_id" id="categoryFilter" class="form-control" onchange="updateSubcategoryFilter(); this.form.submit()">
                             <option value="">جميع الفئات</option>
                             @foreach($categories as $cat)
                                 <option value="{{ $cat->id }}" {{ $categoryId == $cat->id ? 'selected' : '' }}>
@@ -137,13 +137,15 @@
                     </div>
                     <div class="col-md-3">
                         <label>الفئة الفرعية</label>
-                        <select name="subcategory_id" class="form-control" onchange="this.form.submit()">
+                        <select name="subcategory_id" id="subcategoryFilter" class="form-control" onchange="this.form.submit()">
                             <option value="">جميع الفئات الفرعية</option>
-                            @foreach($subcategories as $sub)
-                                <option value="{{ $sub->id }}" {{ $subcategoryId == $sub->id ? 'selected' : '' }}>
-                                    {{ $sub->name }}
-                                </option>
-                            @endforeach
+                            @if($categoryId)
+                                @foreach($subcategories->where('product_category_id', $categoryId) as $sub)
+                                    <option value="{{ $sub->id }}" {{ $subcategoryId == $sub->id ? 'selected' : '' }}>
+                                        {{ $sub->name }}
+                                    </option>
+                                @endforeach
+                            @endif
                         </select>
                     </div>
                     <div class="col-md-4">
@@ -319,5 +321,58 @@
         opacity: 0.7;
     }
 </style>
+@endpush
+
+@push('scripts')
+<script>
+    const currentSubcategoryId = {{ $subcategoryId ?? 'null' }};
+
+    function updateSubcategoryFilter() {
+        const categorySelect = document.getElementById('categoryFilter');
+        const subcategorySelect = document.getElementById('subcategoryFilter');
+        
+        if (!categorySelect || !subcategorySelect) return;
+        
+        const categoryId = categorySelect.value;
+        
+        // مسح الخيارات
+        subcategorySelect.innerHTML = '<option value="">جاري التحميل...</option>';
+        
+        if (categoryId) {
+            // استخدام AJAX لجلب الفئات الفرعية
+            fetch(`{{ url('dashboard/products/subcategories/by-category') }}/${categoryId}`)
+                .then(response => response.json())
+                .then(data => {
+                    subcategorySelect.innerHTML = '<option value="">جميع الفئات الفرعية</option>';
+                    
+                    if (data.success && data.subcategories) {
+                        data.subcategories.forEach(function(sub) {
+                            const option = document.createElement('option');
+                            option.value = sub.id;
+                            option.textContent = sub.name;
+                            if (currentSubcategoryId && sub.id == currentSubcategoryId) {
+                                option.selected = true;
+                            }
+                            subcategorySelect.appendChild(option);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching subcategories:', error);
+                    subcategorySelect.innerHTML = '<option value="">جميع الفئات الفرعية</option>';
+                });
+        } else {
+            subcategorySelect.innerHTML = '<option value="">جميع الفئات الفرعية</option>';
+        }
+    }
+
+    // تحديث الفئات الفرعية عند تحميل الصفحة
+    document.addEventListener('DOMContentLoaded', function() {
+        const categoryFilter = document.getElementById('categoryFilter');
+        if (categoryFilter && categoryFilter.value) {
+            updateSubcategoryFilter();
+        }
+    });
+</script>
 @endpush
 @endsection

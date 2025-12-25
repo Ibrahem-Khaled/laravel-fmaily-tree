@@ -7,6 +7,7 @@ use App\Models\ProductCategory;
 use App\Models\ProductSubcategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class ProductSubcategoryController extends Controller
 {
@@ -35,13 +36,19 @@ class ProductSubcategoryController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'product_category_id' => 'required|exists:product_categories,id',
             'is_active' => 'boolean',
         ]);
+
+        if ($validator->fails()) {
+            return redirect()->route('products.subcategories.index', ['category_id' => $request->product_category_id])
+                ->withErrors($validator)
+                ->withInput();
+        }
 
         $data = $request->only(['name', 'description', 'product_category_id', 'is_active']);
         
@@ -62,13 +69,20 @@ class ProductSubcategoryController extends Controller
 
     public function update(Request $request, ProductSubcategory $subcategory)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'product_category_id' => 'required|exists:product_categories,id',
             'is_active' => 'boolean',
         ]);
+
+        if ($validator->fails()) {
+            return redirect()->route('products.subcategories.index', ['category_id' => $subcategory->product_category_id])
+                ->withErrors($validator)
+                ->withInput()
+                ->with('edit_subcategory_id', $subcategory->id);
+        }
 
         $data = $request->only(['name', 'description', 'product_category_id', 'is_active']);
         
@@ -112,6 +126,32 @@ class ProductSubcategoryController extends Controller
             'success' => true,
             'is_active' => $subcategory->is_active,
             'message' => $subcategory->is_active ? 'تم تفعيل الفئة الفرعية' : 'تم إلغاء تفعيل الفئة الفرعية'
+        ]);
+    }
+
+    /**
+     * جلب الفئات الفرعية حسب الفئة الرئيسية (AJAX)
+     */
+    public function getByCategory($category)
+    {
+        // التحقق من أن الفئة موجودة
+        $categoryModel = ProductCategory::find($category);
+        
+        if (!$categoryModel) {
+            return response()->json([
+                'success' => false,
+                'message' => 'الفئة غير موجودة',
+                'subcategories' => []
+            ], 404);
+        }
+        
+        $subcategories = ProductSubcategory::where('product_category_id', $categoryModel->id)
+            ->ordered()
+            ->get(['id', 'name', 'product_category_id']);
+        
+        return response()->json([
+            'success' => true,
+            'subcategories' => $subcategories
         ]);
     }
 }

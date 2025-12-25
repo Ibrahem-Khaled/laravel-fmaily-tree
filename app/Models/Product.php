@@ -40,12 +40,12 @@ class Product extends BaseModel
 
     public function category(): BelongsTo
     {
-        return $this->belongsTo(ProductCategory::class);
+        return $this->belongsTo(ProductCategory::class, 'product_category_id');
     }
 
     public function subcategory(): BelongsTo
     {
-        return $this->belongsTo(ProductSubcategory::class);
+        return $this->belongsTo(ProductSubcategory::class, 'product_subcategory_id');
     }
 
     public function owner(): BelongsTo

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ProductCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class ProductCategoryController extends Controller
 {
@@ -26,12 +27,18 @@ class ProductCategoryController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'is_active' => 'boolean',
         ]);
+
+        if ($validator->fails()) {
+            return redirect()->route('products.categories.index')
+                ->withErrors($validator)
+                ->withInput();
+        }
 
         $data = $request->only(['name', 'description', 'is_active']);
         
@@ -51,12 +58,19 @@ class ProductCategoryController extends Controller
 
     public function update(Request $request, ProductCategory $category)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'is_active' => 'boolean',
         ]);
+
+        if ($validator->fails()) {
+            return redirect()->route('products.categories.index')
+                ->withErrors($validator)
+                ->withInput()
+                ->with('edit_category_id', $category->id);
+        }
 
         $data = $request->only(['name', 'description', 'is_active']);
         
