@@ -783,7 +783,18 @@
                         @endphp
                         @if($quranCategories->count() > 0)
                             @foreach($quranCategories as $category)
-                                <a class="dropdown-item {{ request()->routeIs('quran-categories.show') && request()->route('category') == $category->id ? 'active' : '' }}" href="{{ route('quran-categories.show', $category) }}">
+                                @php
+                                    $activeCompetitions = $category->quranCompetitions()->active()->get();
+                                    if ($activeCompetitions->count() === 1) {
+                                        $competition = $activeCompetitions->first();
+                                        $url = route('quran-competitions.show', $competition->id);
+                                        $isActive = request()->routeIs('quran-competitions.show') && request()->route('id') == $competition->id;
+                                    } else {
+                                        $url = route('quran-categories.show', $category);
+                                        $isActive = request()->routeIs('quran-categories.show') && request()->route('category') == $category->id;
+                                    }
+                                @endphp
+                                <a class="dropdown-item {{ $isActive ? 'active' : '' }}" href="{{ $url }}">
                                     <i class="fas fa-folder"></i>
                                     <span>{{ $category->name }}</span>
                                 </a>

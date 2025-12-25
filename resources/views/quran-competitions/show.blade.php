@@ -70,7 +70,7 @@
 
         .bg-light {
             background: linear-gradient(180deg, #f8fdf9 0%, #f0fdf4 50%, #e8f5e9 100%);
-            background-image: 
+            background-image:
                 radial-gradient(at 20% 30%, rgba(55, 160, 92, 0.08) 0px, transparent 50%),
                 radial-gradient(at 80% 20%, rgba(20, 81, 71, 0.06) 0px, transparent 50%),
                 radial-gradient(at 50% 70%, rgba(74, 222, 128, 0.05) 0px, transparent 50%);
@@ -170,6 +170,12 @@
 
         .winner-avatar {
             transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Uniform Card Heights */
+        .grid > * {
+            display: flex;
+            flex-direction: column;
         }
 
         /* Medal Colors */
@@ -351,7 +357,7 @@
             @endif
 
             <!-- Quick Stats -->
-            <div class="flex flex-wrap justify-center gap-4 md:gap-8 animate-fadeInUp stagger-5">
+            {{-- <div class="flex flex-wrap justify-center gap-4 md:gap-8 animate-fadeInUp stagger-5">
                 <div class="glass-card rounded-2xl px-6 py-4 md:px-8 md:py-5 border border-white/20 shadow-2xl text-center min-w-[100px]">
                     <div class="text-2xl md:text-4xl font-black text-gold-600 mb-1">{{ $competition->winners->count() }}</div>
                     <div class="text-primary-700 font-semibold text-sm md:text-base">
@@ -364,7 +370,7 @@
                         <i class="fas fa-images ml-1"></i>وسائط
                     </div>
                 </div>
-            </div>
+            </div> --}}
         </div>
 
         <!-- Wave Separator -->
@@ -398,6 +404,71 @@
                         <div class="text-gray-700 text-base md:text-lg leading-loose text-justify">
                             {!! nl2br(e($competition->description)) !!}
                         </div>
+
+                        <!-- Inline Person Images -->
+                        @if(isset($isSingleCompetition) && $isSingleCompetition && $competition->category && $competition->category->managers->count() > 0)
+                            <div class="mt-8 pt-8 border-t border-primary-200">
+                                <h3 class="text-xl md:text-2xl font-bold text-primary-700 mb-4 flex items-center gap-2">
+                                    <i class="fas fa-users-cog text-primary-500"></i>
+                                    القائمون على البرنامج
+                                </h3>
+                                <div class="flex flex-wrap gap-3 md:gap-4">
+                                    @foreach($competition->category->managers->sortBy('sort_order') as $manager)
+                                        <a href="{{ route('people.profile.show', $manager->person->id) }}" class="group inline-flex flex-col items-center text-center hover:scale-105 transition-transform duration-300">
+                                            <div class="relative mb-2">
+                                                <div class="absolute inset-0 bg-primary-400 blur-md rounded-full opacity-30 group-hover:opacity-50 transition-opacity"></div>
+                                                <img src="{{ $manager->person->avatar }}" alt="{{ $manager->person->full_name }}" class="relative w-16 h-16 md:w-20 md:h-20 rounded-full object-cover border-2 border-primary-400 shadow-lg group-hover:border-primary-500 transition-colors">
+                                            </div>
+                                            <span class="text-xs md:text-sm font-semibold text-gray-700 group-hover:text-primary-600 transition-colors line-clamp-1 max-w-[80px] md:max-w-[100px]">
+                                                {{ $manager->person->full_name }}
+                                            </span>
+                                        </a>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+
+                        @if($competition->winners->count() > 0)
+                            <div class="mt-8 pt-8 border-t border-primary-200">
+                                <h3 class="text-xl md:text-2xl font-bold text-gold-600 mb-4 flex items-center gap-2">
+                                    <i class="fas fa-trophy text-gold-500"></i>
+                                    الفائزون
+                                </h3>
+                                <div class="flex flex-wrap gap-3 md:gap-4">
+                                    @foreach($competition->winners->sortBy('position') as $winner)
+                                        <div class="group inline-flex flex-col items-center text-center hover:scale-105 transition-transform duration-300 relative">
+                                            @if($winner->position <= 3)
+                                                <div class="absolute -top-1 -right-1 z-10">
+                                                    @if($winner->position == 1)
+                                                        <div class="w-5 h-5 md:w-6 md:h-6 medal-gold rounded-full flex items-center justify-center border-2 border-white shadow-lg">
+                                                            <i class="fas fa-crown text-white text-[8px] md:text-[10px]"></i>
+                                                        </div>
+                                                    @elseif($winner->position == 2)
+                                                        <div class="w-5 h-5 md:w-6 md:h-6 medal-silver rounded-full flex items-center justify-center border-2 border-white shadow-lg">
+                                                            <i class="fas fa-medal text-white text-[8px] md:text-[10px]"></i>
+                                                        </div>
+                                                    @else
+                                                        <div class="w-5 h-5 md:w-6 md:h-6 medal-bronze rounded-full flex items-center justify-center border-2 border-white shadow-lg">
+                                                            <i class="fas fa-award text-white text-[8px] md:text-[10px]"></i>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            @endif
+                                            <div class="relative mb-2">
+                                                <div class="absolute inset-0 bg-gold-400 blur-md rounded-full opacity-30 group-hover:opacity-50 transition-opacity"></div>
+                                                <img src="{{ $winner->person->avatar }}" alt="{{ $winner->person->full_name }}" class="relative w-16 h-16 md:w-20 md:h-20 rounded-full object-cover border-2 border-gold-400 shadow-lg group-hover:border-gold-500 transition-colors">
+                                            </div>
+                                            <span class="text-xs md:text-sm font-semibold text-gray-700 group-hover:text-gold-600 transition-colors line-clamp-1 max-w-[80px] md:max-w-[100px]">
+                                                {{ $winner->person->full_name }}
+                                            </span>
+                                            <span class="text-[10px] md:text-xs text-gold-600 font-bold mt-1">
+                                                {{ $winner->position_name }}
+                                            </span>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 @endif
 
@@ -427,7 +498,7 @@
                         </div>
                     @endif
 
-                    <div class="bg-gradient-to-br from-white to-gold-50 rounded-2xl p-5 md:p-8 text-center border-2 border-gold-200 hover:border-gold-400 transition-all duration-300 hover:-translate-y-2 group card-elegant">
+                    {{-- <div class="bg-gradient-to-br from-white to-gold-50 rounded-2xl p-5 md:p-8 text-center border-2 border-gold-200 hover:border-gold-400 transition-all duration-300 hover:-translate-y-2 group card-elegant">
                         <div class="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-gold-500 to-gold-600 rounded-xl md:rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform">
                             <i class="fas fa-trophy text-xl md:text-2xl text-white"></i>
                         </div>
@@ -441,86 +512,9 @@
                         </div>
                         <div class="text-gray-500 text-xs md:text-sm font-medium mb-2">عدد الوسائط</div>
                         <div class="text-purple-600 text-2xl md:text-4xl font-black">{{ $competition->media->count() }}</div>
-                    </div>
+                    </div> --}}
                 </div>
             </section>
-
-            <!-- Winners Section -->
-            @if($competition->winners->count() > 0)
-                <section class="glass-card rounded-3xl p-6 md:p-12 shadow-2xl border border-gold-200 mb-10 md:mb-16 animate-fadeInUp stagger-2">
-                    <!-- Section Header -->
-                    <div class="text-center mb-10 md:mb-14">
-                        <div class="inline-block bg-gradient-to-br from-gold-500 to-gold-600 p-4 md:p-6 rounded-2xl md:rounded-3xl shadow-lg shadow-gold-500/30 mb-4 md:mb-6">
-                            <i class="fas fa-trophy text-white text-3xl md:text-4xl"></i>
-                        </div>
-                        <h2 class="text-3xl md:text-5xl font-black gold-text mb-3">الفائزون</h2>
-                        <div class="ornament"></div>
-                        <p class="text-gray-500 mt-4 text-base md:text-lg">نفخر بتكريم الفائزين المتميزين</p>
-                    </div>
-
-                    <!-- Winners Grid -->
-                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
-                        @foreach($competition->winners->sortBy('position') as $index => $winner)
-                            <div class="winner-card group animate-fadeInUp stagger-{{ ($index % 4) + 1 }}">
-                                <div class="bg-gradient-to-br from-white to-gold-50 rounded-2xl md:rounded-3xl p-4 md:p-8 text-center border-2 border-gold-100 hover:border-gold-400 shadow-xl hover:shadow-2xl transition-all duration-500 relative overflow-hidden">
-                                    <!-- Top Accent -->
-                                    <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-gold-400 via-gold-500 to-gold-400"></div>
-
-                                    <!-- Position Badge -->
-                                    @if($winner->position <= 3)
-                                        <div class="absolute top-3 left-3 md:top-4 md:left-4">
-                                            @if($winner->position == 1)
-                                                <div class="w-10 h-10 md:w-12 md:h-12 medal-gold rounded-full flex items-center justify-center border-2 border-white">
-                                                    <i class="fas fa-crown text-white text-sm md:text-lg"></i>
-                                                </div>
-                                            @elseif($winner->position == 2)
-                                                <div class="w-10 h-10 md:w-12 md:h-12 medal-silver rounded-full flex items-center justify-center border-2 border-white">
-                                                    <i class="fas fa-medal text-white text-sm md:text-lg"></i>
-                                                </div>
-                                            @else
-                                                <div class="w-10 h-10 md:w-12 md:h-12 medal-bronze rounded-full flex items-center justify-center border-2 border-white">
-                                                    <i class="fas fa-award text-white text-sm md:text-lg"></i>
-                                                </div>
-                                            @endif
-                                        </div>
-                                    @endif
-
-                                    <!-- Avatar -->
-                                    <div class="relative inline-block mb-4 md:mb-6 mt-4 md:mt-2">
-                                        <div class="absolute inset-0 bg-gold-400 blur-xl rounded-full scale-125 opacity-30 group-hover:opacity-50 transition-opacity"></div>
-                                        <img src="{{ $winner->person->avatar }}" alt="{{ $winner->person->full_name }}" class="winner-avatar relative w-20 h-20 md:w-32 md:h-32 rounded-full object-cover border-4 border-gold-400 shadow-xl">
-                                    </div>
-
-                                    <!-- Name -->
-                                    <h3 class="text-sm md:text-xl font-bold text-gray-800 mb-3 md:mb-4 group-hover:text-gold-600 transition-colors line-clamp-2">
-                                        {{ $winner->person->full_name }}
-                                    </h3>
-
-                                    <!-- Position Badge -->
-                                    <div class="inline-block bg-gradient-to-r from-gold-500 to-gold-600 text-white px-4 py-1.5 md:px-6 md:py-2 rounded-full text-xs md:text-sm font-bold shadow-lg shadow-gold-500/30">
-                                        {{ $winner->position_name }}
-                                    </div>
-
-                                    <!-- Category -->
-                                    @if($winner->category)
-                                        <div class="flex items-center justify-center gap-2 text-primary-600 font-medium mt-3 md:mt-4 text-xs md:text-sm">
-                                            <i class="fas fa-star text-gold-500"></i>
-                                            <span class="line-clamp-1">{{ $winner->category }}</span>
-                                        </div>
-                                    @endif
-
-                                    <!-- Notes -->
-                                    @if($winner->notes)
-                                        <div class="mt-4 pt-4 border-t border-gold-100 text-gray-500 text-xs md:text-sm leading-relaxed line-clamp-2 hidden md:block">
-                                            {{ $winner->notes }}
-                                        </div>
-                                    @endif
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                </section>
-            @endif
 
             <!-- Media Section -->
             @if($competition->media->count() > 0)

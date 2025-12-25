@@ -56,10 +56,17 @@ class QuranCompetitionPublicController extends Controller
      */
     public function show($id): View
     {
-        $competition = QuranCompetition::with(['winners.person', 'media', 'category'])
-            ->findOrFail($id);
+        $competition = QuranCompetition::with([
+            'winners.person', 
+            'media', 
+            'category.managers.person'
+        ])->findOrFail($id);
 
-        return view('quran-competitions.show', compact('competition'));
+        // التحقق إذا كانت الفئة تحتوي على مسابقة واحدة فقط
+        $isSingleCompetition = $competition->category && 
+            $competition->category->quranCompetitions()->active()->count() === 1;
+
+        return view('quran-competitions.show', compact('competition', 'isSingleCompetition'));
     }
 
     /**

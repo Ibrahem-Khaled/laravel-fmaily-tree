@@ -11,7 +11,7 @@ class QuranCategoryController extends Controller
     /**
      * عرض صفحة الفئة مع المسابقات
      */
-    public function show($id): View
+    public function show($id)
     {
         $category = Category::with([
             'quranCompetitions' => function($q) {
@@ -20,7 +20,14 @@ class QuranCategoryController extends Controller
             'managers.person'
         ])->findOrFail($id);
 
-        $competitions = $category->quranCompetitions;
+        $activeCompetitions = $category->quranCompetitions;
+
+        // إذا كانت الفئة تحتوي على مسابقة واحدة فقط، إعادة توجيه مباشرة لصفحة المسابقة
+        if ($activeCompetitions->count() === 1) {
+            return redirect()->route('quran-competitions.show', $activeCompetitions->first()->id);
+        }
+
+        $competitions = $activeCompetitions;
 
         // فصل المسابقات: الحالية (آخر 3 سنوات) والسابقة
         $currentCompetitions = $competitions->take(3);

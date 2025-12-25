@@ -315,7 +315,7 @@
                 @endif
 
                 <!-- Category Stats -->
-                <div class="flex flex-wrap justify-center gap-4 md:gap-8 animate-fadeInUp stagger-4">
+                {{-- <div class="flex flex-wrap justify-center gap-4 md:gap-8 animate-fadeInUp stagger-4">
                     <div class="stat-card px-6 py-4 rounded-2xl text-center">
                         <div class="text-3xl md:text-4xl font-black text-primary-700">{{ $currentCompetitions->count() + $previousCompetitions->count() }}</div>
                         <div class="text-sm text-gray-600 font-medium">إجمالي المسابقات</div>
@@ -328,7 +328,7 @@
                         <div class="text-3xl md:text-4xl font-black text-primary-600">{{ $previousCompetitions->count() }}</div>
                         <div class="text-sm text-gray-600 font-medium">مسابقات سابقة</div>
                     </div>
-                </div>
+                </div> --}}
             </div>
         </div>
 
