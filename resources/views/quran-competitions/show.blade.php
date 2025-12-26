@@ -337,12 +337,12 @@
             @endif
 
             <!-- Year Badge -->
-            <div class="animate-fadeInUp stagger-2 mb-6">
+            {{-- <div class="animate-fadeInUp stagger-2 mb-6">
                 <div class="inline-block bg-gold-500 text-primary-900 px-8 py-3 md:px-12 md:py-4 rounded-2xl text-xl md:text-3xl font-black shadow-2xl animate-pulse-glow">
                     <i class="fas fa-star ml-2"></i>
                     {{ $competition->hijri_year }} هـ
                 </div>
-            </div>
+            </div> --}}
 
             <!-- Title -->
             <h1 class="text-3xl md:text-5xl lg:text-7xl font-black text-white mb-6 md:mb-8 drop-shadow-2xl tracking-tight max-w-5xl px-2 animate-fadeInUp stagger-3 leading-tight">
@@ -350,11 +350,11 @@
             </h1>
 
             <!-- Description Preview -->
-            @if($competition->description)
+            {{-- @if($competition->description)
                 <p class="text-white/80 text-base md:text-xl leading-relaxed max-w-3xl mx-auto mb-8 animate-fadeInUp stagger-4 line-clamp-3">
                     {{ Str::limit($competition->description, 200) }}
                 </p>
-            @endif
+            @endif --}}
 
             <!-- Quick Stats -->
             {{-- <div class="flex flex-wrap justify-center gap-4 md:gap-8 animate-fadeInUp stagger-5">
@@ -419,7 +419,7 @@
                                                 <div class="absolute inset-0 bg-primary-400 blur-md rounded-full opacity-30 group-hover:opacity-50 transition-opacity"></div>
                                                 <img src="{{ $manager->person->avatar }}" alt="{{ $manager->person->full_name }}" class="relative w-16 h-16 md:w-20 md:h-20 rounded-full object-cover border-2 border-primary-400 shadow-lg group-hover:border-primary-500 transition-colors">
                                             </div>
-                                            <span class="text-xs md:text-sm font-semibold text-gray-700 group-hover:text-primary-600 transition-colors line-clamp-1 max-w-[80px] md:max-w-[100px]">
+                                            <span class="text-xs md:text-sm font-semibold text-gray-700 group-hover:text-primary-600 transition-colors whitespace-normal text-center px-1">
                                                 {{ $manager->person->full_name }}
                                             </span>
                                         </a>
@@ -458,7 +458,7 @@
                                                 <div class="absolute inset-0 bg-gold-400 blur-md rounded-full opacity-30 group-hover:opacity-50 transition-opacity"></div>
                                                 <img src="{{ $winner->person->avatar }}" alt="{{ $winner->person->full_name }}" class="relative w-16 h-16 md:w-20 md:h-20 rounded-full object-cover border-2 border-gold-400 shadow-lg group-hover:border-gold-500 transition-colors">
                                             </div>
-                                            <span class="text-xs md:text-sm font-semibold text-gray-700 group-hover:text-gold-600 transition-colors line-clamp-1 max-w-[80px] md:max-w-[100px]">
+                                            <span class="text-xs md:text-sm font-semibold text-gray-700 group-hover:text-gold-600 transition-colors whitespace-normal text-center px-1">
                                                 {{ $winner->person->full_name }}
                                             </span>
                                             <span class="text-[10px] md:text-xs text-gold-600 font-bold mt-1">
