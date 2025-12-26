@@ -534,8 +534,8 @@
             background: rgba(0, 0, 0, 0.25);
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
-                        padding 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                        padding 0.4s cubic-bezier(0.4, 0, 0.2, 1),
                         margin 0.4s cubic-bezier(0.4, 0, 0.2, 1),
                         opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
                         transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
@@ -764,7 +764,7 @@
                         طلاب طموح
                     </a>
                 </li>
-                @auth
+
                 <li class="dropdown">
                     <a class="nav-link dropdown-toggle {{ request()->routeIs('quran-competitions.*') || request()->routeIs('quran-categories.*') ? 'active' : '' }}"
                        href="#"
@@ -807,7 +807,7 @@
                         @endif
                     </div>
                 </li>
-                @endauth
+
                 <li>
                     <a class="nav-link {{ request()->routeIs('breastfeeding.public.*') ? 'active' : '' }}" href="{{ route('breastfeeding.public.index') }}">
                         <i class="fas fa-baby"></i>

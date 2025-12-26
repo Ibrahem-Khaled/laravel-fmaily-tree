@@ -16,6 +16,7 @@ class ProductSubcategoryController extends Controller
         $categoryId = $request->query('category_id');
         
         $query = ProductSubcategory::with(['category'])
+            ->whereHas('category') // تصفية الفئات الفرعية التي لا تحتوي على فئة رئيسية
             ->withCount('products');
         
         if ($categoryId) {
@@ -26,9 +27,9 @@ class ProductSubcategoryController extends Controller
         $categories = ProductCategory::active()->ordered()->get();
         
         $stats = [
-            'total' => ProductSubcategory::count(),
-            'active' => ProductSubcategory::active()->count(),
-            'inactive' => ProductSubcategory::where('is_active', false)->count(),
+            'total' => ProductSubcategory::whereHas('category')->count(),
+            'active' => ProductSubcategory::whereHas('category')->active()->count(),
+            'inactive' => ProductSubcategory::whereHas('category')->where('is_active', false)->count(),
         ];
         
         return view('dashboard.products.subcategories.index', compact('subcategories', 'categories', 'categoryId', 'stats'));

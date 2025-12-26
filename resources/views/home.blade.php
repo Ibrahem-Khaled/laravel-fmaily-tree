@@ -487,7 +487,7 @@
                     <i class="fas fa-fire mr-1"></i> المباراة التاريخية
                 </div>
                 <h2 class="text-xl sm:text-2xl md:text-3xl font-extrabold text-gradient mb-2 md:mb-3">
-                    ترقبو
+                    ترقبو البث المباشر للمباراة
                 </h2>
             </div>
 
@@ -538,7 +538,7 @@
                         <div class="relative h-[70%] overflow-hidden cursor-pointer team-media group/main"
                             data-media-type="image"
                             data-image-url="{{ asset('assets/img/jadah/2.jpeg') }}">
-                            <img src="{{ asset('assets/img/jadah/2.jpeg') }}" alt="نجد العذية" class="w-full h-full object-cover transition-transform duration-500 group-hover/main:scale-105">
+                            <img src="{{ asset('assets/img/jadah/2.jpeg') }}" alt="نجد " class="w-full h-full object-cover transition-transform duration-500 group-hover/main:scale-105">
                             <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
                         </div>
 

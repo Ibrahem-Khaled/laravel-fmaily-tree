@@ -329,10 +329,10 @@
             <!-- Category Badge -->
             @if($competition->category)
                 <div class="animate-fadeInUp stagger-1 mb-4">
-                    <a href="{{ route('quran-competitions.category', $competition->category->id) }}" class="inline-flex items-center gap-2 bg-gold-500/20 backdrop-blur-sm border border-gold-500/30 text-gold-400 px-4 py-2 rounded-full text-sm font-bold hover:bg-gold-500/30 transition-all">
+                    <div class="inline-flex items-center gap-2 bg-gold-500/20 backdrop-blur-sm border border-gold-500/30 text-gold-400 px-4 py-2 rounded-full text-sm font-bold">
                         <i class="fas fa-folder"></i>
                         <span>{{ $competition->category->name }}</span>
-                    </a>
+                    </div>
                 </div>
             @endif
 
@@ -393,7 +393,7 @@
                         <i class="fas fa-info-circle text-xl md:text-2xl text-white"></i>
                     </div>
                     <div>
-                        <h2 class="text-2xl md:text-4xl font-black gradient-text">معلومات المسابقة</h2>
+                        <h2 class="text-2xl md:text-4xl font-black gradient-text">معلومات</h2>
                         <p class="text-gray-500 text-sm md:text-base mt-1">تفاصيل ومعلومات المسابقة</p>
                     </div>
                 </div>
@@ -473,30 +473,33 @@
                 @endif
 
                 <!-- Meta Grid -->
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                    @if($competition->start_date)
-                        <div class="bg-gradient-to-br from-white to-primary-50 rounded-2xl p-5 md:p-8 text-center border-2 border-primary-100 hover:border-gold-400 transition-all duration-300 hover:-translate-y-2 group card-elegant">
-                            <div class="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl md:rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform">
-                                <i class="fas fa-calendar-alt text-xl md:text-2xl text-white"></i>
+                @if($competition->start_date || $competition->end_date)
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                        @if($competition->start_date)
+                            <div class="bg-gradient-to-br from-white to-primary-50 rounded-2xl p-5 md:p-8 text-center border-2 border-primary-100 hover:border-gold-400 transition-all duration-300 hover:-translate-y-2 group card-elegant">
+                                <div class="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl md:rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform">
+                                    <i class="fas fa-calendar-alt text-xl md:text-2xl text-white"></i>
+                                </div>
+                                <div class="text-gray-500 text-xs md:text-sm font-medium mb-2">تاريخ البداية</div>
+                                <div class="text-primary-700 text-sm md:text-lg font-bold start-date" data-date="{{ $competition->start_date->format('Y-m-d') }}">
+                                    {{ $competition->start_date->format('Y-m-d') }}
+                                </div>
                             </div>
-                            <div class="text-gray-500 text-xs md:text-sm font-medium mb-2">تاريخ البداية</div>
-                            <div class="text-primary-700 text-sm md:text-lg font-bold start-date" data-date="{{ $competition->start_date->format('Y-m-d') }}">
-                                {{ $competition->start_date->format('Y-m-d') }}
-                            </div>
-                        </div>
-                    @endif
+                        @endif
 
-                    @if($competition->end_date)
-                        <div class="bg-gradient-to-br from-white to-primary-50 rounded-2xl p-5 md:p-8 text-center border-2 border-primary-100 hover:border-gold-400 transition-all duration-300 hover:-translate-y-2 group card-elegant">
-                            <div class="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl md:rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform">
-                                <i class="fas fa-calendar-check text-xl md:text-2xl text-white"></i>
+                        @if($competition->end_date)
+                            <div class="bg-gradient-to-br from-white to-primary-50 rounded-2xl p-5 md:p-8 text-center border-2 border-primary-100 hover:border-gold-400 transition-all duration-300 hover:-translate-y-2 group card-elegant">
+                                <div class="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl md:rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform">
+                                    <i class="fas fa-calendar-check text-xl md:text-2xl text-white"></i>
+                                </div>
+                                <div class="text-gray-500 text-xs md:text-sm font-medium mb-2">تاريخ النهاية</div>
+                                <div class="text-primary-700 text-sm md:text-lg font-bold end-date" data-date="{{ $competition->end_date->format('Y-m-d') }}">
+                                    {{ $competition->end_date->format('Y-m-d') }}
+                                </div>
                             </div>
-                            <div class="text-gray-500 text-xs md:text-sm font-medium mb-2">تاريخ النهاية</div>
-                            <div class="text-primary-700 text-sm md:text-lg font-bold end-date" data-date="{{ $competition->end_date->format('Y-m-d') }}">
-                                {{ $competition->end_date->format('Y-m-d') }}
-                            </div>
-                        </div>
-                    @endif
+                        @endif
+                    </div>
+                @endif
 
                     {{-- <div class="bg-gradient-to-br from-white to-gold-50 rounded-2xl p-5 md:p-8 text-center border-2 border-gold-200 hover:border-gold-400 transition-all duration-300 hover:-translate-y-2 group card-elegant">
                         <div class="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-gold-500 to-gold-600 rounded-xl md:rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform">
