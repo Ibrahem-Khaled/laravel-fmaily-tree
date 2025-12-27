@@ -299,7 +299,7 @@
 <body class="font-alexandria min-h-screen">
 
     <!-- Hero Section -->
-    <section class="relative min-h-[60vh] md:min-h-[80vh] overflow-hidden">
+    <section class="relative min-h-[35vh] md:min-h-[50vh] overflow-hidden">
         <!-- Background Image -->
         @if($competition->cover_image)
             <img src="{{ $competition->cover_image_url }}" alt="{{ $competition->title }}" class="absolute inset-0 w-full h-full object-cover">
@@ -325,7 +325,7 @@
         </a>
 
         <!-- Hero Content -->
-        <div class="relative z-20 container mx-auto px-4 h-full min-h-[60vh] md:min-h-[80vh] flex flex-col items-center justify-center text-center py-12 md:py-0">
+        <div class="relative z-20 container mx-auto px-4 h-full min-h-[35vh] md:min-h-[50vh] flex flex-col items-center justify-center text-center py-6 md:py-0">
             <!-- Category Badge -->
             @if($competition->category)
                 <div class="animate-fadeInUp stagger-1 mb-4">
@@ -388,7 +388,7 @@
             <!-- Competition Info Section -->
             <section class="glass-card rounded-3xl p-6 md:p-12 shadow-2xl border border-primary-100 mb-10 md:mb-16 animate-fadeInUp">
                 <!-- Section Header -->
-                <div class="flex items-center gap-4 md:gap-5 mb-6 md:mb-10 pb-4 md:pb-6 border-b-2 border-primary-100">
+                {{-- <div class="flex items-center gap-4 md:gap-5 mb-6 md:mb-10 pb-4 md:pb-6 border-b-2 border-primary-100">
                     <div class="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl flex items-center justify-center shadow-lg shadow-primary-500/30">
                         <i class="fas fa-info-circle text-xl md:text-2xl text-white"></i>
                     </div>
@@ -396,7 +396,7 @@
                         <h2 class="text-2xl md:text-4xl font-black gradient-text">معلومات</h2>
                         <p class="text-gray-500 text-sm md:text-base mt-1">تفاصيل ومعلومات المسابقة</p>
                     </div>
-                </div>
+                </div> --}}
 
                 <!-- Description -->
                 @if($competition->description)
