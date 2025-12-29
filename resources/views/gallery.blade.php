@@ -19,6 +19,7 @@
             --primary-light: #2dd4bf;
             --secondary: #f59e0b;
             --accent: #ec4899;
+            --accent-rgb: 236, 72, 153;
             --dark: #0f172a;
             --surface: #f8fafc;
         }
@@ -133,20 +134,22 @@
             line-height: 1.2;
         }
 
-        .gallery-subtitle {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: clamp(0.875rem, 2vw, 1rem);
-            font-weight: 400;
-        }
-
         /* ===== الإحصائيات ===== */
         .stats-bar {
             display: flex;
-            justify-content: center;
-            gap: 2rem;
-            flex-wrap: wrap;
+            flex-direction: column;
+            gap: 1rem;
             margin: 1.5rem 0;
-            padding: 1rem;
+            padding: 0 1rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 1rem;
+            width: 100%;
         }
 
         .stat-item {
@@ -160,22 +163,79 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             transition: all 0.3s ease;
             min-width: 0;
-            flex: 1 1 auto;
+            flex: 1;
         }
 
-        .stat-item:hover {
-            background: rgba(255, 255, 255, 0.1);
-            transform: translateY(-2px);
+        .stat-item.info-only {
+            cursor: default;
+            user-select: none;
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: none;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: none;
+        }
+
+        .stat-item.info-only .stat-icon {
+            opacity: 0.5;
+            filter: grayscale(0.5);
+            transform: scale(0.9);
+        }
+
+        .stat-item.info-only .stat-value {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1rem;
+        }
+
+        .stat-item.info-only .stat-label {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .stat-item.highlight {
+            background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.2), rgba(var(--accent-rgb), 0.05));
+            border-color: rgba(var(--accent-rgb), 0.4);
+            cursor: pointer;
+            justify-content: center;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(var(--accent-rgb), 0.1);
+            -webkit-tap-highlight-color: transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-item.highlight::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            to { left: 100%; }
+        }
+
+        .stat-item.highlight:hover {
+            background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.3), rgba(var(--accent-rgb), 0.1));
+            transform: translateY(-3px);
+            border-color: var(--accent);
+            box-shadow: 0 15px 40px rgba(var(--accent-rgb), 0.3);
+        }
+
+        .stat-item.highlight:active {
+            transform: scale(0.98);
         }
 
         .stat-icon {
-            width: 36px;
-            height: 36px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1rem;
+            flex-shrink: 0;
         }
 
         .stat-icon.teal { background: linear-gradient(135deg, var(--primary), var(--primary-light)); }
@@ -183,14 +243,16 @@
         .stat-icon.pink { background: linear-gradient(135deg, var(--accent), #f472b6); }
 
         .stat-value {
-            font-size: 1.25rem;
+            font-size: 1.125rem;
             font-weight: 700;
             color: #fff;
+            line-height: 1;
         }
 
         .stat-label {
             font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.5);
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 0.15rem;
         }
 
         /* ===== مسار التنقل ===== */
@@ -1095,14 +1157,35 @@
             }
 
             .stats-bar {
-                flex-direction: column;
-                align-items: stretch;
+                gap: 0.75rem;
+                padding: 0 0.25rem;
+            }
+
+            .stats-row {
+                flex-direction: row; /* Keep info items side-by-side */
                 gap: 0.5rem;
             }
 
             .stat-item {
-                justify-content: center;
-                width: 100%;
+                padding: 0.5rem 0.75rem;
+                gap: 0.5rem;
+            }
+
+            .stat-icon {
+                width: 28px;
+                height: 28px;
+            }
+
+            .stat-value {
+                font-size: 1rem;
+            }
+
+            .stat-label {
+                font-size: 0.65rem;
+            }
+
+            .stat-item.highlight {
+                padding: 0.75rem 1rem;
             }
 
             .categories-grid {
@@ -1235,33 +1318,34 @@
         <!-- هيدر المعرض -->
         <section class="gallery-hero">
             <h1 class="gallery-title">معرض صور العائلة</h1>
-            <p class="gallery-subtitle">استكشف ذكريات وصور العائلة المميزة</p>
-
             <!-- الإحصائيات -->
             <div class="stats-bar">
-                <div class="stat-item">
-                    <div class="stat-icon teal">
-                        <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/>
-                        </svg>
+                <div class="stats-row">
+                    <div class="stat-item info-only">
+                        <div class="stat-icon teal">
+                            <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="stat-value">{{ $stats['total_categories'] }}</div>
+                            <div class="stat-label">فئة</div>
+                        </div>
                     </div>
-                    <div>
-                        <div class="stat-value">{{ $stats['total_categories'] }}</div>
-                        <div class="stat-label">فئة</div>
+                    <div class="stat-item info-only">
+                        <div class="stat-icon amber">
+                            <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="stat-value">{{ $stats['total_images'] }}</div>
+                            <div class="stat-label">صورة</div>
+                        </div>
                     </div>
                 </div>
-                <div class="stat-item">
-                    <div class="stat-icon amber">
-                        <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <div class="stat-value">{{ $stats['total_images'] }}</div>
-                        <div class="stat-label">صورة</div>
-                    </div>
-                </div>
-                <div class="stat-item cursor-pointer" onclick="showRecentUploads()">
+                
+                <div class="stat-item highlight" onclick="showRecentUploads()">
                     <div class="stat-icon pink">
                         <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/>
@@ -1269,7 +1353,7 @@
                     </div>
                     <div>
                         <div class="stat-value">{{ $stats['recent_uploads'] }}</div>
-                        <div class="stat-label">جديد هذا الأسبوع</div>
+                        <div class="stat-label">جديد هذا الأسبوع (اضغط للعرض)</div>
                     </div>
                 </div>
             </div>
