@@ -229,7 +229,7 @@ class GalleryController extends Controller
 
         // إحصائيات عامة
         $stats = [
-            'total_categories' => Category::where('is_active', true)->count(),
+            'total_categories' => $categories->count(),
             'total_images' => Image::count(),
             'recent_uploads' => Image::where('created_at', '>=', now()->subDays(7))->count(),
         ];

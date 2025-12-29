@@ -1261,7 +1261,7 @@
                         <div class="stat-label">صورة</div>
                     </div>
                 </div>
-                <div class="stat-item">
+                <div class="stat-item cursor-pointer" onclick="showRecentUploads()">
                     <div class="stat-icon pink">
                         <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/>
@@ -1516,6 +1516,63 @@
                 const catId = cat.id ? parseInt(cat.id) : null;
                 return catId === idNum;
             });
+        }
+
+        // عرض الصور الجديدة هذا الأسبوع
+        function showRecentUploads() {
+            let recentImages = [];
+            const now = new Date();
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(now.getDate() - 7);
+
+            function collectImages(categories) {
+                categories.forEach(cat => {
+                    if (cat.images) {
+                        cat.images.forEach(img => {
+                            const createdAt = new Date(img.created_at);
+                            if (createdAt >= sevenDaysAgo) {
+                                if (!recentImages.some(ri => ri.id === img.id)) {
+                                    recentImages.push(img);
+                                }
+                            }
+                        });
+                    }
+                    if (cat.children) {
+                        collectImages(cat.children);
+                    }
+                });
+            }
+
+            collectImages(galleryData);
+
+            // ترتيب الصور من الأحدث للأقدم
+            recentImages.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+            breadcrumbPath = [{ id: 'recent', name: 'جديد هذا الأسبوع' }];
+            updateBreadcrumb();
+            
+            document.getElementById('categories-section').style.display = 'none';
+            
+            const section = document.getElementById('images-section');
+            const grid = document.getElementById('images-grid');
+            const emptyState = document.getElementById('empty-state');
+
+            document.getElementById('images-section-title').textContent = 'جديد هذا الأسبوع';
+            section.classList.add('active');
+
+            if (recentImages.length === 0) {
+                grid.style.display = 'none';
+                emptyState.style.display = 'block';
+            } else {
+                grid.style.display = 'grid';
+                emptyState.style.display = 'none';
+                grid.innerHTML = '';
+                recentImages.forEach((image, index) => {
+                    const card = createImageCard(image, index);
+                    grid.appendChild(card);
+                });
+                initLazyLoading();
+            }
         }
 
         // فتح فئة
@@ -1798,6 +1855,11 @@
 
         // التنقل عبر مسار التنقل
         function navigateToBreadcrumb(index) {
+            const item = breadcrumbPath[index];
+            if (item.id === 'recent') {
+                showRecentUploads();
+                return;
+            }
             breadcrumbPath = breadcrumbPath.slice(0, index + 1);
             const categoryId = breadcrumbPath[index].id;
             breadcrumbPath.pop(); // سيتم إضافته مرة أخرى في openCategory

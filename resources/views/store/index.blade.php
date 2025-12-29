@@ -157,7 +157,6 @@
             <h1 class="text-4xl lg:text-5xl font-black gradient-text mb-4">
                 <i class="fas fa-store mr-3"></i>متجر الأسر المنتجة
             </h1>
-            <p class="text-lg text-gray-600">اكتشف منتجات عالية الجودة من أسر منتجة محلية</p>
         </div>
 
         <div class="flex flex-col lg:flex-row gap-8">
@@ -166,27 +165,27 @@
                 <div class="sticky top-20 space-y-6">
                     <!-- Categories Section -->
                     <div class="glass-effect p-6 rounded-3xl green-glow">
-                        <div class="flex items-center justify-between mb-6 border-b border-green-200 pb-4">
+                        <!-- <div class="flex items-center justify-between mb-6 border-b border-green-200 pb-4">
                             <h3 class="text-2xl font-bold gradient-text">
                                 <i class="fas fa-tags mr-2"></i>الفئات
                             </h3>
-                        </div>
+                        </div> -->
 
                         <ul class="space-y-2">
-                            <li>
+                            <!-- <li>
                                 <a href="{{ route('store.index', array_filter(['person' => $personId, 'search' => $search])) }}" 
                                    class="category-item block px-4 py-3 rounded-2xl transition-all duration-300 font-medium {{ !$categoryId ? 'active' : 'bg-white/70 hover:bg-green-50' }}">
                                     <span class="flex items-center justify-between">
-                                        <span><i class="fas fa-th mr-2"></i>جميع المنتجات</span>
+                                        <span><i class="fas fa-th ml-2"></i>جميع المنتجات</span>
                                     </span>
                                 </a>
-                            </li>
+                            </li> -->
                             @foreach($categories as $category)
                                 <li>
                                     <a href="{{ route('store.index', array_filter(['category' => $category->id, 'person' => $personId, 'search' => $search])) }}" 
                                        class="category-item block px-4 py-3 rounded-2xl transition-all duration-300 font-medium {{ $categoryId == $category->id ? 'active' : 'bg-white/70 hover:bg-green-50' }}">
                                         <span class="flex items-center justify-between">
-                                            <span><i class="fas fa-folder mr-2"></i>{{ $category->name }}</span>
+                                            <span><i class="fas fa-folder ml-2"></i>{{ $category->name }}</span>
                                             <span class="text-xs bg-white/50 px-2 py-1 rounded-full">{{ $category->products_count }}</span>
                                         </span>
                                     </a>
@@ -196,7 +195,7 @@
                     </div>
 
                     <!-- Product Owners Section -->
-                    @if($productOwners && $productOwners->count() > 0)
+                    <!-- @if($productOwners && $productOwners->count() > 0)
                     <div class="glass-effect p-6 rounded-3xl green-glow">
                         <div class="flex items-center justify-between mb-6 border-b border-green-200 pb-4">
                             <h3 class="text-2xl font-bold gradient-text">
@@ -226,7 +225,7 @@
                             @endforeach
                         </ul>
                     </div>
-                    @endif
+                    @endif -->
                 </div>
             </aside>
 
