@@ -78,6 +78,65 @@
                             </div>
                         </div>
 
+                        <div class="mt-4">
+                            <h5 class="mb-3">معرض الصور والفيديو الحالة</h5>
+                            
+                            @if($product->media->count() > 0)
+                                <div class="row mb-4">
+                                    @foreach($product->media as $media)
+                                        <div class="col-md-3 mb-3">
+                                            <div class="card h-100 shadow-sm border-0 bg-light">
+                                                <div class="card-body p-2 text-center position-relative">
+                                                    @if($media->media_type === 'image')
+                                                        <img src="{{ asset('storage/' . $media->file_path) }}" class="img-fluid rounded mb-2" style="height: 100px; object-fit: cover;">
+                                                    @elseif($media->media_type === 'video')
+                                                        <div class="bg-dark text-white rounded d-flex align-items-center justify-center mb-2" style="height: 100px;">
+                                                            <i class="fas fa-video fa-2x"></i>
+                                                        </div>
+                                                    @elseif($media->media_type === 'youtube')
+                                                        <div class="bg-danger text-white rounded d-flex align-items-center justify-center mb-2" style="height: 100px;">
+                                                            <i class="fab fa-youtube fa-2x"></i>
+                                                        </div>
+                                                    @endif
+                                                    <div class="form-check text-danger">
+                                                        <input class="form-check-input" type="checkbox" name="delete_media[]" value="{{ $media->id }}" id="media_{{ $media->id }}">
+                                                        <label class="form-check-label small font-weight-bold" for="media_{{ $media->id }}">حذف</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endif
+
+                            <div class="bg-light p-3 rounded mb-4">
+                                <h6 class="font-weight-bold mb-3">إضافة وسائط جديدة</h6>
+                                <div class="form-group">
+                                    <label>صور إضافية</label>
+                                    <input type="file" name="images[]" class="form-control-file" accept="image/*" multiple>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>فيديو محلي</label>
+                                            <input type="file" name="video_file" class="form-control-file" accept="video/mp4,video/mpeg,video/quicktime">
+                                            @php $videoMedia = $product->media->where('media_type', 'video')->first(); @endphp
+                                            @if($videoMedia)
+                                                <small class="text-info d-block">يوجد فيديو حالي (سيتم استبداله إذا رفعت جديداً)</small>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>رابط يوتيوب</label>
+                                            @php $youtubeMedia = $product->media->where('media_type', 'youtube')->first(); @endphp
+                                            <input type="url" name="youtube_url" class="form-control" value="{{ old('youtube_url', $youtubeMedia ? $youtubeMedia->youtube_url : '') }}" placeholder="https://www.youtube.com/watch?v=...">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <h5 class="mb-3 mt-4">الفئات</h5>
 
                         <div class="row">

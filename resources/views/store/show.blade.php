@@ -31,12 +31,7 @@
         }
 
         .green-glow {
-            box-shadow: 0 0 40px rgba(34, 197, 94, 0.3);
-        }
-
-        .green-glow-hover:hover {
-            box-shadow: 0 0 60px rgba(34, 197, 94, 0.5);
-            transform: translateY(-5px);
+            box-shadow: 0 0 40px rgba(34, 197, 94, 0.2);
         }
 
         .gradient-text {
@@ -46,26 +41,40 @@
             background-clip: text;
         }
 
-        .product-card {
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        .product-image-container {
+            position: relative;
+            overflow: hidden;
+            cursor: zoom-in;
+            background-color: #f8fafc;
+            aspect-ratio: 1/1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .product-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 20px 40px rgba(34, 197, 94, 0.4);
+        .product-image-zoom {
+            transition: transform 0.5s ease;
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .product-image-container:hover .product-image-zoom {
+            transform: scale(1.1);
         }
 
         .contact-btn {
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .contact-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
 
         .fade-in-up {
-            animation: fadeInUp 0.6s ease-out;
+            animation: fadeInUp 0.6s ease-out forwards;
+            opacity: 0;
         }
 
         @keyframes fadeInUp {
@@ -79,17 +88,77 @@
             }
         }
 
-        ::-webkit-scrollbar {
-            width: 10px;
+        .lightbox {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(5px);
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
-        ::-webkit-scrollbar-track {
-            background: #f0fdf4;
+        .lightbox.active {
+            display: flex;
+            opacity: 1;
         }
 
-        ::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, #22c55e, #16a34a);
-            border-radius: 5px;
+        .lightbox-img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            box-shadow: 0 0 50px rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+
+        .close-lightbox {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            z-index: 2001;
+        }
+
+        .price-tag {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 99px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 10px 20px rgba(34, 197, 94, 0.3);
+        }
+
+        .feature-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 1rem;
+            border-right: 4px solid #22c55e;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateX(-5px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-card {
+            transition: all 0.4s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(34, 197, 94, 0.15);
         }
     </style>
 </head>
@@ -97,146 +166,273 @@
 <body class="text-gray-800 relative overflow-x-hidden">
     @include('partials.main-header')
 
-    <div class="container mx-auto px-4 py-4 lg:py-8 relative z-10">
+    <!-- Lightbox -->
+    <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+        <span class="close-lightbox">&times;</span>
+        <img id="lightbox-img" class="lightbox-img" src="" alt="">
+    </div>
+
+    <div class="container mx-auto px-4 py-8 relative z-10">
         <!-- Breadcrumb -->
-        <nav class="mb-6 fade-in-up">
-            <ol class="flex items-center space-x-2 space-x-reverse text-sm">
-                <li><a href="{{ route('home') }}" class="text-green-600 hover:text-green-700">الرئيسية</a></li>
-                <li><i class="fas fa-chevron-left text-gray-400"></i></li>
-                <li><a href="{{ route('store.index') }}" class="text-green-600 hover:text-green-700">المتجر</a></li>
+        <nav class="mb-8 fade-in-up" style="animation-delay: 0.1s">
+            <ol class="flex items-center space-x-2 space-x-reverse text-sm bg-white/50 w-fit px-4 py-2 rounded-full backdrop-blur-sm">
+                <li><a href="{{ route('home') }}" class="text-green-600 hover:text-green-700 font-medium">الرئيسية</a></li>
+                <li><i class="fas fa-chevron-left text-gray-400 text-[10px]"></i></li>
+                <li><a href="{{ route('store.index') }}" class="text-green-600 hover:text-green-700 font-medium">المتجر</a></li>
                 @if($product->category)
-                    <li><i class="fas fa-chevron-left text-gray-400"></i></li>
-                    <li><a href="{{ route('store.index', ['category' => $product->category->id]) }}" class="text-green-600 hover:text-green-700">{{ $product->category->name }}</a></li>
+                    <li><i class="fas fa-chevron-left text-gray-400 text-[10px]"></i></li>
+                    <li><a href="{{ route('store.index', ['category' => $product->category->id]) }}" class="text-green-600 hover:text-green-700 font-medium">{{ $product->category->name }}</a></li>
                 @endif
-                @if($product->subcategory)
-                    <li><i class="fas fa-chevron-left text-gray-400"></i></li>
-                    <li><a href="{{ route('store.subcategory', $product->subcategory) }}" class="text-green-600 hover:text-green-700">{{ $product->subcategory->name }}</a></li>
-                @endif
-                <li><i class="fas fa-chevron-left text-gray-400"></i></li>
-                <li class="text-gray-600">{{ Str::limit($product->name, 30) }}</li>
+                <li><i class="fas fa-chevron-left text-gray-400 text-[10px]"></i></li>
+                <li class="text-gray-500">{{ Str::limit($product->name, 20) }}</li>
             </ol>
         </nav>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-            <!-- Product Image -->
-            <div class="fade-in-up">
-                <div class="glass-effect rounded-3xl overflow-hidden green-glow">
-                    @if($product->main_image)
-                        <img src="{{ asset('storage/' . $product->main_image) }}" 
-                             alt="{{ $product->name }}"
-                             class="w-full h-auto object-cover">
-                    @else
-                        <div class="w-full h-96 bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center">
-                            <i class="fas fa-image text-white text-6xl opacity-50"></i>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+            <!-- Left: Product Image & Gallery -->
+            <div class="lg:col-span-5 fade-in-up" style="animation-delay: 0.2s">
+                <div class="glass-effect rounded-[2.5rem] overflow-hidden green-glow p-4">
+                    <div class="product-image-container rounded-3xl" onclick="openLightbox(document.getElementById('mainProductImage').src)">
+                        @if($product->main_image)
+                            <img src="{{ asset('storage/' . $product->main_image) }}" 
+                                 id="mainProductImage"
+                                 alt="{{ $product->name }}"
+                                 class="product-image-zoom">
+                        @else
+                            <div class="w-full h-full bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center">
+                                <i class="fas fa-image text-green-300 text-8xl opacity-30"></i>
+                            </div>
+                        @endif
+                        <div class="absolute bottom-4 right-4 bg-black/50 text-white p-2 rounded-full backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity">
+                            <i class="fas fa-search-plus"></i>
                         </div>
-                    @endif
+                    </div>
+                </div>
+                
+                @php 
+                    $additionalImages = $product->media->where('media_type', 'image');
+                @endphp
+
+                @if($additionalImages->count() > 0)
+                    <div class="mt-6 flex flex-wrap gap-3">
+                        <!-- Main Image Thumbnail -->
+                        <div class="w-20 h-20 rounded-2xl overflow-hidden cursor-pointer border-2 border-green-500 shadow-sm transition-all hover:border-green-600"
+                             onclick="showImage('{{ asset('storage/' . $product->main_image) }}', this)">
+                            <img src="{{ asset('storage/' . $product->main_image) }}" class="w-full h-full object-cover">
+                        </div>
+                        
+                        @foreach($additionalImages as $img)
+                            <div class="w-20 h-20 rounded-2xl overflow-hidden cursor-pointer border-2 border-transparent shadow-sm transition-all hover:border-green-400"
+                                 onclick="showImage('{{ asset('storage/' . $img->file_path) }}', this)">
+                                <img src="{{ asset('storage/' . $img->file_path) }}" class="w-full h-full object-cover">
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+                
+                <div class="mt-4 text-center">
+                    <p class="text-xs text-gray-500 italic"><i class="fas fa-info-circle ml-1"></i>انقر على الصورة للتكبير</p>
                 </div>
             </div>
 
-            <!-- Product Details -->
-            <div class="fade-in-up">
-                <div class="glass-effect p-8 rounded-3xl green-glow">
-                    <div class="flex gap-2 mb-4">
-                        @if($product->category)
-                            <span class="bg-green-100 text-green-700 px-4 py-2 rounded-full text-sm font-medium">{{ $product->category->name }}</span>
-                        @endif
-                        @if($product->subcategory)
-                            <span class="bg-gray-100 text-gray-700 px-4 py-2 rounded-full text-sm">{{ $product->subcategory->name }}</span>
-                        @endif
-                    </div>
+            <!-- Right: Product Details -->
+            <div class="lg:col-span-7 fade-in-up" style="animation-delay: 0.3s">
+                <div class="glass-effect p-8 lg:p-12 rounded-[2.5rem] shadow-xl relative overflow-hidden">
+                    <!-- Decorative Background element -->
+                    <div class="absolute -top-24 -left-24 w-64 h-64 bg-green-200/20 rounded-full blur-3xl"></div>
+                    <div class="absolute -bottom-24 -right-24 w-64 h-64 bg-emerald-200/20 rounded-full blur-3xl"></div>
 
-                    <h1 class="text-4xl font-black gradient-text mb-4">{{ $product->name }}</h1>
-                    
-                    @if($product->owner || $product->location)
-                        <div class="flex flex-wrap gap-3 mb-4">
+                    <div class="relative z-10">
+                        <div class="flex flex-wrap gap-2 mb-6">
+                            @if($product->category)
+                                <span class="bg-green-100/80 text-green-700 px-4 py-1.5 rounded-full text-xs font-bold border border-green-200">{{ $product->category->name }}</span>
+                            @endif
+                            @if($product->subcategory)
+                                <span class="bg-white/80 text-gray-600 px-4 py-1.5 rounded-full text-xs font-medium border border-gray-100">{{ $product->subcategory->name }}</span>
+                            @endif
+                        </div>
+
+                        <h1 class="text-4xl lg:text-5xl font-black mb-6 text-gray-800 leading-tight">
+                            {{ $product->name }}
+                        </h1>
+
+                        <div class="flex items-center gap-6 mb-8">
+                            <div class="price-tag">
+                                <span class="text-3xl font-black">{{ number_format($product->price, 2) }}</span>
+                                <span class="text-sm font-bold opacity-80 uppercase tracking-widest">ر.س</span>
+                            </div>
+                            
+                            @if($product->is_rental)
+                                <span class="bg-blue-100 text-blue-700 px-4 py-2 rounded-xl text-sm font-bold border border-blue-200">
+                                    <i class="fas fa-clock ml-2"></i>للايجار
+                                </span>
+                            @endif
+                        </div>
+
+                        <div class="flex flex-wrap gap-4 py-6 border-y border-green-100/50 mb-8">
                             @if($product->owner)
-                                <div class="flex items-center gap-2 text-gray-700">
-                                    <i class="fas fa-user text-green-600"></i>
-                                    <span class="text-sm font-medium">صاحب المنتج: {{ $product->owner->first_name }} {{ $product->owner->last_name }}</span>
+                                <div class="flex items-center gap-3 bg-white/50 px-4 py-2 rounded-2xl border border-white/30">
+                                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-user text-green-600"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] text-gray-500">صاحب المنتج</p>
+                                        <p class="text-sm font-bold text-gray-800">{{ $product->owner->first_name }} {{ $product->owner->last_name }}</p>
+                                    </div>
                                 </div>
                             @endif
+
                             @if($product->location)
-                                <div class="flex items-center gap-2 text-gray-700">
-                                    <i class="fas fa-map-marker-alt text-green-600"></i>
-                                    <span class="text-sm font-medium">الموقع: {{ $product->location->name }}</span>
+                                <div class="flex items-center gap-3 bg-white/50 px-4 py-2 rounded-2xl border border-white/30">
+                                    <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-map-marker-alt text-orange-600"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] text-gray-500">الموقع</p>
+                                        <p class="text-sm font-bold text-gray-800">{{ $product->location->name }}</p>
+                                    </div>
                                 </div>
                             @endif
                         </div>
-                    @endif
-                    
-                    <div class="mb-6">
-                        <span class="text-4xl font-black text-green-600">
-                            {{ number_format($product->price, 2) }} <span class="text-xl">ر.س</span>
-                        </span>
-                    </div>
 
-                    @if($product->description)
-                        <div class="mb-6">
-                            <h3 class="text-xl font-bold mb-3 text-gray-800">الوصف</h3>
-                            <p class="text-gray-600 leading-relaxed">{{ $product->description }}</p>
-                        </div>
-                    @endif
+                        @if($product->description)
+                            <div class="mb-10">
+                                <h3 class="text-2xl font-bold mb-4 text-gray-800 flex items-center gap-3">
+                                    <span class="w-8 h-1 bg-green-500 rounded-full"></span>
+                                    عن المنتج
+                                </h3>
+                                <p class="text-gray-600 leading-relaxed text-lg">{{ $product->description }}</p>
+                            </div>
+                        @endif
 
-                    @if($product->features && count($product->features) > 0)
-                        <div class="mb-6">
-                            <h3 class="text-xl font-bold mb-3 text-gray-800">المميزات</h3>
-                            <ul class="space-y-2">
-                                @foreach($product->features as $feature)
-                                    @if($feature)
-                                        <li class="flex items-start">
-                                            <i class="fas fa-check-circle text-green-500 mr-3 mt-1"></i>
-                                            <span class="text-gray-700">{{ $feature }}</span>
-                                        </li>
+                        @if($product->features && count($product->features) > 0)
+                            <div class="mb-10">
+                                <h3 class="text-2xl font-bold mb-4 text-gray-800 flex items-center gap-3">
+                                    <span class="w-8 h-1 bg-green-500 rounded-full"></span>
+                                    المميزات
+                                </h3>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    @foreach($product->features as $feature)
+                                        @if($feature)
+                                            <div class="feature-card">
+                                                <div class="flex items-center gap-3">
+                                                    <i class="fas fa-check-circle text-green-500"></i>
+                                                    <span class="text-gray-700 font-medium">{{ $feature }}</span>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+
+                        <!-- Video Section -->
+                        @php 
+                            $video = $product->media->where('media_type', 'video')->first();
+                            $youtube = $product->media->where('media_type', 'youtube')->first();
+                        @endphp
+
+                        @if($video || $youtube)
+                            <div class="mb-10 lg:pr-10">
+                                <h3 class="text-2xl font-bold mb-6 text-gray-800 flex items-center gap-3">
+                                    <span class="w-8 h-1 bg-green-500 rounded-full"></span>
+                                    فيديو توضيحي
+                                </h3>
+                                <div class="glass-effect rounded-3xl overflow-hidden shadow-lg border border-white/50 bg-black/5 aspect-video flex items-center justify-center">
+                                    @if($video)
+                                        <video controls class="w-full h-full object-contain bg-black">
+                                            <source src="{{ asset('storage/' . $video->file_path) }}" type="video/mp4">
+                                            المتصفح لا يدعم تشغيل الفيديو.
+                                        </video>
+                                    @elseif($youtube)
+                                        @php 
+                                            $videoId = $youtube->extractVideoId($youtube->youtube_url);
+                                        @endphp
+                                        @if($videoId)
+                                            <iframe class="w-full h-full" src="https://www.youtube.com/embed/{{ $videoId }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                        @else
+                                            <a href="{{ $youtube->youtube_url }}" target="_blank" class="text-green-600 font-bold underline">مشاهدة الفيديو على يوتيوب</a>
+                                        @endif
                                     @endif
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
+                                </div>
+                            </div>
+                        @endif
 
-                    <!-- Contact Information -->
-                    <div class="glass-effect p-6 rounded-2xl border-2 border-green-200">
-                        <h3 class="text-xl font-bold mb-4 text-gray-800">
-                            <i class="fas fa-phone-alt text-green-600 mr-2"></i>للتواصل والشراء
-                        </h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            @if($product->contact_phone)
-                                <a href="tel:{{ $product->contact_phone }}" 
-                                   class="contact-btn bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-2xl text-center font-medium flex items-center justify-center gap-2">
-                                    <i class="fas fa-phone"></i>
-                                    <span>{{ $product->contact_phone }}</span>
-                                </a>
-                            @endif
-                            @if($product->contact_whatsapp)
-                                <a href="https://wa.me/{{ str_replace(['+', ' ', '-'], '', $product->contact_whatsapp) }}" 
-                                   target="_blank"
-                                   class="contact-btn bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-2xl text-center font-medium flex items-center justify-center gap-2">
-                                    <i class="fab fa-whatsapp"></i>
-                                    <span>واتساب</span>
-                                </a>
-                            @endif
-                            @if($product->contact_email)
-                                <a href="mailto:{{ $product->contact_email }}" 
-                                   class="contact-btn bg-indigo-500 hover:bg-indigo-600 text-white px-6 py-3 rounded-2xl text-center font-medium flex items-center justify-center gap-2">
-                                    <i class="fas fa-envelope"></i>
-                                    <span>بريد إلكتروني</span>
-                                </a>
-                            @endif
-                            @if($product->contact_instagram)
-                                <a href="https://instagram.com/{{ ltrim($product->contact_instagram, '@') }}" 
-                                   target="_blank"
-                                   class="contact-btn bg-pink-500 hover:bg-pink-600 text-white px-6 py-3 rounded-2xl text-center font-medium flex items-center justify-center gap-2">
-                                    <i class="fab fa-instagram"></i>
-                                    <span>إنستقرام</span>
-                                </a>
-                            @endif
-                            @if($product->contact_facebook)
-                                <a href="{{ $product->contact_facebook }}" 
-                                   target="_blank"
-                                   class="contact-btn bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl text-center font-medium flex items-center justify-center gap-2">
-                                    <i class="fab fa-facebook"></i>
-                                    <span>فيسبوك</span>
-                                </a>
-                            @endif
+                        <!-- Contact Grid -->
+                        <div class="mt-8">
+                             <h3 class="text-2xl font-bold mb-6 text-gray-800 flex items-center gap-3">
+                                <span class="w-8 h-1 bg-green-500 rounded-full"></span>
+                                تواصل الآن
+                            </h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                                @if($product->contact_phone)
+                                    <a href="tel:{{ $product->contact_phone }}" 
+                                       class="contact-btn bg-white border-2 border-blue-500/20 text-blue-600 px-6 py-4 rounded-[1.5rem] flex items-center gap-4 group">
+                                        <div class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all">
+                                            <i class="fas fa-phone"></i>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">إتصال هاتف</p>
+                                            <p class="font-black ltr">{{ $product->contact_phone }}</p>
+                                        </div>
+                                    </a>
+                                @endif
+
+                                @if($product->contact_whatsapp)
+                                    <a href="https://wa.me/{{ str_replace(['+', ' ', '-'], '', $product->contact_whatsapp) }}" 
+                                       target="_blank"
+                                       class="contact-btn bg-white border-2 border-green-500/20 text-green-600 px-6 py-4 rounded-[1.5rem] flex items-center gap-4 group">
+                                        <div class="w-12 h-12 bg-green-50 rounded-2xl flex items-center justify-center group-hover:bg-green-600 group-hover:text-white transition-all">
+                                            <i class="fab fa-whatsapp"></i>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">واتساب</p>
+                                            <p class="font-black">مراسلة فورية</p>
+                                        </div>
+                                    </a>
+                                @endif
+
+                                @if($product->contact_email)
+                                    <a href="mailto:{{ $product->contact_email }}" 
+                                       class="contact-btn bg-white border-2 border-indigo-500/20 text-indigo-600 px-6 py-4 rounded-[1.5rem] flex items-center gap-4 group">
+                                        <div class="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                                            <i class="fas fa-envelope"></i>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">البريد</p>
+                                            <p class="font-black">ارسل إيميل</p>
+                                        </div>
+                                    </a>
+                                @endif
+                                
+                                @if($product->contact_instagram)
+                                    <a href="https://instagram.com/{{ ltrim($product->contact_instagram, '@') }}" 
+                                       target="_blank"
+                                       class="contact-btn bg-white border-2 border-pink-500/20 text-pink-600 px-6 py-4 rounded-[1.5rem] flex items-center gap-4 group">
+                                        <div class="w-12 h-12 bg-pink-50 rounded-2xl flex items-center justify-center group-hover:bg-pink-600 group-hover:text-white transition-all">
+                                            <i class="fab fa-instagram"></i>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">إنستقرام</p>
+                                            <p class="font-black">@ {{ ltrim($product->contact_instagram, '@') }}</p>
+                                        </div>
+                                    </a>
+                                @endif
+                                
+                                @if($product->contact_facebook)
+                                    <a href="{{ $product->contact_facebook }}" 
+                                       target="_blank"
+                                       class="contact-btn bg-white border-2 border-blue-800/20 text-blue-800 px-6 py-4 rounded-[1.5rem] flex items-center gap-4 group">
+                                        <div class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center group-hover:bg-blue-800 group-hover:text-white transition-all">
+                                            <i class="fab fa-facebook-f"></i>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">فيسبوك</p>
+                                            <p class="font-black">صفحة الفيسبوك</p>
+                                        </div>
+                                    </a>
+                                @endif
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -245,38 +441,44 @@
 
         <!-- Related Products -->
         @if($relatedProducts->count() > 0)
-            <div class="mt-12 fade-in-up">
-                <h2 class="text-3xl font-bold gradient-text mb-6 text-center">منتجات مشابهة</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="mt-20 fade-in-up" style="animation-delay: 0.5s">
+                <div class="text-center mb-10">
+                    <h2 class="text-4xl font-black gradient-text mb-4">أيضاً قد يعجبك</h2>
+                    <p class="text-gray-500">منتجات مشابهة من نفس الفئة</p>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                     @foreach($relatedProducts as $related)
-                        <div class="product-card glass-effect rounded-3xl overflow-hidden">
-                            <a href="{{ route('store.show', $related) }}" class="block relative overflow-hidden">
+                        <div class="product-card glass-effect rounded-[2rem] overflow-hidden flex flex-col h-full">
+                            <a href="{{ route('store.show', $related) }}" class="block relative group overflow-hidden bg-gray-50 flex items-center justify-center aspect-square">
                                 @if($related->main_image)
                                     <img src="{{ asset('storage/' . $related->main_image) }}" 
                                          alt="{{ $related->name }}"
-                                         class="w-full h-48 object-cover transition-all duration-700 hover:scale-110">
+                                         class="max-w-full max-h-full object-contain transition-all duration-700 group-hover:scale-110">
                                 @else
-                                    <div class="w-full h-48 bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center">
-                                        <i class="fas fa-image text-white text-3xl opacity-50"></i>
+                                    <div class="w-full h-full bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center">
+                                        <i class="fas fa-image text-green-300 text-3xl opacity-50"></i>
                                     </div>
                                 @endif
-                                <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 hover:opacity-100 transition-all duration-500"></div>
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-end p-4">
+                                     <span class="bg-white/20 backdrop-blur-md text-white px-4 py-2 rounded-full text-xs border border-white/30">عرض التفاصيل</span>
+                                </div>
                             </a>
-                            <div class="p-4">
-                                <h4 class="font-bold mb-2 text-gray-800 line-clamp-2">
+                            <div class="p-6 flex flex-col flex-1">
+                                <h4 class="text-lg font-bold mb-3 text-gray-800 line-clamp-2 min-h-[3.5rem]">
                                     <a href="{{ route('store.show', $related) }}" class="hover:text-green-600 transition-colors">
-                                        {{ Str::limit($related->name, 40) }}
+                                        {{ $related->name }}
                                     </a>
                                 </h4>
-                                <div class="flex items-center justify-between">
-                                    <span class="text-lg font-bold text-green-600">
+                                <div class="mt-auto flex items-center justify-between">
+                                    <span class="text-xl font-black text-green-600">
                                         {{ number_format($related->price, 2) }} <span class="text-xs">ر.س</span>
                                     </span>
+                                    <a href="{{ route('store.show', $related) }}" 
+                                       class="w-10 h-10 bg-green-500 text-white rounded-full flex items-center justify-center hover:bg-green-600 transition-colors shadow-lg shadow-green-200">
+                                        <i class="fas fa-chevron-left text-sm"></i>
+                                    </a>
                                 </div>
-                                <a href="{{ route('store.show', $related) }}" 
-                                   class="block w-full mt-3 bg-gradient-to-r from-green-500 to-green-600 text-white text-center py-2 px-4 rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300">
-                                    <i class="fas fa-eye mr-1"></i>عرض
-                                </a>
                             </div>
                         </div>
                     @endforeach
@@ -284,6 +486,47 @@
             </div>
         @endif
     </div>
+
+    <script>
+        function showImage(src, thumbElement) {
+            const mainImg = document.getElementById('mainProductImage');
+            mainImg.style.opacity = '0';
+            
+            setTimeout(() => {
+                mainImg.src = src;
+                mainImg.style.opacity = '1';
+            }, 200);
+
+            // Update border colors
+            const thumbnails = thumbElement.parentElement.children;
+            for (let thumb of thumbnails) {
+                thumb.classList.remove('border-green-500');
+                thumb.classList.add('border-transparent');
+            }
+            thumbElement.classList.add('border-green-500');
+            thumbElement.classList.remove('border-transparent');
+        }
+
+        function openLightbox(src) {
+            const lightbox = document.getElementById('lightbox');
+            const img = document.getElementById('lightbox-img');
+            img.src = src;
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            const lightbox = document.getElementById('lightbox');
+            lightbox.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === "Escape") closeLightbox();
+        });
+    </script>
 </body>
 
 </html>
+

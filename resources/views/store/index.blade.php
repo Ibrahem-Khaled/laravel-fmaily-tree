@@ -154,8 +154,9 @@
     <div class="container mx-auto px-4 py-4 lg:py-8 relative z-10">
         <!-- Header -->
         <div class="text-center mb-8 fade-in-up">
-            <h1 class="text-4xl lg:text-5xl font-black gradient-text mb-4">
-                <i class="fas fa-store mr-3"></i>متجر الأسر المنتجة
+            <h1 class="text-4xl lg:text-5xl font-black gradient-text mb-4" style="line-height: 2em;">
+                <!-- <i class="fas fa-store mr-3"></i> -->
+                متاجر الأسر المنتجة
             </h1>
         </div>
 
@@ -289,9 +290,11 @@
                             <div class="product-card fade-in-up glass-effect rounded-3xl overflow-hidden" style="animation-delay: {{ $loop->index * 0.1 }}s">
                                 <a href="{{ route('store.show', $product) }}" class="block relative overflow-hidden">
                                     @if($product->main_image)
-                                        <img data-src="{{ asset('storage/' . $product->main_image) }}" 
-                                             alt="{{ $product->name }}"
-                                             class="lazy-image w-full h-64 object-cover transition-all duration-700 hover:scale-110">
+                                        <div class="w-full h-64 bg-gray-50 flex items-center justify-center">
+                                            <img data-src="{{ asset('storage/' . $product->main_image) }}" 
+                                                 alt="{{ $product->name }}"
+                                                 class="lazy-image max-w-full max-h-full object-contain transition-all duration-700 hover:scale-110">
+                                        </div>
                                         <div class="lazy-placeholder absolute inset-0"></div>
                                     @else
                                         <div class="w-full h-64 bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center">
@@ -358,7 +361,7 @@
                                     
                                     <a href="{{ route('store.show', $product) }}" 
                                        class="block w-full bg-gradient-to-r from-green-500 to-green-600 text-white text-center py-3 px-6 rounded-2xl hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-lg transform hover:scale-105 active:scale-95">
-                                        <i class="fas fa-eye mr-2"></i>عرض التفاصيل
+                                        <i class="fas fa-eye ml-2"></i>عرض التفاصيل
                                     </a>
                                 </div>
                             </div>
@@ -389,15 +392,21 @@
                     entries.forEach(entry => {
                         if (entry.isIntersecting) {
                             const img = entry.target;
-                            const placeholder = img.nextElementSibling;
+                            const placeholder = img.closest('.relative').querySelector('.lazy-placeholder');
                             
-                            img.src = img.dataset.src;
-                            img.onload = () => {
+                            const handleLoad = () => {
                                 img.classList.add('loaded');
                                 if (placeholder) {
                                     placeholder.style.display = 'none';
                                 }
                             };
+
+                            img.onload = handleLoad;
+                            img.src = img.dataset.src;
+                            
+                            if (img.complete) {
+                                handleLoad();
+                            }
                             
                             observer.unobserve(img);
                         }

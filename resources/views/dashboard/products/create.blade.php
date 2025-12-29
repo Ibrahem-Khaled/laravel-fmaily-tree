@@ -69,6 +69,30 @@
                             </div>
                         </div>
 
+                        <div class="row mt-3">
+                            <div class="col-md-12">
+                                <h5 class="mb-3">معرض الصور والفيديو</h5>
+                                <div class="form-group">
+                                    <label>صور إضافية للمنتج</label>
+                                    <input type="file" name="images[]" class="form-control-file" accept="image/*" multiple>
+                                    <small class="text-muted">يمكنك اختيار عدة صور معاً</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>فيديو محلي</label>
+                                    <input type="file" name="video_file" class="form-control-file" accept="video/mp4,video/mpeg,video/quicktime">
+                                    <small class="text-muted">الحد الأقصى 20 ميجابايت (mp4, mpeg, mov)</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>رابط فيديو يوتيوب</label>
+                                    <input type="url" name="youtube_url" class="form-control" placeholder="https://www.youtube.com/watch?v=...">
+                                </div>
+                            </div>
+                        </div>
+
                         <h5 class="mb-3 mt-4">الفئات</h5>
 
                         <div class="row">

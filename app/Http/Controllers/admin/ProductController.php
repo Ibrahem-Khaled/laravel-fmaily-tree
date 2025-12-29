@@ -8,6 +8,7 @@ use App\Models\ProductCategory;
 use App\Models\ProductSubcategory;
 use App\Models\Person;
 use App\Models\Location;
+use App\Models\ProductMedia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -86,9 +87,11 @@ class ProductController extends Controller
             'main_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'product_category_id' => 'required|exists:product_categories,id',
             'product_subcategory_id' => 'nullable|exists:product_subcategories,id',
-            'owner_id' => 'nullable|exists:persons,id',
             'location_id' => 'nullable|exists:locations,id',
             'is_active' => 'boolean',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'video_file' => 'nullable|mimetypes:video/mp4,video/mpeg,video/quicktime|max:20480',
+            'youtube_url' => 'nullable|url',
         ]);
 
         $data = $request->only([
@@ -117,7 +120,35 @@ class ProductController extends Controller
         $data['is_active'] = $request->input('is_active', 0) == 1;
         $data['is_rental'] = $request->input('is_rental', 0) == 1;
 
-        Product::create($data);
+        $product = Product::create($data);
+
+        // معالجة الصور الإضافية
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $path = $image->store('products/gallery', 'public');
+                $product->media()->create([
+                    'media_type' => 'image',
+                    'file_path' => $path,
+                ]);
+            }
+        }
+
+        // معالجة الفيديو المحلي
+        if ($request->hasFile('video_file')) {
+            $path = $request->file('video_file')->store('products/videos', 'public');
+            $product->media()->create([
+                'media_type' => 'video',
+                'file_path' => $path,
+            ]);
+        }
+
+        // معالجة يوتيوب
+        if ($request->filled('youtube_url')) {
+            $product->media()->create([
+                'media_type' => 'youtube',
+                'youtube_url' => $request->youtube_url,
+            ]);
+        }
 
         return redirect()->route('products.index')
             ->with('success', 'تم إضافة المنتج بنجاح');
@@ -158,6 +189,11 @@ class ProductController extends Controller
             'location_id' => 'nullable|exists:locations,id',
             'is_active' => 'boolean',
             'is_rental' => 'boolean',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'video_file' => 'nullable|mimetypes:video/mp4,video/mpeg,video/quicktime|max:20480',
+            'youtube_url' => 'nullable|url',
+            'delete_media' => 'nullable|array',
+            'delete_media.*' => 'exists:product_media,id',
         ]);
 
         $data = $request->only([
@@ -200,6 +236,48 @@ class ProductController extends Controller
         }
 
         $product->update($data);
+
+        // حذف الوسائط المختارة
+        if ($request->has('delete_media')) {
+            ProductMedia::whereIn('id', $request->delete_media)->where('product_id', $product->id)->each(function($media) {
+                $media->delete();
+            });
+        }
+
+        // إضافة صور جديدة
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $path = $image->store('products/gallery', 'public');
+                $product->media()->create([
+                    'media_type' => 'image',
+                    'file_path' => $path,
+                ]);
+            }
+        }
+
+        // معالجة الفيديو (تحديث أو إضافة)
+        if ($request->hasFile('video_file')) {
+            // حذف الفيديو القديم إذا كان موجوداً
+            $product->media()->where('media_type', 'video')->delete();
+            
+            $path = $request->file('video_file')->store('products/videos', 'public');
+            $product->media()->create([
+                'media_type' => 'video',
+                'file_path' => $path,
+            ]);
+        }
+
+        // معالجة يوتيوب (تحديث أو إضافة)
+        if ($request->filled('youtube_url')) {
+            // تحديث الرابط إذا كان موجوداً أو إنشاء جديد
+            $product->media()->updateOrCreate(
+                ['product_id' => $product->id, 'media_type' => 'youtube'],
+                ['youtube_url' => $request->youtube_url]
+            );
+        } elseif ($request->has('youtube_url') && empty($request->youtube_url)) {
+            // إذا تم مسح الرابط، احذفه من قاعدة البيانات
+            $product->media()->where('media_type', 'youtube')->delete();
+        }
 
         return redirect()->route('products.index')
             ->with('success', 'تم تحديث المنتج بنجاح');

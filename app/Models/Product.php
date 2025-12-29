@@ -58,6 +58,11 @@ class Product extends BaseModel
         return $this->belongsTo(Location::class);
     }
 
+    public function media(): HasMany
+    {
+        return $this->hasMany(ProductMedia::class)->orderBy('sort_order');
+    }
+
     public function rentalRequests(): HasMany
     {
         return $this->hasMany(RentalRequest::class);
