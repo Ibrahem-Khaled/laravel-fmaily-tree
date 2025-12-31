@@ -233,6 +233,38 @@
                 <div class="mt-4 text-center">
                     <p class="text-xs text-gray-500 italic"><i class="fas fa-info-circle ml-1"></i>انقر على الصورة للتكبير</p>
                 </div>
+
+                <!-- Video Section -->
+                @php 
+                    $video = $product->media->where('media_type', 'video')->first();
+                    $youtube = $product->media->where('media_type', 'youtube')->first();
+                @endphp
+
+                @if($video || $youtube)
+                    <div class="mt-6">
+                        <h3 class="text-lg font-bold mb-4 text-gray-800 flex items-center gap-2">
+                            <span class="w-6 h-0.5 bg-green-500 rounded-full"></span>
+                            فيديو توضيحي
+                        </h3>
+                        <div class="glass-effect rounded-3xl overflow-hidden shadow-lg border border-white/50 bg-black/5 aspect-video flex items-center justify-center">
+                            @if($video)
+                                <video controls class="w-full h-full object-contain bg-black">
+                                    <source src="{{ asset('storage/' . $video->file_path) }}" type="video/mp4">
+                                    المتصفح لا يدعم تشغيل الفيديو.
+                                </video>
+                            @elseif($youtube)
+                                @php 
+                                    $videoId = $youtube->extractVideoId($youtube->youtube_url);
+                                @endphp
+                                @if($videoId)
+                                    <iframe class="w-full h-full" src="https://www.youtube.com/embed/{{ $videoId }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                @else
+                                    <a href="{{ $youtube->youtube_url }}" target="_blank" class="text-green-600 font-bold underline">مشاهدة الفيديو على يوتيوب</a>
+                                @endif
+                            @endif
+                        </div>
+                    </div>
+                @endif
             </div>
 
             <!-- Right: Product Details -->
@@ -322,38 +354,6 @@
                                             </div>
                                         @endif
                                     @endforeach
-                                </div>
-                            </div>
-                        @endif
-
-                        <!-- Video Section -->
-                        @php 
-                            $video = $product->media->where('media_type', 'video')->first();
-                            $youtube = $product->media->where('media_type', 'youtube')->first();
-                        @endphp
-
-                        @if($video || $youtube)
-                            <div class="mb-10 lg:pr-10">
-                                <h3 class="text-2xl font-bold mb-6 text-gray-800 flex items-center gap-3">
-                                    <span class="w-8 h-1 bg-green-500 rounded-full"></span>
-                                    فيديو توضيحي
-                                </h3>
-                                <div class="glass-effect rounded-3xl overflow-hidden shadow-lg border border-white/50 bg-black/5 aspect-video flex items-center justify-center">
-                                    @if($video)
-                                        <video controls class="w-full h-full object-contain bg-black">
-                                            <source src="{{ asset('storage/' . $video->file_path) }}" type="video/mp4">
-                                            المتصفح لا يدعم تشغيل الفيديو.
-                                        </video>
-                                    @elseif($youtube)
-                                        @php 
-                                            $videoId = $youtube->extractVideoId($youtube->youtube_url);
-                                        @endphp
-                                        @if($videoId)
-                                            <iframe class="w-full h-full" src="https://www.youtube.com/embed/{{ $videoId }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                                        @else
-                                            <a href="{{ $youtube->youtube_url }}" target="_blank" class="text-green-600 font-bold underline">مشاهدة الفيديو على يوتيوب</a>
-                                        @endif
-                                    @endif
                                 </div>
                             </div>
                         @endif

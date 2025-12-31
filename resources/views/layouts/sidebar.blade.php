@@ -89,13 +89,18 @@
             <i class="fas fa-fw fa-home"></i>
             <span>الصفحة الرئيسية</span>
         </a>
-        <div id="collapseHome" class="collapse {{ request()->routeIs(['dashboard.site-content.*', 'dashboard.slideshow.*', 'dashboard.home-gallery.*', 'dashboard.courses.*', 'dashboard.programs.*', 'dashboard.proud-of.*', 'dashboard.councils.*', 'dashboard.events.*', 'dashboard.family-news.*']) ? 'show' : '' }}"
+        <div id="collapseHome" class="collapse {{ request()->routeIs(['dashboard.site-content.*', 'dashboard.home-sections.*', 'dashboard.slideshow.*', 'dashboard.home-gallery.*', 'dashboard.courses.*', 'dashboard.programs.*', 'dashboard.proud-of.*', 'dashboard.councils.*', 'dashboard.events.*', 'dashboard.family-news.*']) ? 'show' : '' }}"
              aria-labelledby="headingHome" data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">إدارة الصفحة الرئيسية:</h6>
                 @can('site-content.view')
                 <a class="collapse-item {{ request()->routeIs('dashboard.site-content.*') ? 'active' : '' }}" href="{{ route('dashboard.site-content.index') }}">
                     <i class="fas fa-fw fa-file-alt"></i> محتوى الصفحة
+                </a>
+                @endcan
+                @can('site-content.view')
+                <a class="collapse-item {{ request()->routeIs('dashboard.home-sections.*') ? 'active' : '' }}" href="{{ route('dashboard.home-sections.index') }}">
+                    <i class="fas fa-fw fa-th-large"></i> الأقسام الديناميكية
                 </a>
                 @endcan
                 @can('slideshow.view')

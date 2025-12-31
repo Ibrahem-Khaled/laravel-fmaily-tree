@@ -6,6 +6,7 @@ use App\Models\Image;
 use App\Models\SiteContent;
 use App\Models\SlideshowImage;
 use App\Models\HomeGalleryImage;
+use App\Models\HomeSection;
 use App\Models\Course;
 use App\Models\FamilyCouncil;
 use App\Models\FamilyEvent;
@@ -56,11 +57,19 @@ class HomeController extends Controller
                 ->get();
         }
 
-        // جلب نبذة العائلة
-        $familyBrief = SiteContent::getContent('family_brief', 'نبذة عن عائلة السريع');
+        // جلب نبذة العائلة (يظهر فقط إذا كان هناك محتوى و is_active = true)
+        $familyBriefContent = SiteContent::where('key', 'family_brief')
+            ->where('is_active', true)
+            ->first();
+        $familyBrief = $familyBriefContent && !empty(trim($familyBriefContent->content)) 
+            ? $familyBriefContent->content 
+            : null;
 
         // جلب قسم ما الجديد
         $whatsNew = SiteContent::getContent('whats_new', 'آخر أخبار عائلة السريع');
+
+        // جلب الأقسام الديناميكية
+        $dynamicSections = HomeSection::getActiveSections();
 
         // جلب الدورات
         // إذا كان المستخدم مسجل دخول، اجلب جميع الدورات (المفعلة وغير المفعلة)
@@ -274,6 +283,7 @@ class HomeController extends Controller
             'phdTotalCount' => $phdTotalCount,
             'importantLinks' => $importantLinks,
             'familyNews' => $familyNews,
+            'dynamicSections' => $dynamicSections,
         ]);
     }
 }

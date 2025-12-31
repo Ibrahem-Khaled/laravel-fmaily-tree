@@ -16,28 +16,33 @@ class ProductStoreController extends Controller
         $personId = $request->query('person');
         $search = $request->query('search');
 
-        $query = Product::with(['category', 'subcategory', 'owner', 'location'])->active()->notRental();
+        // لا تظهر المنتجات إلا عند اختيار فئة أو شخص أو بحث
+        if (!$categoryId && !$subcategoryId && !$personId && !$search) {
+            $products = Product::whereRaw('1 = 0')->paginate(12); // Empty result
+        } else {
+            $query = Product::with(['category', 'subcategory', 'owner', 'location'])->active()->notRental();
 
-        if ($categoryId) {
-            $query->where('product_category_id', $categoryId);
+            if ($categoryId) {
+                $query->where('product_category_id', $categoryId);
+            }
+
+            if ($subcategoryId) {
+                $query->where('product_subcategory_id', $subcategoryId);
+            }
+
+            if ($personId) {
+                $query->where('owner_id', $personId);
+            }
+
+            if ($search) {
+                $query->where(function($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('description', 'like', "%{$search}%");
+                });
+            }
+
+            $products = $query->ordered()->paginate(12)->appends($request->query());
         }
-
-        if ($subcategoryId) {
-            $query->where('product_subcategory_id', $subcategoryId);
-        }
-
-        if ($personId) {
-            $query->where('owner_id', $personId);
-        }
-
-        if ($search) {
-            $query->where(function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
-            });
-        }
-
-        $products = $query->ordered()->paginate(12)->appends($request->query());
         $categories = ProductCategory::active()->withCount(['products' => function($q) {
             $q->active()->notRental();
         }])->ordered()->get();

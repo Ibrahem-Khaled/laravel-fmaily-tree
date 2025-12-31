@@ -7,7 +7,7 @@
     <title>متجر الأسر المنتجة</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
@@ -174,7 +174,7 @@
 
                         <ul class="space-y-2">
                             <!-- <li>
-                                <a href="{{ route('store.index', array_filter(['person' => $personId, 'search' => $search])) }}" 
+                                <a href="{{ route('store.index', array_filter(['person' => $personId, 'search' => $search])) }}"
                                    class="category-item block px-4 py-3 rounded-2xl transition-all duration-300 font-medium {{ !$categoryId ? 'active' : 'bg-white/70 hover:bg-green-50' }}">
                                     <span class="flex items-center justify-between">
                                         <span><i class="fas fa-th ml-2"></i>جميع المنتجات</span>
@@ -183,7 +183,7 @@
                             </li> -->
                             @foreach($categories as $category)
                                 <li>
-                                    <a href="{{ route('store.index', array_filter(['category' => $category->id, 'person' => $personId, 'search' => $search])) }}" 
+                                    <a href="{{ route('store.index', array_filter(['category' => $category->id, 'person' => $personId, 'search' => $search])) }}"
                                        class="category-item block px-4 py-3 rounded-2xl transition-all duration-300 font-medium {{ $categoryId == $category->id ? 'active' : 'bg-white/70 hover:bg-green-50' }}">
                                         <span class="flex items-center justify-between">
                                             <span><i class="fas fa-folder ml-2"></i>{{ $category->name }}</span>
@@ -206,7 +206,7 @@
 
                         <ul class="space-y-2">
                             <li>
-                                <a href="{{ route('store.index', array_filter(['category' => $categoryId, 'search' => $search])) }}" 
+                                <a href="{{ route('store.index', array_filter(['category' => $categoryId, 'search' => $search])) }}"
                                    class="category-item block px-4 py-3 rounded-2xl transition-all duration-300 font-medium {{ !$personId ? 'active' : 'bg-white/70 hover:bg-green-50' }}">
                                     <span class="flex items-center justify-between">
                                         <span><i class="fas fa-user-friends mr-2"></i>جميع الأشخاص</span>
@@ -215,7 +215,7 @@
                             </li>
                             @foreach($productOwners as $owner)
                                 <li>
-                                    <a href="{{ route('store.index', array_filter(['person' => $owner->id, 'category' => $categoryId, 'search' => $search])) }}" 
+                                    <a href="{{ route('store.index', array_filter(['person' => $owner->id, 'category' => $categoryId, 'search' => $search])) }}"
                                        class="category-item block px-4 py-3 rounded-2xl transition-all duration-300 font-medium {{ $personId == $owner->id ? 'active' : 'bg-white/70 hover:bg-green-50' }}">
                                         <span class="flex items-center justify-between">
                                             <span><i class="fas fa-user mr-2"></i>{{ $owner->full_name }}</span>
@@ -233,7 +233,7 @@
             <!-- Products Section -->
             <main class="w-full lg:w-3/4">
                 <!-- Search Bar -->
-                <div class="glass-effect p-6 rounded-3xl mb-6 fade-in-up">
+                {{-- <div class="glass-effect p-6 rounded-3xl mb-6 fade-in-up">
                     <form method="GET" action="{{ route('store.index') }}" class="flex gap-3">
                         @if($categoryId)
                             <input type="hidden" name="category" value="{{ $categoryId }}">
@@ -241,15 +241,15 @@
                         @if($personId)
                             <input type="hidden" name="person" value="{{ $personId }}">
                         @endif
-                        <input type="text" name="search" 
+                        <input type="text" name="search"
                                class="flex-1 px-6 py-4 rounded-2xl border-2 border-green-200 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-300 transition-all"
                                placeholder="ابحث عن منتج..." value="{{ $search }}">
-                        <button type="submit" 
+                        <button type="submit"
                                 class="bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-4 rounded-2xl hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-lg transform hover:scale-105 active:scale-95">
                             <i class="fas fa-search"></i>
                         </button>
                     </form>
-                </div>
+                </div> --}}
 
                 <!-- Active Filters -->
                 @if($categoryId || $personId)
@@ -291,7 +291,7 @@
                                 <a href="{{ route('store.show', $product) }}" class="block relative overflow-hidden">
                                     @if($product->main_image)
                                         <div class="w-full h-64 bg-gray-50 flex items-center justify-center">
-                                            <img data-src="{{ asset('storage/' . $product->main_image) }}" 
+                                            <img data-src="{{ asset('storage/' . $product->main_image) }}"
                                                  alt="{{ $product->name }}"
                                                  class="lazy-image max-w-full max-h-full object-contain transition-all duration-700 hover:scale-110">
                                         </div>
@@ -313,7 +313,7 @@
                                         </div>
                                     </div>
                                 </a>
-                                
+
                                 <div class="p-6">
                                     <div class="flex gap-2 mb-3">
                                         @if($product->category)
@@ -323,13 +323,13 @@
                                             <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs">{{ $product->subcategory->name }}</span>
                                         @endif
                                     </div>
-                                    
+
                                     <h3 class="text-xl font-bold mb-2 text-gray-800 line-clamp-2">
                                         <a href="{{ route('store.show', $product) }}" class="hover:text-green-600 transition-colors">
                                             {{ $product->name }}
                                         </a>
                                     </h3>
-                                    
+
                                     @if($product->owner || $product->location)
                                         <div class="flex flex-wrap gap-2 mb-2 text-xs text-gray-600">
                                             @if($product->owner)
@@ -346,20 +346,20 @@
                                             @endif
                                         </div>
                                     @endif
-                                    
+
                                     @if($product->description)
                                         <p class="text-gray-600 text-sm mb-4 line-clamp-2">
                                             {{ Str::limit($product->description, 80) }}
                                         </p>
                                     @endif
-                                    
+
                                     <div class="flex items-center justify-between mb-4">
                                         <span class="text-2xl font-black text-green-600">
                                             {{ number_format($product->price, 2) }} <span class="text-sm">ر.س</span>
                                         </span>
                                     </div>
-                                    
-                                    <a href="{{ route('store.show', $product) }}" 
+
+                                    <a href="{{ route('store.show', $product) }}"
                                        class="block w-full bg-gradient-to-r from-green-500 to-green-600 text-white text-center py-3 px-6 rounded-2xl hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-lg transform hover:scale-105 active:scale-95">
                                         <i class="fas fa-eye ml-2"></i>عرض التفاصيل
                                     </a>
@@ -367,7 +367,7 @@
                             </div>
                         @endforeach
                     </div>
-                    
+
                     <div class="mt-8 flex justify-center">
                         {{ $products->links() }}
                     </div>
@@ -386,14 +386,14 @@
         // Lazy Loading
         document.addEventListener('DOMContentLoaded', function() {
             const lazyImages = document.querySelectorAll('.lazy-image');
-            
+
             if ('IntersectionObserver' in window) {
                 const imageObserver = new IntersectionObserver((entries, observer) => {
                     entries.forEach(entry => {
                         if (entry.isIntersecting) {
                             const img = entry.target;
                             const placeholder = img.closest('.relative').querySelector('.lazy-placeholder');
-                            
+
                             const handleLoad = () => {
                                 img.classList.add('loaded');
                                 if (placeholder) {
@@ -403,11 +403,11 @@
 
                             img.onload = handleLoad;
                             img.src = img.dataset.src;
-                            
+
                             if (img.complete) {
                                 handleLoad();
                             }
-                            
+
                             observer.unobserve(img);
                         }
                     });
@@ -415,7 +415,7 @@
                     rootMargin: '100px 0px',
                     threshold: 0.01
                 });
-                
+
                 lazyImages.forEach(img => imageObserver.observe(img));
             } else {
                 lazyImages.forEach(img => {

@@ -443,7 +443,161 @@
         @endif
     </section>
 
+    {{-- Family Brief Section --}}
+    @if ($familyBrief)
+        <section class="py-6 md:py-8 lg:py-10 bg-white relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-48 h-48 bg-green-100 rounded-full blur-3xl opacity-20"></div>
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
+                <div class="text-right mb-6 md:mb-8">
+                    <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">
+                        نبذة عن العائلة
+                    </h2>
+                </div>
+                <div class="glass-card rounded-2xl p-4 md:p-6 lg:p-8 shadow-lg">
+                    <div class="text-gray-700 text-sm md:text-base leading-relaxed whitespace-pre-line">
+                        {!! nl2br(e($familyBrief)) !!}
+                    </div>
+                </div>
+            </div>
+        </section>
+    @endif
 
+    {{-- Dynamic Sections --}}
+    @if (isset($dynamicSections) && $dynamicSections->count() > 0)
+        @foreach ($dynamicSections as $section)
+            <section class="py-6 md:py-8 lg:py-10 {{ $section->css_classes ?? 'bg-white' }} relative overflow-hidden">
+                <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
+                    @if ($section->title)
+                        <div class="text-right mb-6 md:mb-8">
+                            <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">
+                                {{ $section->title }}
+                            </h2>
+                        </div>
+                    @endif
+
+                    <div class="dynamic-section-content">
+                        @if ($section->section_type === 'gallery' && $section->items->count() > 0)
+                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
+                                @foreach ($section->items as $item)
+                                    @if ($item->item_type === 'image' && $item->image_url)
+                                        <div class="relative group overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300">
+                                            <img src="{{ $item->image_url }}" alt="Gallery Image" 
+                                                 class="w-full h-32 md:h-40 lg:h-48 object-cover transition-transform duration-500 group-hover:scale-110">
+                                        </div>
+                                    @endif
+                                @endforeach
+                            </div>
+                        @elseif ($section->section_type === 'text' && $section->items->count() > 0)
+                            @foreach ($section->items as $item)
+                                @if ($item->item_type === 'text' && isset($item->content['text']))
+                                    <div class="glass-card rounded-2xl p-4 md:p-6 shadow-lg mb-4">
+                                        <div class="text-gray-700 text-sm md:text-base leading-relaxed whitespace-pre-line">
+                                            {!! nl2br(e($item->content['text'])) !!}
+                                        </div>
+                                    </div>
+                                @endif
+                            @endforeach
+                        @elseif ($section->section_type === 'video_section' && $section->items->count() > 0)
+                            @foreach ($section->items as $item)
+                                @if ($item->item_type === 'video')
+                                    <div class="w-full mb-4">
+                                        @if ($item->youtube_url)
+                                            @php
+                                                // Extract YouTube video ID
+                                                preg_match('/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/', $item->youtube_url, $matches);
+                                                $videoId = $matches[1] ?? null;
+                                            @endphp
+                                            @if ($videoId)
+                                                <div class="relative w-full" style="padding-bottom: 56.25%;">
+                                                    <iframe class="absolute top-0 left-0 w-full h-full rounded-lg" 
+                                                            src="https://www.youtube.com/embed/{{ $videoId }}" 
+                                                            frameborder="0" 
+                                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                                            allowfullscreen></iframe>
+                                                </div>
+                                            @endif
+                                        @elseif ($item->video_url)
+                                            <video controls class="w-full rounded-lg" style="max-height: 500px;">
+                                                <source src="{{ $item->video_url }}" type="video/mp4">
+                                                Your browser does not support the video tag.
+                                            </video>
+                                        @endif
+                                    </div>
+                                @endif
+                            @endforeach
+                        @elseif ($section->section_type === 'text_with_image' && $section->items->count() > 0)
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                                @foreach ($section->items as $item)
+                                    @if ($item->item_type === 'text' && isset($item->content['text']))
+                                        <div class="glass-card rounded-2xl p-4 md:p-6 shadow-lg">
+                                            <div class="text-gray-700 text-sm md:text-base leading-relaxed whitespace-pre-line">
+                                                {!! nl2br(e($item->content['text'])) !!}
+                                            </div>
+                                        </div>
+                                    @elseif ($item->item_type === 'image' && $item->image_url)
+                                        <div class="relative overflow-hidden rounded-2xl shadow-lg">
+                                            <img src="{{ $item->image_url }}" alt="Section Image" 
+                                                 class="w-full h-full object-cover">
+                                        </div>
+                                    @endif
+                                @endforeach
+                            </div>
+                        @elseif ($section->section_type === 'buttons' && $section->items->count() > 0)
+                            <div class="flex flex-wrap gap-3 md:gap-4 justify-center">
+                                @foreach ($section->items as $item)
+                                    @if ($item->item_type === 'button' && isset($item->content['text']) && isset($item->content['url']))
+                                        <a href="{{ $item->content['url'] }}" 
+                                           target="{{ $item->content['target'] ?? '_self' }}"
+                                           class="px-6 py-3 gradient-primary text-white rounded-lg font-semibold hover:shadow-lg transition-all">
+                                            {{ $item->content['text'] }}
+                                        </a>
+                                    @endif
+                                @endforeach
+                            </div>
+                        @elseif ($section->section_type === 'mixed' || $section->section_type === 'custom')
+                            <div class="space-y-4">
+                                @foreach ($section->items as $item)
+                                    @if ($item->item_type === 'text' && isset($item->content['text']))
+                                        <div class="glass-card rounded-2xl p-4 md:p-6 shadow-lg">
+                                            <div class="text-gray-700 text-sm md:text-base leading-relaxed whitespace-pre-line">
+                                                {!! nl2br(e($item->content['text'])) !!}
+                                            </div>
+                                        </div>
+                                    @elseif ($item->item_type === 'image' && $item->image_url)
+                                        <div class="relative overflow-hidden rounded-2xl shadow-lg">
+                                            <img src="{{ $item->image_url }}" alt="Section Image" 
+                                                 class="w-full h-auto object-cover">
+                                        </div>
+                                    @elseif ($item->item_type === 'video')
+                                        @if ($item->youtube_url)
+                                            @php
+                                                preg_match('/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/', $item->youtube_url, $matches);
+                                                $videoId = $matches[1] ?? null;
+                                            @endphp
+                                            @if ($videoId)
+                                                <div class="relative w-full" style="padding-bottom: 56.25%;">
+                                                    <iframe class="absolute top-0 left-0 w-full h-full rounded-lg" 
+                                                            src="https://www.youtube.com/embed/{{ $videoId }}" 
+                                                            frameborder="0" 
+                                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                                            allowfullscreen></iframe>
+                                                </div>
+                                            @endif
+                                        @elseif ($item->video_url)
+                                            <video controls class="w-full rounded-lg" style="max-height: 500px;">
+                                                <source src="{{ $item->video_url }}" type="video/mp4">
+                                                Your browser does not support the video tag.
+                                            </video>
+                                        @endif
+                                    @endif
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </section>
+        @endforeach
+    @endif
 
     {{-- Born Today Section --}}
     {{-- @if ($birthdayPersons && $birthdayPersons->count() > 0)
