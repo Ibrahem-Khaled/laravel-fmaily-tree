@@ -10,187 +10,906 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Changa:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        orange: {
+                            50: '#fff7ed',
+                            100: '#ffedd5',
+                            200: '#fed7aa',
+                            300: '#fdba74',
+                            400: '#fb923c',
+                            500: '#f97316',
+                            600: '#ea580c',
+                            700: '#c2410c',
+                            800: '#9a3412',
+                            900: '#7c2d12',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
 
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Tajawal', sans-serif;
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 50%, #fcd34d 100%);
+            font-family: 'Changa', 'Tajawal', sans-serif;
+            background: #fffbf5;
             min-height: 100vh;
+            overflow-x: hidden;
+            color: #1f2937;
         }
 
-        h1, h2, h3 {
-            font-family: 'Amiri', serif;
+        /* الخلفية المتحركة - النسخة الفاتحة */
+        .animated-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background:
+                radial-gradient(circle at 20% 80%, rgba(249, 115, 22, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(251, 146, 60, 0.06) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(253, 186, 116, 0.05) 0%, transparent 40%),
+                linear-gradient(180deg, #fff7ed 0%, #ffedd5 50%, #fffbf5 100%);
         }
 
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+        .floating-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            animation: float 20s ease-in-out infinite;
         }
 
-        .orange-glow {
-            box-shadow: 0 0 40px rgba(251, 146, 60, 0.3);
+        .orb-1 {
+            width: 500px;
+            height: 500px;
+            background: rgba(249, 115, 22, 0.08);
+            top: 5%;
+            right: 5%;
+            animation-delay: 0s;
         }
 
-        .gradient-text {
-            background: linear-gradient(135deg, #f59e0b 0%, #f97316 50%, #ea580c 100%);
+        .orb-2 {
+            width: 400px;
+            height: 400px;
+            background: rgba(251, 146, 60, 0.06);
+            bottom: 15%;
+            left: 10%;
+            animation-delay: -7s;
+        }
+
+        .orb-3 {
+            width: 350px;
+            height: 350px;
+            background: rgba(253, 186, 116, 0.07);
+            top: 45%;
+            left: 45%;
+            animation-delay: -14s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(30px, -30px) scale(1.05); }
+            50% { transform: translate(-20px, 20px) scale(0.95); }
+            75% { transform: translate(20px, 10px) scale(1.02); }
+        }
+
+        /* شبكة الخطوط */
+        .grid-pattern {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            background-image:
+                linear-gradient(rgba(249, 115, 22, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(249, 115, 22, 0.04) 1px, transparent 1px);
+            background-size: 50px 50px;
+            mask-image: radial-gradient(ellipse at center, black 20%, transparent 70%);
+        }
+
+        /* العنوان الرئيسي */
+        .main-title {
+            font-family: 'Changa', sans-serif;
+            font-weight: 800;
+            background: linear-gradient(135deg, #c2410c 0%, #ea580c 30%, #f97316 50%, #ea580c 70%, #c2410c 100%);
+            background-size: 200% auto;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            animation: shimmer 4s linear infinite;
         }
 
+        @keyframes shimmer {
+            0% { background-position: 200% center; }
+            100% { background-position: -200% center; }
+        }
+
+        /* بطاقات الفئات */
+        .category-card {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            background: white;
+            border: 1px solid rgba(249, 115, 22, 0.15);
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            cursor: pointer;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+        }
+
+        .category-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.05) 0%, transparent 50%, rgba(249, 115, 22, 0.03) 100%);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            z-index: 1;
+        }
+
+        .category-card:hover::before {
+            opacity: 1;
+        }
+
+        .category-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: rgba(249, 115, 22, 0.4);
+            box-shadow:
+                0 25px 50px -12px rgba(249, 115, 22, 0.2),
+                0 0 0 1px rgba(249, 115, 22, 0.1);
+        }
+
+        .category-card.active {
+            border-color: #f97316;
+            background: linear-gradient(145deg, rgba(249, 115, 22, 0.08) 0%, rgba(255, 255, 255, 1) 100%);
+            box-shadow:
+                0 10px 40px rgba(249, 115, 22, 0.2),
+                inset 0 0 0 2px rgba(249, 115, 22, 0.2);
+        }
+
+        .category-image-wrapper {
+            position: relative;
+            height: 100px;
+            overflow: hidden;
+        }
+
+        .category-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.7s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .category-card:hover .category-image {
+            transform: scale(1.1);
+        }
+
+        .category-image-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, transparent 30%, rgba(255, 255, 255, 0.9) 100%);
+        }
+
+        .category-placeholder {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #ffedd5 0%, #fed7aa 50%, #fdba74 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .category-placeholder i {
+            font-size: 2rem;
+            color: rgba(234, 88, 12, 0.4);
+        }
+
+        .category-content {
+            padding: 0.65rem 0.75rem;
+            position: relative;
+            z-index: 2;
+            background: white;
+        }
+
+        .category-card.active .category-content {
+            background: transparent;
+        }
+
+        .category-name {
+            font-family: 'Changa', sans-serif;
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: #9a3412;
+            margin-bottom: 0.25rem;
+            transition: color 0.3s ease;
+            line-height: 1.4;
+        }
+
+        .category-card:hover .category-name {
+            color: #ea580c;
+        }
+
+        .category-description {
+            font-size: 0.7rem;
+            color: #6b7280;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 0.15rem;
+        }
+
+        .category-count {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.6rem;
+            background: linear-gradient(135deg, #fff7ed, #ffedd5);
+            border: 1px solid rgba(249, 115, 22, 0.2);
+            border-radius: 16px;
+            font-size: 0.65rem;
+            color: #ea580c;
+            font-weight: 600;
+            margin-top: 0.35rem;
+        }
+
+        .category-card.active .category-count {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: white;
+            border-color: transparent;
+        }
+
+        /* بطاقات المنتجات */
         .product-card {
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            border-radius: 24px;
+            overflow: hidden;
+            background: white;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+        }
+
+        .product-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(249, 115, 22, 0.08), transparent);
+            transition: left 0.7s ease;
+            z-index: 1;
+        }
+
+        .product-card:hover::before {
+            left: 100%;
+        }
+
+        .product-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(249, 115, 22, 0.3);
+            box-shadow:
+                0 30px 60px -15px rgba(249, 115, 22, 0.15),
+                0 0 0 1px rgba(249, 115, 22, 0.1);
+        }
+
+        .product-image-wrapper {
+            position: relative;
+            height: 220px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 1rem;
+            transition: transform 0.7s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .product-card:hover .product-image {
+            transform: scale(1.08);
+        }
+
+        .product-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, transparent 60%, rgba(255, 255, 255, 0.95) 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .product-card:hover .product-overlay {
+            opacity: 1;
+        }
+
+        .product-content {
+            padding: 1.5rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .product-category-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.4rem 0.85rem;
+            background: linear-gradient(135deg, #fff7ed, #ffedd5);
+            border: 1px solid rgba(249, 115, 22, 0.15);
+            border-radius: 20px;
+            font-size: 0.7rem;
+            color: #ea580c;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .product-name {
+            font-family: 'Changa', sans-serif;
+            font-weight: 600;
+            font-size: 1.15rem;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            transition: color 0.3s ease;
+        }
+
+        .product-card:hover .product-name {
+            color: #ea580c;
+        }
+
+        .product-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        .product-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .product-meta-item i {
+            color: #f97316;
+        }
+
+        .product-description {
+            font-size: 0.85rem;
+            color: #9ca3af;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* زر طلب الاستعارة */
+        .rental-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+            padding: 0.875rem 1.5rem;
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            border: none;
+            border-radius: 14px;
+            color: white;
+            font-family: 'Changa', sans-serif;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
             position: relative;
             overflow: hidden;
         }
 
-        .product-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 20px 40px rgba(251, 146, 60, 0.4);
+        .rental-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
         }
 
-        .category-item {
+        .rental-btn:hover::before {
+            opacity: 1;
+        }
+
+        .rental-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px -5px rgba(249, 115, 22, 0.4);
+        }
+
+        .rental-btn span,
+        .rental-btn i {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* الفلاتر النشطة */
+        .active-filter {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, #fff7ed, #ffedd5);
+            border: 1px solid rgba(249, 115, 22, 0.25);
+            border-radius: 30px;
+            color: #ea580c;
+            font-size: 0.85rem;
+            font-weight: 500;
             transition: all 0.3s ease;
         }
 
-        .category-item:hover {
-            transform: translateX(-5px);
-            background: rgba(251, 146, 60, 0.1);
+        .active-filter:hover {
+            background: linear-gradient(135deg, #ffedd5, #fed7aa);
         }
 
-        .category-item.active {
-            background: linear-gradient(135deg, #f97316, #ea580c);
+        .active-filter .remove-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            background: rgba(234, 88, 12, 0.15);
+            border-radius: 50%;
+            color: #ea580c;
+            transition: all 0.3s ease;
+        }
+
+        .active-filter .remove-btn:hover {
+            background: #ef4444;
             color: white;
-            box-shadow: 0 4px 12px rgba(251, 146, 60, 0.3);
         }
 
-        .fade-in-up {
-            animation: fadeInUp 0.6s ease-out;
+        /* رسالة لا توجد منتجات */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
         }
 
-        @keyframes fadeInUp {
+        .empty-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 2rem;
+            background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+            border: 2px solid rgba(249, 115, 22, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .empty-icon i {
+            font-size: 3rem;
+            color: #f97316;
+        }
+
+        /* التمرير */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #fff7ed;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #f97316, #ea580c);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #ea580c, #c2410c);
+        }
+
+        /* الأنيميشن */
+        .fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(30px);
+                transform: translateY(20px);
             }
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
+
+        .stagger-1 { animation-delay: 0.1s; }
+        .stagger-2 { animation-delay: 0.2s; }
+        .stagger-3 { animation-delay: 0.3s; }
+        .stagger-4 { animation-delay: 0.4s; }
+        .stagger-5 { animation-delay: 0.5s; }
+        .stagger-6 { animation-delay: 0.6s; }
+
+        /* Lazy loading */
+        .lazy-image {
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .lazy-image.loaded {
+            opacity: 1;
+        }
+
+        .lazy-placeholder {
+            background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+            background-size: 200% 100%;
+            animation: shimmerLoading 1.5s infinite;
+        }
+
+        @keyframes shimmerLoading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Section titles */
+        .section-title {
+            font-family: 'Changa', sans-serif;
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: #9a3412;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: linear-gradient(180deg, #f97316, #ea580c);
+            border-radius: 2px;
+        }
+
+        /* رسالة الترحيب */
+        .welcome-message {
+            text-align: center;
+            padding: 3rem;
+            background: white;
+            border: 1px solid rgba(249, 115, 22, 0.15);
+            border-radius: 24px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 30px rgba(249, 115, 22, 0.08);
+        }
+
+        .welcome-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem;
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 40px rgba(249, 115, 22, 0.3);
+        }
+
+        .welcome-icon i {
+            font-size: 2rem;
+            color: white;
+        }
+
+        .welcome-title {
+            font-family: 'Changa', sans-serif;
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: #9a3412;
+            margin-bottom: 0.75rem;
+        }
+
+        .welcome-text {
+            color: #6b7280;
+            font-size: 1rem;
+            max-width: 400px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+        /* نص الوصف */
+        .subtitle-text {
+            color: #6b7280;
+        }
+
+        /* عنوان الفلاتر */
+        .filter-label {
+            color: #6b7280;
+        }
     </style>
 </head>
 
-<body class="text-gray-800 relative overflow-x-hidden">
+<body class="relative">
+    <!-- الخلفية المتحركة -->
+    <div class="animated-bg">
+        <div class="floating-orb orb-1"></div>
+        <div class="floating-orb orb-2"></div>
+        <div class="floating-orb orb-3"></div>
+    </div>
+    <div class="grid-pattern"></div>
+
     @include('partials.main-header')
 
-    <div class="container mx-auto px-4 py-4 lg:py-8 relative z-10">
-        <div class="text-center mb-8 fade-in-up">
-            <h1 class="text-4xl lg:text-5xl font-black gradient-text mb-4">
-                <i class="fas fa-dumbbell mr-3"></i>استعارة الأدوات الرياضية
+    <div class="container mx-auto px-4 py-8 lg:py-12 relative z-10">
+        <!-- العنوان الرئيسي -->
+        <div class="text-center mb-12 fade-in">
+            <h1 class="main-title text-4xl lg:text-6xl mb-4">
+                استعارة الأدوات الرياضية
             </h1>
-            <p class="text-lg text-gray-600">استعِر الأدوات الرياضية التي تحتاجها</p>
+            <p class="text-lg lg:text-xl subtitle-text font-medium max-w-2xl mx-auto leading-relaxed">
+                استعِر الأدوات الرياضية التي تحتاجها من أسر العائلة
+            </p>
         </div>
 
-        <div class="flex flex-col lg:flex-row gap-8">
-            <aside class="w-full lg:w-1/4">
-                <div class="sticky top-20 space-y-6">
-                    <div class="glass-effect p-6 rounded-3xl orange-glow">
-                        <h3 class="text-2xl font-bold gradient-text mb-6 border-b border-orange-200 pb-4">
-                            <i class="fas fa-tags ml-2"></i>الفئات
-                        </h3>
-                        <ul class="space-y-2">
-                            <li>
-                                <a href="{{ route('rental.index', array_filter(['person' => $personId, 'search' => $search])) }}"
-                                   class="category-item block px-4 py-3 rounded-2xl transition-all duration-300 font-medium {{ !$categoryId ? 'active' : 'bg-white/70 hover:bg-orange-50' }}">
-                                    <span><i class="fas fa-th ml-2"></i>جميع المنتجات</span>
-                                </a>
-                            </li>
-                            @foreach($categories as $category)
-                                <li>
-                                    <a href="{{ route('rental.index', array_filter(['category' => $category->id, 'person' => $personId, 'search' => $search])) }}"
-                                       class="category-item block px-4 py-3 rounded-2xl transition-all duration-300 font-medium {{ $categoryId == $category->id ? 'active' : 'bg-white/70 hover:bg-orange-50' }}">
-                                        <span class="flex items-center justify-between">
-                                            <span><i class="fas fa-folder ml-2"></i>{{ $category->name }}</span>
-                                            <span class="text-xs bg-white/50 px-2 py-1 rounded-full">{{ $category->products_count }}</span>
-                                        </span>
-                                    </a>
-                                </li>
-                            @endforeach
-                        </ul>
-                    </div>
-                </div>
-            </aside>
+        <!-- قسم الفئات -->
+        <div class="mb-12">
+            <h2 class="section-title fade-in">
+                <i class="fas fa-th-large text-orange-500"></i>
+                تصفح حسب الفئة
+            </h2>
 
-            <main class="w-full lg:w-3/4">
-                <div class="glass-effect p-6 rounded-3xl mb-6 fade-in-up">
-                    <form method="GET" action="{{ route('rental.index') }}" class="flex gap-3">
-                        @if($categoryId)
-                            <input type="hidden" name="category" value="{{ $categoryId }}">
-                        @endif
-                        <input type="text" name="search"
-                               class="flex-1 px-6 py-4 rounded-2xl border-2 border-orange-200 focus:border-orange-500 focus:outline-none"
-                               placeholder="ابحث عن أداة..." value="{{ $search }}">
-                        <button type="submit"
-                                class="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-8 py-4 rounded-2xl hover:from-orange-600 hover:to-orange-700 transition-all">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </form>
-                </div>
+            <div class="grid grid-cols-2 gap-3 lg:gap-4">
+                @foreach($categories as $index => $category)
+                    <a href="{{ route('rental.index', array_filter(['category' => $category->id, 'person' => $personId, 'search' => $search])) }}"
+                       class="category-card fade-in stagger-{{ ($index % 6) + 1 }} {{ $categoryId == $category->id ? 'active' : '' }}">
 
-                @if($products->count() > 0)
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        @foreach($products as $product)
-                            <div class="product-card fade-in-up glass-effect rounded-3xl overflow-hidden">
-                                <a href="{{ route('rental.show', $product) }}" class="block relative overflow-hidden">
-                                    @if($product->main_image)
-                                        <img src="{{ asset('storage/' . $product->main_image) }}"
-                                             alt="{{ $product->name }}"
-                                             class="w-full h-64 object-cover">
-                                    @else
-                                        <div class="w-full h-64 bg-gradient-to-br from-orange-400 to-red-600 flex items-center justify-center">
-                                            <i class="fas fa-dumbbell text-white text-5xl opacity-50"></i>
-                                        </div>
-                                    @endif
-                                </a>
-
-                                <div class="p-6">
-                                    <h3 class="text-xl font-bold mb-2 text-gray-800">
-                                        <a href="{{ route('rental.show', $product) }}" class="hover:text-orange-600 transition-colors">
-                                            {{ $product->name }}
-                                        </a>
-                                    </h3>
-
-                                    @if($product->description)
-                                        <p class="text-gray-600 text-sm mb-4 line-clamp-2">
-                                            {{ Str::limit($product->description, 80) }}
-                                        </p>
-                                    @endif
-
-                                    <a href="{{ route('rental.show', $product) }}"
-                                       class="block w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white text-center py-3 px-6 rounded-2xl hover:from-orange-600 hover:to-orange-700 transition-all">
-                                        <i class="fas fa-hand-holding mr-2"></i>طلب الاستعارة
-                                    </a>
+                        <div class="category-image-wrapper">
+                            @if($category->image)
+                                <img src="{{ asset('storage/' . $category->image) }}"
+                                     alt="{{ $category->name }}"
+                                     class="category-image">
+                            @else
+                                <div class="category-placeholder">
+                                    <i class="fas fa-folder"></i>
                                 </div>
-                            </div>
-                        @endforeach
-                    </div>
+                            @endif
+                            <div class="category-image-overlay"></div>
 
-                    <div class="mt-8 flex justify-center">
-                        {{ $products->links() }}
-                    </div>
-                @else
-                    <div class="glass-effect rounded-3xl p-12 text-center">
-                        <i class="fas fa-dumbbell text-gray-400 text-6xl mb-4"></i>
-                        <h3 class="text-2xl font-bold gradient-text mb-3">لا توجد أدوات متاحة حالياً</h3>
+                            @if($categoryId == $category->id)
+                                <div class="absolute top-2 left-2 w-5 h-5 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center z-10 shadow-lg">
+                                    <i class="fas fa-check text-white text-[8px]"></i>
+                                </div>
+                            @endif
+                        </div>
+
+                        <div class="category-content">
+                            <h3 class="category-name">{{ $category->name }}</h3>
+                            @if($category->description)
+                                <p class="category-description">{{ $category->description }}</p>
+                            @endif
+                            <div class="category-count">
+                                <span>{{ $category->products_count }} أداة</span>
+                            </div>
+                        </div>
+                    </a>
+                @endforeach
+            </div>
+        </div>
+
+        <!-- الفلاتر النشطة -->
+        @if($categoryId || $personId)
+        <div class="flex items-center gap-3 flex-wrap mb-8 fade-in">
+            <span class="filter-label text-sm font-medium">
+                <i class="fas fa-filter ml-2 text-orange-500"></i>الفلترة الحالية:
+            </span>
+            @if($categoryId)
+                @php $selectedCategory = $categories->firstWhere('id', $categoryId); @endphp
+                @if($selectedCategory)
+                    <div class="active-filter">
+                        <i class="fas fa-folder"></i>
+                        <span>{{ $selectedCategory->name }}</span>
+                        <a href="{{ route('rental.index', array_filter(['person' => $personId, 'search' => $search])) }}"
+                           class="remove-btn">
+                            <i class="fas fa-times text-xs"></i>
+                        </a>
                     </div>
                 @endif
-            </main>
+            @endif
+            @if($personId && isset($productOwners))
+                @php $selectedOwner = $productOwners->firstWhere('id', $personId); @endphp
+                @if($selectedOwner)
+                    <div class="active-filter">
+                        <i class="fas fa-user"></i>
+                        <span>{{ $selectedOwner->full_name }}</span>
+                        <a href="{{ route('rental.index', array_filter(['category' => $categoryId, 'search' => $search])) }}"
+                           class="remove-btn">
+                            <i class="fas fa-times text-xs"></i>
+                        </a>
+                    </div>
+                @endif
+            @endif
         </div>
+        @endif
+
+        <!-- قسم المنتجات -->
+        @if($products->count() > 0)
+            <div class="mb-8">
+                <h2 class="section-title fade-in">
+                    <i class="fas fa-hand-holding text-orange-500"></i>
+                    الأدوات المتاحة للاستعارة
+                </h2>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                @foreach($products as $index => $product)
+                    <div class="product-card fade-in" style="animation-delay: {{ ($index % 8) * 0.1 }}s">
+                        <a href="{{ route('rental.show', $product) }}" class="block">
+                            <div class="product-image-wrapper">
+                                @if($product->main_image)
+                                    <img data-src="{{ asset('storage/' . $product->main_image) }}"
+                                         alt="{{ $product->name }}"
+                                         class="product-image lazy-image">
+                                    <div class="lazy-placeholder absolute inset-0"></div>
+                                @else
+                                    <div class="w-full h-full flex items-center justify-center">
+                                        <i class="fas fa-image text-orange-300 text-5xl"></i>
+                                    </div>
+                                @endif
+                                <div class="product-overlay"></div>
+                            </div>
+                        </a>
+
+                        <div class="product-content">
+                            @if($product->category)
+                                <span class="product-category-badge">
+                                    <i class="fas fa-tag text-xs"></i>
+                                    {{ $product->category->name }}
+                                </span>
+                            @endif
+
+                            <h3 class="product-name">
+                                <a href="{{ route('rental.show', $product) }}">
+                                    {{ $product->name }}
+                                </a>
+                            </h3>
+
+                            @if($product->owner || $product->location)
+                                <div class="product-meta">
+                                    @if($product->owner)
+                                        <span class="product-meta-item">
+                                            <i class="fas fa-user"></i>
+                                            {{ $product->owner->first_name }} {{ $product->owner->last_name }}
+                                        </span>
+                                    @endif
+                                    @if($product->location)
+                                        <span class="product-meta-item">
+                                            <i class="fas fa-map-marker-alt"></i>
+                                            {{ $product->location->name }}
+                                        </span>
+                                    @endif
+                                </div>
+                            @endif
+
+                            @if($product->description)
+                                <p class="product-description">
+                                    {{ Str::limit($product->description, 80) }}
+                                </p>
+                            @endif
+
+                            <a href="{{ route('rental.show', $product) }}" class="rental-btn">
+                                <i class="fas fa-hand-holding"></i>
+                                <span>طلب الاستعارة</span>
+                            </a>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+
+            <div class="mt-12 flex justify-center">
+                {{ $products->links() }}
+            </div>
+        @else
+            @if($categoryId || $personId || $search)
+                <!-- لا توجد منتجات مع فلتر -->
+                <div class="empty-state fade-in">
+                    <div class="empty-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-orange-800 mb-3">لا توجد أدوات</h3>
+                    <p class="text-gray-500 max-w-md mx-auto">
+                        لم نجد أدوات تطابق معايير البحث الحالية. جرب تغيير الفئة أو البحث بكلمات مختلفة.
+                    </p>
+                </div>
+            @else
+                <!-- رسالة الترحيب - اختر فئة -->
+                <div class="welcome-message fade-in">
+                    {{-- <div class="welcome-icon">
+                        <i class="fas fa-hand-pointer"></i>
+                    </div>
+                    <h3 class="welcome-title">اختر فئة للبدء</h3>
+                    <p class="welcome-text">
+                        اختر إحدى الفئات أعلاه لاستعراض الأدوات المتاحة للاستعارة
+                    </p> --}}
+                </div>
+            @endif
+        @endif
     </div>
+
+    <script>
+        // Lazy Loading للصور
+        document.addEventListener('DOMContentLoaded', function() {
+            const lazyImages = document.querySelectorAll('.lazy-image');
+
+            if ('IntersectionObserver' in window) {
+                const imageObserver = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const img = entry.target;
+                            const placeholder = img.closest('.product-image-wrapper').querySelector('.lazy-placeholder');
+
+                            const handleLoad = () => {
+                                img.classList.add('loaded');
+                                if (placeholder) {
+                                    placeholder.style.display = 'none';
+                                }
+                            };
+
+                            img.onload = handleLoad;
+                            img.src = img.dataset.src;
+
+                            if (img.complete) {
+                                handleLoad();
+                            }
+
+                            observer.unobserve(img);
+                        }
+                    });
+                }, {
+                    rootMargin: '100px 0px',
+                    threshold: 0.01
+                });
+
+                lazyImages.forEach(img => imageObserver.observe(img));
+            } else {
+                lazyImages.forEach(img => {
+                    img.src = img.dataset.src;
+                    img.classList.add('loaded');
+                });
+            }
+
+            // إضافة تأثير الظهور التدريجي للعناصر
+            const fadeElements = document.querySelectorAll('.fade-in');
+            const fadeObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, {
+                rootMargin: '50px 0px',
+                threshold: 0.1
+            });
+
+            fadeElements.forEach(el => fadeObserver.observe(el));
+        });
+    </script>
 </body>
 
 </html>

@@ -212,7 +212,7 @@
            aria-expanded="{{ request()->routeIs('products.*') ? 'true' : 'false' }}"
            aria-controls="collapseProducts">
             <i class="fas fa-fw fa-shopping-bag"></i>
-            <span>متجر الأسر المنتجة</span>
+            <span>الاسر منتجة والدوات الرياضية المؤجرة</span>
         </a>
         <div id="collapseProducts" class="collapse {{ request()->routeIs('products.*') ? 'show' : '' }}"
              aria-labelledby="headingProducts" data-parent="#accordionSidebar">
