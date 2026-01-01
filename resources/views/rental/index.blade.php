@@ -100,13 +100,13 @@
                 <div class="sticky top-20 space-y-6">
                     <div class="glass-effect p-6 rounded-3xl orange-glow">
                         <h3 class="text-2xl font-bold gradient-text mb-6 border-b border-orange-200 pb-4">
-                            <i class="fas fa-tags mr-2"></i>الفئات
+                            <i class="fas fa-tags ml-2"></i>الفئات
                         </h3>
                         <ul class="space-y-2">
                             <li>
                                 <a href="{{ route('rental.index', array_filter(['person' => $personId, 'search' => $search])) }}"
                                    class="category-item block px-4 py-3 rounded-2xl transition-all duration-300 font-medium {{ !$categoryId ? 'active' : 'bg-white/70 hover:bg-orange-50' }}">
-                                    <span><i class="fas fa-th mr-2"></i>جميع المنتجات</span>
+                                    <span><i class="fas fa-th ml-2"></i>جميع المنتجات</span>
                                 </a>
                             </li>
                             @foreach($categories as $category)
@@ -114,7 +114,7 @@
                                     <a href="{{ route('rental.index', array_filter(['category' => $category->id, 'person' => $personId, 'search' => $search])) }}"
                                        class="category-item block px-4 py-3 rounded-2xl transition-all duration-300 font-medium {{ $categoryId == $category->id ? 'active' : 'bg-white/70 hover:bg-orange-50' }}">
                                         <span class="flex items-center justify-between">
-                                            <span><i class="fas fa-folder mr-2"></i>{{ $category->name }}</span>
+                                            <span><i class="fas fa-folder ml-2"></i>{{ $category->name }}</span>
                                             <span class="text-xs bg-white/50 px-2 py-1 rounded-full">{{ $category->products_count }}</span>
                                         </span>
                                     </a>

@@ -40,9 +40,15 @@ class RentalStoreController extends Controller
         }
 
         $products = $query->ordered()->paginate(12)->appends($request->query());
-        $categories = ProductCategory::active()->withCount(['products' => function($q) {
-            $q->active()->rental();
-        }])->ordered()->get();
+        $categories = ProductCategory::active()
+            ->whereHas('products', function($q) {
+                $q->active()->rental();
+            })
+            ->withCount(['products' => function($q) {
+                $q->active()->rental();
+            }])
+            ->ordered()
+            ->get();
 
         // جلب الأشخاص أصحاب المنتجات المؤجرة مع عدد منتجات كل شخص
         $productOwners = \App\Models\Person::whereHas('products', function($q) {
