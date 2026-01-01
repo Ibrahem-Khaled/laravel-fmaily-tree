@@ -442,6 +442,27 @@
             gap: 0.35rem;
         }
 
+        .card-description {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.5;
+            margin-top: 0.5rem;
+            margin-bottom: 0.75rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .section-description {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.6;
+            margin-top: 0.5rem;
+            max-width: 800px;
+        }
+
         /* شارة الفئة الجديدة */
         .new-badge {
             position: absolute;
@@ -1431,6 +1452,9 @@
                                 @endif
                                 {{ $category->name }}
                             </h3>
+                            @if($category->description)
+                                <p class="card-description">{{ $category->description }}</p>
+                            @endif
                             <div class="card-meta">
                                 <span class="card-meta-item">
                                     <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
@@ -1456,14 +1480,17 @@
         <!-- قسم الصور -->
         <section class="images-section" id="images-section">
             <div class="section-header">
-                <h2 class="section-title">
-                    <span class="section-title-icon">
-                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
-                        </svg>
-                    </span>
-                    <span id="images-section-title">الصور</span>
-                </h2>
+                <div>
+                    <h2 class="section-title">
+                        <span class="section-title-icon">
+                            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                            </svg>
+                        </span>
+                        <span id="images-section-title">الصور</span>
+                    </h2>
+                    <p class="section-description" id="images-section-description" style="display: none;"></p>
+                </div>
             </div>
 
             <div class="images-grid" id="images-grid"></div>
@@ -1747,6 +1774,7 @@
                             </svg>
                             ${category.name}
                         </h3>
+                        ${category.description ? `<p class="card-description">${category.description}</p>` : ''}
                         <div class="card-meta">
                             <span class="card-meta-item">
                                 <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
@@ -1794,8 +1822,18 @@
             const section = document.getElementById('images-section');
             const grid = document.getElementById('images-grid');
             const emptyState = document.getElementById('empty-state');
+            const descriptionEl = document.getElementById('images-section-description');
 
             document.getElementById('images-section-title').textContent = category.name;
+            
+            // عرض الوصف إن وجد
+            if (category.description) {
+                descriptionEl.textContent = category.description;
+                descriptionEl.style.display = 'block';
+            } else {
+                descriptionEl.style.display = 'none';
+            }
+            
             section.classList.add('active');
 
             // التحقق من وجود صور مباشرة
