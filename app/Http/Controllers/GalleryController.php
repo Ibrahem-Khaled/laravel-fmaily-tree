@@ -157,7 +157,7 @@ class GalleryController extends Controller
             if (!$isAuthenticated) {
                 $query->where('is_active', true);
             }
-            $query->select('id', 'name', 'parent_id', 'is_active', 'sort_order')
+            $query->select('id', 'name', 'description', 'parent_id', 'is_active', 'sort_order')
                   ->with([
                       'images' => function ($imgQuery) {
                           $imgQuery->with(['article:id,title,person_id,category_id', 'article.person:id,name', 'article.category:id,name', 'mentionedPersons'])
@@ -170,7 +170,7 @@ class GalleryController extends Controller
         };
         
         $categoriesForJs = $categoriesForJsQuery
-            ->select('id', 'name', 'parent_id', 'is_active', 'sort_order')
+            ->select('id', 'name', 'description', 'parent_id', 'is_active', 'sort_order')
             ->with([
                 'images' => function ($query) {
                     $query->with(['article:id,title,person_id,category_id', 'article.person:id,name', 'article.category:id,name', 'mentionedPersons'])
@@ -197,7 +197,7 @@ class GalleryController extends Controller
             }
             
             $children = $childrenQuery
-                ->select('id', 'name', 'parent_id', 'is_active', 'sort_order')
+                ->select('id', 'name', 'description', 'parent_id', 'is_active', 'sort_order')
                 ->with([
                     'images' => function ($query) {
                         $query->with(['article:id,title,person_id,category_id', 'article.person:id,name', 'article.category:id,name', 'mentionedPersons'])
