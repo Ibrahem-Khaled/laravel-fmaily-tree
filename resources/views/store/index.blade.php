@@ -858,13 +858,13 @@
             @else
                 <!-- رسالة الترحيب - اختر فئة -->
                 <div class="welcome-message fade-in">
-                    <div class="welcome-icon">
+                    {{-- <div class="welcome-icon">
                         <i class="fas fa-hand-pointer"></i>
                     </div>
                     <h3 class="welcome-title">اختر فئة للبدء</h3>
                     <p class="welcome-text">
                         اختر إحدى الفئات أعلاه لاستعراض المنتجات المتاحة من أسر العائلة المنتجة
-                    </p>
+                    </p> --}}
                 </div>
             @endif
         @endif
