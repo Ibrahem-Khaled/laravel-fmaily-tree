@@ -1638,6 +1638,8 @@
             document.getElementById('images-section').classList.remove('active');
             document.getElementById('section-title-text').textContent = 'جميع الفئات';
             document.getElementById('category-info-box').style.display = 'none';
+            const sectionHeader = document.querySelector('#categories-section .section-header');
+            if (sectionHeader) sectionHeader.style.display = 'flex';
             renderCategories(getRootCategories());
         }
 
@@ -1768,21 +1770,30 @@
             const imagesInfoBox = document.getElementById('images-category-info-box');
             const imagesInfoTitle = document.getElementById('images-category-info-title');
             const imagesInfoDescription = document.getElementById('images-category-info-description');
+            const sectionHeader = document.querySelector('#categories-section .section-header');
+            const imagesSectionHeader = document.querySelector('#images-section .section-header');
 
             if (category && category.description) {
                 // عرض في قسم الفئات
                 infoTitle.textContent = category.name;
                 infoDescription.textContent = category.description;
                 infoBox.style.display = 'block';
+                // إخفاء العنوان لتجنب التكرار
+                if (sectionHeader) sectionHeader.style.display = 'none';
 
                 // عرض في قسم الصور
                 imagesInfoTitle.textContent = category.name;
                 imagesInfoDescription.textContent = category.description;
                 imagesInfoBox.style.display = 'block';
+                // إخفاء العنوان لتجنب التكرار
+                if (imagesSectionHeader) imagesSectionHeader.style.display = 'none';
             } else {
                 // إخفاء إذا لم يكن هناك وصف
                 infoBox.style.display = 'none';
                 imagesInfoBox.style.display = 'none';
+                // إظهار العنوان مرة أخرى
+                if (sectionHeader) sectionHeader.style.display = 'flex';
+                if (imagesSectionHeader) imagesSectionHeader.style.display = 'flex';
             }
         }
 
