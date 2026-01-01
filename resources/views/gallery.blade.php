@@ -442,17 +442,30 @@
             gap: 0.35rem;
         }
 
-        .card-description {
-            font-size: 0.8rem;
-            color: rgba(255, 255, 255, 0.65);
-            line-height: 1.5;
-            margin-top: 0.5rem;
+        .category-info-box {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1.5rem;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .category-info-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
             margin-bottom: 0.75rem;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .category-info-description {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.75);
+            line-height: 1.7;
         }
 
         /* شارة الفئة الجديدة */
@@ -1059,15 +1072,23 @@
                 margin-bottom: 0.375rem;
             }
 
-            .card-description {
-                font-size: 0.75rem;
-                margin-top: 0.375rem;
-                margin-bottom: 0.5rem;
-            }
-
             .card-meta {
                 font-size: 0.75rem;
                 gap: 0.75rem;
+            }
+
+            .category-info-box {
+                padding: 1rem;
+                margin-bottom: 1rem;
+            }
+
+            .category-info-title {
+                font-size: 1.25rem;
+                margin-bottom: 0.5rem;
+            }
+
+            .category-info-description {
+                font-size: 0.875rem;
             }
 
             .subcategories-badge,
@@ -1299,14 +1320,22 @@
                 font-size: 0.85rem;
             }
 
-            .card-description {
-                font-size: 0.7rem;
-                margin-top: 0.25rem;
+            .section-title {
+                font-size: 1rem;
+            }
+
+            .category-info-box {
+                padding: 0.75rem;
+                margin-bottom: 0.75rem;
+            }
+
+            .category-info-title {
+                font-size: 1.125rem;
                 margin-bottom: 0.375rem;
             }
 
-            .section-title {
-                font-size: 1rem;
+            .category-info-description {
+                font-size: 0.8rem;
             }
         }
 
@@ -1407,6 +1436,11 @@
                 </h2>
             </div>
 
+            <div class="category-info-box" id="category-info-box" style="display: none;">
+                <h3 class="category-info-title" id="category-info-title"></h3>
+                <p class="category-info-description" id="category-info-description"></p>
+            </div>
+
             <div class="categories-grid" id="categories-grid">
                 @foreach($categories as $index => $category)
                     <div class="category-card {{ !$category->is_active ? 'inactive' : '' }} {{ $category->parent_id ? 'subcategory' : '' }}"
@@ -1456,9 +1490,6 @@
                                 @endif
                                 {{ $category->name }}
                             </h3>
-                            @if($category->description)
-                                <p class="card-description">{{ $category->description }}</p>
-                            @endif
                             <div class="card-meta">
                                 <span class="card-meta-item">
                                     <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
@@ -1492,6 +1523,11 @@
                     </span>
                     <span id="images-section-title">الصور</span>
                 </h2>
+            </div>
+
+            <div class="category-info-box" id="images-category-info-box" style="display: none;">
+                <h3 class="category-info-title" id="images-category-info-title"></h3>
+                <p class="category-info-description" id="images-category-info-description"></p>
             </div>
 
             <div class="images-grid" id="images-grid"></div>
@@ -1601,6 +1637,7 @@
             document.getElementById('categories-section').style.display = 'block';
             document.getElementById('images-section').classList.remove('active');
             document.getElementById('section-title-text').textContent = 'جميع الفئات';
+            document.getElementById('category-info-box').style.display = 'none';
             renderCategories(getRootCategories());
         }
 
@@ -1664,6 +1701,8 @@
             updateBreadcrumb();
             
             document.getElementById('categories-section').style.display = 'none';
+            document.getElementById('category-info-box').style.display = 'none';
+            document.getElementById('images-category-info-box').style.display = 'none';
             
             const section = document.getElementById('images-section');
             const grid = document.getElementById('images-grid');
@@ -1698,6 +1737,9 @@
             breadcrumbPath.push({ id: category.id, name: category.name });
             updateBreadcrumb();
 
+            // عرض معلومات الفئة
+            displayCategoryInfo(category);
+
             if (children.length > 0) {
                 // عرض الفئات الفرعية
                 document.getElementById('categories-section').style.display = 'block';
@@ -1715,6 +1757,32 @@
                 // لا توجد فئات فرعية - عرض الصور فقط
                 document.getElementById('categories-section').style.display = 'none';
                 showImagesSection(category);
+            }
+        }
+
+        // عرض معلومات الفئة
+        function displayCategoryInfo(category) {
+            const infoBox = document.getElementById('category-info-box');
+            const infoTitle = document.getElementById('category-info-title');
+            const infoDescription = document.getElementById('category-info-description');
+            const imagesInfoBox = document.getElementById('images-category-info-box');
+            const imagesInfoTitle = document.getElementById('images-category-info-title');
+            const imagesInfoDescription = document.getElementById('images-category-info-description');
+
+            if (category && category.description) {
+                // عرض في قسم الفئات
+                infoTitle.textContent = category.name;
+                infoDescription.textContent = category.description;
+                infoBox.style.display = 'block';
+
+                // عرض في قسم الصور
+                imagesInfoTitle.textContent = category.name;
+                imagesInfoDescription.textContent = category.description;
+                imagesInfoBox.style.display = 'block';
+            } else {
+                // إخفاء إذا لم يكن هناك وصف
+                infoBox.style.display = 'none';
+                imagesInfoBox.style.display = 'none';
             }
         }
 
@@ -1775,7 +1843,6 @@
                             </svg>
                             ${category.name}
                         </h3>
-                        ${category.description ? `<p class="card-description">${category.description}</p>` : ''}
                         <div class="card-meta">
                             <span class="card-meta-item">
                                 <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
