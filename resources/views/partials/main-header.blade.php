@@ -745,7 +745,6 @@
                 </li>
                 <li>
                     <a class="nav-link {{ request()->routeIs('sila') ? 'active' : '' }}" href="{{ route('sila') }}">
-                        <i class="fas fa-sitemap"></i>
                         صلة
                     </a>
                 </li>
@@ -772,7 +771,6 @@
                        onclick="toggleDropdown(event, this)"
                        aria-expanded="false"
                        aria-haspopup="true">
-                        <i class="fas fa-quran"></i>
                         <span>القرآن والسنة</span>
                     </a>
                     <div class="dropdown-menu" aria-labelledby="quranDropdown">
@@ -810,7 +808,6 @@
 
                 <li>
                     <a class="nav-link {{ request()->routeIs('breastfeeding.public.*') ? 'active' : '' }}" href="{{ route('breastfeeding.public.index') }}">
-                        <i class="fas fa-baby"></i>
                         الرضاعة
                     </a>
                 </li>
@@ -822,21 +819,17 @@
                        onclick="toggleDropdown(event, this)"
                        aria-expanded="false"
                        aria-haspopup="true">
-                        <i class="fas fa-heartbeat"></i>
                         <span>الصحة واللياقة</span>
                     </a>
                     <div class="dropdown-menu" aria-labelledby="healthFitnessDropdown">
                         <a class="dropdown-item {{ request()->routeIs('rental.*') ? 'active' : '' }}" href="{{ route('rental.index') }}">
-                            <i class="fas fa-dumbbell"></i>
                             <span>استعارة الأدوات الرياضية</span>
                         </a>
                         <a class="dropdown-item {{ request()->routeIs('health-websites.*') ? 'active' : '' }}" href="{{ route('health-websites.index') }}">
-                            <i class="fas fa-globe"></i>
                             <span>مواقع مهتمة بالصحة</span>
                         </a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item {{ request()->routeIs('my-rentals.*') ? 'active' : '' }}" href="{{ route('my-rentals.index') }}">
-                            <i class="fas fa-list"></i>
                             <span>طلبات الاستعارة الخاصة بي</span>
                         </a>
                     </div>
@@ -845,7 +838,6 @@
                 @if (auth()->check())
                     <li>
                         <a class="nav-link {{ request()->routeIs('store.*') ? 'active' : '' }}" href="{{ route('store.index') }}">
-                            <i class="fas fa-shopping-bag"></i>
                             متجر الأسر المنتجة
                         </a>
                     </li>

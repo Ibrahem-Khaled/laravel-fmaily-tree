@@ -158,6 +158,9 @@
                 <!-- <i class="fas fa-store mr-3"></i> -->
                 متاجر الأسر المنتجة
             </h1>
+            <p class="text-lg lg:text-xl text-gray-700 font-medium max-w-3xl mx-auto">
+                مجموعة من متاجر الأسر المنتجة لعائلة السريع
+            </p>
         </div>
 
         <div class="flex flex-col lg:flex-row gap-8">
@@ -372,11 +375,11 @@
                         {{ $products->links() }}
                     </div>
                 @else
-                    <div class="glass-effect rounded-3xl p-12 text-center">
+                    {{-- <div class="glass-effect rounded-3xl p-12 text-center">
                         <i class="fas fa-shopping-bag text-gray-400 text-6xl mb-4"></i>
                         <h3 class="text-2xl font-bold gradient-text mb-3">لا توجد منتجات متاحة حالياً</h3>
                         <p class="text-gray-600">جرب البحث بكلمات مختلفة أو تصفح فئات أخرى</p>
-                    </div>
+                    </div> --}}
                 @endif
             </main>
         </div>
