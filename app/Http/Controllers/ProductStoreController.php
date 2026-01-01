@@ -43,9 +43,15 @@ class ProductStoreController extends Controller
 
             $products = $query->ordered()->paginate(12)->appends($request->query());
         }
-        $categories = ProductCategory::active()->withCount(['products' => function($q) {
-            $q->active()->notRental();
-        }])->ordered()->get();
+        $categories = ProductCategory::active()
+            ->whereHas('products', function($q) {
+                $q->active()->notRental();
+            })
+            ->withCount(['products' => function($q) {
+                $q->active()->notRental();
+            }])
+            ->ordered()
+            ->get();
 
         // جلب الأشخاص أصحاب المنتجات مع عدد منتجات كل شخص
         $productOwners = \App\Models\Person::whereHas('products', function($q) {
