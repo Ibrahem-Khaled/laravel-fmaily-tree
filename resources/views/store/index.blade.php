@@ -94,6 +94,22 @@
             box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
         }
 
+        .category-description {
+            font-size: 0.75rem;
+            color: rgba(0, 0, 0, 0.6);
+            line-height: 1.4;
+            margin-top: 0.25rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .category-item.active .category-description {
+            color: rgba(255, 255, 255, 0.85);
+        }
+
         .fade-in-up {
             animation: fadeInUp 0.6s ease-out;
         }
@@ -188,10 +204,13 @@
                                 <li>
                                     <a href="{{ route('store.index', array_filter(['category' => $category->id, 'person' => $personId, 'search' => $search])) }}"
                                        class="category-item block px-4 py-3 rounded-2xl transition-all duration-300 font-medium {{ $categoryId == $category->id ? 'active' : 'bg-white/70 hover:bg-green-50' }}">
-                                        <span class="flex items-center justify-between">
-                                            <span><i class="fas fa-folder ml-2"></i>{{ $category->name }}</span>
+                                        <div class="flex items-center justify-between mb-1">
+                                            <span class="flex items-center"><i class="fas fa-folder ml-2"></i>{{ $category->name }}</span>
                                             <span class="text-xs bg-white/50 px-2 py-1 rounded-full">{{ $category->products_count }}</span>
-                                        </span>
+                                        </div>
+                                        @if($category->description)
+                                            <p class="category-description">{{ $category->description }}</p>
+                                        @endif
                                     </a>
                                 </li>
                             @endforeach
