@@ -10,7 +10,9 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Changa:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Changa:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
 
     <script>
         tailwind.config = {
@@ -97,10 +99,23 @@
         }
 
         @keyframes float {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            25% { transform: translate(30px, -30px) scale(1.05); }
-            50% { transform: translate(-20px, 20px) scale(0.95); }
-            75% { transform: translate(20px, 10px) scale(1.02); }
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            25% {
+                transform: translate(30px, -30px) scale(1.05);
+            }
+
+            50% {
+                transform: translate(-20px, 20px) scale(0.95);
+            }
+
+            75% {
+                transform: translate(20px, 10px) scale(1.02);
+            }
         }
 
         /* شبكة الخطوط */
@@ -128,8 +143,13 @@
         }
 
         @keyframes shimmer {
-            0% { background-position: 200% center; }
-            100% { background-position: -200% center; }
+            0% {
+                background-position: 200% center;
+            }
+
+            100% {
+                background-position: -200% center;
+            }
         }
 
         /* بطاقات الفئات */
@@ -549,18 +569,36 @@
                 opacity: 0;
                 transform: translateY(20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
 
-        .stagger-1 { animation-delay: 0.1s; }
-        .stagger-2 { animation-delay: 0.2s; }
-        .stagger-3 { animation-delay: 0.3s; }
-        .stagger-4 { animation-delay: 0.4s; }
-        .stagger-5 { animation-delay: 0.5s; }
-        .stagger-6 { animation-delay: 0.6s; }
+        .stagger-1 {
+            animation-delay: 0.1s;
+        }
+
+        .stagger-2 {
+            animation-delay: 0.2s;
+        }
+
+        .stagger-3 {
+            animation-delay: 0.3s;
+        }
+
+        .stagger-4 {
+            animation-delay: 0.4s;
+        }
+
+        .stagger-5 {
+            animation-delay: 0.5s;
+        }
+
+        .stagger-6 {
+            animation-delay: 0.6s;
+        }
 
         /* Lazy loading */
         .lazy-image {
@@ -579,8 +617,13 @@
         }
 
         @keyframes shimmerLoading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
         }
 
         /* Section titles */
@@ -677,7 +720,8 @@
                 متاجر الأسر المنتجة
             </h1>
             <p class="text-lg lg:text-xl subtitle-text font-medium max-w-2xl mx-auto leading-relaxed">
-                (تم حصر مشاريع الأسر المنتجة في العائلة ليكون مرجعًا سهلًا ومتاحًا للجميع بحيث يتمكّن كل فرد من أفراد العائلة من الاطلاع على ما لدى أفرادها من منتجات وخدمات في مختلف المجالات التجارية والخدمية)
+                تم حصر مشاريع الأسر المنتجة في العائلة ليكون مرجعًا سهلًا ومتاحًا للجميع بحيث يتمكّن كل فرد من أفراد
+                العائلة من الاطلاع على ما لدى أفرادها من منتجات وخدمات في مختلف المجالات التجارية والخدمية
             </p>
         </div>
 
@@ -689,15 +733,14 @@
             </h2>
 
             <div class="grid grid-cols-2 gap-3 lg:gap-4">
-                @foreach($categories as $index => $category)
+                @foreach ($categories as $index => $category)
                     <a href="{{ route('store.index', array_filter(['category' => $category->id, 'person' => $personId, 'search' => $search])) }}"
-                       class="category-card fade-in stagger-{{ ($index % 6) + 1 }} {{ $categoryId == $category->id ? 'active' : '' }}">
+                        class="category-card fade-in stagger-{{ ($index % 6) + 1 }} {{ $categoryId == $category->id ? 'active' : '' }}">
 
                         <div class="category-image-wrapper">
-                            @if($category->image)
-                                <img src="{{ asset('storage/' . $category->image) }}"
-                                     alt="{{ $category->name }}"
-                                     class="category-image">
+                            @if ($category->image)
+                                <img src="{{ asset('storage/' . $category->image) }}" alt="{{ $category->name }}"
+                                    class="category-image">
                             @else
                                 <div class="category-placeholder">
                                     <i class="fas fa-store"></i>
@@ -705,8 +748,9 @@
                             @endif
                             <div class="category-image-overlay"></div>
 
-                            @if($categoryId == $category->id)
-                                <div class="absolute top-2 left-2 w-5 h-5 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center z-10 shadow-lg">
+                            @if ($categoryId == $category->id)
+                                <div
+                                    class="absolute top-2 left-2 w-5 h-5 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center z-10 shadow-lg">
                                     <i class="fas fa-check text-white text-[8px]"></i>
                                 </div>
                             @endif
@@ -714,7 +758,7 @@
 
                         <div class="category-content">
                             <h3 class="category-name">{{ $category->name }}</h3>
-                            @if($category->description)
+                            @if ($category->description)
                                 <p class="category-description">{{ $category->description }}</p>
                             @endif
                             <div class="category-count">
@@ -728,42 +772,42 @@
         </div>
 
         <!-- الفلاتر النشطة -->
-        @if($categoryId || $personId)
-        <div class="flex items-center gap-3 flex-wrap mb-8 fade-in">
-            <span class="filter-label text-sm font-medium">
-                <i class="fas fa-filter ml-2 text-emerald-500"></i>الفلترة الحالية:
-            </span>
-            @if($categoryId)
-                @php $selectedCategory = $categories->firstWhere('id', $categoryId); @endphp
-                @if($selectedCategory)
-                    <div class="active-filter">
-                        <i class="fas fa-folder"></i>
-                        <span>{{ $selectedCategory->name }}</span>
-                        <a href="{{ route('store.index', array_filter(['person' => $personId, 'search' => $search])) }}"
-                           class="remove-btn">
-                            <i class="fas fa-times text-xs"></i>
-                        </a>
-                    </div>
+        @if ($categoryId || $personId)
+            <div class="flex items-center gap-3 flex-wrap mb-8 fade-in">
+                <span class="filter-label text-sm font-medium">
+                    <i class="fas fa-filter ml-2 text-emerald-500"></i>الفلترة الحالية:
+                </span>
+                @if ($categoryId)
+                    @php $selectedCategory = $categories->firstWhere('id', $categoryId); @endphp
+                    @if ($selectedCategory)
+                        <div class="active-filter">
+                            <i class="fas fa-folder"></i>
+                            <span>{{ $selectedCategory->name }}</span>
+                            <a href="{{ route('store.index', array_filter(['person' => $personId, 'search' => $search])) }}"
+                                class="remove-btn">
+                                <i class="fas fa-times text-xs"></i>
+                            </a>
+                        </div>
+                    @endif
                 @endif
-            @endif
-            @if($personId && $productOwners)
-                @php $selectedOwner = $productOwners->firstWhere('id', $personId); @endphp
-                @if($selectedOwner)
-                    <div class="active-filter">
-                        <i class="fas fa-user"></i>
-                        <span>{{ $selectedOwner->full_name }}</span>
-                        <a href="{{ route('store.index', array_filter(['category' => $categoryId, 'search' => $search])) }}"
-                           class="remove-btn">
-                            <i class="fas fa-times text-xs"></i>
-                        </a>
-                    </div>
+                @if ($personId && $productOwners)
+                    @php $selectedOwner = $productOwners->firstWhere('id', $personId); @endphp
+                    @if ($selectedOwner)
+                        <div class="active-filter">
+                            <i class="fas fa-user"></i>
+                            <span>{{ $selectedOwner->full_name }}</span>
+                            <a href="{{ route('store.index', array_filter(['category' => $categoryId, 'search' => $search])) }}"
+                                class="remove-btn">
+                                <i class="fas fa-times text-xs"></i>
+                            </a>
+                        </div>
+                    @endif
                 @endif
-            @endif
-        </div>
+            </div>
         @endif
 
         <!-- قسم المنتجات -->
-        @if($products->count() > 0)
+        @if ($products->count() > 0)
             <div class="mb-8">
                 <h2 class="section-title fade-in">
                     <i class="fas fa-shopping-bag text-emerald-500"></i>
@@ -772,14 +816,13 @@
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                @foreach($products as $index => $product)
+                @foreach ($products as $index => $product)
                     <div class="product-card fade-in" style="animation-delay: {{ ($index % 8) * 0.1 }}s">
                         <a href="{{ route('store.show', $product) }}" class="block">
                             <div class="product-image-wrapper">
-                                @if($product->main_image)
+                                @if ($product->main_image)
                                     <img data-src="{{ asset('storage/' . $product->main_image) }}"
-                                         alt="{{ $product->name }}"
-                                         class="product-image lazy-image">
+                                        alt="{{ $product->name }}" class="product-image lazy-image">
                                     <div class="lazy-placeholder absolute inset-0"></div>
                                 @else
                                     <div class="w-full h-full flex items-center justify-center">
@@ -791,7 +834,7 @@
                         </a>
 
                         <div class="product-content">
-                            @if($product->category)
+                            @if ($product->category)
                                 <span class="product-category-badge">
                                     <i class="fas fa-tag text-xs"></i>
                                     {{ $product->category->name }}
@@ -804,15 +847,15 @@
                                 </a>
                             </h3>
 
-                            @if($product->owner || $product->location)
+                            @if ($product->owner || $product->location)
                                 <div class="product-meta">
-                                    @if($product->owner)
+                                    @if ($product->owner)
                                         <span class="product-meta-item">
                                             <i class="fas fa-user"></i>
                                             {{ $product->owner->first_name }} {{ $product->owner->last_name }}
                                         </span>
                                     @endif
-                                    @if($product->location)
+                                    @if ($product->location)
                                         <span class="product-meta-item">
                                             <i class="fas fa-map-marker-alt"></i>
                                             {{ $product->location->name }}
@@ -821,7 +864,7 @@
                                 </div>
                             @endif
 
-                            @if($product->description)
+                            @if ($product->description)
                                 <p class="product-description">
                                     {{ Str::limit($product->description, 80) }}
                                 </p>
@@ -844,7 +887,7 @@
                 {{ $products->links() }}
             </div>
         @else
-            @if($categoryId || $personId || $search)
+            @if ($categoryId || $personId || $search)
                 <!-- لا توجد منتجات مع فلتر -->
                 <div class="empty-state fade-in">
                     <div class="empty-icon">
@@ -880,7 +923,8 @@
                     entries.forEach(entry => {
                         if (entry.isIntersecting) {
                             const img = entry.target;
-                            const placeholder = img.closest('.product-image-wrapper').querySelector('.lazy-placeholder');
+                            const placeholder = img.closest('.product-image-wrapper').querySelector(
+                                '.lazy-placeholder');
 
                             const handleLoad = () => {
                                 img.classList.add('loaded');
