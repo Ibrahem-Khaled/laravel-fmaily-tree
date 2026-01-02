@@ -699,6 +699,11 @@
         .filter-label {
             color: #6b7280;
         }
+
+        /* قسم الفئات - انتقال سلس */
+        #categories-section {
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
     </style>
 </head>
 
@@ -726,7 +731,7 @@
         </div>
 
         <!-- قسم الفئات -->
-        <div class="mb-12">
+        <div id="categories-section" class="mb-12" style="{{ ($categoryId || $personId || $search) ? 'display: none;' : '' }}">
             <h2 class="section-title fade-in">
                 <i class="fas fa-th-large text-emerald-500"></i>
                 تصفح حسب الفئة
@@ -772,7 +777,7 @@
         </div>
 
         <!-- الفلاتر النشطة -->
-        @if ($categoryId || $personId)
+        @if ($categoryId || $personId || $search)
             <div class="flex items-center gap-3 flex-wrap mb-8 fade-in">
                 <span class="filter-label text-sm font-medium">
                     <i class="fas fa-filter ml-2 text-emerald-500"></i>الفلترة الحالية:
@@ -803,6 +808,21 @@
                         </div>
                     @endif
                 @endif
+                @if ($search)
+                    <div class="active-filter">
+                        <i class="fas fa-search"></i>
+                        <span>بحث: {{ $search }}</span>
+                        <a href="{{ route('store.index', array_filter(['category' => $categoryId, 'person' => $personId])) }}"
+                            class="remove-btn">
+                            <i class="fas fa-times text-xs"></i>
+                        </a>
+                    </div>
+                @endif
+                <a href="{{ route('store.index') }}"
+                   class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg transition-all duration-300 text-sm font-medium shadow-md hover:shadow-lg">
+                    <i class="fas fa-th-large"></i>
+                    <span>عرض جميع الفئات</span>
+                </a>
             </div>
         @endif
 
@@ -847,20 +867,12 @@
                                 </a>
                             </h3>
 
-                            @if ($product->owner || $product->location)
+                            @if ($product->owner)
                                 <div class="product-meta">
-                                    @if ($product->owner)
-                                        <span class="product-meta-item">
-                                            <i class="fas fa-user"></i>
-                                            {{ $product->owner->first_name }} {{ $product->owner->last_name }}
-                                        </span>
-                                    @endif
-                                    @if ($product->location)
-                                        <span class="product-meta-item">
-                                            <i class="fas fa-map-marker-alt"></i>
-                                            {{ $product->location->name }}
-                                        </span>
-                                    @endif
+                                    <span class="product-meta-item">
+                                        <i class="fas fa-user"></i>
+                                        {{ $product->owner->first_name }} {{ $product->owner->last_name }}
+                                    </span>
                                 </div>
                             @endif
 
@@ -971,6 +983,57 @@
             });
 
             fadeElements.forEach(el => fadeObserver.observe(el));
+
+            // إظهار/إخفاء قسم الفئات
+            const categoriesSection = document.getElementById('categories-section');
+
+            // إخفاء قسم الفئات عند الضغط على روابط الفئات
+            const categoryLinks = document.querySelectorAll('.category-card');
+            categoryLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    // إخفاء قسم الفئات بسلاسة
+                    if (categoriesSection) {
+                        categoriesSection.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                        categoriesSection.style.opacity = '0';
+                        categoriesSection.style.transform = 'translateY(-20px)';
+                        setTimeout(() => {
+                            categoriesSection.style.display = 'none';
+                        }, 300);
+                    }
+                });
+            });
+
+            // عند الضغط على زر "عرض جميع الفئات"
+            const allLinks = document.querySelectorAll('a');
+            allLinks.forEach(link => {
+                const linkText = link.textContent.trim();
+                if (linkText.includes('عرض جميع الفئات')) {
+                    link.addEventListener('click', function(e) {
+                        const url = new URL(this.href, window.location.origin);
+                        // إذا كان الرابط بدون فلاتر، أظهر الفئات
+                        if (!url.search || url.search === '?') {
+                            e.preventDefault();
+                            if (categoriesSection) {
+                                categoriesSection.style.display = 'block';
+                                categoriesSection.style.opacity = '0';
+                                categoriesSection.style.transform = 'translateY(-20px)';
+                                setTimeout(() => {
+                                    categoriesSection.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                                    categoriesSection.style.opacity = '1';
+                                    categoriesSection.style.transform = 'translateY(0)';
+                                }, 10);
+
+                                // التمرير إلى قسم الفئات
+                                setTimeout(() => {
+                                    categoriesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                }, 100);
+                            }
+                            // تحديث URL بدون إعادة تحميل الصفحة
+                            window.history.pushState({}, '', this.href);
+                        }
+                    });
+                }
+            });
         });
     </script>
 </body>
