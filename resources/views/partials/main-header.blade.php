@@ -42,11 +42,11 @@
         width: 2px;
         height: 50%;
         background: linear-gradient(180deg,
-            transparent 0%,
-            rgba(255, 255, 255, 0.15) 20%,
-            rgba(255, 255, 255, 0.25) 50%,
-            rgba(255, 255, 255, 0.15) 80%,
-            transparent 100%);
+                transparent 0%,
+                rgba(255, 255, 255, 0.15) 20%,
+                rgba(255, 255, 255, 0.25) 50%,
+                rgba(255, 255, 255, 0.15) 80%,
+                transparent 100%);
         border-radius: 2px;
         flex-shrink: 0;
     }
@@ -118,10 +118,13 @@
     }
 
     @keyframes pulse {
-        0%, 100% {
+
+        0%,
+        100% {
             opacity: 1;
             transform: scale(1);
         }
+
         50% {
             opacity: 0.8;
             transform: scale(1.05);
@@ -164,7 +167,7 @@
         min-width: 0;
     }
 
-    .header-nav-list > li {
+    .header-nav-list>li {
         display: flex;
         flex: 0 1 auto;
         min-width: 0;
@@ -421,6 +424,7 @@
                 opacity: 0;
                 transform: translateY(-10px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -472,7 +476,7 @@
             flex-wrap: nowrap;
         }
 
-        .header-nav-list > li {
+        .header-nav-list>li {
             width: 100%;
             display: flex;
             flex-direction: column;
@@ -535,11 +539,11 @@
             max-height: 0;
             overflow: hidden;
             transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                        padding 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                        margin 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                        opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                        transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                        visibility 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                padding 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                margin 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                visibility 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             width: 100%;
             border-radius: 0 0 8px 8px;
         }
@@ -749,47 +753,54 @@
                     </a>
                 </li>
                 <li>
-                    <a class="nav-link {{ request()->routeIs('gallery.index') ? 'active' : '' }}" href="{{ route('gallery.index') }}">
+                    <a class="nav-link {{ request()->routeIs('gallery.index') ? 'active' : '' }}"
+                        href="{{ route('gallery.index') }}">
                         معرض الصور
                     </a>
                 </li>
                 <li>
-                    <a class="nav-link {{ request()->routeIs('gallery.articles') ? 'active' : '' }}" href="{{ route('gallery.articles') }}">
+                    <a class="nav-link {{ request()->routeIs('gallery.articles') ? 'active' : '' }}"
+                        href="{{ route('gallery.articles') }}">
                         شهادات و أبحاث
                     </a>
                 </li>
                 <li>
-                    <a class="nav-link {{ request()->routeIs('persons.badges') ? 'active' : '' }}" href="{{ route('persons.badges') }}">
+                    <a class="nav-link {{ request()->routeIs('persons.badges') ? 'active' : '' }}"
+                        href="{{ route('persons.badges') }}">
                         طلاب طموح
                     </a>
                 </li>
 
                 <li class="dropdown">
                     <a class="nav-link dropdown-toggle {{ request()->routeIs('quran-competitions.*') || request()->routeIs('quran-categories.*') ? 'active' : '' }}"
-                       href="#"
-                       role="button"
-                       onclick="toggleDropdown(event, this)"
-                       aria-expanded="false"
-                       aria-haspopup="true">
+                        href="#" role="button" onclick="toggleDropdown(event, this)" aria-expanded="false"
+                        aria-haspopup="true">
                         <span>القرآن والسنة</span>
                     </a>
                     <div class="dropdown-menu" aria-labelledby="quranDropdown">
                         @php
-                            $quranCategories = \App\Models\Category::whereHas('quranCompetitions', function($q) {
+                            $quranCategories = \App\Models\Category::whereHas('quranCompetitions', function ($q) {
                                 $q->where('is_active', true);
-                            })->ordered()->active()->get();
+                            })
+                                ->ordered()
+                                ->active()
+                                ->get();
                         @endphp
-                        @if($quranCategories->count() > 0)
-                            @foreach($quranCategories as $category)
+                        @if ($quranCategories->count() > 0)
+                            @foreach ($quranCategories as $category)
                                 @php
                                     $activeCompetitions = $category->quranCompetitions()->active()->get();
                                     if ($activeCompetitions->count() === 1) {
                                         $competition = $activeCompetitions->first();
                                         $url = route('quran-competitions.show', $competition->id);
-                                        $isActive = request()->routeIs('quran-competitions.show') && request()->route('id') == $competition->id;
+                                        $isActive =
+                                            request()->routeIs('quran-competitions.show') &&
+                                            request()->route('id') == $competition->id;
                                     } else {
                                         $url = route('quran-categories.show', $category);
-                                        $isActive = request()->routeIs('quran-categories.show') && request()->route('category') == $category->id;
+                                        $isActive =
+                                            request()->routeIs('quran-categories.show') &&
+                                            request()->route('category') == $category->id;
                                     }
                                 @endphp
                                 <a class="dropdown-item {{ $isActive ? 'active' : '' }}" href="{{ $url }}">
@@ -807,43 +818,46 @@
                 </li>
 
                 <li>
-                    <a class="nav-link {{ request()->routeIs('breastfeeding.public.*') ? 'active' : '' }}" href="{{ route('breastfeeding.public.index') }}">
+                    <a class="nav-link {{ request()->routeIs('breastfeeding.public.*') ? 'active' : '' }}"
+                        href="{{ route('breastfeeding.public.index') }}">
                         الرضاعة
                     </a>
                 </li>
                 @auth
-                <li class="dropdown">
-                    <a class="nav-link dropdown-toggle {{ request()->routeIs(['rental.*', 'health-websites.*', 'my-rentals.*']) ? 'active' : '' }}"
-                       href="#"
-                       role="button"
-                       onclick="toggleDropdown(event, this)"
-                       aria-expanded="false"
-                       aria-haspopup="true">
-                        <span>الصحة واللياقة</span>
-                    </a>
-                    <div class="dropdown-menu" aria-labelledby="healthFitnessDropdown">
-                        <a class="dropdown-item {{ request()->routeIs('rental.*') ? 'active' : '' }}" href="{{ route('rental.index') }}">
-                            <span>استعارة الأدوات الرياضية</span>
+                    <li class="dropdown">
+                        <a class="nav-link dropdown-toggle {{ request()->routeIs(['rental.*', 'health-websites.*', 'my-rentals.*']) ? 'active' : '' }}"
+                            href="#" role="button" onclick="toggleDropdown(event, this)" aria-expanded="false"
+                            aria-haspopup="true">
+                            <span>الصحة واللياقة</span>
                         </a>
-                        <a class="dropdown-item {{ request()->routeIs('health-websites.*') ? 'active' : '' }}" href="{{ route('health-websites.index') }}">
-                            <span>مواقع مهتمة بالصحة</span>
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item {{ request()->routeIs('my-rentals.*') ? 'active' : '' }}" href="{{ route('my-rentals.index') }}">
-                            <span>طلبات الاستعارة الخاصة بي</span>
-                        </a>
-                    </div>
-                </li>
-                @endauth
-                @if (auth()->check())
-                    <li>
-                        <a class="nav-link {{ request()->routeIs('store.*') ? 'active' : '' }}" href="{{ route('store.index') }}">
-                            متجر الأسر المنتجة
-                        </a>
+                        <div class="dropdown-menu" aria-labelledby="healthFitnessDropdown">
+                            <a class="dropdown-item {{ request()->routeIs('rental.*') ? 'active' : '' }}"
+                                href="{{ route('rental.index') }}">
+                                <span>استعارة الأدوات الرياضية</span>
+                            </a>
+                            <a class="dropdown-item {{ request()->routeIs('health-websites.*') ? 'active' : '' }}"
+                                href="{{ route('health-websites.index') }}">
+                                <span>مواقع مهتمة بالصحة</span>
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item {{ request()->routeIs('my-rentals.*') ? 'active' : '' }}"
+                                href="{{ route('my-rentals.index') }}">
+                                <span>طلبات الاستعارة الخاصة بي</span>
+                            </a>
+                        </div>
                     </li>
-                @endif
+                @endauth
+
                 <li>
-                    <a class="nav-link {{ request()->routeIs('reports.index') ? 'active' : '' }}" href="{{ route('reports.index') }}">
+                    <a class="nav-link {{ request()->routeIs('store.*') ? 'active' : '' }}"
+                        href="{{ route('store.index') }}">
+                        متجر الأسر المنتجة
+                    </a>
+                </li>
+
+                <li>
+                    <a class="nav-link {{ request()->routeIs('reports.index') ? 'active' : '' }}"
+                        href="{{ route('reports.index') }}">
                         التقارير
                     </a>
                 </li>
@@ -1012,7 +1026,7 @@
                     clickCount = 0;
                     clearTimeout(clickTimer);
                     isRedirecting = true;
-                    window.location.href = '{{ route("login") }}';
+                    window.location.href = '{{ route('login') }}';
                 }
             });
         }
