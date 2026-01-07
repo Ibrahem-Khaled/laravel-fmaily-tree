@@ -317,6 +317,12 @@
         width: 22px;
         text-align: center;
         transition: transform 0.3s ease, color 0.3s ease;
+        flex-shrink: 0;
+    }
+
+    .header-nav .dropdown-item .mr-auto {
+        margin-right: auto;
+        margin-left: 0.5rem;
     }
 
     .header-nav .dropdown-item:hover {
@@ -770,6 +776,39 @@
                         طلاب طموح
                     </a>
                 </li>
+
+                @if (isset($importantLinks) && $importantLinks && $importantLinks->count() > 0 && Auth::check())
+
+                <li class="dropdown">
+                    <a class="nav-link dropdown-toggle"
+                        href="#" role="button" onclick="toggleDropdown(event, this)" aria-expanded="false"
+                        aria-haspopup="true">
+                        <span>تطبيقات تهمنا</span>
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="appsDropdown">
+                        @foreach ($importantLinks as $link)
+                            @if ($link->is_active || Auth::check())
+                                <a class="dropdown-item {{ !$link->is_active && Auth::check() ? 'opacity-60' : '' }}"
+                                    href="{{ $link->url }}"
+                                    @if($link->open_in_new_tab) target="_blank" rel="noopener noreferrer" @endif>
+                                    @if ($link->icon)
+                                        <i class="{{ $link->icon }}"></i>
+                                    @else
+                                        <i class="fas fa-link"></i>
+                                    @endif
+                                    <span>{{ $link->title }}</span>
+                                    @if (!$link->is_active && Auth::check())
+                                        <span class="text-xs text-yellow-400 mr-auto">(معطل)</span>
+                                    @endif
+                                    @if ($link->open_in_new_tab)
+                                        <i class="fas fa-external-link-alt text-xs opacity-50 mr-auto"></i>
+                                    @endif
+                                </a>
+                            @endif
+                        @endforeach
+                    </div>
+                </li>
+                @endif
 
                 <li class="dropdown">
                     <a class="nav-link dropdown-toggle {{ request()->routeIs('quran-competitions.*') || request()->routeIs('quran-categories.*') ? 'active' : '' }}"
