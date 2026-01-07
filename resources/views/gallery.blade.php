@@ -944,6 +944,66 @@
             border-radius: 8px;
         }
 
+        /* أزرار التنقل */
+        .fullscreen-nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .fullscreen-nav-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-50%) scale(1.1);
+            box-shadow: 0 6px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .fullscreen-nav-btn:active {
+            transform: translateY(-50%) scale(0.95);
+        }
+
+        .fullscreen-nav-btn.prev {
+            right: 2rem;
+        }
+
+        .fullscreen-nav-btn.next {
+            left: 2rem;
+        }
+
+        .fullscreen-nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        @media (max-width: 768px) {
+            .fullscreen-nav-btn {
+                width: 44px;
+                height: 44px;
+            }
+
+            .fullscreen-nav-btn.prev {
+                right: 0.75rem;
+            }
+
+            .fullscreen-nav-btn.next {
+                left: 0.75rem;
+            }
+        }
+
         /* ===== Lazy Loading ===== */
         .lazy-image {
             opacity: 0;
@@ -1398,7 +1458,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="stat-item highlight" onclick="showRecentUploads()">
                     <div class="stat-icon pink">
                         <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
@@ -1618,6 +1678,16 @@
                 <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
             </svg>
         </button>
+        <button class="fullscreen-nav-btn prev" id="prevBtn" onclick="event.stopPropagation(); navigateImage(-1)">
+            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+            </svg>
+        </button>
+        <button class="fullscreen-nav-btn next" id="nextBtn" onclick="event.stopPropagation(); navigateImage(1)">
+            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+            </svg>
+        </button>
         <img id="fullscreenImage" class="fullscreen-image" src="" alt="" onclick="event.stopPropagation()">
     </div>
 
@@ -1629,6 +1699,8 @@
 
         let currentImageData = null;
         let breadcrumbPath = [];
+        let currentImagesList = []; // قائمة الصور الحالية
+        let currentImageIndex = -1; // فهرس الصورة الحالية
 
         // عرض الفئات الرئيسية
         function showRootCategories() {
@@ -1701,11 +1773,11 @@
 
             breadcrumbPath = [{ id: 'recent', name: 'جديد هذا الأسبوع' }];
             updateBreadcrumb();
-            
+
             document.getElementById('categories-section').style.display = 'none';
             document.getElementById('category-info-box').style.display = 'none';
             document.getElementById('images-category-info-box').style.display = 'none';
-            
+
             const section = document.getElementById('images-section');
             const grid = document.getElementById('images-grid');
             const emptyState = document.getElementById('empty-state');
@@ -1716,7 +1788,26 @@
             if (recentImages.length === 0) {
                 grid.style.display = 'none';
                 emptyState.style.display = 'block';
+                currentImagesList = [];
             } else {
+                // حفظ قائمة الصور للتنقل
+                currentImagesList = recentImages.map(image => {
+                    const title = image.article?.title || '';
+                    const author = image.article?.person?.name || '';
+                    return {
+                        id: image.id,
+                        path: image.path,
+                        thumbnail_path: image.thumbnail_path,
+                        youtube_url: image.youtube_url,
+                        media_type: image.media_type,
+                        file_size: image.file_size,
+                        title: title,
+                        author: author,
+                        category: image.article?.category?.name || '',
+                        mentioned_persons: image.mentioned_persons || []
+                    };
+                });
+
                 grid.style.display = 'grid';
                 emptyState.style.display = 'none';
                 grid.innerHTML = '';
@@ -1911,8 +2002,27 @@
                 grid.style.display = 'none';
                 emptyState.style.display = 'none';
                 section.classList.remove('active');
+                currentImagesList = [];
                 return;
             }
+
+            // حفظ قائمة الصور للتنقل
+            currentImagesList = category.images.map(image => {
+                const title = image.article?.title || '';
+                const author = image.article?.person?.name || '';
+                return {
+                    id: image.id,
+                    path: image.path,
+                    thumbnail_path: image.thumbnail_path,
+                    youtube_url: image.youtube_url,
+                    media_type: image.media_type,
+                    file_size: image.file_size,
+                    title: title,
+                    author: author,
+                    category: image.article?.category?.name || '',
+                    mentioned_persons: image.mentioned_persons || []
+                };
+            });
 
             // عرض الصور المباشرة
             grid.style.display = 'grid';
@@ -2060,6 +2170,10 @@
         // عرض خيارات الصورة
         function showImageOptions(imageData) {
             currentImageData = imageData;
+
+            // تحديث الفهرس الحالي
+            currentImageIndex = currentImagesList.findIndex(img => img.id === imageData.id);
+
             const modal = document.getElementById('imageModal');
             const modalImage = document.getElementById('modalImage');
             const modalTitle = document.getElementById('modalTitle');
@@ -2161,6 +2275,53 @@
             img.src = `${storageUrl}/${currentImageData.path}`;
             modal.classList.add('active');
             closeImageModal();
+            updateNavigationButtons();
+        }
+
+        // تحديث حالة أزرار التنقل
+        function updateNavigationButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+
+            if (currentImagesList.length === 0) {
+                prevBtn.disabled = true;
+                nextBtn.disabled = true;
+                return;
+            }
+
+            prevBtn.disabled = currentImageIndex <= 0;
+            nextBtn.disabled = currentImageIndex >= currentImagesList.length - 1;
+        }
+
+        // التنقل بين الصور
+        function navigateImage(direction) {
+            if (currentImagesList.length === 0) return;
+
+            const newIndex = currentImageIndex + direction;
+
+            if (newIndex < 0 || newIndex >= currentImagesList.length) return;
+
+            currentImageIndex = newIndex;
+            const imageData = currentImagesList[currentImageIndex];
+            currentImageData = imageData;
+
+            const img = document.getElementById('fullscreenImage');
+
+            // تحديث الصورة
+            if (imageData.media_type === 'youtube' && imageData.youtube_url) {
+                const videoId = extractVideoId(imageData.youtube_url);
+                img.src = imageData.thumbnail_path
+                    ? `${storageUrl}/${imageData.thumbnail_path}`
+                    : `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+            } else if (imageData.media_type === 'pdf') {
+                img.src = imageData.thumbnail_path
+                    ? `${storageUrl}/${imageData.thumbnail_path}`
+                    : pdfPlaceholder;
+            } else {
+                img.src = `${storageUrl}/${imageData.path}`;
+            }
+
+            updateNavigationButtons();
         }
 
         // إغلاق Fullscreen
@@ -2210,11 +2371,23 @@
             }
         }
 
-        // إغلاق المودال بالضغط على Escape
+        // إغلاق المودال بالضغط على Escape والتنقل بالأسهم
         document.addEventListener('keydown', (e) => {
+            const fullscreenModal = document.getElementById('fullscreenModal');
+            const isFullscreenOpen = fullscreenModal.classList.contains('active');
+
             if (e.key === 'Escape') {
                 closeImageModal();
                 closeFullscreen();
+            }
+
+            // التنقل بين الصور في وضع Fullscreen
+            if (isFullscreenOpen && currentImagesList.length > 0) {
+                if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    const direction = e.key === 'ArrowRight' ? 1 : -1;
+                    navigateImage(direction);
+                }
             }
         });
 
