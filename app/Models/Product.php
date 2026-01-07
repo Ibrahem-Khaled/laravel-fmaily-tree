@@ -27,6 +27,9 @@ class Product extends BaseModel
         'location_id',
         'is_active',
         'is_rental',
+        'available_all_week',
+        'all_week_start_time',
+        'all_week_end_time',
         'sort_order',
     ];
 
@@ -34,8 +37,11 @@ class Product extends BaseModel
         'price' => 'decimal:2',
         'is_active' => 'boolean',
         'is_rental' => 'boolean',
+        'available_all_week' => 'boolean',
         'sort_order' => 'integer',
         'features' => 'array',
+        'all_week_start_time' => 'datetime:H:i',
+        'all_week_end_time' => 'datetime:H:i',
     ];
 
     public function category(): BelongsTo
@@ -66,6 +72,11 @@ class Product extends BaseModel
     public function rentalRequests(): HasMany
     {
         return $this->hasMany(RentalRequest::class);
+    }
+
+    public function availabilitySlots(): HasMany
+    {
+        return $this->hasMany(ProductAvailabilitySlot::class)->ordered();
     }
 
     public function scopeActive($query)

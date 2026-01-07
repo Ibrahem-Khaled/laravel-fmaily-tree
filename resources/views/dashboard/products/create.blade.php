@@ -173,6 +173,42 @@
                             <input type="checkbox" name="is_rental" class="form-check-input" id="isRental" value="1" {{ old('is_rental') ? 'checked' : '' }}>
                             <label class="form-check-label" for="isRental">منتج للتأجير (سيظهر في متجر الاستعارة فقط)</label>
                         </div>
+
+                        <h5 class="mb-3 mt-4">المواعيد المتاحة</h5>
+
+                        <div class="form-check mb-3">
+                            <input type="hidden" name="available_all_week" value="0">
+                            <input type="checkbox" name="available_all_week" class="form-check-input" id="availableAllWeek" value="1" {{ old('available_all_week') ? 'checked' : '' }} onchange="toggleAvailabilityOptions()">
+                            <label class="form-check-label" for="availableAllWeek">متاح طوال الأسبوع</label>
+                        </div>
+
+                        <div id="allWeekTimes" style="display: none;">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>وقت البداية</label>
+                                        <input type="time" name="all_week_start_time" class="form-control" value="{{ old('all_week_start_time') }}">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>وقت النهاية</label>
+                                        <input type="time" name="all_week_end_time" class="form-control" value="{{ old('all_week_end_time') }}">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="specificSlots">
+                            <div class="mb-3">
+                                <button type="button" class="btn btn-sm btn-success" onclick="addAvailabilitySlot()">
+                                    <i class="fas fa-plus mr-1"></i>إضافة موعد محدد
+                                </button>
+                            </div>
+                            <div id="availabilitySlotsContainer">
+                                <!-- سيتم إضافة المواعيد هنا ديناميكياً -->
+                            </div>
+                        </div>
                     </div>
 
                     <div class="col-md-4">
@@ -280,7 +316,93 @@ window.onload = function() {
             updateSubcategories();
         }
     }
+    
+    // التحقق من حالة "متاح طوال الأسبوع" عند التحميل
+    toggleAvailabilityOptions();
 };
+
+// إدارة المواعيد
+var slotCounter = 0;
+
+function toggleAvailabilityOptions() {
+    var availableAllWeek = document.getElementById('availableAllWeek');
+    var allWeekTimes = document.getElementById('allWeekTimes');
+    var specificSlots = document.getElementById('specificSlots');
+    
+    if (availableAllWeek.checked) {
+        allWeekTimes.style.display = 'block';
+        specificSlots.style.display = 'none';
+    } else {
+        allWeekTimes.style.display = 'none';
+        specificSlots.style.display = 'block';
+    }
+}
+
+function addAvailabilitySlot() {
+    slotCounter++;
+    var container = document.getElementById('availabilitySlotsContainer');
+    var slotHtml = `
+        <div class="card mb-3 slot-item" data-slot-id="${slotCounter}">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>اليوم</label>
+                            <select name="availability_slots[${slotCounter}][day_of_week]" class="form-control" required>
+                                <option value="">اختر اليوم</option>
+                                <option value="saturday">السبت</option>
+                                <option value="sunday">الأحد</option>
+                                <option value="monday">الإثنين</option>
+                                <option value="tuesday">الثلاثاء</option>
+                                <option value="wednesday">الأربعاء</option>
+                                <option value="thursday">الخميس</option>
+                                <option value="friday">الجمعة</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>وقت البداية</label>
+                            <input type="time" name="availability_slots[${slotCounter}][start_time]" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>وقت النهاية</label>
+                            <input type="time" name="availability_slots[${slotCounter}][end_time]" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <div class="form-check">
+                                <input type="hidden" name="availability_slots[${slotCounter}][is_active]" value="0">
+                                <input type="checkbox" name="availability_slots[${slotCounter}][is_active]" class="form-check-input" value="1" checked>
+                                <label class="form-check-label">نشط</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-1">
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <button type="button" class="btn btn-sm btn-danger btn-block" onclick="removeSlot(${slotCounter})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', slotHtml);
+}
+
+function removeSlot(slotId) {
+    var slotItem = document.querySelector(`.slot-item[data-slot-id="${slotId}"]`);
+    if (slotItem) {
+        slotItem.remove();
+    }
+}
 </script>
 @endpush
 @endsection

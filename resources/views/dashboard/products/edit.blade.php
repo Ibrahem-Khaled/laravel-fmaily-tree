@@ -222,6 +222,103 @@
                                    {{ old('is_rental', $product->is_rental) ? 'checked' : '' }}>
                             <label class="form-check-label" for="isRental">منتج للتأجير (سيظهر في متجر الاستعارة فقط)</label>
                         </div>
+
+                        <h5 class="mb-3 mt-4">المواعيد المتاحة</h5>
+
+                        <div class="form-check mb-3">
+                            <input type="hidden" name="available_all_week" value="0">
+                            <input type="checkbox" name="available_all_week" class="form-check-input" id="availableAllWeek" value="1" 
+                                   {{ old('available_all_week', $product->available_all_week) ? 'checked' : '' }} onchange="toggleAvailabilityOptions()">
+                            <label class="form-check-label" for="availableAllWeek">متاح طوال الأسبوع</label>
+                        </div>
+
+                        <div id="allWeekTimes" style="display: {{ old('available_all_week', $product->available_all_week) ? 'block' : 'none' }};">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>وقت البداية</label>
+                                        <input type="time" name="all_week_start_time" class="form-control" 
+                                               value="{{ old('all_week_start_time', $product->all_week_start_time ? \Carbon\Carbon::parse($product->all_week_start_time)->format('H:i') : '') }}">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>وقت النهاية</label>
+                                        <input type="time" name="all_week_end_time" class="form-control" 
+                                               value="{{ old('all_week_end_time', $product->all_week_end_time ? \Carbon\Carbon::parse($product->all_week_end_time)->format('H:i') : '') }}">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="specificSlots" style="display: {{ old('available_all_week', $product->available_all_week) ? 'none' : 'block' }};">
+                            <div class="mb-3">
+                                <button type="button" class="btn btn-sm btn-success" onclick="addAvailabilitySlot()">
+                                    <i class="fas fa-plus mr-1"></i>إضافة موعد محدد
+                                </button>
+                            </div>
+                            <div id="availabilitySlotsContainer">
+                                @if($product->availabilitySlots && $product->availabilitySlots->count() > 0)
+                                    @foreach($product->availabilitySlots as $index => $slot)
+                                        <div class="card mb-3 slot-item" data-slot-id="{{ $slot->id }}">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label>اليوم</label>
+                                                            <select name="availability_slots[{{ $slot->id }}][day_of_week]" class="form-control" required>
+                                                                <option value="">اختر اليوم</option>
+                                                                <option value="saturday" {{ $slot->day_of_week == 'saturday' ? 'selected' : '' }}>السبت</option>
+                                                                <option value="sunday" {{ $slot->day_of_week == 'sunday' ? 'selected' : '' }}>الأحد</option>
+                                                                <option value="monday" {{ $slot->day_of_week == 'monday' ? 'selected' : '' }}>الإثنين</option>
+                                                                <option value="tuesday" {{ $slot->day_of_week == 'tuesday' ? 'selected' : '' }}>الثلاثاء</option>
+                                                                <option value="wednesday" {{ $slot->day_of_week == 'wednesday' ? 'selected' : '' }}>الأربعاء</option>
+                                                                <option value="thursday" {{ $slot->day_of_week == 'thursday' ? 'selected' : '' }}>الخميس</option>
+                                                                <option value="friday" {{ $slot->day_of_week == 'friday' ? 'selected' : '' }}>الجمعة</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label>وقت البداية</label>
+                                                            <input type="time" name="availability_slots[{{ $slot->id }}][start_time]" class="form-control" 
+                                                                   value="{{ \Carbon\Carbon::parse($slot->start_time)->format('H:i') }}" required>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <div class="form-group">
+                                                            <label>وقت النهاية</label>
+                                                            <input type="time" name="availability_slots[{{ $slot->id }}][end_time]" class="form-control" 
+                                                                   value="{{ \Carbon\Carbon::parse($slot->end_time)->format('H:i') }}" required>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <div class="form-group">
+                                                            <label>&nbsp;</label>
+                                                            <div class="form-check">
+                                                                <input type="hidden" name="availability_slots[{{ $slot->id }}][is_active]" value="0">
+                                                                <input type="checkbox" name="availability_slots[{{ $slot->id }}][is_active]" class="form-check-input" value="1" 
+                                                                       {{ $slot->is_active ? 'checked' : '' }}>
+                                                                <label class="form-check-label">نشط</label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-1">
+                                                        <div class="form-group">
+                                                            <label>&nbsp;</label>
+                                                            <button type="button" class="btn btn-sm btn-danger btn-block" onclick="removeSlot({{ $slot->id }})">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <input type="hidden" name="availability_slots[{{ $slot->id }}][id]" value="{{ $slot->id }}">
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                @endif
+                            </div>
+                        </div>
                     </div>
 
                     <div class="col-md-4">
@@ -336,6 +433,108 @@ function updateSubcategories() {
     }
 }
 
+// إدارة المواعيد
+@php
+    $maxSlotId = 0;
+    if ($product->availabilitySlots && $product->availabilitySlots->count() > 0) {
+        $maxSlotId = $product->availabilitySlots->pluck('id')->max();
+    }
+@endphp
+var slotCounter = {{ $maxSlotId }};
+
+function toggleAvailabilityOptions() {
+    var availableAllWeek = document.getElementById('availableAllWeek');
+    var allWeekTimes = document.getElementById('allWeekTimes');
+    var specificSlots = document.getElementById('specificSlots');
+    
+    if (availableAllWeek.checked) {
+        allWeekTimes.style.display = 'block';
+        specificSlots.style.display = 'none';
+    } else {
+        allWeekTimes.style.display = 'none';
+        specificSlots.style.display = 'block';
+    }
+}
+
+function addAvailabilitySlot() {
+    slotCounter++;
+    var container = document.getElementById('availabilitySlotsContainer');
+    var slotHtml = `
+        <div class="card mb-3 slot-item" data-slot-id="new-${slotCounter}">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>اليوم</label>
+                            <select name="availability_slots[${slotCounter}][day_of_week]" class="form-control" required>
+                                <option value="">اختر اليوم</option>
+                                <option value="saturday">السبت</option>
+                                <option value="sunday">الأحد</option>
+                                <option value="monday">الإثنين</option>
+                                <option value="tuesday">الثلاثاء</option>
+                                <option value="wednesday">الأربعاء</option>
+                                <option value="thursday">الخميس</option>
+                                <option value="friday">الجمعة</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>وقت البداية</label>
+                            <input type="time" name="availability_slots[${slotCounter}][start_time]" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>وقت النهاية</label>
+                            <input type="time" name="availability_slots[${slotCounter}][end_time]" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <div class="form-check">
+                                <input type="hidden" name="availability_slots[${slotCounter}][is_active]" value="0">
+                                <input type="checkbox" name="availability_slots[${slotCounter}][is_active]" class="form-check-input" value="1" checked>
+                                <label class="form-check-label">نشط</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-1">
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <button type="button" class="btn btn-sm btn-danger btn-block" onclick="removeSlot('new-${slotCounter}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', slotHtml);
+}
+
+function removeSlot(slotId) {
+    var slotItem = document.querySelector(`.slot-item[data-slot-id="${slotId}"]`);
+    if (slotItem) {
+        // إذا كان موعد موجود (ليس جديد)، أضف checkbox للحذف
+        var slotIdStr = String(slotId);
+        if (!slotIdStr.startsWith('new-')) {
+            // موعد موجود - إخفاؤه وإضافة input للحذف
+            var deleteInput = document.createElement('input');
+            deleteInput.type = 'hidden';
+            deleteInput.name = 'delete_slots[]';
+            deleteInput.value = slotId;
+            slotItem.appendChild(deleteInput);
+            slotItem.style.display = 'none';
+        } else {
+            // موعد جديد - حذفه مباشرة
+            slotItem.remove();
+        }
+    }
+}
+
 // عند تحميل الصفحة
 window.onload = function() {
     var categorySelect = document.getElementById('categorySelect');
@@ -344,6 +543,11 @@ window.onload = function() {
     if (categorySelect && subcategorySelect) {
         // تشغيل عند تحميل الصفحة
         updateSubcategories();
+    }
+    
+    // التحقق من حالة "متاح طوال الأسبوع" عند التحميل
+    if (typeof toggleAvailabilityOptions === 'function') {
+        toggleAvailabilityOptions();
     }
 };
 </script>

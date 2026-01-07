@@ -812,6 +812,35 @@
                                 </p>
                             @endif
 
+                            @php
+                                $product->load('availabilitySlots');
+                            @endphp
+                            
+                            @if($product->available_all_week)
+                                <div class="mt-3 mb-3 flex items-center gap-2 text-sm text-green-600">
+                                    <i class="fas fa-calendar-check"></i>
+                                    <span class="font-medium">متاح طوال الأسبوع</span>
+                                    @if($product->all_week_start_time && $product->all_week_end_time)
+                                        <span class="text-gray-500">
+                                            ({{ \Carbon\Carbon::parse($product->all_week_start_time)->format('g:i A') }} - 
+                                            {{ \Carbon\Carbon::parse($product->all_week_end_time)->format('g:i A') }})
+                                        </span>
+                                    @endif
+                                </div>
+                            @elseif($product->availabilitySlots && $product->availabilitySlots->where('is_active', true)->count() > 0)
+                                <div class="mt-3 mb-3 flex items-center gap-2 text-sm text-orange-600">
+                                    <i class="fas fa-clock"></i>
+                                    <span class="font-medium">
+                                        {{ $product->availabilitySlots->where('is_active', true)->count() }} موعد متاح
+                                    </span>
+                                </div>
+                            @else
+                                <div class="mt-3 mb-3 flex items-center gap-2 text-sm text-blue-600">
+                                    <i class="fas fa-calendar-check"></i>
+                                    <span class="font-medium">متاح طوال الأسبوع</span>
+                                </div>
+                            @endif
+
                             <a href="{{ route('rental.show', $product) }}" class="rental-btn">
                                 <i class="fas fa-hand-holding"></i>
                                 <span>طلب الاستعارة</span>

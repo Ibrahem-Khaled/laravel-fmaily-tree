@@ -7,7 +7,7 @@
     <title>{{ $product->name }} - استعارة الأدوات الرياضية</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Changa:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -194,7 +194,7 @@
                 <div class="glass-effect rounded-[2.5rem] overflow-hidden orange-glow p-4">
                     <div class="product-image-container rounded-3xl" onclick="openLightbox(document.getElementById('mainProductImage').src)">
                         @if($product->main_image)
-                            <img src="{{ asset('storage/' . $product->main_image) }}" 
+                            <img src="{{ asset('storage/' . $product->main_image) }}"
                                  id="mainProductImage"
                                  alt="{{ $product->name }}"
                                  class="product-image-zoom">
@@ -208,8 +208,8 @@
                         </div>
                     </div>
                 </div>
-                
-                @php 
+
+                @php
                     $additionalImages = $product->media->where('media_type', 'image');
                 @endphp
 
@@ -220,7 +220,7 @@
                              onclick="showImage('{{ asset('storage/' . $product->main_image) }}', this)">
                             <img src="{{ asset('storage/' . $product->main_image) }}" class="w-full h-full object-cover">
                         </div>
-                        
+
                         @foreach($additionalImages as $img)
                             <div class="w-20 h-20 rounded-2xl overflow-hidden cursor-pointer border-2 border-transparent shadow-sm transition-all hover:border-orange-400"
                                  onclick="showImage('{{ asset('storage/' . $img->file_path) }}', this)">
@@ -229,13 +229,13 @@
                         @endforeach
                     </div>
                 @endif
-                
+
                 <div class="mt-4 text-center">
                     <p class="text-xs text-gray-500 italic"><i class="fas fa-info-circle ml-1"></i>انقر على الصورة للتكبير</p>
                 </div>
 
                 <!-- Video Section -->
-                @php 
+                @php
                     $video = $product->media->where('media_type', 'video')->first();
                     $youtube = $product->media->where('media_type', 'youtube')->first();
                 @endphp
@@ -253,7 +253,7 @@
                                     المتصفح لا يدعم تشغيل الفيديو.
                                 </video>
                             @elseif($youtube)
-                                @php 
+                                @php
                                     $videoId = $youtube->extractVideoId($youtube->youtube_url);
                                 @endphp
                                 @if($videoId)
@@ -352,6 +352,96 @@
                             </div>
                         @endif
 
+                        <!-- المواعيد المتاحة -->
+                        <div class="mb-10">
+                            <h3 class="text-2xl font-bold mb-4 text-gray-800 flex items-center gap-3">
+                                <span class="w-8 h-1 bg-orange-500 rounded-full"></span>
+                                <i class="fas fa-clock text-orange-500"></i>
+                                المواعيد المتاحة
+                            </h3>
+
+                            @if($product->available_all_week)
+                                <div class="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl p-6 mb-4">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-calendar-check text-white text-2xl"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-xl font-bold text-gray-800 mb-1">متاح طوال الأسبوع</h4>
+                                            @if($product->all_week_start_time && $product->all_week_end_time)
+                                                <p class="text-gray-600">
+                                                    من <span class="font-bold text-green-700">{{ \Carbon\Carbon::parse($product->all_week_start_time)->format('g:i A') }}</span>
+                                                    إلى <span class="font-bold text-green-700">{{ \Carbon\Carbon::parse($product->all_week_end_time)->format('g:i A') }}</span>
+                                                </p>
+                                            @else
+                                                <p class="text-gray-600">متاح في جميع الأوقات</p>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            @elseif($product->availabilitySlots && $product->availabilitySlots->count() > 0)
+                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    @php
+                                        $daysOrder = ['saturday', 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+                                        $daysNames = [
+                                            'saturday' => 'السبت',
+                                            'sunday' => 'الأحد',
+                                            'monday' => 'الإثنين',
+                                            'tuesday' => 'الثلاثاء',
+                                            'wednesday' => 'الأربعاء',
+                                            'thursday' => 'الخميس',
+                                            'friday' => 'الجمعة'
+                                        ];
+                                        $daysIcons = [
+                                            'saturday' => 'fas fa-calendar-day',
+                                            'sunday' => 'fas fa-calendar-day',
+                                            'monday' => 'fas fa-calendar-day',
+                                            'tuesday' => 'fas fa-calendar-day',
+                                            'wednesday' => 'fas fa-calendar-day',
+                                            'thursday' => 'fas fa-calendar-day',
+                                            'friday' => 'fas fa-calendar-day'
+                                        ];
+                                        $sortedSlots = $product->availabilitySlots->sortBy(function($slot) use ($daysOrder) {
+                                            return array_search($slot->day_of_week, $daysOrder);
+                                        });
+                                    @endphp
+                                    @foreach($sortedSlots->groupBy('day_of_week') as $day => $slots)
+                                        @if($slots->where('is_active', true)->count() > 0)
+                                            <div class="feature-card">
+                                                <div class="flex items-start gap-3">
+                                                    <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                                        <i class="{{ $daysIcons[$day] ?? 'fas fa-calendar' }} text-orange-600"></i>
+                                                    </div>
+                                                    <div class="flex-1">
+                                                        <h4 class="font-bold text-gray-800 mb-2">{{ $daysNames[$day] ?? $day }}</h4>
+                                                        @foreach($slots->where('is_active', true) as $slot)
+                                                            <p class="text-sm text-gray-600 mb-1">
+                                                                <i class="fas fa-clock text-orange-500 ml-1"></i>
+                                                                {{ \Carbon\Carbon::parse($slot->start_time)->format('g:i A') }} -
+                                                                {{ \Carbon\Carbon::parse($slot->end_time)->format('g:i A') }}
+                                                            </p>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    @endforeach
+                                </div>
+                            @else
+                                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl p-6">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-calendar-check text-white text-2xl"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-xl font-bold text-gray-800 mb-1">متاح طوال الأسبوع</h4>
+                                            <p class="text-gray-600">يمكنك التواصل في أي وقت</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+
                         <!-- Contact Grid -->
                         @if($product->contact_phone || $product->contact_whatsapp || $product->contact_email || $product->contact_instagram || $product->contact_facebook)
                         <div class="mt-8 mb-10">
@@ -361,7 +451,7 @@
                             </h3>
                             <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                                 @if($product->contact_phone)
-                                    <a href="tel:{{ $product->contact_phone }}" 
+                                    <a href="tel:{{ $product->contact_phone }}"
                                        class="contact-btn bg-white border-2 border-blue-500/20 text-blue-600 px-6 py-4 rounded-[1.5rem] flex items-center gap-4 group">
                                         <div class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all">
                                             <i class="fas fa-phone"></i>
@@ -374,7 +464,7 @@
                                 @endif
 
                                 @if($product->contact_whatsapp)
-                                    <a href="https://wa.me/{{ str_replace(['+', ' ', '-'], '', $product->contact_whatsapp) }}" 
+                                    <a href="https://wa.me/{{ str_replace(['+', ' ', '-'], '', $product->contact_whatsapp) }}"
                                        target="_blank"
                                        class="contact-btn bg-white border-2 border-green-500/20 text-green-600 px-6 py-4 rounded-[1.5rem] flex items-center gap-4 group">
                                         <div class="w-12 h-12 bg-green-50 rounded-2xl flex items-center justify-center group-hover:bg-green-600 group-hover:text-white transition-all">
@@ -388,7 +478,7 @@
                                 @endif
 
                                 @if($product->contact_email)
-                                    <a href="mailto:{{ $product->contact_email }}" 
+                                    <a href="mailto:{{ $product->contact_email }}"
                                        class="contact-btn bg-white border-2 border-indigo-500/20 text-indigo-600 px-6 py-4 rounded-[1.5rem] flex items-center gap-4 group">
                                         <div class="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all">
                                             <i class="fas fa-envelope"></i>
@@ -399,9 +489,9 @@
                                         </div>
                                     </a>
                                 @endif
-                                
+
                                 @if($product->contact_instagram)
-                                    <a href="https://instagram.com/{{ ltrim($product->contact_instagram, '@') }}" 
+                                    <a href="https://instagram.com/{{ ltrim($product->contact_instagram, '@') }}"
                                        target="_blank"
                                        class="contact-btn bg-white border-2 border-pink-500/20 text-pink-600 px-6 py-4 rounded-[1.5rem] flex items-center gap-4 group">
                                         <div class="w-12 h-12 bg-pink-50 rounded-2xl flex items-center justify-center group-hover:bg-pink-600 group-hover:text-white transition-all">
@@ -413,9 +503,9 @@
                                         </div>
                                     </a>
                                 @endif
-                                
+
                                 @if($product->contact_facebook)
-                                    <a href="{{ $product->contact_facebook }}" 
+                                    <a href="{{ $product->contact_facebook }}"
                                        target="_blank"
                                        class="contact-btn bg-white border-2 border-blue-800/20 text-blue-800 px-6 py-4 rounded-[1.5rem] flex items-center gap-4 group">
                                         <div class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center group-hover:bg-blue-800 group-hover:text-white transition-all">
@@ -526,13 +616,13 @@
                     <h2 class="text-4xl font-black gradient-text mb-4">أيضاً قد يعجبك</h2>
                     <p class="text-gray-500">أدوات مشابهة من نفس الفئة</p>
                 </div>
-                
+
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                     @foreach($relatedProducts as $related)
                         <div class="product-card glass-effect rounded-[2rem] overflow-hidden flex flex-col h-full">
                             <a href="{{ route('rental.show', $related) }}" class="block relative group overflow-hidden bg-gray-50 flex items-center justify-center aspect-square">
                                 @if($related->main_image)
-                                    <img src="{{ asset('storage/' . $related->main_image) }}" 
+                                    <img src="{{ asset('storage/' . $related->main_image) }}"
                                          alt="{{ $related->name }}"
                                          class="max-w-full max-h-full object-contain transition-all duration-700 group-hover:scale-110">
                                 @else
@@ -554,7 +644,7 @@
                                     <span class="text-sm font-bold text-orange-600">
                                         متاح للاستعارة
                                     </span>
-                                    <a href="{{ route('rental.show', $related) }}" 
+                                    <a href="{{ route('rental.show', $related) }}"
                                        class="w-10 h-10 bg-orange-500 text-white rounded-full flex items-center justify-center hover:bg-orange-600 transition-colors shadow-lg shadow-orange-200">
                                         <i class="fas fa-chevron-left text-sm"></i>
                                     </a>
@@ -571,7 +661,7 @@
         function showImage(src, thumbElement) {
             const mainImg = document.getElementById('mainProductImage');
             mainImg.style.opacity = '0';
-            
+
             setTimeout(() => {
                 mainImg.src = src;
                 mainImg.style.opacity = '1';

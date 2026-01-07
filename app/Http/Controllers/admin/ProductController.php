@@ -9,6 +9,7 @@ use App\Models\ProductSubcategory;
 use App\Models\Person;
 use App\Models\Location;
 use App\Models\ProductMedia;
+use App\Models\ProductAvailabilitySlot;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -89,6 +90,14 @@ class ProductController extends Controller
             'product_subcategory_id' => 'nullable|exists:product_subcategories,id',
             'location_id' => 'nullable|exists:locations,id',
             'is_active' => 'boolean',
+            'available_all_week' => 'boolean',
+            'all_week_start_time' => 'nullable|date_format:H:i',
+            'all_week_end_time' => 'nullable|date_format:H:i|after:all_week_start_time',
+            'availability_slots' => 'nullable|array',
+            'availability_slots.*.day_of_week' => 'required_with:availability_slots|in:saturday,sunday,monday,tuesday,wednesday,thursday,friday',
+            'availability_slots.*.start_time' => 'required_with:availability_slots|date_format:H:i',
+            'availability_slots.*.end_time' => 'required_with:availability_slots|date_format:H:i|after:availability_slots.*.start_time',
+            'availability_slots.*.is_active' => 'boolean',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'video_file' => 'nullable|mimetypes:video/mp4,video/mpeg,video/quicktime|max:20480',
             'youtube_url' => 'nullable|url',
@@ -119,8 +128,25 @@ class ProductController extends Controller
         $data['sort_order'] = $lastOrder + 1;
         $data['is_active'] = $request->input('is_active', 0) == 1;
         $data['is_rental'] = $request->input('is_rental', 0) == 1;
+        $data['available_all_week'] = $request->input('available_all_week', 0) == 1;
 
         $product = Product::create($data);
+
+        // معالجة المواعيد المحددة (فقط إذا لم يكن متاح طوال الأسبوع)
+        if (!$data['available_all_week'] && $request->has('availability_slots')) {
+            $sortOrder = 0;
+            foreach ($request->availability_slots as $slot) {
+                if (!empty($slot['day_of_week']) && !empty($slot['start_time']) && !empty($slot['end_time'])) {
+                    $product->availabilitySlots()->create([
+                        'day_of_week' => $slot['day_of_week'],
+                        'start_time' => $slot['start_time'],
+                        'end_time' => $slot['end_time'],
+                        'is_active' => isset($slot['is_active']) ? 1 : 0,
+                        'sort_order' => $sortOrder++,
+                    ]);
+                }
+            }
+        }
 
         // معالجة الصور الإضافية
         if ($request->hasFile('images')) {
@@ -161,6 +187,9 @@ class ProductController extends Controller
         $subcategories = ProductSubcategory::ordered()->get();
         $persons = Person::orderBy('first_name')->orderBy('last_name')->get();
         $locations = Location::ordered()->get();
+        
+        // تحميل المواعيد المحددة
+        $product->load('availabilitySlots');
 
         return view('dashboard.products.edit', compact('product', 'categories', 'subcategories', 'persons', 'locations'));
     }
@@ -189,6 +218,16 @@ class ProductController extends Controller
             'location_id' => 'nullable|exists:locations,id',
             'is_active' => 'boolean',
             'is_rental' => 'boolean',
+            'available_all_week' => 'boolean',
+            'all_week_start_time' => 'nullable|date_format:H:i',
+            'all_week_end_time' => 'nullable|date_format:H:i|after:all_week_start_time',
+            'availability_slots' => 'nullable|array',
+            'availability_slots.*.day_of_week' => 'required_with:availability_slots|in:saturday,sunday,monday,tuesday,wednesday,thursday,friday',
+            'availability_slots.*.start_time' => 'required_with:availability_slots|date_format:H:i',
+            'availability_slots.*.end_time' => 'required_with:availability_slots|date_format:H:i|after:availability_slots.*.start_time',
+            'availability_slots.*.is_active' => 'boolean',
+            'delete_slots' => 'nullable|array',
+            'delete_slots.*' => 'exists:product_availability_slots,id',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'video_file' => 'nullable|mimetypes:video/mp4,video/mpeg,video/quicktime|max:20480',
             'youtube_url' => 'nullable|url',
@@ -200,7 +239,8 @@ class ProductController extends Controller
             'name', 'description', 'price',
             'contact_phone', 'contact_whatsapp', 'contact_email',
             'contact_instagram', 'contact_facebook',
-            'product_category_id', 'product_subcategory_id', 'owner_id', 'location_id', 'is_active', 'is_rental'
+            'product_category_id', 'product_subcategory_id', 'owner_id', 'location_id', 
+            'is_active', 'is_rental', 'available_all_week', 'all_week_start_time', 'all_week_end_time'
         ]);
 
         // معالجة المميزات من textarea
@@ -222,6 +262,7 @@ class ProductController extends Controller
 
         $data['is_active'] = $request->input('is_active', 0) == 1;
         $data['is_rental'] = $request->input('is_rental', 0) == 1;
+        $data['available_all_week'] = $request->input('available_all_week', 0) == 1;
 
         // إعادة تعيين الفئة الفرعية إذا تم تغيير الفئة الرئيسية والفئة الفرعية الحالية لا تتبع الفئة الجديدة
         if ($request->has('product_category_id') && $request->product_category_id != $product->product_category_id) {
@@ -277,6 +318,60 @@ class ProductController extends Controller
         } elseif ($request->has('youtube_url') && empty($request->youtube_url)) {
             // إذا تم مسح الرابط، احذفه من قاعدة البيانات
             $product->media()->where('media_type', 'youtube')->delete();
+        }
+
+        // معالجة المواعيد
+        // حذف المواعيد المحددة
+        if ($request->has('delete_slots')) {
+            ProductAvailabilitySlot::whereIn('id', $request->delete_slots)
+                ->where('product_id', $product->id)
+                ->delete();
+        }
+
+        // إذا كان متاح طوال الأسبوع، احذف جميع المواعيد المحددة
+        if ($data['available_all_week']) {
+            $product->availabilitySlots()->delete();
+        } elseif ($request->has('availability_slots')) {
+            // تحديث أو إضافة المواعيد المحددة
+            $existingSlotIds = [];
+            $sortOrder = 0;
+            
+            foreach ($request->availability_slots as $slot) {
+                if (!empty($slot['day_of_week']) && !empty($slot['start_time']) && !empty($slot['end_time'])) {
+                    if (isset($slot['id']) && $slot['id']) {
+                        // تحديث موعد موجود
+                        $existingSlot = ProductAvailabilitySlot::where('id', $slot['id'])
+                            ->where('product_id', $product->id)
+                            ->first();
+                        
+                        if ($existingSlot) {
+                            $existingSlot->update([
+                                'day_of_week' => $slot['day_of_week'],
+                                'start_time' => $slot['start_time'],
+                                'end_time' => $slot['end_time'],
+                                'is_active' => isset($slot['is_active']) ? 1 : 0,
+                                'sort_order' => $sortOrder++,
+                            ]);
+                            $existingSlotIds[] = $existingSlot->id;
+                        }
+                    } else {
+                        // إضافة موعد جديد
+                        $newSlot = $product->availabilitySlots()->create([
+                            'day_of_week' => $slot['day_of_week'],
+                            'start_time' => $slot['start_time'],
+                            'end_time' => $slot['end_time'],
+                            'is_active' => isset($slot['is_active']) ? 1 : 0,
+                            'sort_order' => $sortOrder++,
+                        ]);
+                        $existingSlotIds[] = $newSlot->id;
+                    }
+                }
+            }
+            
+            // حذف المواعيد التي لم تعد موجودة
+            $product->availabilitySlots()
+                ->whereNotIn('id', $existingSlotIds)
+                ->delete();
         }
 
         return redirect()->route('products.index')

@@ -16,7 +16,7 @@ class RentalStoreController extends Controller
         $personId = $request->query('person');
         $search = $request->query('search');
 
-        $query = Product::with(['category', 'subcategory', 'owner', 'location'])
+        $query = Product::with(['category', 'subcategory', 'owner', 'location', 'availabilitySlots'])
             ->active()
             ->rental();
 
@@ -71,7 +71,7 @@ class RentalStoreController extends Controller
             abort(404);
         }
 
-        $product->load(['category', 'subcategory', 'owner', 'location']);
+        $product->load(['category', 'subcategory', 'owner', 'location', 'availabilitySlots']);
 
         // منتجات مشابهة من نفس الفئة
         $relatedProducts = Product::with(['category', 'subcategory', 'owner', 'location'])
