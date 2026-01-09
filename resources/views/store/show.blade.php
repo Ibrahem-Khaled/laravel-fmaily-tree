@@ -432,6 +432,34 @@
                                         </div>
                                     </a>
                                 @endif
+
+                                @if($product->website_url)
+                                    <a href="{{ $product->website_url }}" 
+                                       target="_blank"
+                                       class="contact-btn bg-white border-2 border-purple-500/20 text-purple-600 px-6 py-4 rounded-[1.5rem] flex items-center gap-4 group">
+                                        <div class="w-12 h-12 bg-purple-50 rounded-2xl flex items-center justify-center group-hover:bg-purple-600 group-hover:text-white transition-all">
+                                            <i class="fas fa-globe"></i>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">الموقع الشخصي</p>
+                                            <p class="font-black">زيارة الموقع</p>
+                                        </div>
+                                    </a>
+                                @endif
+
+                                @if($product->location_url)
+                                    <a href="{{ $product->location_url }}" 
+                                       target="_blank"
+                                       class="contact-btn bg-white border-2 border-red-500/20 text-red-600 px-6 py-4 rounded-[1.5rem] flex items-center gap-4 group">
+                                        <div class="w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center group-hover:bg-red-600 group-hover:text-white transition-all">
+                                            <i class="fas fa-map-marked-alt"></i>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">الموقع</p>
+                                            <p class="font-black">عرض على الخريطة</p>
+                                        </div>
+                                    </a>
+                                @endif
                             </div>
                         </div>
                     </div>

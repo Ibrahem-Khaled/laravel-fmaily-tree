@@ -443,7 +443,7 @@
                         </div>
 
                         <!-- Contact Grid -->
-                        @if($product->contact_phone || $product->contact_whatsapp || $product->contact_email || $product->contact_instagram || $product->contact_facebook)
+                        @if($product->contact_phone || $product->contact_whatsapp || $product->contact_email || $product->contact_instagram || $product->contact_facebook || $product->website_url || $product->location_url)
                         <div class="mt-8 mb-10">
                              <h3 class="text-2xl font-bold mb-6 text-gray-800 flex items-center gap-3">
                                 <span class="w-8 h-1 bg-orange-500 rounded-full"></span>
@@ -514,6 +514,34 @@
                                         <div class="text-right">
                                             <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">فيسبوك</p>
                                             <p class="font-black">صفحة الفيسبوك</p>
+                                        </div>
+                                    </a>
+                                @endif
+
+                                @if($product->website_url)
+                                    <a href="{{ $product->website_url }}" 
+                                       target="_blank"
+                                       class="contact-btn bg-white border-2 border-purple-500/20 text-purple-600 px-6 py-4 rounded-[1.5rem] flex items-center gap-4 group">
+                                        <div class="w-12 h-12 bg-purple-50 rounded-2xl flex items-center justify-center group-hover:bg-purple-600 group-hover:text-white transition-all">
+                                            <i class="fas fa-globe"></i>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">الموقع الشخصي</p>
+                                            <p class="font-black">زيارة الموقع</p>
+                                        </div>
+                                    </a>
+                                @endif
+
+                                @if($product->location_url)
+                                    <a href="{{ $product->location_url }}" 
+                                       target="_blank"
+                                       class="contact-btn bg-white border-2 border-red-500/20 text-red-600 px-6 py-4 rounded-[1.5rem] flex items-center gap-4 group">
+                                        <div class="w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center group-hover:bg-red-600 group-hover:text-white transition-all">
+                                            <i class="fas fa-map-marked-alt"></i>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">الموقع</p>
+                                            <p class="font-black">عرض على الخريطة</p>
                                         </div>
                                     </a>
                                 @endif

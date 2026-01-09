@@ -85,6 +85,8 @@ class ProductController extends Controller
             'contact_email' => 'nullable|email|max:255',
             'contact_instagram' => 'nullable|string|max:255',
             'contact_facebook' => 'nullable|string|max:255',
+            'website_url' => 'nullable|url|max:255',
+            'location_url' => 'nullable|url|max:255',
             'main_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'product_category_id' => 'required|exists:product_categories,id',
             'product_subcategory_id' => 'nullable|exists:product_subcategories,id',
@@ -106,7 +108,7 @@ class ProductController extends Controller
         $data = $request->only([
             'name', 'description', 'price',
             'contact_phone', 'contact_whatsapp', 'contact_email',
-            'contact_instagram', 'contact_facebook',
+            'contact_instagram', 'contact_facebook', 'website_url', 'location_url',
             'product_category_id', 'product_subcategory_id', 'owner_id', 'location_id', 'is_active', 'is_rental'
         ]);
 
@@ -206,6 +208,8 @@ class ProductController extends Controller
             'contact_email' => 'nullable|email|max:255',
             'contact_instagram' => 'nullable|string|max:255',
             'contact_facebook' => 'nullable|string|max:255',
+            'website_url' => 'nullable|url|max:255',
+            'location_url' => 'nullable|url|max:255',
             'main_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'product_category_id' => 'required|exists:product_categories,id',
             'product_subcategory_id' => [
@@ -238,7 +242,7 @@ class ProductController extends Controller
         $data = $request->only([
             'name', 'description', 'price',
             'contact_phone', 'contact_whatsapp', 'contact_email',
-            'contact_instagram', 'contact_facebook',
+            'contact_instagram', 'contact_facebook', 'website_url', 'location_url',
             'product_category_id', 'product_subcategory_id', 'owner_id', 'location_id', 
             'is_active', 'is_rental', 'available_all_week', 'all_week_start_time', 'all_week_end_time'
         ]);

@@ -23,10 +23,10 @@
         z-index: 1000;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
         border-bottom: 3px solid var(--header-accent);
+
     }
 
     .header-container {
-        max-width: 1400px;
         margin: 0 auto;
         height: 100%;
         padding: 0 1.5rem;

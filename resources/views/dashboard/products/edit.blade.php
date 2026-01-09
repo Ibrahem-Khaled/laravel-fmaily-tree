@@ -353,6 +353,18 @@
                             <input type="text" name="contact_facebook" class="form-control"
                                    value="{{ old('contact_facebook', $product->contact_facebook) }}" placeholder="رابط الصفحة">
                         </div>
+
+                        <div class="form-group">
+                            <label>الموقع الشخصي</label>
+                            <input type="url" name="website_url" class="form-control"
+                                   value="{{ old('website_url', $product->website_url) }}" placeholder="https://example.com">
+                        </div>
+
+                        <div class="form-group">
+                            <label>رابط الموقع (خرائط جوجل)</label>
+                            <input type="url" name="location_url" class="form-control"
+                                   value="{{ old('location_url', $product->location_url) }}" placeholder="https://maps.google.com/...">
+                        </div>
                     </div>
                 </div>
 

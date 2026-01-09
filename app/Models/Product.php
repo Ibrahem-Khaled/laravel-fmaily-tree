@@ -20,6 +20,8 @@ class Product extends BaseModel
         'contact_email',
         'contact_instagram',
         'contact_facebook',
+        'website_url',
+        'location_url',
         'main_image',
         'product_category_id',
         'product_subcategory_id',
