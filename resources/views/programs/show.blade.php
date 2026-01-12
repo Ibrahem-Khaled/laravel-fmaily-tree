@@ -498,7 +498,7 @@
                                         ->values();
                                     $galleryStartIndex = ($galleryMedia->count() ?? 0) + $loop->index * 1000;
                                 @endphp
-                                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
+                                <div class="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4 lg:gap-6">
                                     @foreach ($gallery->images as $index => $image)
                                         <div
                                             class="group relative overflow-hidden rounded-2xl border border-emerald-100/50 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-white/90 backdrop-blur-sm">
@@ -506,7 +506,7 @@
                                                 onclick="openLightbox({{ $galleryStartIndex + $index }})">
                                                 <img src="{{ asset('storage/' . $image->path) }}"
                                                     alt="{{ $image->name ?? '' }}"
-                                                    class="w-full h-48 md:h-56 object-cover transition-transform duration-700 group-hover:scale-125">
+                                                    class="w-full h-32 sm:h-40 md:h-56 object-cover transition-transform duration-700 group-hover:scale-125">
                                                 <div
                                                     class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                                                 </div>
@@ -519,13 +519,13 @@
                                                 </div>
                                             </div>
                                             @if ($image->name || $image->description)
-                                                <div class="p-4 bg-white">
+                                                <div class="p-2 md:p-4 bg-white">
                                                     @if ($image->name)
-                                                        <h3 class="font-bold text-base line-clamp-1 text-gray-800 mb-2 group-hover:text-emerald-600 transition-colors">
+                                                        <h3 class="font-bold text-xs md:text-base line-clamp-1 text-gray-800 mb-1 md:mb-2 group-hover:text-emerald-600 transition-colors">
                                                             {{ $image->name }}</h3>
                                                     @endif
                                                     @if ($image->description)
-                                                        <p class="text-sm text-gray-600 line-clamp-2 leading-relaxed">
+                                                        <p class="text-xs md:text-sm text-gray-600 line-clamp-2 leading-relaxed">
                                                             {{ $image->description }}</p>
                                                     @endif
                                                 </div>
@@ -573,14 +573,14 @@
                                 {{ $galleryMedia->count() }} صورة
                             </span>
                         </div>
-                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
+                        <div class="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4 lg:gap-6">
                             @foreach ($galleryMedia as $index => $media)
                                 <div
                                     class="group relative overflow-hidden rounded-2xl border border-emerald-100/50 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-white/90 backdrop-blur-sm">
                                     <div class="cursor-pointer relative overflow-hidden" onclick="openLightbox({{ $index }})">
                                         <img src="{{ asset('storage/' . $media->path) }}"
                                             alt="{{ $media->name ?? '' }}"
-                                            class="w-full h-48 md:h-56 object-cover transition-transform duration-700 group-hover:scale-125">
+                                            class="w-full h-32 sm:h-40 md:h-56 object-cover transition-transform duration-700 group-hover:scale-125">
                                         <div
                                             class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                                         </div>
@@ -593,13 +593,13 @@
                                         </div>
                                     </div>
                                     @if ($media->name || $media->description)
-                                        <div class="p-4 bg-white">
+                                        <div class="p-2 md:p-4 bg-white">
                                             @if ($media->name)
-                                                <h3 class="font-bold text-base line-clamp-1 text-gray-800 mb-2 group-hover:text-emerald-600 transition-colors">
+                                                <h3 class="font-bold text-xs md:text-base line-clamp-1 text-gray-800 mb-1 md:mb-2 group-hover:text-emerald-600 transition-colors">
                                                     {{ $media->name }}</h3>
                                             @endif
                                             @if ($media->description)
-                                                <p class="text-sm text-gray-600 line-clamp-2 leading-relaxed">
+                                                <p class="text-xs md:text-sm text-gray-600 line-clamp-2 leading-relaxed">
                                                     {{ $media->description }}</p>
                                             @endif
                                         </div>

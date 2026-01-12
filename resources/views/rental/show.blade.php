@@ -10,17 +10,17 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Changa:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
 
     <style>
         body {
-            font-family: 'Changa', 'Tajawal', sans-serif;
-            background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 50%, #fed7aa 100%);
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);
             min-height: 100vh;
         }
 
         h1, h2, h3 {
-            font-family: 'Changa', sans-serif;
+            font-family: 'Amiri', serif;
         }
 
         .glass-effect {
@@ -30,12 +30,17 @@
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
-        .orange-glow {
-            box-shadow: 0 0 40px rgba(249, 115, 22, 0.2);
+        .green-glow {
+            box-shadow: 0 0 40px rgba(34, 197, 94, 0.3);
+        }
+
+        .green-glow-hover:hover {
+            box-shadow: 0 0 60px rgba(34, 197, 94, 0.5);
+            transform: translateY(-5px);
         }
 
         .gradient-text {
-            background: linear-gradient(135deg, #f59e0b 0%, #f97316 50%, #ea580c 100%);
+            background: linear-gradient(135deg, #16a34a 0%, #22c55e 50%, #4ade80 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -142,7 +147,7 @@
             background: white;
             padding: 1rem;
             border-radius: 1rem;
-            border-right: 4px solid #f97316;
+            border-right: 4px solid #22c55e;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
             transition: all 0.3s ease;
         }
@@ -158,7 +163,7 @@
 
         .product-card:hover {
             transform: translateY(-8px);
-            box-shadow: 0 20px 40px rgba(249, 115, 22, 0.15);
+            box-shadow: 0 20px 40px rgba(34, 197, 94, 0.15);
         }
     </style>
 </head>
@@ -176,12 +181,12 @@
         <!-- Breadcrumb -->
         <nav class="mb-8 fade-in-up" style="animation-delay: 0.1s">
             <ol class="flex items-center space-x-2 space-x-reverse text-sm bg-white/50 w-fit px-4 py-2 rounded-full backdrop-blur-sm">
-                <li><a href="{{ route('home') }}" class="text-orange-600 hover:text-orange-700 font-medium">الرئيسية</a></li>
+                <li><a href="{{ route('home') }}" class="text-green-600 hover:text-green-700 font-medium">الرئيسية</a></li>
                 <li><i class="fas fa-chevron-left text-gray-400 text-[10px]"></i></li>
-                <li><a href="{{ route('rental.index') }}" class="text-orange-600 hover:text-orange-700 font-medium">استعارة الأدوات</a></li>
+                <li><a href="{{ route('rental.index') }}" class="text-green-600 hover:text-green-700 font-medium">استعارة الأدوات</a></li>
                 @if($product->category)
                     <li><i class="fas fa-chevron-left text-gray-400 text-[10px]"></i></li>
-                    <li><a href="{{ route('rental.index', ['category' => $product->category->id]) }}" class="text-orange-600 hover:text-orange-700 font-medium">{{ $product->category->name }}</a></li>
+                    <li><a href="{{ route('rental.index', ['category' => $product->category->id]) }}" class="text-green-600 hover:text-green-700 font-medium">{{ $product->category->name }}</a></li>
                 @endif
                 <li><i class="fas fa-chevron-left text-gray-400 text-[10px]"></i></li>
                 <li class="text-gray-500">{{ Str::limit($product->name, 20) }}</li>
@@ -191,7 +196,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
             <!-- Left: Product Image & Gallery -->
             <div class="lg:col-span-5 fade-in-up" style="animation-delay: 0.2s">
-                <div class="glass-effect rounded-[2.5rem] overflow-hidden orange-glow p-4">
+                <div class="glass-effect rounded-[2.5rem] overflow-hidden green-glow p-4">
                     <div class="product-image-container rounded-3xl" onclick="openLightbox(document.getElementById('mainProductImage').src)">
                         @if($product->main_image)
                             <img src="{{ asset('storage/' . $product->main_image) }}"
@@ -199,8 +204,8 @@
                                  alt="{{ $product->name }}"
                                  class="product-image-zoom">
                         @else
-                            <div class="w-full h-full bg-gradient-to-br from-orange-100 to-amber-100 flex items-center justify-center">
-                                <i class="fas fa-image text-orange-300 text-8xl opacity-30"></i>
+                            <div class="w-full h-full bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center">
+                                <i class="fas fa-image text-green-300 text-8xl opacity-30"></i>
                             </div>
                         @endif
                         <div class="absolute bottom-4 right-4 bg-black/50 text-white p-2 rounded-full backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity">
@@ -216,13 +221,13 @@
                 @if($additionalImages->count() > 0)
                     <div class="mt-6 flex flex-wrap gap-3">
                         <!-- Main Image Thumbnail -->
-                        <div class="w-20 h-20 rounded-2xl overflow-hidden cursor-pointer border-2 border-orange-500 shadow-sm transition-all hover:border-orange-600"
+                        <div class="w-20 h-20 rounded-2xl overflow-hidden cursor-pointer border-2 border-green-500 shadow-sm transition-all hover:border-green-600"
                              onclick="showImage('{{ asset('storage/' . $product->main_image) }}', this)">
                             <img src="{{ asset('storage/' . $product->main_image) }}" class="w-full h-full object-cover">
                         </div>
 
                         @foreach($additionalImages as $img)
-                            <div class="w-20 h-20 rounded-2xl overflow-hidden cursor-pointer border-2 border-transparent shadow-sm transition-all hover:border-orange-400"
+                            <div class="w-20 h-20 rounded-2xl overflow-hidden cursor-pointer border-2 border-transparent shadow-sm transition-all hover:border-green-400"
                                  onclick="showImage('{{ asset('storage/' . $img->file_path) }}', this)">
                                 <img src="{{ asset('storage/' . $img->file_path) }}" class="w-full h-full object-cover">
                             </div>
@@ -243,7 +248,7 @@
                 @if($video || $youtube)
                     <div class="mt-6">
                         <h3 class="text-lg font-bold mb-4 text-gray-800 flex items-center gap-2">
-                            <span class="w-6 h-0.5 bg-orange-500 rounded-full"></span>
+                            <span class="w-6 h-0.5 bg-green-500 rounded-full"></span>
                             فيديو توضيحي
                         </h3>
                         <div class="glass-effect rounded-3xl overflow-hidden shadow-lg border border-white/50 bg-black/5 aspect-video flex items-center justify-center">
@@ -259,7 +264,7 @@
                                 @if($videoId)
                                     <iframe class="w-full h-full" src="https://www.youtube.com/embed/{{ $videoId }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                                 @else
-                                    <a href="{{ $youtube->youtube_url }}" target="_blank" class="text-orange-600 font-bold underline">مشاهدة الفيديو على يوتيوب</a>
+                                    <a href="{{ $youtube->youtube_url }}" target="_blank" class="text-green-600 font-bold underline">مشاهدة الفيديو على يوتيوب</a>
                                 @endif
                             @endif
                         </div>
@@ -271,13 +276,13 @@
             <div class="lg:col-span-7 fade-in-up" style="animation-delay: 0.3s">
                 <div class="glass-effect p-8 lg:p-12 rounded-[2.5rem] shadow-xl relative overflow-hidden">
                     <!-- Decorative Background element -->
-                    <div class="absolute -top-24 -left-24 w-64 h-64 bg-orange-200/20 rounded-full blur-3xl"></div>
-                    <div class="absolute -bottom-24 -right-24 w-64 h-64 bg-amber-200/20 rounded-full blur-3xl"></div>
+                    <div class="absolute -top-24 -left-24 w-64 h-64 bg-green-200/20 rounded-full blur-3xl"></div>
+                    <div class="absolute -bottom-24 -right-24 w-64 h-64 bg-emerald-200/20 rounded-full blur-3xl"></div>
 
                     <div class="relative z-10">
                         <div class="flex flex-wrap gap-2 mb-6">
                             @if($product->category)
-                                <span class="bg-orange-100/80 text-orange-700 px-4 py-1.5 rounded-full text-xs font-bold border border-orange-200">{{ $product->category->name }}</span>
+                                <span class="bg-green-100/80 text-green-700 px-4 py-1.5 rounded-full text-xs font-bold border border-green-200">{{ $product->category->name }}</span>
                             @endif
                             @if($product->subcategory)
                                 <span class="bg-white/80 text-gray-600 px-4 py-1.5 rounded-full text-xs font-medium border border-gray-100">{{ $product->subcategory->name }}</span>
@@ -295,11 +300,11 @@
                             </div>
                         </div>
 
-                        <div class="flex flex-wrap gap-4 py-6 border-y border-orange-100/50 mb-8">
+                        <div class="flex flex-wrap gap-4 py-6 border-y border-green-100/50 mb-8">
                             @if($product->owner)
                                 <div class="flex items-center gap-3 bg-white/50 px-4 py-2 rounded-2xl border border-white/30">
-                                    <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
-                                        <i class="fas fa-user text-orange-600"></i>
+                                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-user text-green-600"></i>
                                     </div>
                                     <div>
                                         <p class="text-[10px] text-gray-500">صاحب الأداة</p>
@@ -310,8 +315,8 @@
 
                             @if($product->location)
                                 <div class="flex items-center gap-3 bg-white/50 px-4 py-2 rounded-2xl border border-white/30">
-                                    <div class="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
-                                        <i class="fas fa-map-marker-alt text-amber-600"></i>
+                                    <div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-map-marker-alt text-emerald-600"></i>
                                     </div>
                                     <div>
                                         <p class="text-[10px] text-gray-500">الموقع</p>
@@ -324,7 +329,7 @@
                         @if($product->description)
                             <div class="mb-10">
                                 <h3 class="text-2xl font-bold mb-4 text-gray-800 flex items-center gap-3">
-                                    <span class="w-8 h-1 bg-orange-500 rounded-full"></span>
+                                    <span class="w-8 h-1 bg-green-500 rounded-full"></span>
                                     عن الأداة
                                 </h3>
                                 <p class="text-gray-600 leading-relaxed text-lg">{{ $product->description }}</p>
@@ -334,7 +339,7 @@
                         @if($product->features && count($product->features) > 0)
                             <div class="mb-10">
                                 <h3 class="text-2xl font-bold mb-4 text-gray-800 flex items-center gap-3">
-                                    <span class="w-8 h-1 bg-orange-500 rounded-full"></span>
+                                    <span class="w-8 h-1 bg-green-500 rounded-full"></span>
                                     المميزات
                                 </h3>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -342,7 +347,7 @@
                                         @if($feature)
                                             <div class="feature-card">
                                                 <div class="flex items-center gap-3">
-                                                    <i class="fas fa-check-circle text-orange-500"></i>
+                                                    <i class="fas fa-check-circle text-green-500"></i>
                                                     <span class="text-gray-700 font-medium">{{ $feature }}</span>
                                                 </div>
                                             </div>
@@ -355,8 +360,8 @@
                         <!-- المواعيد المتاحة -->
                         <div class="mb-10">
                             <h3 class="text-2xl font-bold mb-4 text-gray-800 flex items-center gap-3">
-                                <span class="w-8 h-1 bg-orange-500 rounded-full"></span>
-                                <i class="fas fa-clock text-orange-500"></i>
+                                <span class="w-8 h-1 bg-green-500 rounded-full"></span>
+                                <i class="fas fa-clock text-green-500"></i>
                                 المواعيد المتاحة
                             </h3>
 
@@ -409,14 +414,14 @@
                                         @if($slots->where('is_active', true)->count() > 0)
                                             <div class="feature-card">
                                                 <div class="flex items-start gap-3">
-                                                    <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
-                                                        <i class="{{ $daysIcons[$day] ?? 'fas fa-calendar' }} text-orange-600"></i>
+                                                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                                        <i class="{{ $daysIcons[$day] ?? 'fas fa-calendar' }} text-green-600"></i>
                                                     </div>
                                                     <div class="flex-1">
                                                         <h4 class="font-bold text-gray-800 mb-2">{{ $daysNames[$day] ?? $day }}</h4>
                                                         @foreach($slots->where('is_active', true) as $slot)
                                                             <p class="text-sm text-gray-600 mb-1">
-                                                                <i class="fas fa-clock text-orange-500 ml-1"></i>
+                                                                <i class="fas fa-clock text-green-500 ml-1"></i>
                                                                 {{ \Carbon\Carbon::parse($slot->start_time)->format('g:i A') }} -
                                                                 {{ \Carbon\Carbon::parse($slot->end_time)->format('g:i A') }}
                                                             </p>
@@ -446,7 +451,7 @@
                         @if($product->contact_phone || $product->contact_whatsapp || $product->contact_email || $product->contact_instagram || $product->contact_facebook || $product->website_url || $product->location_url)
                         <div class="mt-8 mb-10">
                              <h3 class="text-2xl font-bold mb-6 text-gray-800 flex items-center gap-3">
-                                <span class="w-8 h-1 bg-orange-500 rounded-full"></span>
+                                <span class="w-8 h-1 bg-green-500 rounded-full"></span>
                                 تواصل الآن
                             </h3>
                             <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -555,14 +560,14 @@
 
         <!-- Rental Request Form -->
         <div class="mt-12 fade-in-up" style="animation-delay: 0.4s">
-            <div class="glass-effect p-8 lg:p-12 rounded-[2.5rem] shadow-xl relative overflow-hidden orange-glow">
+            <div class="glass-effect p-8 lg:p-12 rounded-[2.5rem] shadow-xl relative overflow-hidden green-glow">
                 <!-- Decorative Background element -->
-                <div class="absolute -top-24 -right-24 w-64 h-64 bg-orange-200/20 rounded-full blur-3xl"></div>
-                <div class="absolute -bottom-24 -left-24 w-64 h-64 bg-amber-200/20 rounded-full blur-3xl"></div>
+                <div class="absolute -top-24 -right-24 w-64 h-64 bg-green-200/20 rounded-full blur-3xl"></div>
+                <div class="absolute -bottom-24 -left-24 w-64 h-64 bg-emerald-200/20 rounded-full blur-3xl"></div>
 
                 <div class="relative z-10">
                     <h2 class="text-3xl font-black gradient-text mb-6 flex items-center gap-3">
-                        <span class="w-8 h-1 bg-orange-500 rounded-full"></span>
+                        <span class="w-8 h-1 bg-green-500 rounded-full"></span>
                         <i class="fas fa-hand-holding"></i>
                         طلب استعارة الأداة
                     </h2>
@@ -596,39 +601,39 @@
                             <div>
                                 <label class="block text-gray-700 font-bold mb-2">الاسم <span class="text-red-500">*</span></label>
                                 <input type="text" name="name" value="{{ old('name', auth()->user()->name ?? '') }}"
-                                       class="w-full px-4 py-3 rounded-xl border-2 border-orange-200 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-300 transition-all" required>
+                                       class="w-full px-4 py-3 rounded-xl border-2 border-green-200 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-300 transition-all" required>
                             </div>
 
                             <div>
                                 <label class="block text-gray-700 font-bold mb-2">رقم الهاتف <span class="text-red-500">*</span></label>
                                 <input type="text" name="phone" value="{{ old('phone') }}"
-                                       class="w-full px-4 py-3 rounded-xl border-2 border-orange-200 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-300 transition-all" required>
+                                       class="w-full px-4 py-3 rounded-xl border-2 border-green-200 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-300 transition-all" required>
                             </div>
 
                             <div>
                                 <label class="block text-gray-700 font-bold mb-2">تاريخ بداية الاستعارة <span class="text-red-500">*</span></label>
                                 <input type="date" name="start_date" value="{{ old('start_date') }}"
                                        min="{{ date('Y-m-d') }}"
-                                       class="w-full px-4 py-3 rounded-xl border-2 border-orange-200 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-300 transition-all" required>
+                                       class="w-full px-4 py-3 rounded-xl border-2 border-green-200 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-300 transition-all" required>
                             </div>
 
                             <div>
                                 <label class="block text-gray-700 font-bold mb-2">تاريخ نهاية الاستعارة <span class="text-red-500">*</span></label>
                                 <input type="date" name="end_date" value="{{ old('end_date') }}"
                                        min="{{ date('Y-m-d') }}"
-                                       class="w-full px-4 py-3 rounded-xl border-2 border-orange-200 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-300 transition-all" required>
+                                       class="w-full px-4 py-3 rounded-xl border-2 border-green-200 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-300 transition-all" required>
                             </div>
                         </div>
 
                         <div class="mt-6">
                             <label class="block text-gray-700 font-bold mb-2">ملاحظات إضافية</label>
                             <textarea name="notes" rows="4"
-                                      class="w-full px-4 py-3 rounded-xl border-2 border-orange-200 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-300 transition-all">{{ old('notes') }}</textarea>
+                                      class="w-full px-4 py-3 rounded-xl border-2 border-green-200 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-300 transition-all">{{ old('notes') }}</textarea>
                         </div>
 
                         <div class="mt-8">
                             <button type="submit"
-                                    class="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-4 px-8 rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all text-lg font-bold shadow-lg shadow-orange-200 hover:shadow-orange-300 transform hover:-translate-y-1">
+                                    class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-4 px-8 rounded-xl hover:from-green-600 hover:to-green-700 transition-all text-lg font-bold shadow-lg shadow-green-200 hover:shadow-green-300 transform hover:-translate-y-1">
                                 <i class="fas fa-paper-plane mr-2"></i>إرسال طلب الاستعارة
                             </button>
                         </div>
@@ -654,8 +659,8 @@
                                          alt="{{ $related->name }}"
                                          class="max-w-full max-h-full object-contain transition-all duration-700 group-hover:scale-110">
                                 @else
-                                    <div class="w-full h-full bg-gradient-to-br from-orange-100 to-amber-100 flex items-center justify-center">
-                                        <i class="fas fa-image text-orange-300 text-3xl opacity-50"></i>
+                                    <div class="w-full h-full bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center">
+                                        <i class="fas fa-image text-green-300 text-3xl opacity-50"></i>
                                     </div>
                                 @endif
                                 <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-end p-4">
@@ -664,16 +669,16 @@
                             </a>
                             <div class="p-6 flex flex-col flex-1">
                                 <h4 class="text-lg font-bold mb-3 text-gray-800 line-clamp-2 min-h-[3.5rem]">
-                                    <a href="{{ route('rental.show', $related) }}" class="hover:text-orange-600 transition-colors">
+                                    <a href="{{ route('rental.show', $related) }}" class="hover:text-green-600 transition-colors">
                                         {{ $related->name }}
                                     </a>
                                 </h4>
                                 <div class="mt-auto flex items-center justify-between">
-                                    <span class="text-sm font-bold text-orange-600">
+                                    <span class="text-sm font-bold text-green-600">
                                         متاح للاستعارة
                                     </span>
                                     <a href="{{ route('rental.show', $related) }}"
-                                       class="w-10 h-10 bg-orange-500 text-white rounded-full flex items-center justify-center hover:bg-orange-600 transition-colors shadow-lg shadow-orange-200">
+                                       class="w-10 h-10 bg-green-500 text-white rounded-full flex items-center justify-center hover:bg-green-600 transition-colors shadow-lg shadow-green-200">
                                         <i class="fas fa-chevron-left text-sm"></i>
                                     </a>
                                 </div>
@@ -698,10 +703,10 @@
             // Update border colors
             const thumbnails = thumbElement.parentElement.children;
             for (let thumb of thumbnails) {
-                thumb.classList.remove('border-orange-500');
+                thumb.classList.remove('border-green-500');
                 thumb.classList.add('border-transparent');
             }
-            thumbElement.classList.add('border-orange-500');
+            thumbElement.classList.add('border-green-500');
             thumbElement.classList.remove('border-transparent');
         }
 

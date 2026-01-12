@@ -10,24 +10,24 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Changa:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
 
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        orange: {
-                            50: '#fff7ed',
-                            100: '#ffedd5',
-                            200: '#fed7aa',
-                            300: '#fdba74',
-                            400: '#fb923c',
-                            500: '#f97316',
-                            600: '#ea580c',
-                            700: '#c2410c',
-                            800: '#9a3412',
-                            900: '#7c2d12',
+                        green: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            300: '#86efac',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
                         }
                     }
                 }
@@ -43,11 +43,15 @@
         }
 
         body {
-            font-family: 'Changa', 'Tajawal', sans-serif;
-            background: #fffbf5;
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);
             min-height: 100vh;
             overflow-x: hidden;
             color: #1f2937;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Amiri', serif;
         }
 
         /* الخلفية المتحركة - النسخة الفاتحة */
@@ -56,10 +60,10 @@
             inset: 0;
             z-index: 0;
             background:
-                radial-gradient(circle at 20% 80%, rgba(249, 115, 22, 0.08) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(251, 146, 60, 0.06) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(253, 186, 116, 0.05) 0%, transparent 40%),
-                linear-gradient(180deg, #fff7ed 0%, #ffedd5 50%, #fffbf5 100%);
+                radial-gradient(circle at 20% 80%, rgba(34, 197, 94, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(74, 222, 128, 0.06) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(187, 247, 208, 0.05) 0%, transparent 40%),
+                linear-gradient(180deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);
         }
 
         .floating-orb {
@@ -72,7 +76,7 @@
         .orb-1 {
             width: 500px;
             height: 500px;
-            background: rgba(249, 115, 22, 0.08);
+            background: rgba(34, 197, 94, 0.08);
             top: 5%;
             right: 5%;
             animation-delay: 0s;
@@ -81,7 +85,7 @@
         .orb-2 {
             width: 400px;
             height: 400px;
-            background: rgba(251, 146, 60, 0.06);
+            background: rgba(74, 222, 128, 0.06);
             bottom: 15%;
             left: 10%;
             animation-delay: -7s;
@@ -90,7 +94,7 @@
         .orb-3 {
             width: 350px;
             height: 350px;
-            background: rgba(253, 186, 116, 0.07);
+            background: rgba(187, 247, 208, 0.07);
             top: 45%;
             left: 45%;
             animation-delay: -14s;
@@ -109,17 +113,17 @@
             inset: 0;
             z-index: 1;
             background-image:
-                linear-gradient(rgba(249, 115, 22, 0.04) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(249, 115, 22, 0.04) 1px, transparent 1px);
+                linear-gradient(rgba(34, 197, 94, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(34, 197, 94, 0.04) 1px, transparent 1px);
             background-size: 50px 50px;
             mask-image: radial-gradient(ellipse at center, black 20%, transparent 70%);
         }
 
         /* العنوان الرئيسي */
         .main-title {
-            font-family: 'Changa', sans-serif;
+            font-family: 'Amiri', serif;
             font-weight: 800;
-            background: linear-gradient(135deg, #c2410c 0%, #ea580c 30%, #f97316 50%, #ea580c 70%, #c2410c 100%);
+            background: linear-gradient(135deg, #16a34a 0%, #22c55e 30%, #4ade80 50%, #22c55e 70%, #16a34a 100%);
             background-size: 200% auto;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -138,7 +142,7 @@
             border-radius: 16px;
             overflow: hidden;
             background: white;
-            border: 1px solid rgba(249, 115, 22, 0.15);
+            border: 1px solid rgba(34, 197, 94, 0.15);
             transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
             cursor: pointer;
             box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
@@ -148,7 +152,7 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(135deg, rgba(249, 115, 22, 0.05) 0%, transparent 50%, rgba(249, 115, 22, 0.03) 100%);
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.05) 0%, transparent 50%, rgba(34, 197, 94, 0.03) 100%);
             opacity: 0;
             transition: opacity 0.5s ease;
             z-index: 1;
@@ -160,18 +164,18 @@
 
         .category-card:hover {
             transform: translateY(-8px) scale(1.02);
-            border-color: rgba(249, 115, 22, 0.4);
+            border-color: rgba(34, 197, 94, 0.4);
             box-shadow:
-                0 25px 50px -12px rgba(249, 115, 22, 0.2),
-                0 0 0 1px rgba(249, 115, 22, 0.1);
+                0 25px 50px -12px rgba(34, 197, 94, 0.2),
+                0 0 0 1px rgba(34, 197, 94, 0.1);
         }
 
         .category-card.active {
-            border-color: #f97316;
-            background: linear-gradient(145deg, rgba(249, 115, 22, 0.08) 0%, rgba(255, 255, 255, 1) 100%);
+            border-color: #22c55e;
+            background: linear-gradient(145deg, rgba(34, 197, 94, 0.08) 0%, rgba(255, 255, 255, 1) 100%);
             box-shadow:
-                0 10px 40px rgba(249, 115, 22, 0.2),
-                inset 0 0 0 2px rgba(249, 115, 22, 0.2);
+                0 10px 40px rgba(34, 197, 94, 0.2),
+                inset 0 0 0 2px rgba(34, 197, 94, 0.2);
         }
 
         .category-image-wrapper {
@@ -200,7 +204,7 @@
         .category-placeholder {
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #ffedd5 0%, #fed7aa 50%, #fdba74 100%);
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 50%, #86efac 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -208,7 +212,7 @@
 
         .category-placeholder i {
             font-size: 2rem;
-            color: rgba(234, 88, 12, 0.4);
+            color: rgba(22, 163, 74, 0.4);
         }
 
         .category-content {
@@ -223,17 +227,17 @@
         }
 
         .category-name {
-            font-family: 'Changa', sans-serif;
+            font-family: 'Amiri', serif;
             font-weight: 700;
             font-size: 0.8rem;
-            color: #9a3412;
+            color: #166534;
             margin-bottom: 0.25rem;
             transition: color 0.3s ease;
             line-height: 1.4;
         }
 
         .category-card:hover .category-name {
-            color: #ea580c;
+            color: #22c55e;
         }
 
         .category-description {
@@ -253,17 +257,17 @@
             align-items: center;
             gap: 0.25rem;
             padding: 0.25rem 0.6rem;
-            background: linear-gradient(135deg, #fff7ed, #ffedd5);
-            border: 1px solid rgba(249, 115, 22, 0.2);
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border: 1px solid rgba(34, 197, 94, 0.2);
             border-radius: 16px;
             font-size: 0.65rem;
-            color: #ea580c;
+            color: #22c55e;
             font-weight: 600;
             margin-top: 0.35rem;
         }
 
         .category-card.active .category-count {
-            background: linear-gradient(135deg, #f97316, #ea580c);
+            background: linear-gradient(135deg, #22c55e, #16a34a);
             color: white;
             border-color: transparent;
         }
@@ -286,7 +290,7 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(249, 115, 22, 0.08), transparent);
+            background: linear-gradient(90deg, transparent, rgba(34, 197, 94, 0.08), transparent);
             transition: left 0.7s ease;
             z-index: 1;
         }
@@ -297,10 +301,10 @@
 
         .product-card:hover {
             transform: translateY(-10px);
-            border-color: rgba(249, 115, 22, 0.3);
+            border-color: rgba(34, 197, 94, 0.3);
             box-shadow:
-                0 30px 60px -15px rgba(249, 115, 22, 0.15),
-                0 0 0 1px rgba(249, 115, 22, 0.1);
+                0 30px 60px -15px rgba(34, 197, 94, 0.15),
+                0 0 0 1px rgba(34, 197, 94, 0.1);
         }
 
         .product-image-wrapper {
@@ -345,17 +349,17 @@
             align-items: center;
             gap: 0.35rem;
             padding: 0.4rem 0.85rem;
-            background: linear-gradient(135deg, #fff7ed, #ffedd5);
-            border: 1px solid rgba(249, 115, 22, 0.15);
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border: 1px solid rgba(34, 197, 94, 0.15);
             border-radius: 20px;
             font-size: 0.7rem;
-            color: #ea580c;
+            color: #22c55e;
             font-weight: 600;
             margin-bottom: 0.75rem;
         }
 
         .product-name {
-            font-family: 'Changa', sans-serif;
+            font-family: 'Amiri', serif;
             font-weight: 600;
             font-size: 1.15rem;
             color: #1f2937;
@@ -369,7 +373,7 @@
         }
 
         .product-card:hover .product-name {
-            color: #ea580c;
+            color: #22c55e;
         }
 
         .product-meta {
@@ -388,7 +392,7 @@
         }
 
         .product-meta-item i {
-            color: #f97316;
+            color: #22c55e;
         }
 
         .product-description {
@@ -410,11 +414,11 @@
             gap: 0.5rem;
             width: 100%;
             padding: 0.875rem 1.5rem;
-            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
             border: none;
             border-radius: 14px;
             color: white;
-            font-family: 'Changa', sans-serif;
+            font-family: 'Tajawal', sans-serif;
             font-weight: 600;
             font-size: 0.95rem;
             cursor: pointer;
@@ -427,7 +431,7 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+            background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
             opacity: 0;
             transition: opacity 0.4s ease;
         }
@@ -438,7 +442,7 @@
 
         .rental-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px -5px rgba(249, 115, 22, 0.4);
+            box-shadow: 0 10px 30px -5px rgba(34, 197, 94, 0.4);
         }
 
         .rental-btn span,
@@ -453,17 +457,17 @@
             align-items: center;
             gap: 0.5rem;
             padding: 0.5rem 1rem;
-            background: linear-gradient(135deg, #fff7ed, #ffedd5);
-            border: 1px solid rgba(249, 115, 22, 0.25);
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border: 1px solid rgba(34, 197, 94, 0.25);
             border-radius: 30px;
-            color: #ea580c;
+            color: #22c55e;
             font-size: 0.85rem;
             font-weight: 500;
             transition: all 0.3s ease;
         }
 
         .active-filter:hover {
-            background: linear-gradient(135deg, #ffedd5, #fed7aa);
+            background: linear-gradient(135deg, #dcfce7, #bbf7d0);
         }
 
         .active-filter .remove-btn {
@@ -472,9 +476,9 @@
             justify-content: center;
             width: 20px;
             height: 20px;
-            background: rgba(234, 88, 12, 0.15);
+            background: rgba(22, 163, 74, 0.15);
             border-radius: 50%;
-            color: #ea580c;
+            color: #22c55e;
             transition: all 0.3s ease;
         }
 
@@ -493,8 +497,8 @@
             width: 120px;
             height: 120px;
             margin: 0 auto 2rem;
-            background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
-            border: 2px solid rgba(249, 115, 22, 0.2);
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border: 2px solid rgba(34, 197, 94, 0.2);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -503,7 +507,7 @@
 
         .empty-icon i {
             font-size: 3rem;
-            color: #f97316;
+            color: #22c55e;
         }
 
         /* التمرير */
@@ -512,16 +516,16 @@
         }
 
         ::-webkit-scrollbar-track {
-            background: #fff7ed;
+            background: #f0fdf4;
         }
 
         ::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, #f97316, #ea580c);
+            background: linear-gradient(180deg, #22c55e, #16a34a);
             border-radius: 4px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(180deg, #ea580c, #c2410c);
+            background: linear-gradient(180deg, #16a34a, #15803d);
         }
 
         /* الأنيميشن */
@@ -571,10 +575,10 @@
 
         /* Section titles */
         .section-title {
-            font-family: 'Changa', sans-serif;
+            font-family: 'Amiri', serif;
             font-weight: 700;
             font-size: 1.5rem;
-            color: #9a3412;
+            color: #166534;
             margin-bottom: 1.5rem;
             display: flex;
             align-items: center;
@@ -585,7 +589,7 @@
             content: '';
             width: 4px;
             height: 24px;
-            background: linear-gradient(180deg, #f97316, #ea580c);
+            background: linear-gradient(180deg, #22c55e, #16a34a);
             border-radius: 2px;
         }
 
@@ -594,22 +598,22 @@
             text-align: center;
             padding: 3rem;
             background: white;
-            border: 1px solid rgba(249, 115, 22, 0.15);
+            border: 1px solid rgba(34, 197, 94, 0.15);
             border-radius: 24px;
             margin-bottom: 2rem;
-            box-shadow: 0 4px 30px rgba(249, 115, 22, 0.08);
+            box-shadow: 0 4px 30px rgba(34, 197, 94, 0.08);
         }
 
         .welcome-icon {
             width: 80px;
             height: 80px;
             margin: 0 auto 1.5rem;
-            background: linear-gradient(135deg, #f97316, #ea580c);
+            background: linear-gradient(135deg, #22c55e, #16a34a);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 10px 40px rgba(249, 115, 22, 0.3);
+            box-shadow: 0 10px 40px rgba(34, 197, 94, 0.3);
         }
 
         .welcome-icon i {
@@ -618,10 +622,10 @@
         }
 
         .welcome-title {
-            font-family: 'Changa', sans-serif;
+            font-family: 'Amiri', serif;
             font-weight: 700;
             font-size: 1.5rem;
-            color: #9a3412;
+            color: #166534;
             margin-bottom: 0.75rem;
         }
 
@@ -670,7 +674,7 @@
         <!-- قسم الفئات -->
         <div class="mb-12">
             <h2 class="section-title fade-in">
-                <i class="fas fa-th-large text-orange-500"></i>
+                <i class="fas fa-th-large text-green-500"></i>
                 تصفح حسب الفئة
             </h2>
 
@@ -692,7 +696,7 @@
                             <div class="category-image-overlay"></div>
 
                             @if($categoryId == $category->id)
-                                <div class="absolute top-2 left-2 w-5 h-5 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center z-10 shadow-lg">
+                                <div class="absolute top-2 left-2 w-5 h-5 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center z-10 shadow-lg">
                                     <i class="fas fa-check text-white text-[8px]"></i>
                                 </div>
                             @endif
@@ -716,7 +720,7 @@
         @if($categoryId || $personId)
         <div class="flex items-center gap-3 flex-wrap mb-8 fade-in">
             <span class="filter-label text-sm font-medium">
-                <i class="fas fa-filter ml-2 text-orange-500"></i>الفلترة الحالية:
+                <i class="fas fa-filter ml-2 text-green-500"></i>الفلترة الحالية:
             </span>
             @if($categoryId)
                 @php $selectedCategory = $categories->firstWhere('id', $categoryId); @endphp
@@ -751,7 +755,7 @@
         @if($products->count() > 0)
             <div class="mb-8">
                 <h2 class="section-title fade-in">
-                    <i class="fas fa-hand-holding text-orange-500"></i>
+                    <i class="fas fa-hand-holding text-green-500"></i>
                     الأدوات المتاحة للاستعارة
                 </h2>
             </div>
@@ -768,7 +772,7 @@
                                     <div class="lazy-placeholder absolute inset-0"></div>
                                 @else
                                     <div class="w-full h-full flex items-center justify-center">
-                                        <i class="fas fa-image text-orange-300 text-5xl"></i>
+                                        <i class="fas fa-image text-green-300 text-5xl"></i>
                                     </div>
                                 @endif
                                 <div class="product-overlay"></div>
@@ -828,7 +832,7 @@
                                     @endif
                                 </div>
                             @elseif($product->availabilitySlots && $product->availabilitySlots->where('is_active', true)->count() > 0)
-                                <div class="mt-3 mb-3 flex items-center gap-2 text-sm text-orange-600">
+                                <div class="mt-3 mb-3 flex items-center gap-2 text-sm text-green-600">
                                     <i class="fas fa-clock"></i>
                                     <span class="font-medium">
                                         {{ $product->availabilitySlots->where('is_active', true)->count() }} موعد متاح
@@ -860,7 +864,7 @@
                     <div class="empty-icon">
                         <i class="fas fa-search"></i>
                     </div>
-                    <h3 class="text-2xl font-bold text-orange-800 mb-3">لا توجد أدوات</h3>
+                    <h3 class="text-2xl font-bold text-green-800 mb-3">لا توجد أدوات</h3>
                     <p class="text-gray-500 max-w-md mx-auto">
                         لم نجد أدوات تطابق معايير البحث الحالية. جرب تغيير الفئة أو البحث بكلمات مختلفة.
                     </p>
