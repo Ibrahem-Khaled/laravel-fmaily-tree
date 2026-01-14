@@ -1095,7 +1095,7 @@
             <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
                 <div class="text-right mb-6 md:mb-8">
                     <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">
-                        نفتخر بهم
+                        نفخر بهم
                     </h2>
                     <p class="text-gray-600 text-xs md:text-sm mt-2">إنجازات وإبداعات مميزة</p>
                 </div>

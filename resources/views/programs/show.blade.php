@@ -322,9 +322,9 @@
                     $coverImage = $program->cover_image_path ?? $program->path;
                 @endphp
                 @if ($coverImage)
-                    <div class="relative h-60 sm:h-72 lg:h-80 overflow-hidden">
+                    <div class="relative h-60 sm:h-72 lg:h-80 overflow-hidden bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center">
                         <img src="{{ asset('storage/' . $coverImage) }}" alt="{{ $program->program_title }}"
-                            class="w-full h-full object-cover">
+                            class="w-full h-full object-contain">
                         <div
                             class="absolute inset-0 bg-gradient-to-t from-emerald-900/80 via-emerald-900/35 to-transparent">
                         </div>
