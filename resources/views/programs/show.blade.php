@@ -322,15 +322,15 @@
                     $coverImage = $program->cover_image_path ?? $program->path;
                 @endphp
                 @if ($coverImage)
-                    <div class="relative h-60 sm:h-72 lg:h-80 overflow-hidden bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center">
+                    <div class="relative h-60 sm:h-72 lg:h-80 overflow-hidden bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center mb-6">
                         <img src="{{ asset('storage/' . $coverImage) }}" alt="{{ $program->program_title }}"
                             class="w-full h-full object-contain">
                     </div>
                 @else
-                    <div class="h-40 bg-gradient-to-br from-emerald-500/20 to-teal-500/20"></div>
+                    <div class="h-40 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 mb-6"></div>
                 @endif
 
-                <div class="p-6 lg:p-10 -mt-24 relative z-10">
+                <div class="p-6 lg:p-10 relative z-10">
                     <div class="bg-white/95 backdrop-blur-md rounded-3xl p-6 lg:p-8 border border-white/60 shadow-2xl relative overflow-hidden">
                         {{-- خلفية زخرفية --}}
                         <div class="absolute top-0 left-0 w-64 h-64 bg-gradient-to-br from-emerald-100/30 to-teal-100/30 rounded-full blur-3xl -z-0"></div>
