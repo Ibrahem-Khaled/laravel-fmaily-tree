@@ -124,6 +124,7 @@ class ProudOfController extends Controller
             'proud_of_description' => $item->proud_of_description,
             'name' => $item->name,
             'image_url' => $item->path ? asset('storage/' . $item->path) : null,
+            'cover_image_url' => $item->cover_image_path ? asset('storage/' . $item->cover_image_path) : null,
             'category_id' => $item->category_id,
         ]);
     }

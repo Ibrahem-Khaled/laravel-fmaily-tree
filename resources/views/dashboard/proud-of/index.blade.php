@@ -403,6 +403,20 @@
                     </div>
                     
                     <div class="form-group">
+                        <label for="edit_cover_image" class="font-weight-bold">صورة الغلاف (اختياري)</label>
+                        <div class="custom-file">
+                            <input type="file" name="cover_image" id="edit_cover_image" 
+                                   class="custom-file-input" accept="image/*">
+                            <label class="custom-file-label" for="edit_cover_image">اختر صورة غلاف جديدة (اختياري)...</label>
+                        </div>
+                        <small class="form-text text-muted">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            تظهر في أعلى صفحة التفاصيل
+                        </small>
+                        <div class="mt-2" id="editCoverImagePreview"></div>
+                    </div>
+                    
+                    <div class="form-group">
                         <label for="edit_name" class="font-weight-bold">اسم الصورة (اختياري)</label>
                         <input type="text" name="name" id="edit_name" 
                                class="form-control" 
@@ -488,6 +502,20 @@
                             <small class="text-muted d-block mt-1">الصورة الحالية</small>
                         </div>
                     `;
+                } else {
+                    document.getElementById('editImagePreview').innerHTML = '';
+                }
+                
+                // عرض صورة الغلاف الحالية
+                if (data.cover_image_url) {
+                    document.getElementById('editCoverImagePreview').innerHTML = `
+                        <div class="border rounded p-2 bg-light">
+                            <img src="${data.cover_image_url}" class="img-fluid rounded" style="max-height: 200px;">
+                            <small class="text-muted d-block mt-1">صورة الغلاف الحالية</small>
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('editCoverImagePreview').innerHTML = '';
                 }
                 
                 $('#editModal').modal('show');
@@ -519,10 +547,27 @@
         if (file) {
             const reader = new FileReader();
             reader.onload = function(e) {
+                const existingPreview = document.getElementById('editImagePreview').innerHTML;
                 document.getElementById('editImagePreview').innerHTML = `
                     <div class="border rounded p-2 bg-light">
                         <img src="${e.target.result}" class="img-fluid rounded" style="max-height: 200px;">
                         <small class="text-muted d-block mt-1">معاينة الصورة الجديدة</small>
+                    </div>
+                `;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    document.getElementById('edit_cover_image').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('editCoverImagePreview').innerHTML = `
+                    <div class="border rounded p-2 bg-light">
+                        <img src="${e.target.result}" class="img-fluid rounded" style="max-height: 200px;">
+                        <small class="text-muted d-block mt-1">معاينة صورة الغلاف الجديدة</small>
                     </div>
                 `;
             };
