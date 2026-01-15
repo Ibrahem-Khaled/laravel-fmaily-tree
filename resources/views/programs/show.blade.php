@@ -335,7 +335,7 @@
 
                         <div class="relative z-10 flex flex-col md:flex-row md:items-start md:justify-between gap-4 sm:gap-6">
                             <div class="flex-1">
-                                <div class="inline-flex items-center gap-2 px-2.5 py-1 sm:px-3 bg-emerald-600 text-white rounded-full text-xs font-bold mb-3 sm:mb-4">
+                                {{-- <div class="inline-flex items-center gap-2 px-2.5 py-1 sm:px-3 bg-emerald-600 text-white rounded-full text-xs font-bold mb-3 sm:mb-4">
                                     <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
                                     </svg>
@@ -344,7 +344,7 @@
                                     @else
                                         برنامج
                                     @endif
-                                </div>
+                                </div> --}}
                                 <h1
                                     class="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4 leading-relaxed font-serif text-gray-800">
                                     @if($program->is_proud_of)
