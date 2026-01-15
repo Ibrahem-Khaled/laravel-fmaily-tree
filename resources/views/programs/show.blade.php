@@ -322,12 +322,12 @@
                     $coverImage = $program->cover_image_path ?? $program->path;
                 @endphp
                 @if ($coverImage)
-                    <div class="relative h-48 sm:h-60 lg:h-72 overflow-hidden bg-gray-100 flex items-center justify-center mb-3 sm:mb-4">
+                    <div class="relative h-64 sm:h-80 lg:h-96 xl:h-[500px] overflow-hidden bg-gray-100 flex items-center justify-center mb-3 sm:mb-4">
                         <img src="{{ asset('storage/' . $coverImage) }}" alt="{{ $program->program_title }}"
-                            class="w-full h-full object-contain">
+                            class="w-full h-full object-contain max-w-full">
                     </div>
                 @else
-                    <div class="h-32 sm:h-40 bg-gray-100 mb-3 sm:mb-4"></div>
+                    <div class="h-40 sm:h-56 lg:h-72 bg-gray-100 mb-3 sm:mb-4"></div>
                 @endif
 
                 <div class="px-3 py-4 sm:px-6 sm:py-6 lg:px-10 lg:py-8 relative z-10">
