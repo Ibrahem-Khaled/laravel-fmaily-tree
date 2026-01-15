@@ -322,27 +322,21 @@
                     $coverImage = $program->cover_image_path ?? $program->path;
                 @endphp
                 @if ($coverImage)
-                    <div class="relative h-60 sm:h-72 lg:h-80 overflow-hidden bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center mb-6">
+                    <div class="relative h-48 sm:h-60 lg:h-72 overflow-hidden bg-gray-100 flex items-center justify-center mb-3 sm:mb-4">
                         <img src="{{ asset('storage/' . $coverImage) }}" alt="{{ $program->program_title }}"
                             class="w-full h-full object-contain">
-                        <div
-                            class="absolute inset-0 bg-gradient-to-t from-emerald-900/80 via-emerald-900/35 to-transparent">
-                        </div>
                     </div>
                 @else
-                    <div class="h-40 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 mb-6"></div>
+                    <div class="h-32 sm:h-40 bg-gray-100 mb-3 sm:mb-4"></div>
                 @endif
 
-                <div class="p-6 lg:p-10 relative z-10">
-                    <div class="bg-white/95 backdrop-blur-md rounded-3xl p-6 lg:p-8 border border-white/60 shadow-2xl relative overflow-hidden">
-                        {{-- خلفية زخرفية --}}
-                        <div class="absolute top-0 left-0 w-64 h-64 bg-gradient-to-br from-emerald-100/30 to-teal-100/30 rounded-full blur-3xl -z-0"></div>
-                        <div class="absolute bottom-0 right-0 w-64 h-64 bg-gradient-to-tl from-emerald-100/30 to-teal-100/30 rounded-full blur-3xl -z-0"></div>
+                <div class="px-3 py-4 sm:px-6 sm:py-6 lg:px-10 lg:py-8 relative z-10">
+                    <div class="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 border border-gray-200 shadow-lg relative overflow-hidden">
 
-                        <div class="relative z-10 flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+                        <div class="relative z-10 flex flex-col md:flex-row md:items-start md:justify-between gap-4 sm:gap-6">
                             <div class="flex-1">
-                                <div class="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-full text-xs font-bold mb-4 shadow-lg">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div class="inline-flex items-center gap-2 px-2.5 py-1 sm:px-3 bg-emerald-600 text-white rounded-full text-xs font-bold mb-3 sm:mb-4">
+                                    <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
                                     </svg>
                                     @if($program->is_proud_of)
@@ -352,7 +346,7 @@
                                     @endif
                                 </div>
                                 <h1
-                                    class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 leading-relaxed font-serif bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-600 text-transparent bg-clip-text">
+                                    class="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4 leading-relaxed font-serif text-gray-800">
                                     @if($program->is_proud_of)
                                         {{ $program->proud_of_title ?? ($program->name ?? 'عنصر') }}
                                     @else
@@ -360,17 +354,17 @@
                                     @endif
                                 </h1>
                                 @if ($program->is_proud_of && $program->proud_of_description)
-                                    <div class="text-gray-600 leading-relaxed text-lg program-description">
+                                    <div class="text-gray-600 leading-relaxed text-sm sm:text-base program-description">
                                         {!! $program->proud_of_description !!}
                                     </div>
                                 @elseif($program->program_description)
-                                    <div class="text-gray-600 leading-relaxed text-lg program-description">
+                                    <div class="text-gray-600 leading-relaxed text-sm sm:text-base program-description">
                                         {!! $program->program_description !!}
                                     </div>
                                 @endif
 
                                 {{-- معلومات سريعة محسّنة --}}
-                                <div class="mt-6 flex flex-wrap items-center gap-4 text-sm">
+                                <div class="mt-4 sm:mt-6 flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm">
                                     <div class="flex items-center gap-2 text-gray-600">
                                         <div class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
                                             <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -394,26 +388,25 @@
                 </div>
             </header>
 
-            <div class="p-6 lg:p-10 space-y-14">
+            <div class="px-3 py-4 sm:px-6 sm:py-6 lg:px-10 lg:py-8 space-y-8 sm:space-y-10 lg:space-y-14">
                 {{-- البرامج الفرعية --}}
                 @if ($subPrograms->isNotEmpty())
-                    <section class="relative mb-12">
-                        <div class="flex flex-wrap items-center justify-between gap-3 mb-8 p-6 bg-gradient-to-r from-emerald-50/80 via-white to-teal-50/80 rounded-2xl border-2 border-emerald-400 shadow-lg backdrop-blur-sm">
-                            <div class="flex items-center gap-4">
-                                <div class="w-2 h-14 bg-gradient-to-b from-emerald-500 to-teal-500 rounded-full shadow-lg"></div>
+                    <section class="relative mb-6 sm:mb-8 lg:mb-12">
+                        <div class="flex flex-wrap items-center justify-between gap-2 sm:gap-3 mb-4 sm:mb-6 p-3 sm:p-4 lg:p-6 bg-emerald-50 rounded-xl sm:rounded-2xl border border-emerald-200 shadow-md">
+                            <div class="flex items-center gap-2 sm:gap-4">
+                                <div class="w-1.5 sm:w-2 h-10 sm:h-14 bg-emerald-600 rounded-full"></div>
                             <div>
                                 <h2
-                                    class="text-2xl lg:text-3xl font-bold font-serif bg-gradient-to-r from-emerald-600 to-teal-500 text-transparent bg-clip-text drop-shadow-sm">
+                                    class="text-lg sm:text-xl lg:text-2xl font-bold font-serif text-emerald-700">
                                     البرامج والانشطة</h2>
-                                {{-- <p class="text-sm text-gray-500 mt-1">انقر على أي برنامج لعرض التفاصيل</p> --}}
                                 </div>
                             </div>
                             <span
-                                class="px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm rounded-full font-semibold shadow-xl border-2 border-emerald-400/30">
+                                class="px-3 py-1.5 sm:px-4 sm:py-2 bg-emerald-600 text-white text-xs sm:text-sm rounded-full font-semibold">
                                 {{ $subPrograms->count() }} برنامج
                             </span>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
                             @foreach ($subPrograms as $subProgram)
                                 <a href="{{ route('programs.show', $subProgram) }}"
                                     class="group block bg-white rounded-3xl overflow-hidden border-2 border-emerald-500 shadow-xl hover:shadow-emerald-glow transition-all duration-500 hover:-translate-y-2 sub-program-card relative isolate">
@@ -473,21 +466,21 @@
                 @if ($programGalleries->isNotEmpty())
                     @foreach ($programGalleries as $gallery)
                         <section class="relative">
-                            <div class="flex flex-wrap items-center justify-between gap-3 mb-8">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-1 h-12 bg-gradient-to-b from-emerald-500 to-teal-500 rounded-full"></div>
+                            <div class="flex flex-wrap items-center justify-between gap-2 sm:gap-3 mb-4 sm:mb-6">
+                                <div class="flex items-center gap-2 sm:gap-4">
+                                    <div class="w-1 h-8 sm:h-12 bg-emerald-600 rounded-full"></div>
                                 <div>
                                     <h2
-                                        class="text-2xl lg:text-3xl font-bold font-serif bg-gradient-to-r from-emerald-600 to-teal-500 text-transparent bg-clip-text">
+                                        class="text-lg sm:text-xl lg:text-2xl font-bold font-serif text-emerald-700">
                                         {{ $gallery->title }}
                                     </h2>
                                     @if ($gallery->description)
-                                        <p class="text-gray-600 text-sm mt-2">{{ $gallery->description }}</p>
+                                        <p class="text-gray-600 text-xs sm:text-sm mt-1 sm:mt-2">{{ $gallery->description }}</p>
                                     @endif
                                     </div>
                                 </div>
                                 <span
-                                    class="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm rounded-full font-semibold shadow-lg">
+                                    class="px-3 py-1.5 sm:px-4 sm:py-2 bg-emerald-600 text-white text-xs sm:text-sm rounded-full font-semibold">
                                     {{ $gallery->images->count() }} صورة
                                 </span>
                             </div>
@@ -498,7 +491,7 @@
                                         ->values();
                                     $galleryStartIndex = ($galleryMedia->count() ?? 0) + $loop->index * 1000;
                                 @endphp
-                                <div class="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4 lg:gap-6">
+                                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4 lg:gap-6">
                                     @foreach ($gallery->images as $index => $image)
                                         <div
                                             class="group relative overflow-hidden rounded-2xl border border-emerald-100/50 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-white/90 backdrop-blur-sm">
@@ -559,21 +552,21 @@
                 @if ($galleryMedia->isNotEmpty())
                     <section class="relative">
                         <div class="flex flex-wrap items-center justify-between gap-3 mb-8">
-                            <div class="flex items-center gap-4">
-                                <div class="w-1 h-12 bg-gradient-to-b from-emerald-500 to-teal-500 rounded-full"></div>
+                            <div class="flex items-center gap-2 sm:gap-4">
+                                <div class="w-1 h-8 sm:h-12 bg-emerald-600 rounded-full"></div>
                             <div>
                                 <h2
-                                    class="text-2xl lg:text-3xl font-bold font-serif bg-gradient-to-r from-emerald-600 to-teal-500 text-transparent bg-clip-text">
+                                    class="text-lg sm:text-xl lg:text-2xl font-bold font-serif text-emerald-700">
                                     {{ $program->name ?? ($program->program_title ?? 'معرض الصور') }}</h2>
-                                    <p class="text-sm text-gray-500 mt-1">مجموعة مختارة من الصور</p>
+                                    <p class="text-xs sm:text-sm text-gray-500 mt-1">مجموعة مختارة من الصور</p>
                                 </div>
                             </div>
                             <span
-                                class="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm rounded-full font-semibold shadow-lg">
+                                class="px-3 py-1.5 sm:px-4 sm:py-2 bg-emerald-600 text-white text-xs sm:text-sm rounded-full font-semibold">
                                 {{ $galleryMedia->count() }} صورة
                             </span>
                         </div>
-                        <div class="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4 lg:gap-6">
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4 lg:gap-6">
                             @foreach ($galleryMedia as $index => $media)
                                 <div
                                     class="group relative overflow-hidden rounded-2xl border border-emerald-100/50 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-white/90 backdrop-blur-sm">
@@ -640,21 +633,21 @@
                 @if ($videoMedia->isNotEmpty())
                     <section class="relative">
                         <div class="flex flex-wrap items-center justify-between gap-3 mb-8">
-                            <div class="flex items-center gap-4">
-                                <div class="w-1 h-12 bg-gradient-to-b from-red-500 to-red-600 rounded-full"></div>
+                            <div class="flex items-center gap-2 sm:gap-4">
+                                <div class="w-1 h-8 sm:h-12 bg-red-600 rounded-full"></div>
                             <div>
                                 <h2
-                                        class="text-2xl lg:text-3xl font-bold font-serif bg-gradient-to-r from-red-600 to-red-500 text-transparent bg-clip-text">
+                                        class="text-lg sm:text-xl lg:text-2xl font-bold font-serif text-red-700">
                                     مقتطفات الفيديو</h2>
-                                <p class="text-sm text-gray-500 mt-1">لقطات مختارة تسلط الضوء على البرنامج</p>
+                                <p class="text-xs sm:text-sm text-gray-500 mt-1">لقطات مختارة تسلط الضوء على البرنامج</p>
                                 </div>
                             </div>
                             <span
-                                class="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white text-sm rounded-full font-semibold shadow-lg">
+                                class="px-3 py-1.5 sm:px-4 sm:py-2 bg-red-600 text-white text-xs sm:text-sm rounded-full font-semibold">
                                 {{ $videoMedia->count() }} فيديو
                             </span>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
                             @foreach ($videoMedia as $video)
                                 <div
                                     class="group bg-white/90 backdrop-blur-sm rounded-3xl overflow-hidden border border-red-100/50 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
@@ -694,24 +687,24 @@
                 @if ($programLinks->isNotEmpty())
                     <section class="relative">
                         <div class="flex flex-wrap items-center justify-between gap-3 mb-8">
-                            <div class="flex items-center gap-4">
-                                <div class="w-1 h-12 bg-gradient-to-b from-blue-500 to-blue-600 rounded-full"></div>
+                            <div class="flex items-center gap-2 sm:gap-4">
+                                <div class="w-1 h-8 sm:h-12 bg-blue-600 rounded-full"></div>
                             <div>
                                 <h2
-                                        class="text-2xl lg:text-3xl font-bold font-serif bg-gradient-to-r from-blue-600 to-blue-500 text-transparent bg-clip-text">
+                                        class="text-lg sm:text-xl lg:text-2xl font-bold font-serif text-blue-700">
                                     روابط مفيدة</h2>
-                                <p class="text-sm text-gray-500 mt-1">مصادر ومراجع تعزز محتوى البرنامج</p>
+                                <p class="text-xs sm:text-sm text-gray-500 mt-1">مصادر ومراجع تعزز محتوى البرنامج</p>
                                 </div>
                             </div>
                             <span
-                                class="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm rounded-full font-semibold shadow-lg">
+                                class="px-3 py-1.5 sm:px-4 sm:py-2 bg-blue-600 text-white text-xs sm:text-sm rounded-full font-semibold">
                                 {{ $programLinks->count() }} رابط
                             </span>
                         </div>
-                        <div class="space-y-4">
+                        <div class="space-y-3 sm:space-y-4">
                             @foreach ($programLinks as $link)
                                 <a href="{{ $link->url }}" target="_blank"
-                                    class="group flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 lg:p-6 bg-white/90 backdrop-blur-sm border border-blue-100/50 rounded-2xl hover:border-blue-300 transition-all duration-300 shadow-lg hover:shadow-2xl hover:-translate-y-1">
+                                    class="group flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 p-3 sm:p-4 lg:p-5 bg-white border border-blue-100 rounded-xl sm:rounded-2xl hover:border-blue-300 transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1">
                                     <div class="flex-1">
                                         <div class="flex items-center gap-3 mb-2">
                                             <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
