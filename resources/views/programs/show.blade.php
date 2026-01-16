@@ -466,40 +466,25 @@
                 @if ($programGalleries->isNotEmpty())
                     @foreach ($programGalleries as $gallery)
                         <section class="relative">
-                            <div class="flex flex-wrap items-center justify-between gap-2 sm:gap-3 mb-4 sm:mb-6">
-                                <div class="flex items-center gap-2 sm:gap-4">
-                                    <div class="w-1 h-8 sm:h-12 bg-emerald-600 rounded-full"></div>
-                                <div>
-                                    <h2
-                                        class="text-lg sm:text-xl lg:text-2xl font-bold font-serif text-emerald-700">
-                                        {{ $gallery->title }}
-                                    </h2>
-                                    @if ($gallery->description)
-                                        <p class="text-gray-600 text-xs sm:text-sm mt-1 sm:mt-2">{{ $gallery->description }}</p>
-                                    @endif
-                                    </div>
-                                </div>
-                                <span
-                                    class="px-3 py-1.5 sm:px-4 sm:py-2 bg-emerald-600 text-white text-xs sm:text-sm rounded-full font-semibold">
-                                    {{ $gallery->images->count() }} صورة
-                                </span>
-                            </div>
                             @if ($gallery->images->isNotEmpty())
                                 @php
                                     $galleryImagePaths = $gallery->images
                                         ->map(fn($img) => asset('storage/' . $img->path))
                                         ->values();
                                     $galleryStartIndex = ($galleryMedia->count() ?? 0) + $loop->index * 1000;
+                                    $isSingleImage = $gallery->images->count() === 1;
+                                    $firstImage = $gallery->images->first();
                                 @endphp
-                                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4 lg:gap-6">
-                                    @foreach ($gallery->images as $index => $image)
-                                        <div
-                                            class="group relative overflow-hidden rounded-2xl border border-emerald-100/50 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-white/90 backdrop-blur-sm">
+
+                                @if ($isSingleImage)
+                                    {{-- عرض صورة واحدة: الصورة في الأعلى، ثم العنوان والوصف --}}
+                                    <div class="mb-6">
+                                        <div class="group relative overflow-hidden rounded-2xl border border-emerald-100/50 shadow-lg hover:shadow-2xl transition-all duration-500 bg-white/90 backdrop-blur-sm mb-4">
                                             <div class="cursor-pointer relative overflow-hidden"
-                                                onclick="openLightbox({{ $galleryStartIndex + $index }})">
-                                                <img src="{{ asset('storage/' . $image->path) }}"
-                                                    alt="{{ $image->name ?? '' }}"
-                                                    class="w-full h-32 sm:h-40 md:h-56 object-cover transition-transform duration-700 group-hover:scale-125">
+                                                onclick="openLightbox({{ $galleryStartIndex }})">
+                                                <img src="{{ asset('storage/' . $firstImage->path) }}"
+                                                    alt="{{ $firstImage->name ?? $gallery->title }}"
+                                                    class="w-full h-64 sm:h-80 md:h-96 lg:h-[500px] object-contain transition-transform duration-700 group-hover:scale-105">
                                                 <div
                                                     class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                                                 </div>
@@ -511,18 +496,6 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            @if ($image->name || $image->description)
-                                                <div class="p-2 md:p-4 bg-white">
-                                                    @if ($image->name)
-                                                        <h3 class="font-bold text-xs md:text-base line-clamp-1 text-gray-800 mb-1 md:mb-2 group-hover:text-emerald-600 transition-colors">
-                                                            {{ $image->name }}</h3>
-                                                    @endif
-                                                    @if ($image->description)
-                                                        <p class="text-xs md:text-sm text-gray-600 line-clamp-2 leading-relaxed">
-                                                            {{ $image->description }}</p>
-                                                    @endif
-                                                </div>
-                                            @endif
                                             @if (Auth::check())
                                                 <div
                                                     class="absolute top-3 left-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
@@ -536,9 +509,112 @@
                                                 </div>
                                             @endif
                                         </div>
-                                    @endforeach
-                                </div>
+
+                                        <div class="flex items-center gap-2 sm:gap-4 mb-3">
+                                            <div class="w-1 h-8 sm:h-12 bg-emerald-600 rounded-full"></div>
+                                            <div class="flex-1">
+                                                <h2 class="text-lg sm:text-xl lg:text-2xl font-bold font-serif text-emerald-700 mb-2">
+                                                    {{ $gallery->title }}
+                                                </h2>
+                                                @if ($gallery->description)
+                                                    <div class="text-gray-600 text-sm sm:text-base mt-2 program-description">{!! $gallery->description !!}</div>
+                                                @endif
+                                                @if ($firstImage->name || $firstImage->description)
+                                                    <div class="mt-4 space-y-2">
+                                                        @if ($firstImage->name)
+                                                            <h3 class="font-bold text-base md:text-lg text-gray-800">
+                                                                {{ $firstImage->name }}
+                                                            </h3>
+                                                        @endif
+                                                        @if ($firstImage->description)
+                                                            <p class="text-sm md:text-base text-gray-600 leading-relaxed">
+                                                                {{ $firstImage->description }}
+                                                            </p>
+                                                        @endif
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                @else
+                                    {{-- عرض متعدد: العنوان والوصف في الأعلى، ثم grid الصور --}}
+                                    <div class="flex flex-wrap items-center justify-between gap-2 sm:gap-3 mb-4 sm:mb-6">
+                                        <div class="flex items-center gap-2 sm:gap-4">
+                                            <div class="w-1 h-8 sm:h-12 bg-emerald-600 rounded-full"></div>
+                                        <div>
+                                            <h2
+                                                class="text-lg sm:text-xl lg:text-2xl font-bold font-serif text-emerald-700">
+                                                {{ $gallery->title }}
+                                            </h2>
+                                            @if ($gallery->description)
+                                                <div class="text-gray-600 text-xs sm:text-sm mt-1 sm:mt-2 program-description">{!! $gallery->description !!}</div>
+                                            @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4 lg:gap-6">
+                                        @foreach ($gallery->images as $index => $image)
+                                            <div
+                                                class="group relative overflow-hidden rounded-2xl border border-emerald-100/50 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-white/90 backdrop-blur-sm">
+                                                <div class="cursor-pointer relative overflow-hidden"
+                                                    onclick="openLightbox({{ $galleryStartIndex + $index }})">
+                                                    <img src="{{ asset('storage/' . $image->path) }}"
+                                                        alt="{{ $image->name ?? '' }}"
+                                                        class="w-full h-32 sm:h-40 md:h-56 object-cover transition-transform duration-700 group-hover:scale-125">
+                                                    <div
+                                                        class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                                                    </div>
+                                                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                                        <div class="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-xl">
+                                                            <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path>
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                @if ($image->name || $image->description)
+                                                    <div class="p-2 md:p-4 bg-white">
+                                                        @if ($image->name)
+                                                            <h3 class="font-bold text-xs md:text-base line-clamp-1 text-gray-800 mb-1 md:mb-2 group-hover:text-emerald-600 transition-colors">
+                                                                {{ $image->name }}</h3>
+                                                        @endif
+                                                        @if ($image->description)
+                                                            <p class="text-xs md:text-sm text-gray-600 line-clamp-2 leading-relaxed">
+                                                                {{ $image->description }}</p>
+                                                        @endif
+                                                    </div>
+                                                @endif
+                                                @if (Auth::check())
+                                                    <div
+                                                        class="absolute top-3 left-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+                                                        <a href="{{ route('dashboard.programs.manage', $program) }}"
+                                                            class="bg-blue-500 hover:bg-blue-600 text-white p-2.5 rounded-xl shadow-xl transition-all duration-300 hover:scale-110"
+                                                            title="تعديل الصورة">
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                                            </svg>
+                                                        </a>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @endif
                             @else
+                                <div class="flex flex-wrap items-center justify-between gap-2 sm:gap-3 mb-4 sm:mb-6">
+                                    <div class="flex items-center gap-2 sm:gap-4">
+                                        <div class="w-1 h-8 sm:h-12 bg-emerald-600 rounded-full"></div>
+                                    <div>
+                                        <h2
+                                            class="text-lg sm:text-xl lg:text-2xl font-bold font-serif text-emerald-700">
+                                            {{ $gallery->title }}
+                                        </h2>
+                                        @if ($gallery->description)
+                                            <div class="text-gray-600 text-xs sm:text-sm mt-1 sm:mt-2 program-description">{!! $gallery->description !!}</div>
+                                        @endif
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="text-center py-8 bg-white/50 rounded-2xl">
                                     <i class="fas fa-image text-gray-400 text-4xl mb-3"></i>
                                     <p class="text-gray-600">لا توجد صور في هذا المعرض حالياً</p>
@@ -561,10 +637,10 @@
                                     <p class="text-xs sm:text-sm text-gray-500 mt-1">مجموعة مختارة من الصور</p>
                                 </div>
                             </div>
-                            <span
+                            {{-- <span
                                 class="px-3 py-1.5 sm:px-4 sm:py-2 bg-emerald-600 text-white text-xs sm:text-sm rounded-full font-semibold">
                                 {{ $galleryMedia->count() }} صورة
-                            </span>
+                            </span> --}}
                         </div>
                         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4 lg:gap-6">
                             @foreach ($galleryMedia as $index => $media)

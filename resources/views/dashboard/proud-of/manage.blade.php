@@ -212,7 +212,7 @@
                     </div>
                     <div class="form-group">
                         <label class="font-weight-bold">وصف المعرض</label>
-                        <textarea name="description" id="edit_gallery_description" class="form-control" rows="3" maxlength="1000"></textarea>
+                        <textarea name="description" id="edit_gallery_description" class="form-control" rows="3"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer bg-light border-0">
@@ -333,6 +333,38 @@
             ]
         });
 
+        // Summernote editor for gallery description (add form)
+        $('#gallery_description').summernote({
+            height: 200,
+            direction: 'rtl',
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'italic', 'underline', 'clear']],
+                ['fontname', ['fontname']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['table', ['table']],
+                ['insert', ['link', 'picture', 'video']],
+                ['view', ['fullscreen', 'codeview', 'help']]
+            ]
+        });
+
+        // Initialize Summernote for edit gallery description modal
+        $('#edit_gallery_description').summernote({
+            height: 200,
+            direction: 'rtl',
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'italic', 'underline', 'clear']],
+                ['fontname', ['fontname']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['table', ['table']],
+                ['insert', ['link', 'picture', 'video']],
+                ['view', ['fullscreen', 'codeview', 'help']]
+            ]
+        });
+
         // Images preview
         $('#imagesInput').on('change', function() {
             const files = this.files;
@@ -400,13 +432,33 @@
                 const galleryDescription = this.getAttribute('data-gallery-description') || '';
 
                 document.getElementById('edit_gallery_title').value = galleryTitle;
-                document.getElementById('edit_gallery_description').value = galleryDescription;
+                // Use summernote('code', value) to set the content
+                $('#edit_gallery_description').summernote('code', galleryDescription);
 
                 const itemId = {{ $item->id }};
                 document.getElementById('editGalleryForm').action = '{{ url("/dashboard/proud-of") }}/' + itemId + '/galleries/' + galleryId + '/update';
 
                 $('#editGalleryModal').modal('show');
             });
+        });
+
+        // Extract Summernote content before form submission
+        $('#editGalleryForm').on('submit', function() {
+            const content = $('#edit_gallery_description').summernote('code');
+            $('#edit_gallery_description').val(content);
+        });
+
+        // Extract Summernote content from add gallery form before submission
+        $(document).on('submit', 'form[action*="galleries.store"]', function() {
+            if ($('#gallery_description').length) {
+                try {
+                    const content = $('#gallery_description').summernote('code');
+                    $('#gallery_description').val(content);
+                } catch(e) {
+                    // If summernote is not initialized, use regular value
+                    console.log('Summernote not initialized, using regular value');
+                }
+            }
         });
 
         // Edit gallery media

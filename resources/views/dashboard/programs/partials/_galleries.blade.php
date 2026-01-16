@@ -25,8 +25,8 @@
                     </div>
                     <div class="form-group">
                         <label class="font-weight-bold">وصف المعرض (اختياري)</label>
-                        <textarea name="description" class="form-control @error('description') is-invalid @enderror" 
-                                  rows="3" maxlength="1000" placeholder="وصف مختصر للمعرض...">{{ old('description') }}</textarea>
+                        <textarea name="description" id="gallery_description" class="form-control @error('description') is-invalid @enderror" 
+                                  rows="3" placeholder="وصف مختصر للمعرض...">{{ old('description') }}</textarea>
                         @error('description')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
