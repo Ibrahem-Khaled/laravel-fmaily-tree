@@ -11,6 +11,7 @@ use App\Http\Controllers\admin\OutsideFamilyPersonController;
 use App\Http\Controllers\admin\PadgeController;
 use App\Http\Controllers\admin\PadgePeopleController;
 use App\Http\Controllers\admin\PersonController;
+use App\Http\Controllers\admin\PersonSearchController;
 use App\Http\Controllers\admin\RoleController;
 use App\Http\Controllers\admin\UserController;
 use App\Http\Controllers\admin\ArticleController as AdminArticleController;
@@ -152,6 +153,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::delete('/people/{person}/photo', [PersonController::class, 'removePhoto'])->name('people.removePhoto')->middleware(['permission:people.update']);
     Route::post('/people/reorder', [PersonController::class, 'reorder'])->name('people.reorder')->middleware(['permission:people.update']);
     Route::get('/people/search', [PersonController::class, 'search'])->name('people.search')->middleware(['permission:people.view']);
+    Route::get('/persons/search', PersonSearchController::class)->name('persons.search')->middleware(['permission:people.view']);
     Route::get('/people/{father}/wives', [PersonController::class, 'getWives'])->name('people.getWives')->middleware(['permission:people.view']);
     Route::get('/people/export/excel', [PersonController::class, 'export'])->name('people.export.excel')->middleware(['permission:people.view']);
 

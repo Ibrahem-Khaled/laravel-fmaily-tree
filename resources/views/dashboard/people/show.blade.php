@@ -54,11 +54,9 @@
                     <i class="fas fa-user"></i>
                     المعلومات الأساسية
                 </h6>
-                <button type="button" class="btn btn-sm btn-primary" data-toggle="modal"
-                    data-target="#editPersonModal{{ $person->id }}" title="تعديل">
+                <a href="{{ route('people.edit', $person->id) }}" class="btn btn-sm btn-primary" title="تعديل">
                     <i class="fas fa-edit"></i> تعديل
-                </button>
-                @include('dashboard.people.modals.edit', ['person' => $person])
+                </a>
 
             </div>
             <div class="card-body">
@@ -304,11 +302,10 @@
                                         <td>{{ $child->age ?? 'غير معروف' }}</td>
                                         {{-- <td>{{ $child->display_order ?? '-' }}</td> --}}
                                         <td>
-                                            <button type="button" class="btn btn-sm btn-circle btn-primary"
-                                                data-toggle="modal" data-target="#editPersonModal{{ $child->id }}"
+                                            <a href="{{ route('people.edit', $child->id) }}" class="btn btn-sm btn-circle btn-primary"
                                                 title="تعديل">
                                                 <i class="fas fa-edit"></i>
-                                            </button>
+                                            </a>
                                             {{-- داخل حلقة الأبناء --}}
                                             <button type="button" class="btn btn-sm btn-circle btn-danger"
                                                 data-toggle="modal"
@@ -361,8 +358,6 @@
                                                     </div>
                                                 </div>
                                             </div>
-
-                                            @include('dashboard.people.modals.edit', ['person' => $child])
 
                                         </td>
                                     </tr>
@@ -694,6 +689,9 @@
     {{-- ✅ الخطوة 1: تضمين مكتبة SortableJS --}}
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 
+    {{-- جلب زوجات الأب عند اختيار الأب (مودال إضافة ابن/ابنة وغيره) --}}
+    @include('dashboard.people.partials.father-wives-script')
+
     <script>
         // Script لتحديث اسم الملف عند اختياره في مودالات التعديل والإضافة
         $('.custom-file-input').on('change', function() {
@@ -701,53 +699,6 @@
             $(this).next('.custom-file-label').html(fileName);
         });
         $('[data-toggle="tooltip"]').tooltip();
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // استهداف جميع قوائم الآباء في الصفحة
-            const allFatherSelects = document.querySelectorAll('.js-father-select');
-
-            allFatherSelects.forEach(fatherSelect => {
-                fatherSelect.addEventListener('change', function() {
-                    const fatherId = this.value;
-
-                    // البحث عن قائمة الأم المرتبطة بنفس النافذة
-                    const modal = this.closest('.modal-content');
-                    const motherSelect = modal.querySelector('.js-mother-select');
-
-                    if (!motherSelect) return;
-
-                    motherSelect.innerHTML = '<option value="">-- جار التحميل --</option>';
-
-                    if (!fatherId) {
-                        motherSelect.innerHTML = '<option value="">-- اختر الأم --</option>';
-                        return;
-                    }
-
-                    fetch(`{{ url('/people') }}/${fatherId}/wives`)
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error('Network response was not ok');
-                            }
-                            return response.json();
-                        })
-                        .then(wives => {
-                            motherSelect.innerHTML =
-                                '<option value="">-- اختر الأم --</option>';
-                            wives.forEach(wife => {
-                                const option = document.createElement('option');
-                                option.value = wife.id;
-                                option.textContent = wife.full_name;
-                                motherSelect.appendChild(option);
-                            });
-                        })
-                        .catch(error => {
-                            console.error('Error fetching wives:', error);
-                            motherSelect.innerHTML = '<option value="">-- حدث خطأ --</option>';
-                        });
-                });
-            });
-        });
     </script>
 
     {{-- ✅ الخطوة 4: كود JavaScript الخاص بـ SortableJS (يعمل مع أي جدول بنفس الطريقة) --}}

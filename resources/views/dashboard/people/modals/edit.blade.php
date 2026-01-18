@@ -219,54 +219,7 @@
     The code you provided is correct and does not need changes.
     ==================================================================
 --}}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // This code block should only be included ONCE on the page.
-        const allFatherSelects = document.querySelectorAll('.js-father-select');
-
-        allFatherSelects.forEach(fatherSelect => {
-            fatherSelect.addEventListener('change', function() {
-                const fatherId = this.value;
-
-                // Find the mother's select list within the same modal
-                const modal = this.closest('.modal-content');
-                const motherSelect = modal.querySelector('.js-mother-select');
-
-                if (!motherSelect) return;
-
-                motherSelect.innerHTML = '<option value="">-- جار التحميل --</option>';
-
-                if (!fatherId) {
-                    motherSelect.innerHTML = '<option value="">-- اختر الأب أولاً --</option>';
-                    return;
-                }
-
-                // Fetch the wives for the selected father
-                fetch(`{{ url('/people') }}/${fatherId}/wives`)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        return response.json();
-                    })
-                    .then(wives => {
-                        motherSelect.innerHTML =
-                            '<option value="">-- اختر الأم --</option>';
-                        wives.forEach(wife => {
-                            const option = document.createElement('option');
-                            option.value = wife.id;
-                            option.textContent = wife.full_name;
-                            motherSelect.appendChild(option);
-                        });
-                    })
-                    .catch(error => {
-                        console.error('Error fetching wives:', error);
-                        motherSelect.innerHTML = '<option value="">-- حدث خطأ --</option>';
-                    });
-            });
-        });
-    });
-</script>
+@include('dashboard.people.partials.father-wives-script')
 
 {{-- JavaScript للـ Autocomplete للأماكن في نموذج التعديل --}}
 <script>

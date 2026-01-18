@@ -146,6 +146,13 @@ class PersonController extends Controller
         return view('dashboard.people.index', compact('people', 'stats', 'males', 'females'));
     }
 
+    public function create()
+    {
+        $males = Person::where('gender', 'male')->get();
+
+        return view('dashboard.people.create', compact('males'));
+    }
+
     public function store(Request $request)
     {
         // أضفنا source_page إلى التحقق
@@ -200,10 +207,21 @@ class PersonController extends Controller
             // إذا كان الطلب من صفحة "إضافة نفسك"، وجهه إلى صفحة عرض الشخص الجديد
             return redirect()->route('people.show', $person->id)
                 ->with('success', 'تمت إضافة بياناتك بنجاح! مرحباً بك في تواصل العائلة.');
+        } elseif ($request->input('redirect_to') === 'show') {
+            return redirect()->route('people.show', $person->id)
+                ->with('success', 'تمت إضافة الشخص بنجاح');
         } else {
             // إذا كان الطلب من أي مكان آخر (مثل المودال)، أعده إلى الصفحة السابقة
             return redirect()->back()->with('success', 'تمت إضافة الشخص بنجاح');
         }
+    }
+
+    public function edit(Person $person)
+    {
+        $person->load(['parent.wives']);
+        $males = Person::where('gender', 'male')->where('id', '!=', $person->id)->get();
+
+        return view('dashboard.people.edit', compact('person', 'males'));
     }
 
     public function update(Request $request, Person $person)
@@ -249,6 +267,10 @@ class PersonController extends Controller
         if (!empty($validated['parent_id'])) {
             $parent = Person::find($validated['parent_id']);
             $person->appendToNode($parent)->save();
+        }
+
+        if ($request->input('redirect_to') === 'show') {
+            return redirect()->route('people.show', $person->id)->with('success', 'تم تحديث بيانات الشخص بنجاح');
         }
 
         return redirect()->back()->with('success', 'تم تحديث بيانات الشخص بنجاح');

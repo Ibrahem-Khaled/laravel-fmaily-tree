@@ -240,3 +240,5 @@
         }
     });
 </script>
+
+@include('dashboard.people.partials.father-wives-script')
