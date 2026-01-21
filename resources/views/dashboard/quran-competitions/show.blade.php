@@ -149,6 +149,168 @@
         </div>
     </div>
 
+    <!-- Sections Section -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h6 class="mb-0 font-weight-bold text-primary">
+                <i class="fas fa-layer-group mr-2"></i>الأقسام ({{ $quranCompetition->sections->count() }})
+            </h6>
+            <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#addSectionModal">
+                <i class="fas fa-plus mr-2"></i>إضافة قسم
+            </button>
+        </div>
+        <div class="card-body">
+            @if($quranCompetition->sections->count() > 0)
+                @foreach($quranCompetition->sections->sortBy('sort_order') as $section)
+                    <div class="border rounded mb-4">
+                        <div class="d-flex align-items-center justify-content-between p-3 bg-light">
+                            <div>
+                                <div class="font-weight-bold text-dark">{{ $section->name }}</div>
+                                <small class="text-muted">
+                                    ترتيب: {{ $section->sort_order }} —
+                                    عدد الأشخاص: {{ $section->people->count() }}
+                                </small>
+                            </div>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#attachPeopleModal-{{ $section->id }}">
+                                    <i class="fas fa-user-plus mr-1"></i>إضافة أشخاص
+                                </button>
+                                <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#editSectionModal-{{ $section->id }}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <form action="{{ route('dashboard.quran-competitions.sections.destroy', $section) }}" method="POST" class="d-inline" onsubmit="return confirm('هل أنت متأكد من حذف هذا القسم؟');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="p-3">
+                            @if($section->people->count() > 0)
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-hover mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>الصورة</th>
+                                                <th>الاسم</th>
+                                                <th style="width: 120px;">الإجراءات</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($section->people as $person)
+                                                <tr>
+                                                    <td>
+                                                        <img src="{{ $person->avatar }}" alt="{{ $person->full_name }}" class="rounded-circle" style="width: 34px; height: 34px; object-fit: cover;">
+                                                    </td>
+                                                    <td>
+                                                        <strong>{{ $person->full_name }}</strong>
+                                                        <br>
+                                                        <small class="text-muted">ترتيب: {{ $person->pivot->sort_order ?? 0 }}</small>
+                                                    </td>
+                                                    <td>
+                                                        <form action="{{ route('dashboard.quran-competitions.sections.detach-person', [$section, $person]) }}" method="POST" class="d-inline" onsubmit="return confirm('إزالة الشخص من هذا القسم؟');">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                                <i class="fas fa-times"></i>
+                                                            </button>
+                                                        </form>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            @else
+                                <div class="text-center text-muted py-3">
+                                    لا يوجد أشخاص في هذا القسم بعد.
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+
+                    <!-- Edit Section Modal -->
+                    <div class="modal fade" id="editSectionModal-{{ $section->id }}" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">تعديل القسم</h5>
+                                    <button type="button" class="close" data-dismiss="modal">
+                                        <span>&times;</span>
+                                    </button>
+                                </div>
+                                <form action="{{ route('dashboard.quran-competitions.sections.update', $section) }}" method="POST">
+                                    @csrf
+                                    @method('PUT')
+                                    <div class="modal-body">
+                                        <div class="form-group">
+                                            <label>اسم القسم <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" name="name" value="{{ $section->name }}" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>ترتيب العرض</label>
+                                            <input type="number" class="form-control" name="sort_order" value="{{ $section->sort_order }}" min="0">
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">إلغاء</button>
+                                        <button type="submit" class="btn btn-primary">حفظ</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Attach People Modal -->
+                    <div class="modal fade section-people-modal" id="attachPeopleModal-{{ $section->id }}" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">إضافة أشخاص إلى: {{ $section->name }}</h5>
+                                    <button type="button" class="close" data-dismiss="modal">
+                                        <span>&times;</span>
+                                    </button>
+                                </div>
+                                <form action="{{ route('dashboard.quran-competitions.sections.attach-people', $section) }}" method="POST">
+                                    @csrf
+                                    <div class="modal-body">
+                                        <div class="form-group">
+                                            <label>الأشخاص <span class="text-danger">*</span></label>
+                                            <select
+                                                class="form-control no-search js-section-people"
+                                                name="people[]"
+                                                multiple
+                                                data-url="{{ route('persons.search') }}"
+                                                data-placeholder="ابحث واختر عدة أشخاص..."
+                                            ></select>
+                                            <small class="form-text text-muted">
+                                                اضغط داخل المربع ثم اكتب <strong>حرفين على الأقل</strong> للبحث، ثم اختر عدة أشخاص.
+                                                بعد ذلك اضغط <strong>إضافة</strong> وسيظهرون في جدول القسم.
+                                            </small>
+                                            <div class="mt-2 small text-muted js-selected-preview"></div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">إلغاء</button>
+                                        <button type="submit" class="btn btn-success">إضافة</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            @else
+                <div class="text-center py-4">
+                    <i class="fas fa-layer-group fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">لا توجد أقسام حالياً</p>
+                </div>
+            @endif
+        </div>
+    </div>
+
     <!-- Media Section -->
     <div class="card shadow-sm border-0">
         <div class="card-header bg-white d-flex justify-content-between align-items-center">
@@ -200,6 +362,37 @@
                     <p class="text-muted">لا توجد وسائط حالياً</p>
                 </div>
             @endif
+        </div>
+    </div>
+</div>
+
+<!-- Add Section Modal -->
+<div class="modal fade" id="addSectionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">إضافة قسم جديد</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form action="{{ route('dashboard.quran-competitions.sections.store', $quranCompetition) }}" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>اسم القسم <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>ترتيب العرض</label>
+                        <input type="number" class="form-control" name="sort_order" value="0" min="0">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn btn-primary">إضافة</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -296,33 +489,82 @@
     </div>
 </div>
 
-<script>
-    function toggleMediaInputs() {
-        const mediaType = document.getElementById('media_type').value;
-        const fileInputGroup = document.getElementById('fileInputGroup');
-        const youtubeInputGroup = document.getElementById('youtubeInputGroup');
-        
-        if (mediaType === 'youtube') {
-            fileInputGroup.style.display = 'none';
-            youtubeInputGroup.style.display = 'block';
-            document.getElementById('file').removeAttribute('required');
-            document.getElementById('youtube_url').setAttribute('required', 'required');
-        } else {
-            fileInputGroup.style.display = 'block';
-            youtubeInputGroup.style.display = 'none';
-            document.getElementById('file').setAttribute('required', 'required');
-            document.getElementById('youtube_url').removeAttribute('required');
-        }
-    }
+@push('scripts')
+    <script>
+        function toggleMediaInputs() {
+            const mediaType = document.getElementById('media_type').value;
+            const fileInputGroup = document.getElementById('fileInputGroup');
+            const youtubeInputGroup = document.getElementById('youtubeInputGroup');
 
-    // Initialize Select2
-    $(document).ready(function() {
-        $('.select2').select2({
-            theme: 'bootstrap4',
-            language: 'ar',
-            dir: 'rtl'
+            if (mediaType === 'youtube') {
+                fileInputGroup.style.display = 'none';
+                youtubeInputGroup.style.display = 'block';
+                document.getElementById('file').removeAttribute('required');
+                document.getElementById('youtube_url').setAttribute('required', 'required');
+            } else {
+                fileInputGroup.style.display = 'block';
+                youtubeInputGroup.style.display = 'none';
+                document.getElementById('file').setAttribute('required', 'required');
+                document.getElementById('youtube_url').removeAttribute('required');
+            }
+        }
+
+        // Section People (Select2 Ajax Multi)
+        function initSectionPeopleSelect(modalEl) {
+            const $modal = $(modalEl);
+            const $select = $modal.find('select.js-section-people');
+            if (!$select.length) return;
+            if ($select.data('sectionPeopleInit')) return;
+            $select.data('sectionPeopleInit', true);
+
+            const url = $select.data('url');
+            const placeholder = $select.data('placeholder') || 'ابحث واختر عدة أشخاص...';
+            const $preview = $modal.find('.js-selected-preview');
+
+            $select.select2({
+                theme: 'bootstrap4',
+                language: 'ar',
+                dir: 'rtl',
+                width: '100%',
+                placeholder: placeholder,
+                allowClear: true,
+                closeOnSelect: false,
+                minimumInputLength: 2,
+                dropdownParent: $modal,
+                ajax: {
+                    url: url,
+                    dataType: 'json',
+                    delay: 250,
+                    data: function(params) {
+                        return {
+                            term: params.term || '',
+                            include_outside: 1
+                        };
+                    },
+                    processResults: function(data) {
+                        return data;
+                    },
+                    cache: true
+                }
+            });
+
+            function renderSelectedPreview() {
+                const data = $select.select2('data') || [];
+                const names = data.map(x => x.text).filter(Boolean);
+                $preview.text(names.length ? ('المختارون: ' + names.join('، ')) : '');
+            }
+
+            $select.on('change', renderSelectedPreview);
+            renderSelectedPreview();
+        }
+
+        $(function() {
+            // مهم: jQuery/Select2 يتم تحميلهم في layout، لذا هذا المكان الصحيح للتنفيذ
+            $('.section-people-modal').on('shown.bs.modal', function() {
+                initSectionPeopleSelect(this);
+            });
         });
-    });
-</script>
+    </script>
+@endpush
 @endsection
 

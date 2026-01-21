@@ -235,6 +235,18 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::post('quran-competitions/{quranCompetition}/media', [\App\Http\Controllers\admin\QuranCompetitionController::class, 'addMedia'])->name('dashboard.quran-competitions.add-media');
     Route::delete('quran-competitions/media/{media}', [\App\Http\Controllers\admin\QuranCompetitionController::class, 'removeMedia'])->name('dashboard.quran-competitions.remove-media');
 
+    // Quran Competition Sections (Admin)
+    Route::post('quran-competitions/{quranCompetition}/sections', [\App\Http\Controllers\admin\QuranCompetitionController::class, 'storeSection'])
+        ->name('dashboard.quran-competitions.sections.store');
+    Route::put('quran-competitions/sections/{section}', [\App\Http\Controllers\admin\QuranCompetitionController::class, 'updateSection'])
+        ->name('dashboard.quran-competitions.sections.update');
+    Route::delete('quran-competitions/sections/{section}', [\App\Http\Controllers\admin\QuranCompetitionController::class, 'destroySection'])
+        ->name('dashboard.quran-competitions.sections.destroy');
+    Route::post('quran-competitions/sections/{section}/people', [\App\Http\Controllers\admin\QuranCompetitionController::class, 'attachSectionPeople'])
+        ->name('dashboard.quran-competitions.sections.attach-people');
+    Route::delete('quran-competitions/sections/{section}/people/{person}', [\App\Http\Controllers\admin\QuranCompetitionController::class, 'detachSectionPerson'])
+        ->name('dashboard.quran-competitions.sections.detach-person');
+
     // Stories routes
     Route::resource('stories', StoryController::class)->middleware(['permission:stories.view|stories.create|stories.update|stories.delete']);
 

@@ -45,6 +45,14 @@ class QuranCompetition extends BaseModel
     }
 
     /**
+     * الأقسام داخل المسابقة
+     */
+    public function sections()
+    {
+        return $this->hasMany(QuranCompetitionSection::class, 'competition_id')->orderBy('sort_order');
+    }
+
+    /**
      * العلاقة مع الفئة
      */
     public function category()

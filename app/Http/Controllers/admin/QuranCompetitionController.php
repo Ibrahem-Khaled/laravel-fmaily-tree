@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\QuranCompetition;
 use App\Models\QuranCompetitionWinner;
 use App\Models\QuranCompetitionMedia;
+use App\Models\QuranCompetitionSection;
 use App\Models\Person;
 use App\Models\Category;
 use Illuminate\Http\Request;
@@ -24,7 +25,7 @@ class QuranCompetitionController extends Controller
         $competitions = QuranCompetition::with(['category', 'winners', 'media'])
             ->ordered()
             ->get();
-        
+
         // إحصائيات
         $stats = [
             'total' => QuranCompetition::count(),
@@ -35,7 +36,7 @@ class QuranCompetitionController extends Controller
             'with_category' => QuranCompetition::whereNotNull('category_id')->count(),
             'without_category' => QuranCompetition::whereNull('category_id')->count(),
         ];
-        
+
         return view('dashboard.quran-competitions.index', compact('competitions', 'stats'));
     }
 
@@ -54,10 +55,10 @@ class QuranCompetitionController extends Controller
         ->ordered()
         ->active()
         ->get();
-        
+
         // جلب قائمة الأشخاص لإدارة القائمين على البرنامج
         $persons = \App\Models\Person::orderBy('first_name')->orderBy('last_name')->get();
-        
+
         return view('dashboard.quran-competitions.create', compact('categories', 'persons'));
     }
 
@@ -101,9 +102,9 @@ class QuranCompetitionController extends Controller
      */
     public function show(QuranCompetition $quranCompetition): View
     {
-        $quranCompetition->load(['winners.person', 'media']);
+        $quranCompetition->load(['winners.person', 'media', 'sections.people']);
         $persons = Person::orderBy('first_name')->get();
-        
+
         return view('dashboard.quran-competitions.show', compact('quranCompetition', 'persons'));
     }
 
@@ -121,7 +122,7 @@ class QuranCompetitionController extends Controller
             ->orWhereHas('children.quranCompetitions', function($query) {
                 $query->where('is_active', true);
             });
-            
+
             // إضافة الفئة الحالية للمسابقة إن وجدت
             if ($quranCompetition->category_id) {
                 $q->orWhere('id', $quranCompetition->category_id);
@@ -130,10 +131,10 @@ class QuranCompetitionController extends Controller
         ->ordered()
         ->active()
         ->get();
-        
+
         // جلب قائمة الأشخاص لإدارة القائمين على البرنامج
         $persons = Person::orderBy('first_name')->orderBy('last_name')->get();
-        
+
         return view('dashboard.quran-competitions.edit', compact('quranCompetition', 'categories', 'persons'));
     }
 
@@ -272,7 +273,7 @@ class QuranCompetitionController extends Controller
     public function removeMedia(QuranCompetitionMedia $media): RedirectResponse
     {
         $competitionId = $media->competition_id;
-        
+
         if ($media->file_path) {
             Storage::disk('public')->delete($media->file_path);
         }
@@ -281,6 +282,92 @@ class QuranCompetitionController extends Controller
 
         return redirect()->route('dashboard.quran-competitions.show', $competitionId)
             ->with('success', 'تم حذف الوسائط بنجاح');
+    }
+
+    /**
+     * إنشاء قسم جديد داخل المسابقة
+     */
+    public function storeSection(Request $request, QuranCompetition $quranCompetition): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'sort_order' => 'nullable|integer|min:0',
+        ], [
+            'name.required' => 'اسم القسم مطلوب',
+        ]);
+
+        $quranCompetition->sections()->create([
+            'name' => $validated['name'],
+            'sort_order' => (int)($validated['sort_order'] ?? 0),
+        ]);
+
+        return back()->with('success', 'تم إنشاء القسم بنجاح');
+    }
+
+    /**
+     * تحديث قسم
+     */
+    public function updateSection(Request $request, QuranCompetitionSection $section): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'sort_order' => 'nullable|integer|min:0',
+        ], [
+            'name.required' => 'اسم القسم مطلوب',
+        ]);
+
+        $section->update([
+            'name' => $validated['name'],
+            'sort_order' => (int)($validated['sort_order'] ?? 0),
+        ]);
+
+        return back()->with('success', 'تم تحديث القسم بنجاح');
+    }
+
+    /**
+     * حذف قسم
+     */
+    public function destroySection(QuranCompetitionSection $section): RedirectResponse
+    {
+        $section->delete();
+        return back()->with('success', 'تم حذف القسم بنجاح');
+    }
+
+    /**
+     * إضافة أشخاص لقسم (دفعة واحدة)
+     */
+    public function attachSectionPeople(Request $request, QuranCompetitionSection $section): RedirectResponse
+    {
+        $data = $request->validate([
+            'people' => ['required', 'array', 'min:1'],
+            'people.*' => ['integer', 'exists:persons,id'],
+        ], [
+            'people.required' => 'يجب اختيار شخص واحد على الأقل',
+        ]);
+
+        $maxSort = (int) DB::table('quran_competition_section_person')
+            ->where('section_id', $section->id)
+            ->max('sort_order');
+
+        $payload = [];
+        $i = 1;
+        foreach (collect($data['people'])->unique()->values() as $personId) {
+            $payload[(int) $personId] = ['sort_order' => $maxSort + $i];
+            $i++;
+        }
+
+        $section->people()->syncWithoutDetaching($payload);
+
+        return back()->with('success', 'تمت إضافة الأشخاص للقسم بنجاح');
+    }
+
+    /**
+     * إزالة شخص من قسم
+     */
+    public function detachSectionPerson(QuranCompetitionSection $section, Person $person): RedirectResponse
+    {
+        $section->people()->detach($person->id);
+        return back()->with('success', 'تمت إزالة الشخص من القسم');
     }
 }
 

@@ -472,6 +472,74 @@
                     </div>
                 @endif
 
+                {{-- Competition Sections (custom groups) --}}
+                @if($competition->sections->count() > 0)
+                    <div class="mt-8 pt-8 border-t border-primary-200">
+                        <h3 class="text-xl md:text-2xl font-bold text-primary-700 mb-4 flex items-center gap-2">
+                            <i class="fas fa-layer-group text-primary-500"></i>
+                            الأقسام
+                        </h3>
+
+                        <div class="space-y-8">
+                            @foreach($competition->sections->sortBy('sort_order') as $section)
+                                @php
+                                    $sectionPeople = $section->people;
+                                    $visiblePeople = $sectionPeople->take(24);
+                                    $hiddenPeople = $sectionPeople->skip(24);
+                                @endphp
+
+                                <div class="bg-white/70 rounded-2xl p-4 md:p-6 border border-primary-100">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <h4 class="text-lg md:text-xl font-bold text-primary-800">
+                                            {{ $section->name }}
+                                            <span class="text-sm md:text-base font-semibold text-gray-500">({{ $sectionPeople->count() }})</span>
+                                        </h4>
+                                    </div>
+
+                                    <div class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3 md:gap-4">
+                                        @foreach($visiblePeople as $person)
+                                            <a href="{{ route('people.profile.show', $person->id) }}" class="group inline-flex flex-col items-center text-center hover:scale-105 transition-transform duration-300">
+                                                <div class="relative mb-2">
+                                                    <div class="absolute inset-0 bg-primary-400 blur-md rounded-full opacity-25 group-hover:opacity-40 transition-opacity"></div>
+                                                    <img src="{{ $person->avatar }}" alt="{{ $person->full_name }}" class="relative w-14 h-14 md:w-16 md:h-16 rounded-full object-cover border-2 border-primary-300 shadow-md group-hover:border-primary-500 transition-colors">
+                                                </div>
+                                                <span class="text-[11px] md:text-xs font-semibold text-gray-700 group-hover:text-primary-700 transition-colors whitespace-normal text-center px-1">
+                                                    {{ $person->first_name ?? '' }}
+                                                </span>
+                                            </a>
+                                        @endforeach
+                                    </div>
+
+                                    @if($hiddenPeople->count() > 0)
+                                        <div id="section-more-{{ $section->id }}" class="hidden mt-4">
+                                            <div class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3 md:gap-4">
+                                                @foreach($hiddenPeople as $person)
+                                                    <a href="{{ route('people.profile.show', $person->id) }}" class="group inline-flex flex-col items-center text-center hover:scale-105 transition-transform duration-300">
+                                                        <div class="relative mb-2">
+                                                            <div class="absolute inset-0 bg-primary-400 blur-md rounded-full opacity-25 group-hover:opacity-40 transition-opacity"></div>
+                                                            <img src="{{ $person->avatar }}" alt="{{ $person->full_name }}" class="relative w-14 h-14 md:w-16 md:h-16 rounded-full object-cover border-2 border-primary-300 shadow-md group-hover:border-primary-500 transition-colors">
+                                                        </div>
+                                                        <span class="text-[11px] md:text-xs font-semibold text-gray-700 group-hover:text-primary-700 transition-colors whitespace-normal text-center px-1">
+                                                            {{ $person->first_name ?? '' }}
+                                                        </span>
+                                                    </a>
+                                                @endforeach
+                                            </div>
+                                        </div>
+
+                                        <div class="mt-4 text-center">
+                                            <button id="section-toggle-{{ $section->id }}" type="button" class="inline-flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-5 py-2 rounded-full text-sm font-bold shadow-lg transition-colors" onclick="toggleSectionPeople({{ $section->id }})">
+                                                <i class="fas fa-chevron-down"></i>
+                                                <span>عرض المزيد</span>
+                                            </button>
+                                        </div>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
                 <!-- Meta Grid -->
                 @if($competition->start_date || $competition->end_date)
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
@@ -672,6 +740,26 @@
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             });
         });
+
+        // Sections "Show more / Show less"
+        function toggleSectionPeople(sectionId) {
+            const moreEl = document.getElementById(`section-more-${sectionId}`);
+            const btnEl = document.getElementById(`section-toggle-${sectionId}`);
+            if (!moreEl || !btnEl) return;
+
+            const isHidden = moreEl.classList.contains('hidden');
+            if (isHidden) {
+                moreEl.classList.remove('hidden');
+                btnEl.querySelector('span').textContent = 'عرض أقل';
+                const icon = btnEl.querySelector('i');
+                if (icon) icon.className = 'fas fa-chevron-up';
+            } else {
+                moreEl.classList.add('hidden');
+                btnEl.querySelector('span').textContent = 'عرض المزيد';
+                const icon = btnEl.querySelector('i');
+                if (icon) icon.className = 'fas fa-chevron-down';
+            }
+        }
 
         // Media Modal Functions
         function openMedia(id, type, url) {
