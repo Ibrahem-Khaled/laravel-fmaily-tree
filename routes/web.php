@@ -134,6 +134,14 @@ Route::prefix('health-websites')->name('health-websites.')->group(function () {
     Route::get('{website}', [\App\Http\Controllers\HealthWebsiteController::class, 'show'])->name('show');
 });
 
+// Public Competition Registration Routes
+Route::prefix('competitions')->name('competitions.')->group(function () {
+    Route::get('register/{token}', [\App\Http\Controllers\CompetitionRegistrationController::class, 'register'])->name('register');
+    Route::post('register/{token}', [\App\Http\Controllers\CompetitionRegistrationController::class, 'store'])->name('register.store');
+    Route::get('team/{team}/register', [\App\Http\Controllers\CompetitionRegistrationController::class, 'teamRegister'])->name('team.register');
+    Route::post('team/{team}/register', [\App\Http\Controllers\CompetitionRegistrationController::class, 'teamStore'])->name('team.register.store');
+});
+
 
 Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
 
@@ -219,6 +227,17 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::patch('breastfeeding/{breastfeeding}/toggle-status', [BreastfeedingController::class, 'toggleStatus'])->name('breastfeeding.toggle-status')->middleware(['permission:breastfeeding.update']);
     Route::get('breastfeeding/nursing-mothers/search', [BreastfeedingController::class, 'getNursingMothers'])->name('breastfeeding.nursing-mothers.search')->middleware(['permission:breastfeeding.view']);
     Route::get('breastfeeding/breastfed-children/search', [BreastfeedingController::class, 'getBreastfedChildren'])->name('breastfeeding.breastfed-children.search')->middleware(['permission:breastfeeding.view']);
+
+    // Competitions routes (Admin)
+    Route::resource('competitions', \App\Http\Controllers\admin\CompetitionController::class)->names([
+        'index' => 'dashboard.competitions.index',
+        'create' => 'dashboard.competitions.create',
+        'store' => 'dashboard.competitions.store',
+        'show' => 'dashboard.competitions.show',
+        'edit' => 'dashboard.competitions.edit',
+        'update' => 'dashboard.competitions.update',
+        'destroy' => 'dashboard.competitions.destroy',
+    ]);
 
     // Quran Competitions routes (Admin)
     Route::resource('quran-competitions', \App\Http\Controllers\admin\QuranCompetitionController::class)->names([

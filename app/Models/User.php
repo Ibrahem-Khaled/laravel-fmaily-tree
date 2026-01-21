@@ -57,4 +57,39 @@ class User extends Authenticatable implements AuditableContract
      * Disable model caching to ensure fresh data
      */
     protected $cacheFor = 0;
+
+    /**
+     * العلاقة مع الفرق التي ينتمي إليها المستخدم
+     */
+    public function teams()
+    {
+        return $this->belongsToMany(Team::class, 'team_members')
+            ->withPivot('role', 'joined_at')
+            ->withTimestamps()
+            ->orderByPivot('joined_at');
+    }
+
+    /**
+     * العلاقة مع الفرق التي أنشأها المستخدم
+     */
+    public function createdTeams()
+    {
+        return $this->hasMany(Team::class, 'created_by_user_id');
+    }
+
+    /**
+     * العلاقة مع سجلات العضوية في الفرق
+     */
+    public function teamMemberships()
+    {
+        return $this->hasMany(TeamMember::class);
+    }
+
+    /**
+     * العلاقة مع المسابقات التي أنشأها المستخدم
+     */
+    public function createdCompetitions()
+    {
+        return $this->hasMany(Competition::class, 'created_by');
+    }
 }
