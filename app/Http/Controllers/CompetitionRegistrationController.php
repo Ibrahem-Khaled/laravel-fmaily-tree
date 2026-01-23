@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Competition;
+use App\Models\CompetitionRegistration;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Http\Request;
