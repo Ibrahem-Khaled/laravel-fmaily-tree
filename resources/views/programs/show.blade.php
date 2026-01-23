@@ -479,7 +479,7 @@
                                 @if ($isSingleImage)
                                     {{-- عرض صورة واحدة: الصورة في الأعلى، ثم العنوان والوصف --}}
                                     <div class="mb-6">
-                                        <div class="group relative overflow-hidden rounded-2xl border border-emerald-100/50 shadow-lg hover:shadow-2xl transition-all duration-500 bg-white/90 backdrop-blur-sm mb-4">
+                                        <div class="group relative overflow-hidden rounded-2xl border border-emerald-100/50 transition-all duration-500 bg-white/90 backdrop-blur-sm mb-4">
                                             <div class="cursor-pointer relative overflow-hidden"
                                                 onclick="openLightbox({{ $galleryStartIndex }})">
                                                 <img src="{{ asset('storage/' . $firstImage->path) }}"
@@ -555,7 +555,7 @@
                                     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4 lg:gap-6">
                                         @foreach ($gallery->images as $index => $image)
                                             <div
-                                                class="group relative overflow-hidden rounded-2xl border border-emerald-100/50 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-white/90 backdrop-blur-sm">
+                                                class="group relative overflow-hidden rounded-2xl border border-emerald-100/50 transition-all duration-500 hover:-translate-y-2 bg-white/90 backdrop-blur-sm">
                                                 <div class="cursor-pointer relative overflow-hidden"
                                                     onclick="openLightbox({{ $galleryStartIndex + $index }})">
                                                     <img src="{{ asset('storage/' . $image->path) }}"
@@ -645,7 +645,7 @@
                         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4 lg:gap-6">
                             @foreach ($galleryMedia as $index => $media)
                                 <div
-                                    class="group relative overflow-hidden rounded-2xl border border-emerald-100/50 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-white/90 backdrop-blur-sm">
+                                    class="group relative overflow-hidden rounded-2xl border border-emerald-100/50 transition-all duration-500 hover:-translate-y-2 bg-white/90 backdrop-blur-sm">
                                     <div class="cursor-pointer relative overflow-hidden" onclick="openLightbox({{ $index }})">
                                         <img src="{{ asset('storage/' . $media->path) }}"
                                             alt="{{ $media->name ?? '' }}"
