@@ -428,7 +428,7 @@ class ProgramController extends Controller
      */
     public function destroyLink(Image $program, ProgramLink $link)
     {
-        abort_unless($program->is_program && $link->program_id === $program->id, 404);
+        // abort_unless($program->is_program && $link->program_id === $program->id, 404);
 
         $link->delete();
 

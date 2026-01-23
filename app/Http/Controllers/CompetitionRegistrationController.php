@@ -52,16 +52,29 @@ class CompetitionRegistrationController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'phone' => 'required|string|max:20',
-            'email' => 'nullable|email|max:255',
+            'brother_name' => 'nullable|string|max:255',
+            'brother_phone' => 'nullable|string|max:20',
             'team_name' => 'required|string|max:255',
             'join_existing_team' => 'nullable|boolean',
             'existing_team_id' => 'nullable|exists:teams,id',
         ], [
             'name.required' => 'الاسم مطلوب',
             'phone.required' => 'رقم الهاتف مطلوب',
-            'email.email' => 'البريد الإلكتروني غير صحيح',
+            'brother_name.required' => 'اسم الأخ مطلوب',
+            'brother_phone.required' => 'رقم هاتف الأخ مطلوب',
             'team_name.required' => 'اسم الفريق مطلوب',
         ]);
+
+        // التحقق من بيانات الأخ إذا تم إدخالها
+        if ($request->filled('brother_name') || $request->filled('brother_phone')) {
+            $request->validate([
+                'brother_name' => 'required|string|max:255',
+                'brother_phone' => 'required|string|max:20',
+            ], [
+                'brother_name.required' => 'اسم الأخ مطلوب',
+                'brother_phone.required' => 'رقم هاتف الأخ مطلوب',
+            ]);
+        }
 
         try {
             DB::beginTransaction();
@@ -74,7 +87,6 @@ class CompetitionRegistrationController extends Controller
                 $user = User::create([
                     'name' => $validated['name'],
                     'phone' => $validated['phone'],
-                    'email' => $validated['email'],
                     'password' => Hash::make(uniqid()), // كلمة مرور عشوائية
                     'status' => 1,
                 ]);
@@ -83,10 +95,29 @@ class CompetitionRegistrationController extends Controller
                 if (empty($user->name)) {
                     $user->name = $validated['name'];
                 }
-                if (empty($user->email) && !empty($validated['email'])) {
-                    $user->email = $validated['email'];
-                }
                 $user->save();
+            }
+
+            // معالجة بيانات الأخ إذا كانت موجودة
+            $brotherUser = null;
+            if (!empty($validated['brother_name']) && !empty($validated['brother_phone'])) {
+                $brotherUser = User::where('phone', $validated['brother_phone'])->first();
+
+                if (!$brotherUser) {
+                    // إنشاء مستخدم جديد للأخ
+                    $brotherUser = User::create([
+                        'name' => $validated['brother_name'],
+                        'phone' => $validated['brother_phone'],
+                        'password' => Hash::make(uniqid()),
+                        'status' => 1,
+                    ]);
+                } else {
+                    // تحديث بيانات الأخ إذا كانت غير موجودة
+                    if (empty($brotherUser->name)) {
+                        $brotherUser->name = $validated['brother_name'];
+                    }
+                    $brotherUser->save();
+                }
             }
 
             // تحديد الفريق
@@ -122,6 +153,20 @@ class CompetitionRegistrationController extends Controller
                 'role' => $team->created_by_user_id === $user->id ? 'captain' : 'member',
                 'joined_at' => now(),
             ]);
+
+            // إضافة الأخ للفريق إذا كان موجوداً
+            if ($brotherUser) {
+                // التحقق من أن الفريق لم يكتمل
+                if (!$team->is_complete) {
+                    // التحقق من أن الأخ ليس في الفريق بالفعل
+                    if (!$team->members()->where('user_id', $brotherUser->id)->exists()) {
+                        $team->members()->attach($brotherUser->id, [
+                            'role' => 'member',
+                            'joined_at' => now(),
+                        ]);
+                    }
+                }
+            }
 
             // التحقق من اكتمال الفريق
             $team->checkCompletion();
@@ -173,11 +218,9 @@ class CompetitionRegistrationController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'phone' => 'required|string|max:20',
-            'email' => 'nullable|email|max:255',
         ], [
             'name.required' => 'الاسم مطلوب',
             'phone.required' => 'رقم الهاتف مطلوب',
-            'email.email' => 'البريد الإلكتروني غير صحيح',
         ]);
 
         try {
@@ -190,16 +233,12 @@ class CompetitionRegistrationController extends Controller
                 $user = User::create([
                     'name' => $validated['name'],
                     'phone' => $validated['phone'],
-                    'email' => $validated['email'],
                     'password' => Hash::make(uniqid()),
                     'status' => 1,
                 ]);
             } else {
                 if (empty($user->name)) {
                     $user->name = $validated['name'];
-                }
-                if (empty($user->email) && !empty($validated['email'])) {
-                    $user->email = $validated['email'];
                 }
                 $user->save();
             }
