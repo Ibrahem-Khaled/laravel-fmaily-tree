@@ -54,25 +54,25 @@ class CompetitionRegistrationController extends Controller
             'phone' => 'required|string|max:20',
             'brother_name' => 'nullable|string|max:255',
             'brother_phone' => 'nullable|string|max:20',
-            'team_name' => 'required|string|max:255',
-            'join_existing_team' => 'nullable|boolean',
-            'existing_team_id' => 'nullable|exists:teams,id',
+            'team_name' => 'nullable|string|max:255',
         ], [
             'name.required' => 'الاسم مطلوب',
             'phone.required' => 'رقم الهاتف مطلوب',
-            'brother_name.required' => 'اسم الأخ مطلوب',
-            'brother_phone.required' => 'رقم هاتف الأخ مطلوب',
+            'brother_name.required' => 'اسم خوي مطلوب',
+            'brother_phone.required' => 'رقم هاتف خوي مطلوب',
             'team_name.required' => 'اسم الفريق مطلوب',
         ]);
 
-        // التحقق من بيانات الأخ إذا تم إدخالها
+        // التحقق من بيانات خوي إذا تم إدخالها
         if ($request->filled('brother_name') || $request->filled('brother_phone')) {
             $request->validate([
                 'brother_name' => 'required|string|max:255',
                 'brother_phone' => 'required|string|max:20',
+                'team_name' => 'required|string|max:255',
             ], [
-                'brother_name.required' => 'اسم الأخ مطلوب',
-                'brother_phone.required' => 'رقم هاتف الأخ مطلوب',
+                'brother_name.required' => 'اسم خوي مطلوب',
+                'brother_phone.required' => 'رقم هاتف خوي مطلوب',
+                'team_name.required' => 'اسم الفريق مطلوب عند التسجيل مع خوي',
             ]);
         }
 
@@ -98,13 +98,13 @@ class CompetitionRegistrationController extends Controller
                 $user->save();
             }
 
-            // معالجة بيانات الأخ إذا كانت موجودة
+            // معالجة بيانات خوي إذا كانت موجودة
             $brotherUser = null;
             if (!empty($validated['brother_name']) && !empty($validated['brother_phone'])) {
                 $brotherUser = User::where('phone', $validated['brother_phone'])->first();
 
                 if (!$brotherUser) {
-                    // إنشاء مستخدم جديد للأخ
+                    // إنشاء مستخدم جديد لخوي
                     $brotherUser = User::create([
                         'name' => $validated['brother_name'],
                         'phone' => $validated['brother_phone'],
@@ -112,7 +112,7 @@ class CompetitionRegistrationController extends Controller
                         'status' => 1,
                     ]);
                 } else {
-                    // تحديث بيانات الأخ إذا كانت غير موجودة
+                    // تحديث بيانات خوي إذا كانت غير موجودة
                     if (empty($brotherUser->name)) {
                         $brotherUser->name = $validated['brother_name'];
                     }
@@ -120,25 +120,20 @@ class CompetitionRegistrationController extends Controller
                 }
             }
 
-            // تحديد الفريق
-            if ($request->has('join_existing_team') && $request->has('existing_team_id')) {
-                $team = Team::where('id', $request->existing_team_id)
-                    ->where('competition_id', $competition->id)
-                    ->first();
+            // تسجيل المستخدم في المسابقة
+            CompetitionRegistration::updateOrCreate(
+                [
+                    'competition_id' => $competition->id,
+                    'user_id' => $user->id,
+                ],
+                [
+                    'has_brother' => !empty($brotherUser),
+                ]
+            );
 
-                if (!$team) {
-                    throw new \Exception('الفريق المحدد غير موجود');
-                }
-
-                if ($team->is_complete) {
-                    throw new \Exception('الفريق مكتمل ولا يمكن إضافة أعضاء جدد');
-                }
-
-                // التحقق من أن المستخدم ليس في الفريق بالفعل
-                if ($team->members()->where('user_id', $user->id)->exists()) {
-                    throw new \Exception('أنت مسجل بالفعل في هذا الفريق');
-                }
-            } else {
+            // إنشاء فريق فقط إذا كان معه خوي
+            $team = null;
+            if ($brotherUser && !empty($validated['team_name'])) {
                 // إنشاء فريق جديد
                 $team = Team::create([
                     'competition_id' => $competition->id,
@@ -146,35 +141,60 @@ class CompetitionRegistrationController extends Controller
                     'created_by_user_id' => $user->id,
                     'is_complete' => false,
                 ]);
+
+                // تحديث التسجيل برقم الفريق
+                CompetitionRegistration::where('competition_id', $competition->id)
+                    ->where('user_id', $user->id)
+                    ->update(['team_id' => $team->id]);
             }
 
-            // إضافة المستخدم للفريق
-            $team->members()->attach($user->id, [
-                'role' => $team->created_by_user_id === $user->id ? 'captain' : 'member',
-                'joined_at' => now(),
-            ]);
+            // إضافة المستخدم للفريق إذا كان موجوداً (أي إذا كان معه خوي)
+            if ($team) {
+                $team->members()->attach($user->id, [
+                    'role' => 'captain',
+                    'joined_at' => now(),
+                ]);
 
-            // إضافة الأخ للفريق إذا كان موجوداً
-            if ($brotherUser) {
-                // التحقق من أن الفريق لم يكتمل
-                if (!$team->is_complete) {
-                    // التحقق من أن الأخ ليس في الفريق بالفعل
-                    if (!$team->members()->where('user_id', $brotherUser->id)->exists()) {
-                        $team->members()->attach($brotherUser->id, [
-                            'role' => 'member',
-                            'joined_at' => now(),
-                        ]);
+                // تسجيل خوي في المسابقة أيضاً
+                if ($brotherUser) {
+                    CompetitionRegistration::updateOrCreate(
+                        [
+                            'competition_id' => $competition->id,
+                            'user_id' => $brotherUser->id,
+                        ],
+                        [
+                            'has_brother' => false,
+                            'team_id' => $team->id,
+                        ]
+                    );
+
+                    // إضافة خوي للفريق
+                    // التحقق من أن الفريق لم يكتمل
+                    if (!$team->is_complete) {
+                        // التحقق من أن خوي ليس في الفريق بالفعل
+                        if (!$team->members()->where('user_id', $brotherUser->id)->exists()) {
+                            $team->members()->attach($brotherUser->id, [
+                                'role' => 'member',
+                                'joined_at' => now(),
+                            ]);
+                        }
                     }
                 }
+
+                // التحقق من اكتمال الفريق
+                $team->checkCompletion();
+
+                DB::commit();
+
+                return redirect()->route('competitions.team.register', ['team' => $team->id])
+                    ->with('success', 'تم التسجيل بنجاح! يمكنك مشاركة رابط الفريق مع الأعضاء الآخرين.');
+            } else {
+                // إذا لم يكن معه خوي، يسجل كفرد فقط
+                DB::commit();
+
+                return redirect()->route('home')
+                    ->with('success', 'تم التسجيل بنجاح! سيتم تجميعك مع الآخرين في فريق من لوحة التحكم.');
             }
-
-            // التحقق من اكتمال الفريق
-            $team->checkCompletion();
-
-            DB::commit();
-
-            return redirect()->route('competitions.team.register', ['team' => $team->id])
-                ->with('success', 'تم التسجيل بنجاح! يمكنك مشاركة رابط الفريق مع الأعضاء الآخرين.');
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -253,6 +273,18 @@ class CompetitionRegistrationController extends Controller
                 'role' => 'member',
                 'joined_at' => now(),
             ]);
+
+            // تسجيل المستخدم في المسابقة
+            CompetitionRegistration::updateOrCreate(
+                [
+                    'competition_id' => $competition->id,
+                    'user_id' => $user->id,
+                ],
+                [
+                    'team_id' => $team->id,
+                    'has_brother' => false,
+                ]
+            );
 
             // التحقق من اكتمال الفريق
             $team->checkCompletion();

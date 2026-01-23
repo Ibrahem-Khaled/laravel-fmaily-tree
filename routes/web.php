@@ -238,6 +238,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
         'update' => 'dashboard.competitions.update',
         'destroy' => 'dashboard.competitions.destroy',
     ]);
+    Route::post('competitions/{competition}/create-team', [\App\Http\Controllers\admin\CompetitionController::class, 'createTeamFromIndividuals'])->name('dashboard.competitions.create-team');
 
     // Quran Competitions routes (Admin)
     Route::resource('quran-competitions', \App\Http\Controllers\admin\QuranCompetitionController::class)->names([

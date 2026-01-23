@@ -5,6 +5,7 @@ namespace App\Http\Controllers\admin;
 use App\Http\Controllers\Controller;
 use App\Models\Competition;
 use App\Models\Team;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -83,6 +84,24 @@ class CompetitionController extends Controller
             'creator'
         ]);
 
+        // جلب جميع المستخدمين المسجلين في فرق هذه المسابقة
+        $usersInTeams = DB::table('team_members')
+            ->join('teams', 'team_members.team_id', '=', 'teams.id')
+            ->where('teams.competition_id', $competition->id)
+            ->pluck('team_members.user_id')
+            ->unique()
+            ->toArray();
+
+        // جلب الأفراد المسجلين في المسابقة ولكن ليسوا في أي فريق
+        $individualUsers = User::whereHas('competitionRegistrations', function($query) use ($competition) {
+                $query->where('competition_id', $competition->id)
+                      ->whereNull('team_id');
+            })
+            ->whereNotIn('id', $usersInTeams)
+            ->with('competitionRegistrations')
+            ->orderBy('name')
+            ->get();
+
         // إحصائيات المسابقة
         $stats = [
             'total_teams' => $competition->teams()->count(),
@@ -95,7 +114,76 @@ class CompetitionController extends Controller
                 ->count('team_members.user_id'),
         ];
 
-        return view('dashboard.competitions.show', compact('competition', 'stats'));
+        return view('dashboard.competitions.show', compact('competition', 'stats', 'individualUsers'));
+    }
+
+    /**
+     * إنشاء فريق من أفراد محددين
+     */
+    public function createTeamFromIndividuals(Request $request, Competition $competition): RedirectResponse
+    {
+        $validated = $request->validate([
+            'team_name' => 'required|string|max:255',
+            'user_ids' => 'required|array|min:1',
+            'user_ids.*' => 'exists:users,id',
+        ], [
+            'team_name.required' => 'اسم الفريق مطلوب',
+            'user_ids.required' => 'يجب اختيار عضو واحد على الأقل',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            // التحقق من أن عدد الأعضاء لا يتجاوز حجم الفريق المطلوب
+            if (count($validated['user_ids']) > $competition->team_size) {
+                return back()->with('error', 'عدد الأعضاء المحددين يتجاوز حجم الفريق المطلوب (' . $competition->team_size . ')');
+            }
+
+            // التحقق من أن المستخدمين ليسوا في فرق أخرى في نفس المسابقة
+            $usersInTeams = DB::table('team_members')
+                ->join('teams', 'team_members.team_id', '=', 'teams.id')
+                ->where('teams.competition_id', $competition->id)
+                ->whereIn('team_members.user_id', $validated['user_ids'])
+                ->pluck('team_members.user_id')
+                ->toArray();
+
+            if (!empty($usersInTeams)) {
+                $users = User::whereIn('id', $usersInTeams)->pluck('name')->toArray();
+                return back()->with('error', 'بعض المستخدمين المحددين موجودون بالفعل في فرق: ' . implode(', ', $users));
+            }
+
+            // إنشاء الفريق
+            $team = Team::create([
+                'competition_id' => $competition->id,
+                'name' => $validated['team_name'],
+                'created_by_user_id' => $validated['user_ids'][0], // أول عضو يكون القائد
+                'is_complete' => false,
+            ]);
+
+            // إضافة الأعضاء للفريق وتحديث التسجيلات
+            foreach ($validated['user_ids'] as $index => $userId) {
+                $team->members()->attach($userId, [
+                    'role' => $index === 0 ? 'captain' : 'member',
+                    'joined_at' => now(),
+                ]);
+
+                // تحديث التسجيل برقم الفريق
+                CompetitionRegistration::where('competition_id', $competition->id)
+                    ->where('user_id', $userId)
+                    ->update(['team_id' => $team->id]);
+            }
+
+            // التحقق من اكتمال الفريق
+            $team->checkCompletion();
+
+            DB::commit();
+
+            return back()->with('success', 'تم إنشاء الفريق بنجاح!');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'حدث خطأ: ' . $e->getMessage());
+        }
     }
 
     /**

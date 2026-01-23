@@ -152,6 +152,51 @@
         </div>
     </div>
 
+    <!-- Individual Users Section -->
+    @if(isset($individualUsers) && $individualUsers->count() > 0)
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 font-weight-bold text-warning">
+                    <i class="fas fa-user-clock mr-2"></i>الأفراد غير المجمعين ({{ $individualUsers->count() }})
+                </h6>
+                <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#createTeamModal">
+                    <i class="fas fa-users-cog mr-2"></i>تجميع في فريق
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th width="50">
+                                    <input type="checkbox" id="selectAllIndividuals" onchange="toggleAllIndividuals()">
+                                </th>
+                                <th>الاسم</th>
+                                <th>رقم الهاتف</th>
+                                <th>البريد الإلكتروني</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($individualUsers as $user)
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" class="individual-checkbox" value="{{ $user->id }}" 
+                                            onchange="updateSelectedUsers()" 
+                                            data-name="{{ $user->name }}" 
+                                            data-phone="{{ $user->phone ?? '-' }}">
+                                    </td>
+                                    <td>{{ $user->name }}</td>
+                                    <td>{{ $user->phone ?? '-' }}</td>
+                                    <td>{{ $user->email ?? '-' }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <!-- Teams Section -->
     <div class="card shadow-sm border-0">
         <div class="card-header bg-white">
@@ -269,6 +314,42 @@
     </div>
 </div>
 
+<!-- Modal for Creating Team from Individuals -->
+<div class="modal fade" id="createTeamModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">إنشاء فريق من الأفراد</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <form action="{{ route('dashboard.competitions.create-team', $competition) }}" method="POST" id="createTeamForm">
+                @csrf
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>اسم الفريق <span class="text-danger">*</span></label>
+                        <input type="text" name="team_name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>الأعضاء المحددون:</label>
+                        <div id="selectedUsersList" class="border p-2 rounded" style="min-height: 50px; max-height: 200px; overflow-y: auto;">
+                            <p class="text-muted mb-0">لم يتم اختيار أي أعضاء</p>
+                        </div>
+                    </div>
+                    <p class="text-muted small">
+                        <strong>ملاحظة:</strong> يمكنك اختيار حتى {{ $competition->team_size }} عضو للفريق
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn btn-primary" id="submitTeamBtn" disabled>إنشاء الفريق</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
 function copyToClipboard(text) {
     navigator.clipboard.writeText(text).then(function() {
@@ -286,5 +367,68 @@ function toggleTeamMembers(teamId) {
         row.style.display = 'none';
     }
 }
+
+function toggleAllIndividuals() {
+    const selectAll = document.getElementById('selectAllIndividuals');
+    const checkboxes = document.querySelectorAll('.individual-checkbox');
+    checkboxes.forEach(cb => cb.checked = selectAll.checked);
+    updateSelectedUsers();
+}
+
+function updateSelectedUsers() {
+    const checkboxes = document.querySelectorAll('.individual-checkbox:checked');
+    const selectedUsersList = document.getElementById('selectedUsersList');
+    const form = document.getElementById('createTeamForm');
+    const submitBtn = document.getElementById('submitTeamBtn');
+    const maxTeamSize = {{ $competition->team_size }};
+    
+    // إزالة جميع hidden inputs السابقة
+    const existingInputs = form.querySelectorAll('input[name="user_ids[]"]');
+    existingInputs.forEach(input => input.remove());
+    
+    if (checkboxes.length === 0) {
+        selectedUsersList.innerHTML = '<p class="text-muted mb-0">لم يتم اختيار أي أعضاء</p>';
+        submitBtn.disabled = true;
+    } else {
+        if (checkboxes.length > maxTeamSize) {
+            selectedUsersList.innerHTML = `<p class="text-danger mb-0">تم اختيار ${checkboxes.length} عضو. الحد الأقصى هو ${maxTeamSize} عضو</p>`;
+            submitBtn.disabled = true;
+            return;
+        }
+        
+        let html = '<ul class="list-unstyled mb-0">';
+        checkboxes.forEach(cb => {
+            const name = cb.getAttribute('data-name');
+            const phone = cb.getAttribute('data-phone');
+            html += `<li><strong>${name}</strong> - ${phone}</li>`;
+            
+            // إضافة hidden input
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'user_ids[]';
+            hiddenInput.value = cb.value;
+            form.appendChild(hiddenInput);
+        });
+        html += '</ul>';
+        selectedUsersList.innerHTML = html;
+        submitBtn.disabled = false;
+    }
+}
+
+// تحديث القائمة عند تغيير أي checkbox
+document.addEventListener('DOMContentLoaded', function() {
+    // تحديث عند فتح المودال
+    $('#createTeamModal').on('show.bs.modal', function() {
+        updateSelectedUsers();
+    });
+    
+    // إعادة تعيين المودال عند إغلاقه
+    $('#createTeamModal').on('hidden.bs.modal', function() {
+        document.querySelectorAll('.individual-checkbox').forEach(cb => cb.checked = false);
+        document.getElementById('selectAllIndividuals').checked = false;
+        document.getElementById('createTeamForm').reset();
+        updateSelectedUsers();
+    });
+});
 </script>
 @endsection

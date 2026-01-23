@@ -92,4 +92,12 @@ class User extends Authenticatable implements AuditableContract
     {
         return $this->hasMany(Competition::class, 'created_by');
     }
+
+    /**
+     * العلاقة مع تسجيلات المسابقات
+     */
+    public function competitionRegistrations()
+    {
+        return $this->hasMany(CompetitionRegistration::class);
+    }
 }

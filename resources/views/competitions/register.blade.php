@@ -258,7 +258,7 @@
                             <button type="button" id="btn_with_brother" onclick="toggleBrotherForm(true)"
                                 class="px-6 py-4 border-2 border-emerald-300 rounded-xl font-semibold transition-all duration-300 hover:scale-105 bg-white hover:bg-emerald-50 hover:border-emerald-500 text-gray-700">
                                 <i class="fas fa-user-friends mr-2 text-emerald-600"></i>
-                                معي أخي
+                                معي خوي
                             </button>
                             <button type="button" id="btn_alone" onclick="toggleBrotherForm(false)"
                                 class="px-6 py-4 border-2 border-gray-300 rounded-xl font-semibold transition-all duration-300 hover:scale-105 bg-white hover:bg-gray-50 hover:border-gray-400 text-gray-700">
@@ -271,19 +271,19 @@
                             <div class="bg-emerald-50 border-2 border-emerald-200 rounded-xl p-4">
                                 <h4 class="font-bold text-emerald-700 mb-4 flex items-center gap-2">
                                     <i class="fas fa-user-friends"></i>
-                                    بيانات الأخ
+                                    بيانات خوي
                                 </h4>
                                 <div class="space-y-4">
                                     <div>
                                         <label class="block text-gray-700 font-semibold mb-2 text-sm sm:text-base">
-                                            اسم الأخ <span class="text-red-500">*</span>
+                                            اسم خوي <span class="text-red-500">*</span>
                                         </label>
                                         <input type="text" name="brother_name" id="brother_name" value="{{ old('brother_name') }}"
                                             class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-white">
                                     </div>
                                     <div>
                                         <label class="block text-gray-700 font-semibold mb-2 text-sm sm:text-base">
-                                            رقم هاتف الأخ <span class="text-red-500">*</span>
+                                            رقم هاتف خوي <span class="text-red-500">*</span>
                                         </label>
                                         <input type="text" name="brother_phone" id="brother_phone" value="{{ old('brother_phone') }}"
                                             class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-white">
@@ -293,43 +293,20 @@
                         </div>
                     </div>
 
-                    <div class="bg-white/50 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-emerald-100/50">
+                    <div id="team_name_section" class="bg-white/50 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-emerald-100/50" style="display: none;">
                         <h3 class="text-lg sm:text-xl font-bold font-serif text-emerald-700 mb-4 flex items-center gap-2">
                             <div class="w-1 h-6 bg-emerald-600 rounded-full"></div>
                             معلومات الفريق
                         </h3>
 
                         <div class="space-y-4">
-                            <div class="flex items-center gap-3 p-3 bg-emerald-50 rounded-xl border border-emerald-200">
-                                <input type="checkbox" id="join_existing_team" name="join_existing_team" value="1"
-                                    onchange="toggleTeamSelection()" {{ old('join_existing_team') ? 'checked' : '' }}
-                                    class="w-5 h-5 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500">
-                                <label for="join_existing_team" class="text-gray-700 font-medium cursor-pointer">
-                                    الانضمام لفريق موجود
-                                </label>
-                            </div>
-
-                            <div id="new_team_section">
+                            <div>
                                 <label class="block text-gray-700 font-semibold mb-2 text-sm sm:text-base">
                                     اسم الفريق <span class="text-red-500">*</span>
                                 </label>
-                                <input type="text" name="team_name" id="team_name" value="{{ old('team_name') }}" required
+                                <input type="text" name="team_name" id="team_name" value="{{ old('team_name') }}"
                                     class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-white">
-                            </div>
-
-                            <div id="existing_team_section" style="display: none;">
-                                <label class="block text-gray-700 font-semibold mb-2 text-sm sm:text-base">
-                                    اختر الفريق
-                                </label>
-                                <select name="existing_team_id" id="existing_team_id"
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-white">
-                                    <option value="">— اختر الفريق —</option>
-                                    @foreach($competition->teams()->where('is_complete', false)->get() as $team)
-                                        <option value="{{ $team->id }}" {{ old('existing_team_id') == $team->id ? 'selected' : '' }}>
-                                            {{ $team->name }} ({{ $team->members->count() }}/{{ $competition->team_size }})
-                                        </option>
-                                    @endforeach
-                                </select>
+                                <p class="text-xs text-gray-500 mt-2">إذا كان معك خوي، يمكنك إنشاء فريق وتسميته</p>
                             </div>
                         </div>
                     </div>
@@ -350,52 +327,37 @@
         function toggleBrotherForm(withBrother) {
             hasBrother = withBrother;
             const brotherSection = document.getElementById('brother_form_section');
+            const teamNameSection = document.getElementById('team_name_section');
             const btnWithBrother = document.getElementById('btn_with_brother');
             const btnAlone = document.getElementById('btn_alone');
             const brotherNameInput = document.getElementById('brother_name');
             const brotherPhoneInput = document.getElementById('brother_phone');
+            const teamNameInput = document.getElementById('team_name');
 
             if (withBrother) {
                 brotherSection.style.display = 'block';
+                teamNameSection.style.display = 'block';
                 btnWithBrother.classList.add('bg-emerald-100', 'border-emerald-500', 'text-emerald-700');
                 btnWithBrother.classList.remove('bg-white', 'border-emerald-300', 'text-gray-700');
                 btnAlone.classList.remove('bg-gray-50', 'border-gray-400');
                 btnAlone.classList.add('bg-white', 'border-gray-300', 'text-gray-700');
                 brotherNameInput.setAttribute('required', 'required');
                 brotherPhoneInput.setAttribute('required', 'required');
+                teamNameInput.setAttribute('required', 'required');
             } else {
                 brotherSection.style.display = 'none';
+                teamNameSection.style.display = 'none';
                 btnWithBrother.classList.remove('bg-emerald-100', 'border-emerald-500', 'text-emerald-700');
                 btnWithBrother.classList.add('bg-white', 'border-emerald-300', 'text-gray-700');
                 btnAlone.classList.add('bg-gray-50', 'border-gray-400');
                 btnAlone.classList.remove('bg-white', 'border-gray-300', 'text-gray-700');
                 brotherNameInput.removeAttribute('required');
                 brotherPhoneInput.removeAttribute('required');
-            }
-        }
-
-        function toggleTeamSelection() {
-            const joinExisting = document.getElementById('join_existing_team').checked;
-            const newTeamSection = document.getElementById('new_team_section');
-            const existingTeamSection = document.getElementById('existing_team_section');
-            const teamNameInput = document.getElementById('team_name');
-            const existingTeamSelect = document.getElementById('existing_team_id');
-
-            if (joinExisting) {
-                newTeamSection.style.display = 'none';
-                existingTeamSection.style.display = 'block';
                 teamNameInput.removeAttribute('required');
-                existingTeamSelect.setAttribute('required', 'required');
-            } else {
-                newTeamSection.style.display = 'block';
-                existingTeamSection.style.display = 'none';
-                teamNameInput.setAttribute('required', 'required');
-                existingTeamSelect.removeAttribute('required');
             }
         }
 
         // Initialize on page load
-        toggleTeamSelection();
         toggleBrotherForm(false);
     </script>
 </body>

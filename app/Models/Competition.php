@@ -49,6 +49,14 @@ class Competition extends BaseModel
     }
 
     /**
+     * العلاقة مع التسجيلات
+     */
+    public function registrations()
+    {
+        return $this->hasMany(CompetitionRegistration::class);
+    }
+
+    /**
      * العلاقة مع منشئ المسابقة
      */
     public function creator()
@@ -74,7 +82,7 @@ class Competition extends BaseModel
         }
 
         $now = now();
-        
+
         if ($this->start_date && $now->lt($this->start_date)) {
             return false;
         }
