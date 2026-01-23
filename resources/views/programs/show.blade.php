@@ -409,9 +409,8 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
                             @foreach ($subPrograms as $subProgram)
                                 <a href="{{ route('programs.show', $subProgram) }}"
-                                    class="group block bg-white rounded-3xl overflow-hidden border-2 border-emerald-500 transition-all duration-500 hover:-translate-y-2 sub-program-card relative isolate">
+                                    class="group block bg-white rounded-3xl overflow-hidden border-2 border-emerald-500 shadow-xl hover:shadow-emerald-glow transition-all duration-500 hover:-translate-y-2 sub-program-card relative isolate">
                                     {{-- خلفية مميزة للكارد --}}
-                                    <div class="absolute inset-0 bg-gradient-to-br from-emerald-50/50 via-white to-teal-50/30 rounded-3xl -z-10"></div>
                                     <div class="absolute inset-0 border-2 border-emerald-500/40 rounded-3xl -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                                     @php
                                         $subProgramImage = $subProgram->cover_image_path ?? $subProgram->path;
@@ -421,9 +420,6 @@
                                             <img src="{{ asset('storage/' . $subProgramImage) }}"
                                                 alt="{{ $subProgram->program_title ?? $subProgram->name }}"
                                                 class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-125">
-                                            <div
-                                                class="absolute inset-0 bg-gradient-to-t from-emerald-900/90 via-emerald-900/40 to-transparent group-hover:from-emerald-900/95 transition-all duration-500">
-                                            </div>
                                             <div class="absolute top-4 left-4">
                                                 <span class="px-3 py-1 bg-white/90 backdrop-blur-sm text-emerald-700 text-xs font-bold rounded-full shadow-lg">
                                                     برنامج فرعي
@@ -485,9 +481,6 @@
                                                 <img src="{{ asset('storage/' . $firstImage->path) }}"
                                                     alt="{{ $firstImage->name ?? $gallery->title }}"
                                                     class="w-full h-64 sm:h-80 md:h-96 lg:h-[500px] object-contain transition-transform duration-700 group-hover:scale-105">
-                                                <div
-                                                    class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                                                </div>
                                                 <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                                     <div class="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-xl">
                                                         <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -561,9 +554,6 @@
                                                     <img src="{{ asset('storage/' . $image->path) }}"
                                                         alt="{{ $image->name ?? '' }}"
                                                         class="w-full h-32 sm:h-40 md:h-56 object-cover transition-transform duration-700 group-hover:scale-125">
-                                                    <div
-                                                        class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                                                    </div>
                                                     <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                                         <div class="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-xl">
                                                             <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -650,9 +640,6 @@
                                         <img src="{{ asset('storage/' . $media->path) }}"
                                             alt="{{ $media->name ?? '' }}"
                                             class="w-full h-32 sm:h-40 md:h-56 object-cover transition-transform duration-700 group-hover:scale-125">
-                                        <div
-                                            class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                                        </div>
                                         <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                             <div class="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-xl">
                                                 <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
