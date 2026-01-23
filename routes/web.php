@@ -54,6 +54,10 @@ Route::get('/sila', [FamilyTreeController::class, 'index'])->name('sila'); // ص
 Route::get('/family-tree', [FamilyTreeController::class, 'newIndex'])->name('family-tree');
 Route::get('/add-self', [FamilyTreeController::class, 'addSelf'])->name('add.self');
 
+// User Registration Routes
+Route::get('/register-person', [\App\Http\Controllers\UserRegistrationController::class, 'show'])->name('users.register');
+Route::post('/register-person', [\App\Http\Controllers\UserRegistrationController::class, 'store'])->name('users.register.store');
+
 Route::get('/gallery', [GalleryController::class, 'index'])->name('gallery.index');
 Route::get('/article/{id}', [GalleryController::class, 'show'])->name('article.show');
 Route::get('/gallery/articles', [GalleryController::class, 'articles'])->name('gallery.articles');
