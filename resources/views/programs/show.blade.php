@@ -768,8 +768,8 @@
                             <div>
                                 <h2
                                         class="text-lg sm:text-xl lg:text-2xl font-bold font-serif text-blue-700">
-                                    روابط مفيدة</h2>
-                                <p class="text-xs sm:text-sm text-gray-500 mt-1">مصادر ومراجع تعزز محتوى البرنامج</p>
+                                    روابط </h2>
+                                {{-- <p class="text-xs sm:text-sm text-gray-500 mt-1">مصادر ومراجع تعزز محتوى البرنامج</p> --}}
                                 </div>
                             </div>
                             <span
