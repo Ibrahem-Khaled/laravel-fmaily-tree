@@ -795,7 +795,7 @@
                                         @if ($link->description)
                                             <p class="text-sm text-gray-600 mt-2 leading-relaxed">{{ $link->description }}</p>
                                         @endif
-                                        <p class="text-xs text-gray-400 mt-3 break-all font-mono bg-gray-50 px-3 py-2 rounded-lg">{{ $link->url }}</p>
+                                        {{-- <p class="text-xs text-gray-400 mt-3 break-all font-mono bg-gray-50 px-3 py-2 rounded-lg">{{ $link->url }}</p> --}}
                                     </div>
                                     <div class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl text-sm font-semibold shadow-lg group-hover:shadow-xl group-hover:scale-105 transition-all duration-300">
                                         <span>الانتقال</span>
