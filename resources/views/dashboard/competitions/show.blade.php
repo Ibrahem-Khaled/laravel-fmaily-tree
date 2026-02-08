@@ -153,6 +153,15 @@
     </div>
 
     <!-- Individual Users Section -->
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+            <i class="fas fa-exclamation-circle mr-2"></i>{{ session('error') }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    @endif
+
     @if(isset($individualUsers) && $individualUsers->count() > 0)
         <div class="card shadow-sm border-0 mb-4">
             <div class="card-header bg-white d-flex justify-content-between align-items-center">
@@ -174,6 +183,7 @@
                                 <th>الاسم</th>
                                 <th>رقم الهاتف</th>
                                 <th>البريد الإلكتروني</th>
+                                <th>الإجراءات</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -188,6 +198,11 @@
                                     <td>{{ $user->name }}</td>
                                     <td>{{ $user->phone ?? '-' }}</td>
                                     <td>{{ $user->email ?? '-' }}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#deleteRegistrationModal{{ $user->id }}" title="حذف التسجيل">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -195,6 +210,32 @@
                 </div>
             </div>
         </div>
+
+        @foreach($individualUsers as $user)
+        <div class="modal fade" id="deleteRegistrationModal{{ $user->id }}" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">تأكيد حذف التسجيل</h5>
+                        <button type="button" class="close" data-dismiss="modal">
+                            <span>&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>هل أنت متأكد من حذف تسجيل <strong>{{ $user->name }}</strong> من المسابقة؟</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">إلغاء</button>
+                        <form action="{{ route('dashboard.competitions.remove-registration', [$competition, $user]) }}" method="POST" class="d-inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger">حذف</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endforeach
     @endif
 
     <!-- Teams Section -->
@@ -259,10 +300,13 @@
                                         <button class="btn btn-sm btn-info" onclick="toggleTeamMembers({{ $team->id }})" title="عرض الأعضاء">
                                             <i class="fas fa-eye"></i> الأعضاء
                                         </button>
+                                        <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#deleteTeamModal{{ $team->id }}" title="حذف الفريق">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
                                     </td>
                                 </tr>
                                 <tr id="team-members-{{ $team->id }}" style="display: none;">
-                                    <td colspan="6">
+                                    <td colspan="7">
                                         <div class="card bg-light">
                                             <div class="card-body">
                                                 <h6 class="font-weight-bold">أعضاء الفريق:</h6>
@@ -313,6 +357,32 @@
         </div>
     </div>
 </div>
+
+@foreach($competition->teams as $team)
+<div class="modal fade" id="deleteTeamModal{{ $team->id }}" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">تأكيد حذف الفريق</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>هل أنت متأكد من حذف فريق <strong>{{ $team->name }}</strong>؟ سيتم نقل الأعضاء إلى قائمة الأفراد غير المجمعين.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">إلغاء</button>
+                <form action="{{ route('dashboard.competitions.teams.destroy', $team) }}" method="POST" class="d-inline">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-danger">حذف</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@endforeach
 
 <!-- Modal for Creating Team from Individuals -->
 <div class="modal fade" id="createTeamModal" tabindex="-1" role="dialog">

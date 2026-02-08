@@ -4,6 +4,7 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Competition;
+use App\Models\CompetitionRegistration;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -232,5 +233,47 @@ class CompetitionController extends Controller
 
         return redirect()->route('dashboard.competitions.index')
             ->with('success', 'تم حذف المسابقة بنجاح');
+    }
+
+    /**
+     * حذف تسجيل مستخدم من المسابقة
+     */
+    public function removeRegistration(Competition $competition, User $user): RedirectResponse
+    {
+        CompetitionRegistration::where('competition_id', $competition->id)
+            ->where('user_id', $user->id)
+            ->whereNull('team_id')
+            ->delete();
+
+        return redirect()->route('dashboard.competitions.show', $competition)
+            ->with('success', 'تم حذف التسجيل بنجاح');
+    }
+
+    /**
+     * حذف فريق من المسابقة
+     */
+    public function destroyTeam(Team $team): RedirectResponse
+    {
+        $competition = $team->competition;
+
+        try {
+            DB::beginTransaction();
+
+            // إزالة الأعضاء من الفريق
+            $team->members()->detach();
+
+            // تحديث أو حذف سجلات التسجيل المرتبطة
+            CompetitionRegistration::where('team_id', $team->id)->update(['team_id' => null]);
+
+            $team->delete();
+
+            DB::commit();
+
+            return redirect()->route('dashboard.competitions.show', $competition)
+                ->with('success', 'تم حذف الفريق بنجاح');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'حدث خطأ أثناء حذف الفريق: ' . $e->getMessage());
+        }
     }
 }

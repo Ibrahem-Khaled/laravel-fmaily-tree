@@ -193,7 +193,7 @@ class CompetitionRegistrationController extends Controller
                 // إذا لم يكن معه خوي، يسجل كفرد فقط
                 DB::commit();
 
-                return redirect()->route('home')
+                return redirect()->route('competitions.register', ['token' => $competition->registration_token])
                     ->with('success', 'تم التسجيل بنجاح! سيتم تجميعك مع الآخرين في فريق من لوحة التحكم.');
             }
 

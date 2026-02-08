@@ -52,8 +52,8 @@
             {{-- تبويب الأدوار --}}
             <ul class="nav nav-tabs mb-4">
                 <li class="nav-item">
-                    <a class="nav-link {{ $selectedRole === 'all' ? 'active' : '' }}"
-                        href="{{ route('users.index') }}">الكل</a>
+                    <a class="nav-link {{ $selectedRole === 'no-role' ? 'active' : '' }}"
+                        href="{{ route('users.index', ['role' => 'no-role']) }}">بدون دور</a>
                 </li>
                         @foreach ($roles as $role)
                             <li class="nav-item">
@@ -109,11 +109,13 @@
                                     </div>
                                 </td>
                                 <td>
-                                    @foreach($user->roles as $role)
+                                    @forelse($user->roles as $role)
                                         <span class="badge badge-{{ $role->name === 'admin' ? 'danger' : ($role->name === 'super_admin' ? 'warning' : 'info') }}">
                                             {{ \App\Support\TranslationHelper::userRole($role->name) }}
                                         </span>
-                                    @endforeach
+                                    @empty
+                                        <span class="text-muted">بدون دور</span>
+                                    @endforelse
                                 </td>
                                 <td>{{ $user->email }}</td>
                                 <td>{{ $user->created_at->format('Y-m-d') }}</td>

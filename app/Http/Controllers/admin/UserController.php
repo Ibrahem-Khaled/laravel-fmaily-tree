@@ -16,13 +16,15 @@ class UserController extends Controller
     {
         // الحصول على المعاملات
         $search = $request->get('search');
-        $selectedRole = $request->get('role', 'all');
+        $selectedRole = $request->get('role', 'no-role');
 
         // بناء الاستعلام
         $query = User::with('roles');
 
         // فلترة حسب الدور
-        if ($selectedRole !== 'all') {
+        if ($selectedRole === 'no-role') {
+            $query->doesntHave('roles');
+        } else {
             $query->whereHas('roles', function($q) use ($selectedRole) {
                 $q->where('name', $selectedRole);
             });
