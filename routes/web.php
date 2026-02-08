@@ -138,6 +138,14 @@ Route::prefix('health-websites')->name('health-websites.')->group(function () {
     Route::get('{website}', [\App\Http\Controllers\HealthWebsiteController::class, 'show'])->name('show');
 });
 
+// Public Quiz Competitions Routes
+Route::prefix('quiz-competitions')->name('quiz-competitions.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\QuizCompetitionPublicController::class, 'index'])->name('index');
+    Route::get('{quizCompetition}', [\App\Http\Controllers\QuizCompetitionPublicController::class, 'show'])->name('show');
+    Route::get('{quizCompetition}/questions/{quizQuestion}', [\App\Http\Controllers\QuizCompetitionPublicController::class, 'question'])->name('question');
+    Route::post('{quizCompetition}/questions/{quizQuestion}/answer', [\App\Http\Controllers\QuizCompetitionPublicController::class, 'storeAnswer'])->name('store-answer');
+});
+
 // Public Competition Registration Routes
 Route::prefix('competitions')->name('competitions.')->group(function () {
     Route::get('register/{token}', [\App\Http\Controllers\CompetitionRegistrationController::class, 'register'])->name('register');
@@ -272,6 +280,23 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
         ->name('dashboard.quran-competitions.sections.attach-people');
     Route::delete('quran-competitions/sections/{section}/people/{person}', [\App\Http\Controllers\admin\QuranCompetitionController::class, 'detachSectionPerson'])
         ->name('dashboard.quran-competitions.sections.detach-person');
+
+    // Quiz Competitions routes (Admin)
+    Route::resource('quiz-competitions', \App\Http\Controllers\admin\QuizCompetitionController::class)->names([
+        'index' => 'dashboard.quiz-competitions.index',
+        'create' => 'dashboard.quiz-competitions.create',
+        'store' => 'dashboard.quiz-competitions.store',
+        'show' => 'dashboard.quiz-competitions.show',
+        'edit' => 'dashboard.quiz-competitions.edit',
+        'update' => 'dashboard.quiz-competitions.update',
+        'destroy' => 'dashboard.quiz-competitions.destroy',
+    ]);
+    Route::get('quiz-competitions/{quizCompetition}/questions/create', [\App\Http\Controllers\admin\QuizQuestionController::class, 'create'])->name('dashboard.quiz-questions.create');
+    Route::post('quiz-competitions/{quizCompetition}/questions', [\App\Http\Controllers\admin\QuizQuestionController::class, 'store'])->name('dashboard.quiz-questions.store');
+    Route::get('quiz-competitions/{quizCompetition}/questions/{quizQuestion}/edit', [\App\Http\Controllers\admin\QuizQuestionController::class, 'edit'])->name('dashboard.quiz-questions.edit');
+    Route::put('quiz-competitions/{quizCompetition}/questions/{quizQuestion}', [\App\Http\Controllers\admin\QuizQuestionController::class, 'update'])->name('dashboard.quiz-questions.update');
+    Route::delete('quiz-competitions/{quizCompetition}/questions/{quizQuestion}', [\App\Http\Controllers\admin\QuizQuestionController::class, 'destroy'])->name('dashboard.quiz-questions.destroy');
+    Route::post('quiz-competitions/{quizCompetition}/questions/{quizQuestion}/select-winners', [\App\Http\Controllers\admin\QuizQuestionController::class, 'selectWinners'])->name('dashboard.quiz-questions.select-winners');
 
     // Stories routes
     Route::resource('stories', StoryController::class)->middleware(['permission:stories.view|stories.create|stories.update|stories.delete']);

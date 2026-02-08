@@ -205,15 +205,15 @@
             auth()->user()->can('images.view') ||
             auth()->user()->can('stories.view'))
         <li
-            class="nav-item {{ request()->routeIs(['articles.*', 'categories.*', 'dashboard.images.*', 'stories.*', 'dashboard.competitions.*', 'dashboard.quran-competitions.*']) ? 'active' : '' }}">
-            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseContent"
-                aria-expanded="{{ request()->routeIs(['articles.*', 'categories.*', 'dashboard.images.*', 'stories.*', 'dashboard.competitions.*', 'dashboard.quran-competitions.*']) ? 'true' : 'false' }}"
+            class="nav-item {{ request()->routeIs(['articles.*', 'categories.*', 'dashboard.images.*', 'stories.*', 'dashboard.competitions.*', 'dashboard.quran-competitions.*', 'dashboard.quiz-competitions.*']) ? 'active' : '' }}">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseContent"
+                aria-expanded="{{ request()->routeIs(['articles.*', 'categories.*', 'dashboard.images.*', 'stories.*', 'dashboard.competitions.*', 'dashboard.quran-competitions.*', 'dashboard.quiz-competitions.*']) ? 'true' : 'false' }}"
                 aria-controls="collapseContent">
                 <i class="fas fa-fw fa-folder"></i>
                 <span>المحتوى والوسائط</span>
             </a>
             <div id="collapseContent"
-                class="collapse {{ request()->routeIs(['articles.*', 'categories.*', 'dashboard.images.*', 'stories.*', 'dashboard.competitions.*', 'dashboard.quran-competitions.*']) ? 'show' : '' }}"
+                class="collapse {{ request()->routeIs(['articles.*', 'categories.*', 'dashboard.images.*', 'stories.*', 'dashboard.competitions.*', 'dashboard.quran-competitions.*', 'dashboard.quiz-competitions.*']) ? 'show' : '' }}"
                 aria-labelledby="headingContent" data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded">
                     <h6 class="collapse-header">إدارة المحتوى:</h6>
@@ -249,6 +249,10 @@
                     <a class="collapse-item {{ request()->routeIs('dashboard.competitions.*') ? 'active' : '' }}"
                         href="{{ route('dashboard.competitions.index') }}">
                         <i class="fas fa-fw fa-trophy"></i> المسابقات
+                    </a>
+                    <a class="collapse-item {{ request()->routeIs('dashboard.quiz-competitions.*') ? 'active' : '' }}"
+                        href="{{ route('dashboard.quiz-competitions.index') }}">
+                        <i class="fas fa-fw fa-question-circle"></i> مسابقات الأسئلة
                     </a>
                 </div>
             </div>

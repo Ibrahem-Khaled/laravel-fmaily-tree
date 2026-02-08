@@ -15,6 +15,7 @@ use App\Models\Article;
 use App\Models\Category;
 use App\Models\ImportantLink;
 use App\Models\FamilyNews;
+use App\Models\QuizCompetition;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -266,6 +267,20 @@ class HomeController extends Controller
             $familyNews = FamilyNews::getActiveNews(8);
         }
 
+        // مسابقات الأسئلة النشطة
+        $quizCompetitions = QuizCompetition::active()->ordered()->with('questions.choices')->get();
+        $nextQuizEvent = QuizCompetition::getNextUpcomingEvent();
+
+        // آخر مسابقة جارية ولم تنتهِ (حسب وقت المسابقة)
+        $activeQuizCompetition = QuizCompetition::active()
+            ->whereNotNull('start_at')
+            ->whereNotNull('end_at')
+            ->where('start_at', '<=', now())
+            ->where('end_at', '>=', now())
+            ->ordered()
+            ->with('questions')
+            ->first();
+
         return view('home', [
             'latestImages' => $slideshowImages,
             'latestGalleryImages' => $latestGalleryImages,
@@ -284,6 +299,9 @@ class HomeController extends Controller
             'importantLinks' => $importantLinks,
             'familyNews' => $familyNews,
             'dynamicSections' => $dynamicSections,
+            'quizCompetitions' => $quizCompetitions,
+            'nextQuizEvent' => $nextQuizEvent,
+            'activeQuizCompetition' => $activeQuizCompetition,
         ]);
     }
 }

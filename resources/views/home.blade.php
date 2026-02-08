@@ -462,6 +462,183 @@
         </section>
     @endif
 
+    {{-- قسم مسابقات الأسئلة --}}
+    @if (isset($quizCompetitions) && $quizCompetitions->count() > 0)
+        <section class="py-6 md:py-8 lg:py-10 relative overflow-hidden" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);">
+            {{-- زخارف الخلفية --}}
+            <div class="absolute top-0 right-0 w-72 h-72 opacity-5 pointer-events-none" style="animation: float 6s ease-in-out infinite;">
+                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <path fill="#22c55e" d="M44.9,-76.6C59.3,-69.5,72.8,-59.9,80.3,-46.7C87.8,-33.5,89.3,-16.8,88.3,-0.6C87.3,15.6,83.8,31.2,76.3,44.5C68.8,57.8,57.3,68.8,43.3,75.3C29.3,81.8,14.7,83.8,-0.6,84.8C-15.9,85.8,-31.8,85.8,-45.8,79.3C-59.8,72.8,-71.9,59.8,-79.3,44.5C-86.7,29.2,-89.3,11.6,-88.3,-5.9C-87.3,-23.4,-82.7,-46.8,-71.3,-64.3C-59.9,-81.8,-41.7,-93.4,-22.8,-95.8C-3.9,-98.2,15.7,-91.4,34.1,-82.3Z" transform="translate(100 100)" />
+                </svg>
+            </div>
+            <div class="absolute bottom-0 left-0 w-64 h-64 opacity-5 pointer-events-none" style="animation: float 5s ease-in-out infinite 1s;">
+                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <path fill="#4ade80" d="M37.5,-65.2C48.7,-57.8,57.8,-47.3,64.3,-35.1C70.8,-22.9,74.7,-9,75.6,5.7C76.5,20.4,74.4,36,67.1,48.6C59.8,61.2,47.3,70.8,33.2,75.7C19.1,80.6,3.4,80.8,-12.1,78.1C-27.6,75.4,-42.9,69.8,-55.3,60.2C-67.7,50.6,-77.2,37,-80.3,21.9C-83.4,6.8,-80.1,-9.8,-74.1,-25.3C-68.1,-40.8,-59.4,-55.2,-47.2,-62.2C-35,-69.2,-19.3,-68.8,-5.4,-60.5Z" transform="translate(100 100)" />
+                </svg>
+            </div>
+
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
+                {{-- عنوان القسم --}}
+                <div class="text-right mb-6 md:mb-8">
+                    <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">
+                        مسابقات الأسئلة
+                    </h2>
+                    <p class="text-gray-600 text-xs md:text-sm mt-2">شارك وأجب على الأسئلة واربح جوائز قيمة</p>
+                </div>
+
+                {{-- آخر مسابقة جارية --}}
+                @if (isset($activeQuizCompetition) && $activeQuizCompetition)
+                    <div class="mb-6 md:mb-8" id="activeQuizSection">
+                        <div class="glass-card rounded-3xl p-5 md:p-8 shadow-lg relative overflow-hidden" style="box-shadow: 0 0 40px rgba(34, 197, 94, 0.2);">
+                            {{-- شريط علوي --}}
+                            <div class="absolute top-0 right-0 left-0 h-1.5" style="background: linear-gradient(90deg, #22c55e, #16a34a, #22c55e);"></div>
+
+                            {{-- شارة مباشر --}}
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="inline-flex items-center gap-2 bg-red-50 text-red-600 text-xs font-bold px-3 py-1.5 rounded-full border border-red-200">
+                                    <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                                    مسابقة جارية الآن
+                                </span>
+                                <span class="text-gray-500 text-xs">
+                                    <i class="fas fa-question-circle text-green-500 ml-1"></i>
+                                    {{ $activeQuizCompetition->questions->count() }} سؤال
+                                </span>
+                            </div>
+
+                            {{-- عنوان المسابقة --}}
+                            <h3 class="text-lg md:text-xl lg:text-2xl font-bold text-gray-800 mb-3 leading-relaxed">
+                                {{ $activeQuizCompetition->title }}
+                            </h3>
+                            @if ($activeQuizCompetition->description)
+                                <p class="text-gray-600 text-sm mb-5">{{ Str::limit($activeQuizCompetition->description, 150) }}</p>
+                            @endif
+
+                            {{-- الوقت المتبقي --}}
+                            <div class="flex flex-wrap items-center justify-between gap-4 mb-5">
+                                <div class="flex items-center gap-2 text-gray-500 text-sm">
+                                    <i class="fas fa-hourglass-half text-amber-500"></i>
+                                    <span>ينتهي بعد:</span>
+                                    <div class="flex gap-1" id="activeQuestionTimer">
+                                        <span class="bg-gray-100 rounded-lg px-2 py-1 text-gray-800 font-bold text-sm min-w-[2rem] text-center" id="aq-hours">00</span>
+                                        <span class="text-gray-400 font-bold">:</span>
+                                        <span class="bg-gray-100 rounded-lg px-2 py-1 text-gray-800 font-bold text-sm min-w-[2rem] text-center" id="aq-minutes">00</span>
+                                        <span class="text-gray-400 font-bold">:</span>
+                                        <span class="bg-gray-100 rounded-lg px-2 py-1 text-gray-800 font-bold text-sm min-w-[2rem] text-center" id="aq-seconds">00</span>
+                                    </div>
+                                    <input type="hidden" id="aqEndTime" value="{{ $activeQuizCompetition->end_at->getTimestamp() * 1000 }}">
+                                </div>
+                            </div>
+
+                            {{-- زر المشاركة --}}
+                            <a href="{{ route('quiz-competitions.show', $activeQuizCompetition) }}"
+                               class="inline-flex items-center gap-3 px-8 py-3.5 rounded-2xl font-bold text-base text-white transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+                               style="background: linear-gradient(135deg, #22c55e, #16a34a); box-shadow: 0 4px 20px rgba(34, 197, 94, 0.4);">
+                                <i class="fas fa-trophy"></i>
+                                <span>شارك في المسابقة</span>
+                                <i class="fas fa-arrow-left mr-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                @endif
+
+                {{-- العد التنازلي للحدث القادم --}}
+                @if (isset($nextQuizEvent) && $nextQuizEvent && !(isset($activeQuizCompetition) && $activeQuizCompetition))
+                    <div class="mb-6 md:mb-8" id="quizCountdownSection">
+                        <div class="glass-card rounded-3xl p-5 md:p-8 text-center shadow-lg" style="box-shadow: 0 0 30px rgba(34, 197, 94, 0.15);">
+                            <div class="inline-flex items-center gap-2 bg-amber-50 text-amber-700 rounded-full px-4 py-1.5 mb-4 border border-amber-200">
+                                <i class="fas fa-clock text-amber-500 text-sm"></i>
+                                <span class="text-xs font-medium">المسابقة تبدأ قريباً</span>
+                            </div>
+                            <p class="text-gray-600 text-sm mb-5">{{ Str::limit($nextQuizEvent['title'], 100) }}</p>
+
+                            <div class="flex justify-center gap-3 md:gap-5 mb-4" id="quizCountdown">
+                                <div class="text-center">
+                                    <div class="w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center mb-2 bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200">
+                                        <span class="text-2xl md:text-3xl font-bold text-green-600" id="countdown-days">0</span>
+                                    </div>
+                                    <p class="text-gray-500 text-xs">يوم</p>
+                                </div>
+                                <div class="text-center">
+                                    <div class="w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center mb-2 bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200">
+                                        <span class="text-2xl md:text-3xl font-bold text-green-600" id="countdown-hours">0</span>
+                                    </div>
+                                    <p class="text-gray-500 text-xs">ساعة</p>
+                                </div>
+                                <div class="text-center">
+                                    <div class="w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center mb-2 bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200">
+                                        <span class="text-2xl md:text-3xl font-bold text-green-600" id="countdown-minutes">0</span>
+                                    </div>
+                                    <p class="text-gray-500 text-xs">دقيقة</p>
+                                </div>
+                                <div class="text-center">
+                                    <div class="w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center mb-2 bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200">
+                                        <span class="text-2xl md:text-3xl font-bold text-green-600" id="countdown-seconds">0</span>
+                                    </div>
+                                    <p class="text-gray-500 text-xs">ثانية</p>
+                                </div>
+                            </div>
+                            <input type="hidden" id="quizCountdownTarget" value="{{ $nextQuizEvent['target_at']->getTimestamp() * 1000 }}">
+                        </div>
+                    </div>
+                @endif
+
+                {{-- بطاقات المسابقات --}}
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                    @foreach ($quizCompetitions as $competition)
+                        @php
+                            $activeCount = $competition->questions->filter(fn($q) => $q->isActive())->count();
+                            $totalQuestions = $competition->questions->count();
+                        @endphp
+                        <a href="{{ route('quiz-competitions.show', $competition) }}"
+                           class="group relative glass-card rounded-2xl p-5 md:p-6 shadow-lg transition-all duration-500 hover:-translate-y-2 hover:shadow-xl block"
+                           style="box-shadow: 0 0 20px rgba(34, 197, 94, 0.1);">
+                            @if ($activeCount > 0)
+                                <div class="absolute -top-2 -right-2 z-10">
+                                    <span class="flex h-6 w-6">
+                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                        <span class="relative inline-flex rounded-full h-6 w-6 bg-gradient-to-br from-green-500 to-green-600 items-center justify-center text-white text-[10px] font-bold">{{ $activeCount }}</span>
+                                    </span>
+                                </div>
+                            @endif
+
+                            <div class="flex items-start gap-4">
+                                <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-gradient-to-br from-green-500 to-green-600 shadow-lg" style="box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);">
+                                    <i class="fas fa-trophy text-white text-lg"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="text-lg font-bold text-gray-800 mb-1 group-hover:text-green-600 transition-colors">{{ $competition->title }}</h3>
+                                    @if ($competition->description)
+                                        <p class="text-gray-500 text-sm mb-3 line-clamp-2">{{ Str::limit($competition->description, 80) }}</p>
+                                    @endif
+                                    <div class="flex items-center gap-3 text-xs">
+                                        <span class="text-gray-400"><i class="fas fa-question-circle ml-1 text-green-400"></i>{{ $totalQuestions }} سؤال</span>
+                                        @if ($activeCount > 0)
+                                            <span class="text-green-600 font-bold"><i class="fas fa-play-circle ml-1"></i>{{ $activeCount }} نشط</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 pt-3 border-t border-green-100 flex items-center justify-between">
+                                <span class="text-green-600 text-sm font-bold group-hover:text-green-700">عرض المسابقة</span>
+                                <i class="fas fa-arrow-left text-green-400 group-hover:text-green-600 group-hover:-translate-x-1 transition-all"></i>
+                            </div>
+                        </a>
+                    @endforeach
+                </div>
+
+                {{-- زر عرض الكل --}}
+                <div class="text-center mt-8">
+                    <a href="{{ route('quiz-competitions.index') }}"
+                       class="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-white font-bold text-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+                       style="background: linear-gradient(135deg, #22c55e, #16a34a); box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);">
+                        <span>عرض جميع المسابقات</span>
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+    @endif
+
     {{-- Dynamic Sections --}}
     @if (isset($dynamicSections) && $dynamicSections->count() > 0)
         @foreach ($dynamicSections as $section)
@@ -1699,8 +1876,70 @@
             }, { passive: true });
         });
 
+        @if (isset($nextQuizEvent) && $nextQuizEvent)
+        (function() {
+            const targetInput = document.getElementById('quizCountdownTarget');
+            if (!targetInput) return;
+            const targetDate = new Date(parseInt(targetInput.value, 10));
+            const daysEl = document.getElementById('countdown-days');
+            const hoursEl = document.getElementById('countdown-hours');
+            const minutesEl = document.getElementById('countdown-minutes');
+            const secondsEl = document.getElementById('countdown-seconds');
+            if (!daysEl || !hoursEl || !minutesEl || !secondsEl) return;
 
+            function updateCountdown() {
+                const now = new Date();
+                const diff = targetDate - now;
+                if (diff <= 0) {
+                    daysEl.textContent = '0';
+                    hoursEl.textContent = '0';
+                    minutesEl.textContent = '0';
+                    secondsEl.textContent = '0';
+                    const section = document.getElementById('quizCountdownSection');
+                    if (section) section.style.display = 'none';
+                    return;
+                }
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                daysEl.textContent = days;
+                hoursEl.textContent = hours;
+                minutesEl.textContent = minutes;
+                secondsEl.textContent = seconds;
+            }
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+        })();
+        @endif
 
+        @if (isset($activeQuizCompetition) && $activeQuizCompetition)
+        (function() {
+            const endInput = document.getElementById('aqEndTime');
+            if (!endInput) return;
+            const endDate = new Date(parseInt(endInput.value, 10));
+            const hEl = document.getElementById('aq-hours');
+            const mEl = document.getElementById('aq-minutes');
+            const sEl = document.getElementById('aq-seconds');
+            if (!hEl || !mEl || !sEl) return;
+
+            function pad(n) { return n.toString().padStart(2, '0'); }
+            function updateTimer() {
+                const diff = endDate - new Date();
+                if (diff <= 0) {
+                    hEl.textContent = '00'; mEl.textContent = '00'; sEl.textContent = '00';
+                    const section = document.getElementById('activeQuizSection');
+                    if (section) { location.reload(); }
+                    return;
+                }
+                hEl.textContent = pad(Math.floor(diff / 3600000));
+                mEl.textContent = pad(Math.floor((diff % 3600000) / 60000));
+                sEl.textContent = pad(Math.floor((diff % 60000) / 1000));
+            }
+            updateTimer();
+            setInterval(updateTimer, 1000);
+        })();
+        @endif
     </script>
 </body>
 

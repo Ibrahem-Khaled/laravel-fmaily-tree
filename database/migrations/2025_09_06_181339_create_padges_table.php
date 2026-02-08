@@ -20,7 +20,6 @@ return new class extends Migration
             $table->bigInteger('sort_order')->index()->default(0);
             $table->boolean('is_active')->default(true);
             $table->timestamps();
-            $table->unique(['padge_id', 'person_id']);
         });
     }
 
