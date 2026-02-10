@@ -40,6 +40,34 @@
             border: 1px solid rgba(255, 255, 255, 0.5);
         }
 
+        /* Dynamic Rich Text Styles */
+        .dynamic-rich-text h1, .dynamic-rich-text h2, .dynamic-rich-text h3,
+        .dynamic-rich-text h4, .dynamic-rich-text h5, .dynamic-rich-text h6 {
+            color: #2d3748; font-weight: 700; margin-bottom: 0.5em; margin-top: 1em;
+        }
+        .dynamic-rich-text h1 { font-size: 1.8rem; }
+        .dynamic-rich-text h2 { font-size: 1.5rem; }
+        .dynamic-rich-text h3 { font-size: 1.25rem; }
+        .dynamic-rich-text p { margin-bottom: 0.75em; line-height: 1.8; }
+        .dynamic-rich-text ul, .dynamic-rich-text ol { padding-right: 1.5em; margin-bottom: 0.75em; }
+        .dynamic-rich-text li { margin-bottom: 0.25em; }
+        .dynamic-rich-text a { color: #4e73df; text-decoration: underline; }
+        .dynamic-rich-text a:hover { color: #2e59d9; }
+        .dynamic-rich-text img { max-width: 100%; height: auto; border-radius: 12px; margin: 1em 0; }
+        .dynamic-rich-text blockquote {
+            border-right: 4px solid #4e73df; padding: 12px 20px; margin: 1em 0;
+            background: #f8f9fc; border-radius: 0 8px 8px 0; font-style: italic;
+        }
+        .dynamic-rich-text table { width: 100%; border-collapse: collapse; margin: 1em 0; }
+        .dynamic-rich-text table th {
+            background: linear-gradient(135deg, #f0f4ff, #e8eeff);
+            font-weight: 700; padding: 10px 14px; border: 1px solid #d1d9e6; text-align: right;
+        }
+        .dynamic-rich-text table td { padding: 10px 14px; border: 1px solid #d1d9e6; text-align: right; }
+        .dynamic-rich-text table tr:nth-child(even) { background-color: #f9fafb; }
+        .dynamic-rich-text pre { background: #f8f9fc; padding: 12px; border-radius: 8px; overflow-x: auto; direction: ltr; text-align: left; }
+        .dynamic-rich-text code { background: #f0f2f8; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
+
         /* Hero Slideshow */
         .heroSwiper {
             width: 100%;
@@ -639,140 +667,72 @@
         </section>
     @endif
 
-    {{-- Dynamic Sections --}}
+    {{-- ================================================================ --}}
+    {{-- Dynamic Sections - Universal Renderer                           --}}
+    {{-- كل قسم يعرض كل أنواع العناصر بغض النظر عن نوع القسم           --}}
+    {{-- ================================================================ --}}
     @if (isset($dynamicSections) && $dynamicSections->count() > 0)
         @foreach ($dynamicSections as $section)
-            <section class="py-6 md:py-8 lg:py-10 {{ $section->css_classes ?? 'bg-white' }} relative overflow-hidden">
+            @php
+                $ss = $section->settings ?? [];
+                $bgColor = $ss['background_color'] ?? null;
+                $txtColor = $ss['text_color'] ?? null;
+                $padTop = $ss['padding_top'] ?? null;
+                $padBottom = $ss['padding_bottom'] ?? null;
+                $showTitle = $ss['show_title'] ?? true;
+                $subtitle = $ss['subtitle'] ?? null;
+                $description = $ss['description'] ?? null;
+                $icon = $ss['icon'] ?? null;
+                $columns = $ss['columns'] ?? 3;
+
+                $sectionStyle = '';
+                if ($bgColor && $bgColor !== '#ffffff') $sectionStyle .= "background-color:{$bgColor};";
+                if ($txtColor && $txtColor !== '#333333') $sectionStyle .= "color:{$txtColor};";
+                if ($padTop !== null) $sectionStyle .= "padding-top:{$padTop}px;";
+                if ($padBottom !== null) $sectionStyle .= "padding-bottom:{$padBottom}px;";
+
+                $colsMap = [1=>'grid-cols-1',2=>'grid-cols-1 sm:grid-cols-2',3=>'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',4=>'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4',6=>'grid-cols-2 sm:grid-cols-3 lg:grid-cols-6'];
+                $colsClass = $colsMap[$columns] ?? $colsMap[3];
+
+                // أنواع الأقسام التي تُعرض كشبكة (grid)
+                $gridSections = ['gallery', 'cards', 'stats'];
+                // أنواع الأقسام التي تُعرض كعمودين
+                $twoColSections = ['text_with_image'];
+                $isGrid = in_array($section->section_type, $gridSections);
+                $isTwoCol = in_array($section->section_type, $twoColSections);
+            @endphp
+
+            @if($section->items->count() > 0)
+            <section class="py-6 md:py-8 lg:py-10 {{ $section->css_classes ?? '' }} relative overflow-hidden"
+                     @if($sectionStyle) style="{{ $sectionStyle }}" @endif>
                 <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
-                    @if ($section->title)
+
+                    {{-- عنوان القسم --}}
+                    @if ($showTitle && $section->title)
                         <div class="text-right mb-6 md:mb-8">
                             <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">
+                                @if ($icon)<i class="{{ $icon }} mr-2"></i>@endif
                                 {{ $section->title }}
                             </h2>
+                            @if ($subtitle)
+                                <p class="text-sm md:text-base text-gray-500 mt-1">{{ $subtitle }}</p>
+                            @endif
+                            @if ($description)
+                                <p class="text-xs md:text-sm text-gray-400 mt-1 max-w-2xl" style="text-align: right;">{{ $description }}</p>
+                            @endif
                         </div>
                     @endif
 
-                    <div class="dynamic-section-content">
-                        @if ($section->section_type === 'gallery' && $section->items->count() > 0)
-                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
-                                @foreach ($section->items as $item)
-                                    @if ($item->item_type === 'image' && $item->image_url)
-                                        <div class="relative group overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300">
-                                            <img src="{{ $item->image_url }}" alt="Gallery Image"
-                                                 class="w-full h-32 md:h-40 lg:h-48 object-cover transition-transform duration-500 group-hover:scale-110">
-                                        </div>
-                                    @endif
-                                @endforeach
-                            </div>
-                        @elseif ($section->section_type === 'text' && $section->items->count() > 0)
-                            @foreach ($section->items as $item)
-                                @if ($item->item_type === 'text' && isset($item->content['text']))
-                                    <div class="glass-card rounded-2xl p-4 md:p-6 shadow-lg mb-4">
-                                        <div class="text-gray-700 text-sm md:text-base leading-relaxed whitespace-pre-line">
-                                            {!! nl2br(e($item->content['text'])) !!}
-                                        </div>
-                                    </div>
-                                @endif
-                            @endforeach
-                        @elseif ($section->section_type === 'video_section' && $section->items->count() > 0)
-                            @foreach ($section->items as $item)
-                                @if ($item->item_type === 'video')
-                                    <div class="w-full mb-4">
-                                        @if ($item->youtube_url)
-                                            @php
-                                                // Extract YouTube video ID
-                                                preg_match('/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/', $item->youtube_url, $matches);
-                                                $videoId = $matches[1] ?? null;
-                                            @endphp
-                                            @if ($videoId)
-                                                <div class="relative w-full" style="padding-bottom: 56.25%;">
-                                                    <iframe class="absolute top-0 left-0 w-full h-full rounded-lg"
-                                                            src="https://www.youtube.com/embed/{{ $videoId }}"
-                                                            frameborder="0"
-                                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                                            allowfullscreen></iframe>
-                                                </div>
-                                            @endif
-                                        @elseif ($item->video_url)
-                                            <video controls class="w-full rounded-lg" style="max-height: 500px;">
-                                                <source src="{{ $item->video_url }}" type="video/mp4">
-                                                Your browser does not support the video tag.
-                                            </video>
-                                        @endif
-                                    </div>
-                                @endif
-                            @endforeach
-                        @elseif ($section->section_type === 'text_with_image' && $section->items->count() > 0)
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                                @foreach ($section->items as $item)
-                                    @if ($item->item_type === 'text' && isset($item->content['text']))
-                                        <div class="glass-card rounded-2xl p-4 md:p-6 shadow-lg">
-                                            <div class="text-gray-700 text-sm md:text-base leading-relaxed whitespace-pre-line">
-                                                {!! nl2br(e($item->content['text'])) !!}
-                                            </div>
-                                        </div>
-                                    @elseif ($item->item_type === 'image' && $item->image_url)
-                                        <div class="relative overflow-hidden rounded-2xl shadow-lg">
-                                            <img src="{{ $item->image_url }}" alt="Section Image"
-                                                 class="w-full h-full object-cover">
-                                        </div>
-                                    @endif
-                                @endforeach
-                            </div>
-                        @elseif ($section->section_type === 'buttons' && $section->items->count() > 0)
-                            <div class="flex flex-wrap gap-3 md:gap-4 justify-center">
-                                @foreach ($section->items as $item)
-                                    @if ($item->item_type === 'button' && isset($item->content['text']) && isset($item->content['url']))
-                                        <a href="{{ $item->content['url'] }}"
-                                           target="{{ $item->content['target'] ?? '_self' }}"
-                                           class="px-6 py-3 gradient-primary text-white rounded-lg font-semibold hover:shadow-lg transition-all">
-                                            {{ $item->content['text'] }}
-                                        </a>
-                                    @endif
-                                @endforeach
-                            </div>
-                        @elseif ($section->section_type === 'mixed' || $section->section_type === 'custom')
-                            <div class="space-y-4">
-                                @foreach ($section->items as $item)
-                                    @if ($item->item_type === 'text' && isset($item->content['text']))
-                                        <div class="glass-card rounded-2xl p-4 md:p-6 shadow-lg">
-                                            <div class="text-gray-700 text-sm md:text-base leading-relaxed whitespace-pre-line">
-                                                {!! nl2br(e($item->content['text'])) !!}
-                                            </div>
-                                        </div>
-                                    @elseif ($item->item_type === 'image' && $item->image_url)
-                                        <div class="relative overflow-hidden rounded-2xl shadow-lg">
-                                            <img src="{{ $item->image_url }}" alt="Section Image"
-                                                 class="w-full h-auto object-cover">
-                                        </div>
-                                    @elseif ($item->item_type === 'video')
-                                        @if ($item->youtube_url)
-                                            @php
-                                                preg_match('/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/', $item->youtube_url, $matches);
-                                                $videoId = $matches[1] ?? null;
-                                            @endphp
-                                            @if ($videoId)
-                                                <div class="relative w-full" style="padding-bottom: 56.25%;">
-                                                    <iframe class="absolute top-0 left-0 w-full h-full rounded-lg"
-                                                            src="https://www.youtube.com/embed/{{ $videoId }}"
-                                                            frameborder="0"
-                                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                                            allowfullscreen></iframe>
-                                                </div>
-                                            @endif
-                                        @elseif ($item->video_url)
-                                            <video controls class="w-full rounded-lg" style="max-height: 500px;">
-                                                <source src="{{ $item->video_url }}" type="video/mp4">
-                                                Your browser does not support the video tag.
-                                            </video>
-                                        @endif
-                                    @endif
-                                @endforeach
-                            </div>
-                        @endif
+                    {{-- محتوى العناصر --}}
+                    <div class="dynamic-section-content {{ $isGrid ? 'grid '.$colsClass.' gap-4 md:gap-6' : ($isTwoCol ? 'grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 items-center' : 'space-y-4') }}">
+                        @foreach ($section->items as $item)
+                            @include('partials.home-section-item', ['item' => $item])
+                        @endforeach
                     </div>
+
                 </div>
             </section>
+            @endif
         @endforeach
     @endif
 

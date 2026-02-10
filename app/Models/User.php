@@ -101,4 +101,12 @@ class User extends Authenticatable implements AuditableContract
     {
         return $this->hasMany(CompetitionRegistration::class);
     }
+
+    /**
+     * العلاقة مع سجلات المشي
+     */
+    public function walkingRecords()
+    {
+        return $this->hasMany(WalkingRecord::class);
+    }
 }

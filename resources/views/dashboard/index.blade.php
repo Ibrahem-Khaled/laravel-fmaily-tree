@@ -405,6 +405,16 @@
                                 <span class="text">إدارة المناسبات</span>
                             </a>
                         </div>
+                        @can('walking-program.view')
+                        <div class="col-md-6 mb-3">
+                            <a href="{{ route('dashboard.walking.index') }}" class="btn btn-primary btn-block btn-icon-split shadow-sm hover-lift">
+                                <span class="icon text-white-50">
+                                    <i class="fas fa-walking"></i>
+                                </span>
+                                <span class="text">برنامج المشي</span>
+                            </a>
+                        </div>
+                        @endcan
                     </div>
                 </div>
             </div>

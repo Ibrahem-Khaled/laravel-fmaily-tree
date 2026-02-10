@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
             AdminPermissionsSeeder::class,
             // ProductStoreSeeder::class,
             QuranCompetitionSeeder::class,
+            WalkingRecordSeeder::class,
             // يمكن إضافة سيدرات أخرى هنا
         ]);
     }

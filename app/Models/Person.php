@@ -237,6 +237,17 @@ class Person extends BaseModel
                     ->withTimestamps();
     }
 
+    /**
+     * مجموعات الاشعارات التي يتبع لها هذا الشخص
+     */
+    public function notificationGroups()
+    {
+        return $this->belongsToMany(NotificationGroup::class, 'notification_group_person', 'person_id', 'notification_group_id')
+            ->withPivot('sort_order')
+            ->withTimestamps()
+            ->orderBy('notification_group_person.sort_order');
+    }
+
     public function mentionedImages()
     {
         return $this->belongsToMany(Image::class, 'image_mentions', 'person_id', 'image_id')

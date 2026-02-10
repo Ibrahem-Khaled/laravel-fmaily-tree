@@ -44,26 +44,42 @@ class HomeSectionController extends Controller
             'section_type' => 'required|string|max:255',
             'is_active' => 'nullable|boolean',
             'settings' => 'nullable|array',
+            'settings.subtitle' => 'nullable|string|max:500',
+            'settings.description' => 'nullable|string|max:2000',
+            'settings.icon' => 'nullable|string|max:100',
+            'settings.background_color' => 'nullable|string|max:50',
+            'settings.text_color' => 'nullable|string|max:50',
+            'settings.padding_top' => 'nullable|integer|min:0|max:200',
+            'settings.padding_bottom' => 'nullable|integer|min:0|max:200',
+            'settings.show_title' => 'nullable|boolean',
+            'settings.columns' => 'nullable|integer|min:1|max:6',
+            'settings.carousel_autoplay' => 'nullable|boolean',
+            'settings.carousel_interval' => 'nullable|integer|min:1000|max:30000',
             'css_classes' => 'nullable|string|max:500',
         ]);
 
         $lastOrder = HomeSection::max('display_order') ?? 0;
 
-        HomeSection::create([
+        $settings = $request->settings ?? [];
+        // تأكد من تحويل checkbox values
+        $settings['show_title'] = isset($settings['show_title']) ? true : ($request->has('settings.show_title') ? true : true);
+        $settings['carousel_autoplay'] = isset($settings['carousel_autoplay']) ? true : false;
+
+        $section = HomeSection::create([
             'title' => $request->title,
             'section_type' => $request->section_type,
             'display_order' => $lastOrder + 1,
             'is_active' => $request->has('is_active') ? true : false,
-            'settings' => $request->settings ?? [],
+            'settings' => $settings,
             'css_classes' => $request->css_classes,
         ]);
 
-        return redirect()->route('dashboard.home-sections.index')
-            ->with('success', 'تم إنشاء القسم بنجاح');
+        return redirect()->route('dashboard.home-sections.edit', $section)
+            ->with('success', 'تم إنشاء القسم بنجاح! يمكنك الآن إضافة العناصر.');
     }
 
     /**
-     * عرض نموذج تعديل قسم
+     * عرض نموذج تعديل قسم (واجهة بناء الصفحات)
      */
     public function edit(HomeSection $homeSection)
     {
@@ -84,15 +100,19 @@ class HomeSectionController extends Controller
             'css_classes' => 'nullable|string|max:500',
         ]);
 
+        $settings = $request->settings ?? [];
+        $settings['show_title'] = isset($settings['show_title']) ? true : false;
+        $settings['carousel_autoplay'] = isset($settings['carousel_autoplay']) ? true : false;
+
         $homeSection->update([
             'title' => $request->title,
             'section_type' => $request->section_type,
             'is_active' => $request->has('is_active') ? true : false,
-            'settings' => $request->settings ?? [],
+            'settings' => $settings,
             'css_classes' => $request->css_classes,
         ]);
 
-        return redirect()->route('dashboard.home-sections.index')
+        return redirect()->route('dashboard.home-sections.edit', $homeSection)
             ->with('success', 'تم تحديث القسم بنجاح');
     }
 
@@ -143,5 +163,30 @@ class HomeSectionController extends Controller
 
         return redirect()->route('dashboard.home-sections.index')
             ->with('success', 'تم تحديث حالة القسم بنجاح');
+    }
+
+    /**
+     * نسخ قسم
+     */
+    public function duplicate(HomeSection $homeSection)
+    {
+        DB::transaction(function () use ($homeSection) {
+            $lastOrder = HomeSection::max('display_order') ?? 0;
+            
+            $newSection = $homeSection->replicate();
+            $newSection->title = $homeSection->title . ' (نسخة)';
+            $newSection->display_order = $lastOrder + 1;
+            $newSection->is_active = false;
+            $newSection->save();
+
+            foreach ($homeSection->items as $item) {
+                $newItem = $item->replicate();
+                $newItem->home_section_id = $newSection->id;
+                $newItem->save();
+            }
+        });
+
+        return redirect()->route('dashboard.home-sections.index')
+            ->with('success', 'تم نسخ القسم بنجاح');
     }
 }

@@ -126,6 +126,14 @@ return [
         'emergency' => [
             'path' => storage_path('logs/laravel.log'),
         ],
+
+        'ultramsg' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/ultramsg.log'),
+            'level' => 'debug',
+            'days' => 30,
+            'replace_placeholders' => true,
+        ],
     ],
 
 ];

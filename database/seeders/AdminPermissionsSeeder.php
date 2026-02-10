@@ -60,6 +60,9 @@ class AdminPermissionsSeeder extends Seeder
             'system.logs.view',
             'reports.view',
             'audit.view',
+            'notifications.view',
+            'notifications.send',
+            'notifications.manage-groups',
         ];
 
         $permissions = array_merge($permissions, $additionalPermissions);
@@ -100,6 +103,8 @@ class AdminPermissionsSeeder extends Seeder
             'images.view', 'images.upload',
             'dashboard.view', 'dashboard.stats',
             'councils.view', 'councils.create', 'councils.update', 'councils.delete',
+            'walking-program.view', 'walking-program.create', 'walking-program.update', 'walking-program.delete',
+            'notifications.view', 'notifications.send', 'notifications.manage-groups',
         ])->get();
         $editorRole->syncPermissions($editorPermissions);
 
@@ -114,6 +119,8 @@ class AdminPermissionsSeeder extends Seeder
             'padges.view',
             'images.view',
             'dashboard.view',
+            'walking-program.view',
+            'notifications.view',
         ])->get();
         $viewerRole->syncPermissions($viewerPermissions);
 
@@ -126,6 +133,8 @@ class AdminPermissionsSeeder extends Seeder
             'padges.view',
             'images.view',
             'dashboard.view',
+            'walking-program.view',
+            'notifications.view',
         ])->get();
         $userRole->syncPermissions($userPermissions);
 

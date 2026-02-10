@@ -352,6 +352,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::delete('home-sections/{homeSection}', [\App\Http\Controllers\admin\HomeSectionController::class, 'destroy'])->name('dashboard.home-sections.destroy')->middleware(['permission:site-content.delete']);
     Route::post('home-sections/reorder', [\App\Http\Controllers\admin\HomeSectionController::class, 'reorder'])->name('dashboard.home-sections.reorder')->middleware(['permission:site-content.update']);
     Route::post('home-sections/{homeSection}/toggle', [\App\Http\Controllers\admin\HomeSectionController::class, 'toggle'])->name('dashboard.home-sections.toggle')->middleware(['permission:site-content.update']);
+    Route::post('home-sections/{homeSection}/duplicate', [\App\Http\Controllers\admin\HomeSectionController::class, 'duplicate'])->name('dashboard.home-sections.duplicate')->middleware(['permission:site-content.create']);
 
     // Home Section Items routes
     Route::post('home-sections/{homeSection}/items', [\App\Http\Controllers\admin\HomeSectionItemController::class, 'store'])->name('dashboard.home-section-items.store')->middleware(['permission:site-content.create']);
@@ -498,6 +499,35 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
         'destroy' => 'dashboard.health-websites.destroy',
     ]);
     Route::post('health-websites/{healthWebsite}/toggle', [\App\Http\Controllers\admin\HealthWebsiteAdminController::class, 'toggle'])->name('dashboard.health-websites.toggle');
+
+    // Walking Program routes
+    Route::get('walking', [\App\Http\Controllers\admin\WalkingProgramController::class, 'index'])->name('dashboard.walking.index')->middleware(['permission:walking-program.view']);
+    Route::get('walking/create', [\App\Http\Controllers\admin\WalkingProgramController::class, 'create'])->name('dashboard.walking.create')->middleware(['permission:walking-program.create']);
+    Route::post('walking', [\App\Http\Controllers\admin\WalkingProgramController::class, 'store'])->name('dashboard.walking.store')->middleware(['permission:walking-program.create']);
+    Route::get('walking/{walking}/edit', [\App\Http\Controllers\admin\WalkingProgramController::class, 'edit'])->name('dashboard.walking.edit')->middleware(['permission:walking-program.update']);
+    Route::put('walking/{walking}', [\App\Http\Controllers\admin\WalkingProgramController::class, 'update'])->name('dashboard.walking.update')->middleware(['permission:walking-program.update']);
+    Route::delete('walking/{walking}', [\App\Http\Controllers\admin\WalkingProgramController::class, 'destroy'])->name('dashboard.walking.destroy')->middleware(['permission:walking-program.delete']);
+
+    // Notifications (الاشعارات) - WhatsApp / UltraMSG
+    Route::prefix('notifications')->name('dashboard.notifications.')->middleware(['permission:notifications.view'])->group(function () {
+        Route::get('/', [\App\Http\Controllers\admin\NotificationController::class, 'index'])->name('index');
+        Route::get('send', [\App\Http\Controllers\admin\NotificationController::class, 'send'])->name('send')->middleware(['permission:notifications.send']);
+        Route::post('send', [\App\Http\Controllers\admin\NotificationController::class, 'sendSubmit'])->name('send.submit')->middleware(['permission:notifications.send']);
+        Route::get('logs', [\App\Http\Controllers\admin\NotificationController::class, 'logs'])->name('logs');
+        Route::get('persons-with-whatsapp', [\App\Http\Controllers\admin\NotificationController::class, 'personsWithWhatsApp'])->name('persons-with-whatsapp');
+        Route::post('preview-message', [\App\Http\Controllers\admin\NotificationController::class, 'previewMessage'])->name('preview-message')->middleware(['permission:notifications.send']);
+    });
+    Route::prefix('notification-groups')->name('dashboard.notification-groups.')->middleware(['permission:notifications.manage-groups'])->group(function () {
+        Route::get('/', [\App\Http\Controllers\admin\NotificationController::class, 'groupsIndex'])->name('index');
+        Route::post('/', [\App\Http\Controllers\admin\NotificationController::class, 'groupsStore'])->name('store');
+        Route::get('create', [\App\Http\Controllers\admin\NotificationController::class, 'groupsCreate'])->name('create');
+        Route::get('{notificationGroup}/edit', [\App\Http\Controllers\admin\NotificationController::class, 'groupsEdit'])->name('edit');
+        Route::put('{notificationGroup}', [\App\Http\Controllers\admin\NotificationController::class, 'groupsUpdate'])->name('update');
+        Route::delete('{notificationGroup}', [\App\Http\Controllers\admin\NotificationController::class, 'groupsDestroy'])->name('destroy');
+        Route::get('{notificationGroup}/persons', [\App\Http\Controllers\admin\NotificationController::class, 'groupsPersons'])->name('persons');
+        Route::post('{notificationGroup}/persons', [\App\Http\Controllers\admin\NotificationController::class, 'groupsAttachPerson'])->name('attach-person');
+        Route::delete('{notificationGroup}/persons/{person}', [\App\Http\Controllers\admin\NotificationController::class, 'groupsDetachPerson'])->name('detach-person');
+    });
 });
 
 require __DIR__ . '/auth.php';
