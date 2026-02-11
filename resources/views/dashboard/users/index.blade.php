@@ -69,7 +69,7 @@
             <form action="{{ route('users.index') }}" method="GET" class="mb-4">
                 <div class="input-group">
                     <input type="text" name="search" class="form-control"
-                        placeholder="ابحث بالاسم أو البريد الإلكتروني..." value="{{ request('search') }}">
+                        placeholder="ابحث بالاسم أو البريد الإلكتروني أو رقم الهاتف..." value="{{ request('search') }}">
                     @if(request('role'))
                         <input type="hidden" name="role" value="{{ request('role') }}">
                     @endif
@@ -87,8 +87,11 @@
                     <thead class="thead-light">
                         <tr>
                             <th>الاسم</th>
-                            <th>الدور</th>
+                            <th>رقم الهاتف</th>
                             <th>البريد الإلكتروني</th>
+                            <th>العنوان</th>
+                            <th>العمر</th>
+                            <th>الدور</th>
                             <th>تاريخ الإنشاء</th>
                             <th>الحالة</th>
                             <th>الإجراءات</th>
@@ -99,14 +102,47 @@
                             <tr>
                                 <td>
                                     <div class="d-flex align-items-center">
-                                        <div class="avatar-circle mr-3">
-                                            <i class="fas fa-user"></i>
-                                        </div>
+                                        @if($user->avatar)
+                                            <img src="{{ asset('storage/' . $user->avatar) }}" alt="{{ $user->name }}" 
+                                                 class="rounded-circle mr-3" style="width: 40px; height: 40px; object-fit: cover;">
+                                        @else
+                                            <div class="avatar-circle mr-3">
+                                                <i class="fas fa-user"></i>
+                                            </div>
+                                        @endif
                                         <div>
                                             <div class="font-weight-bold">{{ $user->name }}</div>
                                             <small class="text-muted">ID: {{ $user->id }}</small>
                                         </div>
                                     </div>
+                                </td>
+                                <td>
+                                    @if($user->phone)
+                                        <i class="fas fa-phone text-primary"></i> {{ $user->phone }}
+                                    @else
+                                        <span class="text-muted">-</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($user->email)
+                                        <i class="fas fa-envelope text-info"></i> {{ $user->email }}
+                                    @else
+                                        <span class="text-muted">-</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($user->address)
+                                        <i class="fas fa-map-marker-alt text-danger"></i> {{ Str::limit($user->address, 30) }}
+                                    @else
+                                        <span class="text-muted">-</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($user->age)
+                                        <i class="fas fa-birthday-cake text-warning"></i> {{ $user->age }}
+                                    @else
+                                        <span class="text-muted">-</span>
+                                    @endif
                                 </td>
                                 <td>
                                     @forelse($user->roles as $role)
@@ -117,7 +153,6 @@
                                         <span class="text-muted">بدون دور</span>
                                     @endforelse
                                 </td>
-                                <td>{{ $user->email }}</td>
                                 <td>{{ $user->created_at->format('Y-m-d') }}</td>
                                 <td>
                                     @php
@@ -175,7 +210,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center">لا يوجد مستخدمون</td>
+                                <td colspan="9" class="text-center">لا يوجد مستخدمون</td>
                             </tr>
                         @endforelse
                     </tbody>

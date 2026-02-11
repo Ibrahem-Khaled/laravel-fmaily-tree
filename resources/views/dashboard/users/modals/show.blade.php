@@ -26,11 +26,44 @@
                         <div class="mb-3">
                             <label class="font-weight-bold">البريد الإلكتروني:</label>
                             <p class="text-muted">
-                                <i class="fas fa-envelope"></i> {{ $user->email }}
+                                <i class="fas fa-envelope"></i> {{ $user->email ?? '-' }}
                                 @if($user->email_verified_at)
                                     <span class="badge badge-success ml-2">مفعل</span>
                                 @else
                                     <span class="badge badge-warning ml-2">غير مفعل</span>
+                                @endif
+                            </p>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="font-weight-bold">رقم الهاتف:</label>
+                            <p class="text-muted">
+                                <i class="fas fa-phone"></i> {{ $user->phone ?? '-' }}
+                            </p>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="font-weight-bold">العنوان:</label>
+                            <p class="text-muted">
+                                <i class="fas fa-map-marker-alt"></i> {{ $user->address ?? '-' }}
+                            </p>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="font-weight-bold">العمر:</label>
+                            <p class="text-muted">
+                                <i class="fas fa-birthday-cake"></i> {{ $user->age ?? '-' }}
+                            </p>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="font-weight-bold">الصورة الشخصية:</label>
+                            <p class="text-muted">
+                                @if($user->avatar)
+                                    <img src="{{ asset('storage/' . $user->avatar) }}" alt="{{ $user->name }}" 
+                                         class="img-thumbnail" style="max-width: 150px; max-height: 150px;">
+                                @else
+                                    <span class="text-muted">لا توجد صورة</span>
                                 @endif
                             </p>
                         </div>
