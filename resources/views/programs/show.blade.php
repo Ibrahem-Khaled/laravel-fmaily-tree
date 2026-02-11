@@ -747,6 +747,140 @@
                     </section>
                 @endif
 
+                @if (isset($competitions) && $competitions->isNotEmpty())
+                    <section class="relative">
+                        <div class="flex flex-wrap items-center justify-between gap-3 mb-8">
+                            <div class="flex items-center gap-2 sm:gap-4">
+                                <div class="w-1 h-8 sm:h-12 bg-purple-600 rounded-full"></div>
+                            <div>
+                                <h2
+                                        class="text-lg sm:text-xl lg:text-2xl font-bold font-serif text-purple-700">
+                                    المسابقات المرتبطة</h2>
+                                <p class="text-xs sm:text-sm text-gray-500 mt-1">المسابقات المرتبطة بهذا البرنامج والمسجلين فيها</p>
+                                </div>
+                            </div>
+                            <span
+                                class="px-3 py-1.5 sm:px-4 sm:py-2 bg-purple-600 text-white text-xs sm:text-sm rounded-full font-semibold">
+                                {{ $competitions->count() }} مسابقة
+                            </span>
+                        </div>
+                        <div class="space-y-6 sm:space-y-8">
+                            @foreach ($competitions as $competition)
+                                <div class="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl border border-purple-100/50 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+                                    <div class="p-4 sm:p-6 lg:p-8">
+                                        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
+                                            <div class="flex-1">
+                                                <div class="flex items-center gap-3 mb-3">
+                                                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center shadow-lg">
+                                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+                                                        </svg>
+                                                    </div>
+                                                    <div>
+                                                        <h3 class="text-xl sm:text-2xl font-bold text-gray-800 mb-1">
+                                                            {{ $competition->title }}
+                                                        </h3>
+                                                        @if ($competition->description)
+                                                            <p class="text-sm sm:text-base text-gray-600 leading-relaxed">
+                                                                {{ Str::limit(strip_tags($competition->description), 150) }}
+                                                            </p>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                                <div class="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm">
+                                                    <div class="flex items-center gap-2 text-gray-600">
+                                                        <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                                        </svg>
+                                                        <span class="font-medium">{{ $competition->game_type }}</span>
+                                                    </div>
+                                                    @if ($competition->start_date || $competition->end_date)
+                                                        <div class="flex items-center gap-2 text-gray-600">
+                                                            <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                                            </svg>
+                                                            <span class="font-medium">
+                                                                @if ($competition->start_date && $competition->end_date)
+                                                                    {{ $competition->start_date->format('d/m/Y') }} - {{ $competition->end_date->format('d/m/Y') }}
+                                                                @elseif ($competition->start_date)
+                                                                    من {{ $competition->start_date->format('d/m/Y') }}
+                                                                @elseif ($competition->end_date)
+                                                                    حتى {{ $competition->end_date->format('d/m/Y') }}
+                                                                @endif
+                                                            </span>
+                                                        </div>
+                                                    @endif
+                                                    <div class="flex items-center gap-2">
+                                                        @if ($competition->is_active)
+                                                            <span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">نشطة</span>
+                                                        @else
+                                                            <span class="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-semibold">غير نشطة</span>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        @php
+                                            $registrations = $competition->registrations;
+                                            $registeredUsers = $registrations->pluck('user')->filter()->unique('id');
+                                        @endphp
+
+                                        @if ($registeredUsers->isNotEmpty())
+                                            <div class="mt-6 pt-6 border-t border-purple-100">
+                                                <div class="flex items-center justify-between mb-4">
+                                                    <h4 class="text-lg sm:text-xl font-bold text-purple-700 flex items-center gap-2">
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                                                        </svg>
+                                                        المسجلين في المسابقة
+                                                    </h4>
+                                                    <span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs sm:text-sm font-semibold">
+                                                        {{ $registeredUsers->count() }} مسجل
+                                                    </span>
+                                                </div>
+                                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                                                    @foreach ($registeredUsers as $user)
+                                                        <div class="bg-gradient-to-br from-purple-50 to-white border border-purple-100 rounded-xl p-4 hover:shadow-md transition-all duration-300">
+                                                            <div class="flex items-center gap-3">
+                                                                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                                                                    {{ mb_substr($user->name, 0, 1) }}
+                                                                </div>
+                                                                <div class="flex-1 min-w-0">
+                                                                    <h5 class="font-bold text-gray-800 truncate mb-1">
+                                                                        {{ $user->name }}
+                                                                    </h5>
+                                                                    @if ($user->phone)
+                                                                        <p class="text-xs sm:text-sm text-gray-600 flex items-center gap-1">
+                                                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                                                                            </svg>
+                                                                            {{ $user->phone }}
+                                                                        </p>
+                                                                    @endif
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                        @else
+                                            <div class="mt-6 pt-6 border-t border-purple-100">
+                                                <div class="text-center py-6 bg-purple-50 rounded-xl">
+                                                    <svg class="w-12 h-12 text-purple-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                                                    </svg>
+                                                    <p class="text-sm text-gray-600">لا يوجد مسجلين في هذه المسابقة حالياً</p>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </section>
+                @endif
+
                 @if ($programLinks->isNotEmpty())
                     <section class="relative">
                         <div class="flex flex-wrap items-center justify-between gap-3 mb-8">
@@ -796,7 +930,7 @@
                     </section>
                 @endif
 
-                @if ($galleryMedia->isEmpty() && $videoMedia->isEmpty() && $programLinks->isEmpty() && $programGalleries->isEmpty() && $subPrograms->isEmpty())
+                @if ($galleryMedia->isEmpty() && $videoMedia->isEmpty() && $programLinks->isEmpty() && $programGalleries->isEmpty() && $subPrograms->isEmpty() && (!isset($competitions) || $competitions->isEmpty()))
                     <div
                         class="bg-gradient-to-br from-white/90 via-emerald-50/50 to-white/90 backdrop-blur-md border border-emerald-100/50 rounded-3xl p-12 text-center shadow-xl relative overflow-hidden">
                         <div class="absolute top-0 left-0 w-full h-full opacity-10">

@@ -62,6 +62,36 @@ Route::get('/gallery', [GalleryController::class, 'index'])->name('gallery.index
 Route::get('/article/{id}', [GalleryController::class, 'show'])->name('article.show');
 Route::get('/gallery/articles', [GalleryController::class, 'articles'])->name('gallery.articles');
 Route::get('/person-gallery/{person}', [GalleryController::class, 'personGallery'])->name('person.gallery');
+
+// Invitations (الدعوات) - Public
+Route::prefix('invitations')->name('invitations.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\InvitationController::class, 'loginIndex'])->name('index');
+    Route::post('/login-or-register', [\App\Http\Controllers\InvitationController::class, 'loginOrRegister'])->name('login-or-register');
+    
+    // Authenticated routes
+    Route::middleware('auth')->group(function () {
+        Route::get('/dashboard', [\App\Http\Controllers\InvitationController::class, 'dashboard'])->name('dashboard');
+        Route::get('/send', [\App\Http\Controllers\InvitationController::class, 'send'])->name('send');
+        Route::post('/send', [\App\Http\Controllers\InvitationController::class, 'sendSubmit'])->name('send.submit');
+        Route::get('/logs', [\App\Http\Controllers\InvitationController::class, 'logs'])->name('logs');
+        Route::get('/logout', [\App\Http\Controllers\InvitationController::class, 'logout'])->name('logout');
+        Route::get('/persons-with-whatsapp', [\App\Http\Controllers\InvitationController::class, 'personsWithWhatsApp'])->name('persons-with-whatsapp');
+        Route::post('/preview-message', [\App\Http\Controllers\InvitationController::class, 'previewMessage'])->name('preview-message');
+        
+        // Groups management
+        Route::prefix('groups')->name('groups.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\InvitationController::class, 'groupsIndex'])->name('index');
+            Route::get('/create', [\App\Http\Controllers\InvitationController::class, 'groupsCreate'])->name('create');
+            Route::post('/', [\App\Http\Controllers\InvitationController::class, 'groupsStore'])->name('store');
+            Route::get('/{group}/edit', [\App\Http\Controllers\InvitationController::class, 'groupsEdit'])->name('edit');
+            Route::put('/{group}', [\App\Http\Controllers\InvitationController::class, 'groupsUpdate'])->name('update');
+            Route::delete('/{group}', [\App\Http\Controllers\InvitationController::class, 'groupsDestroy'])->name('destroy');
+            Route::post('/{group}/attach-person', [\App\Http\Controllers\InvitationController::class, 'groupsAttachPerson'])->name('attach-person');
+            Route::delete('/{group}/detach-person/{person}', [\App\Http\Controllers\InvitationController::class, 'groupsDetachPerson'])->name('detach-person');
+        });
+    });
+});
+
 Route::get('/reports', [ReportsController::class, 'index'])->name('reports.index');
 Route::get('/api/reports/person/{personId}/statistics', [ReportsController::class, 'getPersonStatistics'])->name('reports.person.statistics');
 Route::get('/api/reports/location/{locationId}/persons', [ReportsController::class, 'getLocationPersons'])->name('reports.location.persons');
@@ -138,9 +168,9 @@ Route::prefix('health-websites')->name('health-websites.')->group(function () {
     Route::get('{website}', [\App\Http\Controllers\HealthWebsiteController::class, 'show'])->name('show');
 });
 
-// Public Quiz Competitions Routes
+// Public Quiz Competitions Routes (لا يوجد index - التوجيه للرئيسية)
 Route::prefix('quiz-competitions')->name('quiz-competitions.')->group(function () {
-    Route::get('/', [\App\Http\Controllers\QuizCompetitionPublicController::class, 'index'])->name('index');
+    Route::get('/', fn () => redirect()->route('home')->withFragment('activeQuizSection'))->name('index');
     Route::get('{quizCompetition}', [\App\Http\Controllers\QuizCompetitionPublicController::class, 'show'])->name('show');
     Route::get('{quizCompetition}/questions/{quizQuestion}', [\App\Http\Controllers\QuizCompetitionPublicController::class, 'question'])->name('question');
     Route::post('{quizCompetition}/questions/{quizQuestion}/answer', [\App\Http\Controllers\QuizCompetitionPublicController::class, 'storeAnswer'])->name('store-answer');

@@ -58,6 +58,22 @@
                             @enderror
                         </div>
 
+                        <div class="form-group">
+                            <label for="program_id">ربط ببرنامج (اختياري)</label>
+                            <select class="form-control @error('program_id') is-invalid @enderror" id="program_id" name="program_id">
+                                <option value="">-- اختر برنامج --</option>
+                                @foreach($programs as $program)
+                                    <option value="{{ $program->id }}" {{ old('program_id', $competition->program_id) == $program->id ? 'selected' : '' }}>
+                                        {{ $program->program_title ?? $program->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <small class="form-text text-muted">يمكنك ربط هذه المسابقة ببرنامج معين لعرض المسجلين في صفحة البرنامج</small>
+                            @error('program_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">

@@ -86,8 +86,8 @@
     <div class="container mx-auto px-4 py-6 lg:py-10 relative z-10 max-w-5xl">
         {{-- التنقل --}}
         <div class="mb-6 flex flex-wrap items-center gap-2 text-sm">
-            <a href="{{ route('quiz-competitions.index') }}" class="text-green-600 hover:text-green-700 transition-colors font-medium">
-                <i class="fas fa-arrow-right ml-1"></i> المسابقات
+            <a href="{{ route('home') }}#activeQuizSection" class="text-green-600 hover:text-green-700 transition-colors font-medium">
+                <i class="fas fa-arrow-right ml-1"></i> الرئيسية - المسابقات
             </a>
             <span class="text-gray-300">/</span>
             <span class="text-gray-600">{{ Str::limit($quizCompetition->title, 40) }}</span>

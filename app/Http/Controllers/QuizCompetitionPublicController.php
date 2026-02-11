@@ -15,16 +15,6 @@ use Illuminate\Support\Facades\Hash;
 
 class QuizCompetitionPublicController extends Controller
 {
-    public function index(): View
-    {
-        $competitions = QuizCompetition::active()
-            ->ordered()
-            ->with('questions.choices')
-            ->get();
-
-        return view('quiz-competitions.index', compact('competitions'));
-    }
-
     public function show(QuizCompetition $quizCompetition): View
     {
         $quizCompetition->load(['questions.choices', 'questions.winners.user', 'questions.answers.user']);
@@ -52,9 +42,9 @@ class QuizCompetitionPublicController extends Controller
 
     public function question(QuizCompetition $quizCompetition, QuizQuestion $quizQuestion): View|RedirectResponse
     {
-        if ($quizQuestion->quiz_competition_id !== $quizCompetition->id) {
-            abort(404);
-        }
+        // if ($quizQuestion->quiz_competition_id !== $quizCompetition->id) {
+        //     abort(404);
+        // }
 
         $quizQuestion->load(['choices', 'winners.user', 'answers.user']);
 
@@ -74,11 +64,17 @@ class QuizCompetitionPublicController extends Controller
         }
 
         if ($quizQuestion->hasEnded()) {
+            $selectionAt = $quizCompetition->end_at ? $quizCompetition->end_at->copy()->addSeconds(10) : null;
+            if ($selectionAt && now()->gte($selectionAt)) {
+                $quizQuestion->selectRandomWinners();
+                $quizQuestion->load(['winners.user']);
+            }
             return view('quiz-competitions.question', [
                 'quizCompetition' => $quizCompetition,
                 'quizQuestion' => $quizQuestion,
                 'status' => 'ended',
                 'stats' => $stats,
+                'selectionAt' => $selectionAt,
             ]);
         }
 
@@ -185,7 +181,9 @@ class QuizCompetitionPublicController extends Controller
 
             DB::commit();
 
-            return back()->with('success', $isCorrect ? 'أحسنت! إجابتك صحيحة' : 'للأسف إجابتك غير صحيحة');
+            return redirect()
+                ->route('quiz-competitions.question', [$quizCompetition, $quizQuestion])
+                ->with('success', $isCorrect ? 'أحسنت! إجابتك صحيحة' : 'للأسف إجابتك غير صحيحة');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withInput()->with('error', 'حدث خطأ: ' . $e->getMessage());

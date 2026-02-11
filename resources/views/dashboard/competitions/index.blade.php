@@ -118,6 +118,7 @@
                                 <th>العنوان</th>
                                 <th>نوع اللعبة</th>
                                 <th>حجم الفريق</th>
+                                <th>البرنامج المرتبط</th>
                                 <th>تاريخ البداية</th>
                                 <th>تاريخ النهاية</th>
                                 <th>الفرق</th>
@@ -140,6 +141,16 @@
                                     </td>
                                     <td>
                                         <span class="badge badge-secondary">{{ $competition->team_size }} عضو</span>
+                                    </td>
+                                    <td>
+                                        @if($competition->program)
+                                            <span class="badge badge-purple">
+                                                <i class="fas fa-link mr-1"></i>
+                                                {{ $competition->program->program_title ?? $competition->program->name }}
+                                            </span>
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
                                     </td>
                                     <td>
                                         @if($competition->start_date)

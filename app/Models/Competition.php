@@ -19,6 +19,7 @@ class Competition extends BaseModel
         'end_date',
         'is_active',
         'created_by',
+        'program_id',
     ];
 
     protected $casts = [
@@ -62,6 +63,14 @@ class Competition extends BaseModel
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /**
+     * العلاقة مع البرنامج
+     */
+    public function program()
+    {
+        return $this->belongsTo(Image::class, 'program_id');
     }
 
     /**

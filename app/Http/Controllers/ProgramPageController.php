@@ -13,7 +13,13 @@ class ProgramPageController extends Controller
     {
         abort_unless($program->is_program || $program->is_proud_of, 404);
 
-        $program->load(['mediaItems', 'programLinks', 'programGalleries.images', 'subPrograms']);
+        $program->load([
+            'mediaItems', 
+            'programLinks', 
+            'programGalleries.images', 
+            'subPrograms',
+            'competitions.registrations.user'
+        ]);
 
         $galleryMedia = $program->mediaItems->filter(function ($item) {
             return ($item->media_type === 'image' || is_null($item->media_type))
@@ -26,6 +32,9 @@ class ProgramPageController extends Controller
         // البرامج الفرعية النشطة فقط
         $subPrograms = $program->subPrograms->where('program_is_active', true);
 
+        // المسابقات المرتبطة بالبرنامج مع المسجلين
+        $competitions = $program->competitions;
+
         return view('programs.show', [
             'program' => $program,
             'galleryMedia' => $galleryMedia,
@@ -33,6 +42,7 @@ class ProgramPageController extends Controller
             'programLinks' => $program->programLinks,
             'programGalleries' => $program->programGalleries,
             'subPrograms' => $subPrograms,
+            'competitions' => $competitions,
         ]);
     }
 }

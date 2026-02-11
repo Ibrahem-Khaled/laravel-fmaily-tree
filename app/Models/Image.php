@@ -106,6 +106,14 @@ class Image extends BaseModel
             ->orderBy('program_order');
     }
 
+    /**
+     * المسابقات المرتبطة بهذا البرنامج
+     */
+    public function competitions(): HasMany
+    {
+        return $this->hasMany(Competition::class, 'program_id')->orderBy('created_at', 'desc');
+    }
+
     protected static function booted(): void
     {
         static::deleting(function (Image $image) {

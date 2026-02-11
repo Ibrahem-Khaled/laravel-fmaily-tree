@@ -139,7 +139,7 @@
         /* Gallery & Courses Swiper */
         .gallerySwiper,
         .coursesSwiper {
-            padding: 15px 40px 40px !important;
+            padding: 10px 35px 30px !important;
         }
 
         .gallerySwiper .swiper-button-next,
@@ -382,7 +382,7 @@
 
             .gallerySwiper,
             .coursesSwiper {
-                padding: 15px 40px 40px !important;
+                padding: 8px 30px 25px !important;
             }
 
             .gallerySwiper .swiper-button-next,
@@ -400,6 +400,27 @@
                 font-size: 16px;
             }
 
+        /* Extra compact spacing for mobile */
+        @media (max-width: 640px) {
+            section {
+                padding-top: 0.5rem !important;
+                padding-bottom: 0.5rem !important;
+            }
+            .container {
+                padding-left: 0.75rem !important;
+                padding-right: 0.75rem !important;
+            }
+            .section-title {
+                font-size: 1.1rem !important;
+            }
+            .section-title::after {
+                bottom: -4px;
+                height: 3px;
+            }
+            .card-hover:hover {
+                transform: translateY(-4px) scale(1.01);
+            }
+        }
     </style>
 </head>
 
@@ -473,15 +494,15 @@
 
     {{-- Family Brief Section --}}
     @if ($familyBrief)
-        <section class="py-6 md:py-8 lg:py-10 bg-white relative overflow-hidden">
+        <section class="py-3 md:py-6 lg:py-8 bg-white relative overflow-hidden">
             <div class="absolute top-0 left-0 w-48 h-48 bg-green-100 rounded-full blur-3xl opacity-20"></div>
             <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
-                <div class="text-right mb-6 md:mb-8">
+                <div class="text-right mb-3 md:mb-5">
                     <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">
                         نبذة عن العائلة
                     </h2>
                 </div>
-                <div class="glass-card rounded-2xl p-4 md:p-6 lg:p-8 shadow-lg">
+                <div class="glass-card rounded-2xl p-3 md:p-4 lg:p-6 shadow-lg">
                     <div class="text-gray-700 text-sm md:text-base leading-relaxed whitespace-pre-line">
                         {!! nl2br(e($familyBrief)) !!}
                     </div>
@@ -490,9 +511,9 @@
         </section>
     @endif
 
-    {{-- قسم مسابقات الأسئلة --}}
-    @if (isset($quizCompetitions) && $quizCompetitions->count() > 0)
-        <section class="py-6 md:py-8 lg:py-10 relative overflow-hidden" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);">
+    {{-- قسم مسابقات الأسئلة: مسابقة فعالة (أسئلة) أو عد تنازلي للمسابقة التالية --}}
+    @if ((isset($activeQuizCompetition) && $activeQuizCompetition) || (isset($nextQuizEvent) && $nextQuizEvent))
+        <section class="py-3 md:py-6 lg:py-8 relative overflow-hidden" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);">
             {{-- زخارف الخلفية --}}
             <div class="absolute top-0 right-0 w-72 h-72 opacity-5 pointer-events-none" style="animation: float 6s ease-in-out infinite;">
                 <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
@@ -507,22 +528,22 @@
 
             <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
                 {{-- عنوان القسم --}}
-                <div class="text-right mb-6 md:mb-8">
+                <div class="text-right mb-3 md:mb-5">
                     <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">
                         مسابقات الأسئلة
                     </h2>
-                    <p class="text-gray-600 text-xs md:text-sm mt-2">شارك وأجب على الأسئلة واربح جوائز قيمة</p>
+                    <p class="text-gray-600 text-xs md:text-sm mt-1">شارك وأجب على الأسئلة واربح جوائز قيمة</p>
                 </div>
 
-                {{-- آخر مسابقة جارية --}}
+                {{-- آخر مسابقة فعالة: عرض الأسئلة أو العد التنازلي لانتهاء المسابقة --}}
                 @if (isset($activeQuizCompetition) && $activeQuizCompetition)
-                    <div class="mb-6 md:mb-8" id="activeQuizSection">
-                        <div class="glass-card rounded-3xl p-5 md:p-8 shadow-lg relative overflow-hidden" style="box-shadow: 0 0 40px rgba(34, 197, 94, 0.2);">
+                    <div class="mb-3 md:mb-5" id="activeQuizSection">
+                        <div class="glass-card rounded-3xl p-3 md:p-6 shadow-lg relative overflow-hidden" style="box-shadow: 0 0 40px rgba(34, 197, 94, 0.2);">
                             {{-- شريط علوي --}}
                             <div class="absolute top-0 right-0 left-0 h-1.5" style="background: linear-gradient(90deg, #22c55e, #16a34a, #22c55e);"></div>
 
                             {{-- شارة مباشر --}}
-                            <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center justify-between mb-2">
                                 <span class="inline-flex items-center gap-2 bg-red-50 text-red-600 text-xs font-bold px-3 py-1.5 rounded-full border border-red-200">
                                     <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
                                     مسابقة جارية الآن
@@ -534,35 +555,123 @@
                             </div>
 
                             {{-- عنوان المسابقة --}}
-                            <h3 class="text-lg md:text-xl lg:text-2xl font-bold text-gray-800 mb-3 leading-relaxed">
+                            <h3 class="text-lg md:text-xl lg:text-2xl font-bold text-gray-800 mb-2 leading-relaxed">
                                 {{ $activeQuizCompetition->title }}
                             </h3>
                             @if ($activeQuizCompetition->description)
-                                <p class="text-gray-600 text-sm mb-5">{{ Str::limit($activeQuizCompetition->description, 150) }}</p>
+                                <p class="text-gray-600 text-sm mb-2">{{ Str::limit($activeQuizCompetition->description, 150) }}</p>
                             @endif
 
-                            {{-- الوقت المتبقي --}}
-                            <div class="flex flex-wrap items-center justify-between gap-4 mb-5">
-                                <div class="flex items-center gap-2 text-gray-500 text-sm">
-                                    <i class="fas fa-hourglass-half text-amber-500"></i>
-                                    <span>ينتهي بعد:</span>
-                                    <div class="flex gap-1" id="activeQuestionTimer">
-                                        <span class="bg-gray-100 rounded-lg px-2 py-1 text-gray-800 font-bold text-sm min-w-[2rem] text-center" id="aq-hours">00</span>
-                                        <span class="text-gray-400 font-bold">:</span>
-                                        <span class="bg-gray-100 rounded-lg px-2 py-1 text-gray-800 font-bold text-sm min-w-[2rem] text-center" id="aq-minutes">00</span>
-                                        <span class="text-gray-400 font-bold">:</span>
-                                        <span class="bg-gray-100 rounded-lg px-2 py-1 text-gray-800 font-bold text-sm min-w-[2rem] text-center" id="aq-seconds">00</span>
-                                    </div>
-                                    <input type="hidden" id="aqEndTime" value="{{ $activeQuizCompetition->end_at->getTimestamp() * 1000 }}">
+                            {{-- العد التنازلي حتى انتهاء المسابقة (وقت اختيار الفائز) --}}
+                            <div class="flex flex-wrap items-center gap-2 mb-3 text-gray-500 text-sm">
+                                <i class="fas fa-hourglass-half text-amber-500"></i>
+                                <span>ينتهي بعد:</span>
+                                <div class="flex gap-1" id="activeQuestionTimer">
+                                    <span class="bg-gray-100 rounded-lg px-2 py-1 text-gray-800 font-bold text-sm min-w-[2rem] text-center" id="aq-hours">00</span>
+                                    <span class="text-gray-400 font-bold">:</span>
+                                    <span class="bg-gray-100 rounded-lg px-2 py-1 text-gray-800 font-bold text-sm min-w-[2rem] text-center" id="aq-minutes">00</span>
+                                    <span class="text-gray-400 font-bold">:</span>
+                                    <span class="bg-gray-100 rounded-lg px-2 py-1 text-gray-800 font-bold text-sm min-w-[2rem] text-center" id="aq-seconds">00</span>
                                 </div>
+                                <input type="hidden" id="aqEndTime" value="{{ $activeQuizCompetition->end_at->getTimestamp() * 1000 }}">
                             </div>
 
-                            {{-- زر المشاركة --}}
+                            @if(session('error'))
+                                <div class="rounded-2xl p-3 mb-3 flex items-center gap-3 bg-red-50 border border-red-200">
+                                    <i class="fas fa-exclamation-circle text-red-500 text-xl"></i>
+                                    <p class="text-red-700 font-medium">{{ session('error') }}</p>
+                                </div>
+                            @endif
+                            @if($errors->any())
+                                <div class="rounded-2xl p-3 mb-3 bg-red-50 border border-red-200">
+                                    <ul class="space-y-1 text-red-600 text-sm">
+                                        @foreach($errors->all() as $err)
+                                            <li><i class="fas fa-circle text-[6px] ml-1"></i>{{ $err }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
+                            {{-- أسئلة المسابقة مع اختيار الإجابات مباشرة في الرئيسية --}}
+                            <div class="space-y-4 mb-3">
+                                <h4 class="text-sm font-bold text-gray-600 mb-2">أسئلة المسابقة — أجب هنا:</h4>
+                                @foreach ($activeQuizCompetition->questions as $q)
+                                    @php
+                                        $cooldownHours = 2;
+                                        $lastAnsweredAt = session('quiz_answered_' . $q->id);
+                                        $canAnswerThis = true;
+                                        if ($lastAnsweredAt) {
+                                            $lastAt = \Carbon\Carbon::parse($lastAnsweredAt);
+                                            $canAnswerThis = now()->diffInHours($lastAt) >= $cooldownHours;
+                                        }
+                                    @endphp
+                                    <div class="rounded-2xl p-3 border-2 border-green-100 bg-white/80 shadow-sm">
+                                        <p class="text-gray-800 font-bold text-base mb-2">{{ $q->question_text }}</p>
+
+                                        @if($canAnswerThis)
+                                            <form action="{{ route('quiz-competitions.store-answer', [$activeQuizCompetition, $q]) }}" method="POST" class="space-y-4">
+                                                @csrf
+                                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                    <div>
+                                                        <label class="block text-gray-600 text-xs mb-1 font-medium">الاسم <span class="text-red-500">*</span></label>
+                                                        <input type="text" name="name" value="{{ old('name') }}" required
+                                                               class="w-full px-3 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-gray-800 text-sm focus:ring-2 focus:ring-green-200 focus:border-green-500"
+                                                               placeholder="الاسم الكامل">
+                                                    </div>
+                                                    <div>
+                                                        <label class="block text-gray-600 text-xs mb-1 font-medium">رقم الهاتف <span class="text-red-500">*</span></label>
+                                                        <input type="text" name="phone" value="{{ old('phone') }}" required
+                                                               class="w-full px-3 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-gray-800 text-sm focus:ring-2 focus:ring-green-200 focus:border-green-500"
+                                                               placeholder="05xxxxxxxx" dir="ltr" style="text-align: right;">
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <label class="block text-gray-600 text-xs mb-2 font-medium">الإجابة <span class="text-red-500">*</span></label>
+                                                    @if($q->answer_type === 'multiple_choice' && $q->choices->count() > 0)
+                                                        <div class="space-y-2">
+                                                            @foreach($q->choices as $choice)
+                                                                <label class="flex items-center gap-3 p-3 rounded-xl border-2 border-gray-200 bg-white hover:border-green-300 hover:bg-green-50/50 cursor-pointer transition-all has-[:checked]:border-green-500 has-[:checked]:bg-green-50">
+                                                                    <input type="radio" name="answer" value="{{ $choice->id }}" class="w-4 h-4 text-green-600" required>
+                                                                    <span class="text-gray-800 text-sm font-medium">{{ $choice->choice_text }}</span>
+                                                                </label>
+                                                            @endforeach
+                                                        </div>
+                                                    @else
+                                                        <textarea name="answer" rows="3" required
+                                                                  class="w-full px-3 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-gray-800 text-sm focus:ring-2 focus:ring-green-200 focus:border-green-500 resize-none"
+                                                                  placeholder="اكتب إجابتك...">{{ old('answer') }}</textarea>
+                                                    @endif
+                                                </div>
+                                                <button type="submit"
+                                                        class="w-full sm:w-auto px-6 py-3 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 transition-all hover:opacity-90"
+                                                        style="background: linear-gradient(135deg, #22c55e, #16a34a);">
+                                                    <i class="fas fa-paper-plane"></i>
+                                                    إرسال الإجابة
+                                                </button>
+                                            </form>
+                                        @else
+                                            {{-- لقد أجبت خلال الساعتين: عرض زر متابعة القرعة فقط (لو المسابقة لم تنتهِ) --}}
+                                            <div class="rounded-xl p-4 bg-amber-50 border border-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                                                <p class="text-amber-800 text-sm font-medium">
+                                                    <i class="fas fa-check-circle text-amber-600 ml-1"></i>
+                                                    لقد أجبت على هذا السؤال.
+                                                </p>
+                                                <a href="{{ route('quiz-competitions.question', [$activeQuizCompetition, $q]) }}"
+                                                   class="flex-shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-white transition-all hover:opacity-90"
+                                                   style="background: linear-gradient(135deg, #22c55e, #16a34a);">
+                                                    <i class="fas fa-trophy"></i>
+                                                    متابعة القرعة
+                                                </a>
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </div>
+
                             <a href="{{ route('quiz-competitions.show', $activeQuizCompetition) }}"
-                               class="inline-flex items-center gap-3 px-8 py-3.5 rounded-2xl font-bold text-base text-white transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+                               class="inline-flex items-center gap-3 px-6 py-3 rounded-2xl font-bold text-sm text-white transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
                                style="background: linear-gradient(135deg, #22c55e, #16a34a); box-shadow: 0 4px 20px rgba(34, 197, 94, 0.4);">
-                                <i class="fas fa-trophy"></i>
-                                <span>شارك في المسابقة</span>
+                                <i class="fas fa-list"></i>
+                                <span>عرض تفاصيل المسابقة</span>
                                 <i class="fas fa-arrow-left mr-1"></i>
                             </a>
                         </div>
@@ -571,38 +680,38 @@
 
                 {{-- العد التنازلي للحدث القادم --}}
                 @if (isset($nextQuizEvent) && $nextQuizEvent && !(isset($activeQuizCompetition) && $activeQuizCompetition))
-                    <div class="mb-6 md:mb-8" id="quizCountdownSection">
-                        <div class="glass-card rounded-3xl p-5 md:p-8 text-center shadow-lg" style="box-shadow: 0 0 30px rgba(34, 197, 94, 0.15);">
+                    <div class="mb-3 md:mb-5" id="quizCountdownSection">
+                        <div class="glass-card rounded-3xl p-3 md:p-6 text-center shadow-lg" style="box-shadow: 0 0 30px rgba(34, 197, 94, 0.15);">
                             <div class="inline-flex items-center gap-2 bg-amber-50 text-amber-700 rounded-full px-4 py-1.5 mb-4 border border-amber-200">
                                 <i class="fas fa-clock text-amber-500 text-sm"></i>
                                 <span class="text-xs font-medium">المسابقة تبدأ قريباً</span>
                             </div>
-                            <p class="text-gray-600 text-sm mb-5">{{ Str::limit($nextQuizEvent['title'], 100) }}</p>
+                            <p class="text-gray-600 text-sm mb-3">{{ Str::limit($nextQuizEvent['title'], 100) }}</p>
 
-                            <div class="flex justify-center gap-3 md:gap-5 mb-4" id="quizCountdown">
+                            <div class="flex justify-center gap-2 md:gap-4 mb-3" id="quizCountdown">
                                 <div class="text-center">
-                                    <div class="w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center mb-2 bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200">
-                                        <span class="text-2xl md:text-3xl font-bold text-green-600" id="countdown-days">0</span>
+                                    <div class="w-14 h-14 md:w-18 md:h-18 rounded-2xl flex items-center justify-center mb-1 bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200">
+                                        <span class="text-xl md:text-2xl font-bold text-green-600" id="countdown-days">0</span>
                                     </div>
-                                    <p class="text-gray-500 text-xs">يوم</p>
+                                    <p class="text-gray-500 text-[10px] md:text-xs">يوم</p>
                                 </div>
                                 <div class="text-center">
-                                    <div class="w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center mb-2 bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200">
-                                        <span class="text-2xl md:text-3xl font-bold text-green-600" id="countdown-hours">0</span>
+                                    <div class="w-14 h-14 md:w-18 md:h-18 rounded-2xl flex items-center justify-center mb-1 bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200">
+                                        <span class="text-xl md:text-2xl font-bold text-green-600" id="countdown-hours">0</span>
                                     </div>
-                                    <p class="text-gray-500 text-xs">ساعة</p>
+                                    <p class="text-gray-500 text-[10px] md:text-xs">ساعة</p>
                                 </div>
                                 <div class="text-center">
-                                    <div class="w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center mb-2 bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200">
-                                        <span class="text-2xl md:text-3xl font-bold text-green-600" id="countdown-minutes">0</span>
+                                    <div class="w-14 h-14 md:w-18 md:h-18 rounded-2xl flex items-center justify-center mb-1 bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200">
+                                        <span class="text-xl md:text-2xl font-bold text-green-600" id="countdown-minutes">0</span>
                                     </div>
-                                    <p class="text-gray-500 text-xs">دقيقة</p>
+                                    <p class="text-gray-500 text-[10px] md:text-xs">دقيقة</p>
                                 </div>
                                 <div class="text-center">
-                                    <div class="w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center mb-2 bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200">
-                                        <span class="text-2xl md:text-3xl font-bold text-green-600" id="countdown-seconds">0</span>
+                                    <div class="w-14 h-14 md:w-18 md:h-18 rounded-2xl flex items-center justify-center mb-1 bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200">
+                                        <span class="text-xl md:text-2xl font-bold text-green-600" id="countdown-seconds">0</span>
                                     </div>
-                                    <p class="text-gray-500 text-xs">ثانية</p>
+                                    <p class="text-gray-500 text-[10px] md:text-xs">ثانية</p>
                                 </div>
                             </div>
                             <input type="hidden" id="quizCountdownTarget" value="{{ $nextQuizEvent['target_at']->getTimestamp() * 1000 }}">
@@ -610,59 +719,6 @@
                     </div>
                 @endif
 
-                {{-- بطاقات المسابقات --}}
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                    @foreach ($quizCompetitions as $competition)
-                        @php
-                            $activeCount = $competition->questions->filter(fn($q) => $q->isActive())->count();
-                            $totalQuestions = $competition->questions->count();
-                        @endphp
-                        <a href="{{ route('quiz-competitions.show', $competition) }}"
-                           class="group relative glass-card rounded-2xl p-5 md:p-6 shadow-lg transition-all duration-500 hover:-translate-y-2 hover:shadow-xl block"
-                           style="box-shadow: 0 0 20px rgba(34, 197, 94, 0.1);">
-                            @if ($activeCount > 0)
-                                <div class="absolute -top-2 -right-2 z-10">
-                                    <span class="flex h-6 w-6">
-                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                        <span class="relative inline-flex rounded-full h-6 w-6 bg-gradient-to-br from-green-500 to-green-600 items-center justify-center text-white text-[10px] font-bold">{{ $activeCount }}</span>
-                                    </span>
-                                </div>
-                            @endif
-
-                            <div class="flex items-start gap-4">
-                                <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-gradient-to-br from-green-500 to-green-600 shadow-lg" style="box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);">
-                                    <i class="fas fa-trophy text-white text-lg"></i>
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <h3 class="text-lg font-bold text-gray-800 mb-1 group-hover:text-green-600 transition-colors">{{ $competition->title }}</h3>
-                                    @if ($competition->description)
-                                        <p class="text-gray-500 text-sm mb-3 line-clamp-2">{{ Str::limit($competition->description, 80) }}</p>
-                                    @endif
-                                    <div class="flex items-center gap-3 text-xs">
-                                        <span class="text-gray-400"><i class="fas fa-question-circle ml-1 text-green-400"></i>{{ $totalQuestions }} سؤال</span>
-                                        @if ($activeCount > 0)
-                                            <span class="text-green-600 font-bold"><i class="fas fa-play-circle ml-1"></i>{{ $activeCount }} نشط</span>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="mt-4 pt-3 border-t border-green-100 flex items-center justify-between">
-                                <span class="text-green-600 text-sm font-bold group-hover:text-green-700">عرض المسابقة</span>
-                                <i class="fas fa-arrow-left text-green-400 group-hover:text-green-600 group-hover:-translate-x-1 transition-all"></i>
-                            </div>
-                        </a>
-                    @endforeach
-                </div>
-
-                {{-- زر عرض الكل --}}
-                <div class="text-center mt-8">
-                    <a href="{{ route('quiz-competitions.index') }}"
-                       class="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-white font-bold text-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
-                       style="background: linear-gradient(135deg, #22c55e, #16a34a); box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);">
-                        <span>عرض جميع المسابقات</span>
-                        <i class="fas fa-arrow-left"></i>
-                    </a>
-                </div>
             </div>
         </section>
     @endif
@@ -703,13 +759,13 @@
             @endphp
 
             @if($section->items->count() > 0)
-            <section class="py-6 md:py-8 lg:py-10 {{ $section->css_classes ?? '' }} relative overflow-hidden"
+            <section class="py-3 md:py-6 lg:py-8 {{ $section->css_classes ?? '' }} relative overflow-hidden"
                      @if($sectionStyle) style="{{ $sectionStyle }}" @endif>
                 <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
 
                     {{-- عنوان القسم --}}
                     @if ($showTitle && $section->title)
-                        <div class="text-right mb-6 md:mb-8">
+                        <div class="text-right mb-3 md:mb-5">
                             <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">
                                 @if ($icon)<i class="{{ $icon }} mr-2"></i>@endif
                                 {{ $section->title }}
@@ -724,7 +780,7 @@
                     @endif
 
                     {{-- محتوى العناصر --}}
-                    <div class="dynamic-section-content {{ $isGrid ? 'grid '.$colsClass.' gap-4 md:gap-6' : ($isTwoCol ? 'grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 items-center' : 'space-y-4') }}">
+                    <div class="dynamic-section-content {{ $isGrid ? 'grid '.$colsClass.' gap-3 md:gap-4' : ($isTwoCol ? 'grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 items-center' : 'space-y-4') }}">
                         @foreach ($section->items as $item)
                             @include('partials.home-section-item', ['item' => $item])
                         @endforeach
@@ -738,10 +794,10 @@
 
     {{-- Born Today Section --}}
     {{-- @if ($birthdayPersons && $birthdayPersons->count() > 0)
-        <section class="py-6 md:py-8 lg:py-10 bg-white relative overflow-hidden">
+        <section class="py-3 md:py-6 lg:py-8 bg-white relative overflow-hidden">
             <div class="absolute top-0 right-0 w-48 h-48 bg-green-100 rounded-full blur-3xl opacity-30"></div>
             <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
-                <div class="text-right mb-6 md:mb-8">
+                <div class="text-right mb-3 md:mb-5">
                     <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">
                         ولد في مثل هذا اليوم
                     </h2>
@@ -772,10 +828,10 @@
     @endif --}}
 
     {{-- Gallery Section --}}
-    <section class="py-6 md:py-8 lg:py-10 bg-gradient-to-br from-gray-50 to-green-50/50 relative overflow-hidden">
+    <section class="py-3 md:py-6 lg:py-8 bg-gradient-to-br from-gray-50 to-green-50/50 relative overflow-hidden">
         <div class="absolute bottom-0 left-0 w-48 h-48 bg-emerald-100 rounded-full blur-3xl opacity-30"></div>
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
-            <div class="text-right mb-6 md:mb-8">
+            <div class="text-right mb-3 md:mb-5">
                 <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">
                     اخترنا لك
                 </h2>
@@ -845,22 +901,22 @@
 
     {{-- Family News Section --}}
     @if ($familyNews && $familyNews->count() > 0)
-        <section class="py-6 md:py-8 lg:py-10 bg-white relative overflow-hidden">
+        <section class="py-3 md:py-6 lg:py-8 bg-white relative overflow-hidden">
             <div class="absolute top-0 left-0 w-48 h-48 bg-blue-100 rounded-full blur-3xl opacity-20"></div>
             <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
-                <div class="text-right mb-6 md:mb-8">
+                <div class="text-right mb-3 md:mb-5">
                     <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">
                         📰 أخبار العائلة
                     </h2>
-                    <p class="text-gray-600 text-xs md:text-sm mt-2">آخر أخبار وأحداث العائلة</p>
+                    <p class="text-gray-600 text-xs md:text-sm mt-1">آخر أخبار وأحداث العائلة</p>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
                     @foreach ($familyNews as $news)
                         <a href="{{ route('family-news.show', $news->id) }}"
                             class="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 bg-white card-hover {{ !$news->is_active && Auth::check() ? 'opacity-60 grayscale' : '' }}">
                             @if ($news->main_image_url)
-                                <div class="relative h-48 md:h-56 overflow-hidden">
+                                <div class="relative h-36 md:h-48 overflow-hidden">
                                     <img src="{{ $news->main_image_url }}" alt="{{ $news->title }}"
                                         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
                                     @if (!$news->is_active && Auth::check())
@@ -880,12 +936,12 @@
                                     <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
                                 </div>
                             @else
-                                <div class="relative h-48 md:h-56 gradient-primary flex items-center justify-center">
+                                <div class="relative h-36 md:h-48 gradient-primary flex items-center justify-center">
                                     <i class="fas fa-newspaper text-white text-4xl opacity-40"></i>
                                 </div>
                             @endif
 
-                            <div class="p-4 md:p-5">
+                            <div class="p-3 md:p-4">
                                 <h3 class="text-base md:text-lg font-bold text-gray-800 mb-2 line-clamp-2 group-hover:text-green-600 transition-colors">
                                     {{ $news->title }}
                                 </h3>
@@ -913,7 +969,7 @@
                                     </span>
                                 </div>
 
-                                <div class="mt-3 pt-3 border-t border-gray-200">
+                                <div class="mt-2 pt-2 border-t border-gray-200">
                                     <span class="text-green-600 text-xs md:text-sm font-semibold group-hover:underline">
                                         اقرأ المزيد <i class="fas fa-arrow-left mr-1"></i>
                                     </span>
@@ -1178,22 +1234,22 @@
         </section>
 
     {{-- Family Programs Section --}}
-    <section class="py-6 md:py-8 lg:py-10 bg-gradient-to-br from-green-50 to-emerald-50 relative overflow-hidden">
+    <section class="py-3 md:py-6 lg:py-8 bg-gradient-to-br from-green-50 to-emerald-50 relative overflow-hidden">
         <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-200 rounded-full blur-3xl opacity-20"></div>
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
-            <div class="text-right mb-6 md:mb-8">
+            <div class="text-right mb-3 md:mb-5">
                 <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">
                     برامج العائلة
                 </h2>
-                <p class="text-gray-600 text-xs md:text-sm mt-2">فعاليات وأنشطة متنوعة</p>
+                <p class="text-gray-600 text-xs md:text-sm mt-1">فعاليات وأنشطة متنوعة</p>
             </div>
 
             @if ($programs && $programs->count() > 0)
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-3">
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1.5 md:gap-2.5">
                     @foreach ($programs as $program)
                         <a href="{{ route('programs.show', $program) }}"
                             class="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 bg-white card-hover {{ !$program->program_is_active && Auth::check() ? 'opacity-60 grayscale' : '' }}">
-                            <div class="aspect-square p-2 md:p-3">
+                            <div class="aspect-square p-1.5 md:p-2">
                                 <img src="{{ asset('storage/' . $program->path) }}"
                                     alt="{{ $program->program_title ?? ($program->name ?? 'برنامج') }}"
                                     class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
@@ -1227,21 +1283,21 @@
 
     {{-- Proud Of Section --}}
     @if ($proudOf && $proudOf->count() > 0)
-        <section class="py-6 md:py-8 lg:py-10 bg-gradient-to-br from-green-50 to-emerald-50 relative overflow-hidden">
+        <section class="py-3 md:py-6 lg:py-8 bg-gradient-to-br from-green-50 to-emerald-50 relative overflow-hidden">
             <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-200 rounded-full blur-3xl opacity-20"></div>
             <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
-                <div class="text-right mb-6 md:mb-8">
+                <div class="text-right mb-3 md:mb-5">
                     <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">
                         نفخر بهم
                     </h2>
-                    <p class="text-gray-600 text-xs md:text-sm mt-2">إنجازات وإبداعات مميزة</p>
+                    <p class="text-gray-600 text-xs md:text-sm mt-1">إنجازات وإبداعات مميزة</p>
                 </div>
 
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-3">
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1.5 md:gap-2.5">
                     @foreach ($proudOf as $item)
                         <a href="{{ route('programs.show', $item) }}"
                             class="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 bg-white card-hover {{ !$item->proud_of_is_active && Auth::check() ? 'opacity-60 grayscale' : '' }}">
-                            <div class="aspect-square p-2 md:p-3">
+                            <div class="aspect-square p-1.5 md:p-2">
                                 <img src="{{ asset('storage/' . $item->path) }}"
                                     alt="{{ $item->proud_of_title ?? ($item->name ?? 'عنصر') }}"
                                     class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
@@ -1284,20 +1340,20 @@
         (isset($bachelorTotalCount) && $bachelorTotalCount > 0) ||
             (isset($masterTotalCount) && $masterTotalCount > 0) ||
             (isset($phdTotalCount) && $phdTotalCount > 0))
-        <section class="py-6 md:py-8 lg:py-10 bg-white relative overflow-hidden">
+        <section class="py-3 md:py-6 lg:py-8 bg-white relative overflow-hidden">
             <div class="absolute bottom-0 right-0 w-64 h-64 bg-yellow-100 rounded-full blur-3xl opacity-20"></div>
             <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
-                <div class="text-right mb-6 md:mb-8">
+                <div class="text-right mb-3 md:mb-5">
                     <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">
                         الشهادات العلمية
                     </h2>
-                    <p class="text-gray-600 text-xs md:text-sm mt-2">نفخر بإنجازاتهم الأكاديمية</p>
+                    <p class="text-gray-600 text-xs md:text-sm mt-1">نفخر بإنجازاتهم الأكاديمية</p>
                 </div>
 
-                <div class="grid grid-cols-3 gap-2 md:gap-4 mb-6">
+                <div class="grid grid-cols-3 gap-2 md:gap-3 mb-4">
                     @if (isset($phdTotalCount) && $phdTotalCount > 0 && $phdCategoryId)
                         <a href="{{ route('gallery.articles', ['category' => $phdCategoryId]) }}"
-                            class="degree-card group relative overflow-hidden rounded-xl shadow-lg bg-gradient-to-br from-yellow-100 via-yellow-50 to-amber-100 p-2 md:p-6 card-hover border-2 border-yellow-200">
+                            class="degree-card group relative overflow-hidden rounded-xl shadow-lg bg-gradient-to-br from-yellow-100 via-yellow-50 to-amber-100 p-1.5 md:p-4 card-hover border-2 border-yellow-200">
                             <div class="relative z-10 text-center">
                                 <div
                                     class="w-10 h-10 md:w-16 md:h-16 bg-yellow-400 rounded-full flex items-center justify-center mx-auto mb-1 md:mb-3 group-hover:scale-110 transition-transform duration-300">
@@ -1313,7 +1369,7 @@
 
                     @if (isset($masterTotalCount) && $masterTotalCount > 0 && $masterCategoryId)
                         <a href="{{ route('gallery.articles', ['category' => $masterCategoryId]) }}"
-                            class="degree-card group relative overflow-hidden rounded-xl shadow-lg bg-gradient-to-br from-indigo-100 via-indigo-50 to-purple-100 p-2 md:p-6 card-hover border-2 border-indigo-200">
+                            class="degree-card group relative overflow-hidden rounded-xl shadow-lg bg-gradient-to-br from-indigo-100 via-indigo-50 to-purple-100 p-1.5 md:p-4 card-hover border-2 border-indigo-200">
                             <div class="relative z-10 text-center">
                                 <div
                                     class="w-10 h-10 md:w-16 md:h-16 bg-indigo-400 rounded-full flex items-center justify-center mx-auto mb-1 md:mb-3 group-hover:scale-110 transition-transform duration-300">
@@ -1329,7 +1385,7 @@
 
                     @if (isset($bachelorTotalCount) && $bachelorTotalCount > 0 && $bachelorCategoryId)
                         <a href="{{ route('gallery.articles', ['category' => $bachelorCategoryId]) }}"
-                            class="degree-card group relative overflow-hidden rounded-xl shadow-lg bg-gradient-to-br from-green-100 via-green-50 to-emerald-100 p-2 md:p-6 card-hover border-2 border-green-200">
+                            class="degree-card group relative overflow-hidden rounded-xl shadow-lg bg-gradient-to-br from-green-100 via-green-50 to-emerald-100 p-1.5 md:p-4 card-hover border-2 border-green-200">
                             <div class="relative z-10 text-center">
                                 <div
                                     class="w-10 h-10 md:w-16 md:h-16 bg-green-400 rounded-full flex items-center justify-center mx-auto mb-1 md:mb-3 group-hover:scale-110 transition-transform duration-300">
@@ -1350,14 +1406,14 @@
 
 
     {{-- Courses Section --}}
-    <section class="py-6 md:py-8 lg:py-10 bg-gradient-to-br from-gray-50 to-green-50/50 relative overflow-hidden">
+    <section class="py-3 md:py-6 lg:py-8 bg-gradient-to-br from-gray-50 to-green-50/50 relative overflow-hidden">
         <div class="absolute top-0 left-0 w-64 h-64 bg-green-200 rounded-full blur-3xl opacity-20"></div>
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
-            <div class="text-right mb-6 md:mb-8">
+            <div class="text-right mb-3 md:mb-5">
                 <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">
                     دورات أكاديمية السريع
                 </h2>
-                <p class="text-gray-600 text-xs md:text-sm mt-2">تعلم وتطور مع دوراتنا المتميزة</p>
+                <p class="text-gray-600 text-xs md:text-sm mt-1">تعلم وتطور مع دوراتنا المتميزة</p>
             </div>
 
             @if ($courses->count() > 0)
@@ -1386,15 +1442,15 @@
                                         @endif
                                     </div>
 
-                                    <div class="p-3 md:p-4 flex-1 flex flex-col">
-                                        <h3 class="text-base md:text-lg font-bold text-gray-800 mb-2 line-clamp-2">
+                                    <div class="p-2.5 md:p-3 flex-1 flex flex-col">
+                                        <h3 class="text-sm md:text-base font-bold text-gray-800 mb-1 line-clamp-2">
                                             {{ $course->title }}</h3>
 
-                                        <p class="text-gray-600 text-xs mb-3 line-clamp-2 flex-1">
+                                        <p class="text-gray-600 text-xs mb-2 line-clamp-2 flex-1">
                                             {{ $course->description ?? 'دورة تدريبية متميزة' }}
                                         </p>
 
-                                        <div class="space-y-1 mb-3">
+                                        <div class="space-y-0.5 mb-2">
                                             @if ($course->instructor)
                                                 <div class="flex items-center gap-1.5 text-xs text-gray-600">
                                                     <i class="fas fa-user text-green-500"></i>

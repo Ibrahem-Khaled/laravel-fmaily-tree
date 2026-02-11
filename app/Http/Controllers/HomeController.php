@@ -271,14 +271,14 @@ class HomeController extends Controller
         $quizCompetitions = QuizCompetition::active()->ordered()->with('questions.choices')->get();
         $nextQuizEvent = QuizCompetition::getNextUpcomingEvent();
 
-        // آخر مسابقة جارية ولم تنتهِ (حسب وقت المسابقة)
+        // آخر مسابقة جارية ولم تنتهِ (حسب وقت المسابقة) + الخيارات لعرض الإجابات في الرئيسية
         $activeQuizCompetition = QuizCompetition::active()
             ->whereNotNull('start_at')
             ->whereNotNull('end_at')
             ->where('start_at', '<=', now())
             ->where('end_at', '>=', now())
             ->ordered()
-            ->with('questions')
+            ->with('questions.choices')
             ->first();
 
         return view('home', [

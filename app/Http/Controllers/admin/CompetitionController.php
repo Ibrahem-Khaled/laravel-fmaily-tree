@@ -7,6 +7,7 @@ use App\Models\Competition;
 use App\Models\CompetitionRegistration;
 use App\Models\Team;
 use App\Models\User;
+use App\Models\Image;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -19,7 +20,7 @@ class CompetitionController extends Controller
      */
     public function index(): View
     {
-        $competitions = Competition::with(['creator', 'teams'])
+        $competitions = Competition::with(['creator', 'teams', 'program'])
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -41,7 +42,12 @@ class CompetitionController extends Controller
      */
     public function create(): View
     {
-        return view('dashboard.competitions.create');
+        $programs = Image::where('is_program', true)
+            ->where('program_is_active', true)
+            ->orderBy('program_order')
+            ->get();
+        
+        return view('dashboard.competitions.create', compact('programs'));
     }
 
     /**
@@ -57,6 +63,7 @@ class CompetitionController extends Controller
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'is_active' => 'boolean',
+            'program_id' => 'nullable|exists:images,id',
         ], [
             'title.required' => 'عنوان المسابقة مطلوب',
             'game_type.required' => 'نوع اللعبة مطلوب',
@@ -192,7 +199,12 @@ class CompetitionController extends Controller
      */
     public function edit(Competition $competition): View
     {
-        return view('dashboard.competitions.edit', compact('competition'));
+        $programs = Image::where('is_program', true)
+            ->where('program_is_active', true)
+            ->orderBy('program_order')
+            ->get();
+        
+        return view('dashboard.competitions.edit', compact('competition', 'programs'));
     }
 
     /**
@@ -208,6 +220,7 @@ class CompetitionController extends Controller
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'is_active' => 'boolean',
+            'program_id' => 'nullable|exists:images,id',
         ], [
             'title.required' => 'عنوان المسابقة مطلوب',
             'game_type.required' => 'نوع اللعبة مطلوب',
