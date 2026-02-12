@@ -59,7 +59,7 @@ class CompetitionController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'game_type' => 'required|string|max:255',
-            'team_size' => 'required|integer|min:2',
+            'team_size' => 'required|integer|min:1',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'is_active' => 'boolean',
@@ -68,7 +68,7 @@ class CompetitionController extends Controller
             'title.required' => 'عنوان المسابقة مطلوب',
             'game_type.required' => 'نوع اللعبة مطلوب',
             'team_size.required' => 'عدد أعضاء الفريق مطلوب',
-            'team_size.min' => 'عدد أعضاء الفريق يجب أن يكون على الأقل 2',
+            'team_size.min' => 'عدد أعضاء الفريق يجب أن يكون على الأقل 1',
             'end_date.after_or_equal' => 'تاريخ النهاية يجب أن يكون بعد تاريخ البداية',
         ]);
 
@@ -216,7 +216,7 @@ class CompetitionController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'game_type' => 'required|string|max:255',
-            'team_size' => 'required|integer|min:2',
+            'team_size' => 'required|integer|min:1',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'is_active' => 'boolean',
@@ -225,7 +225,7 @@ class CompetitionController extends Controller
             'title.required' => 'عنوان المسابقة مطلوب',
             'game_type.required' => 'نوع اللعبة مطلوب',
             'team_size.required' => 'عدد أعضاء الفريق مطلوب',
-            'team_size.min' => 'عدد أعضاء الفريق يجب أن يكون على الأقل 2',
+            'team_size.min' => 'عدد أعضاء الفريق يجب أن يكون على الأقل 1',
             'end_date.after_or_equal' => 'تاريخ النهاية يجب أن يكون بعد تاريخ البداية',
         ]);
 

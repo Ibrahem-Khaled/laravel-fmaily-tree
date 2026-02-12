@@ -822,48 +822,142 @@
                                         </div>
 
                                         @php
+                                            // جلب التسجيلات والفرق
                                             $registrations = $competition->registrations;
-                                            $registeredUsers = $registrations->pluck('user')->filter()->unique('id');
+                                            $teams = $competition->teams()->with('members')->get();
+                                            
+                                            // الأفراد: المستخدمون بدون فريق
+                                            $individualUsers = $registrations->whereNull('team_id')->pluck('user')->filter()->unique('id');
+                                            
+                                            // الفرق من عضو واحد: نضيف أعضائها للأفراد
+                                            $singleMemberTeams = $teams->filter(function($team) {
+                                                return $team->members->count() == 1;
+                                            });
+                                            
+                                            // إضافة أعضاء الفرق من عضو واحد للأفراد
+                                            foreach ($singleMemberTeams as $team) {
+                                                $member = $team->members->first();
+                                                if ($member && !$individualUsers->contains('id', $member->id)) {
+                                                    $individualUsers->push($member);
+                                                }
+                                            }
+                                            
+                                            // الفرق التي تحتوي على عضوين أو أكثر
+                                            $multiMemberTeams = $teams->filter(function($team) {
+                                                return $team->members->count() >= 2;
+                                            });
                                         @endphp
 
-                                        @if ($registeredUsers->isNotEmpty())
-                                            <div class="mt-6 pt-6 border-t border-purple-100">
-                                                <div class="flex items-center justify-between mb-4">
-                                                    <h4 class="text-lg sm:text-xl font-bold text-purple-700 flex items-center gap-2">
-                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                                                        </svg>
-                                                        المسجلين في المسابقة
-                                                    </h4>
-                                                    <span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs sm:text-sm font-semibold">
-                                                        {{ $registeredUsers->count() }} مسجل
-                                                    </span>
-                                                </div>
-                                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                                                    @foreach ($registeredUsers as $user)
-                                                        <div class="bg-gradient-to-br from-purple-50 to-white border border-purple-100 rounded-xl p-4 hover:shadow-md transition-all duration-300">
-                                                            <div class="flex items-center gap-3">
-                                                                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white font-bold text-lg shadow-lg">
-                                                                    {{ mb_substr($user->name, 0, 1) }}
-                                                                </div>
-                                                                <div class="flex-1 min-w-0">
-                                                                    <h5 class="font-bold text-gray-800 truncate mb-1">
-                                                                        {{ $user->name }}
-                                                                    </h5>
-                                                                    @if ($user->phone)
-                                                                        <p class="text-xs sm:text-sm text-gray-600 flex items-center gap-1">
-                                                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
-                                                                            </svg>
-                                                                            {{ $user->phone }}
-                                                                        </p>
-                                                                    @endif
+                                        @if ($individualUsers->isNotEmpty() || $multiMemberTeams->isNotEmpty())
+                                            {{-- قسم الأفراد --}}
+                                            @if ($individualUsers->isNotEmpty())
+                                                <div class="mt-6 pt-6 border-t border-purple-100">
+                                                    <div class="flex items-center justify-between mb-4">
+                                                        <h4 class="text-lg sm:text-xl font-bold text-purple-700 flex items-center gap-2">
+                                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                                            </svg>
+                                                            المسجلين كأفراد
+                                                        </h4>
+                                                        <span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs sm:text-sm font-semibold">
+                                                            {{ $individualUsers->count() }} فرد
+                                                        </span>
+                                                    </div>
+                                                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                                                        @foreach ($individualUsers as $user)
+                                                            <div class="bg-gradient-to-br from-purple-50 to-white border border-purple-100 rounded-xl p-4 hover:shadow-md transition-all duration-300">
+                                                                <div class="flex items-center gap-3">
+                                                                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                                                                        {{ mb_substr($user->name, 0, 1) }}
+                                                                    </div>
+                                                                    <div class="flex-1 min-w-0">
+                                                                        <h5 class="font-bold text-gray-800 truncate mb-1">
+                                                                            {{ $user->name }}
+                                                                        </h5>
+                                                                        @if ($user->phone)
+                                                                            <p class="text-xs sm:text-sm text-gray-600 flex items-center gap-1">
+                                                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                                                                                </svg>
+                                                                                {{ $user->phone }}
+                                                                            </p>
+                                                                        @endif
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                    @endforeach
+                                                        @endforeach
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            @endif
+
+                                            {{-- قسم الفرق --}}
+                                            @if ($multiMemberTeams->isNotEmpty())
+                                                <div class="mt-6 pt-6 border-t border-purple-100">
+                                                    <div class="flex items-center justify-between mb-4">
+                                                        <h4 class="text-lg sm:text-xl font-bold text-purple-700 flex items-center gap-2">
+                                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                                            </svg>
+                                                            الفرق المسجلة
+                                                        </h4>
+                                                        <span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs sm:text-sm font-semibold">
+                                                            {{ $multiMemberTeams->count() }} فريق
+                                                        </span>
+                                                    </div>
+                                                    <div class="space-y-4">
+                                                        @foreach ($multiMemberTeams as $team)
+                                                            <div class="bg-gradient-to-br from-purple-50 to-white border-2 border-purple-200 rounded-xl p-4 sm:p-6 hover:shadow-lg transition-all duration-300">
+                                                                <div class="flex items-start justify-between mb-4">
+                                                                    <div class="flex-1">
+                                                                        <h5 class="text-lg sm:text-xl font-bold text-purple-800 mb-2 flex items-center gap-2">
+                                                                            <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                                                            </svg>
+                                                                            {{ $team->name }}
+                                                                        </h5>
+                                                                        <p class="text-xs sm:text-sm text-gray-600 mb-3">
+                                                                            <span class="font-semibold">{{ $team->members->count() }}</span> عضو
+                                                                        </p>
+                                                                    </div>
+                                                                    @if ($team->is_complete)
+                                                                        <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
+                                                                            مكتمل
+                                                                        </span>
+                                                                    @else
+                                                                        <span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold">
+                                                                            غير مكتمل
+                                                                        </span>
+                                                                    @endif
+                                                                </div>
+                                                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                                                    @foreach ($team->members as $member)
+                                                                        <div class="bg-white border border-purple-100 rounded-lg p-3 hover:shadow-md transition-all duration-300">
+                                                                            <div class="flex items-center gap-2">
+                                                                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-md">
+                                                                                    {{ mb_substr($member->name, 0, 1) }}
+                                                                                </div>
+                                                                                <div class="flex-1 min-w-0">
+                                                                                    <h6 class="font-bold text-gray-800 truncate text-sm">
+                                                                                        {{ $member->name }}
+                                                                                        @if ($member->pivot->role === 'captain')
+                                                                                            <span class="text-purple-600 text-xs">(قائد)</span>
+                                                                                        @endif
+                                                                                    </h6>
+                                                                                    @if ($member->phone)
+                                                                                        <p class="text-xs text-gray-600 truncate">
+                                                                                            {{ $member->phone }}
+                                                                                        </p>
+                                                                                    @endif
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    @endforeach
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            @endif
                                         @else
                                             <div class="mt-6 pt-6 border-t border-purple-100">
                                                 <div class="text-center py-6 bg-purple-50 rounded-xl">

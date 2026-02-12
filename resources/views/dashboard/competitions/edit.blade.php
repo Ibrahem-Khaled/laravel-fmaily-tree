@@ -43,8 +43,8 @@
 
                         <div class="form-group">
                             <label for="team_size">عدد أعضاء الفريق <span class="text-danger">*</span></label>
-                            <input type="number" class="form-control @error('team_size') is-invalid @enderror" id="team_size" name="team_size" value="{{ old('team_size', $competition->team_size) }}" min="2" required>
-                            <small class="form-text text-muted">الحد الأدنى: 2 عضو</small>
+                            <input type="number" class="form-control @error('team_size') is-invalid @enderror" id="team_size" name="team_size" value="{{ old('team_size', $competition->team_size) }}" min="1" step="1" required>
+                            <small class="form-text text-muted">الحد الأدنى: 1 عضو (يمكن تعديل المسابقة إلى فردية أو جماعية)</small>
                             @error('team_size')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -135,5 +135,35 @@ function copyToClipboard(text) {
         console.error('فشل نسخ الرابط:', err);
     });
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    const teamSizeInput = document.getElementById('team_size');
+    
+    if (teamSizeInput) {
+        // التحقق عند تغيير القيمة
+        teamSizeInput.addEventListener('input', function() {
+            const value = parseInt(this.value);
+            if (value < 1) {
+                this.setCustomValidity('عدد أعضاء الفريق يجب أن يكون على الأقل 1');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+        
+        // التحقق عند الإرسال
+        const form = teamSizeInput.closest('form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                const value = parseInt(teamSizeInput.value);
+                if (value < 1) {
+                    e.preventDefault();
+                    alert('عدد أعضاء الفريق يجب أن يكون على الأقل 1');
+                    teamSizeInput.focus();
+                    return false;
+                }
+            });
+        }
+    }
+});
 </script>
 @endsection

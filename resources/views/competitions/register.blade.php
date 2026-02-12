@@ -248,68 +248,70 @@
                         </div>
                     </div>
 
-                    <div class="bg-white/50 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-emerald-100/50">
-                        <h3 class="text-lg sm:text-xl font-bold font-serif text-emerald-700 mb-4 flex items-center gap-2">
-                            <div class="w-1 h-6 bg-emerald-600 rounded-full"></div>
-                            هل معك أحد؟
-                        </h3>
+                    @if($competition->team_size > 1)
+                        <div class="bg-white/50 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-emerald-100/50">
+                            <h3 class="text-lg sm:text-xl font-bold font-serif text-emerald-700 mb-4 flex items-center gap-2">
+                                <div class="w-1 h-6 bg-emerald-600 rounded-full"></div>
+                                هل معك أحد؟
+                            </h3>
 
-                        <div class="grid grid-cols-2 gap-4 mb-4">
-                            <button type="button" id="btn_with_brother" onclick="toggleBrotherForm(true)"
-                                class="px-6 py-4 border-2 border-emerald-300 rounded-xl font-semibold transition-all duration-300 hover:scale-105 bg-white hover:bg-emerald-50 hover:border-emerald-500 text-gray-700">
-                                <i class="fas fa-user-friends mr-2 text-emerald-600"></i>
-                                معي خوي
-                            </button>
-                            <button type="button" id="btn_alone" onclick="toggleBrotherForm(false)"
-                                class="px-6 py-4 border-2 border-gray-300 rounded-xl font-semibold transition-all duration-300 hover:scale-105 bg-white hover:bg-gray-50 hover:border-gray-400 text-gray-700">
-                                <i class="fas fa-user mr-2 text-gray-600"></i>
-                                ما عندي خوي
-                            </button>
-                        </div>
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <button type="button" id="btn_with_brother" onclick="toggleBrotherForm(true)"
+                                    class="px-6 py-4 border-2 border-emerald-300 rounded-xl font-semibold transition-all duration-300 hover:scale-105 bg-white hover:bg-emerald-50 hover:border-emerald-500 text-gray-700">
+                                    <i class="fas fa-user-friends mr-2 text-emerald-600"></i>
+                                    معي خوي
+                                </button>
+                                <button type="button" id="btn_alone" onclick="toggleBrotherForm(false)"
+                                    class="px-6 py-4 border-2 border-gray-300 rounded-xl font-semibold transition-all duration-300 hover:scale-105 bg-white hover:bg-gray-50 hover:border-gray-400 text-gray-700">
+                                    <i class="fas fa-user mr-2 text-gray-600"></i>
+                                    ما عندي خوي
+                                </button>
+                            </div>
 
-                        <div id="brother_form_section" style="display: none;" class="space-y-4 animate-slide-up">
-                            <div class="bg-emerald-50 border-2 border-emerald-200 rounded-xl p-4">
-                                <h4 class="font-bold text-emerald-700 mb-4 flex items-center gap-2">
-                                    <i class="fas fa-user-friends"></i>
-                                    بيانات خوي
-                                </h4>
-                                <div class="space-y-4">
-                                    <div>
-                                        <label class="block text-gray-700 font-semibold mb-2 text-sm sm:text-base">
-                                            اسم خوي <span class="text-red-500">*</span>
-                                        </label>
-                                        <input type="text" name="brother_name" id="brother_name" value="{{ old('brother_name') }}"
-                                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-white">
-                                    </div>
-                                    <div>
-                                        <label class="block text-gray-700 font-semibold mb-2 text-sm sm:text-base">
-                                            رقم هاتف خوي <span class="text-red-500">*</span>
-                                        </label>
-                                        <input type="text" name="brother_phone" id="brother_phone" value="{{ old('brother_phone') }}"
-                                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-white">
+                            <div id="brother_form_section" style="display: none;" class="space-y-4 animate-slide-up">
+                                <div class="bg-emerald-50 border-2 border-emerald-200 rounded-xl p-4">
+                                    <h4 class="font-bold text-emerald-700 mb-4 flex items-center gap-2">
+                                        <i class="fas fa-user-friends"></i>
+                                        بيانات خوي
+                                    </h4>
+                                    <div class="space-y-4">
+                                        <div>
+                                            <label class="block text-gray-700 font-semibold mb-2 text-sm sm:text-base">
+                                                اسم خوي <span class="text-red-500">*</span>
+                                            </label>
+                                            <input type="text" name="brother_name" id="brother_name" value="{{ old('brother_name') }}"
+                                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-white">
+                                        </div>
+                                        <div>
+                                            <label class="block text-gray-700 font-semibold mb-2 text-sm sm:text-base">
+                                                رقم هاتف خوي <span class="text-red-500">*</span>
+                                            </label>
+                                            <input type="text" name="brother_phone" id="brother_phone" value="{{ old('brother_phone') }}"
+                                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-white">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div id="team_name_section" class="bg-white/50 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-emerald-100/50" style="display: none;">
-                        <h3 class="text-lg sm:text-xl font-bold font-serif text-emerald-700 mb-4 flex items-center gap-2">
-                            <div class="w-1 h-6 bg-emerald-600 rounded-full"></div>
-                            معلومات الفريق
-                        </h3>
+                        <div id="team_name_section" class="bg-white/50 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-emerald-100/50" style="display: none;">
+                            <h3 class="text-lg sm:text-xl font-bold font-serif text-emerald-700 mb-4 flex items-center gap-2">
+                                <div class="w-1 h-6 bg-emerald-600 rounded-full"></div>
+                                معلومات الفريق
+                            </h3>
 
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-gray-700 font-semibold mb-2 text-sm sm:text-base">
-                                    اسم الفريق <span class="text-red-500">*</span>
-                                </label>
-                                <input type="text" name="team_name" id="team_name" value="{{ old('team_name') }}"
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-white">
-                                <p class="text-xs text-gray-500 mt-2">إذا كان معك خوي، يمكنك إنشاء فريق وتسميته</p>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-gray-700 font-semibold mb-2 text-sm sm:text-base">
+                                        اسم الفريق <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" name="team_name" id="team_name" value="{{ old('team_name') }}"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-white">
+                                    <p class="text-xs text-gray-500 mt-2">إذا كان معك خوي، يمكنك إنشاء فريق وتسميته</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    @endif
 
                     <button type="submit"
                         class="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-emerald-glow hover:scale-[1.02] flex items-center justify-center gap-2">
@@ -334,6 +336,11 @@
             const brotherPhoneInput = document.getElementById('brother_phone');
             const teamNameInput = document.getElementById('team_name');
 
+            // التحقق من وجود العناصر (قد لا تكون موجودة في المسابقات الفردية)
+            if (!brotherSection || !teamNameSection || !btnWithBrother || !btnAlone) {
+                return;
+            }
+
             if (withBrother) {
                 brotherSection.style.display = 'block';
                 teamNameSection.style.display = 'block';
@@ -341,9 +348,9 @@
                 btnWithBrother.classList.remove('bg-white', 'border-emerald-300', 'text-gray-700');
                 btnAlone.classList.remove('bg-gray-50', 'border-gray-400');
                 btnAlone.classList.add('bg-white', 'border-gray-300', 'text-gray-700');
-                brotherNameInput.setAttribute('required', 'required');
-                brotherPhoneInput.setAttribute('required', 'required');
-                teamNameInput.setAttribute('required', 'required');
+                if (brotherNameInput) brotherNameInput.setAttribute('required', 'required');
+                if (brotherPhoneInput) brotherPhoneInput.setAttribute('required', 'required');
+                if (teamNameInput) teamNameInput.setAttribute('required', 'required');
             } else {
                 brotherSection.style.display = 'none';
                 teamNameSection.style.display = 'none';
@@ -351,14 +358,17 @@
                 btnWithBrother.classList.add('bg-white', 'border-emerald-300', 'text-gray-700');
                 btnAlone.classList.add('bg-gray-50', 'border-gray-400');
                 btnAlone.classList.remove('bg-white', 'border-gray-300', 'text-gray-700');
-                brotherNameInput.removeAttribute('required');
-                brotherPhoneInput.removeAttribute('required');
-                teamNameInput.removeAttribute('required');
+                if (brotherNameInput) brotherNameInput.removeAttribute('required');
+                if (brotherPhoneInput) brotherPhoneInput.removeAttribute('required');
+                if (teamNameInput) teamNameInput.removeAttribute('required');
             }
         }
 
-        // Initialize on page load
-        toggleBrotherForm(false);
+        // Initialize on page load (فقط إذا كانت العناصر موجودة)
+        const btnAlone = document.getElementById('btn_alone');
+        if (btnAlone) {
+            toggleBrotherForm(false);
+        }
     </script>
 </body>
 

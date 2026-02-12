@@ -134,14 +134,15 @@ class HomeController extends Controller
 
         // جلب مناسبات العائلة
         // إذا كان المستخدم مسجل دخول، اجلب جميع المناسبات (المفعلة وغير المفعلة)
+        // الترتيب من الأقرب إلى الأبعد حسب التاريخ
         if (Auth::check()) {
-            $events = FamilyEvent::orderBy('display_order')
-                ->orderBy('event_date')
+            $events = FamilyEvent::orderBy('event_date', 'asc')
+                ->orderBy('display_order')
                 ->get();
         } else {
             $events = FamilyEvent::where('is_active', true)
+                ->orderBy('event_date', 'asc')
                 ->orderBy('display_order')
-                ->orderBy('event_date')
                 ->get();
         }
 
