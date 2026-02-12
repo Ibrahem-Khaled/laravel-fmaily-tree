@@ -277,6 +277,7 @@
                                 </label>
                                 <input type="text" name="phone" value="{{ old('phone') }}" required
                                     class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-white">
+                                <p class="text-xs text-gray-500 mt-1">يمكنك إعادة التسجيل بنفس رقم الهاتف لتحديث بياناتك أو التصنيفات.</p>
                             </div>
                         </div>
                     </div>

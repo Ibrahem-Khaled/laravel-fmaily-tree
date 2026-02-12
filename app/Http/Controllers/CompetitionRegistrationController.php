@@ -104,10 +104,8 @@ class CompetitionRegistrationController extends Controller
                     'status' => 1,
                 ]);
             } else {
-                // تحديث بيانات المستخدم إذا كانت غير موجودة
-                if (empty($user->name)) {
-                    $user->name = $validated['name'];
-                }
+                // السماح بإعادة التسجيل بنفس رقم الهاتف: تحديث الاسم دائماً
+                $user->name = $validated['name'];
                 $user->save();
             }
 
@@ -133,18 +131,22 @@ class CompetitionRegistrationController extends Controller
                 }
             }
 
-            // تسجيل المستخدم في المسابقة
+            // تسجيل المستخدم في المسابقة (أو تحديث التسجيل إن كان مسجلاً بنفس رقم الهاتف)
+            $registrationData = [
+                'has_brother' => !empty($brotherUser),
+            ];
+            if (empty($brotherUser)) {
+                $registrationData['team_id'] = null; // إزالة ربط الفريق عند التسجيل فردي
+            }
             $registration = CompetitionRegistration::updateOrCreate(
                 [
                     'competition_id' => $competition->id,
                     'user_id' => $user->id,
                 ],
-                [
-                    'has_brother' => !empty($brotherUser),
-                ]
+                $registrationData
             );
 
-            // ربط التصنيفات المختارة بالتسجيل
+            // ربط التصنيفات المختارة بالتسجيل (يُحدَّث حتى عند إعادة التسجيل بنفس الرقم)
             if ($request->has('category_ids') && is_array($request->category_ids)) {
                 $categoryIds = array_filter($request->category_ids);
                 // التحقق من أن التصنيفات المختارة موجودة في مسابقة
