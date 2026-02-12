@@ -8,6 +8,7 @@ use App\Models\CompetitionRegistration;
 use App\Models\Team;
 use App\Models\User;
 use App\Models\Image;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -47,7 +48,12 @@ class CompetitionController extends Controller
             ->orderBy('program_order')
             ->get();
         
-        return view('dashboard.competitions.create', compact('programs'));
+        // جلب جميع التصنيفات النشطة (لإتاحة إعادة استخدامها وإضافة تصنيفات جديدة)
+        $categories = Category::active()
+            ->ordered()
+            ->get();
+        
+        return view('dashboard.competitions.create', compact('programs', 'categories'));
     }
 
     /**
@@ -64,21 +70,57 @@ class CompetitionController extends Controller
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'is_active' => 'boolean',
             'program_id' => 'nullable|exists:images,id',
+            'category_ids' => 'nullable|array',
+            'category_ids.*' => 'exists:categories,id',
         ], [
             'title.required' => 'عنوان المسابقة مطلوب',
             'game_type.required' => 'نوع اللعبة مطلوب',
             'team_size.required' => 'عدد أعضاء الفريق مطلوب',
             'team_size.min' => 'عدد أعضاء الفريق يجب أن يكون على الأقل 1',
             'end_date.after_or_equal' => 'تاريخ النهاية يجب أن يكون بعد تاريخ البداية',
+            'category_ids.array' => 'التصنيفات يجب أن تكون مصفوفة',
+            'category_ids.*.exists' => 'أحد التصنيفات المختارة غير موجود',
         ]);
 
         $validated['is_active'] = $request->has('is_active');
         $validated['created_by'] = auth()->id();
 
-        Competition::create($validated);
+        try {
+            DB::beginTransaction();
 
-        return redirect()->route('dashboard.competitions.index')
-            ->with('success', 'تم إضافة المسابقة بنجاح');
+            // إنشاء المسابقة
+            $competition = Competition::create($validated);
+
+            // معالجة التصنيفات المختارة
+            $categoryIds = [];
+            
+            // إضافة التصنيفات المختارة
+            if ($request->has('category_ids') && is_array($request->category_ids)) {
+                $categoryIds = array_filter(array_map('intval', $request->category_ids));
+            }
+            
+            // Debug: التحقق من البيانات المرسلة
+            \Log::info('Competition Store - Categories', [
+                'category_ids' => $categoryIds,
+                'request_category_ids' => $request->category_ids ?? null,
+            ]);
+
+            // ربط التصنيفات بالمسابقة
+            if (!empty($categoryIds)) {
+                $competition->categories()->sync(array_unique($categoryIds));
+            } else {
+                // إذا لم يتم اختيار أي تصنيفات، قم بإزالة جميع التصنيفات
+                $competition->categories()->sync([]);
+            }
+
+            DB::commit();
+
+            return redirect()->route('dashboard.competitions.index')
+                ->with('success', 'تم إضافة المسابقة بنجاح');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withInput()->with('error', 'حدث خطأ أثناء إضافة المسابقة: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -87,9 +129,14 @@ class CompetitionController extends Controller
     public function show(Competition $competition): View
     {
         $competition->load([
-            'teams.members',
+            'teams.members.competitionRegistrations' => function($query) use ($competition) {
+                $query->where('competition_id', $competition->id)
+                      ->with('categories');
+            },
             'teams.creator',
-            'creator'
+            'creator',
+            'categories',
+            'registrations.categories'
         ]);
 
         // جلب جميع المستخدمين المسجلين في فرق هذه المسابقة
@@ -106,7 +153,10 @@ class CompetitionController extends Controller
                       ->whereNull('team_id');
             })
             ->whereNotIn('id', $usersInTeams)
-            ->with('competitionRegistrations')
+            ->with(['competitionRegistrations' => function($query) use ($competition) {
+                $query->where('competition_id', $competition->id)
+                      ->with('categories');
+            }])
             ->orderBy('name')
             ->get();
 
@@ -204,7 +254,15 @@ class CompetitionController extends Controller
             ->orderBy('program_order')
             ->get();
         
-        return view('dashboard.competitions.edit', compact('competition', 'programs'));
+        // جلب جميع التصنيفات النشطة (لإتاحة إعادة استخدامها وإضافة تصنيفات جديدة)
+        $categories = Category::active()
+            ->ordered()
+            ->get();
+        
+        // جلب التصنيفات المختارة للمسابقة
+        $competition->load('categories');
+        
+        return view('dashboard.competitions.edit', compact('competition', 'programs', 'categories'));
     }
 
     /**
@@ -221,20 +279,51 @@ class CompetitionController extends Controller
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'is_active' => 'boolean',
             'program_id' => 'nullable|exists:images,id',
+            'category_ids' => 'nullable|array',
+            'category_ids.*' => 'exists:categories,id',
         ], [
             'title.required' => 'عنوان المسابقة مطلوب',
             'game_type.required' => 'نوع اللعبة مطلوب',
             'team_size.required' => 'عدد أعضاء الفريق مطلوب',
             'team_size.min' => 'عدد أعضاء الفريق يجب أن يكون على الأقل 1',
             'end_date.after_or_equal' => 'تاريخ النهاية يجب أن يكون بعد تاريخ البداية',
+            'category_ids.array' => 'التصنيفات يجب أن تكون مصفوفة',
+            'category_ids.*.exists' => 'أحد التصنيفات المختارة غير موجود',
         ]);
 
         $validated['is_active'] = $request->has('is_active');
 
-        $competition->update($validated);
+        try {
+            DB::beginTransaction();
 
-        return redirect()->route('dashboard.competitions.index')
-            ->with('success', 'تم تحديث المسابقة بنجاح');
+            // تحديث بيانات المسابقة
+            $competition->update($validated);
+
+            // معالجة التصنيفات المختارة
+            $categoryIds = [];
+            
+            // إضافة التصنيفات المختارة
+            if ($request->has('category_ids') && is_array($request->category_ids)) {
+                $categoryIds = array_filter(array_map('intval', $request->category_ids));
+            }
+            
+            // Debug: التحقق من البيانات المرسلة
+            \Log::info('Competition Update - Categories', [
+                'category_ids' => $categoryIds,
+                'request_category_ids' => $request->category_ids ?? null,
+            ]);
+
+            // ربط التصنيفات بالمسابقة (sync لحذف القديمة وإضافة الجديدة)
+            $competition->categories()->sync(array_unique($categoryIds));
+
+            DB::commit();
+
+            return redirect()->route('dashboard.competitions.index')
+                ->with('success', 'تم تحديث المسابقة بنجاح');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withInput()->with('error', 'حدث خطأ أثناء تحديث المسابقة: ' . $e->getMessage());
+        }
     }
 
     /**

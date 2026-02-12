@@ -139,6 +139,18 @@
                                 <p class="mt-2">{{ $competition->description }}</p>
                             </div>
                         @endif
+                        @if($competition->categories->isNotEmpty())
+                            <div class="col-12 mb-3">
+                                <strong>التصنيفات:</strong>
+                                <div class="mt-2 d-flex flex-wrap gap-2">
+                                    @foreach($competition->categories as $category)
+                                        <span class="badge badge-primary p-2">
+                                            <i class="fas fa-tag mr-1"></i>{{ $category->name }}
+                                        </span>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
                         <div class="col-12 mb-3">
                             <strong>رابط التسجيل:</strong><br>
                             <code>{{ $competition->registration_url }}</code>
@@ -183,11 +195,16 @@
                                 <th>الاسم</th>
                                 <th>رقم الهاتف</th>
                                 <th>البريد الإلكتروني</th>
+                                <th>التصنيفات المختارة</th>
                                 <th>الإجراءات</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($individualUsers as $user)
+                                @php
+                                    $registration = $user->competitionRegistrations->firstWhere('competition_id', $competition->id);
+                                    $userCategories = $registration ? $registration->categories : collect();
+                                @endphp
                                 <tr>
                                     <td>
                                         <input type="checkbox" class="individual-checkbox" value="{{ $user->id }}" 
@@ -198,6 +215,17 @@
                                     <td>{{ $user->name }}</td>
                                     <td>{{ $user->phone ?? '-' }}</td>
                                     <td>{{ $user->email ?? '-' }}</td>
+                                    <td>
+                                        @if($userCategories->isNotEmpty())
+                                            <div class="d-flex flex-wrap gap-1">
+                                                @foreach($userCategories as $category)
+                                                    <span class="badge badge-info">{{ $category->name }}</span>
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
+                                    </td>
                                     <td>
                                         <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#deleteRegistrationModal{{ $user->id }}" title="حذف التسجيل">
                                             <i class="fas fa-trash"></i>
@@ -306,7 +334,7 @@
                                     </td>
                                 </tr>
                                 <tr id="team-members-{{ $team->id }}" style="display: none;">
-                                    <td colspan="7">
+                                    <td colspan="6">
                                         <div class="card bg-light">
                                             <div class="card-body">
                                                 <h6 class="font-weight-bold">أعضاء الفريق:</h6>
@@ -317,16 +345,32 @@
                                                                 <th>الاسم</th>
                                                                 <th>الهاتف</th>
                                                                 <th>البريد</th>
+                                                                <th>التصنيفات المختارة</th>
                                                                 <th>الدور</th>
                                                                 <th>تاريخ الانضمام</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
                                                             @foreach($team->members as $member)
+                                                                @php
+                                                                    $memberRegistration = $member->competitionRegistrations->firstWhere('competition_id', $competition->id);
+                                                                    $memberCategories = $memberRegistration ? $memberRegistration->categories : collect();
+                                                                @endphp
                                                                 <tr>
                                                                     <td>{{ $member->name }}</td>
                                                                     <td>{{ $member->phone ?? '-' }}</td>
                                                                     <td>{{ $member->email ?? '-' }}</td>
+                                                                    <td>
+                                                                        @if($memberCategories->isNotEmpty())
+                                                                            <div class="d-flex flex-wrap gap-1">
+                                                                                @foreach($memberCategories as $category)
+                                                                                    <span class="badge badge-info">{{ $category->name }}</span>
+                                                                                @endforeach
+                                                                            </div>
+                                                                        @else
+                                                                            <span class="text-muted">-</span>
+                                                                        @endif
+                                                                    </td>
                                                                     <td>
                                                                         @if($member->pivot->role === 'captain')
                                                                             <span class="badge badge-primary">قائد</span>

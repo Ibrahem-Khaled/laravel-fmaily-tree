@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasMany};
+use Illuminate\Database\Eloquent\Relations\{BelongsTo, BelongsToMany, HasMany};
 
 class Category extends BaseModel
 {
@@ -69,6 +69,15 @@ class Category extends BaseModel
         return $this->hasMany(QuranCategoryManager::class)->orderBy('sort_order');
     }
 
+    /**
+     * العلاقة مع المسابقات (many-to-many)
+     */
+    public function competitions(): BelongsToMany
+    {
+        return $this->belongsToMany(Competition::class, 'competition_categories')
+            ->withTimestamps();
+    }
+
     // سكوبات
     public function scopeRoots($q)
     {
@@ -131,5 +140,13 @@ class Category extends BaseModel
     public function scopeInactive($query)
     {
         return $query->where('is_active', false);
+    }
+
+    /**
+     * Scope للتصنيفات المرتبطة بمسابقات
+     */
+    public function scopeHasCompetitions($query)
+    {
+        return $query->whereHas('competitions');
     }
 }

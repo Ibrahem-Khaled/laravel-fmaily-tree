@@ -31,10 +31,13 @@ class CompetitionRegistrationController extends Controller
                 ->with('error', 'المسابقة غير متاحة للتسجيل حالياً');
         }
 
-        // تحميل الفرق غير المكتملة
-        $competition->load(['teams' => function($query) {
-            $query->where('is_complete', false);
-        }]);
+        // تحميل الفرق غير المكتملة والتصنيفات
+        $competition->load([
+            'teams' => function($query) {
+                $query->where('is_complete', false);
+            },
+            'categories'
+        ]);
 
         return view('competitions.register', compact('competition'));
     }
@@ -50,18 +53,27 @@ class CompetitionRegistrationController extends Controller
             return back()->with('error', 'المسابقة غير متاحة للتسجيل');
         }
 
+        // جلب التصنيفات المتاحة في المسابقة
+        $competition->load('categories');
+        $hasCategories = $competition->categories->isNotEmpty();
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'phone' => 'required|string|max:20',
             'brother_name' => 'nullable|string|max:255',
             'brother_phone' => 'nullable|string|max:20',
             'team_name' => 'nullable|string|max:255',
+            'category_ids' => $hasCategories ? 'required|array|min:1' : 'nullable|array',
+            'category_ids.*' => 'exists:categories,id',
         ], [
             'name.required' => 'الاسم مطلوب',
             'phone.required' => 'رقم الهاتف مطلوب',
             'brother_name.required' => 'اسم خوي مطلوب',
             'brother_phone.required' => 'رقم هاتف خوي مطلوب',
             'team_name.required' => 'اسم الفريق مطلوب',
+            'category_ids.required' => 'يجب اختيار تصنيف واحد على الأقل',
+            'category_ids.min' => 'يجب اختيار تصنيف واحد على الأقل',
+            'category_ids.*.exists' => 'أحد التصنيفات المختارة غير موجود',
         ]);
 
         // التحقق من بيانات خوي إذا تم إدخالها
@@ -122,7 +134,7 @@ class CompetitionRegistrationController extends Controller
             }
 
             // تسجيل المستخدم في المسابقة
-            CompetitionRegistration::updateOrCreate(
+            $registration = CompetitionRegistration::updateOrCreate(
                 [
                     'competition_id' => $competition->id,
                     'user_id' => $user->id,
@@ -131,6 +143,20 @@ class CompetitionRegistrationController extends Controller
                     'has_brother' => !empty($brotherUser),
                 ]
             );
+
+            // ربط التصنيفات المختارة بالتسجيل
+            if ($request->has('category_ids') && is_array($request->category_ids)) {
+                $categoryIds = array_filter($request->category_ids);
+                // التحقق من أن التصنيفات المختارة موجودة في مسابقة
+                $validCategoryIds = $competition->categories()
+                    ->whereIn('categories.id', $categoryIds)
+                    ->pluck('categories.id')
+                    ->toArray();
+                
+                if (!empty($validCategoryIds)) {
+                    $registration->categories()->sync($validCategoryIds);
+                }
+            }
 
             // إنشاء فريق فقط إذا كان معه خوي
             $team = null;
@@ -158,7 +184,7 @@ class CompetitionRegistrationController extends Controller
 
                 // تسجيل خوي في المسابقة أيضاً
                 if ($brotherUser) {
-                    CompetitionRegistration::updateOrCreate(
+                    $brotherRegistration = CompetitionRegistration::updateOrCreate(
                         [
                             'competition_id' => $competition->id,
                             'user_id' => $brotherUser->id,
@@ -168,6 +194,19 @@ class CompetitionRegistrationController extends Controller
                             'team_id' => $team->id,
                         ]
                     );
+
+                    // ربط نفس التصنيفات المختارة بتسجيل خوي
+                    if ($request->has('category_ids') && is_array($request->category_ids)) {
+                        $categoryIds = array_filter($request->category_ids);
+                        $validCategoryIds = $competition->categories()
+                            ->whereIn('categories.id', $categoryIds)
+                            ->pluck('categories.id')
+                            ->toArray();
+                        
+                        if (!empty($validCategoryIds)) {
+                            $brotherRegistration->categories()->sync($validCategoryIds);
+                        }
+                    }
 
                     // إضافة خوي للفريق
                     // التحقق من أن الفريق لم يكتمل

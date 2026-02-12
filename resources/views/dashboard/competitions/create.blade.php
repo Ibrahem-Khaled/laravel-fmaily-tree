@@ -73,6 +73,41 @@
                             @enderror
                         </div>
 
+                        <div class="form-group">
+                            <label>التصنيفات (اختياري)</label>
+                            <div class="mb-3">
+                                <select class="form-control" id="category_select" name="category_ids[]" multiple style="height: 150px;">
+                                    @foreach($categories as $category)
+                                        <option value="{{ $category->id }}" {{ in_array($category->id, old('category_ids', [])) ? 'selected' : '' }}>
+                                            {{ $category->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <small class="form-text text-muted">يمكنك اختيار تصنيفات موجودة (اضغط Ctrl للاختيار المتعدد)</small>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#quickCategoryModal">
+                                    <i class="fas fa-plus"></i> إضافة تصنيف جديد
+                                </button>
+                                <small class="form-text text-muted d-block mt-2">أو أضف تصنيفات جديدة عبر النافذة المنبثقة</small>
+                            </div>
+
+                            <div id="selected_categories" class="mb-3">
+                                <label class="d-block">التصنيفات المختارة:</label>
+                                <div id="selected_categories_list" class="d-flex flex-wrap gap-2">
+                                    <!-- سيتم إضافة التصنيفات المختارة هنا -->
+                                </div>
+                            </div>
+
+                            @error('category_ids')
+                                <div class="text-danger small">{{ $message }}</div>
+                            @enderror
+                            @error('new_categories')
+                                <div class="text-danger small">{{ $message }}</div>
+                            @enderror
+                        </div>
+
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
@@ -106,7 +141,7 @@
                 </div>
 
                 <div class="form-group mt-4">
-                    <button type="submit" class="btn btn-primary">
+                    <button type="submit" class="btn btn-primary" id="submit_competition_btn">
                         <i class="fas fa-save mr-2"></i>حفظ المسابقة
                     </button>
                     <a href="{{ route('dashboard.competitions.index') }}" class="btn btn-secondary">
@@ -118,6 +153,9 @@
     </div>
 </div>
 
+@include('dashboard.articles.modals.quick-category')
+
+@push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const teamSizeInput = document.getElementById('team_size');
@@ -144,9 +182,187 @@ document.addEventListener('DOMContentLoaded', function() {
                     teamSizeInput.focus();
                     return false;
                 }
+                
             });
         }
     }
+
+    // إدارة التصنيفات
+    const categorySelect = document.getElementById('category_select');
+    const selectedCategoriesList = document.getElementById('selected_categories_list');
+    const form = document.querySelector('form');
+    
+    // التأكد من وجود form
+    if (!form) {
+        console.error('Form not found!');
+    }
+    
+    // تخزين التصنيفات المختارة
+    let selectedCategories = {
+        existing: []
+    };
+
+    // تحديث التصنيفات المختارة من القائمة
+    function updateSelectedCategories() {
+        if (!selectedCategoriesList || !categorySelect) return;
+        
+        selectedCategoriesList.innerHTML = '';
+        selectedCategories.existing = [];
+
+        // إضافة التصنيفات المختارة من القائمة
+        Array.from(categorySelect.selectedOptions).forEach(option => {
+            const categoryId = option.value;
+            const categoryName = option.text;
+            // التأكد من أن القيمة ليست مؤقتة
+            if (!categoryId.startsWith('temp_')) {
+                selectedCategories.existing.push(categoryId);
+                addCategoryTag(categoryId, categoryName, 'existing');
+            }
+        });
+
+        updateHiddenInputs();
+    }
+
+    // إضافة tag للتصنيف
+    function addCategoryTag(id, name, type) {
+        const tag = document.createElement('span');
+        tag.className = 'badge badge-primary p-2 d-inline-flex align-items-center';
+        tag.innerHTML = `
+            ${name}
+            <button type="button" class="btn btn-sm btn-link text-white p-0 ml-2" onclick="removeCategory('${id}', '${type}')" style="line-height: 1;">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        selectedCategoriesList.appendChild(tag);
+    }
+
+    // إزالة تصنيف
+    window.removeCategory = function(id, type) {
+        if (type === 'existing') {
+            const option = categorySelect.querySelector(`option[value="${id}"]`);
+            if (option) {
+                option.selected = false;
+            }
+            selectedCategories.existing = selectedCategories.existing.filter(catId => catId !== id);
+            updateSelectedCategories();
+        }
+    };
+
+    // تحديث الحقول المخفية في النموذج (لم يعد ضرورياً لأننا نستخدم name مباشرة على select)
+    window.updateHiddenInputs = function() {
+        // التأكد من إزالة أي خيارات مؤقتة قبل الإرسال
+        const tempOptions = categorySelect.querySelectorAll('option[value^="temp_"]');
+        tempOptions.forEach(option => option.remove());
+        
+        // Debug: عرض البيانات المرسلة
+        const selectedOptions = Array.from(categorySelect.selectedOptions);
+        const selectedIds = selectedOptions.map(opt => opt.value).filter(id => !id.startsWith('temp_'));
+        console.log('Selected categories:', selectedIds);
+        console.log('Select element name:', categorySelect.name);
+    }
+
+    // تحديث عند تغيير الاختيار في القائمة
+    categorySelect.addEventListener('change', updateSelectedCategories);
+
+    // تهيئة التصنيفات المختارة مسبقاً
+    updateSelectedCategories();
+    
+    // التأكد من تنظيف الخيارات المؤقتة قبل الإرسال
+    const submitBtn = document.getElementById('submit_competition_btn');
+    if (submitBtn) {
+        submitBtn.addEventListener('click', function(e) {
+            // إزالة أي خيارات مؤقتة قبل الإرسال
+            updateHiddenInputs();
+        });
+    }
+    
+    // أيضاً عند إرسال النموذج مباشرة
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            // إزالة أي خيارات مؤقتة قبل الإرسال
+            const tempOptions = categorySelect.querySelectorAll('option[value^="temp_"]');
+            tempOptions.forEach(option => option.remove());
+        });
+    }
+});
+
+// إنشاء فئة سريع via AJAX (نفس الطريقة المستخدمة في articles)
+$('#quickCategoryForm').on('submit', function(e) {
+    e.preventDefault();
+    const form = this;
+    const fd = new FormData(form);
+    const btn = $('#quickCategorySubmit');
+    btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> جارٍ الحفظ...');
+
+    $.ajax({
+        url: "{{ route('categories.quick-store') }}",
+        method: "POST",
+        data: fd,
+        contentType: false,
+        processData: false,
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        success: function(resp) {
+            if (resp.ok && resp.category) {
+                // إضافة الفئة الجديدة للقائمة المنسدلة
+                const categorySelect = document.getElementById('category_select');
+                if (categorySelect) {
+                    // التحقق من عدم وجود التصنيف في القائمة
+                    const existingOption = categorySelect.querySelector(`option[value="${resp.category.id}"]`);
+                    if (!existingOption) {
+                        const option = document.createElement('option');
+                        option.value = resp.category.id;
+                        option.text = resp.category.name;
+                        option.selected = true;
+                        categorySelect.appendChild(option);
+                    } else {
+                        // إذا كان موجوداً، حدده فقط
+                        existingOption.selected = true;
+                    }
+                    
+                    // إضافة للقائمة المختارة مباشرة
+                    if (typeof selectedCategories !== 'undefined' && selectedCategories.existing) {
+                        if (!selectedCategories.existing.includes(resp.category.id.toString())) {
+                            selectedCategories.existing.push(resp.category.id.toString());
+                        }
+                    }
+                    
+                    // تحديث التصنيفات المختارة والحقول المخفية
+                    if (typeof updateSelectedCategories === 'function') {
+                        updateSelectedCategories();
+                    }
+                }
+                
+                // إغلاق الـ modal وإعادة تعيين النموذج
+                $('#quickCategoryModal').modal('hide');
+                form.reset();
+                $('.custom-file-label').text('اختر صورة...');
+                
+                // رسالة نجاح
+                if (typeof toastr !== 'undefined') {
+                    toastr.success('تم إنشاء التصنيف بنجاح');
+                } else {
+                    alert('تم إنشاء التصنيف بنجاح');
+                }
+            } else {
+                alert('حدث خطأ أثناء إنشاء التصنيف');
+            }
+        },
+        error: function(xhr) {
+            let message = 'تعذر إنشاء التصنيف. تحقق من المدخلات.';
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                message = xhr.responseJSON.message;
+            } else if (xhr.responseJSON && xhr.responseJSON.errors) {
+                message = Object.values(xhr.responseJSON.errors).flat().join('\n');
+            }
+            alert(message);
+        },
+        complete: function() {
+            btn.prop('disabled', false).html('<i class="fas fa-save mr-1"></i> حفظ الفئة');
+        }
+    });
 });
 </script>
+@endpush
 @endsection

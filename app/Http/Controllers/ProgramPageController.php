@@ -3,13 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Image;
+use App\Models\Category;
+use Illuminate\Http\Request;
 
 class ProgramPageController extends Controller
 {
     /**
      * عرض صفحة برنامج محدد للجمهور.
      */
-    public function show(Image $program)
+    public function show(Image $program, Request $request)
     {
         abort_unless($program->is_program || $program->is_proud_of, 404);
 
@@ -18,6 +20,7 @@ class ProgramPageController extends Controller
             'programLinks', 
             'programGalleries.images', 
             'subPrograms',
+            'competitions.categories',
             'competitions.registrations.user'
         ]);
 
@@ -35,6 +38,22 @@ class ProgramPageController extends Controller
         // المسابقات المرتبطة بالبرنامج مع المسجلين
         $competitions = $program->competitions;
 
+        // فلترة المسابقات حسب التصنيف إذا تم اختيار تصنيف
+        $selectedCategoryId = $request->query('category');
+        if ($selectedCategoryId) {
+            $competitions = $competitions->filter(function ($competition) use ($selectedCategoryId) {
+                return $competition->categories->contains('id', $selectedCategoryId);
+            });
+        }
+
+        // جلب جميع التصنيفات المرتبطة بمسابقات هذا البرنامج
+        $availableCategories = Category::whereHas('competitions', function($query) use ($program) {
+            $query->where('program_id', $program->id);
+        })
+        ->active()
+        ->ordered()
+        ->get();
+
         return view('programs.show', [
             'program' => $program,
             'galleryMedia' => $galleryMedia,
@@ -43,6 +62,8 @@ class ProgramPageController extends Controller
             'programGalleries' => $program->programGalleries,
             'subPrograms' => $subPrograms,
             'competitions' => $competitions,
+            'availableCategories' => $availableCategories,
+            'selectedCategoryId' => $selectedCategoryId,
         ]);
     }
 }

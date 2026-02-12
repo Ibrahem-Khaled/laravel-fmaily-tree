@@ -223,6 +223,39 @@
                     class="space-y-6">
                     @csrf
 
+                    @if($competition->categories->isNotEmpty())
+                        <div class="bg-white/50 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-emerald-100/50">
+                            <h3 class="text-lg sm:text-xl font-bold font-serif text-emerald-700 mb-4 flex items-center gap-2">
+                                <div class="w-1 h-6 bg-emerald-600 rounded-full"></div>
+                                اختيار التصنيفات <span class="text-red-500">*</span>
+                            </h3>
+
+                            <div class="space-y-3">
+                                <p class="text-sm text-gray-600 mb-4">يرجى اختيار تصنيف واحد على الأقل من التصنيفات المتاحة:</p>
+                                
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="categories_container">
+                                    @foreach($competition->categories as $category)
+                                        <label class="flex items-center p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-emerald-400 hover:bg-emerald-50 transition-all duration-200 group">
+                                            <input type="checkbox" 
+                                                name="category_ids[]" 
+                                                value="{{ $category->id }}" 
+                                                class="w-5 h-5 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500 focus:ring-2"
+                                                {{ in_array($category->id, old('category_ids', [])) ? 'checked' : '' }}
+                                                required>
+                                            <span class="mr-3 text-gray-700 font-medium group-hover:text-emerald-700">{{ $category->name }}</span>
+                                        </label>
+                                    @endforeach
+                                </div>
+
+                                @error('category_ids')
+                                    <div class="text-red-600 text-sm mt-2">
+                                        <i class="fas fa-exclamation-circle"></i> {{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+                        </div>
+                    @endif
+
                     <div class="bg-white/50 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-emerald-100/50">
                         <h3 class="text-lg sm:text-xl font-bold font-serif text-emerald-700 mb-4 flex items-center gap-2">
                             <div class="w-1 h-6 bg-emerald-600 rounded-full"></div>
@@ -325,6 +358,29 @@
 
     <script>
         let hasBrother = false;
+
+        // التحقق من اختيار تصنيف واحد على الأقل
+        document.addEventListener('DOMContentLoaded', function() {
+            const categoryCheckboxes = document.querySelectorAll('input[name="category_ids[]"]');
+            const form = document.querySelector('form');
+            
+            if (categoryCheckboxes.length > 0) {
+                form.addEventListener('submit', function(e) {
+                    const checkedCategories = Array.from(categoryCheckboxes).filter(cb => cb.checked);
+                    
+                    if (checkedCategories.length === 0) {
+                        e.preventDefault();
+                        alert('يجب اختيار تصنيف واحد على الأقل');
+                        return false;
+                    }
+                });
+
+                // إزالة required من checkboxes الفردية واستخدام validation مخصص
+                categoryCheckboxes.forEach(cb => {
+                    cb.removeAttribute('required');
+                });
+            }
+        });
 
         function toggleBrotherForm(withBrother) {
             hasBrother = withBrother;

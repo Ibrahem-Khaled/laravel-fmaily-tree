@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Str;
 
 class Competition extends BaseModel
@@ -71,6 +72,17 @@ class Competition extends BaseModel
     public function program()
     {
         return $this->belongsTo(Image::class, 'program_id');
+    }
+
+    /**
+     * العلاقة مع التصنيفات (many-to-many)
+     */
+    public function categories(): BelongsToMany
+    {
+        return $this->belongsToMany(Category::class, 'competition_categories')
+            ->withTimestamps()
+            ->orderBy('categories.sort_order')
+            ->orderBy('categories.name');
     }
 
     /**
