@@ -1005,47 +1005,92 @@
                 @endif
 
                 @if ($programLinks->isNotEmpty())
-                    <section class="relative">
-                        <div class="flex flex-wrap items-center justify-between gap-3 mb-8">
-                            <div class="flex items-center gap-2 sm:gap-4">
-                                <div class="w-1 h-8 sm:h-12 bg-blue-600 rounded-full"></div>
-                            <div>
-                                <h2
-                                        class="text-lg sm:text-xl lg:text-2xl font-bold font-serif text-blue-700">
-                                    روابط </h2>
-                                {{-- <p class="text-xs sm:text-sm text-gray-500 mt-1">مصادر ومراجع تعزز محتوى البرنامج</p> --}}
+                    <section class="relative overflow-hidden">
+                        {{-- Decorative background elements --}}
+                        <div class="absolute -top-10 -left-10 w-40 h-40 bg-blue-100/40 rounded-full blur-3xl pointer-events-none"></div>
+                        <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-indigo-100/40 rounded-full blur-3xl pointer-events-none"></div>
+
+                        {{-- Section Header --}}
+                        <div class="relative flex flex-wrap items-center justify-between gap-4 mb-10">
+                            <div class="flex items-center gap-3 sm:gap-4">
+                                <div class="relative">
+                                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-200/50">
+                                        <svg class="w-6 h-6 sm:w-7 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="absolute -top-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full border-2 border-white shadow-sm"></div>
+                                </div>
+                                <div>
+                                    <h2 class="text-xl sm:text-2xl lg:text-3xl font-bold font-serif bg-gradient-to-l from-blue-700 to-indigo-700 bg-clip-text text-transparent">
+                                        روابط مهمة
+                                    </h2>
+                                    <p class="text-xs sm:text-sm text-gray-400 mt-0.5">مصادر ومراجع مفيدة</p>
                                 </div>
                             </div>
-                            <span
-                                class="px-3 py-1.5 sm:px-4 sm:py-2 bg-blue-600 text-white text-xs sm:text-sm rounded-full font-semibold">
-                                {{ $programLinks->count() }} رابط
-                            </span>
+                            <div class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/60 rounded-2xl">
+                                <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                                <span class="text-sm font-bold text-blue-700">{{ $programLinks->count() }}</span>
+                                <span class="text-xs text-blue-500">{{ $programLinks->count() > 1 ? 'روابط' : 'رابط' }}</span>
+                            </div>
                         </div>
-                        <div class="space-y-3 sm:space-y-4">
-                            @foreach ($programLinks as $link)
-                                <a href="{{ $link->url }}" target="_blank"
-                                    class="group flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 p-3 sm:p-4 lg:p-5 bg-white border border-blue-100 rounded-xl sm:rounded-2xl hover:border-blue-300 transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-1">
-                                    <div class="flex-1">
-                                        <div class="flex items-center gap-3 mb-2">
-                                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
-                                                </svg>
+
+                        {{-- Links Grid --}}
+                        <div class="grid grid-cols-1 {{ $programLinks->count() > 1 ? 'md:grid-cols-2' : '' }} gap-4 sm:gap-5">
+                            @foreach ($programLinks as $index => $link)
+                                <a href="{{ $link->url }}" target="_blank" rel="noopener noreferrer"
+                                   class="group relative bg-white/80 backdrop-blur-sm rounded-2xl sm:rounded-3xl border border-gray-100/80 hover:border-blue-200 transition-all duration-500 shadow-sm hover:shadow-xl hover:shadow-blue-100/40 hover:-translate-y-1 overflow-hidden"
+                                   style="animation: slideUp 0.4s ease-out {{ $index * 0.08 }}s both;">
+
+                                    {{-- Card top gradient accent --}}
+                                    <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-400 via-indigo-500 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+                                    {{-- Hover glow effect --}}
+                                    <div class="absolute inset-0 bg-gradient-to-br from-blue-50/0 via-transparent to-indigo-50/0 group-hover:from-blue-50/50 group-hover:to-indigo-50/30 transition-all duration-500 pointer-events-none"></div>
+
+                                    <div class="relative p-5 sm:p-6">
+                                        <div class="flex items-start gap-4">
+                                            {{-- Icon --}}
+                                            <div class="flex-shrink-0">
+                                                <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100/50 flex items-center justify-center group-hover:from-blue-100 group-hover:to-indigo-100 group-hover:border-blue-200 transition-all duration-500 group-hover:scale-105 group-hover:rotate-3">
+                                                    <svg class="w-6 h-6 sm:w-7 sm:h-7 text-blue-500 group-hover:text-blue-600 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                                                    </svg>
+                                                </div>
                                             </div>
-                                            <h3 class="text-lg font-bold text-gray-800 group-hover:text-blue-600 transition-colors">
-                                            {{ $link->title }}
-                                        </h3>
+
+                                            {{-- Content --}}
+                                            <div class="flex-1 min-w-0">
+                                                <h3 class="text-base sm:text-lg font-bold text-gray-800 group-hover:text-blue-700 transition-colors duration-300 leading-relaxed mb-1">
+                                                    {{ $link->title }}
+                                                </h3>
+
+                                                @if ($link->description)
+                                                    <p class="text-sm text-gray-500 leading-relaxed line-clamp-2 mb-3">{{ $link->description }}</p>
+                                                @endif
+
+                                                {{-- URL preview --}}
+                                                <div class="flex items-center gap-2 mt-2">
+                                                    <div class="flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 group-hover:bg-blue-50/80 rounded-lg transition-colors duration-300 max-w-full overflow-hidden">
+                                                        <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-blue-400 flex-shrink-0 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+                                                        </svg>
+                                                        <span class="text-xs text-gray-400 group-hover:text-blue-500 truncate font-mono transition-colors" dir="ltr">
+                                                            {{ Str::limit(parse_url($link->url, PHP_URL_HOST) ?? $link->url, 35) }}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {{-- Arrow --}}
+                                            <div class="flex-shrink-0 self-center">
+                                                <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gray-50 group-hover:bg-gradient-to-br group-hover:from-blue-500 group-hover:to-indigo-600 flex items-center justify-center transition-all duration-500 group-hover:shadow-lg group-hover:shadow-blue-200/50">
+                                                    <svg class="w-4 h-4 sm:w-5 sm:h-5 text-gray-300 group-hover:text-white transition-all duration-300 group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                                                    </svg>
+                                                </div>
+                                            </div>
                                         </div>
-                                        @if ($link->description)
-                                            <p class="text-sm text-gray-600 mt-2 leading-relaxed">{{ $link->description }}</p>
-                                        @endif
-                                        {{-- <p class="text-xs text-gray-400 mt-3 break-all font-mono bg-gray-50 px-3 py-2 rounded-lg">{{ $link->url }}</p> --}}
-                                    </div>
-                                    <div class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl text-sm font-semibold shadow-lg group-hover:shadow-xl group-hover:scale-105 transition-all duration-300">
-                                        <span>الانتقال</span>
-                                        <svg class="w-4 h-4 transition-transform group-hover:-translate-x-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                                        </svg>
                                     </div>
                                 </a>
                             @endforeach
