@@ -227,13 +227,13 @@ class CompetitionRegistrationController extends Controller
                 DB::commit();
 
                 return redirect()->route('competitions.team.register', ['team' => $team->id])
-                    ->with('success', 'تم التسجيل بنجاح! يمكنك مشاركة رابط الفريق مع الأعضاء الآخرين.');
+                    ->with('success', 'تم التسجيل بنجاح');
             } else {
                 // إذا لم يكن معه خوي، يسجل كفرد فقط
                 DB::commit();
 
                 return redirect()->route('competitions.register', ['token' => $competition->registration_token])
-                    ->with('success', 'تم التسجيل بنجاح! سيتم تجميعك مع الآخرين في فريق من لوحة التحكم.');
+                    ->with('success', 'تم التسجيل بنجاح');
             }
 
         } catch (\Exception $e) {
@@ -331,7 +331,7 @@ class CompetitionRegistrationController extends Controller
 
             DB::commit();
 
-            return back()->with('success', 'تم إضافة العضو للفريق بنجاح!');
+            return back()->with('success', 'تم التسجيل بنجاح');
 
         } catch (\Exception $e) {
             DB::rollBack();

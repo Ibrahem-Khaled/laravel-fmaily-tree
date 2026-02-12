@@ -232,13 +232,13 @@
 
                             <div class="space-y-3">
                                 <p class="text-sm text-gray-600 mb-4">يرجى اختيار تصنيف واحد على الأقل من التصنيفات المتاحة:</p>
-                                
+
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="categories_container">
                                     @foreach($competition->categories as $category)
                                         <label class="flex items-center p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-emerald-400 hover:bg-emerald-50 transition-all duration-200 group">
-                                            <input type="checkbox" 
-                                                name="category_ids[]" 
-                                                value="{{ $category->id }}" 
+                                            <input type="checkbox"
+                                                name="category_ids[]"
+                                                value="{{ $category->id }}"
                                                 class="w-5 h-5 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500 focus:ring-2"
                                                 {{ in_array($category->id, old('category_ids', [])) ? 'checked' : '' }}
                                                 required>
@@ -363,11 +363,11 @@
         document.addEventListener('DOMContentLoaded', function() {
             const categoryCheckboxes = document.querySelectorAll('input[name="category_ids[]"]');
             const form = document.querySelector('form');
-            
+
             if (categoryCheckboxes.length > 0) {
                 form.addEventListener('submit', function(e) {
                     const checkedCategories = Array.from(categoryCheckboxes).filter(cb => cb.checked);
-                    
+
                     if (checkedCategories.length === 0) {
                         e.preventDefault();
                         alert('يجب اختيار تصنيف واحد على الأقل');
