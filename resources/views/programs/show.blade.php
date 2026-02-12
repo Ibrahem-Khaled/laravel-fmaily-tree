@@ -766,9 +766,9 @@
                                 </div>
                                 <div>
                                     <h2 class="text-xl sm:text-2xl lg:text-3xl font-bold font-serif bg-gradient-to-l from-blue-700 to-indigo-700 bg-clip-text text-transparent">
-                                        روابط مهمة
+                                        روابط
                                     </h2>
-                                    <p class="text-xs sm:text-sm text-gray-400 mt-0.5">مصادر ومراجع مفيدة</p>
+                                    {{-- <p class="text-xs sm:text-sm text-gray-400 mt-0.5">مصادر ومراجع مفيدة</p> --}}
                                 </div>
                             </div>
                             <div class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/60 rounded-2xl">
