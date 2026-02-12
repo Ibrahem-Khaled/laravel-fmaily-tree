@@ -809,23 +809,6 @@
                             </span>
                         </div> --}}
 
-                        @if (isset($availableCategories) && $availableCategories->isNotEmpty())
-                            <div class="mb-6 p-4 bg-purple-50 rounded-xl border border-purple-200">
-                                <label class="block text-sm font-semibold text-purple-700 mb-3">فلترة حسب التصنيف:</label>
-                                <div class="flex flex-wrap gap-2">
-                                    <a href="{{ route('programs.show', $program) }}"
-                                       class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 {{ !$selectedCategoryId ? 'bg-purple-600 text-white shadow-md' : 'bg-white text-purple-700 border border-purple-300 hover:bg-purple-100' }}">
-                                        الكل
-                                    </a>
-                                    @foreach($availableCategories as $category)
-                                        <a href="{{ route('programs.show', ['program' => $program, 'category' => $category->id]) }}"
-                                           class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 {{ $selectedCategoryId == $category->id ? 'bg-purple-600 text-white shadow-md' : 'bg-white text-purple-700 border border-purple-300 hover:bg-purple-100' }}">
-                                            {{ $category->name }}
-                                        </a>
-                                    @endforeach
-                                </div>
-                            </div>
-                        @endif
                         <div class="space-y-6 sm:space-y-8">
                             @foreach ($competitions as $competition)
                                 <div class="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl border border-purple-100/50 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
@@ -880,17 +863,6 @@
                                                         @endif
                                                     </div>
                                                 </div>
-
-                                                @if ($competition->categories->isNotEmpty())
-                                                    <div class="mt-4 flex flex-wrap items-center gap-2">
-                                                        <span class="text-xs font-semibold text-gray-600">التصنيفات:</span>
-                                                        @foreach($competition->categories as $category)
-                                                            <span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
-                                                                {{ $category->name }}
-                                                            </span>
-                                                        @endforeach
-                                                    </div>
-                                                @endif
                                             </div>
                                         </div>
 
@@ -938,8 +910,12 @@
                                                     </div>
                                                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                                                         @foreach ($individualUsers as $user)
+                                                            @php
+                                                                $userRegistration = $registrations->where('user_id', $user->id)->first();
+                                                                $userCategories = $userRegistration ? $userRegistration->categories : collect();
+                                                            @endphp
                                                             <div class="bg-gradient-to-br from-purple-50 to-white border border-purple-100 rounded-xl p-4 hover:shadow-md transition-all duration-300">
-                                                                <div class="flex items-center gap-3">
+                                                                <div class="flex items-center gap-3 mb-2">
                                                                     <div class="w-12 h-12 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white font-bold text-lg shadow-lg">
                                                                         {{ mb_substr($user->name, 0, 1) }}
                                                                     </div>
@@ -957,6 +933,15 @@
                                                                         @endif
                                                                     </div>
                                                                 </div>
+                                                                @if ($userCategories->isNotEmpty())
+                                                                    <div class="flex flex-wrap gap-1.5 mt-2 pt-2 border-t border-purple-100">
+                                                                        @foreach($userCategories as $category)
+                                                                            <span class="px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
+                                                                                {{ $category->name }}
+                                                                            </span>
+                                                                        @endforeach
+                                                                    </div>
+                                                                @endif
                                                             </div>
                                                         @endforeach
                                                     </div>
@@ -1004,8 +989,12 @@
                                                                 </div>
                                                                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                                                                     @foreach ($team->members as $member)
+                                                                        @php
+                                                                            $memberRegistration = $registrations->where('user_id', $member->id)->first();
+                                                                            $memberCategories = $memberRegistration ? $memberRegistration->categories : collect();
+                                                                        @endphp
                                                                         <div class="bg-white border border-purple-100 rounded-lg p-3 hover:shadow-md transition-all duration-300">
-                                                                            <div class="flex items-center gap-2">
+                                                                            <div class="flex items-center gap-2 mb-2">
                                                                                 <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-md">
                                                                                     {{ mb_substr($member->name, 0, 1) }}
                                                                                 </div>
@@ -1023,6 +1012,15 @@
                                                                                     @endif
                                                                                 </div>
                                                                             </div>
+                                                                            @if ($memberCategories->isNotEmpty())
+                                                                                <div class="flex flex-wrap gap-1 mt-2 pt-2 border-t border-purple-50">
+                                                                                    @foreach($memberCategories as $category)
+                                                                                        <span class="px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
+                                                                                            {{ $category->name }}
+                                                                                        </span>
+                                                                                    @endforeach
+                                                                                </div>
+                                                                            @endif
                                                                         </div>
                                                                     @endforeach
                                                                 </div>

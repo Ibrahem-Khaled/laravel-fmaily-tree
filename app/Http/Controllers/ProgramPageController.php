@@ -21,7 +21,8 @@ class ProgramPageController extends Controller
             'programGalleries.images', 
             'subPrograms',
             'competitions.categories',
-            'competitions.registrations.user'
+            'competitions.registrations.user',
+            'competitions.registrations.categories'
         ]);
 
         $galleryMedia = $program->mediaItems->filter(function ($item) {
