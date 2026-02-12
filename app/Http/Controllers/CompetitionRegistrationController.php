@@ -92,22 +92,13 @@ class CompetitionRegistrationController extends Controller
         try {
             DB::beginTransaction();
 
-            // البحث عن المستخدم أو إنشاؤه
-            $user = User::where('phone', $validated['phone'])->first();
-
-            if (!$user) {
-                // إنشاء مستخدم جديد
-                $user = User::create([
-                    'name' => $validated['name'],
-                    'phone' => $validated['phone'],
-                    'password' => Hash::make(uniqid()), // كلمة مرور عشوائية
-                    'status' => 1,
-                ]);
-            } else {
-                // السماح بإعادة التسجيل بنفس رقم الهاتف: تحديث الاسم دائماً
-                $user->name = $validated['name'];
-                $user->save();
-            }
+            // إنشاء مستخدم جديد لكل تسجيل (السماح بتسجيل أكثر من مستخدم بنفس رقم الهاتف)
+            $user = User::create([
+                'name' => $validated['name'],
+                'phone' => $validated['phone'],
+                'password' => Hash::make(uniqid()),
+                'status' => 1,
+            ]);
 
             // معالجة بيانات خوي إذا كانت موجودة
             $brotherUser = null;
@@ -131,22 +122,15 @@ class CompetitionRegistrationController extends Controller
                 }
             }
 
-            // تسجيل المستخدم في المسابقة (أو تحديث التسجيل إن كان مسجلاً بنفس رقم الهاتف)
-            $registrationData = [
+            // تسجيل المستخدم في المسابقة (سجل جديد لكل تسجيل)
+            $registration = CompetitionRegistration::create([
+                'competition_id' => $competition->id,
+                'user_id' => $user->id,
+                'team_id' => null,
                 'has_brother' => !empty($brotherUser),
-            ];
-            if (empty($brotherUser)) {
-                $registrationData['team_id'] = null; // إزالة ربط الفريق عند التسجيل فردي
-            }
-            $registration = CompetitionRegistration::updateOrCreate(
-                [
-                    'competition_id' => $competition->id,
-                    'user_id' => $user->id,
-                ],
-                $registrationData
-            );
+            ]);
 
-            // ربط التصنيفات المختارة بالتسجيل (يُحدَّث حتى عند إعادة التسجيل بنفس الرقم)
+            // ربط التصنيفات المختارة بالتسجيل
             if ($request->has('category_ids') && is_array($request->category_ids)) {
                 $categoryIds = array_filter($request->category_ids);
                 // التحقق من أن التصنيفات المختارة موجودة في مسابقة
@@ -171,10 +155,7 @@ class CompetitionRegistrationController extends Controller
                     'is_complete' => false,
                 ]);
 
-                // تحديث التسجيل برقم الفريق
-                CompetitionRegistration::where('competition_id', $competition->id)
-                    ->where('user_id', $user->id)
-                    ->update(['team_id' => $team->id]);
+                $registration->update(['team_id' => $team->id]);
             }
 
             // إضافة المستخدم للفريق إذا كان موجوداً (أي إذا كان معه خوي)
@@ -288,27 +269,13 @@ class CompetitionRegistrationController extends Controller
         try {
             DB::beginTransaction();
 
-            // البحث عن المستخدم أو إنشاؤه
-            $user = User::where('phone', $validated['phone'])->first();
-
-            if (!$user) {
-                $user = User::create([
-                    'name' => $validated['name'],
-                    'phone' => $validated['phone'],
-                    'password' => Hash::make(uniqid()),
-                    'status' => 1,
-                ]);
-            } else {
-                if (empty($user->name)) {
-                    $user->name = $validated['name'];
-                }
-                $user->save();
-            }
-
-            // التحقق من أن المستخدم ليس في الفريق بالفعل
-            if ($team->members()->where('user_id', $user->id)->exists()) {
-                throw new \Exception('أنت مسجل بالفعل في هذا الفريق');
-            }
+            // إنشاء مستخدم جديد (السماح بنفس رقم الهاتف لأكثر من مستخدم)
+            $user = User::create([
+                'name' => $validated['name'],
+                'phone' => $validated['phone'],
+                'password' => Hash::make(uniqid()),
+                'status' => 1,
+            ]);
 
             // إضافة المستخدم للفريق
             $team->members()->attach($user->id, [
@@ -317,16 +284,12 @@ class CompetitionRegistrationController extends Controller
             ]);
 
             // تسجيل المستخدم في المسابقة
-            CompetitionRegistration::updateOrCreate(
-                [
-                    'competition_id' => $competition->id,
-                    'user_id' => $user->id,
-                ],
-                [
-                    'team_id' => $team->id,
-                    'has_brother' => false,
-                ]
-            );
+            CompetitionRegistration::create([
+                'competition_id' => $competition->id,
+                'user_id' => $user->id,
+                'team_id' => $team->id,
+                'has_brother' => false,
+            ]);
 
             // التحقق من اكتمال الفريق
             $team->checkCompletion();
