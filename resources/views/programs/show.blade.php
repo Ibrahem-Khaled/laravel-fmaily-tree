@@ -923,6 +923,7 @@
                                                                         <h5 class="font-bold text-gray-800 truncate mb-1">
                                                                             {{ $user->name }}
                                                                         </h5>
+                                                                        {{-- Phone numbers hidden for now
                                                                         @if ($user->phone)
                                                                             <p class="text-xs sm:text-sm text-gray-600 flex items-center gap-1">
                                                                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -931,6 +932,7 @@
                                                                                 {{ $user->phone }}
                                                                             </p>
                                                                         @endif
+                                                                        --}}
                                                                     </div>
                                                                 </div>
                                                                 @if ($userCategories->isNotEmpty())
@@ -1005,11 +1007,13 @@
                                                                                             <span class="text-purple-600 text-xs">(قائد)</span>
                                                                                         @endif
                                                                                     </h6>
+                                                                                    {{-- Phone numbers hidden for now
                                                                                     @if ($member->phone)
                                                                                         <p class="text-xs text-gray-600 truncate">
                                                                                             {{ $member->phone }}
                                                                                         </p>
                                                                                     @endif
+                                                                                    --}}
                                                                                 </div>
                                                                             </div>
                                                                             @if ($memberCategories->isNotEmpty())
