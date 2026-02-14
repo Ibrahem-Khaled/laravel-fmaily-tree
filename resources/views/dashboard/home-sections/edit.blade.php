@@ -477,7 +477,9 @@ const CSRF_TOKEN = '{{ csrf_token() }}';
 const SECTION_ID = {{ $homeSection->id }};
 const STORE_URL = '{{ route("dashboard.home-section-items.store", $homeSection) }}';
 const REORDER_URL = '{{ route("dashboard.home-section-items.reorder", $homeSection) }}';
-const ITEMS_BASE_URL = '/dashboard/home-sections/' + SECTION_ID + '/items';
+// Use server-generated URL so path is correct (subdirectory, APP_URL); append item id in editItem
+const ITEM_SHOW_URL_BASE = "{{ url(route('dashboard.home-section-items.show', [$homeSection, 0])) }}";
+const ITEM_SHOW_URL_TEMPLATE = ITEM_SHOW_URL_BASE.substring(0, ITEM_SHOW_URL_BASE.lastIndexOf('/') + 1);
 
 // ============================================
 // Item Type Configurations
@@ -547,7 +549,8 @@ function editItem(itemId) {
     const submitBtn = document.getElementById('itemFormSubmit');
     const modalBody = document.querySelector('#itemModal .modal-body');
     
-    form.action = ITEMS_BASE_URL + '/' + itemId;
+    var itemUrl = ITEM_SHOW_URL_TEMPLATE + itemId;
+    form.action = itemUrl;
     const oldMethod = form.querySelector('input[name="_method"]');
     if (oldMethod) oldMethod.remove();
     
@@ -556,9 +559,10 @@ function editItem(itemId) {
     if (submitBtn) submitBtn.disabled = true;
     $('#itemModal').modal('show');
     
-    fetch(ITEMS_BASE_URL + '/' + itemId, {
+    fetch(itemUrl, {
         method: 'GET',
-        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        credentials: 'same-origin'
     })
     .then(function(r) {
         if (!r.ok) throw new Error('فشل تحميل العنصر');
