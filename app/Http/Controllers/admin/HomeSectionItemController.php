@@ -68,6 +68,24 @@ class HomeSectionItemController extends Controller
     }
 
     /**
+     * جلب عنصر واحد (للمودال تعديل)
+     */
+    public function show(HomeSection $homeSection, HomeSectionItem $homeSectionItem)
+    {
+        if ($homeSectionItem->home_section_id !== $homeSection->id) {
+            abort(404);
+        }
+        return response()->json([
+            'id' => $homeSectionItem->id,
+            'item_type' => $homeSectionItem->item_type,
+            'content' => $homeSectionItem->content ?? [],
+            'settings' => $homeSectionItem->settings ?? [],
+            'media_url' => $homeSectionItem->image_url,
+            'youtube_url' => $homeSectionItem->youtube_url ?? '',
+        ]);
+    }
+
+    /**
      * تحديث عنصر
      */
     public function update(Request $request, HomeSection $homeSection, HomeSectionItem $homeSectionItem)

@@ -165,16 +165,20 @@
             color: #059669;
         }
 
+        /* الجدول يعرض بنفس اتجاه الإدخال من لوحة التحكم (LTR) وليس معكوساً بسبب RTL الصفحة */
         .program-description table {
             width: 100%;
             margin-bottom: 1rem;
             border-collapse: collapse;
+            direction: ltr;
+            text-align: left;
         }
 
         .program-description table td,
         .program-description table th {
             padding: 0.5rem;
             border: 1px solid #e5e7eb;
+            text-align: left;
         }
 
         .program-description img {

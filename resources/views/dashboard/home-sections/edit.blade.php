@@ -150,6 +150,22 @@
     /* ============================================ */
     .tox-tinymce { border-radius: 10px !important; border: 1px solid #d1d9e6 !important; }
     
+    /* HTML معاينة: عناصر قابلة للتعديل من المعاينة */
+    #htmlPreviewFrame .html-preview-editable {
+        outline: 1px dashed transparent;
+        border-radius: 4px;
+        transition: outline-color 0.15s, background-color 0.15s;
+    }
+    #htmlPreviewFrame .html-preview-editable:hover {
+        outline-color: #4e73df;
+        background-color: rgba(78, 115, 223, 0.06);
+    }
+    #htmlPreviewFrame .html-preview-editable:focus {
+        outline: 2px solid #4e73df;
+        outline-offset: 2px;
+        background-color: rgba(78, 115, 223, 0.08);
+    }
+    
     /* Empty State */
     .empty-items-state {
         text-align: center; padding: 60px 20px;
@@ -461,6 +477,7 @@ const CSRF_TOKEN = '{{ csrf_token() }}';
 const SECTION_ID = {{ $homeSection->id }};
 const STORE_URL = '{{ route("dashboard.home-section-items.store", $homeSection) }}';
 const REORDER_URL = '{{ route("dashboard.home-section-items.reorder", $homeSection) }}';
+const ITEMS_BASE_URL = '/dashboard/home-sections/' + SECTION_ID + '/items';
 
 // ============================================
 // Item Type Configurations
@@ -523,20 +540,51 @@ function openAddItemModal(type) {
 }
 
 // ============================================
-// Open Edit Item Modal
+// Open Edit Item Modal (load item via AJAX)
 // ============================================
-function editItem(itemId, type, content, settings, mediaUrl, youtubeUrl) {
-    const typeInfo = ITEM_TYPES[type] || { name: type, icon: 'fa-cube', color: '#333' };
-    
-    document.getElementById('itemModalTitle').innerHTML = 
-        '<i class="fas ' + typeInfo.icon + ' mr-2"></i>تعديل ' + typeInfo.name;
-    document.getElementById('modal_item_type').value = type;
-    
+function editItem(itemId) {
     const form = document.getElementById('itemForm');
-    form.action = '/dashboard/home-sections/' + SECTION_ID + '/items/' + itemId;
+    const submitBtn = document.getElementById('itemFormSubmit');
+    const modalBody = document.querySelector('#itemModal .modal-body');
     
-    renderModalContent(type, { content, settings, mediaUrl, youtubeUrl });
+    form.action = ITEMS_BASE_URL + '/' + itemId;
+    const oldMethod = form.querySelector('input[name="_method"]');
+    if (oldMethod) oldMethod.remove();
+    
+    document.getElementById('itemModalTitle').innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>جاري التحميل...';
+    document.getElementById('modal-content-area').innerHTML = '<div class="text-center py-5"><i class="fas fa-spinner fa-spin fa-2x text-primary"></i><p class="mt-3 text-muted">جاري تحميل بيانات العنصر</p></div>';
+    if (submitBtn) submitBtn.disabled = true;
     $('#itemModal').modal('show');
+    
+    fetch(ITEMS_BASE_URL + '/' + itemId, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(function(r) {
+        if (!r.ok) throw new Error('فشل تحميل العنصر');
+        return r.json();
+    })
+    .then(function(data) {
+        const type = data.item_type || 'text';
+        const typeInfo = ITEM_TYPES[type] || { name: type, icon: 'fa-cube', color: '#333' };
+        
+        document.getElementById('itemModalTitle').innerHTML = 
+            '<i class="fas ' + typeInfo.icon + ' mr-2"></i>تعديل ' + typeInfo.name;
+        document.getElementById('modal_item_type').value = type;
+        
+        renderModalContent(type, {
+            content: data.content || {},
+            settings: data.settings || {},
+            mediaUrl: data.media_url || '',
+            youtubeUrl: data.youtube_url || ''
+        });
+        if (submitBtn) submitBtn.disabled = false;
+    })
+    .catch(function(err) {
+        document.getElementById('itemModalTitle').innerHTML = '<i class="fas fa-exclamation-triangle text-warning mr-2"></i>خطأ';
+        document.getElementById('modal-content-area').innerHTML = '<div class="alert alert-danger"><i class="fas fa-times-circle mr-2"></i>لم يتم تحميل العنصر. تحقق من الاتصال وحاول مرة أخرى.</div>';
+        if (submitBtn) submitBtn.disabled = false;
+    });
 }
 
 // ============================================
@@ -779,13 +827,36 @@ function renderModalContent(type, data) {
             break;
             
         case 'html':
-            html = `
-                <div class="form-group">
-                    <label class="font-weight-bold"><i class="fas fa-code text-dark mr-1"></i>كود HTML</label>
-                    <textarea name="content[html]" class="form-control" rows="12" style="font-family: monospace; direction: ltr; text-align: left;">${content.html || ''}</textarea>
-                    <small class="form-text text-muted">يمكنك كتابة أي كود HTML مخصص هنا</small>
+            (function() {
+                var rawHtml = content.html || '';
+                var escaped = rawHtml.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$/g, '\\$');
+                html = `
+                <ul class="nav nav-tabs mb-3" id="htmlModalTabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="html-code-tab" data-toggle="tab" href="#html-code-pane" role="tab"><i class="fas fa-code mr-1"></i>كود HTML</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="html-preview-tab" data-toggle="tab" href="#html-preview-pane" role="tab"><i class="fas fa-eye mr-1"></i>معاينة</a>
+                    </li>
+                </ul>
+                <div class="tab-content" id="htmlModalTabContent">
+                    <div class="tab-pane fade show active" id="html-code-pane" role="tabpanel">
+                        <div class="form-group">
+                            <label class="font-weight-bold"><i class="fas fa-code text-dark mr-1"></i>كود HTML</label>
+                            <textarea name="content[html]" id="modal_html_content" class="form-control" rows="12" style="font-family: monospace; direction: ltr; text-align: left;">` + escaped + `</textarea>
+                            <small class="form-text text-muted">يمكنك كتابة أي كود HTML مخصص هنا. استخدم تبويب المعاينة لرؤية النتيجة.</small>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="html-preview-pane" role="tabpanel">
+                        <div class="form-group">
+                            <label class="font-weight-bold"><i class="fas fa-eye text-info mr-1"></i>معاينة مباشرة</label>
+                            <div id="htmlPreviewFrame" style="min-height: 280px; border: 1px solid #d1d9e6; border-radius: 10px; padding: 16px; background: #fff; direction: rtl; overflow: auto;"></div>
+                            <small class="form-text text-muted"><i class="fas fa-info-circle mr-1"></i>يمكنك النقر على أي عنوان أو فقرة أو نص في المعاينة وتعديله مباشرة دون لمس الكود؛ التعديلات تُحفظ تلقائياً في الكود.</small>
+                        </div>
+                    </div>
                 </div>
-            `;
+                `;
+            })();
             break;
             
         case 'spacer':
@@ -812,6 +883,11 @@ function renderModalContent(type, data) {
     // Initialize TinyMCE for rich_text
     if (type === 'rich_text') {
         setTimeout(initTinyMCE, 200);
+    }
+    
+    // Initialize live HTML preview
+    if (type === 'html') {
+        setTimeout(initHtmlPreview, 100);
     }
 }
 
@@ -860,6 +936,61 @@ function initTinyMCE() {
             });
         }
     });
+}
+
+// ============================================
+// HTML Live Preview (safe: strip scripts) + تعديل من المعاينة
+// ============================================
+function initHtmlPreview() {
+    var textarea = document.getElementById('modal_html_content');
+    var frame = document.getElementById('htmlPreviewFrame');
+    if (!textarea || !frame) return;
+    
+    var EDITABLE_SELECTOR = 'p, h1, h2, h3, h4, h5, h6, li, td, th, span, a, figcaption, label, blockquote';
+    
+    function stripScripts(html) {
+        if (!html) return '';
+        return html.replace(/<script\b[\s\S]*?<\/script>/gi, '');
+    }
+    
+    function makePreviewEditable() {
+        var nodes = frame.querySelectorAll(EDITABLE_SELECTOR);
+        nodes.forEach(function(el) {
+            el.setAttribute('contenteditable', 'true');
+            el.classList.add('html-preview-editable');
+        });
+    }
+    
+    function updatePreview() {
+        var raw = textarea.value || '';
+        var safe = stripScripts(raw);
+        frame.innerHTML = safe || '<span class="text-muted">لا يوجد محتوى للمعاينة</span>';
+        makePreviewEditable();
+    }
+    
+    function syncPreviewToTextarea() {
+        textarea.value = frame.innerHTML;
+    }
+    
+    var debounceTimer;
+    function debouncedUpdate() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(updatePreview, 300);
+    }
+    
+    var syncDebounceTimer;
+    function debouncedSyncToTextarea() {
+        clearTimeout(syncDebounceTimer);
+        syncDebounceTimer = setTimeout(syncPreviewToTextarea, 400);
+    }
+    
+    textarea.addEventListener('input', debouncedUpdate);
+    textarea.addEventListener('keyup', debouncedUpdate);
+    
+    frame.addEventListener('input', debouncedSyncToTextarea);
+    frame.addEventListener('blur', function() { syncPreviewToTextarea(); }, true);
+    
+    updatePreview();
 }
 
 // ============================================

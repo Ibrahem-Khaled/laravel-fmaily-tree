@@ -385,6 +385,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::post('home-sections/{homeSection}/duplicate', [\App\Http\Controllers\admin\HomeSectionController::class, 'duplicate'])->name('dashboard.home-sections.duplicate')->middleware(['permission:site-content.create']);
 
     // Home Section Items routes
+    Route::get('home-sections/{homeSection}/items/{homeSectionItem}', [\App\Http\Controllers\admin\HomeSectionItemController::class, 'show'])->name('dashboard.home-section-items.show')->middleware(['permission:site-content.view']);
     Route::post('home-sections/{homeSection}/items', [\App\Http\Controllers\admin\HomeSectionItemController::class, 'store'])->name('dashboard.home-section-items.store')->middleware(['permission:site-content.create']);
     Route::post('home-sections/{homeSection}/items/{homeSectionItem}', [\App\Http\Controllers\admin\HomeSectionItemController::class, 'update'])->name('dashboard.home-section-items.update')->middleware(['permission:site-content.update']);
     Route::delete('home-sections/{homeSection}/items/{homeSectionItem}', [\App\Http\Controllers\admin\HomeSectionItemController::class, 'destroy'])->name('dashboard.home-section-items.destroy')->middleware(['permission:site-content.delete']);

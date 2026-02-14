@@ -47,7 +47,7 @@
         </div>
         <div class="item-header-actions" onclick="event.stopPropagation()">
             <button type="button" class="btn btn-sm btn-outline-info" title="تعديل"
-                    onclick="editItem({{ $item->id }}, '{{ $item->item_type }}', {!! json_encode($content, JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_TAG) !!}, {!! json_encode($settings, JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_TAG) !!}, '{{ addslashes($item->image_url ?? '') }}', '{{ addslashes($item->youtube_url ?? '') }}')">
+                    onclick="event.stopPropagation(); editItem({{ $item->id }})">
                 <i class="fas fa-edit"></i>
             </button>
             <button type="button" class="btn btn-sm btn-outline-danger" title="حذف"
