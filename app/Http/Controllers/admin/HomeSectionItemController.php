@@ -72,7 +72,7 @@ class HomeSectionItemController extends Controller
      */
     public function show(HomeSection $homeSection, HomeSectionItem $homeSectionItem)
     {
-        if ($homeSectionItem->home_section_id !== $homeSection->id) {
+        if ((int) $homeSectionItem->home_section_id !== (int) $homeSection->id) {
             abort(404);
         }
         return response()->json([

@@ -565,7 +565,11 @@ function editItem(itemId) {
         credentials: 'same-origin'
     })
     .then(function(r) {
-        if (!r.ok) throw new Error('فشل تحميل العنصر');
+        if (!r.ok) {
+            return r.text().then(function(txt) {
+                throw new Error('HTTP ' + r.status + ': ' + txt.substring(0, 200));
+            });
+        }
         return r.json();
     })
     .then(function(data) {
@@ -585,8 +589,9 @@ function editItem(itemId) {
         if (submitBtn) submitBtn.disabled = false;
     })
     .catch(function(err) {
+        console.error('editItem fetch error:', err, 'URL:', itemUrl);
         document.getElementById('itemModalTitle').innerHTML = '<i class="fas fa-exclamation-triangle text-warning mr-2"></i>خطأ';
-        document.getElementById('modal-content-area').innerHTML = '<div class="alert alert-danger"><i class="fas fa-times-circle mr-2"></i>لم يتم تحميل العنصر. تحقق من الاتصال وحاول مرة أخرى.</div>';
+        document.getElementById('modal-content-area').innerHTML = '<div class="alert alert-danger"><i class="fas fa-times-circle mr-2"></i>لم يتم تحميل العنصر.<br><small class="text-muted">' + err.message + '</small><br><small class="text-muted">URL: ' + itemUrl + '</small></div>';
         if (submitBtn) submitBtn.disabled = false;
     });
 }
