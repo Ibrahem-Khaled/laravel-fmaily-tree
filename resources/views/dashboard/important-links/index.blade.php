@@ -37,7 +37,7 @@
 
     <!-- Statistics Cards -->
     <div class="row mb-4">
-        <div class="col-xl-4 col-md-6 mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-left-primary shadow h-100 py-2" style="border-left: 0.25rem solid #4e73df !important;">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -55,7 +55,7 @@
             </div>
         </div>
 
-        <div class="col-xl-4 col-md-6 mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-left-success shadow h-100 py-2" style="border-left: 0.25rem solid #1cc88a !important;">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -73,7 +73,7 @@
             </div>
         </div>
 
-        <div class="col-xl-4 col-md-6 mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-left-warning shadow h-100 py-2" style="border-left: 0.25rem solid #f6c23e !important;">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -90,7 +90,62 @@
                 </div>
             </div>
         </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2" style="border-left: 0.25rem solid #36b9cc !important;">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                بانتظار الموافقة
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['pending'] ?? 0 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+
+    @if(isset($pendingLinks) && $pendingLinks->count() > 0)
+        <div class="card shadow-sm border-0 mb-4 border-right-info" style="border-right: 4px solid #36b9cc !important;">
+            <div class="card-header bg-light">
+                <h6 class="mb-0 font-weight-bold text-info">
+                    <i class="fas fa-clock mr-2"></i>اقتراحات بانتظار الموافقة ({{ $pendingLinks->count() }})
+                </h6>
+            </div>
+            <div class="card-body p-4">
+                <div class="list-group">
+                    @foreach($pendingLinks as $link)
+                        <div class="list-group-item mb-2 border rounded">
+                            <div class="d-flex justify-content-between align-items-center flex-wrap">
+                                <div class="mb-2 mb-md-0">
+                                    <h6 class="font-weight-bold mb-1">{{ $link->title }}</h6>
+                                    <p class="mb-1 text-muted small">{{ $link->url }}</p>
+                                    @if($link->submitter)
+                                        <p class="mb-0 text-muted small"><span class="font-weight-bold">من أضافه:</span> {{ $link->submitter->name }} — {{ $link->submitter->phone ?? '-' }}</p>
+                                    @endif
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <form action="{{ route('dashboard.important-links.approve', $link) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        <button type="submit" class="btn btn-success btn-sm"><i class="fas fa-check mr-1"></i>اعتماد</button>
+                                    </form>
+                                    <form action="{{ route('dashboard.important-links.reject', $link) }}" method="POST" class="d-inline" onsubmit="return confirm('هل أنت متأكد من رفض هذا الاقتراح؟');">
+                                        @csrf
+                                        <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-times mr-1"></i>رفض</button>
+                                    </form>
+                                    <button type="button" class="btn btn-outline-info btn-sm" onclick="editLink({{ $link->id }})"><i class="fas fa-edit mr-1"></i>تعديل</button>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    @endif
 
     <!-- Links List -->
     @if($links->count() > 0)
@@ -128,9 +183,15 @@
                                                 <span class="badge badge-{{ $link->is_active ? 'success' : 'secondary' }} ml-2">
                                                     {{ $link->is_active ? 'نشط' : 'معطل' }}
                                                 </span>
+                                                <span class="badge badge-{{ ($link->status ?? 'approved') === 'pending' ? 'warning' : 'dark' }} ml-1">
+                                                    {{ ($link->type ?? 'website') === 'app' ? 'تطبيق' : 'موقع' }}
+                                                </span>
                                                 <span class="badge badge-dark ml-1">#{{ $link->order }}</span>
                                             </h6>
                                             <p class="mb-1 text-muted small">{{ $link->url }}</p>
+                                            @if($link->submitter)
+                                                <p class="mb-1 text-muted small"><span class="font-weight-bold">من أضافه:</span> {{ $link->submitter->name }}</p>
+                                            @endif
                                             @if($link->description)
                                                 <p class="mb-0 text-muted" style="font-size: 0.85rem;">{{ $link->description }}</p>
                                             @endif
@@ -200,7 +261,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form action="{{ route('dashboard.important-links.store') }}" method="POST" id="addForm">
+            <form action="{{ route('dashboard.important-links.store') }}" method="POST" id="addForm" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-body p-4">
                     <div class="form-group">
@@ -232,6 +293,14 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="type" class="font-weight-bold">النوع</label>
+                        <select name="type" id="type" class="form-control">
+                            <option value="website" {{ old('type', 'website') === 'website' ? 'selected' : '' }}>موقع</option>
+                            <option value="app" {{ old('type') === 'app' ? 'selected' : '' }}>تطبيق</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
                         <label for="icon" class="font-weight-bold">الأيقونة (اختياري)</label>
                         <input type="text" name="icon" id="icon"
                                class="form-control @error('icon') is-invalid @enderror"
@@ -257,6 +326,14 @@
                         </small>
                         @error('description')
                             <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="image" class="font-weight-bold">صورة (اختياري)</label>
+                        <input type="file" name="image" id="image" accept="image/*" class="form-control-file">
+                        @error('image')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
                         @enderror
                     </div>
 
@@ -303,7 +380,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form action="" method="POST" id="editForm">
+            <form action="" method="POST" id="editForm" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
                 <div class="modal-body p-4">
@@ -326,6 +403,14 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="edit_type" class="font-weight-bold">النوع</label>
+                        <select name="type" id="edit_type" class="form-control">
+                            <option value="website">موقع</option>
+                            <option value="app">تطبيق</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
                         <label for="edit_icon" class="font-weight-bold">الأيقونة (اختياري)</label>
                         <input type="text" name="icon" id="edit_icon"
                                class="form-control"
@@ -344,6 +429,19 @@
                         <small class="form-text text-muted">
                             <span id="editCharCount">0</span> / 1000 حرف
                         </small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit_image" class="font-weight-bold">صورة (اختياري - اترك فارغاً للإبقاء على الحالية)</label>
+                        <input type="file" name="image" id="edit_image" accept="image/*" class="form-control-file">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit_status" class="font-weight-bold">الحالة</label>
+                        <select name="status" id="edit_status" class="form-control">
+                            <option value="pending">بانتظار الموافقة</option>
+                            <option value="approved">معتمد</option>
+                        </select>
                     </div>
 
                     <div class="form-group">
@@ -417,19 +515,24 @@
     }
 
     function editLink(id) {
-        const link = @json($links->keyBy('id'));
-        const linkData = link[id];
+        const approvedLinks = @json($links->keyBy('id'));
+        const pendingLinks = @json(isset($pendingLinks) ? $pendingLinks->keyBy('id') : collect());
+        const allLinks = { ...approvedLinks, ...pendingLinks };
+        const linkData = allLinks[id];
 
         if (!linkData) return;
 
         document.getElementById('editForm').action = '{{ route("dashboard.important-links.update", ":id") }}'.replace(':id', id);
         document.getElementById('edit_title').value = linkData.title;
         document.getElementById('edit_url').value = linkData.url;
+        document.getElementById('edit_type').value = linkData.type || 'website';
         document.getElementById('edit_icon').value = linkData.icon || 'fas fa-link';
         document.getElementById('edit_description').value = linkData.description || '';
+        document.getElementById('edit_status').value = linkData.status || 'approved';
         document.getElementById('edit_is_active').checked = linkData.is_active;
         document.getElementById('edit_open_in_new_tab').checked = linkData.open_in_new_tab;
         document.getElementById('editCharCount').textContent = (linkData.description || '').length;
+        document.getElementById('edit_image').value = '';
 
         $('#editModal').modal('show');
     }

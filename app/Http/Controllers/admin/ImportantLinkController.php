@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\ImportantLink;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class ImportantLinkController extends Controller
 {
@@ -14,16 +16,17 @@ class ImportantLinkController extends Controller
      */
     public function index()
     {
-        $links = ImportantLink::orderBy('order')->get();
+        $links = ImportantLink::with('submitter')->where('status', 'approved')->orderBy('order')->get();
+        $pendingLinks = ImportantLink::with('submitter')->where('status', 'pending')->orderBy('created_at', 'desc')->get();
 
-        // إحصائيات
         $stats = [
             'total' => ImportantLink::count(),
             'active' => ImportantLink::where('is_active', true)->count(),
             'inactive' => ImportantLink::where('is_active', false)->count(),
+            'pending' => ImportantLink::where('status', 'pending')->count(),
         ];
 
-        return view('dashboard.important-links.index', compact('links', 'stats'));
+        return view('dashboard.important-links.index', compact('links', 'pendingLinks', 'stats'));
     }
 
     /**
@@ -34,22 +37,31 @@ class ImportantLinkController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'url' => 'required|url|max:500',
+            'type' => ['nullable', Rule::in(['app', 'website'])],
             'icon' => 'nullable|string|max:100',
             'description' => 'nullable|string|max:1000',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'open_in_new_tab' => 'nullable|boolean',
         ]);
 
-        // الحصول على آخر ترتيب
         $lastOrder = ImportantLink::max('order') ?? 0;
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('important-links', 'public');
+        }
 
         ImportantLink::create([
             'title' => $request->title,
             'url' => $request->url,
+            'type' => $request->type ?? 'website',
             'icon' => $request->icon ?? 'fas fa-link',
             'description' => $request->description,
+            'image' => $imagePath,
+            'submitted_by_user_id' => $request->submitted_by_user_id ?: null,
+            'status' => 'approved',
             'order' => $lastOrder + 1,
-            'is_active' => $request->has('is_active') ? true : false,
-            'open_in_new_tab' => $request->has('open_in_new_tab') ? true : false,
+            'is_active' => $request->has('is_active'),
+            'open_in_new_tab' => $request->has('open_in_new_tab'),
         ]);
 
         return redirect()->route('dashboard.important-links.index')
@@ -64,22 +76,61 @@ class ImportantLinkController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'url' => 'required|url|max:500',
+            'type' => ['nullable', Rule::in(['app', 'website'])],
             'icon' => 'nullable|string|max:100',
             'description' => 'nullable|string|max:1000',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'status' => ['nullable', Rule::in(['pending', 'approved'])],
             'open_in_new_tab' => 'nullable|boolean',
         ]);
 
-        $importantLink->update([
+        $data = [
             'title' => $request->title,
             'url' => $request->url,
+            'type' => $request->type ?? 'website',
             'icon' => $request->icon ?? 'fas fa-link',
             'description' => $request->description,
-            'is_active' => $request->has('is_active') ? true : false,
-            'open_in_new_tab' => $request->has('open_in_new_tab') ? true : false,
-        ]);
+            'status' => $request->status ?? $importantLink->status,
+            'is_active' => $request->has('is_active'),
+            'open_in_new_tab' => $request->has('open_in_new_tab'),
+        ];
+
+        if ($request->hasFile('image')) {
+            if ($importantLink->image) {
+                Storage::disk('public')->delete($importantLink->image);
+            }
+            $data['image'] = $request->file('image')->store('important-links', 'public');
+        }
+
+        $importantLink->update($data);
 
         return redirect()->route('dashboard.important-links.index')
             ->with('success', 'تم تحديث الرابط بنجاح');
+    }
+
+    /**
+     * اعتماد اقتراح رابط
+     */
+    public function approve(ImportantLink $importantLink)
+    {
+        $importantLink->update([
+            'status' => 'approved',
+            'is_active' => true,
+        ]);
+
+        return redirect()->route('dashboard.important-links.index')
+            ->with('success', 'تم اعتماد الرابط بنجاح');
+    }
+
+    /**
+     * رفض اقتراح رابط (حذف)
+     */
+    public function reject(ImportantLink $importantLink)
+    {
+        $importantLink->delete();
+
+        return redirect()->route('dashboard.important-links.index')
+            ->with('success', 'تم رفض الاقتراح');
     }
 
     /**

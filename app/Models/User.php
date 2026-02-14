@@ -109,4 +109,12 @@ class User extends Authenticatable implements AuditableContract
     {
         return $this->hasMany(WalkingRecord::class);
     }
+
+    /**
+     * الروابط المهمة التي اقترحها المستخدم
+     */
+    public function suggestedImportantLinks()
+    {
+        return $this->hasMany(ImportantLink::class, 'submitted_by_user_id');
+    }
 }

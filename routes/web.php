@@ -63,6 +63,10 @@ Route::get('/article/{id}', [GalleryController::class, 'show'])->name('article.s
 Route::get('/gallery/articles', [GalleryController::class, 'articles'])->name('gallery.articles');
 Route::get('/person-gallery/{person}', [GalleryController::class, 'personGallery'])->name('person.gallery');
 
+// الروابط المهمة (تطبيقات ومواقع) - صفحة عامة
+Route::get('/important-links', [\App\Http\Controllers\ImportantLinksPublicController::class, 'index'])->name('important-links.index');
+Route::post('/important-links/suggest', [\App\Http\Controllers\ImportantLinksPublicController::class, 'suggest'])->name('important-links.suggest');
+
 // Invitations (الدعوات) - Public
 Route::prefix('invitations')->name('invitations.')->group(function () {
     Route::get('/', [\App\Http\Controllers\InvitationController::class, 'loginIndex'])->name('index');
@@ -351,6 +355,8 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::post('important-links/reorder', [\App\Http\Controllers\admin\ImportantLinkController::class, 'reorder'])->name('dashboard.important-links.reorder')->middleware(['permission:site-content.update']);
     Route::delete('important-links/{importantLink}', [\App\Http\Controllers\admin\ImportantLinkController::class, 'destroy'])->name('dashboard.important-links.destroy')->middleware(['permission:site-content.update']);
     Route::post('important-links/{importantLink}/toggle', [\App\Http\Controllers\admin\ImportantLinkController::class, 'toggle'])->name('dashboard.important-links.toggle')->middleware(['permission:site-content.update']);
+    Route::post('important-links/{importantLink}/approve', [\App\Http\Controllers\admin\ImportantLinkController::class, 'approve'])->name('dashboard.important-links.approve')->middleware(['permission:site-content.update']);
+    Route::post('important-links/{importantLink}/reject', [\App\Http\Controllers\admin\ImportantLinkController::class, 'reject'])->name('dashboard.important-links.reject')->middleware(['permission:site-content.update']);
 
     // Site Password Settings routes
     Route::get('site-password-settings', [\App\Http\Controllers\admin\SitePasswordSettingsController::class, 'index'])->name('dashboard.site-password-settings.index')->middleware(['permission:site-content.view']);

@@ -160,12 +160,7 @@
                             <i class="fas fa-fw fa-star"></i> نفتخر بهم
                         </a>
                     @endcan
-                    @can('site-content.view')
-                        <a class="collapse-item {{ request()->routeIs('dashboard.important-links.*') ? 'active' : '' }}"
-                            href="{{ route('dashboard.important-links.index') }}">
-                            <i class="fas fa-fw fa-link"></i> الروابط المهمة
-                        </a>
-                    @endcan
+
                     @can('councils.view')
                         <a class="collapse-item {{ request()->routeIs('dashboard.councils.*') ? 'active' : '' }}"
                             href="{{ route('dashboard.councils.index') }}">
@@ -206,11 +201,15 @@
             auth()->user()->can('stories.view'))
         <li
             class="nav-item {{ request()->routeIs(['articles.*', 'categories.*', 'dashboard.images.*', 'stories.*', 'dashboard.competitions.*', 'dashboard.quran-competitions.*', 'dashboard.quiz-competitions.*']) ? 'active' : '' }}">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseContent"
+            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseContent"
                 aria-expanded="{{ request()->routeIs(['articles.*', 'categories.*', 'dashboard.images.*', 'stories.*', 'dashboard.competitions.*', 'dashboard.quran-competitions.*', 'dashboard.quiz-competitions.*']) ? 'true' : 'false' }}"
                 aria-controls="collapseContent">
                 <i class="fas fa-fw fa-folder"></i>
                 <span>المحتوى والوسائط</span>
+                @if (isset($pendingImportantLinksCount) && $pendingImportantLinksCount > 0)
+                    <span class="badge badge-danger badge-counter" title="روابط مهمة بانتظار الموافقة"
+                        style="font-size: 0.7rem; padding: 0.2rem 0.45rem; border-radius: 0.35rem; margin-right: 0.5rem;">{{ $pendingImportantLinksCount }}</span>
+                @endif
             </a>
             <div id="collapseContent"
                 class="collapse {{ request()->routeIs(['articles.*', 'categories.*', 'dashboard.images.*', 'stories.*', 'dashboard.competitions.*', 'dashboard.quran-competitions.*', 'dashboard.quiz-competitions.*']) ? 'show' : '' }}"
@@ -239,6 +238,17 @@
                         <a class="collapse-item {{ request()->routeIs('stories.*') ? 'active' : '' }}"
                             href="{{ route('stories.index') }}">
                             <i class="fas fa-fw fa-book-open"></i> القصص
+                        </a>
+                    @endcan
+
+                    @can('site-content.view')
+                        <a class="collapse-item {{ request()->routeIs('dashboard.important-links.*') ? 'active' : '' }}"
+                            href="{{ route('dashboard.important-links.index') }}">
+                            <i class="fas fa-fw fa-link"></i> الروابط المهمة
+                            @if (isset($pendingImportantLinksCount) && $pendingImportantLinksCount > 0)
+                                <span class="badge badge-danger badge-counter float-left" title="اقتراحات بانتظار الموافقة"
+                                    style="font-size: 0.7rem; padding: 0.2rem 0.45rem; border-radius: 0.35rem;">{{ $pendingImportantLinksCount }}</span>
+                            @endif
                         </a>
                     @endcan
 
@@ -320,10 +330,10 @@
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">إدارة الصحة واللياقة:</h6>
                 @can('walking-program.view')
-                <a class="collapse-item {{ request()->routeIs('dashboard.walking.*') ? 'active' : '' }}"
-                    href="{{ route('dashboard.walking.index') }}">
-                    <i class="fas fa-fw fa-walking"></i> برنامج المشي
-                </a>
+                    <a class="collapse-item {{ request()->routeIs('dashboard.walking.*') ? 'active' : '' }}"
+                        href="{{ route('dashboard.walking.index') }}">
+                        <i class="fas fa-fw fa-walking"></i> برنامج المشي
+                    </a>
                 @endcan
                 <a class="collapse-item {{ request()->routeIs('dashboard.rental-requests.*') ? 'active' : '' }}"
                     href="{{ route('dashboard.rental-requests.index') }}">
@@ -346,7 +356,8 @@
 
     <!-- Nav Item - Notifications Collapse -->
     @can('notifications.view')
-        <li class="nav-item {{ request()->routeIs(['dashboard.notifications.*', 'dashboard.notification-groups.*']) ? 'active' : '' }}">
+        <li
+            class="nav-item {{ request()->routeIs(['dashboard.notifications.*', 'dashboard.notification-groups.*']) ? 'active' : '' }}">
             <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseNotifications"
                 aria-expanded="{{ request()->routeIs(['dashboard.notifications.*', 'dashboard.notification-groups.*']) ? 'true' : 'false' }}"
                 aria-controls="collapseNotifications">
@@ -363,16 +374,16 @@
                         <i class="fas fa-fw fa-home"></i> الرئيسية
                     </a>
                     @can('notifications.send')
-                    <a class="collapse-item {{ request()->routeIs('dashboard.notifications.send') ? 'active' : '' }}"
-                        href="{{ route('dashboard.notifications.send') }}">
-                        <i class="fas fa-fw fa-paper-plane"></i> إرسال دعوة واتساب
-                    </a>
+                        <a class="collapse-item {{ request()->routeIs('dashboard.notifications.send') ? 'active' : '' }}"
+                            href="{{ route('dashboard.notifications.send') }}">
+                            <i class="fas fa-fw fa-paper-plane"></i> إرسال دعوة واتساب
+                        </a>
                     @endcan
                     @can('notifications.manage-groups')
-                    <a class="collapse-item {{ request()->routeIs('dashboard.notification-groups.*') ? 'active' : '' }}"
-                        href="{{ route('dashboard.notification-groups.index') }}">
-                        <i class="fas fa-fw fa-users"></i> المجموعات
-                    </a>
+                        <a class="collapse-item {{ request()->routeIs('dashboard.notification-groups.*') ? 'active' : '' }}"
+                            href="{{ route('dashboard.notification-groups.index') }}">
+                            <i class="fas fa-fw fa-users"></i> المجموعات
+                        </a>
                     @endcan
                     <a class="collapse-item {{ request()->routeIs('dashboard.notifications.logs') ? 'active' : '' }}"
                         href="{{ route('dashboard.notifications.logs') }}">
