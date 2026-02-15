@@ -970,6 +970,18 @@ function initHtmlPreview() {
         });
     }
     
+    function getCleanPreviewHtml() {
+        var clone = frame.cloneNode(true);
+        clone.removeAttribute('contenteditable');
+        clone.classList.remove('html-preview-editable');
+        var all = clone.querySelectorAll('*');
+        all.forEach(function(el) {
+            el.removeAttribute('contenteditable');
+            el.classList.remove('html-preview-editable');
+        });
+        return clone.innerHTML;
+    }
+    
     function updatePreview() {
         var raw = textarea.value || '';
         var safe = stripScripts(raw);
@@ -978,7 +990,7 @@ function initHtmlPreview() {
     }
     
     function syncPreviewToTextarea() {
-        textarea.value = frame.innerHTML;
+        textarea.value = getCleanPreviewHtml();
     }
     
     var debounceTimer;

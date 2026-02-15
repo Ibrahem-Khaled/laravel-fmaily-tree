@@ -41,6 +41,11 @@ class HomeSectionItemController extends Controller
             $content['html'] = clean_html($content['html'] ?? '');
         }
         
+        // عناصر HTML المخصص: إزالة contenteditable وكلاس المعاينة حتى لا تظهر للتعديل على الصفحة العامة
+        if ($request->item_type === 'html' && isset($content['html'])) {
+            $content['html'] = strip_contenteditable_from_html($content['html'] ?? '');
+        }
+        
         // للجداول، التأكد من البيانات
         if ($request->item_type === 'table' && isset($content['table_data'])) {
             // table_data يأتي كـ JSON string
@@ -116,6 +121,10 @@ class HomeSectionItemController extends Controller
         
         if ($request->item_type === 'rich_text' && isset($content['html'])) {
             $content['html'] = clean_html($content['html'] ?? '');
+        }
+        
+        if ($request->item_type === 'html' && isset($content['html'])) {
+            $content['html'] = strip_contenteditable_from_html($content['html'] ?? '');
         }
         
         if ($request->item_type === 'table' && isset($content['table_data'])) {

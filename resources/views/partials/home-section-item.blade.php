@@ -161,7 +161,7 @@
 {{-- ======================== HTML CUSTOM ======================== --}}
 @elseif ($item->item_type === 'html' && isset($content['html']) && !empty(trim($content['html'])))
     <div class="dynamic-html-content" style="direction: rtl;">
-        {!! $content['html'] !!}
+        {!! strip_contenteditable_from_html($content['html']) !!}
     </div>
 
 {{-- ======================== SPACER / DIVIDER ======================== --}}
