@@ -1562,4 +1562,5 @@
             setInterval(updateTimer, 1000);
         })();
         @endif
+    </script>
 @endpush
