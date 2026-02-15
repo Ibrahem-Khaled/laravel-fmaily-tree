@@ -282,7 +282,7 @@ class HomeController extends Controller
             ->with('questions.choices')
             ->first();
 
-        return view('home', [
+        return view('web-site.home', [
             'latestImages' => $slideshowImages,
             'latestGalleryImages' => $latestGalleryImages,
             'familyBrief' => $familyBrief,

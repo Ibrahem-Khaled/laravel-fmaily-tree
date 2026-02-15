@@ -160,7 +160,7 @@
             const link = linksData[id];
             if (!link) return;
             const isApp = link.type === 'app';
-            const submitterHtml = link.submitter ? `<p class="text-sm text-gray-600 mt-2"><span class="font-bold">من أضافه:</span> ${link.submitter.name}${link.submitter.phone ? ' — ' + link.submitter.phone : ''}</p>` : '';
+            const submitterHtml = link.submitter ? `<p class="text-sm text-gray-600 mt-2"><span class="font-bold">من أضافه:</span> ${link.submitter.name}</p>` : '';
             document.getElementById('detailBody').innerHTML = `
                 <div class="mb-4 rounded-2xl overflow-hidden bg-gray-100 h-48">
                     <img src="${link.image_url}" alt="${link.title}" class="w-full h-full object-contain" onerror="this.style.display='none'">
