@@ -1201,113 +1201,70 @@
 @endsection
 
 @push('scripts')
-    <!-- Swiper JS -->
-    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script>
-        // Hero Slideshow
         document.addEventListener('DOMContentLoaded', function() {
-            const totalSlides = {{ $latestImages->count() ?? 0 }};
-            if (totalSlides > 0) {
+            var totalSlides = {{ $latestImages->count() ?? 0 }};
+            var totalImages = {{ $latestGalleryImages->count() ?? 0 }};
+            var totalCourses = {{ $courses->count() ?? 0 }};
+
+            // Hero Slideshow
+            if (totalSlides > 0 && typeof Swiper !== 'undefined') {
                 new Swiper('.heroSwiper', {
                     slidesPerView: 1,
                     spaceBetween: 0,
                     loop: totalSlides > 1,
-                    autoplay: {
-                        delay: 5000,
-                        disableOnInteraction: false,
-                    },
+                    autoplay: { delay: 5000, disableOnInteraction: false },
                     effect: 'fade',
-                    fadeEffect: {
-                        crossFade: true
-                    },
+                    fadeEffect: { crossFade: true },
                     speed: 1000,
-                    pagination: {
-                        el: '.hero-pagination',
-                        clickable: true,
-                        dynamicBullets: true,
-                    },
-                    navigation: {
-                        nextEl: '.hero-next',
-                        prevEl: '.hero-prev',
-                    },
-                    keyboard: {
-                        enabled: true,
-                    },
+                    pagination: { el: '.hero-pagination', clickable: true, dynamicBullets: true },
+                    navigation: { nextEl: '.hero-next', prevEl: '.hero-prev' },
+                    keyboard: { enabled: true },
                 });
             }
-        });
 
-        // Gallery Swiper
-        document.addEventListener('DOMContentLoaded', function() {
-            const totalImages = {{ $latestGalleryImages->count() ?? 0 }};
-            if (totalImages > 0) {
-                new Swiper('.gallerySwiper', {
-                    slidesPerView: 2,
-                    spaceBetween: 15,
-                    loop: totalImages > 4,
-                    autoplay: {
-                        delay: 4000,
-                        disableOnInteraction: false,
-                    },
-                    pagination: {
-                        el: '.gallery-pagination',
-                        clickable: true,
-                        dynamicBullets: true,
-                    },
-                    navigation: {
-                        nextEl: '.gallery-next',
-                        prevEl: '.gallery-prev',
-                    },
-                    breakpoints: {
-                        640: {
-                            slidesPerView: 3,
-                            spaceBetween: 20,
-                        },
-                        1024: {
-                            slidesPerView: 4,
-                            spaceBetween: 24,
-                        },
-                        1280: {
-                            slidesPerView: 5,
-                            spaceBetween: 24,
-                        },
-                    },
-                });
-            }
-        });
-
-        // Courses Swiper
-        document.addEventListener('DOMContentLoaded', function() {
-            const totalCourses = {{ $courses->count() ?? 0 }};
-            if (totalCourses > 0) {
-                new Swiper('.coursesSwiper', {
-                    slidesPerView: 1,
-                    spaceBetween: 20,
-                    loop: totalCourses > 3,
-                    autoplay: {
-                        delay: 5000,
-                        disableOnInteraction: false,
-                    },
-                    pagination: {
-                        el: '.courses-pagination',
-                        clickable: true,
-                        dynamicBullets: true,
-                    },
-                    navigation: {
-                        nextEl: '.courses-next',
-                        prevEl: '.courses-prev',
-                    },
-                    breakpoints: {
-                        640: {
+            // Gallery & Courses: init after layout/paint so Swiper gets correct dimensions
+            function initGalleryAndCourses() {
+                if (totalImages > 0 && typeof Swiper !== 'undefined') {
+                    var galleryEl = document.querySelector('.gallerySwiper');
+                    if (galleryEl) {
+                        new Swiper('.gallerySwiper', {
                             slidesPerView: 2,
+                            spaceBetween: 15,
+                            loop: totalImages > 4,
+                            autoplay: { delay: 4000, disableOnInteraction: false },
+                            pagination: { el: '.gallery-pagination', clickable: true, dynamicBullets: true },
+                            navigation: { nextEl: '.gallery-next', prevEl: '.gallery-prev' },
+                            breakpoints: {
+                                640: { slidesPerView: 3, spaceBetween: 20 },
+                                1024: { slidesPerView: 4, spaceBetween: 24 },
+                                1280: { slidesPerView: 5, spaceBetween: 24 },
+                            },
+                        });
+                    }
+                }
+                if (totalCourses > 0 && typeof Swiper !== 'undefined') {
+                    var coursesEl = document.querySelector('.coursesSwiper');
+                    if (coursesEl) {
+                        new Swiper('.coursesSwiper', {
+                            slidesPerView: 1,
                             spaceBetween: 20,
-                        },
-                        1024: {
-                            slidesPerView: 3,
-                            spaceBetween: 24,
-                        },
-                    },
-                });
+                            loop: totalCourses > 3,
+                            autoplay: { delay: 5000, disableOnInteraction: false },
+                            pagination: { el: '.courses-pagination', clickable: true, dynamicBullets: true },
+                            navigation: { nextEl: '.courses-next', prevEl: '.courses-prev' },
+                            breakpoints: {
+                                640: { slidesPerView: 2, spaceBetween: 20 },
+                                1024: { slidesPerView: 3, spaceBetween: 24 },
+                            },
+                        });
+                    }
+                }
+            }
+            if (window.requestAnimationFrame) {
+                requestAnimationFrame(function() { setTimeout(initGalleryAndCourses, 50); });
+            } else {
+                setTimeout(initGalleryAndCourses, 100);
             }
         });
 

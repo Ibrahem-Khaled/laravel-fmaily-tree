@@ -23,7 +23,7 @@ class SitePasswordController extends Controller
         }
 
         $passwordLength = config('site.password_length', 6);
-        return view('site-password', compact('passwordLength'));
+        return view('web-site.site-password', compact('passwordLength'));
     }
 
     /**
