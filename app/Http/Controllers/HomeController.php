@@ -146,6 +146,11 @@ class HomeController extends Controller
                 ->get();
         }
 
+        // إخفاء المناسبات التي مرّ على تاريخها أكثر من 24 ساعة
+        $events = $events->filter(function ($event) {
+            return $event->event_date->gte(now()->subHours(24));
+        })->values();
+
         // جلب الأشخاص الذين ولدوا في مثل هذا اليوم (نفس اليوم والشهر)
         $today = now();
         $birthdayPersons = Person::whereNotNull('birth_date')

@@ -26,7 +26,10 @@
         color: white;
     }
     .password-digit-pw {
-        width: 60px;
+        flex: 1 1 0;
+        min-width: 0;
+        max-width: 60px;
+        width: 100%;
         height: 70px;
         text-align: center;
         font-size: 2rem;
@@ -35,6 +38,13 @@
         border-radius: 12px;
         background: white;
         transition: all 0.3s ease;
+    }
+    @media (max-width: 640px) {
+        .password-digit-pw {
+            height: 56px;
+            font-size: 1.5rem;
+            border-radius: 10px;
+        }
     }
     .password-digit-pw:focus {
         border-color: var(--site-pw-primary);
@@ -103,7 +113,7 @@
                         <form action="{{ route('site.password.verify') }}" method="POST" id="passwordForm">
                             @csrf
                             <p class="text-center text-gray-600 text-sm mb-4">أدخل {{ $passwordLength }} أرقام</p>
-                            <div class="flex justify-center gap-3 flex-wrap mb-6" id="passwordContainer" dir="ltr">
+                            <div class="flex justify-center gap-2 flex-nowrap mb-6" id="passwordContainer" dir="ltr">
                                 @for($i = 0; $i < $passwordLength; $i++)
                                     <input type="text"
                                            class="password-digit-pw"

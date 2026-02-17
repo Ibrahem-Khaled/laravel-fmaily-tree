@@ -175,9 +175,9 @@
                 {{-- عنوان القسم --}}
                 <div class="text-right mb-3 md:mb-5">
                     <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">
-                        مسابقات الأسئلة
+                        المسابقة الرمضانية
                     </h2>
-                    <p class="text-gray-600 text-xs md:text-sm mt-1">شارك وأجب على الأسئلة واربح جوائز قيمة</p>
+                    {{-- <p class="text-gray-600 text-xs md:text-sm mt-1">شارك وأجب على الأسئلة واربح جوائز قيمة</p> --}}
                 </div>
 
                 {{-- آخر مسابقة فعالة: عرض الأسئلة أو العد التنازلي لانتهاء المسابقة --}}
@@ -211,12 +211,12 @@
                             <div class="flex flex-wrap items-center gap-2 mb-3 text-gray-500 text-sm">
                                 <i class="fas fa-hourglass-half text-amber-500"></i>
                                 <span>ينتهي بعد:</span>
-                                <div class="flex gap-1" id="activeQuestionTimer">
-                                    <span class="bg-gray-100 rounded-lg px-2 py-1 text-gray-800 font-bold text-sm min-w-[2rem] text-center" id="aq-hours">00</span>
+                                <div class="flex gap-1 flex-row" id="activeQuestionTimer">
+                                    <span class="bg-gray-100 rounded-lg px-2 py-1 text-gray-800 font-bold text-sm min-w-[2rem] text-center" id="aq-seconds">00</span>
                                     <span class="text-gray-400 font-bold">:</span>
                                     <span class="bg-gray-100 rounded-lg px-2 py-1 text-gray-800 font-bold text-sm min-w-[2rem] text-center" id="aq-minutes">00</span>
                                     <span class="text-gray-400 font-bold">:</span>
-                                    <span class="bg-gray-100 rounded-lg px-2 py-1 text-gray-800 font-bold text-sm min-w-[2rem] text-center" id="aq-seconds">00</span>
+                                    <span class="bg-gray-100 rounded-lg px-2 py-1 text-gray-800 font-bold text-sm min-w-[2rem] text-center" id="aq-hours">00</span>
                                 </div>
                                 <input type="hidden" id="aqEndTime" value="{{ $activeQuizCompetition->end_at->getTimestamp() * 1000 }}">
                             </div>
@@ -333,18 +333,12 @@
                             </div>
                             <p class="text-gray-600 text-sm mb-3">{{ Str::limit($nextQuizEvent['title'], 100) }}</p>
 
-                            <div class="flex justify-center gap-2 md:gap-4 mb-3" id="quizCountdown">
+                            <div class="flex justify-center gap-2 md:gap-4 mb-3 flex-row" id="quizCountdown">
                                 <div class="text-center">
                                     <div class="w-14 h-14 md:w-18 md:h-18 rounded-2xl flex items-center justify-center mb-1 bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200">
-                                        <span class="text-xl md:text-2xl font-bold text-green-600" id="countdown-days">0</span>
+                                        <span class="text-xl md:text-2xl font-bold text-green-600" id="countdown-seconds">0</span>
                                     </div>
-                                    <p class="text-gray-500 text-[10px] md:text-xs">يوم</p>
-                                </div>
-                                <div class="text-center">
-                                    <div class="w-14 h-14 md:w-18 md:h-18 rounded-2xl flex items-center justify-center mb-1 bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200">
-                                        <span class="text-xl md:text-2xl font-bold text-green-600" id="countdown-hours">0</span>
-                                    </div>
-                                    <p class="text-gray-500 text-[10px] md:text-xs">ساعة</p>
+                                    <p class="text-gray-500 text-[10px] md:text-xs">ثانية</p>
                                 </div>
                                 <div class="text-center">
                                     <div class="w-14 h-14 md:w-18 md:h-18 rounded-2xl flex items-center justify-center mb-1 bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200">
@@ -354,9 +348,15 @@
                                 </div>
                                 <div class="text-center">
                                     <div class="w-14 h-14 md:w-18 md:h-18 rounded-2xl flex items-center justify-center mb-1 bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200">
-                                        <span class="text-xl md:text-2xl font-bold text-green-600" id="countdown-seconds">0</span>
+                                        <span class="text-xl md:text-2xl font-bold text-green-600" id="countdown-hours">0</span>
                                     </div>
-                                    <p class="text-gray-500 text-[10px] md:text-xs">ثانية</p>
+                                    <p class="text-gray-500 text-[10px] md:text-xs">ساعة</p>
+                                </div>
+                                <div class="text-center">
+                                    <div class="w-14 h-14 md:w-18 md:h-18 rounded-2xl flex items-center justify-center mb-1 bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200">
+                                        <span class="text-xl md:text-2xl font-bold text-green-600" id="countdown-days">0</span>
+                                    </div>
+                                    <p class="text-gray-500 text-[10px] md:text-xs">يوم</p>
                                 </div>
                             </div>
                             <input type="hidden" id="quizCountdownTarget" value="{{ $nextQuizEvent['target_at']->getTimestamp() * 1000 }}">
