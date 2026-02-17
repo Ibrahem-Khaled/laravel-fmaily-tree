@@ -1517,8 +1517,8 @@
                     hoursEl.textContent = '0';
                     minutesEl.textContent = '0';
                     secondsEl.textContent = '0';
-                    const section = document.getElementById('quizCountdownSection');
-                    if (section) section.style.display = 'none';
+                    // إعادة تحميل الصفحة لعرض المسابقة النشطة
+                    window.location.reload();
                     return;
                 }
                 const days = Math.floor(diff / (1000 * 60 * 60 * 24));
