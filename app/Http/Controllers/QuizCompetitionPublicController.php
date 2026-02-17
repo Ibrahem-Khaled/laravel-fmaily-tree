@@ -9,7 +9,9 @@ use App\Models\QuizRegistration;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Response;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
@@ -40,7 +42,7 @@ class QuizCompetitionPublicController extends Controller
         return view('quiz-competitions.show', compact('quizCompetition', 'questions', 'upcomingQuestions', 'endedQuestions'));
     }
 
-    public function question(QuizCompetition $quizCompetition, QuizQuestion $quizQuestion): View|RedirectResponse
+    public function question(QuizCompetition $quizCompetition, QuizQuestion $quizQuestion): View|RedirectResponse|Response
     {
         // if ($quizQuestion->quiz_competition_id !== $quizCompetition->id) {
         //     abort(404);
@@ -65,10 +67,47 @@ class QuizCompetitionPublicController extends Controller
 
         if ($quizQuestion->hasEnded()) {
             $selectionAt = $quizCompetition->end_at ? $quizCompetition->end_at->copy()->addSeconds(10) : null;
+
             if ($selectionAt && now()->gte($selectionAt)) {
-                $quizQuestion->selectRandomWinners();
-                $quizQuestion->load(['winners.user']);
+                $cacheKey = 'quiz_question_ended_' . $quizQuestion->id;
+                $cachedHtml = Cache::get($cacheKey);
+                if ($cachedHtml !== null) {
+                    return response($cachedHtml)->header('Content-Type', 'text/html; charset=UTF-8');
+                }
+
+                if ($quizQuestion->winners->count() === 0) {
+                    $lockKey = 'quiz-winner-selection-' . $quizQuestion->id;
+                    Cache::lock($lockKey, 15)->block(10, function () use ($quizQuestion) {
+                        $quizQuestion->refresh();
+                        $quizQuestion->load(['winners']);
+                        if ($quizQuestion->winners->count() === 0 && $quizQuestion->answers()->where('is_correct', true)->exists()) {
+                            $quizQuestion->selectRandomWinners();
+                        }
+                    });
+                }
+
+                $quizQuestion->refresh();
+                $quizQuestion->load(['choices', 'winners.user', 'answers.user']);
+
+                $stats = [
+                    'total' => $quizQuestion->answers->count(),
+                    'correct' => $quizQuestion->answers->where('is_correct', true)->count(),
+                    'wrong' => $quizQuestion->answers->where('is_correct', false)->count(),
+                ];
+
+                $html = view('quiz-competitions.question', [
+                    'quizCompetition' => $quizCompetition,
+                    'quizQuestion' => $quizQuestion,
+                    'status' => 'ended',
+                    'stats' => $stats,
+                    'selectionAt' => $selectionAt,
+                ])->render();
+
+                Cache::put($cacheKey, $html, now()->addMinutes(5));
+
+                return response($html)->header('Content-Type', 'text/html; charset=UTF-8');
             }
+
             return view('quiz-competitions.question', [
                 'quizCompetition' => $quizCompetition,
                 'quizQuestion' => $quizQuestion,
@@ -100,9 +139,9 @@ class QuizCompetitionPublicController extends Controller
 
     public function storeAnswer(Request $request, QuizCompetition $quizCompetition, QuizQuestion $quizQuestion): RedirectResponse
     {
-        if ($quizQuestion->quiz_competition_id !== $quizCompetition->id) {
-            abort(404);
-        }
+        // if ($quizQuestion->quiz_competition_id !== $quizCompetition->id) {
+        //     abort(404);
+        // }
 
         if ($quizQuestion->hasNotStarted()) {
             return back()->with('error', 'السؤال لم يبدأ بعد');

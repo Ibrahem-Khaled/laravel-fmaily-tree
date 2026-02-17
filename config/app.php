@@ -84,10 +84,10 @@ return [
     */
 
     // Egypt Timezone
-    // 'timezone' => 'Africa/Cairo',
+    'timezone' => 'Africa/Cairo',
 
     // Saudi Arabia Timezone
-    'timezone' => 'Asia/Riyadh',
+    // 'timezone' => 'Asia/Riyadh',
 
     // UTC Timezone
     // 'timezone' => 'UTC',

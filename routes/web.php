@@ -71,7 +71,7 @@ Route::post('/important-links/suggest', [\App\Http\Controllers\ImportantLinksPub
 Route::prefix('invitations')->name('invitations.')->group(function () {
     Route::get('/', [\App\Http\Controllers\InvitationController::class, 'loginIndex'])->name('index');
     Route::post('/login-or-register', [\App\Http\Controllers\InvitationController::class, 'loginOrRegister'])->name('login-or-register');
-    
+
     // Authenticated routes
     Route::middleware('auth')->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\InvitationController::class, 'dashboard'])->name('dashboard');
@@ -81,7 +81,7 @@ Route::prefix('invitations')->name('invitations.')->group(function () {
         Route::get('/logout', [\App\Http\Controllers\InvitationController::class, 'logout'])->name('logout');
         Route::get('/persons-with-whatsapp', [\App\Http\Controllers\InvitationController::class, 'personsWithWhatsApp'])->name('persons-with-whatsapp');
         Route::post('/preview-message', [\App\Http\Controllers\InvitationController::class, 'previewMessage'])->name('preview-message');
-        
+
         // Groups management
         Route::prefix('groups')->name('groups.')->group(function () {
             Route::get('/', [\App\Http\Controllers\InvitationController::class, 'groupsIndex'])->name('index');

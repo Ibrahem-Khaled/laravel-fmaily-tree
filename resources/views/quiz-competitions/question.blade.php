@@ -288,6 +288,9 @@
                 <input type="hidden" id="selectionAtMs" value="{{ $selectionAt->getTimestamp() * 1000 }}">
                 <input type="hidden" id="endAtMs" value="{{ $quizCompetition->end_at->getTimestamp() * 1000 }}">
                 <input type="hidden" id="correctNamesJson" value='@json($quizQuestion->answers->where("is_correct", true)->map(fn($a) => $a->user->name ?? "مجهول")->values())'>
+                @if($quizQuestion->winners->count() > 0)
+                <input type="hidden" id="serverWinnerName" value="{{ e($quizQuestion->winners->first()->user->name ?? 'مجهول') }}">
+                @endif
             @endif
 
         {{-- ==================== نشط ==================== --}}
@@ -299,7 +302,7 @@
                         <span class="inline-flex items-center gap-1.5 bg-red-50 text-red-600 text-xs font-bold px-3 py-1.5 rounded-full border border-red-200"><span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span> مباشر الآن</span>
                         <div class="flex items-center gap-2 text-gray-500 text-sm">
                             <i class="fas fa-hourglass-half text-amber-500 text-xs"></i><span>متبقي:</span>
-                            <div class="flex gap-1">
+                            <div class="flex gap-1 flex-row-reverse">
                                 <span class="bg-green-50 border border-green-200 rounded-lg px-2 py-1 text-green-700 font-bold text-sm min-w-[2rem] text-center" id="at-hours">00</span>
                                 <span class="text-gray-400 font-bold">:</span>
                                 <span class="bg-green-50 border border-green-200 rounded-lg px-2 py-1 text-green-700 font-bold text-sm min-w-[2rem] text-center" id="at-minutes">00</span>
@@ -408,7 +411,7 @@
     };
 
     /* ============ ROULETTE WHEEL ============ */
-    function RouletteWheel(canvasId, names) {
+    function RouletteWheel(canvasId, names, serverWinnerName) {
         var canvas = document.getElementById(canvasId);
         if(!canvas) return;
         var ctx = canvas.getContext('2d');
@@ -417,6 +420,7 @@
         var radius = Math.min(W,H)/2 - 35;
         var rotation = 0;
         var self = this;
+        serverWinnerName = serverWinnerName || '';
 
         // Ensure minimum 6 segments by repeating names
         var display = names.slice();
@@ -568,7 +572,12 @@
 
         // Spin!
         this.spin = function(duration, callback) {
-            var winnerIdx = Math.floor(Math.random()*numSeg);
+            var winnerIdx;
+            if(serverWinnerName && display.indexOf(serverWinnerName) >= 0) {
+                winnerIdx = display.indexOf(serverWinnerName);
+            } else {
+                winnerIdx = Math.floor(Math.random()*numSeg);
+            }
             var winnerName = display[winnerIdx];
 
             // Target rotation: winner segment center at pointer (top = -PI/2)
@@ -655,7 +664,9 @@
                 phaseCount.style.display = 'none';
                 phaseRoulette.style.display = 'block';
 
-                var wheel = new RouletteWheel('rouletteCanvas', names);
+                var serverWinnerEl = document.getElementById('serverWinnerName');
+                var serverWinnerName = serverWinnerEl ? (serverWinnerEl.value || '').trim() : '';
+                var wheel = new RouletteWheel('rouletteCanvas', names, serverWinnerName);
 
                 // Spin for 10 seconds
                 wheel.spin(10000, function(winnerName) {
