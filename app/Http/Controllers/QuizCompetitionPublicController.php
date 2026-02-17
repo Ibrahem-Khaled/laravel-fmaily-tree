@@ -271,4 +271,51 @@ class QuizCompetitionPublicController extends Controller
             return back()->withInput()->with('error', 'حدث خطأ: ' . $e->getMessage());
         }
     }
+
+    /**
+     * JSON endpoint to get the winner — designed for high concurrency (1000+ users).
+     * Uses Cache::remember so only ONE DB query ever runs; all other requests get cached result.
+     */
+    public function getWinner(QuizCompetition $quizCompetition, QuizQuestion $quizQuestion)
+    {
+        $selectionAt = $quizCompetition->end_at ? $quizCompetition->end_at->copy()->addSeconds(10) : null;
+
+        // Not time yet
+        if (!$selectionAt || now()->lt($selectionAt)) {
+            return response()->json(['status' => 'pending', 'message' => 'لم يحن وقت الاختيار بعد']);
+        }
+
+        // Try to get from cache first (10 min TTL)
+        $cacheKey = 'quiz_winner_json_' . $quizQuestion->id;
+        $result = Cache::remember($cacheKey, now()->addMinutes(10), function () use ($quizQuestion) {
+            // Atomic lock: only one process selects winners
+            if ($quizQuestion->winners()->count() === 0) {
+                $lockKey = 'quiz-winner-selection-' . $quizQuestion->id;
+                Cache::lock($lockKey, 15)->block(10, function () use ($quizQuestion) {
+                    $quizQuestion->refresh();
+                    $quizQuestion->load(['winners']);
+                    if ($quizQuestion->winners->count() === 0 && $quizQuestion->answers()->where('is_correct', true)->exists()) {
+                        $quizQuestion->selectRandomWinners();
+                    }
+                });
+            }
+
+            $quizQuestion->refresh();
+            $quizQuestion->load(['winners.user']);
+
+            if ($quizQuestion->winners->count() > 0) {
+                $winners = $quizQuestion->winners->map(function ($w) {
+                    return [
+                        'position' => $w->position,
+                        'name' => $w->user->name ?? 'مجهول',
+                    ];
+                })->values()->all();
+                return ['status' => 'done', 'winners' => $winners];
+            }
+
+            return ['status' => 'no_winners', 'message' => 'لا يوجد فائزين (لا توجد إجابات صحيحة)'];
+        });
+
+        return response()->json($result);
+    }
 }

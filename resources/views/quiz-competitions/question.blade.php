@@ -27,8 +27,8 @@
         ::-webkit-scrollbar { width: 10px; } ::-webkit-scrollbar-track { background: #f0fdf4; }
         ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #22c55e, #16a34a); border-radius: 5px; }
 
-        /* ====== ROULETTE OVERLAY ====== */
-        #rouletteOverlay {
+        /* ====== SELECTION OVERLAY ====== */
+        #selectionOverlay {
             position: fixed; inset: 0; z-index: 9990;
             display: flex; align-items: center; justify-content: center; flex-direction: column;
             background: radial-gradient(ellipse at center, rgba(8,8,20,0.94) 0%, rgba(0,0,0,0.99) 100%);
@@ -36,7 +36,7 @@
             transition: opacity 0.8s ease;
             overflow: hidden;
         }
-        #rouletteOverlay.active { opacity: 1; pointer-events: all; }
+        #selectionOverlay.active { opacity: 1; pointer-events: all; }
         #flashBang { position: fixed; inset: 0; z-index: 9995; background: white; opacity: 0; pointer-events: none; }
         @keyframes flashAnim { 0% { opacity: 0; } 8% { opacity: 1; } 100% { opacity: 0; } }
         #flashBang.flash { animation: flashAnim 0.6s ease-out; }
@@ -60,10 +60,57 @@
         @keyframes ringPulse { 0% { transform: scale(0.6); opacity: 0.4; } 100% { transform: scale(2); opacity: 0; } }
         .pulse-ring-anim { position: absolute; width: 200px; height: 200px; border: 3px solid rgba(34,197,94,0.3); border-radius: 50%; animation: ringPulse 1.2s ease-out infinite; }
 
-        /* Roulette canvas area */
-        .roulette-wrapper { position: relative; width: 340px; height: 340px; max-width: 85vw; max-height: 85vw; margin: 0 auto; }
-        @media(min-width: 640px) { .roulette-wrapper { width: 420px; height: 420px; } }
-        .roulette-wrapper canvas { width: 100%; height: 100%; }
+        /* Digital Name Scroller */
+        .name-scroller-box {
+            position: relative; width: 340px; max-width: 90vw; height: 80px;
+            border-radius: 20px; overflow: hidden;
+            border: 2px solid rgba(34,197,94,0.4);
+            background: rgba(0,0,0,0.6);
+            box-shadow: 0 0 40px rgba(34,197,94,0.2), inset 0 0 30px rgba(34,197,94,0.05);
+        }
+        @media(min-width:640px){ .name-scroller-box { width: 440px; height: 90px; } }
+        .name-scroller-box::before, .name-scroller-box::after {
+            content:''; position:absolute; left:0; right:0; height:30px; z-index:2; pointer-events:none;
+        }
+        .name-scroller-box::before { top:0; background:linear-gradient(to bottom, rgba(0,0,0,0.9), transparent); }
+        .name-scroller-box::after { bottom:0; background:linear-gradient(to top, rgba(0,0,0,0.9), transparent); }
+        .name-scroller-track {
+            display:flex; flex-direction:column; align-items:center; justify-content:center;
+            position:absolute; inset:0;
+        }
+        .name-scroller-track .scroller-name {
+            font-size: 1.6rem; font-weight:700; color:#fff; white-space:nowrap;
+            text-shadow: 0 0 20px rgba(34,197,94,0.4);
+            transition: all 0.06s linear;
+        }
+        .name-scroller-box.winner-found {
+            border-color: #f59e0b;
+            box-shadow: 0 0 60px rgba(245,158,11,0.5), 0 0 120px rgba(245,158,11,0.2);
+        }
+        .name-scroller-box.winner-found .scroller-name {
+            color: #fbbf24; font-size:2rem;
+            text-shadow: 0 0 30px rgba(245,158,11,0.6);
+        }
+
+        /* Scanning ring around the box */
+        @keyframes scanLine { 0%{top:-2px;} 100%{top:calc(100% - 2px);} }
+        .scan-line {
+            position:absolute; left:0; right:0; height:2px; z-index:3;
+            background: linear-gradient(90deg, transparent, #22c55e, transparent);
+            animation: scanLine 0.8s ease-in-out infinite alternate;
+        }
+
+        /* Particle field behind scroller */
+        .particle-field { position:absolute; inset:0; overflow:hidden; pointer-events:none; }
+        .particle-field span {
+            position:absolute; width:2px; height:2px; border-radius:50%;
+            background:#22c55e; opacity:0;
+        }
+        @keyframes particleFly {
+            0%{opacity:0; transform:translateY(0) scale(0);}
+            20%{opacity:0.8; transform:scale(1);}
+            100%{opacity:0; transform:translateY(-100px) scale(0.5);}
+        }
 
         /* Shimmer gold text */
         @keyframes shimmerGold { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
@@ -94,9 +141,6 @@
         .glow-breath { animation: glowBreath 2.5s ease-in-out infinite; }
         @keyframes sparkleAnim { 0% { transform: scale(0) rotate(0); opacity: 0; } 50% { transform: scale(1) rotate(180deg); opacity: 1; } 100% { transform: scale(0) rotate(360deg); opacity: 0; } }
         .sparkle-dot { position: absolute; pointer-events: none; width: 6px; height: 6px; border-radius: 50%; background: #fbbf24; box-shadow: 0 0 6px #fbbf24; animation: sparkleAnim 1.5s ease-in-out infinite; }
-
-        /* Tick flash on pointer */
-        @keyframes tickFlash { 0% { opacity: 1; transform: scale(1.3); } 100% { opacity: 0; transform: scale(0.8); } }
     </style>
 </head>
 
@@ -104,8 +148,9 @@
     <div id="flashBang"></div>
     <canvas id="confettiCanvas"></canvas>
 
-    {{-- ====== Roulette Overlay ====== --}}
-    <div id="rouletteOverlay">
+    {{-- ====== Selection Overlay ====== --}}
+    <div id="selectionOverlay">
+        <div class="particle-field" id="overlayParticles"></div>
         {{-- Phase: Countdown --}}
         <div id="phaseCountdown" class="text-center relative">
             <div class="pulse-ring-anim" style="top:50%;left:50%;margin:-100px 0 0 -100px;animation-delay:0s;"></div>
@@ -113,16 +158,19 @@
             <div class="pulse-ring-anim" style="top:50%;left:50%;margin:-100px 0 0 -100px;animation-delay:0.8s;"></div>
             <p class="text-green-400/60 text-sm md:text-base mb-3 font-bold tracking-widest uppercase" style="letter-spacing:0.25em;">اختيار الفائز خلال</p>
             <div class="overlay-countdown" id="bigCountNum">3</div>
-            <p class="text-white/30 text-xs mt-4">استعد للقرعة...</p>
+            <p class="text-white/30 text-xs mt-4">استعد...</p>
         </div>
 
-        {{-- Phase: Roulette --}}
-        <div id="phaseRoulette" class="text-center" style="display:none;">
-            <p class="text-shimmer-gold text-lg md:text-xl font-bold mb-4">جاري اختيار الفائز...</p>
-            <div class="roulette-wrapper">
-                <canvas id="rouletteCanvas" width="500" height="500"></canvas>
+        {{-- Phase: Digital Selector --}}
+        <div id="phaseSelector" class="text-center" style="display:none;">
+            <p class="text-shimmer-gold text-lg md:text-xl font-bold mb-6">جاري الفرز من بين جميع المشاركين...</p>
+            <div class="name-scroller-box mx-auto" id="scrollerBox">
+                <div class="scan-line"></div>
+                <div class="name-scroller-track" id="scrollerTrack">
+                    <span class="scroller-name" id="scrollerName">...</span>
+                </div>
             </div>
-            <p class="text-white/25 text-xs mt-4" id="rouletteSubtext">العجلة تدور...</p>
+            <p class="text-white/25 text-xs mt-5" id="selectorSubtext">يتم الآن الفرز بين المشاركين...</p>
         </div>
 
         {{-- Phase: Announce --}}
@@ -287,10 +335,9 @@
             @if(isset($selectionAt) && $selectionAt)
                 <input type="hidden" id="selectionAtMs" value="{{ $selectionAt->getTimestamp() * 1000 }}">
                 <input type="hidden" id="endAtMs" value="{{ $quizCompetition->end_at->getTimestamp() * 1000 }}">
-                <input type="hidden" id="correctNamesJson" value='@json($quizQuestion->answers->where("is_correct", true)->map(fn($a) => $a->user->name ?? "مجهول")->values())'>
-                @if($quizQuestion->winners->count() > 0)
-                <input type="hidden" id="serverWinnerName" value="{{ e($quizQuestion->winners->first()->user->name ?? 'مجهول') }}">
-                @endif
+                <input type="hidden" id="winnerApiUrl" value="{{ route('quiz-competitions.question.winner', [$quizCompetition, $quizQuestion]) }}">
+                <input type="hidden" id="hasWinnersAlready" value="{{ $quizQuestion->winners->count() > 0 ? '1' : '0' }}">
+                <input type="hidden" id="correctCount" value="{{ $quizQuestion->answers->where('is_correct', true)->count() }}">
             @endif
 
         {{-- ==================== نشط ==================== --}}
@@ -310,7 +357,9 @@
                                 <span class="bg-green-50 border border-green-200 rounded-lg px-2 py-1 text-green-700 font-bold text-sm min-w-[2rem] text-center" id="at-seconds">00</span>
                             </div>
                         </div>
-                        @if($quizCompetition->end_at)<input type="hidden" id="atEndTime" value="{{ $quizCompetition->end_at->getTimestamp() * 1000 }}">@endif
+                        @if($quizCompetition->end_at)<input type="hidden" id="atEndTime" value="{{ $quizCompetition->end_at->getTimestamp() * 1000 }}">
+                        <input type="hidden" id="activeWinnerApiUrl" value="{{ route('quiz-competitions.question.winner', [$quizCompetition, $quizQuestion]) }}">
+                        <input type="hidden" id="activeCorrectCount" value="{{ $quizQuestion->answers->where('is_correct', true)->count() }}">@endif
                     </div>
                     <p class="text-green-600 text-xs font-medium mb-3"><i class="fas fa-trophy ml-1"></i> {{ $quizCompetition->title }}</p>
                     <h1 class="text-xl md:text-2xl lg:text-3xl font-bold text-gray-800 leading-relaxed">{{ $quizQuestion->question_text }}</h1>
@@ -427,212 +476,87 @@
         }
     };
 
-    /* ============ ROULETTE WHEEL ============ */
-    function RouletteWheel(canvasId, names, serverWinnerName) {
-        var canvas = document.getElementById(canvasId);
-        if(!canvas) return;
-        var ctx = canvas.getContext('2d');
-        var W = canvas.width, H = canvas.height;
-        var cx = W/2, cy = H/2;
-        var radius = Math.min(W,H)/2 - 35;
-        var rotation = 0;
-        var self = this;
-        serverWinnerName = serverWinnerName || '';
+    /* ============ DIGITAL NAME SELECTOR ============ */
+    function DigitalSelector(winnerName, correctCount) {
+        var nameEl = document.getElementById('scrollerName');
+        var boxEl = document.getElementById('scrollerBox');
+        var subtext = document.getElementById('selectorSubtext');
+        if(!nameEl) return;
 
-        // Ensure minimum 6 segments by repeating names
-        var display = names.slice();
-        while(display.length < 6) display = display.concat(names);
-        if(display.length > 20) display = display.slice(0, 20);
-        var numSeg = display.length;
-        var segAngle = (2*Math.PI) / numSeg;
-
-        var segColors = [
-            '#16a34a','#2563eb','#d97706','#9333ea',
-            '#dc2626','#0891b2','#c026d3','#ea580c',
-            '#059669','#4f46e5','#ca8a04','#7c3aed',
-            '#e11d48','#0d9488','#a21caf','#d94f12',
-            '#15803d','#1d4ed8','#b45309','#6b21a8'
+        // Generate plausible fake Arabic names for the scrolling effect
+        var fakeNames = [
+            'محمد أحمد','عبدالله سعد','فهد خالد','سارة علي','نورة محمد',
+            'خالد عبدالرحمن','أحمد يوسف','عمر حسن','فاطمة إبراهيم','مريم صالح',
+            'سلطان ناصر','عبدالعزيز فيصل','هند ماجد','لمى عادل','ريم طارق',
+            'بندر سعود','تركي عبدالله','نوف سلمان','دانة وليد','جود حمد',
+            'راشد بدر','ماجد عايض','هيا محمد','العنود سعد','عبير فهد',
+            'صالح حمود','ياسر عمر','منال خالد','أسماء أحمد','سلمان ابراهيم'
         ];
 
-        var prevSegIdx = -1; // for tick sound
+        var totalDuration = 5000; // 5 seconds of scrolling
+        var running = true;
+        var startTime = Date.now();
 
-        this.draw = function(rot) {
-            rotation = rot || rotation;
-            ctx.clearRect(0, 0, W, H);
-
-            // Outer glow
-            ctx.save();
-            ctx.shadowColor = 'rgba(245,158,11,0.25)';
-            ctx.shadowBlur = 40;
-            ctx.beginPath();
-            ctx.arc(cx, cy, radius+8, 0, Math.PI*2);
-            ctx.strokeStyle = 'rgba(245,158,11,0.4)';
-            ctx.lineWidth = 4;
-            ctx.stroke();
-            ctx.restore();
-
-            // LED dots around the wheel (decorative ring)
-            var numLEDs = Math.max(numSeg * 3, 24);
-            var currentPointerSeg = Math.floor((((-rotation % (2*Math.PI)) + 2*Math.PI) % (2*Math.PI) + Math.PI/2) / segAngle) % numSeg;
-            for(var i=0; i<numLEDs; i++) {
-                var a = (i/numLEDs)*Math.PI*2 - Math.PI/2;
-                var lx = cx + (radius+18)*Math.cos(a);
-                var ly = cy + (radius+18)*Math.sin(a);
-                var ledSeg = Math.floor((i/numLEDs)*numSeg);
-                var isActive = ledSeg === currentPointerSeg;
-                ctx.beginPath();
-                ctx.arc(lx, ly, isActive ? 4 : 2.5, 0, Math.PI*2);
-                ctx.fillStyle = isActive ? '#fbbf24' : (i%2===0 ? 'rgba(245,158,11,0.5)' : 'rgba(255,255,255,0.2)');
-                if(isActive) { ctx.shadowColor='#fbbf24'; ctx.shadowBlur=10; }
-                ctx.fill();
-                ctx.shadowColor='transparent'; ctx.shadowBlur=0;
-            }
-
-            // Tick detection (segment change under pointer)
-            if(currentPointerSeg !== prevSegIdx) {
-                prevSegIdx = currentPointerSeg;
-                // Visual tick: flash pointer
-                drawPointer(true);
-            }
-
-            // Draw wheel segments
-            ctx.save();
-            ctx.translate(cx, cy);
-            ctx.rotate(rotation);
-            for(var i=0; i<numSeg; i++) {
-                var start = i*segAngle;
-                var end = start+segAngle;
-                // Segment fill
-                ctx.beginPath();
-                ctx.moveTo(0,0);
-                ctx.arc(0, 0, radius, start, end);
-                ctx.closePath();
-                ctx.fillStyle = segColors[i % segColors.length];
-                ctx.fill();
-                // Segment border
-                ctx.strokeStyle = 'rgba(255,255,255,0.25)';
-                ctx.lineWidth = 2;
-                ctx.stroke();
-                // Name text
-                ctx.save();
-                ctx.rotate(start + segAngle/2);
-                ctx.fillStyle = 'white';
-                var fontSize = Math.max(10, Math.min(18, 300/numSeg));
-                ctx.font = 'bold '+fontSize+'px Tajawal, sans-serif';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.shadowColor = 'rgba(0,0,0,0.5)';
-                ctx.shadowBlur = 4;
-                var nm = display[i];
-                if(nm.length > 14) nm = nm.substring(0,12)+'..';
-                ctx.fillText(nm, radius*0.62, 0);
-                ctx.shadowBlur = 0;
-                ctx.restore();
-            }
-            ctx.restore();
-
-            // Center hub
-            var hubR = Math.max(22, radius*0.12);
-            var grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, hubR);
-            grad.addColorStop(0, '#fef3c7');
-            grad.addColorStop(0.5, '#fbbf24');
-            grad.addColorStop(1, '#b45309');
-            ctx.beginPath();
-            ctx.arc(cx, cy, hubR, 0, Math.PI*2);
-            ctx.fillStyle = grad;
-            ctx.fill();
-            ctx.strokeStyle = 'rgba(255,255,255,0.6)';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-            // Star in center
-            drawStar(ctx, cx, cy, 5, hubR*0.6, hubR*0.3, 'white');
-
-            // Pointer
-            drawPointer(false);
-        };
-
-        function drawPointer(flash) {
-            var py = cy - radius - 6;
-            ctx.beginPath();
-            ctx.moveTo(cx, py + 12);
-            ctx.lineTo(cx - 16, py - 22);
-            ctx.lineTo(cx + 16, py - 22);
-            ctx.closePath();
-            if(flash) {
-                ctx.fillStyle = '#fbbf24';
-                ctx.shadowColor = '#fbbf24';
-                ctx.shadowBlur = 20;
-            } else {
-                ctx.fillStyle = '#ef4444';
-                ctx.shadowColor = 'rgba(239,68,68,0.5)';
-                ctx.shadowBlur = 10;
-            }
-            ctx.fill();
-            ctx.strokeStyle = 'white';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-            ctx.shadowBlur = 0;
-        }
-
-        function drawStar(ctx, cx, cy, spikes, outerR, innerR, color) {
-            var rot = Math.PI/2*3, step = Math.PI/spikes;
-            ctx.beginPath();
-            ctx.moveTo(cx, cy-outerR);
-            for(var i=0;i<spikes;i++){
-                ctx.lineTo(cx+Math.cos(rot)*outerR, cy+Math.sin(rot)*outerR); rot+=step;
-                ctx.lineTo(cx+Math.cos(rot)*innerR, cy+Math.sin(rot)*innerR); rot+=step;
-            }
-            ctx.closePath();
-            ctx.fillStyle = color;
-            ctx.fill();
-        }
-
-        // Spin!
-        this.spin = function(duration, callback) {
-            var winnerIdx;
-            if(serverWinnerName && display.indexOf(serverWinnerName) >= 0) {
-                winnerIdx = display.indexOf(serverWinnerName);
-            } else {
-                winnerIdx = Math.floor(Math.random()*numSeg);
-            }
-            var winnerName = display[winnerIdx];
-
-            // Target rotation: winner segment center at pointer (top = -PI/2)
-            var winnerCenter = winnerIdx * segAngle + segAngle/2;
-            var numSpins = 10 + Math.floor(Math.random()*3);
-            var targetRot = -Math.PI/2 - winnerCenter + (numSpins+1)*2*Math.PI;
-
-            var startRot = rotation;
-            var startTime = Date.now();
-
-            function easeOutQuint(t) { return 1 - Math.pow(1 - t, 5); }
-
+        this.start = function(callback) {
             (function frame() {
+                if(!running) return;
                 var elapsed = Date.now() - startTime;
-                var progress = Math.min(elapsed / duration, 1);
-                var eased = easeOutQuint(progress);
-                rotation = startRot + (targetRot - startRot) * eased;
-                self.draw(rotation);
+                var progress = Math.min(elapsed / totalDuration, 1);
 
-                // Update subtext based on progress
-                var sub = document.getElementById('rouletteSubtext');
-                if(sub) {
-                    if(progress < 0.3) sub.textContent = 'العجلة تدور...';
-                    else if(progress < 0.7) sub.textContent = 'من سيكون الفائز؟';
-                    else if(progress < 0.95) sub.textContent = 'لحظة... تقريباً!';
-                    else sub.textContent = 'وقفت!';
-                }
+                // Speed decreases as we approach the end (easeOutQuint)
+                var interval;
+                if(progress < 0.3) interval = 50;       // Very fast
+                else if(progress < 0.6) interval = 100;  // Fast
+                else if(progress < 0.8) interval = 200;  // Medium
+                else if(progress < 0.92) interval = 400; // Slow
+                else interval = 700;                      // Very slow
 
-                if(progress < 1) {
-                    requestAnimationFrame(frame);
+                // Pick a random name to display
+                var displayName;
+                if(progress >= 0.95) {
+                    displayName = winnerName; // Lock on winner
                 } else {
-                    setTimeout(function(){ callback(winnerName); }, 600);
+                    displayName = fakeNames[Math.floor(Math.random() * fakeNames.length)];
                 }
+                nameEl.textContent = displayName;
+
+                // Update subtext
+                if(subtext) {
+                    var count = correctCount || '?';
+                    if(progress < 0.3) subtext.textContent = 'يتم الآن الفرز بين ' + count + ' مشارك...';
+                    else if(progress < 0.6) subtext.textContent = 'تضييق نطاق البحث...';
+                    else if(progress < 0.85) subtext.textContent = 'تحديد المرشحين النهائيين...';
+                    else subtext.textContent = 'تم تحديد الفائز!';
+                }
+
+                if(progress >= 1) {
+                    running = false;
+                    nameEl.textContent = winnerName;
+                    boxEl.classList.add('winner-found');
+                    // Remove scan line
+                    var scanLine = boxEl.querySelector('.scan-line');
+                    if(scanLine) scanLine.style.display = 'none';
+                    setTimeout(function(){ callback(winnerName); }, 800);
+                    return;
+                }
+                setTimeout(frame, interval);
             })();
         };
+    }
 
-        // Initial draw
-        this.draw(0);
+    /* ============ OVERLAY PARTICLES ============ */
+    function initOverlayParticles() {
+        var container = document.getElementById('overlayParticles');
+        if(!container) return;
+        for(var i=0; i<40; i++) {
+            var p = document.createElement('span');
+            p.style.left = Math.random()*100+'%';
+            p.style.bottom = '-10px';
+            p.style.animationDelay = (Math.random()*4)+'s';
+            p.style.animationDuration = (2+Math.random()*3)+'s';
+            p.style.animation = 'particleFly '+(2+Math.random()*3)+'s ease-out '+(Math.random()*4)+'s infinite';
+            container.appendChild(p);
+        }
     }
 
     /* ============ SPARKLES ============ */
@@ -647,21 +571,22 @@
         }
     }
 
-    /* ============ MAIN ANIMATION ORCHESTRATOR ============ */
-    function startDramaticSelection(names) {
-        var overlay = document.getElementById('rouletteOverlay');
+    /* ============ WINNER ANIMATION ORCHESTRATOR ============ */
+    function startWinnerReveal(winnerName, correctCount) {
+        var overlay = document.getElementById('selectionOverlay');
         var phaseCount = document.getElementById('phaseCountdown');
-        var phaseRoulette = document.getElementById('phaseRoulette');
+        var phaseSelector = document.getElementById('phaseSelector');
         var phaseAnnounce = document.getElementById('phaseAnnounce');
         var countNum = document.getElementById('bigCountNum');
         var flashBang = document.getElementById('flashBang');
 
-        if(!overlay || !names || names.length === 0) { location.reload(); return; }
+        if(!overlay || !winnerName) { location.reload(); return; }
 
+        initOverlayParticles();
         overlay.classList.add('active');
 
-        // Phase 1: Countdown from 3
-        var countVal = 3;
+        // Phase 1: Countdown from 2
+        var countVal = 2;
         countNum.textContent = countVal;
         countNum.classList.add('count-pop');
 
@@ -669,7 +594,6 @@
             countVal--;
             if(countVal <= 0) {
                 clearInterval(countTimer);
-                // Flash + Shake
                 flashBang.classList.add('flash');
                 document.body.classList.add('shake-it');
                 setTimeout(function(){
@@ -677,16 +601,12 @@
                     document.body.classList.remove('shake-it');
                 }, 500);
 
-                // Phase 2: ROULETTE (10 seconds of spinning!)
+                // Phase 2: Digital Selector (8 seconds)
                 phaseCount.style.display = 'none';
-                phaseRoulette.style.display = 'block';
+                phaseSelector.style.display = 'block';
 
-                var serverWinnerEl = document.getElementById('serverWinnerName');
-                var serverWinnerName = serverWinnerEl ? (serverWinnerEl.value || '').trim() : '';
-                var wheel = new RouletteWheel('rouletteCanvas', names, serverWinnerName);
-
-                // Spin for 10 seconds
-                wheel.spin(10000, function(winnerName) {
+                var selector = new DigitalSelector(winnerName, correctCount);
+                selector.start(function(name) {
                     // Flash!
                     flashBang.classList.add('flash');
                     setTimeout(function(){ flashBang.classList.remove('flash'); }, 500);
@@ -695,9 +615,9 @@
 
                     // Phase 3: Announce
                     setTimeout(function() {
-                        phaseRoulette.style.display = 'none';
+                        phaseSelector.style.display = 'none';
                         phaseAnnounce.style.display = 'block';
-                        document.getElementById('announceName').textContent = winnerName;
+                        document.getElementById('announceName').textContent = name;
 
                         Confetti.launch(200, 4000);
 
@@ -714,6 +634,30 @@
             countNum.classList.add('count-pop');
             if(countVal <= 2) countNum.classList.add('danger');
         }, 900);
+    }
+
+    /* ============ AJAX WINNER FETCHER WITH JITTER ============ */
+    function fetchWinnerFromServer(apiUrl, callback) {
+        function doFetch() {
+            fetch(apiUrl)
+                .then(function(r){ return r.json(); })
+                .then(function(data) {
+                    if(data.status === 'done' && data.winners && data.winners.length > 0) {
+                        callback(data.winners[0].name);
+                    } else if(data.status === 'pending') {
+                        // Retry after 2 seconds
+                        setTimeout(doFetch, 2000);
+                    } else {
+                        // no_winners — reload
+                        location.reload();
+                    }
+                })
+                .catch(function() {
+                    // Network error — retry after 3 seconds
+                    setTimeout(doFetch, 3000);
+                });
+        }
+        doFetch();
     }
 
     /* ============ PAGE INIT ============ */
@@ -736,9 +680,28 @@
         @if($status === 'active' && $quizCompetition->end_at)
         (function(){
             var end=parseInt(document.getElementById('atEndTime').value,10);
+            var apiUrl = document.getElementById('activeWinnerApiUrl').value;
+            var correctCount = parseInt(document.getElementById('activeCorrectCount').value, 10) || 0;
+            var timerDone = false;
             function pad(n){return n.toString().padStart(2,'0');}
             function update(){
-                var d=end-Date.now(); if(d<=0){location.reload();return;}
+                var d=end-Date.now();
+                if(d<=0 && !timerDone){
+                    timerDone = true;
+                    // Show 00:00:00
+                    document.getElementById('at-hours').textContent='00';
+                    document.getElementById('at-minutes').textContent='00';
+                    document.getElementById('at-seconds').textContent='00';
+                    // Wait 10s + jitter then fetch winner seamlessly (no reload!)
+                    var jitter = Math.floor(Math.random() * 5000);
+                    setTimeout(function() {
+                        fetchWinnerFromServer(apiUrl, function(winnerName) {
+                            startWinnerReveal(winnerName, correctCount);
+                        });
+                    }, 10000 + jitter);
+                    return;
+                }
+                if(timerDone) return;
                 document.getElementById('at-hours').textContent=pad(Math.floor(d/3600000));
                 document.getElementById('at-minutes').textContent=pad(Math.floor((d%3600000)/60000));
                 document.getElementById('at-seconds').textContent=pad(Math.floor((d%60000)/1000));
@@ -748,31 +711,36 @@
 
         @if($status === 'ended' && isset($selectionAt) && $selectionAt)
         (function(){
-            var selAt = parseInt(document.getElementById('selectionAtMs').value,10);
-            var endAt = parseInt(document.getElementById('endAtMs').value,10);
-            var names = JSON.parse(document.getElementById('correctNamesJson').value || '[]');
+            var selAt = parseInt(document.getElementById('selectionAtMs').value, 10);
+            var endAt = parseInt(document.getElementById('endAtMs').value, 10);
+            var apiUrl = document.getElementById('winnerApiUrl').value;
+            var hasWinners = document.getElementById('hasWinnersAlready').value === '1';
+            var correctCount = parseInt(document.getElementById('correctCount').value, 10) || 0;
             var now = Date.now();
 
-            // If past selectionAt by more than 20 seconds, skip animation (already happened)
-            if(now > selAt + 20000) {
-                // No animation, just show page
+            // If winners already exist and it's been more than 20 seconds, skip animation
+            if(hasWinners && now > selAt + 20000) {
+                addSparkles(document.getElementById('sparklesBox'), 20);
+                Confetti.launch(200, 5000);
                 return;
             }
 
-            // If we're between endAt and selAt (within 10 seconds of competition ending)
-            // or slightly after selAt (still time for animation)
-            if(now >= endAt) {
-                // Calculate wait time before starting the animation
-                // We want the animation to start right at endAt (or now if already past)
-                var delay = Math.max(0, endAt + 500 - now); // small buffer
-                setTimeout(function() {
-                    startDramaticSelection(names);
-                }, delay);
-            }
+            // Jitter: random 0-5 second delay to distribute 1000+ requests
+            var jitter = Math.floor(Math.random() * 5000);
+
+            // Calculate when to fetch the winner
+            var fetchTime = Math.max(selAt + jitter, now);
+            var delay = fetchTime - now;
+
+            setTimeout(function() {
+                fetchWinnerFromServer(apiUrl, function(winnerName) {
+                    startWinnerReveal(winnerName, correctCount);
+                });
+            }, delay);
         })();
         @endif
 
-        @if($status === 'ended' && $quizQuestion->winners->count() > 0)
+        @if($status === 'ended' && $quizQuestion->winners->count() > 0 && !(isset($selectionAt) && $selectionAt && now()->lt($selectionAt)))
         (function(){
             addSparkles(document.getElementById('sparklesBox'), 20);
             Confetti.launch(200, 5000);
