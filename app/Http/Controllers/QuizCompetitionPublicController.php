@@ -63,6 +63,18 @@ class QuizCompetitionPublicController extends Controller
             'wrong' => $quizQuestion->answers->where('is_correct', false)->count(),
         ];
 
+        // Fetch candidate names for animation (real users) - Available for ALL statuses
+        $candidateNames = $quizQuestion->answers()
+            ->where('is_correct', true)
+            ->inRandomOrder()
+            ->limit(50)
+            ->with('user')
+            ->get()
+            ->map(fn($a) => $a->user->name ?? 'مجهول')
+            ->filter()
+            ->values()
+            ->all();
+
         if ($quizQuestion->hasNotStarted()) {
             return view('quiz-competitions.question', [
                 'quizCompetition' => $quizCompetition,
@@ -73,7 +85,7 @@ class QuizCompetitionPublicController extends Controller
         }
 
         if ($quizQuestion->hasEnded()) {
-            $selectionAt = $quizCompetition->end_at ? $quizCompetition->end_at->copy()->addSeconds(10) : null;
+            $selectionAt = $quizCompetition->end_at ? $quizCompetition->end_at->copy() : null;
 
             if ($selectionAt && now()->gte($selectionAt)) {
                 $cacheKey = 'quiz_question_ended_' . $quizQuestion->id;
@@ -108,6 +120,7 @@ class QuizCompetitionPublicController extends Controller
                     'status' => 'ended',
                     'stats' => $stats,
                     'selectionAt' => $selectionAt,
+                    'candidateNames' => $candidateNames,
                 ])->render();
 
                 Cache::put($cacheKey, $html, now()->addMinutes(5));
@@ -121,6 +134,7 @@ class QuizCompetitionPublicController extends Controller
                 'status' => 'ended',
                 'stats' => $stats,
                 'selectionAt' => $selectionAt,
+                'candidateNames' => $candidateNames,
             ]);
         }
 
@@ -135,12 +149,15 @@ class QuizCompetitionPublicController extends Controller
             }
         }
 
+
+
         return view('quiz-competitions.question', [
             'quizCompetition' => $quizCompetition,
             'quizQuestion' => $quizQuestion,
             'status' => 'active',
             'stats' => $stats,
             'canAnswer' => $canAnswer,
+            'candidateNames' => $candidateNames,
         ]);
     }
 
@@ -278,7 +295,7 @@ class QuizCompetitionPublicController extends Controller
      */
     public function getWinner(QuizCompetition $quizCompetition, QuizQuestion $quizQuestion)
     {
-        $selectionAt = $quizCompetition->end_at ? $quizCompetition->end_at->copy()->addSeconds(10) : null;
+        $selectionAt = $quizCompetition->end_at ? $quizCompetition->end_at->copy() : null;
 
         // Not time yet
         if (!$selectionAt || now()->lt($selectionAt)) {

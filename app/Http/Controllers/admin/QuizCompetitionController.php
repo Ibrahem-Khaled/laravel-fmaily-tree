@@ -97,4 +97,55 @@ class QuizCompetitionController extends Controller
         return redirect()->route('dashboard.quiz-competitions.index')
             ->with('success', 'تم حذف المسابقة بنجاح');
     }
+
+    public function simulateAnswers(QuizCompetition $quizCompetition): RedirectResponse
+    {
+        $users = \App\Models\User::all();
+        $questions = $quizCompetition->questions;
+        $count = 0;
+
+        foreach ($questions as $question) {
+            foreach ($users as $user) {
+                // Check if user already answered
+                if ($question->answers()->where('user_id', $user->id)->exists()) {
+                    continue;
+                }
+
+                $choices = $question->choices;
+                $answerText = '';
+                $isCorrect = true; // Default to correct for text answers
+
+                if ($choices->count() > 0) {
+                    // Try to pick a correct choice
+                    $correctChoices = $choices->where('is_correct', true);
+                    
+                    if ($correctChoices->isNotEmpty()) {
+                        $choice = $correctChoices->random();
+                    } else {
+                        // Fallback if no correct choice defined
+                        $choice = $choices->random();
+                    }
+                    
+                    // For multiple choice, store the choice ID
+                    $answerText = (string) $choice->id;
+                    $isCorrect = $choice->is_correct;
+                } else {
+                    $answerText = 'Simulated Answer ' . \Illuminate\Support\Str::random(5);
+                    $isCorrect = true;
+                }
+
+                \App\Models\QuizAnswer::create([
+                    'quiz_question_id' => $question->id,
+                    'user_id' => $user->id,
+                    'answer' => $answerText,
+                    'answer_type' => $question->answer_type,
+                    'is_correct' => $isCorrect,
+                    'created_at' => now()->subSeconds(rand(0, 300)),
+                ]);
+                $count++;
+            }
+        }
+
+        return back()->with('success', "تم محاكاة الإجابات لـ $count مستخدم.");
+    }
 }

@@ -326,6 +326,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
         'update' => 'dashboard.quiz-competitions.update',
         'destroy' => 'dashboard.quiz-competitions.destroy',
     ]);
+    Route::post('quiz-competitions/{quizCompetition}/simulate-answers', [\App\Http\Controllers\admin\QuizCompetitionController::class, 'simulateAnswers'])->name('dashboard.quiz-competitions.simulate-answers');
     Route::get('quiz-competitions/{quizCompetition}/questions/create', [\App\Http\Controllers\admin\QuizQuestionController::class, 'create'])->name('dashboard.quiz-questions.create');
     Route::post('quiz-competitions/{quizCompetition}/questions', [\App\Http\Controllers\admin\QuizQuestionController::class, 'store'])->name('dashboard.quiz-questions.store');
     Route::get('quiz-competitions/{quizCompetition}/questions/{quizQuestion}/edit', [\App\Http\Controllers\admin\QuizQuestionController::class, 'edit'])->name('dashboard.quiz-questions.edit');

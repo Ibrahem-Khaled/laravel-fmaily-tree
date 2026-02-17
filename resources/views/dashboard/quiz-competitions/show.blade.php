@@ -12,6 +12,12 @@
             <p class="text-muted mb-0">إدارة الأسئلة والمسابقات</p>
         </div>
         <div>
+            <form action="{{ route('dashboard.quiz-competitions.simulate-answers', $quizCompetition) }}" method="POST" class="d-inline mr-2" onsubmit="return confirm('هذا الإجراء سيقوم بإضافة إجابات عشوائية لجميع المستخدمين الذين لم يجاوبوا. هل أنت متأكد؟');">
+                @csrf
+                <button type="submit" class="btn btn-warning shadow-sm">
+                    <i class="fas fa-magic mr-2"></i>محاكاة الإجابات
+                </button>
+            </form>
             <a href="{{ route('dashboard.quiz-questions.create', $quizCompetition) }}" class="btn btn-success shadow-sm">
                 <i class="fas fa-plus mr-2"></i>إضافة سؤال
             </a>

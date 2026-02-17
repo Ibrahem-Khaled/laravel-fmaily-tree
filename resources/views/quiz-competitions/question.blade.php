@@ -316,7 +316,7 @@
                                 </div>
                                 <div class="flex-1 relative z-10">
                                     <p class="font-bold text-lg md:text-xl {{ $winner->position==1 ? 'text-amber-800' : 'text-gray-800' }}">{{ $winner->user->name ?? '-' }}</p>
-                                    @if($winner->position==1)<p class="text-amber-600/60 text-xs font-medium mt-1">المركز الأول</p>@endif
+                                    <!-- @if($winner->position==1)<p class="text-amber-600/60 text-xs font-medium mt-1">المركز الأول</p>@endif -->
                                 </div>
                                 @if($winner->position==1)<i class="fas fa-crown text-amber-400 text-2xl relative z-10" style="filter:drop-shadow(0 0 10px rgba(245,158,11,0.4));"></i>
                                 @elseif($winner->position<=3)<i class="fas fa-medal text-{{ $winner->position==2 ? 'gray-400' : 'amber-700/60' }} text-xl relative z-10"></i>@endif
@@ -337,7 +337,8 @@
                 <input type="hidden" id="endAtMs" value="{{ $quizCompetition->end_at->getTimestamp() * 1000 }}">
                 <input type="hidden" id="winnerApiUrl" value="{{ route('quiz-competitions.question.winner', [$quizCompetition, $quizQuestion]) }}">
                 <input type="hidden" id="hasWinnersAlready" value="{{ $quizQuestion->winners->count() > 0 ? '1' : '0' }}">
-                <input type="hidden" id="correctCount" value="{{ $quizQuestion->answers->where('is_correct', true)->count() }}">
+                <input type="hidden" id="correctCount" value="{{ $stats['correct'] }}">
+                <input type="hidden" id="candidateNamesJsonEnded" value='@json($candidateNames ?? [])'>
             @endif
 
         {{-- ==================== نشط ==================== --}}
@@ -359,7 +360,8 @@
                         </div>
                         @if($quizCompetition->end_at)<input type="hidden" id="atEndTime" value="{{ $quizCompetition->end_at->getTimestamp() * 1000 }}">
                         <input type="hidden" id="activeWinnerApiUrl" value="{{ route('quiz-competitions.question.winner', [$quizCompetition, $quizQuestion]) }}">
-                        <input type="hidden" id="activeCorrectCount" value="{{ $quizQuestion->answers->where('is_correct', true)->count() }}">@endif
+                        <input type="hidden" id="activeCorrectCount" value="{{ $quizQuestion->answers->where('is_correct', true)->count() }}">
+                        <input type="hidden" id="candidateNamesJson" value='@json($candidateNames ?? [])'>@endif
                     </div>
                     <p class="text-green-600 text-xs font-medium mb-3"><i class="fas fa-trophy ml-1"></i> {{ $quizCompetition->title }}</p>
                     <h1 class="text-xl md:text-2xl lg:text-3xl font-bold text-gray-800 leading-relaxed">{{ $quizQuestion->question_text }}</h1>
@@ -477,14 +479,14 @@
     };
 
     /* ============ DIGITAL NAME SELECTOR ============ */
-    function DigitalSelector(winnerName, correctCount) {
+    function DigitalSelector(candidateNames) {
         var nameEl = document.getElementById('scrollerName');
         var boxEl = document.getElementById('scrollerBox');
         var subtext = document.getElementById('selectorSubtext');
         if(!nameEl) return;
 
-        // Generate plausible fake Arabic names for the scrolling effect
-        var fakeNames = [
+        // Use real candidate names if available, otherwise fake Arabic names
+        var namesPool = (candidateNames && candidateNames.length > 0) ? candidateNames : [
             'محمد أحمد','عبدالله سعد','فهد خالد','سارة علي','نورة محمد',
             'خالد عبدالرحمن','أحمد يوسف','عمر حسن','فاطمة إبراهيم','مريم صالح',
             'سلطان ناصر','عبدالعزيز فيصل','هند ماجد','لمى عادل','ريم طارق',
@@ -493,53 +495,86 @@
             'صالح حمود','ياسر عمر','منال خالد','أسماء أحمد','سلمان ابراهيم'
         ];
 
-        var totalDuration = 5000; // 5 seconds of scrolling
-        var running = true;
-        var startTime = Date.now();
+        var running = false;
+        var stopping = false;
+        var winner = null;
+        var finalCallback = null;
 
-        this.start = function(callback) {
+        this.start = function() {
+            running = true;
+            stopping = false;
+            winner = null;
+
             (function frame() {
                 if(!running) return;
-                var elapsed = Date.now() - startTime;
-                var progress = Math.min(elapsed / totalDuration, 1);
-
-                // Speed decreases as we approach the end (easeOutQuint)
-                var interval;
-                if(progress < 0.3) interval = 50;       // Very fast
-                else if(progress < 0.6) interval = 100;  // Fast
-                else if(progress < 0.8) interval = 200;  // Medium
-                else if(progress < 0.92) interval = 400; // Slow
-                else interval = 700;                      // Very slow
-
-                // Pick a random name to display
-                var displayName;
-                if(progress >= 0.95) {
-                    displayName = winnerName; // Lock on winner
-                } else {
-                    displayName = fakeNames[Math.floor(Math.random() * fakeNames.length)];
+                
+                // If stopping (winner found), slow down
+                // If running (searching), stay fast
+                
+                var interval = 50; // Fast by default
+                
+                if(stopping) {
+                    // Gradual slowdown logic would go here, but for now we'll just keep spinning until final stop
+                    // or implement a simple counter
                 }
+
+                // Pick random name
+                var displayName = namesPool[Math.floor(Math.random() * namesPool.length)];
                 nameEl.textContent = displayName;
 
-                // Update subtext
+                if(stopping && Math.random() < 0.1) { // Random stop chance if slowing down? 
+                    // No, let's just keep spinning fast until reveal() handles the stop animation explicitly
+                }
+
+                setTimeout(frame, interval);
+            })();
+        };
+
+        this.reveal = function(winnerName, callback) {
+            stopping = true;
+            winner = winnerName;
+            finalCallback = callback;
+            
+            // Start the slowdown sequence
+            running = false; // Stop the infinite loop
+            
+            // Start a new controlled loop for slowdown
+            var duration = 4000;
+            var start = Date.now();
+            
+            (function slowFrame() {
+                var elapsed = Date.now() - start;
+                var progress = Math.min(elapsed / duration, 1);
+                
+                // Ease out
+                var interval;
+                if(progress < 0.3) interval = 50;
+                else if(progress < 0.6) interval = 100;
+                else if(progress < 0.8) interval = 200;
+                else if(progress < 0.95) interval = 400;
+                else interval = 700;
+
+                var displayName;
+                if(progress >= 0.98) displayName = winnerName;
+                else displayName = namesPool[Math.floor(Math.random() * namesPool.length)];
+                
+                nameEl.textContent = displayName;
+                
+                // Subtext update
                 if(subtext) {
-                    var count = correctCount || '?';
-                    if(progress < 0.3) subtext.textContent = 'يتم الآن الفرز بين ' + count + ' مشارك...';
-                    else if(progress < 0.6) subtext.textContent = 'تضييق نطاق البحث...';
-                    else if(progress < 0.85) subtext.textContent = 'تحديد المرشحين النهائيين...';
-                    else subtext.textContent = 'تم تحديد الفائز!';
+                     if(progress < 0.5) subtext.textContent = 'تضييق نطاق البحث...';
+                     else subtext.textContent = 'تم تحديد الفائز!';
                 }
 
                 if(progress >= 1) {
-                    running = false;
                     nameEl.textContent = winnerName;
                     boxEl.classList.add('winner-found');
-                    // Remove scan line
                     var scanLine = boxEl.querySelector('.scan-line');
                     if(scanLine) scanLine.style.display = 'none';
-                    setTimeout(function(){ callback(winnerName); }, 800);
+                    setTimeout(function(){ if(finalCallback) finalCallback(winnerName); }, 800);
                     return;
                 }
-                setTimeout(frame, interval);
+                setTimeout(slowFrame, interval);
             })();
         };
     }
@@ -572,7 +607,7 @@
     }
 
     /* ============ WINNER ANIMATION ORCHESTRATOR ============ */
-    function startWinnerReveal(winnerName, correctCount) {
+    function startWinnerReveal(winnerName, correctCount, candidateNames) {
         var overlay = document.getElementById('selectionOverlay');
         var phaseCount = document.getElementById('phaseCountdown');
         var phaseSelector = document.getElementById('phaseSelector');
@@ -580,7 +615,7 @@
         var countNum = document.getElementById('bigCountNum');
         var flashBang = document.getElementById('flashBang');
 
-        if(!overlay || !winnerName) { location.reload(); return; }
+        if(!overlay) { location.reload(); return; }
 
         initOverlayParticles();
         overlay.classList.add('active');
@@ -601,30 +636,18 @@
                     document.body.classList.remove('shake-it');
                 }, 500);
 
-                // Phase 2: Digital Selector (8 seconds)
+                // Phase 2: Digital Selector (run for a bit then reveal)
                 phaseCount.style.display = 'none';
                 phaseSelector.style.display = 'block';
 
-                var selector = new DigitalSelector(winnerName, correctCount);
-                selector.start(function(name) {
-                    // Flash!
-                    flashBang.classList.add('flash');
-                    setTimeout(function(){ flashBang.classList.remove('flash'); }, 500);
-
-                    Confetti.launch(350, 5000);
-
-                    // Phase 3: Announce
-                    setTimeout(function() {
-                        phaseSelector.style.display = 'none';
-                        phaseAnnounce.style.display = 'block';
-                        document.getElementById('announceName').textContent = name;
-
-                        Confetti.launch(200, 4000);
-
-                        // Reload after celebration
-                        setTimeout(function() { location.reload(); }, 3500);
-                    }, 800);
-                });
+                var selector = new DigitalSelector(candidateNames);
+                selector.start();
+                
+                // Spin for 3 seconds then reveal (since we already have the winner)
+                setTimeout(function() {
+                     finalizeZeroDelay(selector, winnerName);
+                }, 3000);
+                
                 return;
             }
 
@@ -634,6 +657,63 @@
             countNum.classList.add('count-pop');
             if(countVal <= 2) countNum.classList.add('danger');
         }, 900);
+    }
+    
+    function startZeroDelayAnimation(candidateNames, correctCount) {
+        var overlay = document.getElementById('selectionOverlay');
+        var phaseCount = document.getElementById('phaseCountdown');
+        var phaseSelector = document.getElementById('phaseSelector');
+        var flashBang = document.getElementById('flashBang');
+        
+        if(!overlay) return null; // return selector instance
+        
+        initOverlayParticles();
+        overlay.classList.add('active');
+        
+        // Skip countdown -> Go straight to selector
+        phaseCount.style.display = 'none';
+        phaseSelector.style.display = 'block';
+        
+        // Flash!
+        flashBang.classList.add('flash');
+        setTimeout(function(){ flashBang.classList.remove('flash'); }, 500);
+        
+        var selector = new DigitalSelector(candidateNames);
+        selector.start();
+        return selector;
+    }
+    
+    function finalizeZeroDelay(selector, winnerName) {
+        var phaseSelector = document.getElementById('phaseSelector');
+        var phaseAnnounce = document.getElementById('phaseAnnounce');
+        var flashBang = document.getElementById('flashBang');
+        
+        if(!selector) return;
+        
+        selector.reveal(winnerName, function(name) {
+             // Flash!
+            flashBang.classList.add('flash');
+            setTimeout(function(){ flashBang.classList.remove('flash'); }, 500);
+
+            Confetti.launch(350, 5000);
+
+            // Phase 3: Announce
+            setTimeout(function() {
+                phaseSelector.style.display = 'none';
+                phaseAnnounce.style.display = 'block';
+                document.getElementById('announceName').textContent = name;
+
+                Confetti.launch(200, 4000);
+
+                // Reload after celebration
+                // Reload after celebration with flag to skip re-animation
+                setTimeout(function() { 
+                    var url = new URL(window.location.href);
+                    url.searchParams.set('animation_done', '1');
+                    window.location.href = url.toString();
+                }, 3500);
+            }, 800);
+        });
     }
 
     /* ============ AJAX WINNER FETCHER WITH JITTER ============ */
@@ -682,7 +762,9 @@
             var end=parseInt(document.getElementById('atEndTime').value,10);
             var apiUrl = document.getElementById('activeWinnerApiUrl').value;
             var correctCount = parseInt(document.getElementById('activeCorrectCount').value, 10) || 0;
+            var candidates = JSON.parse(document.getElementById('candidateNamesJson').value || '[]');
             var timerDone = false;
+            
             function pad(n){return n.toString().padStart(2,'0');}
             function update(){
                 var d=end-Date.now();
@@ -692,13 +774,20 @@
                     document.getElementById('at-hours').textContent='00';
                     document.getElementById('at-minutes').textContent='00';
                     document.getElementById('at-seconds').textContent='00';
-                    // Wait 10s + jitter then fetch winner seamlessly (no reload!)
-                    var jitter = Math.floor(Math.random() * 5000);
+                    
+                    // ZERO DELAY: Start animation IMMEDIATELY while fetching winner
+                    var selector = startZeroDelayAnimation(candidates, correctCount);
+                    
+                    // Fetch winner in parallel
+                    // jitter is still good to avoid server DDOS, but let's make it very small (0-2s)
+                    // The animation is already running so the user sees "something happening" instantly
+                    
+                    var jitter = Math.floor(Math.random() * 2000);
                     setTimeout(function() {
                         fetchWinnerFromServer(apiUrl, function(winnerName) {
-                            startWinnerReveal(winnerName, correctCount);
+                            finalizeZeroDelay(selector, winnerName);
                         });
-                    }, 10000 + jitter);
+                    }, jitter);
                     return;
                 }
                 if(timerDone) return;
@@ -716,17 +805,19 @@
             var apiUrl = document.getElementById('winnerApiUrl').value;
             var hasWinners = document.getElementById('hasWinnersAlready').value === '1';
             var correctCount = parseInt(document.getElementById('correctCount').value, 10) || 0;
+            var candidates = JSON.parse(document.getElementById('candidateNamesJsonEnded').value || '[]');
             var now = Date.now();
+            var urlParams = new URLSearchParams(window.location.search);
 
-            // If winners already exist and it's been more than 20 seconds, skip animation
-            if(hasWinners && now > selAt + 20000) {
+            // If winners already exist and it's been more than 20 seconds OR we just finished animation, skip
+            if((hasWinners && now > selAt + 20000) || urlParams.has('animation_done')) {
                 addSparkles(document.getElementById('sparklesBox'), 20);
                 Confetti.launch(200, 5000);
                 return;
             }
 
-            // Jitter: random 0-5 second delay to distribute 1000+ requests
-            var jitter = Math.floor(Math.random() * 5000);
+            // Small jitter to distribute 1000+ requests
+            var jitter = Math.floor(Math.random() * 3000);
 
             // Calculate when to fetch the winner
             var fetchTime = Math.max(selAt + jitter, now);
@@ -734,7 +825,7 @@
 
             setTimeout(function() {
                 fetchWinnerFromServer(apiUrl, function(winnerName) {
-                    startWinnerReveal(winnerName, correctCount);
+                    startWinnerReveal(winnerName, correctCount, candidates);
                 });
             }, delay);
         })();
