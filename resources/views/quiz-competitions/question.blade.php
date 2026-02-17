@@ -347,6 +347,23 @@
                             <div><label class="block text-gray-600 text-sm mb-2 font-medium">الاسم <span class="text-red-500">*</span></label><input type="text" name="name" value="{{ old('name') }}" required class="w-full px-4 py-3.5 rounded-xl border-2 border-gray-200 bg-white/70 text-gray-800 text-sm focus:ring-4 focus:ring-green-200 focus:border-green-500 transition-all" placeholder="أدخل اسمك الكامل"></div>
                             <div><label class="block text-gray-600 text-sm mb-2 font-medium">رقم الهاتف <span class="text-red-500">*</span></label><input type="text" name="phone" value="{{ old('phone') }}" required class="w-full px-4 py-3.5 rounded-xl border-2 border-gray-200 bg-white/70 text-gray-800 text-sm focus:ring-4 focus:ring-green-200 focus:border-green-500 transition-all" placeholder="05xxxxxxxx" dir="ltr" style="text-align:right;"></div>
                         </div>
+                        <div class="space-y-3 mt-4">
+                            <div class="flex items-center gap-2 p-3 rounded-xl border-2 border-gray-200 bg-white/80 hover:border-green-300 hover:bg-green-50/50 cursor-pointer transition-all">
+                                <input type="checkbox" name="is_from_ancestry" value="1" id="is_from_ancestry_question" 
+                                       class="w-4 h-4 text-green-600 rounded border-gray-300 focus:ring-green-500"
+                                       {{ old('is_from_ancestry') ? 'checked' : '' }}
+                                       onchange="toggleMotherNameFieldQuestion(this.checked)">
+                                <label for="is_from_ancestry_question" class="text-gray-800 text-sm font-medium cursor-pointer">
+                                    أنا من الأنساب
+                                </label>
+                            </div>
+                            <div id="mother_name_field_question" class="hidden">
+                                <label class="block text-gray-600 text-sm mb-2 font-medium">اسم الأم <span class="text-red-500">*</span></label>
+                                <input type="text" name="mother_name" value="{{ old('mother_name') }}"
+                                       class="w-full px-4 py-3.5 rounded-xl border-2 border-gray-200 bg-white/70 text-gray-800 text-sm focus:ring-4 focus:ring-green-200 focus:border-green-500 transition-all"
+                                       placeholder="اسم الأم الكامل">
+                            </div>
+                        </div>
                     </div>
                     <div class="glass-effect rounded-2xl p-5 md:p-6">
                         <div class="flex items-center gap-2 mb-4"><div class="w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-br from-green-100 to-green-200 border border-green-300"><i class="fas fa-pen text-green-600 text-sm"></i></div><h3 class="font-bold text-gray-800">إجابتك</h3></div>
@@ -760,6 +777,30 @@
             addSparkles(document.getElementById('sparklesBox'), 20);
             Confetti.launch(200, 5000);
         })();
+        @endif
+
+        // دالة لإظهار/إخفاء حقل اسم الأم بناءً على checkbox الأنساب
+        window.toggleMotherNameFieldQuestion = function(isChecked) {
+            const motherNameField = document.getElementById('mother_name_field_question');
+            const motherNameInput = motherNameField.querySelector('input[name="mother_name"]');
+            
+            if (isChecked) {
+                motherNameField.classList.remove('hidden');
+                if (motherNameInput) {
+                    motherNameInput.setAttribute('required', 'required');
+                }
+            } else {
+                motherNameField.classList.add('hidden');
+                if (motherNameInput) {
+                    motherNameInput.removeAttribute('required');
+                    motherNameInput.value = '';
+                }
+            }
+        };
+
+        // تهيئة الحقل عند تحميل الصفحة (في حالة وجود old values)
+        @if(old('is_from_ancestry'))
+            toggleMotherNameFieldQuestion(true);
         @endif
     });
     </script>

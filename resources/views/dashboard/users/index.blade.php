@@ -88,6 +88,7 @@
                         <tr>
                             <th>الاسم</th>
                             <th>رقم الهاتف</th>
+                            <th>اسم الأم</th>
                             <th>البريد الإلكتروني</th>
                             <th>العنوان</th>
                             <th>العمر</th>
@@ -121,6 +122,15 @@
                                         <i class="fas fa-phone text-primary"></i> {{ $user->phone }}
                                     @else
                                         <span class="text-muted">-</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($user->is_from_ancestry && $user->mother_name)
+                                        <span class="badge badge-info">
+                                            <i class="fas fa-female"></i> {{ $user->mother_name }}
+                                        </span>
+                                    @else
+                                        <span class="text-muted">—</span>
                                     @endif
                                 </td>
                                 <td>
@@ -210,7 +220,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="9" class="text-center">لا يوجد مستخدمون</td>
+                                <td colspan="10" class="text-center">لا يوجد مستخدمون</td>
                             </tr>
                         @endforelse
                     </tbody>

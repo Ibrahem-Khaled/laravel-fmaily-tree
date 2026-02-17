@@ -270,6 +270,13 @@
                                                     </div>
                                                 </div>
                                                 <div>
+                                                    <label class="block text-gray-600 text-xs mb-1 font-medium">اسم الأم (للمستخدمين من الأنساب)</label>
+                                                    <input type="text" name="mother_name" value="{{ old('mother_name') }}"
+                                                           class="w-full px-3 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-gray-800 text-sm focus:ring-2 focus:ring-green-200 focus:border-green-500"
+                                                           placeholder="ينتهي باسم السريع">
+                                                    <input type="hidden" name="is_from_ancestry" value="1">
+                                                </div>
+                                                <div>
                                                     <label class="block text-gray-600 text-xs mb-2 font-medium">الإجابة <span class="text-red-500">*</span></label>
                                                     @if($q->answer_type === 'multiple_choice' && $q->choices->count() > 0)
                                                         <div class="space-y-2">

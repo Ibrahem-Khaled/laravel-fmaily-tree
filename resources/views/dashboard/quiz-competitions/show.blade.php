@@ -170,6 +170,7 @@
                                                     <th>#</th>
                                                     <th>المشارك</th>
                                                     <th>رقم الهاتف</th>
+                                                    <th>اسم الأم</th>
                                                     <th>الإجابة</th>
                                                     <th>النتيجة</th>
                                                     <th>التاريخ</th>
@@ -181,6 +182,13 @@
                                                         <td>{{ $i + 1 }}</td>
                                                         <td>{{ $answer->user->name ?? '-' }}</td>
                                                         <td dir="ltr">{{ $answer->user->phone ?? '-' }}</td>
+                                                        <td>
+                                                            @if($answer->user->is_from_ancestry && $answer->user->mother_name)
+                                                                <span class="badge badge-info">{{ $answer->user->mother_name }}</span>
+                                                            @else
+                                                                <span class="text-muted">—</span>
+                                                            @endif
+                                                        </td>
                                                         <td>
                                                             @if($answer->answer_type === 'choice')
                                                                 @php $choice = $question->choices->firstWhere('id', (int) $answer->answer); @endphp

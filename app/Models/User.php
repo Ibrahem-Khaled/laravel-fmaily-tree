@@ -32,6 +32,8 @@ class User extends Authenticatable implements AuditableContract
         'avatar',
         'address',
         'status',
+        'is_from_ancestry',
+        'mother_name',
     ];
 
     /**
@@ -52,6 +54,7 @@ class User extends Authenticatable implements AuditableContract
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'is_from_ancestry' => 'boolean',
     ];
 
     /**

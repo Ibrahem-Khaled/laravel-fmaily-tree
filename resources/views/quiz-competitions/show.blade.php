@@ -145,31 +145,61 @@
                 </div>
                 <div class="space-y-4">
                     @foreach($questions as $question)
-                        <a href="{{ route('quiz-competitions.question', [$quizCompetition, $question]) }}"
-                           class="question-card visible block glass-effect rounded-2xl p-5 md:p-6 green-glow-hover relative overflow-hidden group">
-                            <div class="absolute top-0 right-0 left-0 h-1" style="background: linear-gradient(90deg, #22c55e, #4ade80);"></div>
+                        @php
+                            $hasAnswered = isset($userAnsweredQuestions[$question->id]) && $userAnsweredQuestions[$question->id];
+                        @endphp
+                        @if($hasAnswered)
+                            <div class="question-card visible block glass-effect rounded-2xl p-5 md:p-6 relative overflow-hidden">
+                                <div class="absolute top-0 right-0 left-0 h-1" style="background: linear-gradient(90deg, #22c55e, #4ade80);"></div>
 
-                            <div class="flex items-center justify-between mb-3">
-                                <span class="inline-flex items-center gap-1.5 bg-red-50 text-red-600 text-[11px] font-bold px-2.5 py-1 rounded-full border border-red-200">
-                                    <span class="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span>
-                                    مباشر الآن
-                                </span>
-                                <span class="text-gray-400 text-xs">
-                                    <i class="fas fa-hourglass-half text-amber-500 ml-1"></i>
-                                    ينتهي: {{ $quizCompetition->end_at?->format('H:i') ?? '—' }}
-                                </span>
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="inline-flex items-center gap-1.5 bg-green-50 text-green-600 text-[11px] font-bold px-2.5 py-1 rounded-full border border-green-200">
+                                        <i class="fas fa-check-circle"></i>
+                                        تم الإجابة
+                                    </span>
+                                    <span class="text-gray-400 text-xs">
+                                        <i class="fas fa-hourglass-half text-amber-500 ml-1"></i>
+                                        ينتهي: {{ $quizCompetition->end_at?->format('H:i') ?? '—' }}
+                                    </span>
+                                </div>
+
+                                <p class="text-lg md:text-xl font-bold text-gray-800 mb-4 leading-relaxed">
+                                    {{ $question->question_text }}
+                                </p>
+
+                                <a href="{{ route('quiz-competitions.question', [$quizCompetition, $question]) }}" 
+                                   class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-gray-600 text-sm font-bold transition-all hover:text-green-600 border-2 border-gray-200 hover:border-green-300">
+                                    <i class="fas fa-eye"></i>
+                                    عرض التفاصيل
+                                </a>
                             </div>
+                        @else
+                            <a href="{{ route('quiz-competitions.question', [$quizCompetition, $question]) }}"
+                               class="question-card visible block glass-effect rounded-2xl p-5 md:p-6 green-glow-hover relative overflow-hidden group">
+                                <div class="absolute top-0 right-0 left-0 h-1" style="background: linear-gradient(90deg, #22c55e, #4ade80);"></div>
 
-                            <p class="text-lg md:text-xl font-bold text-gray-800 mb-4 group-hover:text-green-600 transition-colors leading-relaxed">
-                                {{ $question->question_text }}
-                            </p>
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="inline-flex items-center gap-1.5 bg-red-50 text-red-600 text-[11px] font-bold px-2.5 py-1 rounded-full border border-red-200">
+                                        <span class="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span>
+                                        مباشر الآن
+                                    </span>
+                                    <span class="text-gray-400 text-xs">
+                                        <i class="fas fa-hourglass-half text-amber-500 ml-1"></i>
+                                        ينتهي: {{ $quizCompetition->end_at?->format('H:i') ?? '—' }}
+                                    </span>
+                                </div>
 
-                            <span class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-bold transition-all group-hover:-translate-y-0.5"
-                                  style="background: linear-gradient(135deg, #22c55e, #16a34a); box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);">
-                                <i class="fas fa-pen-fancy"></i>
-                                أجب الآن
-                            </span>
-                        </a>
+                                <p class="text-lg md:text-xl font-bold text-gray-800 mb-4 group-hover:text-green-600 transition-colors leading-relaxed">
+                                    {{ $question->question_text }}
+                                </p>
+
+                                <span class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-bold transition-all group-hover:-translate-y-0.5"
+                                      style="background: linear-gradient(135deg, #22c55e, #16a34a); box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);">
+                                    <i class="fas fa-pen-fancy"></i>
+                                    أجب الآن
+                                </span>
+                            </a>
+                        @endif
                     @endforeach
                 </div>
             </div>
