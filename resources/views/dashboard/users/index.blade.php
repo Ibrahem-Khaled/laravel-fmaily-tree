@@ -3,6 +3,9 @@
 @section('title', 'إدارة المستخدمين')
 
 @section('content')
+@php
+    \Carbon\Carbon::setLocale('ar');
+@endphp
 <div class="container-fluid">
     {{-- عنوان الصفحة ومسار التنقل --}}
     <div class="row">
@@ -93,7 +96,7 @@
                             <th>العنوان</th>
                             <th>العمر</th>
                             <th>الدور</th>
-                            <th>تاريخ الإنشاء</th>
+                            <th>سجل منذ</th>
                             <th>الحالة</th>
                             <th>الإجراءات</th>
                         </tr>
@@ -163,7 +166,11 @@
                                         <span class="text-muted">بدون دور</span>
                                     @endforelse
                                 </td>
-                                <td>{{ $user->created_at->format('Y-m-d') }}</td>
+                                <td>
+                                    <span class="text-muted" title="{{ $user->created_at->format('Y-m-d H:i') }}">
+                                        <i class="fas fa-clock"></i> {{ $user->created_at->diffForHumans() }}
+                                    </span>
+                                </td>
                                 <td>
                                     @php
                                         $userRoles = auth()->user()->roles->pluck('name')->toArray();
