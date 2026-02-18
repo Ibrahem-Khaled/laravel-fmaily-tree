@@ -217,6 +217,91 @@ class UserController extends Controller
     }
 
     /**
+     * حذف المستخدمين بشكل جماعي
+     */
+    public function bulkDelete(Request $request)
+    {
+        // التحقق من صلاحية الحذف
+        $userRoles = auth()->user()->roles->pluck('name')->toArray();
+        if (!in_array('admin', $userRoles) && !in_array('super_admin', $userRoles)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'ليس لديك صلاحية لحذف المستخدمين'
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'required|integer|exists:users,id',
+        ]);
+
+        $userIds = $validated['ids'];
+
+        // منع حذف المستخدم الحالي
+        if (in_array(auth()->id(), $userIds)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'لا يمكنك حذف حسابك الخاص'
+            ], 403);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $users = User::whereIn('id', $userIds)->get();
+            $deletedCount = 0;
+            $errors = [];
+
+            foreach ($users as $user) {
+                // منع حذف آخر مدير
+                $adminCount = User::whereHas('roles', function($q) {
+                    $q->whereIn('name', ['admin', 'super_admin']);
+                })->count();
+
+                if ($adminCount <= 1 && $user->hasAnyRole(['admin', 'super_admin'])) {
+                    $errors[] = "لا يمكن حذف المستخدم '{$user->name}' لأنه آخر مدير في النظام";
+                    continue;
+                }
+
+                // منع حذف المستخدمين الذين لديهم صلاحية حذف المستخدمين
+                $targetUserRoles = $user->roles->pluck('name')->toArray();
+                if (in_array('admin', $targetUserRoles) || in_array('super_admin', $targetUserRoles)) {
+                    $errors[] = "لا يمكن حذف المستخدم '{$user->name}' لأنه لديه صلاحية حذف المستخدمين";
+                    continue;
+                }
+
+                $user->delete();
+                $deletedCount++;
+            }
+
+            DB::commit();
+
+            if ($deletedCount > 0) {
+                $message = "تم حذف {$deletedCount} مستخدم(ين) بنجاح";
+                if (count($errors) > 0) {
+                    $message .= "\n" . implode("\n", $errors);
+                }
+                return response()->json([
+                    'success' => true,
+                    'message' => $message
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => implode("\n", $errors)
+                ], 400);
+            }
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ أثناء حذف المستخدمين: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * تفعيل أو إلغاء تفعيل المستخدم
      */
     public function toggleStatus(User $user)

@@ -192,38 +192,16 @@ class QuizCompetitionPublicController extends Controller
         try {
             DB::beginTransaction();
 
-            $user = User::where('phone', $validated['phone'])->first();
-
             // إذا تم إدخال اسم الأم، يعتبر المستخدم من الأنساب تلقائياً
             $hasMotherName = !empty($validated['mother_name']);
             $isFromAncestry = isset($validated['is_from_ancestry']) && $validated['is_from_ancestry'] || $hasMotherName;
 
-            if (!$user) {
-                $user = User::create([
-                    'name' => $validated['name'],
-                    'phone' => $validated['phone'],
-                    'password' => Hash::make(uniqid()),
-                    'status' => 1,
-                    'is_from_ancestry' => $isFromAncestry,
-                    'mother_name' => $hasMotherName ? $validated['mother_name'] : null,
-                ]);
-            } else {
-                if (empty($user->name)) {
-                    $user->name = $validated['name'];
-                }
-                // تحديث معلومات الأنساب إذا تم إدخال اسم الأم
-                if ($hasMotherName) {
-                    $user->is_from_ancestry = true;
-                    $user->mother_name = $validated['mother_name'];
-                } elseif (isset($validated['is_from_ancestry']) && $validated['is_from_ancestry']) {
-                    $user->is_from_ancestry = true;
-                }
-                $user->save();
-            }
-
-            // التحقق من وجود إجابة سابقة
+            // التحقق من وجود إجابة سابقة بنفس رقم الهاتف
             $existingAnswer = QuizAnswer::where('quiz_question_id', $quizQuestion->id)
-                ->where('user_id', $user->id)
+                ->whereHas('user', function($q) use ($validated) {
+                    $q->where('phone', $validated['phone']);
+                })
+                ->latest()
                 ->first();
 
             if ($existingAnswer) {
@@ -236,6 +214,16 @@ class QuizCompetitionPublicController extends Controller
                     return back()->with('error', 'لقد أجبت على هذا السؤال مسبقاً.');
                 }
             }
+
+            // إنشاء مستخدم جديد دائماً
+            $user = User::create([
+                'name' => $validated['name'],
+                'phone' => $validated['phone'],
+                'password' => Hash::make(uniqid()),
+                'status' => 1,
+                'is_from_ancestry' => $isFromAncestry,
+                'mother_name' => $hasMotherName ? $validated['mother_name'] : null,
+            ]);
 
             QuizRegistration::firstOrCreate(
                 [
@@ -254,18 +242,14 @@ class QuizCompetitionPublicController extends Controller
                 $answerType = 'choice';
             }
 
-            // استخدام updateOrCreate بدلاً من create لتجنب الخطأ في حالة وجود إجابة سابقة
-            QuizAnswer::updateOrCreate(
-                [
-                    'quiz_question_id' => $quizQuestion->id,
-                    'user_id' => $user->id,
-                ],
-                [
-                    'answer' => $validated['answer'],
-                    'answer_type' => $answerType,
-                    'is_correct' => $isCorrect,
-                ]
-            );
+            // إنشاء إجابة جديدة دائماً
+            QuizAnswer::create([
+                'quiz_question_id' => $quizQuestion->id,
+                'user_id' => $user->id,
+                'answer' => $validated['answer'],
+                'answer_type' => $answerType,
+                'is_correct' => $isCorrect,
+            ]);
 
             session(['quiz_answered_' . $quizQuestion->id => now()->toDateTimeString()]);
 

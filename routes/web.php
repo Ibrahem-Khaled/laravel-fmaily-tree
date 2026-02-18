@@ -258,6 +258,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::resource('locations', LocationController::class)->where(['location' => '[0-9]+'])->middleware(['permission:locations.view|locations.create|locations.update|locations.delete']);
     Route::resource('roles', RoleController::class)->middleware(['permission:roles.manage']);
     Route::resource('users', UserController::class)->only(['index', 'store', 'update', 'destroy'])->middleware(['permission:users.manage']);
+    Route::post('users/bulk-delete', [UserController::class, 'bulkDelete'])->name('users.bulk-delete')->middleware(['permission:users.manage']);
     Route::patch('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status')->middleware(['permission:users.manage']);
 
     // Badges (Padges) routes

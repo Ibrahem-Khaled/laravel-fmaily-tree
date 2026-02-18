@@ -84,11 +84,21 @@
                 </div>
             </form>
 
+            {{-- زر الحذف الجماعي --}}
+            <div class="mb-3 d-none" id="bulkActions">
+                <button type="button" class="btn btn-danger" id="bulkDeleteBtn" disabled>
+                    <i class="fas fa-trash"></i> حذف المحدد (<span id="selectedCount">0</span>)
+                </button>
+            </div>
+
             {{-- جدول المستخدمين --}}
             <div class="table-responsive">
                 <table class="table table-bordered table-hover">
                     <thead class="thead-light">
                         <tr>
+                            <th width="50">
+                                <input type="checkbox" id="selectAll" title="تحديد الكل">
+                            </th>
                             <th>الاسم</th>
                             <th>رقم الهاتف</th>
                             <th>اسم الأم</th>
@@ -104,6 +114,9 @@
                     <tbody>
                         @forelse($users as $user)
                             <tr>
+                                <td>
+                                    <input type="checkbox" class="user-checkbox" value="{{ $user->id }}" data-user-name="{{ $user->name }}">
+                                </td>
                                 <td>
                                     <div class="d-flex align-items-center">
                                         @if($user->avatar)
@@ -227,7 +240,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="10" class="text-center">لا يوجد مستخدمون</td>
+                                <td colspan="11" class="text-center">لا يوجد مستخدمون</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -375,5 +388,90 @@
                 $('.alert').fadeOut();
             }, 5000);
         }
+
+        {{-- الحذف الجماعي --}}
+        // تحديد/إلغاء تحديد الكل
+        $('#selectAll').on('change', function() {
+            $('.user-checkbox').prop('checked', $(this).prop('checked'));
+            updateBulkActions();
+        });
+
+        // تحديث حالة الأزرار عند تغيير التحديد
+        $('.user-checkbox').on('change', function() {
+            updateBulkActions();
+            // تحديث حالة "تحديد الكل"
+            const totalCheckboxes = $('.user-checkbox').length;
+            const checkedCheckboxes = $('.user-checkbox:checked').length;
+            $('#selectAll').prop('checked', totalCheckboxes === checkedCheckboxes);
+        });
+
+        function updateBulkActions() {
+            const selectedCount = $('.user-checkbox:checked').length;
+            $('#selectedCount').text(selectedCount);
+            
+            if (selectedCount > 0) {
+                $('#bulkActions').removeClass('d-none');
+                $('#bulkDeleteBtn').prop('disabled', false);
+            } else {
+                $('#bulkActions').addClass('d-none');
+                $('#bulkDeleteBtn').prop('disabled', true);
+            }
+        }
+
+        // الحذف الجماعي
+        $('#bulkDeleteBtn').on('click', function() {
+            const selectedIds = $('.user-checkbox:checked').map(function() {
+                return $(this).val();
+            }).get();
+
+            if (selectedIds.length === 0) {
+                showAlert('error', 'لم يتم تحديد أي مستخدمين');
+                return;
+            }
+
+            const selectedNames = $('.user-checkbox:checked').map(function() {
+                return $(this).data('user-name');
+            }).get().join(', ');
+
+            if (!confirm(`هل أنت متأكد من حذف ${selectedIds.length} مستخدم(ين)؟\n\nالمستخدمون المحددون:\n${selectedNames}`)) {
+                return;
+            }
+
+            // تعطيل الزر أثناء المعالجة
+            const btn = $(this);
+            btn.prop('disabled', true);
+            btn.html('<i class="fas fa-spinner fa-spin"></i> جاري الحذف...');
+
+            $.ajax({
+                url: '{{ route("users.bulk-delete") }}',
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: {
+                    ids: selectedIds
+                },
+                success: function(response) {
+                    if (response.success) {
+                        showAlert('success', response.message);
+                        // إعادة تحميل الصفحة بعد ثانيتين
+                        setTimeout(function() {
+                            location.reload();
+                        }, 2000);
+                    } else {
+                        showAlert('error', response.message);
+                        btn.prop('disabled', false);
+                        btn.html('<i class="fas fa-trash"></i> حذف المحدد (<span id="selectedCount">' + selectedIds.length + '</span>)');
+                    }
+                },
+                error: function(xhr) {
+                    const response = xhr.responseJSON;
+                    const message = response ? response.message : 'حدث خطأ أثناء حذف المستخدمين';
+                    showAlert('error', message);
+                    btn.prop('disabled', false);
+                    btn.html('<i class="fas fa-trash"></i> حذف المحدد (<span id="selectedCount">' + selectedIds.length + '</span>)');
+                }
+            });
+        });
     </script>
 @endpush
