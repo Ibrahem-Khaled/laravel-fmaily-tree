@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $quizCompetition->title }} - مسابقات الأسئلة</title>
+    <title>{{ strip_tags($quizCompetition->title) }} - مسابقات الأسئلة</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -255,7 +255,7 @@
                                     {!! $question->question_text !!}
                                 </div>
 
-                                <a href="{{ route('quiz-competitions.question', [$quizCompetition, $question]) }}" 
+                                <a href="{{ route('quiz-competitions.question', [$quizCompetition, $question]) }}"
                                    class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-gray-600 text-sm font-bold transition-all hover:text-green-600 border-2 border-gray-200 hover:border-green-300">
                                     <i class="fas fa-eye"></i>
                                     عرض التفاصيل
