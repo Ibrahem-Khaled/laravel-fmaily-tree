@@ -68,6 +68,94 @@
         .gallerySwiper .swiper-button-next::after, .gallerySwiper .swiper-button-prev::after,
         .coursesSwiper .swiper-button-next::after, .coursesSwiper .swiper-button-prev::after { font-size: 16px; }
     }
+
+    /* Quiz Description Styles */
+    .quiz-description {
+        direction: rtl;
+        text-align: right;
+    }
+    .quiz-description p {
+        margin-bottom: 0.75rem;
+    }
+    .quiz-description strong,
+    .quiz-description b {
+        font-weight: 700;
+        color: #16a34a;
+    }
+    .quiz-description em,
+    .quiz-description i {
+        font-style: italic;
+    }
+    .quiz-description ul,
+    .quiz-description ol {
+        margin-right: 1.5rem;
+        margin-bottom: 0.75rem;
+    }
+    .quiz-description li {
+        margin-bottom: 0.5rem;
+    }
+    .quiz-description a {
+        color: #22c55e;
+        text-decoration: underline;
+        transition: color 0.2s;
+    }
+    .quiz-description a:hover {
+        color: #16a34a;
+    }
+    .quiz-description table {
+        width: 100%;
+        margin-bottom: 0.75rem;
+        border-collapse: collapse;
+        direction: ltr;
+        text-align: left;
+    }
+    .quiz-description table td,
+    .quiz-description table th {
+        padding: 0.5rem;
+        border: 1px solid #e5e7eb;
+        text-align: left;
+    }
+    .quiz-description img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 0.5rem;
+        margin: 0.5rem 0;
+    }
+
+    /* Question Text Styles */
+    .question-text {
+        direction: rtl;
+        text-align: right;
+    }
+    .question-text p {
+        margin-bottom: 0.5rem;
+    }
+    .question-text strong,
+    .question-text b {
+        font-weight: 700;
+    }
+    .question-text em,
+    .question-text i {
+        font-style: italic;
+    }
+    .question-text ul,
+    .question-text ol {
+        margin-right: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+    .question-text li {
+        margin-bottom: 0.25rem;
+    }
+    .question-text a {
+        color: #22c55e;
+        text-decoration: underline;
+    }
+    .question-text img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 0.5rem;
+        margin: 0.5rem 0;
+    }
 </style>
 @endpush
 
@@ -204,7 +292,7 @@
                                 {{ $activeQuizCompetition->title }}
                             </h3>
                             @if ($activeQuizCompetition->description)
-                                <p class="text-gray-600 text-sm mb-2">{{ Str::limit($activeQuizCompetition->description, 150) }}</p>
+                                <div class="text-gray-600 text-sm mb-2 quiz-description">{!! $activeQuizCompetition->description !!}</div>
                             @endif
 
                             {{-- العد التنازلي حتى انتهاء المسابقة (وقت اختيار الفائز) --}}
@@ -250,7 +338,7 @@
                                         }
                                     @endphp
                                     <div class="rounded-2xl p-3 border-2 border-green-100 bg-white/80 shadow-sm">
-                                        <p class="text-gray-800 font-bold text-base mb-2">{{ $q->question_text }}</p>
+                                        <div class="text-gray-800 font-bold text-base mb-2 question-text">{!! $q->question_text !!}</div>
 
                                         @if($canAnswerThis)
                                             <form action="{{ route('quiz-competitions.store-answer', [$activeQuizCompetition, $q]) }}" method="POST" class="space-y-4">

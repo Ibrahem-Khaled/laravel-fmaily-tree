@@ -27,6 +27,41 @@
         ::-webkit-scrollbar { width: 10px; } ::-webkit-scrollbar-track { background: #f0fdf4; }
         ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #22c55e, #16a34a); border-radius: 5px; }
 
+        /* Question Text Styles */
+        .question-text {
+            direction: rtl;
+            text-align: right;
+        }
+        .question-text p {
+            margin-bottom: 0.5rem;
+        }
+        .question-text strong,
+        .question-text b {
+            font-weight: 700;
+        }
+        .question-text em,
+        .question-text i {
+            font-style: italic;
+        }
+        .question-text ul,
+        .question-text ol {
+            margin-right: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .question-text li {
+            margin-bottom: 0.25rem;
+        }
+        .question-text a {
+            color: #22c55e;
+            text-decoration: underline;
+        }
+        .question-text img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+            margin: 0.5rem 0;
+        }
+
         /* ====== SELECTION OVERLAY ====== */
         #selectionOverlay {
             position: fixed; inset: 0; z-index: 9990;
@@ -82,6 +117,15 @@
             font-size: 1.6rem; font-weight:700; color:#fff; white-space:nowrap;
             text-shadow: 0 0 20px rgba(34,197,94,0.4);
             transition: all 0.06s linear;
+        }
+        .name-scroller-track .scroller-name.blurred {
+            filter: blur(8px);
+            opacity: 0.6;
+        }
+        .name-scroller-track .scroller-name.clear {
+            filter: blur(0);
+            opacity: 1;
+            transition: filter 0.5s ease-out, opacity 0.5s ease-out;
         }
         .name-scroller-box.winner-found {
             border-color: #f59e0b;
@@ -213,7 +257,7 @@
                 <p class="text-gray-500 text-sm mb-6">سيتم فتح السؤال في الموعد المحدد</p>
                 <div class="rounded-2xl p-5 mb-8 text-right bg-gradient-to-br from-green-50 to-green-100 border border-green-200">
                     <p class="text-green-600 text-xs mb-2 font-medium"><i class="fas fa-question-circle ml-1"></i> السؤال:</p>
-                    <p class="text-gray-800 font-bold text-lg">{{ $quizQuestion->question_text }}</p>
+                    <div class="text-gray-800 font-bold text-lg question-text">{!! $quizQuestion->question_text !!}</div>
                 </div>
                 @if($quizCompetition->start_at)
                 <p class="text-gray-500 text-sm mb-4">يبدأ خلال:</p>
@@ -241,7 +285,7 @@
                     <div class="flex items-center gap-2 mb-4">
                         <span class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-500 text-xs px-3 py-1.5 rounded-full border border-gray-200"><i class="fas fa-flag-checkered"></i> انتهت المسابقة</span>
                     </div>
-                    <h2 class="text-xl md:text-2xl font-bold text-gray-800 mb-2 leading-relaxed">{{ $quizQuestion->question_text }}</h2>
+                    <div class="text-xl md:text-2xl font-bold text-gray-800 mb-2 leading-relaxed question-text">{!! $quizQuestion->question_text !!}</div>
                     <p class="text-gray-400 text-xs"><i class="fas fa-calendar ml-1"></i>
                         @if($quizCompetition->start_at && $quizCompetition->end_at) {{ $quizCompetition->start_at->translatedFormat('d M') }} - {{ $quizCompetition->end_at->translatedFormat('d M Y') }} @else — @endif
                     </p>
@@ -277,18 +321,6 @@
                 </div>
                 @endif
 
-                @php $correctAnswers = $quizQuestion->answers->where('is_correct', true); @endphp
-                @if($correctAnswers->count() > 0)
-                <div class="glass-effect rounded-2xl p-5">
-                    <h4 class="text-sm font-bold text-green-600 mb-3 flex items-center gap-2"><i class="fas fa-check-circle"></i> من جاوب صح ({{ $correctAnswers->count() }})</h4>
-                    <div class="flex flex-wrap gap-2">
-                        @foreach($correctAnswers as $ans)
-                        <span class="inline-flex items-center gap-1 bg-green-50 text-green-700 px-3 py-1.5 rounded-lg text-sm border border-green-200">{{ $ans->user->name ?? '-' }}</span>
-                        @endforeach
-                    </div>
-                </div>
-                @endif
-
                 {{-- ===== الفائزون ===== --}}
                 @if($quizQuestion->winners->count() > 0)
                 <div id="winnersSection" class="relative">
@@ -316,13 +348,25 @@
                                 </div>
                                 <div class="flex-1 relative z-10">
                                     <p class="font-bold text-lg md:text-xl {{ $winner->position==1 ? 'text-amber-800' : 'text-gray-800' }}">{{ $winner->user->name ?? '-' }}</p>
-                                    <!-- @if($winner->position==1)<p class="text-amber-600/60 text-xs font-medium mt-1">المركز الأول</p>@endif -->
+                                    @if($winner->position==1)<p class="font-bold text-green-600 text-sm md:text-base mt-2 flex items-center gap-2">مبروك عليك 500 ريال</p>@endif
                                 </div>
                                 @if($winner->position==1)<i class="fas fa-crown text-amber-400 text-2xl relative z-10" style="filter:drop-shadow(0 0 10px rgba(245,158,11,0.4));"></i>
                                 @elseif($winner->position<=3)<i class="fas fa-medal text-{{ $winner->position==2 ? 'gray-400' : 'amber-700/60' }} text-xl relative z-10"></i>@endif
                             </div>
                             @endforeach
                         </div>
+                    </div>
+                </div>
+                @endif
+
+                @php $correctAnswers = $quizQuestion->answers->where('is_correct', true); @endphp
+                @if($correctAnswers->count() > 0)
+                <div class="glass-effect rounded-2xl p-5">
+                    <h4 class="text-sm font-bold text-green-600 mb-3 flex items-center gap-2"><i class="fas fa-check-circle"></i> من جاوب صح ({{ $correctAnswers->count() }})</h4>
+                    <div class="flex flex-wrap gap-2">
+                        @foreach($correctAnswers as $ans)
+                        <span class="inline-flex items-center gap-1 bg-green-50 text-green-700 px-3 py-1.5 rounded-lg text-sm border border-green-200">{{ $ans->user->name ?? '-' }}</span>
+                        @endforeach
                     </div>
                 </div>
                 @endif
@@ -364,7 +408,7 @@
                         <input type="hidden" id="candidateNamesJson" value='@json($candidateNames ?? [])'>@endif
                     </div>
                     <p class="text-green-600 text-xs font-medium mb-3"><i class="fas fa-trophy ml-1"></i> {{ $quizCompetition->title }}</p>
-                    <h1 class="text-xl md:text-2xl lg:text-3xl font-bold text-gray-800 leading-relaxed">{{ $quizQuestion->question_text }}</h1>
+                    <div class="text-xl md:text-2xl lg:text-3xl font-bold text-gray-800 leading-relaxed question-text">{!! $quizQuestion->question_text !!}</div>
                 </div>
                 <div class="grid grid-cols-3 gap-3 md:gap-4">
                     <div class="glass-effect rounded-2xl p-4 md:p-5 text-center"><div class="w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200"><i class="fas fa-users text-blue-500 text-lg"></i></div><p class="text-2xl md:text-3xl font-bold text-gray-800">{{ $stats['total'] }}</p><p class="text-gray-500 text-xs mt-1">إجمالي الإجابات</p></div>
@@ -400,7 +444,7 @@
                         </div>
                         <div class="space-y-3 mt-4">
                             <div class="flex items-center gap-2 p-3 rounded-xl border-2 border-gray-200 bg-white/80 hover:border-green-300 hover:bg-green-50/50 cursor-pointer transition-all">
-                                <input type="checkbox" name="is_from_ancestry" value="1" id="is_from_ancestry_question" 
+                                <input type="checkbox" name="is_from_ancestry" value="1" id="is_from_ancestry_question"
                                        class="w-4 h-4 text-green-600 rounded border-gray-300 focus:ring-green-500"
                                        {{ old('is_from_ancestry') ? 'checked' : '' }}
                                        onchange="toggleMotherNameFieldQuestion(this.checked)">
@@ -505,14 +549,18 @@
             stopping = false;
             winner = null;
 
+            // إضافة blur على الأسماء أثناء العرض
+            nameEl.classList.add('blurred');
+            nameEl.classList.remove('clear');
+
             (function frame() {
                 if(!running) return;
-                
+
                 // If stopping (winner found), slow down
                 // If running (searching), stay fast
-                
+
                 var interval = 50; // Fast by default
-                
+
                 if(stopping) {
                     // Gradual slowdown logic would go here, but for now we'll just keep spinning until final stop
                     // or implement a simple counter
@@ -521,8 +569,11 @@
                 // Pick random name
                 var displayName = namesPool[Math.floor(Math.random() * namesPool.length)];
                 nameEl.textContent = displayName;
+                // الحفاظ على blur أثناء العرض
+                nameEl.classList.add('blurred');
+                nameEl.classList.remove('clear');
 
-                if(stopping && Math.random() < 0.1) { // Random stop chance if slowing down? 
+                if(stopping && Math.random() < 0.1) { // Random stop chance if slowing down?
                     // No, let's just keep spinning fast until reveal() handles the stop animation explicitly
                 }
 
@@ -534,40 +585,76 @@
             stopping = true;
             winner = winnerName;
             finalCallback = callback;
-            
+
             // Start the slowdown sequence
             running = false; // Stop the infinite loop
-            
-            // Start a new controlled loop for slowdown
-            var duration = 4000;
+
+            // زيادة مدة العرض إلى 8000ms (8 ثواني)
+            var duration = 8000;
             var start = Date.now();
-            
+
             (function slowFrame() {
                 var elapsed = Date.now() - start;
                 var progress = Math.min(elapsed / duration, 1);
-                
+
                 // Ease out
                 var interval;
-                if(progress < 0.3) interval = 50;
-                else if(progress < 0.6) interval = 100;
-                else if(progress < 0.8) interval = 200;
-                else if(progress < 0.95) interval = 400;
-                else interval = 700;
+                if(progress < 0.2) interval = 50;
+                else if(progress < 0.4) interval = 100;
+                else if(progress < 0.6) interval = 200;
+                else if(progress < 0.75) interval = 400;
+                else if(progress < 0.9) interval = 600;
+                else interval = 800;
 
                 var displayName;
-                if(progress >= 0.98) displayName = winnerName;
-                else displayName = namesPool[Math.floor(Math.random() * namesPool.length)];
-                
+                var isWinner = false;
+
+                // في آخر 5% من المدة، نبدأ بإزالة blur تدريجياً
+                if(progress >= 0.95) {
+                    displayName = winnerName;
+                    isWinner = true;
+                    // إزالة blur تدريجياً
+                    nameEl.classList.remove('blurred');
+                    nameEl.classList.add('clear');
+                } else if(progress >= 0.85) {
+                    // في آخر 15%، نبدأ بإظهار اسم الفائز أحياناً لكن مع blur خفيف
+                    if(Math.random() < 0.3) {
+                        displayName = winnerName;
+                        nameEl.classList.add('blurred');
+                        nameEl.style.filter = 'blur(4px)';
+                        nameEl.style.opacity = '0.8';
+                    } else {
+                        displayName = namesPool[Math.floor(Math.random() * namesPool.length)];
+                        nameEl.classList.add('blurred');
+                        nameEl.style.filter = 'blur(8px)';
+                        nameEl.style.opacity = '0.6';
+                    }
+                } else {
+                    // باقي الأسماء تظهر مع blur كامل
+                    displayName = namesPool[Math.floor(Math.random() * namesPool.length)];
+                    nameEl.classList.add('blurred');
+                    nameEl.classList.remove('clear');
+                    nameEl.style.filter = 'blur(8px)';
+                    nameEl.style.opacity = '0.6';
+                }
+
                 nameEl.textContent = displayName;
-                
+
                 // Subtext update
                 if(subtext) {
-                     if(progress < 0.5) subtext.textContent = 'تضييق نطاق البحث...';
+                     if(progress < 0.3) subtext.textContent = 'جاري البحث بين المشاركين...';
+                     else if(progress < 0.6) subtext.textContent = 'تضييق نطاق البحث...';
+                     else if(progress < 0.85) subtext.textContent = 'اقتربنا من النتيجة...';
                      else subtext.textContent = 'تم تحديد الفائز!';
                 }
 
                 if(progress >= 1) {
                     nameEl.textContent = winnerName;
+                    // إزالة blur نهائياً من اسم الفائز
+                    nameEl.classList.remove('blurred');
+                    nameEl.classList.add('clear');
+                    nameEl.style.filter = 'blur(0)';
+                    nameEl.style.opacity = '1';
                     boxEl.classList.add('winner-found');
                     var scanLine = boxEl.querySelector('.scan-line');
                     if(scanLine) scanLine.style.display = 'none';
@@ -642,12 +729,13 @@
 
                 var selector = new DigitalSelector(candidateNames);
                 selector.start();
-                
-                // Spin for 3 seconds then reveal (since we already have the winner)
+
+                // Spin for 5 seconds then reveal (since we already have the winner)
+                // زيادة المدة لتتناسب مع المدة الجديدة
                 setTimeout(function() {
                      finalizeZeroDelay(selector, winnerName);
-                }, 3000);
-                
+                }, 5000);
+
                 return;
             }
 
@@ -658,38 +746,38 @@
             if(countVal <= 2) countNum.classList.add('danger');
         }, 900);
     }
-    
+
     function startZeroDelayAnimation(candidateNames, correctCount) {
         var overlay = document.getElementById('selectionOverlay');
         var phaseCount = document.getElementById('phaseCountdown');
         var phaseSelector = document.getElementById('phaseSelector');
         var flashBang = document.getElementById('flashBang');
-        
+
         if(!overlay) return null; // return selector instance
-        
+
         initOverlayParticles();
         overlay.classList.add('active');
-        
+
         // Skip countdown -> Go straight to selector
         phaseCount.style.display = 'none';
         phaseSelector.style.display = 'block';
-        
+
         // Flash!
         flashBang.classList.add('flash');
         setTimeout(function(){ flashBang.classList.remove('flash'); }, 500);
-        
+
         var selector = new DigitalSelector(candidateNames);
         selector.start();
         return selector;
     }
-    
+
     function finalizeZeroDelay(selector, winnerName) {
         var phaseSelector = document.getElementById('phaseSelector');
         var phaseAnnounce = document.getElementById('phaseAnnounce');
         var flashBang = document.getElementById('flashBang');
-        
+
         if(!selector) return;
-        
+
         selector.reveal(winnerName, function(name) {
              // Flash!
             flashBang.classList.add('flash');
@@ -707,7 +795,7 @@
 
                 // Reload after celebration
                 // Reload after celebration with flag to skip re-animation
-                setTimeout(function() { 
+                setTimeout(function() {
                     var url = new URL(window.location.href);
                     url.searchParams.set('animation_done', '1');
                     window.location.href = url.toString();
@@ -764,7 +852,7 @@
             var correctCount = parseInt(document.getElementById('activeCorrectCount').value, 10) || 0;
             var candidates = JSON.parse(document.getElementById('candidateNamesJson').value || '[]');
             var timerDone = false;
-            
+
             function pad(n){return n.toString().padStart(2,'0');}
             function update(){
                 var d=end-Date.now();
@@ -774,15 +862,13 @@
                     document.getElementById('at-hours').textContent='00';
                     document.getElementById('at-minutes').textContent='00';
                     document.getElementById('at-seconds').textContent='00';
-                    
+
                     // ZERO DELAY: Start animation IMMEDIATELY while fetching winner
                     var selector = startZeroDelayAnimation(candidates, correctCount);
-                    
+
                     // Fetch winner in parallel
-                    // jitter is still good to avoid server DDOS, but let's make it very small (0-2s)
-                    // The animation is already running so the user sees "something happening" instantly
-                    
-                    var jitter = Math.floor(Math.random() * 2000);
+                    // زيادة jitter قليلاً لأن المدة أصبحت أطول
+                    var jitter = Math.floor(Math.random() * 3000);
                     setTimeout(function() {
                         fetchWinnerFromServer(apiUrl, function(winnerName) {
                             finalizeZeroDelay(selector, winnerName);
@@ -842,7 +928,7 @@
         window.toggleMotherNameFieldQuestion = function(isChecked) {
             const motherNameField = document.getElementById('mother_name_field_question');
             const motherNameInput = motherNameField.querySelector('input[name="mother_name"]');
-            
+
             if (isChecked) {
                 motherNameField.classList.remove('hidden');
                 if (motherNameInput) {

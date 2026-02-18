@@ -70,6 +70,94 @@
             background: linear-gradient(180deg, #22c55e, #16a34a);
             border-radius: 5px;
         }
+
+        /* Quiz Description Styles */
+        .quiz-description {
+            direction: rtl;
+            text-align: right;
+        }
+        .quiz-description p {
+            margin-bottom: 0.75rem;
+        }
+        .quiz-description strong,
+        .quiz-description b {
+            font-weight: 700;
+            color: #16a34a;
+        }
+        .quiz-description em,
+        .quiz-description i {
+            font-style: italic;
+        }
+        .quiz-description ul,
+        .quiz-description ol {
+            margin-right: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .quiz-description li {
+            margin-bottom: 0.5rem;
+        }
+        .quiz-description a {
+            color: #22c55e;
+            text-decoration: underline;
+            transition: color 0.2s;
+        }
+        .quiz-description a:hover {
+            color: #16a34a;
+        }
+        .quiz-description table {
+            width: 100%;
+            margin-bottom: 0.75rem;
+            border-collapse: collapse;
+            direction: ltr;
+            text-align: left;
+        }
+        .quiz-description table td,
+        .quiz-description table th {
+            padding: 0.5rem;
+            border: 1px solid #e5e7eb;
+            text-align: left;
+        }
+        .quiz-description img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+            margin: 0.5rem 0;
+        }
+
+        /* Question Text Styles */
+        .question-text {
+            direction: rtl;
+            text-align: right;
+        }
+        .question-text p {
+            margin-bottom: 0.5rem;
+        }
+        .question-text strong,
+        .question-text b {
+            font-weight: 700;
+        }
+        .question-text em,
+        .question-text i {
+            font-style: italic;
+        }
+        .question-text ul,
+        .question-text ol {
+            margin-right: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .question-text li {
+            margin-bottom: 0.25rem;
+        }
+        .question-text a {
+            color: #22c55e;
+            text-decoration: underline;
+        }
+        .question-text img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+            margin: 0.5rem 0;
+        }
     </style>
 </head>
 
@@ -103,7 +191,7 @@
                 <div class="flex-1">
                     <h1 class="text-2xl md:text-3xl font-bold gradient-text mb-2">{{ $quizCompetition->title }}</h1>
                     @if($quizCompetition->description)
-                        <p class="text-gray-500 text-sm md:text-base leading-relaxed mb-3">{{ $quizCompetition->description }}</p>
+                        <div class="text-gray-500 text-sm md:text-base leading-relaxed mb-3 quiz-description">{!! $quizCompetition->description !!}</div>
                     @endif
                     <div class="flex flex-wrap items-center gap-3 text-xs">
                         <span class="inline-flex items-center gap-1 bg-green-50 text-green-700 px-2.5 py-1 rounded-full border border-green-200">
@@ -163,9 +251,9 @@
                                     </span>
                                 </div>
 
-                                <p class="text-lg md:text-xl font-bold text-gray-800 mb-4 leading-relaxed">
-                                    {{ $question->question_text }}
-                                </p>
+                                <div class="text-lg md:text-xl font-bold text-gray-800 mb-4 leading-relaxed question-text">
+                                    {!! $question->question_text !!}
+                                </div>
 
                                 <a href="{{ route('quiz-competitions.question', [$quizCompetition, $question]) }}" 
                                    class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-gray-600 text-sm font-bold transition-all hover:text-green-600 border-2 border-gray-200 hover:border-green-300">
@@ -189,9 +277,9 @@
                                     </span>
                                 </div>
 
-                                <p class="text-lg md:text-xl font-bold text-gray-800 mb-4 group-hover:text-green-600 transition-colors leading-relaxed">
-                                    {{ $question->question_text }}
-                                </p>
+                                <div class="text-lg md:text-xl font-bold text-gray-800 mb-4 group-hover:text-green-600 transition-colors leading-relaxed question-text">
+                                    {!! $question->question_text !!}
+                                </div>
 
                                 <span class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-bold transition-all group-hover:-translate-y-0.5"
                                       style="background: linear-gradient(135deg, #22c55e, #16a34a); box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);">
@@ -218,7 +306,7 @@
                         <div class="question-card visible glass-effect rounded-2xl p-5 opacity-80">
                             <div class="flex items-start justify-between gap-4">
                                 <div class="flex-1">
-                                    <p class="font-bold text-gray-700 mb-2">{{ $question->question_text }}</p>
+                                    <div class="font-bold text-gray-700 mb-2 question-text">{!! $question->question_text !!}</div>
                                     <span class="inline-flex items-center gap-1.5 bg-amber-50 text-amber-700 text-xs px-3 py-1.5 rounded-full border border-amber-200">
                                         <i class="fas fa-calendar-alt"></i>
                                         يبدأ: {{ $quizCompetition->start_at?->format('H:i') ?? '—' }} - {{ $quizCompetition->start_at?->translatedFormat('d M Y') ?? '—' }}
@@ -248,7 +336,7 @@
                             <div class="flex items-start justify-between gap-4 mb-4">
                                 <div class="flex-1">
                                     <a href="{{ route('quiz-competitions.question', [$quizCompetition, $question]) }}" class="block group">
-                                        <p class="font-bold text-gray-700 mb-2 group-hover:text-green-600 transition-colors">{{ $question->question_text }}</p>
+                                        <div class="font-bold text-gray-700 mb-2 group-hover:text-green-600 transition-colors question-text">{!! $question->question_text !!}</div>
                                     </a>
                                     <div class="flex flex-wrap items-center gap-3 text-xs mb-4">
                                         <span class="text-gray-400">

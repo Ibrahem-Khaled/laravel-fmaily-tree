@@ -51,7 +51,7 @@
     @if($quizCompetition->description)
         <div class="card shadow-sm border-0 mb-4">
             <div class="card-body">
-                <p class="mb-0">{{ $quizCompetition->description }}</p>
+                <div class="mb-0 quiz-description">{!! $quizCompetition->description !!}</div>
             </div>
         </div>
     @endif
@@ -82,7 +82,7 @@
                                 <tr>
                                     <td>{{ $index + 1 }}</td>
                                     <td>
-                                        <strong>{{ Str::limit($question->question_text, 60) }}</strong>
+                                        <strong class="question-text">{!! Str::limit(strip_tags($question->question_text), 60) !!}</strong>
                                     </td>
                                     <td>
                                         @if($question->answer_type === 'multiple_choice')
@@ -157,7 +157,7 @@
                                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                                 </div>
                                 <div class="modal-body">
-                                    <p class="text-muted mb-3 font-weight-bold">{{ Str::limit($question->question_text, 150) }}</p>
+                                    <div class="text-muted mb-3 font-weight-bold question-text">{!! Str::limit(strip_tags($question->question_text), 150) !!}</div>
                                     <div class="row mb-3">
                                         <div class="col-md-4">
                                             <span class="badge badge-primary">الإجمالي: {{ $question->answers->count() }}</span>
@@ -235,3 +235,95 @@
     </div>
 </div>
 @endsection
+
+@push('styles')
+<style>
+    /* Quiz Description Styles */
+    .quiz-description {
+        direction: rtl;
+        text-align: right;
+    }
+    .quiz-description p {
+        margin-bottom: 0.75rem;
+    }
+    .quiz-description strong,
+    .quiz-description b {
+        font-weight: 700;
+        color: #16a34a;
+    }
+    .quiz-description em,
+    .quiz-description i {
+        font-style: italic;
+    }
+    .quiz-description ul,
+    .quiz-description ol {
+        margin-right: 1.5rem;
+        margin-bottom: 0.75rem;
+    }
+    .quiz-description li {
+        margin-bottom: 0.5rem;
+    }
+    .quiz-description a {
+        color: #22c55e;
+        text-decoration: underline;
+        transition: color 0.2s;
+    }
+    .quiz-description a:hover {
+        color: #16a34a;
+    }
+    .quiz-description table {
+        width: 100%;
+        margin-bottom: 0.75rem;
+        border-collapse: collapse;
+        direction: ltr;
+        text-align: left;
+    }
+    .quiz-description table td,
+    .quiz-description table th {
+        padding: 0.5rem;
+        border: 1px solid #e5e7eb;
+        text-align: left;
+    }
+    .quiz-description img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 0.5rem;
+        margin: 0.5rem 0;
+    }
+
+    /* Question Text Styles */
+    .question-text {
+        direction: rtl;
+        text-align: right;
+    }
+    .question-text p {
+        margin-bottom: 0.5rem;
+    }
+    .question-text strong,
+    .question-text b {
+        font-weight: 700;
+    }
+    .question-text em,
+    .question-text i {
+        font-style: italic;
+    }
+    .question-text ul,
+    .question-text ol {
+        margin-right: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+    .question-text li {
+        margin-bottom: 0.25rem;
+    }
+    .question-text a {
+        color: #22c55e;
+        text-decoration: underline;
+    }
+    .question-text img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 0.5rem;
+        margin: 0.5rem 0;
+    }
+</style>
+@endpush
