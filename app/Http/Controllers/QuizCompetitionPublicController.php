@@ -177,13 +177,15 @@ class QuizCompetitionPublicController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'phone' => 'required|string|max:20',
+            'phone' => 'required|string|size:10|regex:/^[0-9]{10}$/',
             'answer' => 'required|string',
             'is_from_ancestry' => 'nullable|in:1',
             'mother_name' => 'nullable|string|max:255',
         ], [
             'name.required' => 'الاسم مطلوب',
             'phone.required' => 'رقم الهاتف مطلوب',
+            'phone.size' => 'يجب أن يكون رقم الهاتف 10 أرقام بالضبط',
+            'phone.regex' => 'يجب أن يكون رقم الهاتف 10 أرقام فقط',
             'answer.required' => 'الإجابة مطلوبة',
         ]);
 

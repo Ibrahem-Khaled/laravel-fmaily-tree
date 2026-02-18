@@ -265,8 +265,10 @@
                                                     <div>
                                                         <label class="block text-gray-600 text-xs mb-1 font-medium">رقم الهاتف <span class="text-red-500">*</span></label>
                                                         <input type="text" name="phone" value="{{ old('phone') }}" required
+                                                               pattern="[0-9]{10}" minlength="10" maxlength="10"
                                                                class="w-full px-3 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-gray-800 text-sm focus:ring-2 focus:ring-green-200 focus:border-green-500"
-                                                               placeholder="05xxxxxxxx" dir="ltr" style="text-align: right;">
+                                                               placeholder="05xxxxxxxx" dir="ltr" style="text-align: right;"
+                                                               title="يجب أن يكون رقم الهاتف 10 أرقام">
                                                     </div>
                                                 </div>
                                                 <div>
