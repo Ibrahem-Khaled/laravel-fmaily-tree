@@ -110,9 +110,9 @@
                                     </td>
                                     <td>
                                         @if($question->winners->count() > 0)
-                                            @foreach($question->winners as $winner)
-                                                <span class="badge badge-success">{{ $winner->user->name ?? '-' }}</span>
-                                            @endforeach
+                                            <button type="button" class="btn btn-sm btn-outline-success" data-toggle="modal" data-target="#winnersModal{{ $question->id }}" title="عرض تفاصيل الفائزين">
+                                                <i class="fas fa-trophy mr-1"></i>عرض {{ $question->winners->count() }} فائز
+                                            </button>
                                         @else
                                             @if($question->hasEnded())
                                                 <form action="{{ route('dashboard.quiz-questions.select-winners', [$quizCompetition, $question]) }}" method="POST" class="d-inline">
@@ -211,6 +211,94 @@
                                                             @endif
                                                         </td>
                                                         <td>{{ $answer->created_at->format('Y-m-d H:i') }}</td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+                @endforeach
+
+                {{-- نوافذ عرض الفائزين --}}
+                @foreach($quizCompetition->questions as $question)
+                    @if($question->winners->count() > 0)
+                    <div class="modal fade" id="winnersModal{{ $question->id }}" tabindex="-1">
+                        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                            <div class="modal-content">
+                                <div class="modal-header bg-success text-white">
+                                    <h5 class="modal-title">
+                                        <i class="fas fa-trophy mr-2"></i>تفاصيل الفائزين
+                                    </h5>
+                                    <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="text-muted mb-3 font-weight-bold question-text">{!! Str::limit(strip_tags($question->question_text), 150) !!}</div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-12">
+                                            <span class="badge badge-success badge-lg">عدد الفائزين: {{ $question->winners->count() }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>المركز</th>
+                                                    <th>الاسم</th>
+                                                    <th>رقم الهاتف</th>
+                                                    <th>اسم الأم</th>
+                                                    <th>الإجابة</th>
+                                                    <th>تاريخ الإجابة</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($question->winners->sortBy('position') as $winner)
+                                                    @php
+                                                        $answer = $question->answers->where('user_id', $winner->user_id)->first();
+                                                    @endphp
+                                                    <tr>
+                                                        <td>
+                                                            @if($winner->position == 1)
+                                                                <span class="badge badge-warning"><i class="fas fa-crown"></i> المركز الأول</span>
+                                                            @elseif($winner->position == 2)
+                                                                <span class="badge badge-secondary"><i class="fas fa-medal"></i> المركز الثاني</span>
+                                                            @elseif($winner->position == 3)
+                                                                <span class="badge badge-info"><i class="fas fa-medal"></i> المركز الثالث</span>
+                                                            @else
+                                                                <span class="badge badge-light">المركز {{ $winner->position }}</span>
+                                                            @endif
+                                                        </td>
+                                                        <td><strong>{{ $winner->user->name ?? '-' }}</strong></td>
+                                                        <td dir="ltr">{{ $winner->user->phone ?? '-' }}</td>
+                                                        <td>
+                                                            @if($winner->user->is_from_ancestry && $winner->user->mother_name)
+                                                                <span class="badge badge-info">{{ $winner->user->mother_name }}</span>
+                                                            @else
+                                                                <span class="text-muted">—</span>
+                                                            @endif
+                                                        </td>
+                                                        <td>
+                                                            @if($answer)
+                                                                @if($answer->answer_type === 'choice')
+                                                                    @php $choice = $question->choices->firstWhere('id', (int) $answer->answer); @endphp
+                                                                    {{ $choice ? $choice->choice_text : $answer->answer }}
+                                                                @else
+                                                                    {{ Str::limit($answer->answer, 80) }}
+                                                                @endif
+                                                            @else
+                                                                <span class="text-muted">—</span>
+                                                            @endif
+                                                        </td>
+                                                        <td>
+                                                            @if($answer)
+                                                                {{ $answer->created_at->format('Y-m-d H:i') }}
+                                                            @else
+                                                                <span class="text-muted">—</span>
+                                                            @endif
+                                                        </td>
                                                     </tr>
                                                 @endforeach
                                             </tbody>
