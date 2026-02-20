@@ -291,9 +291,8 @@
                             <h3 class="text-lg md:text-xl lg:text-2xl font-bold text-gray-800 mb-2 leading-relaxed">
                                 {{ $activeQuizCompetition->title }}
                             </h3>
-                            @if ($activeQuizCompetition->description)
-                                <div class="text-gray-600 text-sm mb-2 quiz-description">{!! $activeQuizCompetition->description !!}</div>
-                            @endif
+                            {{-- وصف المسابقة — يظهر دائماً بنفس تنسيق المحتوى المنسق --}}
+                            <div class="text-gray-600 text-sm mb-2 quiz-description">{!! $activeQuizCompetition->description ?? '' !!}</div>
 
                             {{-- العد التنازلي حتى انتهاء المسابقة (وقت اختيار الفائز) --}}
                             <div class="flex flex-wrap items-center gap-2 mb-3 text-gray-500 text-sm">
@@ -428,7 +427,10 @@
                                 <i class="fas fa-clock text-amber-500 text-sm"></i>
                                 <span class="text-xs font-medium">المسابقة تبدأ قريباً</span>
                             </div>
-                            <p class="text-gray-600 text-sm mb-3">{{ Str::limit($nextQuizEvent['title'], 100) }}</p>
+                            <p class="text-gray-800 font-bold text-base md:text-lg mb-2">{{ $nextQuizEvent['title'] }}</p>
+                            @if(!empty($nextQuizEvent['description']))
+                                <div class="text-gray-600 text-sm mb-3 quiz-description text-right">{!! $nextQuizEvent['description'] !!}</div>
+                            @endif
 
                             <div class="flex justify-center gap-2 md:gap-4 mb-3 flex-row" id="quizCountdown">
                                 <div class="text-center">

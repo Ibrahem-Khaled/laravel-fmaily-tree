@@ -257,7 +257,8 @@ class QuizCompetitionPublicController extends Controller
 
             return redirect()
                 ->route('quiz-competitions.question', [$quizCompetition, $quizQuestion])
-                ->with('success', $isCorrect ? 'أحسنت! إجابتك صحيحة' : 'للأسف إجابتك غير صحيحة');
+                ->with('answer_submitted', true)
+                ->with('answer_correct', $isCorrect);
         } catch (\Illuminate\Database\QueryException $e) {
             DB::rollBack();
             // معالجة أخطاء قاعدة البيانات بشكل أفضل

@@ -780,7 +780,7 @@
                 <li>
                     <a class="nav-link {{ request()->routeIs('important-links.*') ? 'active' : '' }}"
                         href="{{ route('important-links.index') }}">
-                        مواقع تهمك
+                         برامج تهمك
                     </a>
                 </li>
 

@@ -21,7 +21,9 @@
         .gradient-text { background: linear-gradient(135deg, #16a34a 0%, #22c55e 50%, #4ade80 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
         .link-card { transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); opacity: 0; transform: translateY(20px); }
         .link-card.visible { opacity: 1; transform: translateY(0); }
-        .link-card:hover { transform: translateY(-10px) scale(1.02); }
+        .link-card:hover { transform: translateY(-6px) scale(1.02); }
+        .link-card-image-wrap { aspect-ratio: 1 / 1; width: 100%; max-height: 140px; position: relative; overflow: hidden; background: linear-gradient(to bottom right, #dcfce7, #bbf7d0); }
+        .link-card-image-wrap img { width: 100%; height: 100%; object-fit: contain; object-position: center; display: block; }
         ::-webkit-scrollbar { width: 10px; }
         ::-webkit-scrollbar-track { background: #f0fdf4; }
         ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #22c55e, #16a34a); border-radius: 5px; }
@@ -51,23 +53,23 @@
         </div>
 
         @if($links->count() > 0)
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6" id="linksGrid">
+            <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 lg:gap-4 max-w-5xl mx-auto" id="linksGrid">
                 @foreach($links as $link)
-                    <div class="link-card glass-effect rounded-2xl lg:rounded-3xl overflow-hidden green-glow-hover cursor-pointer" data-link-id="{{ $link->id }}" onclick="openDetailModal({{ $link->id }})">
-                        <div class="relative h-32 lg:h-40 overflow-hidden bg-gradient-to-br from-green-100 to-green-200">
-                            <img src="{{ $link->image_url }}" alt="{{ $link->title }}" class="w-full h-full object-contain" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%2322c55e%22%3E%3Cpath d=%22M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm3.9-2.53c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z%22/%3E%3C/svg%3E'; this.onerror=null;">
-                            <div class="absolute bottom-2 right-2 px-2 py-1 rounded-lg bg-black/50 text-white text-xs">
+                    <div class="link-card glass-effect rounded-xl lg:rounded-2xl overflow-hidden green-glow-hover cursor-pointer max-w-[180px] mx-auto w-full" data-link-id="{{ $link->id }}" onclick="openDetailModal({{ $link->id }})">
+                        <div class="link-card-image-wrap relative">
+                            <img src="{{ $link->image_url }}" alt="{{ $link->title }}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%2322c55e%22%3E%3Cpath d=%22M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm3.9-2.53c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z%22/%3E%3C/svg%3E'; this.onerror=null;">
+                            <div class="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-black/50 text-white text-[10px]">
                                 {{ $link->type === 'app' ? 'تطبيق' : 'موقع' }}
                             </div>
                         </div>
-                        <div class="p-4">
-                            <div class="flex items-center gap-2">
+                        <div class="p-2.5">
+                            <div class="flex items-center gap-1.5 min-h-[2.5rem]">
                                 @if($link->icon)
-                                    <i class="{{ $link->icon }} text-green-600 text-lg"></i>
+                                    <i class="{{ $link->icon }} text-green-600 text-sm flex-shrink-0"></i>
                                 @else
-                                    <i class="fas fa-link text-green-600 text-lg"></i>
+                                    <i class="fas fa-link text-green-600 text-sm flex-shrink-0"></i>
                                 @endif
-                                <h2 class="text-base lg:text-lg font-bold text-gray-800 truncate">{{ $link->title }}</h2>
+                                <h2 class="text-xs lg:text-sm font-bold text-gray-800 truncate">{{ $link->title }}</h2>
                             </div>
                         </div>
                     </div>
@@ -162,8 +164,8 @@
             const isApp = link.type === 'app';
             const submitterHtml = link.submitter ? `<p class="text-sm text-gray-600 mt-2"><span class="font-bold">من أضافه:</span> ${link.submitter.name}</p>` : '';
             document.getElementById('detailBody').innerHTML = `
-                <div class="mb-4 rounded-2xl overflow-hidden bg-gray-100 h-48">
-                    <img src="${link.image_url}" alt="${link.title}" class="w-full h-full object-contain" onerror="this.style.display='none'">
+                <div class="mb-4 rounded-2xl overflow-hidden bg-gray-100" style="aspect-ratio:1/1;max-height:280px;">
+                    <img src="${link.image_url}" alt="${link.title}" class="w-full h-full object-contain object-center" style="display:block;" onerror="this.style.display='none'">
                 </div>
                 <h2 class="text-2xl font-bold text-gray-800 mb-2">${link.title}</h2>
                 <span class="inline-block px-3 py-1 rounded-full text-sm ${isApp ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}">${isApp ? 'تطبيق' : 'موقع'}</span>

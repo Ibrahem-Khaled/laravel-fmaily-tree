@@ -64,6 +64,7 @@ class QuizCompetition extends BaseModel
             'type' => 'competition',
             'target_at' => $nextCompetition->start_at,
             'title' => $nextCompetition->title,
+            'description' => $nextCompetition->description,
         ];
     }
 }

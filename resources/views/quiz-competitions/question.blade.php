@@ -185,6 +185,16 @@
         .glow-breath { animation: glowBreath 2.5s ease-in-out infinite; }
         @keyframes sparkleAnim { 0% { transform: scale(0) rotate(0); opacity: 0; } 50% { transform: scale(1) rotate(180deg); opacity: 1; } 100% { transform: scale(0) rotate(360deg); opacity: 0; } }
         .sparkle-dot { position: absolute; pointer-events: none; width: 6px; height: 6px; border-radius: 50%; background: #fbbf24; box-shadow: 0 0 6px #fbbf24; animation: sparkleAnim 1.5s ease-in-out infinite; }
+
+        /* Answer result modal */
+        #answerResultOverlay { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.6); opacity: 0; pointer-events: none; transition: opacity 0.35s ease; }
+        #answerResultOverlay.show { opacity: 1; pointer-events: all; }
+        #answerResultOverlay .result-card { transform: scale(0.7); opacity: 0; transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s ease; }
+        #answerResultOverlay.show .result-card { transform: scale(1); opacity: 1; }
+        #answerResultOverlay.result-correct .result-card { box-shadow: 0 0 60px rgba(34,197,94,0.5), 0 0 120px rgba(34,197,94,0.2); animation: resultCorrectPulse 1.5s ease-in-out 2; }
+        #answerResultOverlay.result-wrong .result-card { animation: resultWrongShake 0.6s ease; }
+        @keyframes resultCorrectPulse { 0%,100% { box-shadow: 0 0 40px rgba(34,197,94,0.4); } 50% { box-shadow: 0 0 80px rgba(34,197,94,0.7), 0 0 0 20px rgba(34,197,94,0.1); } }
+        @keyframes resultWrongShake { 0%,100% { transform: translateX(0); } 15% { transform: translateX(-12px); } 30% { transform: translateX(12px); } 45% { transform: translateX(-8px); } 60% { transform: translateX(8px); } 75% { transform: translateX(-4px); } }
     </style>
 </head>
 
@@ -387,6 +397,36 @@
 
         {{-- ==================== نشط ==================== --}}
         @else
+            {{-- مودال نتيجة الإجابة (صح / خطأ) --}}
+            @if(session('answer_submitted') && isset($quizQuestion))
+            <div id="answerResultOverlay" class="{{ session('answer_correct') ? 'result-correct' : 'result-wrong' }}" role="dialog" aria-modal="true" aria-labelledby="answerResultTitle" onclick="if(event.target===this) closeAnswerResultModal();">
+                <div class="result-card rounded-3xl p-8 md:p-10 max-w-md w-full mx-4 text-center relative overflow-hidden {{ session('answer_correct') ? 'bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-300' : 'bg-gradient-to-br from-red-50 to-red-100 border-2 border-red-300' }}" onclick="event.stopPropagation()">
+                    @if(session('answer_correct'))
+                        <div class="absolute inset-0 opacity-20 pointer-events-none" style="background: radial-gradient(circle at 50% 30%, rgba(34,197,94,0.4), transparent 60%);"></div>
+                        <div class="relative z-10">
+                            <div class="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center bg-gradient-to-br from-green-400 to-green-600 shadow-lg">
+                                <i class="fas fa-check-circle text-white text-4xl"></i>
+                            </div>
+                            <h2 id="answerResultTitle" class="text-xl md:text-2xl font-bold text-green-800 mb-2">أحسنت!</h2>
+                            <p class="text-green-700 font-medium">إجابتك صحيحة</p>
+                        </div>
+                    @else
+                        <div class="absolute inset-0 opacity-20 pointer-events-none" style="background: radial-gradient(circle at 50% 30%, rgba(239,68,68,0.3), transparent 60%);"></div>
+                        <div class="relative z-10">
+                            <div class="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center bg-gradient-to-br from-red-400 to-red-600 shadow-lg">
+                                <i class="fas fa-times-circle text-white text-4xl"></i>
+                            </div>
+                            <h2 id="answerResultTitle" class="text-xl md:text-2xl font-bold text-red-800 mb-2">للأسف</h2>
+                            <p class="text-red-700 font-medium">إجابتك غير صحيحة</p>
+                        </div>
+                    @endif
+                    <button type="button" onclick="closeAnswerResultModal()" class="mt-6 px-6 py-3 rounded-xl font-bold text-sm transition-all {{ session('answer_correct') ? 'bg-green-500 hover:bg-green-600 text-white' : 'bg-red-500 hover:bg-red-600 text-white' }}">
+                        حسناً
+                    </button>
+                </div>
+            </div>
+            @endif
+
             <div class="space-y-6 slide-in">
                 <div class="glass-effect rounded-3xl green-glow p-6 md:p-8 relative overflow-hidden">
                     <div class="absolute top-0 right-0 left-0 h-1.5" style="background:linear-gradient(90deg,#22c55e,#16a34a,#22c55e);"></div>
@@ -416,24 +456,20 @@
                     <div class="glass-effect rounded-2xl p-4 md:p-5 text-center"><div class="w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center bg-gradient-to-br from-red-50 to-red-100 border border-red-200"><i class="fas fa-times-circle text-red-500 text-lg"></i></div><p class="text-2xl md:text-3xl font-bold text-red-500">{{ $stats['wrong'] }}</p><p class="text-gray-500 text-xs mt-1">إجابة خاطئة</p></div>
                 </div>
 
-                @if(session('success'))
-                <div class="rounded-2xl p-5 md:p-6 bg-green-50 border-2 border-green-200 slide-in">
-                    <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 bg-gradient-to-br from-green-400 to-green-500"><i class="fas fa-check-circle text-white text-xl"></i></div>
-                        <div><p class="text-green-800 font-bold text-lg">{{ session('success') }}</p><p class="text-green-600 text-sm mt-1">سيتم اختيار الفائز تلقائياً بعد انتهاء وقت المسابقة.</p></div>
-                    </div>
-                </div>
-                @endif
                 @if(session('error'))
                 <div class="rounded-2xl p-4 flex items-center gap-3 bg-red-50 border border-red-200 slide-in"><div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-gradient-to-br from-red-400 to-red-500"><i class="fas fa-exclamation-circle text-white text-lg"></i></div><p class="text-red-700 font-bold">{{ session('error') }}</p></div>
                 @endif
                 @if($errors->any())<div class="rounded-2xl p-4 bg-red-50 border border-red-200"><ul class="space-y-1">@foreach($errors->all() as $error)<li class="text-red-600 text-sm flex items-center gap-2"><i class="fas fa-circle text-[6px] text-red-400"></i>{{ $error }}</li>@endforeach</ul></div>@endif
 
-                @if(!session('success') && !($canAnswer ?? true))
+                @if(session('answer_submitted'))
+                <div class="rounded-2xl p-5 flex items-center gap-3 bg-amber-50 border border-amber-200"><div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-amber-100"><i class="fas fa-check-circle text-amber-600"></i></div><p class="text-amber-800 font-medium">لقد أجبت على هذا السؤال. سيتم اختيار الفائز تلقائياً بعد انتهاء وقت المسابقة.</p></div>
+                @endif
+
+                @if(!session('answer_submitted') && !($canAnswer ?? true))
                 <div class="rounded-2xl p-5 flex items-center gap-3 bg-amber-50 border border-amber-200"><div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-amber-100"><i class="fas fa-check-circle text-amber-600"></i></div><p class="text-amber-800 font-medium">لقد أجبت على هذا السؤال</p></div>
                 @endif
 
-                @if(!session('success') && ($canAnswer ?? true))
+                @if(!session('answer_submitted') && ($canAnswer ?? true))
                 <form action="{{ route('quiz-competitions.store-answer', [$quizCompetition, $quizQuestion]) }}" method="POST" class="space-y-5">
                     @csrf
                     <div class="glass-effect rounded-2xl p-5 md:p-6">
@@ -828,9 +864,28 @@
         doFetch();
     }
 
+    function closeAnswerResultModal() {
+        var el = document.getElementById('answerResultOverlay');
+        if (el) { el.classList.remove('show'); }
+    }
+
     /* ============ PAGE INIT ============ */
     document.addEventListener('DOMContentLoaded', function() {
         Confetti.init();
+
+        @if(session('answer_submitted'))
+        (function(){
+            var overlay = document.getElementById('answerResultOverlay');
+            if (overlay) {
+                setTimeout(function() {
+                    overlay.classList.add('show');
+                    if (overlay.classList.contains('result-correct') && typeof Confetti !== 'undefined') {
+                        Confetti.launch(120, 3500);
+                    }
+                }, 300);
+            }
+        })();
+        @endif
 
         @if($status === 'not_started' && $quizCompetition->start_at)
         (function(){
