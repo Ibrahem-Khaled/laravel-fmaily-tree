@@ -346,8 +346,8 @@ class ProgramController extends Controller
         }
 
         $media->update([
-            'name' => $request->name ?? $media->name,
-            'description' => $request->description ?? $media->description,
+            'name' => $request->has('name') ? $request->input('name') : $media->name,
+            'description' => $request->has('description') ? $request->input('description') : $media->description,
         ]);
 
         return redirect()

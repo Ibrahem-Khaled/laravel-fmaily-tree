@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الروابط المهمة - تطبيقات ومواقع</title>
+    <title>تطبيقات تهمك</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -36,8 +36,8 @@
     <div class="container mx-auto px-4 py-6 lg:py-8 relative z-10">
         <div class="mb-8">
             <div class="glass-effect p-4 lg:p-6 rounded-3xl green-glow">
-                <h1 class="text-2xl lg:text-3xl font-bold gradient-text mb-2">الروابط المهمة</h1>
-                <p class="text-gray-600">تطبيقات ومواقع مقترحة من العائلة. اضغط على أي بطاقة لعرض التفاصيل ثم التحميل أو زيارة الموقع.</p>
+                <h1 class="text-2xl lg:text-3xl font-bold gradient-text mb-2">تطبيقات تهمك</h1>
+                <p class="text-gray-600">تطبيقات مقترحة من العائلة. اضغط على أي بطاقة لعرض التفاصيل ثم التحميل أو زيارة الموقع.</p>
                 @if(session('success'))
                     <div class="mt-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-xl" role="alert">
                         <i class="fas fa-check-circle ml-2"></i>{{ session('success') }}
@@ -46,7 +46,7 @@
                 <div class="mt-4">
                     <button type="button" onclick="openSuggestModal()" class="inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all">
                         <i class="fas fa-plus-circle"></i>
-                        <span>اقترح رابطاً أو تطبيقاً</span>
+                        <span>اقترح تطبيقاً</span>
                     </button>
                 </div>
             </div>
@@ -78,8 +78,8 @@
         @else
             <div class="text-center glass-effect p-8 lg:p-16 rounded-3xl green-glow">
                 <i class="fas fa-link text-6xl text-green-400 mb-4"></i>
-                <h3 class="text-2xl font-bold text-gray-800">لا توجد روابط معتمدة حالياً</h3>
-                <p class="mt-2 text-gray-600">يمكنك اقتراح تطبيق أو موقع باستخدام الزر أعلاه.</p>
+                <h3 class="text-2xl font-bold text-gray-800">لا توجد تطبيقات معتمدة حالياً</h3>
+                <p class="mt-2 text-gray-600">يمكنك اقتراح تطبيق باستخدام الزر أعلاه.</p>
             </div>
         @endif
     </div>
@@ -97,7 +97,7 @@
         </div>
     </div>
 
-    {{-- مودال اقتراح رابط --}}
+    {{-- مودال اقتراح تطبيق --}}
     <div id="suggestModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-modal="true">
         <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" onclick="closeSuggestModal()"></div>
         <div class="flex min-h-full items-center justify-center p-4">
@@ -105,7 +105,7 @@
                 <button type="button" onclick="closeSuggestModal()" class="absolute left-4 top-4 p-2 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700">
                     <i class="fas fa-times"></i>
                 </button>
-                <h3 class="text-xl font-bold gradient-text mb-6">اقتراح رابط أو تطبيق</h3>
+                <h3 class="text-xl font-bold gradient-text mb-6">اقتراح تطبيق</h3>
                 <form action="{{ route('important-links.suggest') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @if(!auth()->check())
@@ -130,13 +130,7 @@
                         <input type="url" name="url" value="{{ old('url') }}" required placeholder="https://..." class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500">
                         @error('url')<p class="text-red-500 text-sm mt-1">{{ $message }}</p>@enderror
                     </div>
-                    <div class="mb-4">
-                        <label class="block text-sm font-bold text-gray-700 mb-1">النوع <span class="text-red-500">*</span></label>
-                        <select name="type" required class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500">
-                            <option value="website" {{ old('type') === 'website' ? 'selected' : '' }}>موقع</option>
-                            <option value="app" {{ old('type') === 'app' ? 'selected' : '' }}>تطبيق</option>
-                        </select>
-                    </div>
+                    <input type="hidden" name="type" value="app">
                     <div class="mb-4">
                         <label class="block text-sm font-bold text-gray-700 mb-1">الوصف (اختياري)</label>
                         <textarea name="description" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500">{{ old('description') }}</textarea>
