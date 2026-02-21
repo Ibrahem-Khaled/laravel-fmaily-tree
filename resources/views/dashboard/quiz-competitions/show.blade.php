@@ -12,6 +12,9 @@
             <p class="text-muted mb-0">إدارة الأسئلة والمسابقات</p>
         </div>
         <div>
+            <a href="{{ route('dashboard.quiz-competitions.export', $quizCompetition) }}" class="btn btn-success shadow-sm mr-2" target="_blank" rel="noopener">
+                <i class="fas fa-file-excel mr-2"></i>تصدير إلى Excel
+            </a>
             <form action="{{ route('dashboard.quiz-competitions.simulate-answers', $quizCompetition) }}" method="POST" class="d-inline mr-2" onsubmit="return confirm('هذا الإجراء سيقوم بإضافة إجابات عشوائية لجميع المستخدمين الذين لم يجاوبوا. هل أنت متأكد؟');">
                 @csrf
                 <button type="submit" class="btn btn-warning shadow-sm">

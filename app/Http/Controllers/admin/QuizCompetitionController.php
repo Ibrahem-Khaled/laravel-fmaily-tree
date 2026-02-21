@@ -5,9 +5,12 @@ namespace App\Http\Controllers\admin;
 use App\Http\Controllers\Controller;
 use App\Models\QuizCompetition;
 use App\Models\QuizQuestion;
+use App\Exports\QuizCompetitionExport;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
+use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class QuizCompetitionController extends Controller
 {
@@ -147,5 +150,18 @@ class QuizCompetitionController extends Controller
         }
 
         return back()->with('success', "تم محاكاة الإجابات لـ $count مستخدم.");
+    }
+
+    /**
+     * تصدير بيانات المسابقة بالكامل إلى Excel (أسئلة، إجابات، فائزون).
+     */
+    public function export(QuizCompetition $quizCompetition): BinaryFileResponse
+    {
+        $quizCompetition->load(['questions.choices', 'questions.answers.user', 'questions.winners.user']);
+
+        $safeTitle = \Illuminate\Support\Str::slug($quizCompetition->title);
+        $filename = sprintf('quiz-competition-%s-%s.xlsx', $safeTitle, now()->format('Y-m-d-His'));
+
+        return Excel::download(new QuizCompetitionExport($quizCompetition), $filename);
     }
 }
