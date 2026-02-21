@@ -312,9 +312,9 @@ class InvitationController extends Controller
 
     public function groupsEdit(NotificationGroup $group)
     {
-        // if (!Auth::check() || $group->user_id !== Auth::id()) {
-        //     return redirect()->route('invitations.index')->with('error', 'غير مصرح');
-        // }
+        if (!Auth::check() || (int) $group->user_id !== (int) Auth::id()) {
+            return redirect()->route('invitations.index')->with('error', 'غير مصرح');
+        }
 
         $group->load('persons');
         return view('invitations.groups.edit', compact('group'));
@@ -322,7 +322,7 @@ class InvitationController extends Controller
 
     public function groupsUpdate(Request $request, NotificationGroup $group): RedirectResponse
     {
-        if ($group->user_id !== Auth::id()) {
+        if ((int) $group->user_id !== (int) Auth::id()) {
             return back()->with('error', 'غير مصرح');
         }
 
@@ -339,7 +339,7 @@ class InvitationController extends Controller
 
     public function groupsDestroy(NotificationGroup $group): RedirectResponse
     {
-        if ($group->user_id !== Auth::id()) {
+        if ((int) $group->user_id !== (int) Auth::id()) {
             return back()->with('error', 'غير مصرح');
         }
 
@@ -351,7 +351,7 @@ class InvitationController extends Controller
 
     public function groupsAttachPerson(Request $request, NotificationGroup $group): RedirectResponse
     {
-        if ($group->user_id !== Auth::id()) {
+        if ((int) $group->user_id !== (int) Auth::id()) {
             return back()->with('error', 'غير مصرح');
         }
 
@@ -369,7 +369,7 @@ class InvitationController extends Controller
 
     public function groupsDetachPerson(NotificationGroup $group, Person $person): RedirectResponse
     {
-        if ($group->user_id !== Auth::id()) {
+        if ((int) $group->user_id !== (int) Auth::id()) {
             return back()->with('error', 'غير مصرح');
         }
 
