@@ -113,6 +113,14 @@
                                             <button type="button" class="btn btn-sm btn-outline-success" data-toggle="modal" data-target="#winnersModal{{ $question->id }}" title="عرض تفاصيل الفائزين">
                                                 <i class="fas fa-trophy mr-1"></i>عرض {{ $question->winners->count() }} فائز
                                             </button>
+                                            @if($question->hasEnded() && $question->answers->where('is_correct', true)->count() > 0)
+                                                <form action="{{ route('dashboard.quiz-questions.select-winners', [$quizCompetition, $question]) }}" method="POST" class="d-inline mr-1" onsubmit="return confirm('سيتم حذف الفائزين الحاليين واختيار فائزين جدد عشوائياً من الإجابات الصحيحة. هل أنت متأكد؟');">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-sm btn-outline-warning" title="إعادة اختيار الفائزين عشوائياً">
+                                                        <i class="fas fa-sync-alt mr-1"></i>إعادة اختيار الفائز
+                                                    </button>
+                                                </form>
+                                            @endif
                                         @else
                                             @if($question->hasEnded())
                                                 <form action="{{ route('dashboard.quiz-questions.select-winners', [$quizCompetition, $question]) }}" method="POST" class="d-inline">
