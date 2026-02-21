@@ -312,9 +312,9 @@ class InvitationController extends Controller
 
     public function groupsEdit(NotificationGroup $group)
     {
-        if (!Auth::check() || $group->user_id !== Auth::id()) {
-            return redirect()->route('invitations.index')->with('error', 'غير مصرح');
-        }
+        // if (!Auth::check() || $group->user_id !== Auth::id()) {
+        //     return redirect()->route('invitations.index')->with('error', 'غير مصرح');
+        // }
 
         $group->load('persons');
         return view('invitations.groups.edit', compact('group'));
