@@ -84,15 +84,35 @@
         }
 
         @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
-            20%, 40%, 60%, 80% { transform: translateX(10px); }
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            10%,
+            30%,
+            50%,
+            70%,
+            90% {
+                transform: translateX(-10px);
+            }
+
+            20%,
+            40%,
+            60%,
+            80% {
+                transform: translateX(10px);
+            }
         }
 
         @keyframes glow {
-            0%, 100% {
+
+            0%,
+            100% {
                 box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
             }
+
             50% {
                 box-shadow: 0 0 40px rgba(239, 68, 68, 0.6);
             }
@@ -364,21 +384,27 @@
                 <h3 class="text-xl font-bold gradient-text mb-4">معلومات مفيدة</h3>
                 <div class="text-right space-y-3">
                     <div class="flex items-start gap-3">
-                        <svg class="w-6 h-6 text-red-500 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        <svg class="w-6 h-6 text-red-500 mt-1 flex-shrink-0" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <div>
                             <p class="text-gray-700 font-medium">لماذا ظهرت هذه الرسالة؟</p>
-                            <p class="text-sm text-gray-600 mt-1">قد تحتاج إلى صلاحيات إضافية للوصول إلى هذه الصفحة. يرجى التواصل مع مدير النظام.</p>
+                            <p class="text-sm text-gray-600 mt-1">قد تحتاج إلى صلاحيات إضافية للوصول إلى هذه الصفحة.
+                                يرجى التواصل مع مدير النظام.</p>
                         </div>
                     </div>
                     <div class="flex items-start gap-3">
-                        <svg class="w-6 h-6 text-red-500 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        <svg class="w-6 h-6 text-red-500 mt-1 flex-shrink-0" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <div>
                             <p class="text-gray-700 font-medium">ما الذي يمكنني فعله؟</p>
-                            <p class="text-sm text-gray-600 mt-1">يمكنك العودة إلى الصفحة الرئيسية أو التواصل مع مدير النظام لطلب الصلاحيات المطلوبة.</p>
+                            <p class="text-sm text-gray-600 mt-1">يمكنك العودة إلى الصفحة الرئيسية أو التواصل مع مدير
+                                النظام لطلب الصلاحيات المطلوبة.</p>
                         </div>
                     </div>
                 </div>
@@ -404,6 +430,14 @@
                     </svg>
                     الصفحة السابقة
                 </button>
+                <a href="{{ route('logout') }}"
+                    class="btn-secondary text-red-700 font-bold py-4 px-8 rounded-2xl flex items-center gap-3 text-lg">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    تسجيل الخروج
+                </a>
             </div>
 
             <!-- رسالة تشجيعية -->

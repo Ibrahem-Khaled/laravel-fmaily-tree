@@ -119,7 +119,8 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <div class="form-check mt-4">
-                                        <input type="checkbox" name="is_active" id="is_active"
+                                        <input type="hidden" name="is_active" value="0">
+                                        <input type="checkbox" name="is_active" id="is_active" value="1"
                                                class="form-check-input"
                                                {{ old('is_active', $familyNews->is_active) ? 'checked' : '' }}>
                                         <label class="form-check-label font-weight-bold" for="is_active">

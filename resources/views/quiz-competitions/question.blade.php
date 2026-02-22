@@ -268,6 +268,9 @@
                 <div class="rounded-2xl p-5 mb-8 text-right bg-gradient-to-br from-green-50 to-green-100 border border-green-200">
                     <p class="text-green-600 text-xs mb-2 font-medium"><i class="fas fa-question-circle ml-1"></i> السؤال:</p>
                     <div class="text-gray-800 font-bold text-lg question-text">{!! $quizQuestion->question_text !!}</div>
+                    @if($quizQuestion->description)
+                        <div class="text-gray-600 text-sm mt-2 quiz-description">{!! $quizQuestion->description !!}</div>
+                    @endif
                 </div>
                 @if($quizCompetition->start_at)
                 <p class="text-gray-500 text-sm mb-4">يبدأ خلال:</p>
@@ -287,6 +290,28 @@
                 @endif
             </div>
 
+        {{-- ==================== السؤال مقفل (خلال 60 ثانية من البدء) ==================== --}}
+        @elseif($status === 'question_locked')
+            <div class="glass-effect rounded-3xl green-glow p-6 md:p-10 text-center slide-in" id="questionLockedContent">
+                <div class="w-20 h-20 md:w-24 md:h-24 rounded-3xl mx-auto mb-6 flex items-center justify-center bg-gradient-to-br from-amber-50 to-amber-100 border-2 border-amber-200">
+                    <i class="fas fa-lock text-amber-500 text-3xl md:text-4xl" style="animation:pulse-soft 2s infinite;"></i>
+                </div>
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-3">السؤال يظهر قريباً</h2>
+                <p class="text-gray-500 text-sm mb-6">سيظهر نص السؤال ونموذج الإجابة بعد مرور الوقت المحدد من بدء المسابقة</p>
+                @if(isset($questionsVisibleAt) && $questionsVisibleAt)
+                    <p class="text-gray-500 text-sm mb-4">السؤال يظهر بعد:</p>
+                    <div class="flex justify-center gap-3 md:gap-4 mb-6">
+                        <div class="text-center">
+                            <div class="w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center mb-2 bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200">
+                                <span class="text-2xl md:text-3xl font-bold text-green-600" id="ql-seconds">0</span>
+                            </div>
+                            <p class="text-gray-500 text-xs">ثانية</p>
+                        </div>
+                    </div>
+                    <input type="hidden" id="qlVisibleAt" value="{{ $questionsVisibleAt->getTimestamp() * 1000 }}">
+                @endif
+            </div>
+
         {{-- ==================== انتهى ==================== --}}
         @elseif($status === 'ended')
             <div class="space-y-6 slide-in" id="endedContent">
@@ -296,6 +321,9 @@
                         <span class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-500 text-xs px-3 py-1.5 rounded-full border border-gray-200"><i class="fas fa-flag-checkered"></i> انتهت المسابقة</span>
                     </div>
                     <div class="text-xl md:text-2xl font-bold text-gray-800 mb-2 leading-relaxed question-text">{!! $quizQuestion->question_text !!}</div>
+                    @if($quizQuestion->description)
+                        <div class="text-gray-600 text-sm mb-2 quiz-description">{!! $quizQuestion->description !!}</div>
+                    @endif
                     <p class="text-gray-400 text-xs"><i class="fas fa-calendar ml-1"></i>
                         @if($quizCompetition->start_at && $quizCompetition->end_at) {{ $quizCompetition->start_at->translatedFormat('d M') }} - {{ $quizCompetition->end_at->translatedFormat('d M Y') }} @else — @endif
                     </p>
@@ -449,6 +477,9 @@
                     </div>
                     <p class="text-green-600 text-xs font-medium mb-3"><i class="fas fa-trophy ml-1"></i> {{ $quizCompetition->title }}</p>
                     <div class="text-xl md:text-2xl lg:text-3xl font-bold text-gray-800 leading-relaxed question-text">{!! $quizQuestion->question_text !!}</div>
+                    @if($quizQuestion->description)
+                        <div class="text-gray-600 text-sm mt-2 quiz-description">{!! $quizQuestion->description !!}</div>
+                    @endif
                 </div>
                 <div class="grid grid-cols-3 gap-3 md:gap-4">
                     <div class="glass-effect rounded-2xl p-4 md:p-5 text-center"><div class="w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200"><i class="fas fa-users text-blue-500 text-lg"></i></div><p class="text-2xl md:text-3xl font-bold text-gray-800">{{ $stats['total'] }}</p><p class="text-gray-500 text-xs mt-1">إجمالي الإجابات</p></div>
@@ -897,6 +928,22 @@
                 document.getElementById('ns-minutes').textContent=Math.floor((d%3600000)/60000);
                 document.getElementById('ns-seconds').textContent=Math.floor((d%60000)/1000);
             } update(); setInterval(update,1000);
+        })();
+        @endif
+
+        @if($status === 'question_locked' && isset($questionsVisibleAt) && $questionsVisibleAt)
+        (function(){
+            var visibleAtInput = document.getElementById('qlVisibleAt');
+            var secondsEl = document.getElementById('ql-seconds');
+            if (!visibleAtInput || !secondsEl) return;
+            var target = parseInt(visibleAtInput.value, 10);
+            function update(){
+                var d = target - Date.now();
+                if (d <= 0) { location.reload(); return; }
+                secondsEl.textContent = Math.ceil(d / 1000);
+            }
+            update();
+            setInterval(update, 1000);
         })();
         @endif
 

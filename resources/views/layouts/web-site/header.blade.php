@@ -777,21 +777,19 @@
                     </a>
                 </li>
 
-                <li>
+                {{-- <li>
                     <a class="nav-link {{ request()->routeIs('important-links.*') ? 'active' : '' }}"
                         href="{{ route('important-links.index') }}">
-                         برامج تهمك
+                         تطبيقات تهمك
+                    </a>
+                </li> --}}
+
+                <li>
+                    <a class="nav-link {{ request()->routeIs('invitations.*') ? 'active' : '' }}"
+                        href="{{ route('invitations.index') }}">
+                        <i class="fab fa-whatsapp mr-1"></i>الدعوات
                     </a>
                 </li>
-
-                @auth
-                    <li>
-                        <a class="nav-link {{ request()->routeIs('invitations.*') ? 'active' : '' }}"
-                            href="{{ route('invitations.index') }}">
-                            <i class="fab fa-whatsapp mr-1"></i>الدعوات
-                        </a>
-                    </li>
-                @endauth
 
                 <li class="dropdown">
                     <a class="nav-link dropdown-toggle {{ request()->routeIs('quran-competitions.*') || request()->routeIs('quran-categories.*') ? 'active' : '' }}"

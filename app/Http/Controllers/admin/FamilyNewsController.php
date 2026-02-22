@@ -74,7 +74,7 @@ class FamilyNewsController extends Controller
             'main_image_path' => $mainImagePath,
             'published_at' => $request->published_at ? now()->parse($request->published_at) : now(),
             'display_order' => $lastOrder + 1,
-            'is_active' => $request->has('is_active') ? true : false,
+            'is_active' => $request->boolean('is_active'),
             'views_count' => 0,
         ]);
 
@@ -120,7 +120,7 @@ class FamilyNewsController extends Controller
             'content' => $request->content,
             'summary' => $request->summary,
             'published_at' => $request->published_at ? now()->parse($request->published_at) : $familyNews->published_at,
-            'is_active' => $request->has('is_active') ? true : false,
+            'is_active' => $request->boolean('is_active'),
         ]);
 
         return redirect()->route('dashboard.family-news.index')

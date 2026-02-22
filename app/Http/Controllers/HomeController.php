@@ -287,6 +287,9 @@ class HomeController extends Controller
             ->with('questions.choices')
             ->first();
 
+        $questionsVisibleAt = $activeQuizCompetition?->getQuestionsVisibleAt();
+        $showQuestionsOnHome = !$questionsVisibleAt || now()->gte($questionsVisibleAt);
+
         return view('web-site.home', [
             'latestImages' => $slideshowImages,
             'latestGalleryImages' => $latestGalleryImages,
@@ -308,6 +311,8 @@ class HomeController extends Controller
             'quizCompetitions' => $quizCompetitions,
             'nextQuizEvent' => $nextQuizEvent,
             'activeQuizCompetition' => $activeQuizCompetition,
+            'questionsVisibleAt' => $questionsVisibleAt,
+            'showQuestionsOnHome' => $showQuestionsOnHome,
         ]);
     }
 }

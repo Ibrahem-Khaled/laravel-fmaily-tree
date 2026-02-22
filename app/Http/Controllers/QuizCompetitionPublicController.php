@@ -84,6 +84,19 @@ class QuizCompetitionPublicController extends Controller
             ]);
         }
 
+        // السؤال لم يظهر بعد (خلال 60 ثانية من بدء المسابقة)
+        $questionsVisibleAt = $quizCompetition->getQuestionsVisibleAt();
+        if ($questionsVisibleAt && now()->lt($questionsVisibleAt)) {
+            return view('quiz-competitions.question', [
+                'quizCompetition' => $quizCompetition,
+                'quizQuestion' => $quizQuestion,
+                'status' => 'question_locked',
+                'stats' => $stats,
+                'questionsVisibleAt' => $questionsVisibleAt,
+                'candidateNames' => $candidateNames,
+            ]);
+        }
+
         if ($quizQuestion->hasEnded()) {
             $selectionAt = $quizCompetition->end_at ? $quizCompetition->end_at->copy() : null;
 
@@ -169,6 +182,11 @@ class QuizCompetitionPublicController extends Controller
 
         if ($quizQuestion->hasNotStarted()) {
             return back()->with('error', 'السؤال لم يبدأ بعد');
+        }
+
+        $questionsVisibleAt = $quizCompetition->getQuestionsVisibleAt();
+        if ($questionsVisibleAt && now()->lt($questionsVisibleAt)) {
+            return back()->with('error', 'السؤال يظهر بعد مرور الوقت المحدد من بدء المسابقة.');
         }
 
         if ($quizQuestion->hasEnded()) {

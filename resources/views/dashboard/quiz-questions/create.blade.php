@@ -30,6 +30,14 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="description">الوصف</label>
+                    <textarea class="form-control @error('description') is-invalid @enderror" id="description" name="description" rows="4">{{ old('description') }}</textarea>
+                    @error('description')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="form-group">
                     <label for="answer_type">نوع الإجابة <span class="text-danger">*</span></label>
                     <select class="form-control @error('answer_type') is-invalid @enderror" id="answer_type" name="answer_type" required>
                         <option value="multiple_choice" {{ old('answer_type', 'multiple_choice') == 'multiple_choice' ? 'selected' : '' }}>اختيار من متعدد</option>
@@ -198,8 +206,8 @@ document.addEventListener('DOMContentLoaded', function() {
 <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-bs4.min.js"></script>
 <script>
     $(document).ready(function() {
-        // Summernote editor for question text
-        $('#question_text').summernote({
+        // Summernote editor for description (rich text)
+        $('#description').summernote({
             height: 200,
             direction: 'rtl',
             toolbar: [

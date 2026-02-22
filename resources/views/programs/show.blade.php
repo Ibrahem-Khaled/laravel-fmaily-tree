@@ -956,56 +956,56 @@
 
                                             {{-- قسم الفرق --}}
                                             @if ($multiMemberTeams->isNotEmpty())
-                                                <div class="mt-6 pt-6 border-t border-purple-100">
-                                                    <div class="flex items-center justify-between mb-4">
-                                                        <h4 class="text-lg sm:text-xl font-bold text-purple-700 flex items-center gap-2">
-                                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <div class="mt-2 pt-2 sm:mt-4 sm:pt-4 lg:mt-6 lg:pt-6 border-t border-purple-100">
+                                                    <div class="flex items-center justify-between mb-2 sm:mb-4">
+                                                        <h4 class="text-base sm:text-xl font-bold text-purple-700 flex items-center gap-1.5 sm:gap-2">
+                                                            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                                                             </svg>
                                                             الفرق المسجلة
                                                         </h4>
-                                                        <span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs sm:text-sm font-semibold">
+                                                        <span class="px-2 py-0.5 sm:px-3 sm:py-1 bg-purple-100 text-purple-700 rounded-full text-xs sm:text-sm font-semibold">
                                                             {{ $multiMemberTeams->count() }} فريق
                                                         </span>
                                                     </div>
-                                                    <div class="space-y-4">
+                                                    <div class="space-y-2 sm:space-y-4">
                                                         @foreach ($multiMemberTeams as $team)
-                                                            <div class="bg-gradient-to-br from-purple-50 to-white border-2 border-purple-200 rounded-xl p-4 sm:p-6 hover:shadow-lg transition-all duration-300">
-                                                                <div class="flex items-start justify-between mb-4">
-                                                                    <div class="flex-1">
-                                                                        <h5 class="text-lg sm:text-xl font-bold text-purple-800 mb-2 flex items-center gap-2">
-                                                                            <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <div class="bg-gradient-to-br from-purple-50 to-white border-2 border-purple-200 rounded-lg sm:rounded-xl p-2.5 sm:p-6 hover:shadow-lg transition-all duration-300">
+                                                                <div class="flex items-start justify-between mb-2 sm:mb-4">
+                                                                    <div class="flex-1 min-w-0">
+                                                                        <h5 class="text-sm sm:text-xl font-bold text-purple-800 mb-0.5 sm:mb-2 flex items-center gap-1.5 sm:gap-2">
+                                                                            <svg class="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                                                                             </svg>
-                                                                            {{ $team->name }}
+                                                                            <span class="truncate">{{ $team->name }}</span>
                                                                         </h5>
-                                                                        <p class="text-xs sm:text-sm text-gray-600 mb-3">
+                                                                        <p class="text-xs text-gray-600 mb-0 sm:mb-3">
                                                                             <span class="font-semibold">{{ $team->members->count() }}</span> عضو
                                                                         </p>
                                                                     </div>
                                                                     @if ($team->is_complete)
-                                                                        <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
+                                                                        <span class="px-2 py-0.5 sm:px-3 sm:py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold flex-shrink-0">
                                                                             مكتمل
                                                                         </span>
                                                                     @else
-                                                                        <span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold">
+                                                                        <span class="px-2 py-0.5 sm:px-3 sm:py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold flex-shrink-0">
                                                                             غير مكتمل
                                                                         </span>
                                                                     @endif
                                                                 </div>
-                                                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5 sm:gap-3">
                                                                     @foreach ($team->members as $member)
                                                                         @php
                                                                             $memberRegistration = $registrations->where('user_id', $member->id)->first();
                                                                             $memberCategories = $memberRegistration ? $memberRegistration->categories : collect();
                                                                         @endphp
-                                                                        <div class="bg-white border border-purple-100 rounded-lg p-3 hover:shadow-md transition-all duration-300">
-                                                                            <div class="flex items-center gap-2 mb-2">
-                                                                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-md">
+                                                                        <div class="bg-white border border-purple-100 rounded-md sm:rounded-lg p-2 sm:p-3 hover:shadow-md transition-all duration-300">
+                                                                            <div class="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-2">
+                                                                                <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white font-bold text-xs sm:text-sm shadow-md flex-shrink-0">
                                                                                     {{ mb_substr($member->name, 0, 1) }}
                                                                                 </div>
                                                                                 <div class="flex-1 min-w-0">
-                                                                                    <h6 class="font-bold text-gray-800 truncate text-sm">
+                                                                                    <h6 class="font-bold text-gray-800 truncate text-xs sm:text-sm">
                                                                                         {{ $member->name }}
                                                                                         @if ($member->pivot->role === 'captain')
                                                                                             <span class="text-purple-600 text-xs">(قائد)</span>
@@ -1021,9 +1021,9 @@
                                                                                 </div>
                                                                             </div>
                                                                             @if ($memberCategories->isNotEmpty())
-                                                                                <div class="flex flex-wrap gap-1 mt-2 pt-2 border-t border-purple-50">
+                                                                                <div class="flex flex-wrap gap-0.5 sm:gap-1 mt-1 pt-1 sm:mt-2 sm:pt-2 border-t border-purple-50">
                                                                                     @foreach($memberCategories as $category)
-                                                                                        <span class="px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
+                                                                                        <span class="px-1.5 py-0.5 sm:px-2 sm:py-0.5 bg-purple-100 text-purple-700 rounded-full text-[10px] sm:text-xs font-medium">
                                                                                             {{ $category->name }}
                                                                                         </span>
                                                                                     @endforeach

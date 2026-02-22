@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -43,6 +44,21 @@ class QuizCompetition extends BaseModel
     public function scopeOrdered($query)
     {
         return $query->orderBy('display_order')->orderBy('created_at', 'desc');
+    }
+
+    /**
+     * Time at which questions become visible to visitors (start_at + configured delay in seconds).
+     * Returns null if start_at is not set.
+     */
+    public function getQuestionsVisibleAt(): ?Carbon
+    {
+        if (!$this->start_at) {
+            return null;
+        }
+
+        $delaySeconds = config('quiz.question_visible_after_seconds', 60);
+
+        return $this->start_at->copy()->addSeconds($delaySeconds);
     }
 
     /**

@@ -13,6 +13,7 @@ class QuizQuestion extends BaseModel
     protected $fillable = [
         'quiz_competition_id',
         'question_text',
+        'description',
         'answer_type',
         'winners_count',
         'display_order',

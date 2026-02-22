@@ -104,7 +104,9 @@ class InvitationController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('invitations.send', compact('groups'));
+        $templates = config('invitation_templates.templates', []);
+
+        return view('invitations.send', compact('groups', 'templates'));
     }
 
     /**
@@ -143,7 +145,7 @@ class InvitationController extends Controller
         // التحقق من أن المجموعة تخص المستخدم الحالي
         if ($validated['recipient_type'] === 'group') {
             $group = NotificationGroup::findOrFail($validated['group_id']);
-            if ($group->user_id !== Auth::id()) {
+            if ((int) $group->user_id !== (int) Auth::id()) {
                 return back()->with('error', 'ليس لديك صلاحية للوصول لهذه المجموعة.');
             }
         }

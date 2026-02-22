@@ -21,6 +21,7 @@ class QuizQuestionController extends Controller
     {
         $validated = $request->validate([
             'question_text' => 'required|string',
+            'description' => 'nullable|string',
             'answer_type' => 'required|in:multiple_choice,custom_text',
             'winners_count' => 'required|integer|min:1',
             'display_order' => 'nullable|integer|min:0',
@@ -36,6 +37,7 @@ class QuizQuestionController extends Controller
 
         $question = $quizCompetition->questions()->create([
             'question_text' => $validated['question_text'],
+            'description' => $validated['description'] ?? null,
             'answer_type' => $validated['answer_type'],
             'winners_count' => $validated['winners_count'],
             'display_order' => $validated['display_order'] ?? 0,
@@ -66,6 +68,7 @@ class QuizQuestionController extends Controller
     {
         $validated = $request->validate([
             'question_text' => 'required|string',
+            'description' => 'nullable|string',
             'answer_type' => 'required|in:multiple_choice,custom_text',
             'winners_count' => 'required|integer|min:1',
             'display_order' => 'nullable|integer|min:0',
@@ -81,6 +84,7 @@ class QuizQuestionController extends Controller
 
         $quizQuestion->update([
             'question_text' => $validated['question_text'],
+            'description' => $validated['description'] ?? null,
             'answer_type' => $validated['answer_type'],
             'winners_count' => $validated['winners_count'],
             'display_order' => $validated['display_order'] ?? 0,

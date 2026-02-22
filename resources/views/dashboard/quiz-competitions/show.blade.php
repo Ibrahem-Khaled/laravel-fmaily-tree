@@ -169,6 +169,9 @@
                                 </div>
                                 <div class="modal-body">
                                     <div class="text-muted mb-3 font-weight-bold question-text">{!! Str::limit(strip_tags($question->question_text), 150) !!}</div>
+                                    @if($question->description)
+                                        <div class="text-muted mb-3 small quiz-description">{!! Str::limit(strip_tags($question->description), 150) !!}</div>
+                                    @endif
                                     <div class="row mb-3">
                                         <div class="col-md-4">
                                             <span class="badge badge-primary">الإجمالي: {{ $question->answers->count() }}</span>
@@ -248,6 +251,9 @@
                                 </div>
                                 <div class="modal-body">
                                     <div class="text-muted mb-3 font-weight-bold question-text">{!! Str::limit(strip_tags($question->question_text), 150) !!}</div>
+                                    @if($question->description)
+                                        <div class="text-muted mb-3 small quiz-description">{!! Str::limit(strip_tags($question->description), 150) !!}</div>
+                                    @endif
                                     <div class="row mb-3">
                                         <div class="col-md-12">
                                             <span class="badge badge-success badge-lg">عدد الفائزين: {{ $question->winners->count() }}</span>

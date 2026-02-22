@@ -254,6 +254,9 @@
                                 <div class="text-lg md:text-xl font-bold text-gray-800 mb-4 leading-relaxed question-text">
                                     {!! $question->question_text !!}
                                 </div>
+                                @if($question->description)
+                                    <div class="text-gray-600 text-sm mb-3 quiz-description">{!! Str::limit(strip_tags($question->description), 120) !!}</div>
+                                @endif
 
                                 <a href="{{ route('quiz-competitions.question', [$quizCompetition, $question]) }}"
                                    class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-gray-600 text-sm font-bold transition-all hover:text-green-600 border-2 border-gray-200 hover:border-green-300">
@@ -280,6 +283,9 @@
                                 <div class="text-lg md:text-xl font-bold text-gray-800 mb-4 group-hover:text-green-600 transition-colors leading-relaxed question-text">
                                     {!! $question->question_text !!}
                                 </div>
+                                @if($question->description)
+                                    <div class="text-gray-600 text-sm mb-3 quiz-description">{!! Str::limit(strip_tags($question->description), 120) !!}</div>
+                                @endif
 
                                 <span class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-bold transition-all group-hover:-translate-y-0.5"
                                       style="background: linear-gradient(135deg, #22c55e, #16a34a); box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);">
@@ -307,6 +313,9 @@
                             <div class="flex items-start justify-between gap-4">
                                 <div class="flex-1">
                                     <div class="font-bold text-gray-700 mb-2 question-text">{!! $question->question_text !!}</div>
+                                    @if($question->description)
+                                        <div class="text-gray-600 text-sm mb-2 quiz-description">{!! Str::limit(strip_tags($question->description), 100) !!}</div>
+                                    @endif
                                     <span class="inline-flex items-center gap-1.5 bg-amber-50 text-amber-700 text-xs px-3 py-1.5 rounded-full border border-amber-200">
                                         <i class="fas fa-calendar-alt"></i>
                                         يبدأ: {{ $quizCompetition->start_at?->format('H:i') ?? '—' }} - {{ $quizCompetition->start_at?->translatedFormat('d M Y') ?? '—' }}
@@ -337,6 +346,9 @@
                                 <div class="flex-1">
                                     <a href="{{ route('quiz-competitions.question', [$quizCompetition, $question]) }}" class="block group">
                                         <div class="font-bold text-gray-700 mb-2 group-hover:text-green-600 transition-colors question-text">{!! $question->question_text !!}</div>
+                                        @if($question->description)
+                                            <div class="text-gray-600 text-sm mb-2 quiz-description">{!! Str::limit(strip_tags($question->description), 100) !!}</div>
+                                        @endif
                                     </a>
                                     <div class="flex flex-wrap items-center gap-3 text-xs mb-4">
                                         <span class="text-gray-400">

@@ -350,6 +350,20 @@
                     <div class="space-y-6">
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-2">
+                                <i class="fas fa-file-alt text-green-600 mr-2"></i>
+                                اختر قالب
+                                <span class="text-xs text-gray-500 font-normal mr-2">(يمكنك تعديل النص بعد الاختيار)</span>
+                            </label>
+                            <select id="template_select" class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                <option value="">— بدون قالب —</option>
+                                @foreach($templates as $index => $tpl)
+                                    <option value="{{ $index }}">{{ $tpl['name'] }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">
                                 <i class="fas fa-tag text-green-600 mr-2"></i>
                                 عنوان
                                 <span class="text-xs text-gray-500 font-normal mr-2">(اختياري - للسجل فقط)</span>
@@ -472,7 +486,19 @@
     </div>
 
     <script>
+    var invitationTemplates = @json($templates ?? []);
     $(function() {
+        // Template selector: fill title and body when a template is chosen
+        $('#template_select').on('change', function() {
+            var val = $(this).val();
+            if (val === '') return;
+            var t = invitationTemplates[parseInt(val, 10)];
+            if (t) {
+                $('#title').val(t.title || '');
+                $('#body').val(t.body || '');
+            }
+        });
+
         // Toggle Recipients
         $('input[name="recipient_type"]').on('change', function() {
             var isGroup = $(this).val() === 'group';

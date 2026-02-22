@@ -58,18 +58,18 @@
                     <div class="link-card glass-effect rounded-xl lg:rounded-2xl overflow-hidden green-glow-hover cursor-pointer max-w-[180px] mx-auto w-full" data-link-id="{{ $link->id }}" onclick="openDetailModal({{ $link->id }})">
                         <div class="link-card-image-wrap relative">
                             <img src="{{ $link->image_url }}" alt="{{ $link->title }}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%2322c55e%22%3E%3Cpath d=%22M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm3.9-2.53c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z%22/%3E%3C/svg%3E'; this.onerror=null;">
-                            <div class="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-black/50 text-white text-[10px]">
+                            {{-- <div class="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-black/50 text-white text-[10px]">
                                 {{ $link->type === 'app' ? 'تطبيق' : 'موقع' }}
-                            </div>
+                            </div> --}}
                         </div>
-                        <div class="p-2.5">
-                            <div class="flex items-center gap-1.5 min-h-[2.5rem]">
-                                @if($link->icon)
+                        <div class="px-1.5 py-1">
+                            <div class="flex items-center gap-0.5 min-h-[1.25rem]">
+                                {{-- @if($link->icon)
                                     <i class="{{ $link->icon }} text-green-600 text-sm flex-shrink-0"></i>
                                 @else
                                     <i class="fas fa-link text-green-600 text-sm flex-shrink-0"></i>
-                                @endif
-                                <h2 class="text-xs lg:text-sm font-bold text-gray-800 truncate">{{ $link->title }}</h2>
+                                @endif --}}
+                                <h2 class="text-[14px] lg:text-[11px] font-bold text-gray-800 truncate">{{ $link->title }}</h2>
                             </div>
                         </div>
                     </div>

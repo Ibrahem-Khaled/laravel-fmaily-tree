@@ -323,8 +323,30 @@
                                     </ul>
                                 </div>
                             @endif
-                            {{-- أسئلة المسابقة مع اختيار الإجابات مباشرة في الرئيسية --}}
-                            <div class="space-y-4 mb-3">
+                            {{-- عدّ تنازلي حتى ظهور الأسئلة والإجابات (60 ثانية بعد بدء المسابقة) — وصف السؤال يظهر مباشرة دون انتظار --}}
+                            @if(!($showQuestionsOnHome ?? true) && isset($questionsVisibleAt) && $questionsVisibleAt)
+                                <div id="activeQuizQuestionsCountdown" class="rounded-2xl p-4 mb-3 bg-amber-50 border-2 border-amber-200 flex flex-wrap items-center justify-center gap-2">
+                                    <i class="fas fa-clock text-amber-600"></i>
+                                    <span class="text-amber-800 font-medium text-sm">نص السؤال والإجابة تظهران بعد:</span>
+                                    <span id="aqQuestionsSeconds" class="bg-amber-200 text-amber-900 font-bold text-lg min-w-[3rem] text-center rounded-lg px-2 py-1">0</span>
+                                    <span class="text-amber-700 text-sm">ثانية</span>
+                                </div>
+                                <input type="hidden" id="aqQuestionsVisibleAt" value="{{ $questionsVisibleAt->getTimestamp() * 1000 }}">
+                                {{-- أوصاف الأسئلة فقط: تظهر فوراً بدون انتظار الوقت --}}
+                                @if($activeQuizCompetition->questions->filter(fn($q) => !empty($q->description))->isNotEmpty())
+                                    <div id="activeQuizDescriptionsOnlyBlock" class="space-y-4 mb-3">
+                                        @foreach ($activeQuizCompetition->questions as $q)
+                                            @if($q->description)
+                                                <div class="rounded-2xl p-3 border-2 border-green-100 bg-white/80 shadow-sm">
+                                                    <div class="text-gray-600 text-sm quiz-description">{!! $q->description !!}</div>
+                                                </div>
+                                            @endif
+                                        @endforeach
+                                    </div>
+                                @endif
+                            @endif
+                            {{-- أسئلة المسابقة مع اختيار الإجابات (تظهر بعد 60 ثانية) --}}
+                            <div id="activeQuizQuestionsBlock" class="space-y-4 mb-3" @if(!($showQuestionsOnHome ?? true)) style="display:none" @endif>
                                 <h4 class="text-sm font-bold text-gray-600 mb-2">أسئلة المسابقة — أجب هنا:</h4>
                                 @foreach ($activeQuizCompetition->questions as $q)
                                     @php
@@ -338,6 +360,9 @@
                                     @endphp
                                     <div class="rounded-2xl p-3 border-2 border-green-100 bg-white/80 shadow-sm">
                                         <div class="text-gray-800 font-bold text-base mb-2 question-text">{!! $q->question_text !!}</div>
+                                        @if($q->description)
+                                            <div class="text-gray-600 text-sm mb-2 quiz-description">{!! $q->description !!}</div>
+                                        @endif
 
                                         @if($canAnswerThis)
                                             <form action="{{ route('quiz-competitions.store-answer', [$activeQuizCompetition, $q]) }}" method="POST" class="space-y-4">
@@ -408,13 +433,13 @@
                                 @endforeach
                             </div>
 
-                            <a href="{{ route('quiz-competitions.show', $activeQuizCompetition) }}"
+                            {{-- <a href="{{ route('quiz-competitions.show', $activeQuizCompetition) }}"
                                class="inline-flex items-center gap-3 px-6 py-3 rounded-2xl font-bold text-sm text-white transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
                                style="background: linear-gradient(135deg, #22c55e, #16a34a); box-shadow: 0 4px 20px rgba(34, 197, 94, 0.4);">
                                 <i class="fas fa-list"></i>
                                 <span>عرض تفاصيل المسابقة</span>
                                 <i class="fas fa-arrow-left mr-1"></i>
-                            </a>
+                            </a> --}}
                         </div>
                     </div>
                 @endif
@@ -1659,6 +1684,44 @@
             }
             updateTimer();
             setInterval(updateTimer, 1000);
+        })();
+
+        // عدّ تنازلي حتى ظهور نص السؤال والإجابة (بعد 60 ثانية) — أوصاف الأسئلة تظهر فوراً ويُخفى بلوكها عند انتهاء العدّ
+        (function() {
+            const visibleAtInput = document.getElementById('aqQuestionsVisibleAt');
+            if (!visibleAtInput) return;
+            const questionsVisibleAtTimestamp = parseInt(visibleAtInput.value, 10);
+            const countdownEl = document.getElementById('activeQuizQuestionsCountdown');
+            const descriptionsOnlyEl = document.getElementById('activeQuizDescriptionsOnlyBlock');
+            const questionsBlockEl = document.getElementById('activeQuizQuestionsBlock');
+            const secondsEl = document.getElementById('aqQuestionsSeconds');
+            if (!countdownEl || !questionsBlockEl || !secondsEl) return;
+
+            function revealQuestionsAndHideCountdown() {
+                countdownEl.style.display = 'none';
+                if (descriptionsOnlyEl) descriptionsOnlyEl.style.display = 'none';
+                questionsBlockEl.style.display = '';
+            }
+
+            function updateQuestionsCountdown() {
+                const remaining = Math.ceil((questionsVisibleAtTimestamp - Date.now()) / 1000);
+                if (remaining <= 0) {
+                    secondsEl.textContent = '0';
+                    revealQuestionsAndHideCountdown();
+                    return;
+                }
+                secondsEl.textContent = remaining;
+            }
+            updateQuestionsCountdown();
+            const questionsCountdownInterval = setInterval(function() {
+                const remaining = Math.ceil((questionsVisibleAtTimestamp - Date.now()) / 1000);
+                if (remaining <= 0) {
+                    clearInterval(questionsCountdownInterval);
+                    revealQuestionsAndHideCountdown();
+                } else {
+                    secondsEl.textContent = remaining;
+                }
+            }, 1000);
         })();
         @endif
     </script>
