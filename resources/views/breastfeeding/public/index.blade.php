@@ -1251,7 +1251,7 @@
                         <div class="col-md-6 col-6">
                             <div class="stat-card">
                                 <div class="stat-number">{{ $stats['total_breastfed_children'] }}</div>
-                                <div class="stat-label">الأطفال المرتضعين</div>
+                                <div class="stat-label">الأطفال المرضَعين</div>
                             </div>
                         </div>
                     </div>

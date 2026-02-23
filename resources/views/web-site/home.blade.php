@@ -354,10 +354,10 @@
                                         }
                                     @endphp
                                     <div class="rounded-2xl p-3 border-2 border-green-100 bg-white/80 shadow-sm">
-                                        <div class="text-gray-800 font-bold text-base mb-2 question-text">{!! $q->question_text !!}</div>
                                         @if($q->description)
                                             <div class="text-gray-600 text-sm mb-2 quiz-description">{!! $q->description !!}</div>
                                         @endif
+                                        <div class="text-gray-800 font-bold text-base mb-2 question-text">{!! $q->question_text !!}</div>
 
                                         @if($canAnswerThis)
                                             <form action="{{ route('quiz-competitions.store-answer', [$activeQuizCompetition, $q]) }}" method="POST" class="space-y-4">
