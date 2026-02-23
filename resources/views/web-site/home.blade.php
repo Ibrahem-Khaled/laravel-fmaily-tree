@@ -287,12 +287,7 @@
                                 </span>
                             </div>
 
-                            {{-- عنوان المسابقة --}}
-                            <h3 class="text-lg md:text-xl lg:text-2xl font-bold text-gray-800 mb-2 leading-relaxed">
-                                {{ $activeQuizCompetition->title }}
-                            </h3>
-                            {{-- وصف المسابقة — يظهر دائماً بنفس تنسيق المحتوى المنسق --}}
-                            <div class="text-gray-600 text-sm mb-2 quiz-description">{!! $activeQuizCompetition->description ?? '' !!}</div>
+                            {{-- عنوان ووصف المسابقة مخفيان بعد بدء المسابقة --}}
 
                             {{-- العد التنازلي حتى انتهاء المسابقة (وقت اختيار الفائز) --}}
                             <div class="flex flex-wrap items-center gap-2 mb-3 text-gray-500 text-sm">
@@ -325,12 +320,6 @@
                             @endif
                             {{-- عدّ تنازلي حتى ظهور الأسئلة والإجابات (60 ثانية بعد بدء المسابقة) — وصف السؤال يظهر مباشرة دون انتظار --}}
                             @if(!($showQuestionsOnHome ?? true) && isset($questionsVisibleAt) && $questionsVisibleAt)
-                                <div id="activeQuizQuestionsCountdown" class="rounded-2xl p-4 mb-3 bg-amber-50 border-2 border-amber-200 flex flex-wrap items-center justify-center gap-2">
-                                    <i class="fas fa-clock text-amber-600"></i>
-                                    <span class="text-amber-800 font-medium text-sm">نص السؤال والإجابة تظهران بعد:</span>
-                                    <span id="aqQuestionsSeconds" class="bg-amber-200 text-amber-900 font-bold text-lg min-w-[3rem] text-center rounded-lg px-2 py-1">0</span>
-                                    <span class="text-amber-700 text-sm">ثانية</span>
-                                </div>
                                 <input type="hidden" id="aqQuestionsVisibleAt" value="{{ $questionsVisibleAt->getTimestamp() * 1000 }}">
                                 {{-- أوصاف الأسئلة فقط: تظهر فوراً بدون انتظار الوقت --}}
                                 @if($activeQuizCompetition->questions->filter(fn($q) => !empty($q->description))->isNotEmpty())
@@ -344,6 +333,12 @@
                                         @endforeach
                                     </div>
                                 @endif
+                                <div id="activeQuizQuestionsCountdown" class="rounded-2xl p-4 mb-3 bg-amber-50 border-2 border-amber-200 flex flex-wrap items-center justify-center gap-2">
+                                    <i class="fas fa-clock text-amber-600"></i>
+                                    <span class="text-amber-800 font-medium text-sm">نص السؤال والإجابة تظهران بعد:</span>
+                                    <span id="aqQuestionsSeconds" class="bg-amber-200 text-amber-900 font-bold text-lg min-w-[3rem] text-center rounded-lg px-2 py-1">0</span>
+                                    <span class="text-amber-700 text-sm">ثانية</span>
+                                </div>
                             @endif
                             {{-- أسئلة المسابقة مع اختيار الإجابات (تظهر بعد 60 ثانية) --}}
                             <div id="activeQuizQuestionsBlock" class="space-y-4 mb-3" @if(!($showQuestionsOnHome ?? true)) style="display:none" @endif>
