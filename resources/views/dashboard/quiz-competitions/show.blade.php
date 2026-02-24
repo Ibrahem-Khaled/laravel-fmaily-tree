@@ -12,6 +12,9 @@
             <p class="text-muted mb-0">إدارة الأسئلة والمسابقات</p>
         </div>
         <div>
+            <a href="{{ route('quiz-competitions.show', $quizCompetition) }}" class="btn btn-info shadow-sm mr-2" target="_blank" rel="noopener" title="معاينة المسابقة كما يراها الزوار">
+                <i class="fas fa-external-link-alt mr-2"></i>معاينة
+            </a>
             <a href="{{ route('dashboard.quiz-competitions.export', $quizCompetition) }}" class="btn btn-success shadow-sm mr-2" target="_blank" rel="noopener">
                 <i class="fas fa-file-excel mr-2"></i>تصدير إلى Excel
             </a>
