@@ -791,7 +791,7 @@
     {{-- ================================================================
      GALLERY – "اخترنا لك"
      ================================================================ --}}
-    <section class="py-3 md:py-6 lg:py-8 bg-gradient-to-br from-gray-50 to-green-50/50 relative overflow-hidden">
+    {{-- <section class="py-3 md:py-6 lg:py-8 bg-gradient-to-br from-gray-50 to-green-50/50 relative overflow-hidden">
         <div class="absolute bottom-0 left-0 w-48 h-48 bg-emerald-100 rounded-full blur-3xl opacity-30"></div>
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
 
@@ -856,7 +856,7 @@
             @endif
 
         </div>
-    </section>
+    </section> --}}
 
     {{-- ================================================================
      FAMILY NEWS
