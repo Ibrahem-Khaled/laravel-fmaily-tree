@@ -370,13 +370,24 @@
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
             body: JSON.stringify({ orders: orders })
         })
-        .then(response => response.json())
+        .then(async response => {
+            const isJson = response.headers.get('content-type')?.includes('application/json');
+            const data = isJson ? await response.json() : null;
+
+            if (!response.ok) {
+                const error = (data && data.message) || response.statusText;
+                return Promise.reject(error);
+            }
+            return data;
+        })
         .then(data => {
-            if (data.success) {
+            if (data && data.success) {
                 document.getElementById('saveOrderBar').style.display = 'none';
                 // Show success toast
                 const toast = document.createElement('div');
@@ -385,12 +396,12 @@
                 document.body.appendChild(toast);
                 setTimeout(() => toast.remove(), 2500);
             } else {
-                alert('حدث خطأ أثناء حفظ الترتيب');
+                alert(data && data.message ? data.message : 'حدث خطأ أثناء حفظ الترتيب');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('حدث خطأ أثناء حفظ الترتيب');
+            alert('حدث خطأ: ' + error);
         });
     }
 </script>
