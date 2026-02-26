@@ -387,10 +387,10 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::get('home-sections', [\App\Http\Controllers\admin\HomeSectionController::class, 'index'])->name('dashboard.home-sections.index')->middleware(['permission:site-content.view']);
     Route::get('home-sections/create', [\App\Http\Controllers\admin\HomeSectionController::class, 'create'])->name('dashboard.home-sections.create')->middleware(['permission:site-content.create']);
     Route::post('home-sections', [\App\Http\Controllers\admin\HomeSectionController::class, 'store'])->name('dashboard.home-sections.store')->middleware(['permission:site-content.create']);
+    Route::post('home-sections/reorder', [\App\Http\Controllers\admin\HomeSectionController::class, 'reorder'])->name('dashboard.home-sections.reorder')->middleware(['permission:site-content.update']);
     Route::get('home-sections/{homeSection}/edit', [\App\Http\Controllers\admin\HomeSectionController::class, 'edit'])->name('dashboard.home-sections.edit')->middleware(['permission:site-content.view']);
     Route::post('home-sections/{homeSection}', [\App\Http\Controllers\admin\HomeSectionController::class, 'update'])->name('dashboard.home-sections.update')->middleware(['permission:site-content.update']);
     Route::delete('home-sections/{homeSection}', [\App\Http\Controllers\admin\HomeSectionController::class, 'destroy'])->name('dashboard.home-sections.destroy')->middleware(['permission:site-content.delete']);
-    Route::post('home-sections/reorder', [\App\Http\Controllers\admin\HomeSectionController::class, 'reorder'])->name('dashboard.home-sections.reorder')->middleware(['permission:site-content.update']);
     Route::post('home-sections/{homeSection}/toggle', [\App\Http\Controllers\admin\HomeSectionController::class, 'toggle'])->name('dashboard.home-sections.toggle')->middleware(['permission:site-content.update']);
     Route::post('home-sections/{homeSection}/duplicate', [\App\Http\Controllers\admin\HomeSectionController::class, 'duplicate'])->name('dashboard.home-sections.duplicate')->middleware(['permission:site-content.create']);
 
