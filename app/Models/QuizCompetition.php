@@ -56,7 +56,7 @@ class QuizCompetition extends BaseModel
             return null;
         }
 
-        $delaySeconds = config('quiz.question_visible_after_seconds', 60);
+        $delaySeconds = config('quiz.question_visible_after_seconds', 300);
 
         return $this->start_at->copy()->addSeconds($delaySeconds);
     }
