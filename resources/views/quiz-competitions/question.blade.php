@@ -260,45 +260,45 @@
             </div>
             <p class="text-shimmer-gold text-2xl md:text-3xl font-bold mb-5" id="announceTitle">مبروك للفائز!</p>
             
-            <div class="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-8 my-8 relative z-10 w-full max-w-5xl mx-auto">
-                <div class="order-3 md:order-1 flex-shrink-0">
+            <div class="flex flex-row items-center justify-between gap-2 sm:gap-4 md:gap-8 my-8 relative z-10 w-full max-w-5xl mx-auto px-2">
+                <div class="flex-shrink-0 w-20 md:w-auto">
                     @if($quizCompetition->sponsors && $quizCompetition->sponsors->count() > 0)
                         @php $firstSponsor = $quizCompetition->sponsors->first(); @endphp
-                        <div class="flex flex-col items-center gap-2">
-                            <div class="sponsor-reveal opacity-0 transform scale-50 rounded-2xl p-3 bg-white/10 backdrop-blur-sm border border-white/20 shadow-2xl flex items-center justify-center relative w-20 h-20 md:w-auto md:h-auto" style="transition: all 0.8s cubic-bezier(0.34,1.56,0.64,1); animation-delay: 0.5s;">
-                                <span class="absolute -top-3 right-1/2 translate-x-1/2 md:translate-x-0 md:right-4 bg-amber-400 text-amber-900 text-[10px] font-bold px-2 py-0.5 rounded shadow whitespace-nowrap">برعاية</span>
+                        <div class="flex flex-col items-center gap-1 md:gap-2">
+                            <div class="sponsor-reveal opacity-0 transform scale-50 rounded-2xl p-2 md:p-3 bg-white/10 backdrop-blur-sm border border-white/20 shadow-2xl flex items-center justify-center relative w-16 h-16 sm:w-20 sm:h-20 md:w-auto md:h-auto" style="transition: all 0.8s cubic-bezier(0.34,1.56,0.64,1); animation-delay: 0.5s;">
+                                <span class="absolute -top-3 right-1/2 translate-x-1/2 md:translate-x-0 md:right-4 bg-amber-400 text-amber-900 text-[8px] md:text-[10px] font-bold px-1.5 md:px-2 py-0.5 rounded shadow whitespace-nowrap">برعاية</span>
                                 @if($firstSponsor->image)
-                                    <img src="{{ asset('storage/' . $firstSponsor->image) }}" class="h-12 w-12 md:h-28 md:w-auto object-contain rounded-xl">
+                                    <img src="{{ asset('storage/' . $firstSponsor->image) }}" class="max-h-full max-w-full object-contain rounded-xl">
                                 @else
-                                    <span class="text-xs md:text-xl font-bold text-white px-2 md:px-4 text-center">{{ $firstSponsor->name }}</span>
+                                    <span class="text-[10px] md:text-xl font-bold text-white px-1 md:px-4 text-center leading-tight">{{ $firstSponsor->name }}</span>
                                 @endif
                             </div>
                             @if($firstSponsor->image)
-                                <div class="sponsor-reveal opacity-0 text-white font-bold text-xs md:text-base text-center" style="transition: opacity 0.8s ease; animation-delay: 0.8s; text-shadow: 0 0 10px rgba(0,0,0,0.8);">{{ $firstSponsor->name }}</div>
+                                <div class="sponsor-reveal opacity-0 text-white font-bold text-[9px] sm:text-xs md:text-base text-center break-words w-full" style="transition: opacity 0.8s ease; animation-delay: 0.8s; text-shadow: 0 0 10px rgba(0,0,0,0.8);">{{ $firstSponsor->name }}</div>
                             @endif
                         </div>
                     @endif
                 </div>
 
-                <div class="order-1 md:order-2 flex-1 text-center flex flex-col justify-center items-center w-full">
-                    <div id="announceName" class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white px-4 break-words" style="text-shadow:0 0 40px rgba(255,255,255,0.4); line-height: 1.4;"></div>
-                    <div id="announcePrize" class="mt-2 md:mt-4 text-xl sm:text-2xl md:text-3xl font-bold text-amber-300 hidden px-4 break-words" style="text-shadow:0 0 20px rgba(245,158,11,0.6);"></div>
+                <div class="flex-1 text-center flex flex-col justify-center items-center min-w-0 px-2 line-clamp-2">
+                    <div id="announceName" class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white px-1 break-words leading-tight" style="text-shadow:0 0 40px rgba(255,255,255,0.4);"></div>
+                    <div id="announcePrize" class="mt-2 md:mt-4 text-sm sm:text-xl md:text-3xl font-bold text-amber-300 hidden px-1 break-words" style="text-shadow:0 0 20px rgba(245,158,11,0.6);"></div>
                 </div>
 
-                <div class="order-4 md:order-3 flex-shrink-0">
+                <div class="flex-shrink-0 w-20 md:w-auto">
                     @if($quizCompetition->sponsors && $quizCompetition->sponsors->count() > 0)
                         @php $lastSponsor = $quizCompetition->sponsors->count() > 1 ? $quizCompetition->sponsors->last() : $quizCompetition->sponsors->first(); @endphp
-                        <div class="flex flex-col items-center gap-2">
-                            <div class="sponsor-reveal opacity-0 transform scale-50 rounded-2xl p-3 bg-white/10 backdrop-blur-sm border border-white/20 shadow-2xl flex items-center justify-center relative w-20 h-20 md:w-auto md:h-auto" style="transition: all 0.8s cubic-bezier(0.34,1.56,0.64,1); animation-delay: 0.7s;">
-                                 <span class="absolute -top-3 right-1/2 translate-x-1/2 md:translate-x-0 md:left-4 bg-amber-400 text-amber-900 text-[10px] font-bold px-2 py-0.5 rounded shadow whitespace-nowrap">برعاية</span>
+                        <div class="flex flex-col items-center gap-1 md:gap-2">
+                            <div class="sponsor-reveal opacity-0 transform scale-50 rounded-2xl p-2 md:p-3 bg-white/10 backdrop-blur-sm border border-white/20 shadow-2xl flex items-center justify-center relative w-16 h-16 sm:w-20 sm:h-20 md:w-auto md:h-auto" style="transition: all 0.8s cubic-bezier(0.34,1.56,0.64,1); animation-delay: 0.7s;">
+                                 <span class="absolute -top-3 right-1/2 translate-x-1/2 md:translate-x-0 md:left-4 bg-amber-400 text-amber-900 text-[8px] md:text-[10px] font-bold px-1.5 md:px-2 py-0.5 rounded shadow whitespace-nowrap">برعاية</span>
                                 @if($lastSponsor->image)
-                                    <img src="{{ asset('storage/' . $lastSponsor->image) }}" class="h-12 w-12 md:h-28 md:w-auto object-contain rounded-xl">
+                                    <img src="{{ asset('storage/' . $lastSponsor->image) }}" class="max-h-full max-w-full object-contain rounded-xl">
                                 @else
-                                    <span class="text-xs md:text-xl font-bold text-white px-2 md:px-4 text-center">{{ $lastSponsor->name }}</span>
+                                    <span class="text-[10px] md:text-xl font-bold text-white px-1 md:px-4 text-center leading-tight">{{ $lastSponsor->name }}</span>
                                 @endif
                             </div>
                             @if($lastSponsor->image)
-                                <div class="sponsor-reveal opacity-0 text-white font-bold text-xs md:text-base text-center" style="transition: opacity 0.8s ease; animation-delay: 1.0s; text-shadow: 0 0 10px rgba(0,0,0,0.8);">{{ $lastSponsor->name }}</div>
+                                <div class="sponsor-reveal opacity-0 text-white font-bold text-[9px] sm:text-xs md:text-base text-center break-words w-full" style="transition: opacity 0.8s ease; animation-delay: 1.0s; text-shadow: 0 0 10px rgba(0,0,0,0.8);">{{ $lastSponsor->name }}</div>
                             @endif
                         </div>
                     @endif
@@ -436,45 +436,45 @@
                     <div class="absolute inset-0 pointer-events-none overflow-hidden" id="sparklesBox"></div>
                     <div class="glass-effect rounded-3xl p-6 md:p-8 relative overflow-hidden glow-breath" style="border:2px solid rgba(245,158,11,0.3);">
                         <div class="absolute top-0 right-0 left-0 h-2" style="background:linear-gradient(90deg,#f59e0b,#fbbf24,#f59e0b,#fbbf24,#f59e0b);"></div>
-                        <div class="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-8 mb-8 relative z-10 w-full max-w-5xl mx-auto">
-                            <div class="order-3 md:order-1 flex-shrink-0">
+                        <div class="flex flex-row items-center justify-between gap-2 sm:gap-4 md:gap-8 mb-8 relative z-10 w-full max-w-5xl mx-auto px-1">
+                            <div class="flex-shrink-0 w-16 sm:w-20 md:w-auto">
                                 @if($quizCompetition->sponsors && $quizCompetition->sponsors->count() > 0)
                                     @php $firstSponsor = $quizCompetition->sponsors->first(); @endphp
-                                    <div class="flex flex-col items-center gap-2">
-                                        <div class="rounded-2xl p-2 bg-white/60 backdrop-blur-sm border border-amber-200 shadow-md flex items-center justify-center relative w-16 h-16 md:w-28 md:h-28">
-                                            <span class="absolute -top-3 right-1/2 translate-x-1/2 md:translate-x-0 md:right-2 bg-amber-400 text-amber-900 text-[10px] font-bold px-2 py-0.5 rounded shadow whitespace-nowrap">برعاية</span>
+                                    <div class="flex flex-col items-center gap-1 md:gap-2">
+                                        <div class="rounded-2xl p-1 md:p-2 bg-white/60 backdrop-blur-sm border border-amber-200 shadow-md flex items-center justify-center relative w-14 h-14 sm:w-16 sm:h-16 md:w-28 md:h-28">
+                                            <span class="absolute -top-2 md:-top-3 right-1/2 translate-x-1/2 md:translate-x-0 md:right-2 bg-amber-400 text-amber-900 text-[7px] md:text-[10px] font-bold px-1.5 md:px-2 py-0.5 rounded shadow whitespace-nowrap">برعاية</span>
                                             @if($firstSponsor->image)
                                                 <img src="{{ asset('storage/' . $firstSponsor->image) }}" class="max-h-full max-w-full object-contain rounded-xl">
                                             @else
-                                                <span class="text-[10px] md:text-xs font-bold text-gray-800 text-center">{{ $firstSponsor->name }}</span>
+                                                <span class="text-[8px] md:text-xs font-bold text-gray-800 text-center leading-tight">{{ $firstSponsor->name }}</span>
                                             @endif
                                         </div>
                                         @if($firstSponsor->image)
-                                            <span class="text-[10px] md:text-sm font-bold text-gray-800 text-center">{{ $firstSponsor->name }}</span>
+                                            <span class="text-[8px] sm:text-[10px] md:text-sm font-bold text-gray-800 text-center break-words w-full">{{ $firstSponsor->name }}</span>
                                         @endif
                                     </div>
                                 @endif
                             </div>
 
-                            <div class="order-1 md:order-2 text-center flex-1 w-full">
-                                <div class="inline-block crown-anim" style="animation-delay:0.4s;"><i class="fas fa-crown text-amber-400 text-4xl md:text-5xl" style="filter:drop-shadow(0 0 20px rgba(245,158,11,0.5));"></i></div>
-                                <h3 class="text-2xl md:text-3xl font-bold mt-3"><span class="text-shimmer-gold">الفائزون</span></h3>
+                            <div class="text-center flex-1 min-w-0 px-1">
+                                <div class="inline-block crown-anim" style="animation-delay:0.4s;"><i class="fas fa-crown text-amber-400 text-3xl sm:text-4xl md:text-5xl" style="filter:drop-shadow(0 0 20px rgba(245,158,11,0.5));"></i></div>
+                                <h3 class="text-xl sm:text-2xl md:text-3xl font-bold mt-1 md:mt-3 break-words leading-tight"><span class="text-shimmer-gold line-clamp-2">الفائزون</span></h3>
                             </div>
 
-                            <div class="order-4 md:order-3 flex-shrink-0">
+                            <div class="flex-shrink-0 w-16 sm:w-20 md:w-auto">
                                 @if($quizCompetition->sponsors && $quizCompetition->sponsors->count() > 0)
                                     @php $lastSponsor = $quizCompetition->sponsors->count() > 1 ? $quizCompetition->sponsors->last() : $quizCompetition->sponsors->first(); @endphp
-                                    <div class="flex flex-col items-center gap-2">
-                                        <div class="rounded-2xl p-2 bg-white/60 backdrop-blur-sm border border-amber-200 shadow-md flex items-center justify-center relative w-16 h-16 md:w-28 md:h-28">
-                                            <span class="absolute -top-3 right-1/2 translate-x-1/2 md:translate-x-0 md:left-2 bg-amber-400 text-amber-900 text-[10px] font-bold px-2 py-0.5 rounded shadow whitespace-nowrap">برعاية</span>
+                                    <div class="flex flex-col items-center gap-1 md:gap-2">
+                                        <div class="rounded-2xl p-1 md:p-2 bg-white/60 backdrop-blur-sm border border-amber-200 shadow-md flex items-center justify-center relative w-14 h-14 sm:w-16 sm:h-16 md:w-28 md:h-28">
+                                            <span class="absolute -top-2 md:-top-3 right-1/2 translate-x-1/2 md:translate-x-0 md:left-2 bg-amber-400 text-amber-900 text-[7px] md:text-[10px] font-bold px-1.5 md:px-2 py-0.5 rounded shadow whitespace-nowrap">برعاية</span>
                                             @if($lastSponsor->image)
                                                 <img src="{{ asset('storage/' . $lastSponsor->image) }}" class="max-h-full max-w-full object-contain rounded-xl">
                                             @else
-                                                <span class="text-[10px] md:text-xs font-bold text-gray-800 text-center">{{ $lastSponsor->name }}</span>
+                                                <span class="text-[8px] md:text-xs font-bold text-gray-800 text-center leading-tight">{{ $lastSponsor->name }}</span>
                                             @endif
                                         </div>
                                         @if($lastSponsor->image)
-                                            <span class="text-[10px] md:text-sm font-bold text-gray-800 text-center">{{ $lastSponsor->name }}</span>
+                                            <span class="text-[8px] sm:text-[10px] md:text-sm font-bold text-gray-800 text-center break-words w-full">{{ $lastSponsor->name }}</span>
                                         @endif
                                     </div>
                                 @endif
