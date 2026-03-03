@@ -17,6 +17,7 @@ class QuizCompetition extends BaseModel
         'display_order',
         'start_at',
         'end_at',
+        'reveal_delay_seconds',
     ];
 
     protected $casts = [
@@ -24,6 +25,7 @@ class QuizCompetition extends BaseModel
         'display_order' => 'integer',
         'start_at' => 'datetime',
         'end_at' => 'datetime',
+        'reveal_delay_seconds' => 'integer',
     ];
 
     public function questions(): HasMany
@@ -34,6 +36,11 @@ class QuizCompetition extends BaseModel
     public function registrations(): HasMany
     {
         return $this->hasMany(QuizRegistration::class);
+    }
+
+    public function sponsors()
+    {
+        return $this->belongsToMany(Sponsor::class, 'quiz_competition_sponsor');
     }
 
     public function scopeActive($query)
@@ -56,7 +63,7 @@ class QuizCompetition extends BaseModel
             return null;
         }
 
-        $delaySeconds = config('quiz.question_visible_after_seconds', 60);
+        $delaySeconds = $this->reveal_delay_seconds ?? config('quiz.question_visible_after_seconds', 60);
 
         return $this->start_at->copy()->addSeconds($delaySeconds);
     }

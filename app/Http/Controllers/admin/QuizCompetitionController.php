@@ -32,7 +32,8 @@ class QuizCompetitionController extends Controller
 
     public function create(): View
     {
-        return view('dashboard.quiz-competitions.create');
+        $sponsors = \App\Models\Sponsor::all();
+        return view('dashboard.quiz-competitions.create', compact('sponsors'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -42,6 +43,7 @@ class QuizCompetitionController extends Controller
             'description' => 'nullable|string',
             'start_at' => 'nullable|date',
             'end_at' => 'nullable|date|after_or_equal:start_at',
+            'reveal_delay_seconds' => 'nullable|integer|min:0',
             'is_active' => 'boolean',
             'display_order' => 'nullable|integer|min:0',
         ], [
@@ -52,7 +54,11 @@ class QuizCompetitionController extends Controller
         $validated['is_active'] = $request->has('is_active');
         $validated['display_order'] = $validated['display_order'] ?? 0;
 
-        QuizCompetition::create($validated);
+        $competition = QuizCompetition::create($validated);
+
+        if ($request->has('sponsors')) {
+            $competition->sponsors()->sync($request->input('sponsors'));
+        }
 
         return redirect()->route('dashboard.quiz-competitions.index')
             ->with('success', 'تم إضافة المسابقة بنجاح');
@@ -67,7 +73,9 @@ class QuizCompetitionController extends Controller
 
     public function edit(QuizCompetition $quizCompetition): View
     {
-        return view('dashboard.quiz-competitions.edit', compact('quizCompetition'));
+        $sponsors = \App\Models\Sponsor::all();
+        $quizCompetition->load('sponsors');
+        return view('dashboard.quiz-competitions.edit', compact('quizCompetition', 'sponsors'));
     }
 
     public function update(Request $request, QuizCompetition $quizCompetition): RedirectResponse
@@ -77,6 +85,7 @@ class QuizCompetitionController extends Controller
             'description' => 'nullable|string',
             'start_at' => 'nullable|date',
             'end_at' => 'nullable|date|after_or_equal:start_at',
+            'reveal_delay_seconds' => 'nullable|integer|min:0',
             'is_active' => 'boolean',
             'display_order' => 'nullable|integer|min:0',
         ], [
@@ -88,6 +97,12 @@ class QuizCompetitionController extends Controller
         $validated['display_order'] = $validated['display_order'] ?? 0;
 
         $quizCompetition->update($validated);
+        
+        if ($request->has('sponsors')) {
+            $quizCompetition->sponsors()->sync($request->input('sponsors'));
+        } else {
+            $quizCompetition->sponsors()->sync([]);
+        }
 
         return redirect()->route('dashboard.quiz-competitions.index')
             ->with('success', 'تم تحديث المسابقة بنجاح');

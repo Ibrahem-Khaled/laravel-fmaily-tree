@@ -158,6 +158,16 @@
             border-radius: 0.5rem;
             margin: 0.5rem 0;
         }
+        .quiz-description iframe,
+        .quiz-description video,
+        .question-text iframe,
+        .question-text video {
+            max-width: 100%;
+            height: auto;
+            aspect-ratio: 16 / 9;
+            border-radius: 0.5rem;
+            margin: 0.5rem 0;
+        }
     </style>
 </head>
 
@@ -219,6 +229,29 @@
                     </div>
                 </div>
             </div>
+
+            @if($quizCompetition->sponsors && $quizCompetition->sponsors->count() > 0)
+                <div class="mt-8 pt-6 border-t border-green-100">
+                    <h3 class="text-lg font-bold text-gray-700 mb-4 flex items-center gap-2">
+                        <i class="fas fa-handshake text-green-500"></i>
+                        رعاة المسابقة
+                    </h3>
+                    <div class="flex flex-wrap items-center gap-4">
+                        @foreach($quizCompetition->sponsors as $sponsor)
+                            <div class="bg-white/80 border border-green-50 rounded-xl p-3 flex items-center justify-center shadow-sm hover:shadow-md transition-all group" title="{{ $sponsor->description ?? $sponsor->name }}">
+                                @if($sponsor->image)
+                                    <img src="{{ asset('storage/' . $sponsor->image) }}" alt="{{ $sponsor->name }}" class="h-12 md:h-16 object-contain filter group-hover:brightness-110 transition-all rounded">
+                                @else
+                                    <div class="h-12 md:h-16 flex items-center px-4 font-bold text-green-700">
+                                        {{ $sponsor->name }}
+                                    </div>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+        </div>
         </div>
 
         {{-- الأسئلة النشطة --}}

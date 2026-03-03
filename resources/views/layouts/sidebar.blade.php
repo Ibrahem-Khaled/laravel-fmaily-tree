@@ -264,6 +264,10 @@
                         href="{{ route('dashboard.quiz-competitions.index') }}">
                         <i class="fas fa-fw fa-question-circle"></i> مسابقات الأسئلة
                     </a>
+                    <a class="collapse-item {{ request()->routeIs('dashboard.sponsors.*') ? 'active' : '' }}"
+                        href="{{ route('dashboard.sponsors.index') }}">
+                        <i class="fas fa-fw fa-handshake"></i> رعاة المسابقات
+                    </a>
                 </div>
             </div>
         </li>

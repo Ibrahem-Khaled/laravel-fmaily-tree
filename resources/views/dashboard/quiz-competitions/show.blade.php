@@ -433,5 +433,15 @@
         border-radius: 0.5rem;
         margin: 0.5rem 0;
     }
+    .quiz-description iframe,
+    .quiz-description video,
+    .question-text iframe,
+    .question-text video {
+        max-width: 100%;
+        height: auto;
+        aspect-ratio: 16 / 9;
+        border-radius: 0.5rem;
+        margin: 0.5rem 0;
+    }
 </style>
 @endpush

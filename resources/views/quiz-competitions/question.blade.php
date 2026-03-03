@@ -61,6 +61,16 @@
             border-radius: 0.5rem;
             margin: 0.5rem 0;
         }
+        .quiz-description iframe,
+        .quiz-description video,
+        .question-text iframe,
+        .question-text video {
+            max-width: 100%;
+            height: auto;
+            aspect-ratio: 16 / 9;
+            border-radius: 0.5rem;
+            margin: 0.5rem 0;
+        }
 
         /* ====== SELECTION OVERLAY ====== */
         #selectionOverlay {
@@ -119,8 +129,10 @@
             transition: all 0.06s linear;
         }
         .name-scroller-track .scroller-name.blurred {
-            filter: blur(8px);
-            opacity: 0.6;
+            filter: blur(12px);
+            opacity: 0.3;
+            color: transparent;
+            text-shadow: 0 0 15px rgba(34,197,94,0.8);
         }
         .name-scroller-track .scroller-name.clear {
             filter: blur(0);
@@ -228,13 +240,41 @@
         </div>
 
         {{-- Phase: Announce --}}
-        <div id="phaseAnnounce" class="text-center" style="display:none;">
+        <div id="phaseAnnounce" class="text-center w-full px-4" style="display:none;">
             <div class="crown-anim inline-block mb-3" style="animation-delay:0.2s;">
                 <i class="fas fa-crown text-amber-400 text-5xl md:text-6xl" style="filter:drop-shadow(0 0 30px rgba(245,158,11,0.5));"></i>
             </div>
-            <p class="text-shimmer-gold text-2xl md:text-3xl font-bold mb-5">مبروك للفائز!</p>
-            <div id="announceName" class="text-4xl md:text-5xl font-black text-white mb-5" style="text-shadow:0 0 40px rgba(255,255,255,0.3);"></div>
-            <div class="flex justify-center gap-2 mt-4">
+            <p class="text-shimmer-gold text-2xl md:text-3xl font-bold mb-5" id="announceTitle">مبروك للفائز!</p>
+            
+            <div class="flex items-center justify-center gap-4 md:gap-8 my-8 relative z-10 w-full max-w-5xl mx-auto flex-wrap md:flex-nowrap">
+                @if($quizCompetition->sponsors && $quizCompetition->sponsors->count() > 0)
+                    @php $firstSponsor = $quizCompetition->sponsors->first(); @endphp
+                    <div class="sponsor-reveal opacity-0 transform scale-50 rounded-2xl p-3 bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl flex items-center justify-center flex-shrink-0" style="transition: all 0.8s cubic-bezier(0.34,1.56,0.64,1); animation-delay: 0.5s;">
+                        <span class="absolute -top-3 right-4 bg-amber-400 text-amber-900 text-[10px] font-bold px-2 py-0.5 rounded shadow">برعاية</span>
+                        @if($firstSponsor->image)
+                            <img src="{{ asset('storage/' . $firstSponsor->image) }}" class="h-16 md:h-28 object-contain rounded-xl">
+                        @else
+                            <span class="text-xl font-bold text-white px-4">{{ $firstSponsor->name }}</span>
+                        @endif
+                    </div>
+                @endif
+
+                <div id="announceName" class="text-3xl md:text-5xl lg:text-6xl font-black text-white flex-1 text-center" style="text-shadow:0 0 40px rgba(255,255,255,0.4); line-height: 1.4;"></div>
+
+                @if($quizCompetition->sponsors && $quizCompetition->sponsors->count() > 0)
+                    @php $lastSponsor = $quizCompetition->sponsors->count() > 1 ? $quizCompetition->sponsors->last() : $quizCompetition->sponsors->first(); @endphp
+                    <div class="sponsor-reveal opacity-0 transform scale-50 rounded-2xl p-3 bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl flex items-center justify-center flex-shrink-0" style="transition: all 0.8s cubic-bezier(0.34,1.56,0.64,1); animation-delay: 0.7s;">
+                         <span class="absolute -top-3 left-4 bg-amber-400 text-amber-900 text-[10px] font-bold px-2 py-0.5 rounded shadow">برعاية</span>
+                        @if($lastSponsor->image)
+                            <img src="{{ asset('storage/' . $lastSponsor->image) }}" class="h-16 md:h-28 object-contain rounded-xl">
+                        @else
+                            <span class="text-xl font-bold text-white px-4">{{ $lastSponsor->name }}</span>
+                        @endif
+                    </div>
+                @endif
+            </div>
+
+            <div class="flex justify-center gap-2 mt-4" id="announceDots">
                 <span class="w-3 h-3 rounded-full bg-amber-400 animate-bounce" style="animation-delay:0s"></span>
                 <span class="w-3 h-3 rounded-full bg-amber-400 animate-bounce" style="animation-delay:0.15s"></span>
                 <span class="w-3 h-3 rounded-full bg-amber-400 animate-bounce" style="animation-delay:0.3s"></span>
@@ -480,6 +520,21 @@
                     @if($quizQuestion->description)
                         <div class="text-gray-600 text-sm mt-2 quiz-description">{!! $quizQuestion->description !!}</div>
                     @endif
+
+                    @if($quizCompetition->sponsors && $quizCompetition->sponsors->count() > 0)
+                        <div class="mt-6 pt-5 border-t border-green-100 flex flex-wrap items-center gap-3">
+                            <span class="text-sm font-bold text-gray-500"><i class="fas fa-handshake ml-1"></i> برعاية:</span>
+                            @foreach($quizCompetition->sponsors as $sponsor)
+                                <div class="bg-white/60 border border-green-50 rounded-lg px-2 py-1 flex items-center justify-center shadow-sm" title="{{ $sponsor->name }}">
+                                    @if($sponsor->image)
+                                        <img src="{{ asset('storage/' . $sponsor->image) }}" alt="{{ $sponsor->name }}" class="h-6 md:h-8 object-contain rounded">
+                                    @else
+                                        <span class="text-xs font-bold text-green-700">{{ $sponsor->name }}</span>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
                 <div class="grid grid-cols-3 gap-3 md:gap-4">
                     <div class="glass-effect rounded-2xl p-4 md:p-5 text-center"><div class="w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200"><i class="fas fa-users text-blue-500 text-lg"></i></div><p class="text-2xl md:text-3xl font-bold text-gray-800">{{ $stats['total'] }}</p><p class="text-gray-500 text-xs mt-1">إجمالي الإجابات</p></div>
@@ -608,13 +663,13 @@
 
         var running = false;
         var stopping = false;
-        var winner = null;
+        var winners = [];
         var finalCallback = null;
 
         this.start = function() {
             running = true;
             stopping = false;
-            winner = null;
+            winners = [];
 
             // إضافة blur على الأسماء أثناء العرض
             nameEl.classList.add('blurred');
@@ -648,9 +703,8 @@
             })();
         };
 
-        this.reveal = function(winnerName, callback) {
+            this.reveal = function(targetWinnerName, callback) {
             stopping = true;
-            winner = winnerName;
             finalCallback = callback;
 
             // Start the slowdown sequence
@@ -678,31 +732,33 @@
 
                 // في آخر 5% من المدة، نبدأ بإزالة blur تدريجياً
                 if(progress >= 0.95) {
-                    displayName = winnerName;
+                    displayName = targetWinnerName;
                     isWinner = true;
                     // إزالة blur تدريجياً
                     nameEl.classList.remove('blurred');
                     nameEl.classList.add('clear');
+                    nameEl.style.filter = '';
+                    nameEl.style.opacity = '';
                 } else if(progress >= 0.85) {
                     // في آخر 15%، نبدأ بإظهار اسم الفائز أحياناً لكن مع blur خفيف
                     if(Math.random() < 0.3) {
-                        displayName = winnerName;
+                        displayName = targetWinnerName;
                         nameEl.classList.add('blurred');
                         nameEl.style.filter = 'blur(4px)';
                         nameEl.style.opacity = '0.8';
                     } else {
                         displayName = namesPool[Math.floor(Math.random() * namesPool.length)];
                         nameEl.classList.add('blurred');
-                        nameEl.style.filter = 'blur(8px)';
-                        nameEl.style.opacity = '0.6';
+                        nameEl.style.filter = '';
+                        nameEl.style.opacity = '';
                     }
                 } else {
                     // باقي الأسماء تظهر مع blur كامل
                     displayName = namesPool[Math.floor(Math.random() * namesPool.length)];
                     nameEl.classList.add('blurred');
                     nameEl.classList.remove('clear');
-                    nameEl.style.filter = 'blur(8px)';
-                    nameEl.style.opacity = '0.6';
+                    nameEl.style.filter = '';
+                    nameEl.style.opacity = '';
                 }
 
                 nameEl.textContent = displayName;
@@ -716,7 +772,8 @@
                 }
 
                 if(progress >= 1) {
-                    nameEl.textContent = winnerName;
+                    // Show the last place winner initially before sequence starts
+                    nameEl.textContent = targetWinnerName;
                     // إزالة blur نهائياً من اسم الفائز
                     nameEl.classList.remove('blurred');
                     nameEl.classList.add('clear');
@@ -725,7 +782,7 @@
                     boxEl.classList.add('winner-found');
                     var scanLine = boxEl.querySelector('.scan-line');
                     if(scanLine) scanLine.style.display = 'none';
-                    setTimeout(function(){ if(finalCallback) finalCallback(winnerName); }, 800);
+                    setTimeout(function(){ if(finalCallback) finalCallback(targetWinnerName); }, 800);
                     return;
                 }
                 setTimeout(slowFrame, interval);
@@ -761,7 +818,7 @@
     }
 
     /* ============ WINNER ANIMATION ORCHESTRATOR ============ */
-    function startWinnerReveal(winnerName, correctCount, candidateNames) {
+    function startWinnerReveal(winnerNamesList, correctCount, candidateNames) {
         var overlay = document.getElementById('selectionOverlay');
         var phaseCount = document.getElementById('phaseCountdown');
         var phaseSelector = document.getElementById('phaseSelector');
@@ -790,19 +847,8 @@
                     document.body.classList.remove('shake-it');
                 }, 500);
 
-                // Phase 2: Digital Selector (run for a bit then reveal)
-                phaseCount.style.display = 'none';
-                phaseSelector.style.display = 'block';
-
-                var selector = new DigitalSelector(candidateNames);
-                selector.start();
-
-                // Spin for 5 seconds then reveal (since we already have the winner)
-                // زيادة المدة لتتناسب مع المدة الجديدة
-                setTimeout(function() {
-                     finalizeZeroDelay(selector, winnerName);
-                }, 5000);
-
+                // Phase 2: Start the sequential reveal process
+                startSequentialReveal(winnerNamesList, candidateNames);
                 return;
             }
 
@@ -812,6 +858,117 @@
             countNum.classList.add('count-pop');
             if(countVal <= 2) countNum.classList.add('danger');
         }, 900);
+    }
+
+    function startSequentialReveal(winnerNamesList, candidateNames) {
+        var phaseCount = document.getElementById('phaseCountdown');
+        var phaseSelector = document.getElementById('phaseSelector');
+        var phaseAnnounce = document.getElementById('phaseAnnounce');
+        var flashBang = document.getElementById('flashBang');
+        
+        phaseCount.style.display = 'none';
+        
+        if (!winnerNamesList || winnerNamesList.length === 0) {
+            location.reload();
+            return;
+        }
+
+        let currentWinnerIndex = winnerNamesList.length - 1; // Start from last (nth) winner
+        
+        function revealNextWinner() {
+            if (currentWinnerIndex < 0) {
+                // All winners shown, reload after a final delay
+                setTimeout(function() {
+                    var url = new URL(window.location.href);
+                    url.searchParams.set('animation_done', '1');
+                    window.location.href = url.toString();
+                }, 3500);
+                return;
+            }
+
+            // Hide announce phase, show selector phase for spinning
+            phaseAnnounce.style.display = 'none';
+            phaseSelector.style.display = 'block';
+            
+            // Reset selector UI
+            var boxEl = document.getElementById('scrollerBox');
+            if(boxEl) boxEl.classList.remove('winner-found');
+            var scanLine = document.querySelector('.scan-line');
+            if(scanLine) scanLine.style.display = 'block';
+
+            var currentTargetName = winnerNamesList[currentWinnerIndex];
+            var selector = new DigitalSelector(candidateNames);
+            selector.start();
+
+            // Spin for 3 seconds, then reveal this specific winner
+            setTimeout(function() {
+                 selector.reveal(currentTargetName, function(revealedName) {
+                    
+                    // Flash!
+                    flashBang.classList.add('flash');
+                    setTimeout(function(){ flashBang.classList.remove('flash'); }, 500);
+                    
+                    Confetti.launch(350, 5000);
+
+                    // Switch to announce phase
+                    setTimeout(function() {
+                        phaseSelector.style.display = 'none';
+                        phaseAnnounce.style.display = 'block';
+
+                        // Reset sponsor animation
+                        document.querySelectorAll('.sponsor-reveal').forEach(function(el) {
+                            el.style.opacity = '0';
+                            el.style.transform = 'scale(0.5)';
+                        });
+
+                        // Update UI for current winner
+                        document.getElementById('announceName').textContent = revealedName;
+                        
+                        let positionText = "";
+                        if (currentWinnerIndex === 0) positionText = "المركز الأول";
+                        else if (currentWinnerIndex === 1) positionText = "المركز الثاني";
+                        else if (currentWinnerIndex === 2) positionText = "المركز الثالث";
+                        else positionText = "المركز " + (currentWinnerIndex + 1);
+
+                        document.getElementById('announceTitle').textContent = "مبروك للفائز بـ " + positionText + "!";
+                        
+                        Confetti.launch(150, 2000);
+                        
+                        // Show sponsors after small delay
+                        setTimeout(function() {
+                            document.querySelectorAll('.sponsor-reveal').forEach(function(el) {
+                                el.style.opacity = '1';
+                                el.style.transform = 'scale(1)';
+                            });
+                        }, 300);
+
+                        // Flash and shake for each new winner
+                        flashBang.classList.add('flash');
+                        setTimeout(function(){ flashBang.classList.remove('flash'); }, 500);
+                        document.body.classList.add('shake-it');
+                        setTimeout(function(){
+                            document.body.classList.remove('shake-it');
+                        }, 500);
+
+                        currentWinnerIndex--;
+                        
+                        // Wait on the announce screen before spinning again (or finishing)
+                        var displayDuration = (currentWinnerIndex < 0) ? 5000 : 4000; 
+                        
+                        setTimeout(function() {
+                            if (currentWinnerIndex < 0) {
+                                var dots = document.getElementById('announceDots');
+                                if(dots) dots.style.display = 'none';
+                            }
+                            revealNextWinner();
+                        }, displayDuration);
+
+                    }, 800); // Small delay after selector slows down completely
+                 });
+            }, 3000); // Spin duration before slowdown
+        }
+
+        revealNextWinner();
     }
 
     function startZeroDelayAnimation(candidateNames, correctCount) {
@@ -838,37 +995,17 @@
         return selector;
     }
 
-    function finalizeZeroDelay(selector, winnerName) {
-        var phaseSelector = document.getElementById('phaseSelector');
-        var phaseAnnounce = document.getElementById('phaseAnnounce');
-        var flashBang = document.getElementById('flashBang');
-
+    function finalizeZeroDelay(selector, winnerNamesList, candidateNames) {
         if(!selector) return;
-
-        selector.reveal(winnerName, function(name) {
-             // Flash!
-            flashBang.classList.add('flash');
-            setTimeout(function(){ flashBang.classList.remove('flash'); }, 500);
-
-            Confetti.launch(350, 5000);
-
-            // Phase 3: Announce
-            setTimeout(function() {
-                phaseSelector.style.display = 'none';
-                phaseAnnounce.style.display = 'block';
-                document.getElementById('announceName').textContent = name;
-
-                Confetti.launch(200, 4000);
-
-                // Reload after celebration
-                // Reload after celebration with flag to skip re-animation
-                setTimeout(function() {
-                    var url = new URL(window.location.href);
-                    url.searchParams.set('animation_done', '1');
-                    window.location.href = url.toString();
-                }, 3500);
-            }, 800);
-        });
+        
+        // Stop the initial zero-delay selector (it was just spinning while fetching)
+        // Note: we're bypassing its reveal and just jumping into the sequential process
+        // to maintain the same flow. We'll hide it briefly and restart the process.
+        
+        var phaseSelector = document.getElementById('phaseSelector');
+        if(phaseSelector) phaseSelector.style.display = 'none';
+        
+        startSequentialReveal(winnerNamesList, candidateNames);
     }
 
     /* ============ AJAX WINNER FETCHER WITH JITTER ============ */
@@ -878,7 +1015,9 @@
                 .then(function(r){ return r.json(); })
                 .then(function(data) {
                     if(data.status === 'done' && data.winners && data.winners.length > 0) {
-                        callback(data.winners[0].name);
+                        // Extract all winner names ordered by position (1st, 2nd, etc.)
+                        var winnerNamesList = data.winners.sort((a,b) => a.position - b.position).map(w => w.name);
+                        callback(winnerNamesList);
                     } else if(data.status === 'pending') {
                         // Retry after 2 seconds
                         setTimeout(doFetch, 2000);
@@ -972,8 +1111,8 @@
                     // زيادة jitter قليلاً لأن المدة أصبحت أطول
                     var jitter = Math.floor(Math.random() * 3000);
                     setTimeout(function() {
-                        fetchWinnerFromServer(apiUrl, function(winnerName) {
-                            finalizeZeroDelay(selector, winnerName);
+                        fetchWinnerFromServer(apiUrl, function(winnerNamesList) {
+                            finalizeZeroDelay(selector, winnerNamesList, candidates);
                         });
                     }, jitter);
                     return;
@@ -1012,8 +1151,8 @@
             var delay = fetchTime - now;
 
             setTimeout(function() {
-                fetchWinnerFromServer(apiUrl, function(winnerName) {
-                    startWinnerReveal(winnerName, correctCount, candidates);
+                fetchWinnerFromServer(apiUrl, function(winnerNamesList) {
+                    startWinnerReveal(winnerNamesList, correctCount, candidates);
                 });
             }, delay);
         })();

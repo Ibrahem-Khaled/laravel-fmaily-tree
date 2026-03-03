@@ -375,6 +375,17 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::delete('slideshow/{slideshowImage}', [\App\Http\Controllers\admin\SiteContentController::class, 'removeSlideshowImage'])->name('dashboard.slideshow.remove')->middleware(['permission:slideshow.delete']);
     Route::post('slideshow/{slideshowImage}/toggle', [\App\Http\Controllers\admin\SiteContentController::class, 'toggleSlideshowImage'])->name('dashboard.slideshow.toggle')->middleware(['permission:slideshow.update']);
 
+    // Sponsors routes (Admin)
+    Route::resource('sponsors', \App\Http\Controllers\admin\SponsorController::class)->names([
+        'index' => 'dashboard.sponsors.index',
+        'create' => 'dashboard.sponsors.create',
+        'store' => 'dashboard.sponsors.store',
+        'show' => 'dashboard.sponsors.show',
+        'edit' => 'dashboard.sponsors.edit',
+        'update' => 'dashboard.sponsors.update',
+        'destroy' => 'dashboard.sponsors.destroy',
+    ]);
+
     // Home Gallery routes
     Route::get('home-gallery', [\App\Http\Controllers\admin\SiteContentController::class, 'homeGallery'])->name('dashboard.home-gallery.index')->middleware(['permission:home-gallery.view']);
     Route::post('home-gallery/add', [\App\Http\Controllers\admin\SiteContentController::class, 'addHomeGalleryImage'])->name('dashboard.home-gallery.add')->middleware(['permission:home-gallery.create']);

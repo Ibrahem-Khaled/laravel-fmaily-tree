@@ -40,7 +40,7 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="start_at">بداية المسابقة</label>
                                     <input type="datetime-local" class="form-control @error('start_at') is-invalid @enderror" id="start_at" name="start_at" value="{{ old('start_at') }}">
@@ -49,7 +49,7 @@
                                     @enderror
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="end_at">نهاية المسابقة</label>
                                     <input type="datetime-local" class="form-control @error('end_at') is-invalid @enderror" id="end_at" name="end_at" value="{{ old('end_at') }}">
@@ -58,6 +58,35 @@
                                     @enderror
                                 </div>
                             </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="reveal_delay_seconds">تأخير إظهار السؤال (بالثواني)</label>
+                                    <input type="number" class="form-control @error('reveal_delay_seconds') is-invalid @enderror" id="reveal_delay_seconds" name="reveal_delay_seconds" value="{{ old('reveal_delay_seconds', 60) }}" min="0">
+                                    <small class="form-text text-muted">عدد الثواني التي يجب أن ينتظرها الزائر قبل رؤية السؤال (الافتراضي 60 ثانية).</small>
+                                    @error('reveal_delay_seconds')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mt-3 border p-3 bg-light rounded">
+                            <label for="sponsors" class="font-weight-bold text-primary">
+                                <i class="fas fa-handshake mr-1"></i> رعاة المسابقة
+                            </label>
+                            <select class="form-control select2 @error('sponsors') is-invalid @enderror" id="sponsors" name="sponsors[]" multiple="multiple" data-placeholder="اختر رعاة المسابقة...">
+                                @foreach($sponsors ?? [] as $sponsor)
+                                    <option value="{{ $sponsor->id }}" {{ in_array($sponsor->id, old('sponsors', [])) ? 'selected' : '' }}>
+                                        {{ $sponsor->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <small class="form-text text-muted mt-2">
+                                <i class="fas fa-info-circle mr-1"></i> يمكنك اختيار أكثر من راعي للمسابقة وسيظهرون في صفحة عرض المسابقة.
+                            </small>
+                            @error('sponsors')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="form-group">
