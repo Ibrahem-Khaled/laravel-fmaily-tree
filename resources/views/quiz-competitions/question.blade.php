@@ -217,6 +217,17 @@
     {{-- ====== Selection Overlay ====== --}}
     <div id="selectionOverlay">
         <div class="particle-field" id="overlayParticles"></div>
+
+        {{-- Big Sponsor logo at top during selection --}}
+        @if($quizCompetition->sponsors && $quizCompetition->sponsors->count() > 0)
+        <div class="absolute top-4 md:top-8 left-0 right-0 flex justify-center z-50">
+            @php $firstSponsor = $quizCompetition->sponsors->first(); @endphp
+            @if($firstSponsor->image)
+                <img src="{{ asset('storage/' . $firstSponsor->image) }}" class="h-56 md:h-72 lg:h-96 object-contain drop-shadow-2xl" style="filter: drop-shadow(0 0 40px rgba(255,255,255,0.8)); max-width: 95vw;">
+            @endif
+        </div>
+        @endif
+
         {{-- Phase: Countdown --}}
         <div id="phaseCountdown" class="text-center relative">
             <div class="pulse-ring-anim" style="top:50%;left:50%;margin:-100px 0 0 -100px;animation-delay:0s;"></div>
@@ -249,7 +260,7 @@
             <div class="flex items-center justify-center gap-4 md:gap-8 my-8 relative z-10 w-full max-w-5xl mx-auto flex-wrap md:flex-nowrap">
                 @if($quizCompetition->sponsors && $quizCompetition->sponsors->count() > 0)
                     @php $firstSponsor = $quizCompetition->sponsors->first(); @endphp
-                    <div class="sponsor-reveal opacity-0 transform scale-50 rounded-2xl p-3 bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl flex items-center justify-center flex-shrink-0" style="transition: all 0.8s cubic-bezier(0.34,1.56,0.64,1); animation-delay: 0.5s;">
+                    <div class="sponsor-reveal opacity-0 transform scale-50 rounded-2xl p-3 bg-white/10 backdrop-blur-sm border border-white/20 shadow-2xl flex items-center justify-center flex-shrink-0" style="transition: all 0.8s cubic-bezier(0.34,1.56,0.64,1); animation-delay: 0.5s;">
                         <span class="absolute -top-3 right-4 bg-amber-400 text-amber-900 text-[10px] font-bold px-2 py-0.5 rounded shadow">برعاية</span>
                         @if($firstSponsor->image)
                             <img src="{{ asset('storage/' . $firstSponsor->image) }}" class="h-16 md:h-28 object-contain rounded-xl">
@@ -259,11 +270,14 @@
                     </div>
                 @endif
 
-                <div id="announceName" class="text-3xl md:text-5xl lg:text-6xl font-black text-white flex-1 text-center" style="text-shadow:0 0 40px rgba(255,255,255,0.4); line-height: 1.4;"></div>
+                <div class="flex-1 text-center flex flex-col justify-center items-center">
+                    <div id="announceName" class="text-3xl md:text-5xl lg:text-6xl font-black text-white" style="text-shadow:0 0 40px rgba(255,255,255,0.4); line-height: 1.4;"></div>
+                    <div id="announcePrize" class="mt-4 text-2xl md:text-3xl font-bold text-amber-300 hidden" style="text-shadow:0 0 20px rgba(245,158,11,0.6);"></div>
+                </div>
 
                 @if($quizCompetition->sponsors && $quizCompetition->sponsors->count() > 0)
                     @php $lastSponsor = $quizCompetition->sponsors->count() > 1 ? $quizCompetition->sponsors->last() : $quizCompetition->sponsors->first(); @endphp
-                    <div class="sponsor-reveal opacity-0 transform scale-50 rounded-2xl p-3 bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl flex items-center justify-center flex-shrink-0" style="transition: all 0.8s cubic-bezier(0.34,1.56,0.64,1); animation-delay: 0.7s;">
+                    <div class="sponsor-reveal opacity-0 transform scale-50 rounded-2xl p-3 bg-white/10 backdrop-blur-sm border border-white/20 shadow-2xl flex items-center justify-center flex-shrink-0" style="transition: all 0.8s cubic-bezier(0.34,1.56,0.64,1); animation-delay: 0.7s;">
                          <span class="absolute -top-3 left-4 bg-amber-400 text-amber-900 text-[10px] font-bold px-2 py-0.5 rounded shadow">برعاية</span>
                         @if($lastSponsor->image)
                             <img src="{{ asset('storage/' . $lastSponsor->image) }}" class="h-16 md:h-28 object-contain rounded-xl">
@@ -405,9 +419,35 @@
                     <div class="absolute inset-0 pointer-events-none overflow-hidden" id="sparklesBox"></div>
                     <div class="glass-effect rounded-3xl p-6 md:p-8 relative overflow-hidden glow-breath" style="border:2px solid rgba(245,158,11,0.3);">
                         <div class="absolute top-0 right-0 left-0 h-2" style="background:linear-gradient(90deg,#f59e0b,#fbbf24,#f59e0b,#fbbf24,#f59e0b);"></div>
-                        <div class="text-center mb-6">
-                            <div class="inline-block crown-anim" style="animation-delay:0.4s;"><i class="fas fa-crown text-amber-400 text-4xl md:text-5xl" style="filter:drop-shadow(0 0 20px rgba(245,158,11,0.5));"></i></div>
-                            <h3 class="text-2xl md:text-3xl font-bold mt-3"><span class="text-shimmer-gold">الفائزون</span></h3>
+                        <div class="flex items-center justify-center gap-4 md:gap-8 mb-8 relative z-10 w-full max-w-5xl mx-auto flex-wrap md:flex-nowrap">
+                            @if($quizCompetition->sponsors && $quizCompetition->sponsors->count() > 0)
+                                @php $firstSponsor = $quizCompetition->sponsors->first(); @endphp
+                                <div class="rounded-2xl p-2 bg-white/60 backdrop-blur-sm border border-amber-200 shadow-md flex items-center justify-center flex-shrink-0 relative w-16 md:w-28 h-16 md:h-28">
+                                    <span class="absolute -top-3 right-2 bg-amber-400 text-amber-900 text-[10px] font-bold px-2 py-0.5 rounded shadow">برعاية</span>
+                                    @if($firstSponsor->image)
+                                        <img src="{{ asset('storage/' . $firstSponsor->image) }}" class="max-h-full max-w-full object-contain rounded-xl">
+                                    @else
+                                        <span class="text-xs font-bold text-gray-800 text-center">{{ $firstSponsor->name }}</span>
+                                    @endif
+                                </div>
+                            @endif
+
+                            <div class="text-center flex-1">
+                                <div class="inline-block crown-anim" style="animation-delay:0.4s;"><i class="fas fa-crown text-amber-400 text-4xl md:text-5xl" style="filter:drop-shadow(0 0 20px rgba(245,158,11,0.5));"></i></div>
+                                <h3 class="text-2xl md:text-3xl font-bold mt-3"><span class="text-shimmer-gold">الفائزون</span></h3>
+                            </div>
+
+                            @if($quizCompetition->sponsors && $quizCompetition->sponsors->count() > 0)
+                                @php $lastSponsor = $quizCompetition->sponsors->count() > 1 ? $quizCompetition->sponsors->last() : $quizCompetition->sponsors->first(); @endphp
+                                <div class="rounded-2xl p-2 bg-white/60 backdrop-blur-sm border border-amber-200 shadow-md flex items-center justify-center flex-shrink-0 relative w-16 md:w-28 h-16 md:h-28">
+                                    <span class="absolute -top-3 left-2 bg-amber-400 text-amber-900 text-[10px] font-bold px-2 py-0.5 rounded shadow">برعاية</span>
+                                    @if($lastSponsor->image)
+                                        <img src="{{ asset('storage/' . $lastSponsor->image) }}" class="max-h-full max-w-full object-contain rounded-xl">
+                                    @else
+                                        <span class="text-xs font-bold text-gray-800 text-center">{{ $lastSponsor->name }}</span>
+                                    @endif
+                                </div>
+                            @endif
                         </div>
                         <div class="space-y-4">
                             @foreach($quizQuestion->winners as $winner)
@@ -426,7 +466,13 @@
                                 </div>
                                 <div class="flex-1 relative z-10">
                                     <p class="font-bold text-lg md:text-xl {{ $winner->position==1 ? 'text-amber-800' : 'text-gray-800' }}">{{ $winner->user->name ?? '-' }}</p>
-                                    @if($winner->position==1)<p class="font-bold text-green-600 text-sm md:text-base mt-2 flex items-center gap-2">مبروك عليك 500 ريال</p>@endif
+                                    @if($winner->position==1)
+                                        <p class="font-bold text-green-600 text-sm md:text-base mt-2 flex items-center gap-2">مبروك عليك 500 ريال</p>
+                                    @elseif($winner->position==2)
+                                        <p class="font-bold text-green-600 text-sm md:text-base mt-2 flex items-center gap-2">مبروك عليك 300 ريال</p>
+                                    @elseif($winner->position==3)
+                                        <p class="font-bold text-green-600 text-sm md:text-base mt-2 flex items-center gap-2">مبروك عليك 200 ريال</p>
+                                    @endif
                                 </div>
                                 @if($winner->position==1)<i class="fas fa-crown text-amber-400 text-2xl relative z-10" style="filter:drop-shadow(0 0 10px rgba(245,158,11,0.4));"></i>
                                 @elseif($winner->position<=3)<i class="fas fa-medal text-{{ $winner->position==2 ? 'gray-400' : 'amber-700/60' }} text-xl relative z-10"></i>@endif
@@ -931,6 +977,21 @@
                         else positionText = "المركز " + (currentWinnerIndex + 1);
 
                         document.getElementById('announceTitle').textContent = "مبروك للفائز بـ " + positionText + "!";
+                        
+                        var prizeEl = document.getElementById('announcePrize');
+                        if(prizeEl) {
+                            let prizeText = "";
+                            if (currentWinnerIndex === 0) prizeText = "مبروك عليك 500 ريال";
+                            else if (currentWinnerIndex === 1) prizeText = "مبروك عليك 300 ريال";
+                            else if (currentWinnerIndex === 2) prizeText = "مبروك عليك 200 ريال";
+                            
+                            if(prizeText) {
+                                prizeEl.textContent = prizeText;
+                                prizeEl.classList.remove('hidden');
+                            } else {
+                                prizeEl.classList.add('hidden');
+                            }
+                        }
                         
                         Confetti.launch(150, 2000);
                         
