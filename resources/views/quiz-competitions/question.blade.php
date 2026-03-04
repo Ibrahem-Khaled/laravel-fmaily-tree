@@ -273,9 +273,7 @@
                                     <span class="text-[10px] md:text-xl font-bold text-white px-1 md:px-4 text-center leading-tight">{{ $firstSponsor->name }}</span>
                                 @endif
                             </div>
-                            @if($firstSponsor->image)
-                                <div class="sponsor-reveal opacity-0 text-white font-bold text-[9px] sm:text-xs md:text-base text-center break-words w-full" style="transition: opacity 0.8s ease; animation-delay: 0.8s; text-shadow: 0 0 10px rgba(0,0,0,0.8);">{{ $firstSponsor->name }}</div>
-                            @endif
+
                         </div>
                     @endif
                 </div>
@@ -297,9 +295,7 @@
                                     <span class="text-[10px] md:text-xl font-bold text-white px-1 md:px-4 text-center leading-tight">{{ $lastSponsor->name }}</span>
                                 @endif
                             </div>
-                            @if($lastSponsor->image)
-                                <div class="sponsor-reveal opacity-0 text-white font-bold text-[9px] sm:text-xs md:text-base text-center break-words w-full" style="transition: opacity 0.8s ease; animation-delay: 1.0s; text-shadow: 0 0 10px rgba(0,0,0,0.8);">{{ $lastSponsor->name }}</div>
-                            @endif
+
                         </div>
                     @endif
                 </div>
@@ -431,8 +427,16 @@
                 @endif
 
                 {{-- ===== الفائزون ===== --}}
+                @php
+                    $hideWinnersForAnim = false;
+                    if(isset($selectionAt) && $selectionAt) {
+                        if(now()->timestamp < ($selectionAt->timestamp + 20) && !request()->has('animation_done')) {
+                            $hideWinnersForAnim = true;
+                        }
+                    }
+                @endphp
                 @if($quizQuestion->winners->count() > 0)
-                <div id="winnersSection" class="relative">
+                <div id="winnersSection" class="relative" style="{{ $hideWinnersForAnim ? 'display:none;' : '' }}">
                     <div class="absolute inset-0 pointer-events-none overflow-hidden" id="sparklesBox"></div>
                     <div class="glass-effect rounded-3xl p-6 md:p-8 relative overflow-hidden glow-breath" style="border:2px solid rgba(245,158,11,0.3);">
                         <div class="absolute top-0 right-0 left-0 h-2" style="background:linear-gradient(90deg,#f59e0b,#fbbf24,#f59e0b,#fbbf24,#f59e0b);"></div>
@@ -516,7 +520,7 @@
 
                 @php $correctAnswers = $quizQuestion->answers->where('is_correct', true); @endphp
                 @if($correctAnswers->count() > 0)
-                <div class="glass-effect rounded-2xl p-5">
+                <div id="correctAnswersSection" class="glass-effect rounded-2xl p-5" style="{{ $hideWinnersForAnim ?? false ? 'display:none;' : '' }}">
                     <h4 class="text-sm font-bold text-green-600 mb-3 flex items-center gap-2"><i class="fas fa-check-circle"></i> من جاوب صح ({{ $correctAnswers->count() }})</h4>
                     <div class="flex flex-wrap gap-2">
                         @foreach($correctAnswers as $ans)
@@ -527,7 +531,7 @@
                 @endif
 
                 @if($quizQuestion->winners->count() === 0 && !(isset($selectionAt) && $selectionAt && now()->lt($selectionAt)))
-                <div class="glass-effect rounded-2xl p-6 text-center"><i class="fas fa-hourglass-end text-gray-300 text-3xl mb-3"></i><p class="text-gray-500 font-medium">لم يتم اختيار فائزين بعد</p></div>
+                <div class="glass-effect rounded-2xl p-6 text-center" style="{{ $hideWinnersForAnim ?? false ? 'display:none;' : '' }}"><i class="fas fa-hourglass-end text-gray-300 text-3xl mb-3"></i><p class="text-gray-500 font-medium">لم يتم اختيار فائزين بعد</p></div>
                 @endif
             </div>
 
@@ -602,12 +606,11 @@
                         <div class="mt-6 pt-5 border-t border-green-100 flex flex-wrap items-center gap-3">
                             <span class="text-sm font-bold text-gray-500"><i class="fas fa-handshake ml-1"></i> برعاية:</span>
                             @foreach($quizCompetition->sponsors as $sponsor)
-                                <div class="bg-white/60 border border-green-50 rounded-lg px-2 py-1 flex items-center justify-center shadow-sm" title="{{ $sponsor->name }}">
+                                <div class="bg-white/60 border border-green-50 rounded-lg px-3 py-1.5 flex items-center gap-2 justify-center shadow-sm" title="{{ $sponsor->name }}">
                                     @if($sponsor->image)
                                         <img src="{{ asset('storage/' . $sponsor->image) }}" alt="{{ $sponsor->name }}" class="h-6 md:h-8 object-contain rounded">
-                                    @else
-                                        <span class="text-xs font-bold text-green-700">{{ $sponsor->name }}</span>
                                     @endif
+                                    <span class="text-sm font-bold text-green-700">{{ $sponsor->name }}</span>
                                 </div>
                             @endforeach
                         </div>
@@ -748,33 +751,26 @@
             stopping = false;
             winners = [];
 
-            // إضافة blur على الأسماء أثناء العرض
-            nameEl.classList.add('blurred');
-            nameEl.classList.remove('clear');
+            // مسح الأنماط المتبقية من الدورة السابقة
+            nameEl.classList.remove('blurred', 'clear');
+            nameEl.style.filter = 'blur(6px)';
+            nameEl.style.opacity = '0.9';
+            nameEl.style.color = '#fff';
+            boxEl.classList.remove('winner-found');
+            var scanLine = boxEl.querySelector('.scan-line');
+            if(scanLine) scanLine.style.display = 'block';
 
             (function frame() {
                 if(!running) return;
 
-                // If stopping (winner found), slow down
-                // If running (searching), stay fast
-
-                var interval = 50; // Fast by default
-
-                if(stopping) {
-                    // Gradual slowdown logic would go here, but for now we'll just keep spinning until final stop
-                    // or implement a simple counter
-                }
+                var interval = 50;
 
                 // Pick random name
                 var displayName = namesPool[Math.floor(Math.random() * namesPool.length)];
                 nameEl.textContent = displayName;
-                // الحفاظ على blur أثناء العرض
-                nameEl.classList.add('blurred');
-                nameEl.classList.remove('clear');
-
-                if(stopping && Math.random() < 0.1) { // Random stop chance if slowing down?
-                    // No, let's just keep spinning fast until reveal() handles the stop animation explicitly
-                }
+                nameEl.style.filter = 'blur(6px)';
+                nameEl.style.opacity = '0.9';
+                nameEl.style.color = '#fff';
 
                 setTimeout(frame, interval);
             })();
@@ -800,43 +796,19 @@
                 if(progress < 0.2) interval = 50;
                 else if(progress < 0.4) interval = 100;
                 else if(progress < 0.6) interval = 200;
-                else if(progress < 0.75) interval = 400;
-                else if(progress < 0.9) interval = 600;
+                else if(progress < 0.75) interval = 300;
+                else if(progress < 0.85) interval = 400;
+                else if(progress < 0.95) interval = 600;
                 else interval = 800;
 
                 var displayName;
-                var isWinner = false;
 
-                // في آخر 5% من المدة، نبدأ بإزالة blur تدريجياً
-                if(progress >= 0.95) {
-                    displayName = targetWinnerName;
-                    isWinner = true;
-                    // إزالة blur تدريجياً
-                    nameEl.classList.remove('blurred');
-                    nameEl.classList.add('clear');
-                    nameEl.style.filter = '';
-                    nameEl.style.opacity = '';
-                } else if(progress >= 0.85) {
-                    // في آخر 15%، نبدأ بإظهار اسم الفائز أحياناً لكن مع blur خفيف
-                    if(Math.random() < 0.3) {
-                        displayName = targetWinnerName;
-                        nameEl.classList.add('blurred');
-                        nameEl.style.filter = 'blur(4px)';
-                        nameEl.style.opacity = '0.8';
-                    } else {
-                        displayName = namesPool[Math.floor(Math.random() * namesPool.length)];
-                        nameEl.classList.add('blurred');
-                        nameEl.style.filter = '';
-                        nameEl.style.opacity = '';
-                    }
-                } else {
-                    // باقي الأسماء تظهر مع blur كامل
-                    displayName = namesPool[Math.floor(Math.random() * namesPool.length)];
-                    nameEl.classList.add('blurred');
-                    nameEl.classList.remove('clear');
-                    nameEl.style.filter = '';
-                    nameEl.style.opacity = '';
-                }
+                // الاستمرار في الدوران بأسماء عشوائية حتى النهاية
+                displayName = namesPool[Math.floor(Math.random() * namesPool.length)];
+                
+                nameEl.style.filter = 'blur(6px)';
+                nameEl.style.opacity = '0.9';
+                nameEl.style.color = '#fff';
 
                 nameEl.textContent = displayName;
 
@@ -852,10 +824,9 @@
                     // Show the last place winner initially before sequence starts
                     nameEl.textContent = targetWinnerName;
                     // إزالة blur نهائياً من اسم الفائز
-                    nameEl.classList.remove('blurred');
-                    nameEl.classList.add('clear');
                     nameEl.style.filter = 'blur(0)';
                     nameEl.style.opacity = '1';
+                    nameEl.style.color = '#fbbf24';
                     boxEl.classList.add('winner-found');
                     var scanLine = boxEl.querySelector('.scan-line');
                     if(scanLine) scanLine.style.display = 'none';
