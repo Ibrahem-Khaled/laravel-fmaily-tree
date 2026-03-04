@@ -449,9 +449,9 @@
                                                 <span class="text-[8px] md:text-xs font-bold text-gray-800 text-center leading-tight">{{ $firstSponsor->name }}</span>
                                             @endif
                                         </div>
-                                        @if($firstSponsor->image)
+                                        <!-- @if($firstSponsor->image)
                                             <span class="text-[8px] sm:text-[10px] md:text-sm font-bold text-gray-800 text-center break-words w-full">{{ $firstSponsor->name }}</span>
-                                        @endif
+                                        @endif -->
                                     </div>
                                 @endif
                             </div>
@@ -473,9 +473,9 @@
                                                 <span class="text-[8px] md:text-xs font-bold text-gray-800 text-center leading-tight">{{ $lastSponsor->name }}</span>
                                             @endif
                                         </div>
-                                        @if($lastSponsor->image)
+                                        <!-- @if($lastSponsor->image)
                                             <span class="text-[8px] sm:text-[10px] md:text-sm font-bold text-gray-800 text-center break-words w-full">{{ $lastSponsor->name }}</span>
-                                        @endif
+                                        @endif -->
                                     </div>
                                 @endif
                             </div>
