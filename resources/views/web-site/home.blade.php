@@ -1235,7 +1235,7 @@
     {{-- ================================================================
      PROUD OF
      ================================================================ --}}
-    @if ($proudOf && $proudOf->count() > 0)
+    <!-- @if ($proudOf && $proudOf->count() > 0)
         <section class="py-3 md:py-6 lg:py-8 bg-gradient-to-br from-green-50 to-emerald-50 relative overflow-hidden">
             <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-200 rounded-full blur-3xl opacity-20"></div>
             <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
@@ -1275,7 +1275,7 @@
 
             </div>
         </section>
-    @endif
+    @endif -->
 
     {{-- ================================================================
      ACADEMIC DEGREES – Graduates

@@ -205,7 +205,7 @@
             <ol class="flex items-center space-x-2 space-x-reverse text-sm">
                 <li><a href="{{ route('home') }}" class="text-green-600 hover:text-green-700">الرئيسية</a></li>
                 <li><i class="fas fa-chevron-left text-gray-400"></i></li>
-                <li><a href="{{ route('family-tree') }}" class="text-green-600 hover:text-green-700">تواصل العائلة</a></li>
+                <li><a href="{{ route('sila') }}" class="text-green-600 hover:text-green-700">تواصل العائلة</a></li>
                 <li><i class="fas fa-chevron-left text-gray-400"></i></li>
                 <li class="text-gray-600">أصدقاء {{ $person->full_name }}</li>
             </ol>
