@@ -378,4 +378,15 @@ class CompetitionController extends Controller
             return back()->with('error', 'حدث خطأ أثناء حذف الفريق: ' . $e->getMessage());
         }
     }
+
+    /**
+     * استخراج بيانات المسابقة إلى ملف إكسيل
+     */
+    public function export(Competition $competition)
+    {
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\CompetitionExport($competition),
+            'مسابقة_' . str_replace(' ', '_', $competition->title) . '_' . date('Y-m-d') . '.xlsx'
+        );
+    }
 }

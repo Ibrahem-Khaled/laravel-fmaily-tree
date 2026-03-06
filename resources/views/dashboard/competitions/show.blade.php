@@ -12,8 +12,11 @@
             </h1>
             <p class="text-muted mb-0">إدارة الفرق والأعضاء للمسابقة</p>
         </div>
-        <div>
-            <a href="{{ route('dashboard.competitions.edit', $competition) }}" class="btn btn-primary shadow-sm">
+        <div class="d-flex gap-2">
+            <a href="{{ route('dashboard.competitions.export', $competition) }}" class="btn btn-success shadow-sm ml-2">
+                <i class="fas fa-file-excel mr-2"></i>استخراج ملف اكسيل
+            </a>
+            <a href="{{ route('dashboard.competitions.edit', $competition) }}" class="btn btn-primary shadow-sm ml-2">
                 <i class="fas fa-edit mr-2"></i>تعديل المسابقة
             </a>
             <a href="{{ route('dashboard.competitions.index') }}" class="btn btn-secondary shadow-sm">
