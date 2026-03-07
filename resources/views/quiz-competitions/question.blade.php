@@ -702,7 +702,7 @@
                         </style>
                         <textarea name="answer" rows="4" required class="w-full px-4 py-3.5 rounded-xl border-2 border-gray-200 bg-white/70 text-gray-800 text-sm resize-none focus:ring-4 focus:ring-green-200 focus:border-green-500 transition-all" placeholder="اكتب إجابتك هنا...">{{ old('answer') }}</textarea>
                     @endif
-                    <button type="button" onclick="submitQuizForm()" class="w-full py-4 md:py-5 rounded-2xl text-white font-bold text-lg flex items-center justify-center gap-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl active:scale-[0.98]" style="background:linear-gradient(135deg,#22c55e,#16a34a);box-shadow:0 8px 25px rgba(34,197,94,0.4);"><i class="fas fa-paper-plane"></i><span>إرسال الإجابة</span></button>
+                    <!-- <button type="button" onclick="submitQuizForm()" class="w-full py-4 md:py-5 rounded-2xl text-white font-bold text-lg flex items-center justify-center gap-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl active:scale-[0.98]" style="background:linear-gradient(135deg,#22c55e,#16a34a);box-shadow:0 8px 25px rgba(34,197,94,0.4);"><i class="fas fa-paper-plane"></i><span>إرسال الإجابة</span></button> -->
                 </form>
                 @endif
             </div>
