@@ -210,7 +210,7 @@ class FamilyTreeController extends Controller
             'death_place', 'cemetery', 'cemetery_location', 'grave_number', 'photo_url', 'biography', 'occupation', 'location_id', 'parent_id', 'mother_id'
         ])
         ->with([
-            'parent:id,first_name,last_name,gender,birth_date,death_date,photo_url',
+            'parent:id,first_name,last_name,gender,birth_date,death_date,photo_url,parent_id',
             'mother:id,first_name,last_name,gender,birth_date,death_date,photo_url',
             'location:id,name,normalized_name', // تحميل علاقة location
             'articles:id,title,person_id',
@@ -598,9 +598,13 @@ class FamilyTreeController extends Controller
                 });
             }
 
-            // Format spouses محسن للأداء - نعرض الزوج/الزوجات النشطين فقط (غير المنفصلين)
-            // نستخدم دالة isDivorced() للتحقق من كلا الشرطين: is_divorced أو divorced_at
+            // Format spouses محسن للأداء
             $spouses = collect();
+            
+            // تحديد ما إذا كان الشخص من الجيل الأول أو الثاني
+            // الجيل الأول: ليس لديه أب
+            // الجيل الثاني: أبوه ليس لديه أب
+            $isFirstOrSecondGeneration = is_null($person->parent_id) || ($person->parent && is_null($person->parent->parent_id));
 
             if ($person->gender === 'male') {
                 $allMarriages = Marriage::select(['id', 'husband_id', 'wife_id', 'married_at', 'divorced_at', 'is_divorced'])
@@ -608,10 +612,14 @@ class FamilyTreeController extends Controller
                     ->orderBy('married_at')
                     ->get();
 
-                // فلترة الزيجات النشطة فقط (غير المنفصلة)
-                $activeMarriages = $allMarriages->filter(function ($marriage) {
-                    return !$marriage->isDivorced();
-                });
+                if ($isFirstOrSecondGeneration) {
+                    $activeMarriages = $allMarriages;
+                } else {
+                    // فلترة الزيجات النشطة فقط (غير المنفصلة)
+                    $activeMarriages = $allMarriages->filter(function ($marriage) {
+                        return !$marriage->isDivorced();
+                    });
+                }
 
                 if ($activeMarriages->isNotEmpty()) {
                     $wifeIds = $activeMarriages->pluck('wife_id');
@@ -642,14 +650,47 @@ class FamilyTreeController extends Controller
                     ->orderByDesc('married_at')
                     ->get();
 
-                // فلترة الزيجات النشطة فقط (غير المنفصلة)
-                $activeMarriages = $allMarriages->filter(function ($marriage) {
-                    return !$marriage->isDivorced();
-                });
+                if ($isFirstOrSecondGeneration) {
+                    $activeMarriages = $allMarriages;
+                } else {
+                    // فلترة الزيجات النشطة فقط (غير المنفصلة)
+                    $activeMarriages = $allMarriages->filter(function ($marriage) {
+                        return !$marriage->isDivorced();
+                    });
+                }
 
-                $currentMarriage = $activeMarriages->first();
+                if ($isFirstOrSecondGeneration) {
+                    // للجيل الأول والثاني نعرض جميع الأزواج
+                    $husbandIds = $activeMarriages->pluck('husband_id')->filter();
+                    if ($husbandIds->isNotEmpty()) {
+                        $husbands = Person::select(['id', 'first_name', 'last_name', 'gender', 'birth_date', 'birth_place', 'death_date', 'photo_url', 'parent_id'])
+                            ->with(['parent' => function($q1) {
+                                // تحميل parent بشكل متداخل لضمان عمل full_name بشكل صحيح
+                                $q1->select(['id', 'first_name', 'gender', 'parent_id'])
+                                   ->with(['parent' => function($q2) {
+                                       $q2->select(['id', 'first_name', 'gender', 'parent_id'])
+                                          ->with(['parent' => function($q3) {
+                                              $q3->select(['id', 'first_name', 'gender', 'parent_id'])
+                                                 ->with(['parent' => function($q4) {
+                                                     $q4->select(['id', 'first_name', 'gender', 'parent_id'])
+                                                        ->with(['parent' => function($q5) {
+                                                            $q5->select(['id', 'first_name', 'gender', 'parent_id']);
+                                                        }]);
+                                                 }]);
+                                          }]);
+                                   }]);
+                            }])
+                            ->whereIn('id', $husbandIds)
+                            ->get();
+                            
+                        foreach ($husbands as $husband) {
+                            $spouses->push($husband);
+                        }
+                    }
+                } else {
+                    $currentMarriage = $activeMarriages->first();
 
-                if ($currentMarriage && $currentMarriage->husband_id) {
+                    if ($currentMarriage && $currentMarriage->husband_id) {
                     $husband = Person::select(['id', 'first_name', 'last_name', 'gender', 'birth_date', 'birth_place', 'death_date', 'photo_url', 'parent_id'])
                         ->with(['parent' => function($q1) {
                             // تحميل parent بشكل متداخل لضمان عمل full_name بشكل صحيح
@@ -671,6 +712,7 @@ class FamilyTreeController extends Controller
                     if ($husband) {
                         $spouses->push($husband);
                     }
+                }
                 }
             }
 
