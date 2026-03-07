@@ -23,11 +23,13 @@ class QuizQuestionController extends Controller
             'question_text' => 'required|string',
             'description' => 'nullable|string',
             'answer_type' => 'required|in:multiple_choice,custom_text',
+            'is_multiple_selections' => 'nullable|boolean',
             'winners_count' => 'required|integer|min:1',
             'display_order' => 'nullable|integer|min:0',
             'choices' => 'required_if:answer_type,multiple_choice|array',
             'choices.*.text' => 'required_with:choices|string',
             'choices.*.is_correct' => 'nullable|boolean',
+            'correct_choices' => 'nullable|array', // For multiple selections
         ], [
             'question_text.required' => 'نص السؤال مطلوب',
             'answer_type.required' => 'نوع الإجابة مطلوب',
@@ -39,16 +41,28 @@ class QuizQuestionController extends Controller
             'question_text' => $validated['question_text'],
             'description' => $validated['description'] ?? null,
             'answer_type' => $validated['answer_type'],
+            'is_multiple_selections' => !empty($validated['is_multiple_selections']),
             'winners_count' => $validated['winners_count'],
             'display_order' => $validated['display_order'] ?? 0,
         ]);
 
         if ($validated['answer_type'] === 'multiple_choice' && !empty($validated['choices'])) {
             $choices = array_filter($validated['choices'], fn($c) => !empty(trim($c['text'] ?? '')));
-            foreach ($choices as $choice) {
+            
+            $isMultiple = !empty($validated['is_multiple_selections']);
+            $correctChoicesKeys = $request->input('correct_choices', []);
+
+            foreach ($choices as $index => $choice) {
+                $isCorrect = false;
+                if ($isMultiple) {
+                    $isCorrect = in_array((string)$index, $correctChoicesKeys);
+                } else {
+                    $isCorrect = !empty($choice['is_correct']);
+                }
+
                 $question->choices()->create([
                     'choice_text' => $choice['text'],
-                    'is_correct' => !empty($choice['is_correct']),
+                    'is_correct' => $isCorrect,
                 ]);
             }
         }
@@ -70,11 +84,13 @@ class QuizQuestionController extends Controller
             'question_text' => 'required|string',
             'description' => 'nullable|string',
             'answer_type' => 'required|in:multiple_choice,custom_text',
+            'is_multiple_selections' => 'nullable|boolean',
             'winners_count' => 'required|integer|min:1',
             'display_order' => 'nullable|integer|min:0',
             'choices' => 'required_if:answer_type,multiple_choice|array',
             'choices.*.text' => 'required_with:choices|string',
             'choices.*.is_correct' => 'nullable|boolean',
+            'correct_choices' => 'nullable|array',
         ], [
             'question_text.required' => 'نص السؤال مطلوب',
             'answer_type.required' => 'نوع الإجابة مطلوب',
@@ -86,6 +102,7 @@ class QuizQuestionController extends Controller
             'question_text' => $validated['question_text'],
             'description' => $validated['description'] ?? null,
             'answer_type' => $validated['answer_type'],
+            'is_multiple_selections' => !empty($validated['is_multiple_selections']),
             'winners_count' => $validated['winners_count'],
             'display_order' => $validated['display_order'] ?? 0,
         ]);
@@ -93,10 +110,21 @@ class QuizQuestionController extends Controller
         if ($validated['answer_type'] === 'multiple_choice' && !empty($validated['choices'])) {
             $quizQuestion->choices()->delete();
             $choices = array_filter($validated['choices'], fn($c) => !empty(trim($c['text'] ?? '')));
-            foreach ($choices as $choice) {
+            
+            $isMultiple = !empty($validated['is_multiple_selections']);
+            $correctChoicesKeys = $request->input('correct_choices', []);
+
+            foreach ($choices as $index => $choice) {
+                $isCorrect = false;
+                if ($isMultiple) {
+                    $isCorrect = in_array((string)$index, $correctChoicesKeys);
+                } else {
+                    $isCorrect = !empty($choice['is_correct']);
+                }
+
                 $quizQuestion->choices()->create([
                     'choice_text' => $choice['text'],
-                    'is_correct' => !empty($choice['is_correct']),
+                    'is_correct' => $isCorrect,
                 ]);
             }
         } else {
@@ -124,5 +152,16 @@ class QuizQuestionController extends Controller
         $count = $quizQuestion->selectRandomWinners();
 
         return back()->with('success', "تم اختيار {$count} فائز عشوائياً");
+    }
+
+    public function removeWinner(\App\Models\QuizWinner $winner): RedirectResponse
+    {
+        $questionId = $winner->quiz_question_id;
+        $winner->delete();
+
+        // إزالة التخزين المؤقت لتحديث صفحة المسابقة فوراً
+        \Illuminate\Support\Facades\Cache::forget('quiz_winner_json_' . $questionId);
+
+        return back()->with('success', 'تم إزالة الفائز بنجاح');
     }
 }

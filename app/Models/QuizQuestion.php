@@ -15,11 +15,13 @@ class QuizQuestion extends BaseModel
         'question_text',
         'description',
         'answer_type',
+        'is_multiple_selections',
         'winners_count',
         'display_order',
     ];
 
     protected $casts = [
+        'is_multiple_selections' => 'boolean',
         'winners_count' => 'integer',
         'display_order' => 'integer',
     ];
@@ -77,6 +79,14 @@ class QuizQuestion extends BaseModel
         return $this->answers()->where('is_correct', true)->count();
     }
 
+    public function getRequiredCorrectAnswersCount(): int
+    {
+        if ($this->answer_type !== 'multiple_choice') {
+            return 1;
+        }
+        return $this->choices()->where('is_correct', true)->count();
+    }
+
     public function selectRandomWinners(): int
     {
         $correctUserIds = $this->answers()
@@ -96,6 +106,10 @@ class QuizQuestion extends BaseModel
                 'position' => $position + 1,
             ]);
         }
+
+        // إزالة التخزين المؤقت لكي تظهر النتيجة الجديدة فوراً للجمهور
+        \Illuminate\Support\Facades\Cache::forget('quiz_winner_json_' . $this->id);
+        \Illuminate\Support\Facades\Cache::forget('quiz-winner-selection-' . $this->id);
 
         return count($correctUserIds);
     }

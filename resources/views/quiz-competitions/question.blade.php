@@ -636,7 +636,7 @@
                 @endif
 
                 @if(!session('answer_submitted') && ($canAnswer ?? true))
-                <form action="{{ route('quiz-competitions.store-answer', [$quizCompetition, $quizQuestion]) }}" method="POST" class="space-y-5">
+                <form action="{{ route('quiz-competitions.store-answer', [$quizCompetition, $quizQuestion]) }}" method="POST" class="space-y-5" id="quizForm">
                     @csrf
                     <div class="glass-effect rounded-2xl p-5 md:p-6">
                         <div class="flex items-center gap-2 mb-4"><div class="w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-200 border border-blue-300"><i class="fas fa-user text-blue-500 text-sm"></i></div><h3 class="font-bold text-gray-800">بياناتك</h3></div>
@@ -664,17 +664,108 @@
                     </div>
                     <div class="glass-effect rounded-2xl p-5 md:p-6">
                         <div class="flex items-center gap-2 mb-4"><div class="w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-br from-green-100 to-green-200 border border-green-300"><i class="fas fa-pen text-green-600 text-sm"></i></div><h3 class="font-bold text-gray-800">إجابتك</h3></div>
-                        @if($quizQuestion->answer_type === 'multiple_choice')
-                        <div class="space-y-3">@foreach($quizQuestion->choices as $choice)<label class="choice-option flex items-center gap-4 p-4 rounded-xl cursor-pointer"><input type="radio" name="answer" value="{{ $choice->id }}" class="hidden" required><span class="choice-number w-10 h-10 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-500 font-bold text-sm flex-shrink-0 transition-all">{{ $loop->iteration }}</span><span class="text-gray-700 font-medium text-sm md:text-base">{{ $choice->choice_text }}</span></label>@endforeach</div>
-                        @else
+                        <div class="space-y-3">
+                            @if($quizQuestion->is_multiple_selections)
+                                @php
+                                    $requiredCount = $quizQuestion->getRequiredCorrectAnswersCount();
+                                @endphp
+                                <p class="text-sm text-green-700 font-medium mb-2 pr-2">
+                                    <i class="fas fa-info-circle ml-1"></i> بجب اختيار عدد ({{ $requiredCount }}) إجابات صحيحة
+                                    <input type="hidden" id="requiredChoicesCount" value="{{ $requiredCount }}">
+                                </p>
+                            @endif
+
+                            @foreach($quizQuestion->choices as $choice)
+                                <label class="choice-option flex items-center gap-4 p-4 rounded-xl cursor-pointer">
+                                    @if($quizQuestion->is_multiple_selections)
+                                        <input type="checkbox" name="answer[]" value="{{ $choice->id }}" class="hidden quiz-checkbox-input">
+                                        <div class="relative w-6 h-6 rounded flex items-center justify-center border-2 border-gray-300 bg-gray-100 flex-shrink-0 transition-all custom-checkbox">
+                                            <i class="fas fa-check text-white text-xs opacity-0 transition-opacity"></i>
+                                        </div>
+                                    @else
+                                        <input type="radio" name="answer" value="{{ $choice->id }}" class="hidden" required>
+                                        <span class="choice-number w-10 h-10 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-500 font-bold text-sm flex-shrink-0 transition-all">{{ $loop->iteration }}</span>
+                                    @endif
+                                    <span class="text-gray-700 font-medium text-sm md:text-base">{{ $choice->choice_text }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+                        
+                        <style>
+                            .choice-option:has(input[type="checkbox"]:checked) .custom-checkbox {
+                                background-color: #22c55e;
+                                border-color: #22c55e;
+                            }
+                            .choice-option:has(input[type="checkbox"]:checked) .custom-checkbox i {
+                                opacity: 1;
+                            }
+                        </style>
                         <textarea name="answer" rows="4" required class="w-full px-4 py-3.5 rounded-xl border-2 border-gray-200 bg-white/70 text-gray-800 text-sm resize-none focus:ring-4 focus:ring-green-200 focus:border-green-500 transition-all" placeholder="اكتب إجابتك هنا...">{{ old('answer') }}</textarea>
-                        @endif
-                    </div>
-                    <button type="submit" class="w-full py-4 md:py-5 rounded-2xl text-white font-bold text-lg flex items-center justify-center gap-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl active:scale-[0.98]" style="background:linear-gradient(135deg,#22c55e,#16a34a);box-shadow:0 8px 25px rgba(34,197,94,0.4);"><i class="fas fa-paper-plane"></i><span>إرسال الإجابة</span></button>
+                    @endif
+                    <button type="button" onclick="submitQuizForm()" class="w-full py-4 md:py-5 rounded-2xl text-white font-bold text-lg flex items-center justify-center gap-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl active:scale-[0.98]" style="background:linear-gradient(135deg,#22c55e,#16a34a);box-shadow:0 8px 25px rgba(34,197,94,0.4);"><i class="fas fa-paper-plane"></i><span>إرسال الإجابة</span></button>
                 </form>
                 @endif
             </div>
-        @endif
+            
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            function submitQuizForm() {
+                const form = document.getElementById('quizForm');
+                const requiredCountInput = document.getElementById('requiredChoicesCount');
+                
+                if (requiredCountInput) {
+                    const requiredCount = parseInt(requiredCountInput.value);
+                    const checkedBoxes = document.querySelectorAll('.quiz-checkbox-input:checked');
+                    
+                    if (checkedBoxes.length !== requiredCount) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'تنبيه',
+                            text: `الرجاء اختيار عدد ${requiredCount} إجابات كما هو مطلوب بالسؤال.`,
+                            confirmButtonColor: '#22c55e',
+                            confirmButtonText: 'حسناً'
+                        });
+                        return;
+                    }
+                }
+                
+                // Trigger native form submission validation
+                if (!form.reportValidity()) {
+                    return;
+                }
+
+                form.submit();
+            }
+            
+            // Limit checkbox selections
+            document.addEventListener('DOMContentLoaded', function() {
+                const requiredCountInput = document.getElementById('requiredChoicesCount');
+                if (requiredCountInput) {
+                    const requiredCount = parseInt(requiredCountInput.value);
+                    const checkboxes = document.querySelectorAll('.quiz-checkbox-input');
+                    
+                    checkboxes.forEach(cb => {
+                        cb.addEventListener('change', function() {
+                            const checked = document.querySelectorAll('.quiz-checkbox-input:checked');
+                            if (checked.length > requiredCount) {
+                                this.checked = false;
+                                Swal.fire({
+                                    icon: 'info',
+                                    title: 'تم تجاوز الحد الأقصى',
+                                    text: `لا يمكنك اختيار أكثر من ${requiredCount} إجابات.`,
+                                    confirmButtonColor: '#22c55e',
+                                    confirmButtonText: 'حسناً',
+                                    toast: true,
+                                    position: 'top-end',
+                                    showConfirmButton: false,
+                                    timer: 3000
+                                });
+                            }
+                        });
+                    });
+                }
+            });
+        </script>
 
         <div class="mt-8 text-center">
             <a href="{{ route('quiz-competitions.show', $quizCompetition) }}" class="inline-flex items-center gap-2 text-green-600 hover:text-green-700 transition-colors text-sm font-medium"><i class="fas fa-arrow-right"></i><span>العودة للمسابقة</span></a>
@@ -874,7 +965,14 @@
         var countNum = document.getElementById('bigCountNum');
         var flashBang = document.getElementById('flashBang');
 
-        if(!overlay) { location.reload(); return; }
+        if(!overlay) {
+            var url = new URL(window.location.href);
+            if (!url.searchParams.has('animation_done')) {
+                url.searchParams.set('animation_done', '1');
+                window.location.href = url.toString();
+            }
+            return;
+        }
 
         initOverlayParticles();
         overlay.classList.add('active');
@@ -917,7 +1015,11 @@
         phaseCount.style.display = 'none';
         
         if (!winnerNamesList || winnerNamesList.length === 0) {
-            location.reload();
+            var url = new URL(window.location.href);
+            if (!url.searchParams.has('animation_done')) {
+                url.searchParams.set('animation_done', '1');
+                window.location.href = url.toString();
+            }
             return;
         }
 
@@ -1085,8 +1187,12 @@
                         // Retry after 2 seconds
                         setTimeout(doFetch, 2000);
                     } else {
-                        // no_winners — reload
-                        location.reload();
+                        // no_winners — reload with a query parameter to avoid infinite loops
+                        var url = new URL(window.location.href);
+                        if (!url.searchParams.has('animation_done')) {
+                            url.searchParams.set('animation_done', '1');
+                            window.location.href = url.toString();
+                        }
                     }
                 })
                 .catch(function() {

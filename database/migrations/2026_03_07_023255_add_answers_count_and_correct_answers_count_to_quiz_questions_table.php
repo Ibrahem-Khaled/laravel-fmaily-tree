@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('quiz_questions', function (Blueprint $table) {
-            //
+            $table->boolean('is_multiple_selections')->default(false)->after('answer_type');
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('quiz_questions', function (Blueprint $table) {
-            //
+            $table->dropColumn(['is_multiple_selections']);
         });
     }
 };

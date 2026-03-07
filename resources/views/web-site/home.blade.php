@@ -614,13 +614,28 @@
                                                     </label>
 
                                                     @if ($q->answer_type === 'multiple_choice' && $q->choices->count() > 0)
-                                                        <div class="space-y-2">
+                                                        @if($q->is_multiple_selections)
+                                                            @php
+                                                                $requiredCount = $q->getRequiredCorrectAnswersCount();
+                                                            @endphp
+                                                            <p class="text-xs text-green-700 font-medium mb-2">
+                                                                يجب اختيار {{ $requiredCount }} إجابات
+                                                                <input type="hidden" class="required-choices-count" value="{{ $requiredCount }}">
+                                                            </p>
+                                                        @endif
+                                                        <div class="space-y-2 choice-group">
                                                             @foreach ($q->choices as $choice)
                                                                 <label
                                                                     class="flex items-center gap-3 p-3 rounded-xl border-2 border-gray-200 bg-white hover:border-green-300 hover:bg-green-50/50 cursor-pointer transition-all has-[:checked]:border-green-500 has-[:checked]:bg-green-50">
-                                                                    <input type="radio" name="answer"
-                                                                        value="{{ $choice->id }}"
-                                                                        class="w-4 h-4 text-green-600" required>
+                                                                    @if($q->is_multiple_selections)
+                                                                        <input type="checkbox" name="answer[]"
+                                                                            value="{{ $choice->id }}"
+                                                                            class="w-4 h-4 text-green-600 home-quiz-checkbox">
+                                                                    @else
+                                                                        <input type="radio" name="answer"
+                                                                            value="{{ $choice->id }}"
+                                                                            class="w-4 h-4 text-green-600" required>
+                                                                    @endif
                                                                     <span
                                                                         class="text-gray-800 text-sm font-medium">{{ $choice->choice_text }}</span>
                                                                 </label>
@@ -632,8 +647,8 @@
                                                     @endif
                                                 </div>
 
-                                                <button type="submit"
-                                                    class="w-full sm:w-auto px-6 py-3 rounded-xl text-white font-bold text-sm inline-flex items-center justify-center gap-2 transition-all hover:opacity-90"
+                                                <button type="submit" onclick="validateHomeQuiz(event, this)"
+                                                    class="w-full sm:w-auto px-6 py-3 rounded-xl text-white font-bold text-sm inline-flex items-center justify-center gap-2 transition-all hover:opacity-90 mt-4"
                                                     style="background: linear-gradient(135deg, #22c55e, #16a34a);">
                                                     <i class="fas fa-paper-plane"></i>
                                                     إرسال الإجابة
@@ -1961,5 +1976,90 @@
                 if (visInput) startRevealCountdown(parseInt(visInput.value, 10));
             })();
         @endif
+        /* ================================================================
+           QUIZ – Home Forms Javascript Checkbox Validation helpers
+           ================================================================ */
+
+        function validateHomeQuiz(event, buttonElement) {
+            const form = buttonElement.closest('form');
+            if(!form) return;
+
+            const requiredCountInput = form.querySelector('.required-choices-count');
+            
+            if (requiredCountInput) {
+                const requiredCount = parseInt(requiredCountInput.value);
+                const checkedBoxes = form.querySelectorAll('input[type="checkbox"][name="answer[]"]:checked');
+                
+                if (checkedBoxes.length !== requiredCount) {
+                    event.preventDefault(); // Prevent native submission
+                    
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'تنبيه',
+                        text: `الرجاء اختيار عدد ${requiredCount} إجابات كما هو مطلوب بالسؤال.`,
+                        confirmButtonColor: '#22c55e',
+                        confirmButtonText: 'حسناً'
+                    });
+                    return false;
+                }
+            }
+            
+            // Allow native form submission validation to continue
+            return true;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Checkbox limits constraint listener
+            function attachCheckboxListeners() {
+                const forms = document.querySelectorAll('#activeQuizQuestionsBlock form');
+                forms.forEach(form => {
+                    const requiredCountInput = form.querySelector('.required-choices-count');
+                    if (requiredCountInput) {
+                        const requiredCount = parseInt(requiredCountInput.value);
+                        const checkboxes = form.querySelectorAll('input[type="checkbox"][name="answer[]"]');
+                        
+                        checkboxes.forEach(cb => {
+                            // Only add if not already added
+                            if (!cb.hasAttribute('data-listener-attached')) {
+                                cb.addEventListener('change', function() {
+                                    const checkedCount = form.querySelectorAll('input[type="checkbox"][name="answer[]"]:checked').length;
+                                    if (checkedCount > requiredCount) {
+                                        this.checked = false;
+                                        Swal.fire({
+                                            icon: 'info',
+                                            title: 'تم تجاوز الحد الأقصى',
+                                            text: `لا يمكنك اختيار أكثر من ${requiredCount} إجابات.`,
+                                            confirmButtonColor: '#22c55e',
+                                            confirmButtonText: 'حسناً',
+                                            toast: true,
+                                            position: 'top-end',
+                                            showConfirmButton: false,
+                                            timer: 3000
+                                        });
+                                    }
+                                });
+                                cb.setAttribute('data-listener-attached', 'true');
+                            }
+                        });
+                    }
+                });
+            }
+
+            // Run on load
+            attachCheckboxListeners();
+
+            // Setup a MutationObserver to re-attach if AJAX replaces the content
+            const observerTarget = document.getElementById('quizCountdownSection') || document.getElementById('activeQuizSection');
+            if (observerTarget && observerTarget.parentNode) {
+                const observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        if (mutation.addedNodes.length > 0) {
+                            attachCheckboxListeners();
+                        }
+                    });
+                });
+                observer.observe(observerTarget.parentNode, { childList: true, subtree: true });
+            }
+        });
     </script>
 @endpush

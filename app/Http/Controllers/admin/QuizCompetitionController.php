@@ -132,27 +132,72 @@ class QuizCompetitionController extends Controller
                 $choices = $question->choices;
                 $answerText = '';
                 $isCorrect = true; // Default to correct for text answers
+                $selectedChoicesIds = [];
 
                 if ($choices->count() > 0) {
-                    // Try to pick a correct choice
-                    $correctChoices = $choices->where('is_correct', true);
-                    
-                    if ($correctChoices->isNotEmpty()) {
-                        $choice = $correctChoices->random();
+                    if ($question->is_multiple_selections) {
+                        $requiredCount = $question->getRequiredCorrectAnswersCount();
+                        $correctChoices = $choices->where('is_correct', true);
+                        
+                        // randomly decide if we want to simulate a fully correct answer or a randomly partially wrong answer
+                        $simulatePerfectAnswer = rand(0, 1) == 1;
+                        
+                        if ($simulatePerfectAnswer && $correctChoices->count() >= $requiredCount) {
+                            $picked = $correctChoices->random($requiredCount);
+                            $selectedChoicesIds = $picked->pluck('id')->toArray();
+                            $isCorrect = true;
+                        } else {
+                            // Pick random choices equal to required count (mix of correct/incorrect)
+                            // Make sure we have enough choices
+                            if ($choices->count() >= $requiredCount) {
+                                $picked = $choices->random($requiredCount);
+                                $selectedChoicesIds = $picked->pluck('id')->toArray();
+                                
+                                // Check if this random mix happens to be perfectly correct
+                                $correctIds = $correctChoices->pluck('id')->toArray();
+                                $allCorrect = true;
+                                foreach ($selectedChoicesIds as $chkId) {
+                                    if (!in_array($chkId, $correctIds)) {
+                                        $allCorrect = false;
+                                        break;
+                                    }
+                                }
+                                $isCorrect = $allCorrect;
+                            } else {
+                                $selectedChoicesIds = $choices->pluck('id')->toArray();
+                                $isCorrect = false;
+                            }
+                        }
+                        
+                        $answerText = json_encode($selectedChoicesIds);
+
                     } else {
-                        // Fallback if no correct choice defined
-                        $choice = $choices->random();
+                        // Single Choice Simulation
+                        $correctChoices = $choices->where('is_correct', true);
+                        
+                        if ($correctChoices->isNotEmpty()) {
+                            // 80% chance to be correct
+                            if (rand(1, 100) <= 80) {
+                                $choice = $correctChoices->random();
+                                $isCorrect = true;
+                            } else {
+                                $choice = $choices->random();
+                                $isCorrect = (bool) $choice->is_correct;
+                            }
+                        } else {
+                            // Fallback if no correct choice defined
+                            $choice = $choices->random();
+                            $isCorrect = (bool) $choice->is_correct;
+                        }
+                        
+                        $answerText = (string) $choice->id;
                     }
-                    
-                    // For multiple choice, store the choice ID
-                    $answerText = (string) $choice->id;
-                    $isCorrect = $choice->is_correct;
                 } else {
                     $answerText = 'Simulated Answer ' . \Illuminate\Support\Str::random(5);
                     $isCorrect = true;
                 }
 
-                \App\Models\QuizAnswer::create([
+                $answerModel = \App\Models\QuizAnswer::create([
                     'quiz_question_id' => $question->id,
                     'user_id' => $user->id,
                     'answer' => $answerText,
@@ -160,6 +205,15 @@ class QuizCompetitionController extends Controller
                     'is_correct' => $isCorrect,
                     'created_at' => now()->subSeconds(rand(0, 300)),
                 ]);
+                // `selectedChoices()` is a HasMany relationship, so we loop and create records instead of `attach()`
+                if (!empty($selectedChoicesIds) && $question->is_multiple_selections) {
+                    foreach ($selectedChoicesIds as $choiceId) {
+                        $answerModel->selectedChoices()->create([
+                            'quiz_question_choice_id' => $choiceId,
+                        ]);
+                    }
+                }
+
                 $count++;
             }
         }

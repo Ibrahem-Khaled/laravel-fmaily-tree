@@ -193,13 +193,23 @@ class QuizCompetitionPublicController extends Controller
             return back()->with('error', 'انتهت فترة الإجابة على هذا السؤال');
         }
 
-        $validated = $request->validate([
+        $rules = [
             'name' => 'required|string|max:255',
             'phone' => 'required|string|size:10|regex:/^[0-9]{10}$/',
-            'answer' => 'required|string',
             'is_from_ancestry' => 'nullable|in:1',
             'mother_name' => 'nullable|string|max:255',
-        ], [
+        ];
+
+        if ($quizQuestion->is_multiple_selections) {
+            $rules['answer'] = 'required|array';
+            $rules['answer.*'] = 'required|exists:quiz_question_choices,id';
+        } elseif ($quizQuestion->answer_type === 'multiple_choice') {
+            $rules['answer'] = 'required|exists:quiz_question_choices,id';
+        } else {
+            $rules['answer'] = 'required|string|max:1000';
+        }
+
+        $validated = $request->validate($rules, [
             'name.required' => 'الاسم مطلوب',
             'phone.required' => 'رقم الهاتف مطلوب',
             'phone.size' => 'يجب أن يكون رقم الهاتف 10 أرقام بالضبط',
@@ -252,22 +262,55 @@ class QuizCompetitionPublicController extends Controller
 
             $isCorrect = false;
             $answerType = 'custom';
+            $answerData = $validated['answer'];
 
             if ($quizQuestion->answer_type === 'multiple_choice') {
-                $choiceId = (int) $validated['answer'];
-                $correctChoice = $quizQuestion->choices->firstWhere('is_correct', true);
-                $isCorrect = $correctChoice && $correctChoice->id === $choiceId;
                 $answerType = 'choice';
+                
+                if ($quizQuestion->is_multiple_selections) {
+                    $selectedChoiceIds = $validated['answer']; // Array of ids
+                    $correctChoiceIds = $quizQuestion->choices()->where('is_correct', true)->pluck('id')->toArray();
+                    
+                    $selectedCorrectCount = 0;
+                    $hasIncorrectChoice = false;
+
+                    foreach ($selectedChoiceIds as $choiceId) {
+                        if (in_array((int)$choiceId, $correctChoiceIds)) {
+                            $selectedCorrectCount++;
+                        } else {
+                            $hasIncorrectChoice = true;
+                            break;
+                        }
+                    }
+
+                    // Must select ALL correct choices and NO incorrect choices
+                    $isCorrect = !$hasIncorrectChoice && ($selectedCorrectCount === count($correctChoiceIds));
+                    $answerData = json_encode($selectedChoiceIds);
+                } else {
+                    $choiceId = (int) $validated['answer'];
+                    $correctChoice = $quizQuestion->choices->firstWhere('is_correct', true);
+                    $isCorrect = $correctChoice && $correctChoice->id === $choiceId;
+                    $answerData = (string) $validated['answer'];
+                }
             }
 
             // إنشاء إجابة جديدة دائماً
-            QuizAnswer::create([
+            $quizAnswer = QuizAnswer::create([
                 'quiz_question_id' => $quizQuestion->id,
                 'user_id' => $user->id,
-                'answer' => $validated['answer'],
+                'answer' => $answerData,
                 'answer_type' => $answerType,
                 'is_correct' => $isCorrect,
             ]);
+
+            if ($quizQuestion->is_multiple_selections && $quizQuestion->answer_type === 'multiple_choice') {
+                $selectedChoiceIds = $validated['answer'];
+                foreach ($selectedChoiceIds as $choiceId) {
+                    $quizAnswer->selectedChoices()->create([
+                        'quiz_question_choice_id' => $choiceId,
+                    ]);
+                }
+            }
 
             session(['quiz_answered_' . $quizQuestion->id => now()->toDateTimeString()]);
 

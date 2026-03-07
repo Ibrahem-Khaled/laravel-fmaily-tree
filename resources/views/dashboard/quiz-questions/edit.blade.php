@@ -49,6 +49,13 @@
                     @enderror
                 </div>
 
+                <div class="form-group" id="multipleSelectionsGroup">
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" id="is_multiple_selections" name="is_multiple_selections" value="1" {{ old('is_multiple_selections', $quizQuestion->is_multiple_selections) ? 'checked' : '' }}>
+                        <label class="custom-control-label font-weight-bold text-primary" for="is_multiple_selections">السؤال يقبل إجابات صحيحة متعددة؟</label>
+                    </div>
+                </div>
+
                 <div id="choicesSection" class="form-group">
                     <label>الخيارات <span class="text-danger">*</span></label>
                     <p class="text-muted small">حدد الخيار الصحيح بعلامة ✓</p>
@@ -58,8 +65,8 @@
                             @foreach($choices as $i => $choice)
                                 <div class="input-group mb-2 choice-row">
                                     <div class="input-group-prepend">
-                                        <div class="input-group-text">
-                                            <input type="radio" name="correct_choice" value="{{ $i }}" {{ !empty($choice['is_correct']) ? 'checked' : '' }} title="الإجابة الصحيحة">
+                                        <div class="input-group-text correct-choice-container">
+                                            <input type="radio" class="correct-choice-input" name="correct_choice" value="{{ $i }}" {{ !empty($choice['is_correct']) ? 'checked' : '' }} title="الإجابة الصحيحة">
                                         </div>
                                     </div>
                                     <input type="text" class="form-control" name="choices[{{ $i }}][text]" placeholder="نص الخيار {{ $i + 1 }}" value="{{ $choice['text'] ?? '' }}">
@@ -73,8 +80,8 @@
                             @for($i = 0; $i < 4; $i++)
                                 <div class="input-group mb-2 choice-row">
                                     <div class="input-group-prepend">
-                                        <div class="input-group-text">
-                                            <input type="radio" name="correct_choice" value="{{ $i }}" {{ $i == 0 ? 'checked' : '' }} title="الإجابة الصحيحة">
+                                        <div class="input-group-text correct-choice-container">
+                                            <input type="radio" class="correct-choice-input" name="correct_choice" value="{{ $i }}" {{ $i == 0 ? 'checked' : '' }} title="الإجابة الصحيحة">
                                         </div>
                                     </div>
                                     <input type="text" class="form-control" name="choices[{{ $i }}][text]" placeholder="نص الخيار {{ $i + 1 }}">
@@ -130,37 +137,86 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const answerType = document.getElementById('answer_type');
+    const isMultipleSwitch = document.getElementById('is_multiple_selections');
+    const multipleSelectionsGroup = document.getElementById('multipleSelectionsGroup');
     const choicesSection = document.getElementById('choicesSection');
     const choicesContainer = document.getElementById('choicesContainer');
     const addChoiceBtn = document.getElementById('addChoice');
 
     function toggleChoices() {
-        choicesSection.style.display = answerType.value === 'multiple_choice' ? 'block' : 'none';
+        const isChoice = answerType.value === 'multiple_choice';
+        choicesSection.style.display = isChoice ? 'block' : 'none';
+        multipleSelectionsGroup.style.display = isChoice ? 'block' : 'none';
+        updateChoiceInputsType();
     }
 
-    answerType.addEventListener('change', toggleChoices);
-    toggleChoices();
-
-    function updateCorrectRadios() {
+    function updateChoiceInputsType() {
+        const isMultiple = isMultipleSwitch.checked;
         const rows = choicesContainer.querySelectorAll('.choice-row');
+        
         rows.forEach((row, idx) => {
-            const radio = row.querySelector('input[type="radio"]');
+            const container = row.querySelector('.correct-choice-container');
             const hidden = row.querySelector('.choice-correct');
-            radio.value = idx;
-            radio.name = 'correct_choice';
-            hidden.name = 'choices[' + idx + '][is_correct]';
-            hidden.value = radio.checked ? '1' : '0';
+            const wasChecked = hidden.value === '1';
+            
+            if (isMultiple) {
+                container.innerHTML = `<input type="checkbox" class="correct-choice-input" name="correct_choices[]" value="${idx}" ${wasChecked ? 'checked' : ''} title="إجابة صحيحة">`;
+            } else {
+                container.innerHTML = `<input type="radio" class="correct-choice-input" name="correct_choice" value="${idx}" ${wasChecked ? 'checked' : ''} title="الإجابة الصحيحة">`;
+            }
+        });
+
+        // Re-attach listeners to the new inputs
+        attachChoiceListeners();
+    }
+
+    function attachChoiceListeners() {
+        choicesContainer.querySelectorAll('.correct-choice-input').forEach(input => {
+            input.addEventListener('change', updateHiddenValues);
         });
     }
 
+    function updateHiddenValues() {
+        const isMultiple = isMultipleSwitch.checked;
+        const rows = choicesContainer.querySelectorAll('.choice-row');
+        
+        rows.forEach((row, idx) => {
+            const input = row.querySelector('.correct-choice-input');
+            const hidden = row.querySelector('.choice-correct');
+            
+            if (isMultiple) {
+                hidden.value = input.checked ? '1' : '0';
+            } else {
+                // For radio, we handle it slightly differently as only one can be checked
+                // The change event is only fired on the one becoming checked, so we need to loop all
+            }
+        });
+
+        if (!isMultiple) {
+            document.querySelectorAll('.choice-correct').forEach((h, i) => {
+                const r = document.querySelector(`input[name="correct_choice"][value="${i}"]`);
+                if (r) h.value = r.checked ? '1' : '0';
+            });
+        }
+    }
+
+    answerType.addEventListener('change', toggleChoices);
+    isMultipleSwitch.addEventListener('change', updateChoiceInputsType);
+    toggleChoices();
+
     addChoiceBtn.addEventListener('click', function() {
         const idx = choicesContainer.querySelectorAll('.choice-row').length;
+        const isMultiple = isMultipleSwitch.checked;
+        const inputHtml = isMultiple 
+            ? `<input type="checkbox" class="correct-choice-input" name="correct_choices[]" value="${idx}" title="إجابة صحيحة">`
+            : `<input type="radio" class="correct-choice-input" name="correct_choice" value="${idx}" title="الإجابة الصحيحة">`;
+
         const div = document.createElement('div');
         div.className = 'input-group mb-2 choice-row';
         div.innerHTML = `
             <div class="input-group-prepend">
-                <div class="input-group-text">
-                    <input type="radio" name="correct_choice" value="${idx}" title="الإجابة الصحيحة">
+                <div class="input-group-text correct-choice-container">
+                    ${inputHtml}
                 </div>
             </div>
             <input type="text" class="form-control" name="choices[${idx}][text]" placeholder="نص الخيار">
@@ -170,41 +226,46 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
         choicesContainer.appendChild(div);
-        updateCorrectRadios();
+        
+        // Re-attach listeners including to the new element
+        attachChoiceListeners();
+        
         div.querySelector('.remove-choice').addEventListener('click', function() {
             if (choicesContainer.querySelectorAll('.choice-row').length > 1) {
                 div.remove();
-                updateCorrectRadios();
+                reindexChoices();
             }
         });
     });
+
+    function reindexChoices() {
+        const rows = choicesContainer.querySelectorAll('.choice-row');
+        rows.forEach((row, idx) => {
+            const input = row.querySelector('.correct-choice-input');
+            const hidden = row.querySelector('.choice-correct');
+            const textInput = row.querySelector('input[type="text"]');
+            
+            input.value = idx;
+            textInput.name = `choices[${idx}][text]`;
+            hidden.name = `choices[${idx}][is_correct]`;
+        });
+    }
 
     choicesContainer.querySelectorAll('.remove-choice').forEach(btn => {
         btn.addEventListener('click', function() {
             const row = btn.closest('.choice-row');
             if (choicesContainer.querySelectorAll('.choice-row').length > 1) {
                 row.remove();
-                updateCorrectRadios();
+                reindexChoices();
             }
         });
     });
 
-    document.querySelectorAll('input[name="correct_choice"]').forEach(radio => {
-        radio.addEventListener('change', function() {
-            document.querySelectorAll('.choice-correct').forEach((h, i) => {
-                const r = document.querySelectorAll('input[name="correct_choice"]')[i];
-                if (r) h.value = r.checked ? '1' : '0';
-            });
-        });
-    });
+    // Initial listener attachment
+    attachChoiceListeners();
 
     document.getElementById('questionForm').addEventListener('submit', function() {
-        const correctIdx = document.querySelector('input[name="correct_choice"]:checked');
-        if (correctIdx && answerType.value === 'multiple_choice') {
-            document.querySelectorAll('.choice-correct').forEach((h, i) => {
-                h.value = parseInt(correctIdx.value) === i ? '1' : '0';
-            });
-        }
+        updateHiddenValues();
     });
 });
 </script>

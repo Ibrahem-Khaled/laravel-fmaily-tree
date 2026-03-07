@@ -336,6 +336,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::put('quiz-competitions/{quizCompetition}/questions/{quizQuestion}', [\App\Http\Controllers\admin\QuizQuestionController::class, 'update'])->name('dashboard.quiz-questions.update');
     Route::delete('quiz-competitions/{quizCompetition}/questions/{quizQuestion}', [\App\Http\Controllers\admin\QuizQuestionController::class, 'destroy'])->name('dashboard.quiz-questions.destroy');
     Route::post('quiz-competitions/{quizCompetition}/questions/{quizQuestion}/select-winners', [\App\Http\Controllers\admin\QuizQuestionController::class, 'selectWinners'])->name('dashboard.quiz-questions.select-winners');
+    Route::delete('quiz-competitions/winners/{winner}', [\App\Http\Controllers\admin\QuizQuestionController::class, 'removeWinner'])->name('dashboard.quiz-questions.remove-winner');
 
     // Stories routes
     Route::resource('stories', StoryController::class)->middleware(['permission:stories.view|stories.create|stories.update|stories.delete']);

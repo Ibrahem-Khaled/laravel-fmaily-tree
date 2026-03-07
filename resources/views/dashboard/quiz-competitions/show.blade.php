@@ -272,6 +272,7 @@
                                                     <th>اسم الأم</th>
                                                     <th>الإجابة</th>
                                                     <th>تاريخ الإجابة</th>
+                                                    <th>الإجراءات</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -318,6 +319,15 @@
                                                             @else
                                                                 <span class="text-muted">—</span>
                                                             @endif
+                                                        </td>
+                                                        <td>
+                                                            <form action="{{ route('dashboard.quiz-questions.remove-winner', $winner) }}" method="POST" onsubmit="return confirm('هل أنت متأكد من إزالة هذا الفائز؟');">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="إزالة الفائز">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </button>
+                                                            </form>
                                                         </td>
                                                     </tr>
                                                 @endforeach
