@@ -5,8 +5,8 @@
 @push('styles')
     <style>
         /* ============================================================
-       SWIPER – Hero
-       ============================================================ */
+               SWIPER – Hero
+               ============================================================ */
         .heroSwiper {
             width: 100%;
             height: 100%;
@@ -75,8 +75,8 @@
         }
 
         /* ============================================================
-       SWIPER – Gallery & Courses (shared)
-       ============================================================ */
+               SWIPER – Gallery & Courses (shared)
+               ============================================================ */
         .gallerySwiper,
         .coursesSwiper {
             padding: 10px 35px 30px !important;
@@ -142,8 +142,8 @@
         }
 
         /* ============================================================
-       Gallery Modal Animations
-       ============================================================ */
+               Gallery Modal Animations
+               ============================================================ */
         #galleryModal {
             animation: fadeIn 0.3s ease-out;
         }
@@ -192,8 +192,8 @@
         }
 
         /* ============================================================
-       Quiz – Rich-text content (description & question)
-       ============================================================ */
+               Quiz – Rich-text content (description & question)
+               ============================================================ */
         .quiz-description,
         .question-text {
             direction: rtl;
@@ -274,8 +274,8 @@
         }
 
         /* ============================================================
-       Responsive overrides
-       ============================================================ */
+               Responsive overrides
+               ============================================================ */
         @media (max-width: 768px) {
 
             .heroSwiper .swiper-button-next,
@@ -327,79 +327,79 @@
 @section('content')
 
     {{-- ================================================================
-     HERO – Slideshow
-     ================================================================ --}}
+    HERO – Slideshow
+    ================================================================ --}}
     <section class="relative h-[180px] sm:h-[220px] md:h-[280px] lg:h-[320px] overflow-hidden">
 
         @if ($latestImages->count() > 0)
             <div class="swiper heroSwiper">
                 <div class="swiper-wrapper">
                     @foreach ($latestImages->take(10) as $slide)
-                        <div class="swiper-slide">
-                            @if ($slide->link)
-                                <a href="{{ $slide->link }}" target="_blank" class="block relative w-full h-full">
+                            <div class="swiper-slide">
+                                @if ($slide->link)
+                                    <a href="{{ $slide->link }}" target="_blank" class="block relative w-full h-full">
                                 @else
-                                    <div class="relative w-full h-full">
-                            @endif
+                                        <div class="relative w-full h-full">
+                                    @endif
 
-                            @if ($slide->image_url)
-                                <img src="{{ $slide->image_url }}" alt="{{ $slide->title ?? 'صورة' }}"
-                                    class="w-full h-full object-cover">
-                            @endif
-
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
-
-                            @if ($slide->title || $slide->description)
-                                <div class="absolute bottom-4 md:bottom-6 right-4 left-4 md:right-6 md:left-6 z-10">
-                                    <div class="glass-effect rounded-xl p-3 md:p-4 max-w-2xl animate-fade-in-up">
-                                        @if ($slide->title)
-                                            <h2
-                                                class="text-white text-base md:text-lg lg:text-xl font-bold mb-1 md:mb-2 drop-shadow-lg">
-                                                {{ $slide->title }}
-                                            </h2>
+                                        @if ($slide->image_url)
+                                            <img src="{{ $slide->image_url }}" alt="{{ $slide->title ?? 'صورة' }}"
+                                                class="w-full h-full object-cover">
                                         @endif
-                                        @if ($slide->description)
-                                            <p class="text-white/95 text-xs md:text-sm line-clamp-2 mb-2 drop-shadow">
-                                                {{ $slide->description }}
-                                            </p>
+
+                                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
+
+                                        @if ($slide->title || $slide->description)
+                                            <div class="absolute bottom-4 md:bottom-6 right-4 left-4 md:right-6 md:left-6 z-10">
+                                                <div class="glass-effect rounded-xl p-3 md:p-4 max-w-2xl animate-fade-in-up">
+                                                    @if ($slide->title)
+                                                        <h2
+                                                            class="text-white text-base md:text-lg lg:text-xl font-bold mb-1 md:mb-2 drop-shadow-lg">
+                                                            {{ $slide->title }}
+                                                        </h2>
+                                                    @endif
+                                                    @if ($slide->description)
+                                                        <p class="text-white/95 text-xs md:text-sm line-clamp-2 mb-2 drop-shadow">
+                                                            {{ $slide->description }}
+                                                        </p>
+                                                    @endif
+                                                    @if ($slide->link)
+                                                        <span
+                                                            class="inline-flex items-center gap-1.5 text-white text-xs md:text-sm bg-white/20 px-3 py-1.5 rounded-lg hover:bg-white/30 transition-all">
+                                                            <span>اكتشف المزيد</span>
+                                                            <i class="fas fa-arrow-left text-xs"></i>
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                            </div>
                                         @endif
+
                                         @if ($slide->link)
-                                            <span
-                                                class="inline-flex items-center gap-1.5 text-white text-xs md:text-sm bg-white/20 px-3 py-1.5 rounded-lg hover:bg-white/30 transition-all">
-                                                <span>اكتشف المزيد</span>
-                                                <i class="fas fa-arrow-left text-xs"></i>
-                                            </span>
-                                        @endif
+                                            </a>
+                                        @else
                                     </div>
-                                </div>
-                            @endif
-
-                            @if ($slide->link)
-                                </a>
-                            @else
+                                @endif
                         </div>
-                    @endif
-                </div>
-        @endforeach
-        </div>
-        <div class="swiper-button-next hero-next"></div>
-        <div class="swiper-button-prev hero-prev"></div>
-        <div class="swiper-pagination hero-pagination"></div>
-        </div>
-    @else
-        <div class="absolute inset-0 gradient-primary flex items-center justify-center">
-            <div class="text-center text-white px-4">
-                <i class="fas fa-images text-4xl md:text-5xl mb-4 opacity-40 animate-float"></i>
-                <p class="text-base md:text-lg font-semibold">لا توجد صور في السلايدشو حالياً</p>
+                    @endforeach
             </div>
-        </div>
+            <div class="swiper-button-next hero-next"></div>
+            <div class="swiper-button-prev hero-prev"></div>
+            <div class="swiper-pagination hero-pagination"></div>
+            </div>
+        @else
+            <div class="absolute inset-0 gradient-primary flex items-center justify-center">
+                <div class="text-center text-white px-4">
+                    <i class="fas fa-images text-4xl md:text-5xl mb-4 opacity-40 animate-float"></i>
+                    <p class="text-base md:text-lg font-semibold">لا توجد صور في السلايدشو حالياً</p>
+                </div>
+            </div>
         @endif
 
     </section>
 
     {{-- ================================================================
-     FAMILY BRIEF
-     ================================================================ --}}
+    FAMILY BRIEF
+    ================================================================ --}}
     @if ($familyBrief)
         <section class="py-3 md:py-6 lg:py-8 bg-white relative overflow-hidden">
             <div class="absolute top-0 left-0 w-48 h-48 bg-green-100 rounded-full blur-3xl opacity-20"></div>
@@ -418,8 +418,8 @@
     @endif
 
     {{-- ================================================================
-     RAMADAN QUIZ – Active competition OR next event countdown
-     ================================================================ --}}
+    RAMADAN QUIZ – Active competition OR next event countdown
+    ================================================================ --}}
     @if ((isset($activeQuizCompetition) && $activeQuizCompetition) || (isset($nextQuizEvent) && $nextQuizEvent))
         <section class="py-3 md:py-6 lg:py-8 relative overflow-hidden"
             style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);">
@@ -515,18 +515,17 @@
                             {{-- ── PRE-REVEAL: descriptions + countdown to show questions ── --}}
                             @if (!($showQuestionsOnHome ?? true) && isset($questionsVisibleAt) && $questionsVisibleAt)
                                 {{-- Timestamps for JS --}}
-                                <input type="hidden" id="aqQuestionsVisibleAt"
-                                    value="{{ $questionsVisibleAt->getTimestamp() * 1000 }}">
+                                <input type="hidden" id="aqQuestionsVisibleAt" value="{{ $questionsVisibleAt->getTimestamp() * 1000 }}">
 
                                 {{-- Question descriptions show immediately --}}
                                 @if ($activeQuizCompetition->questions->filter(fn($q) => !empty($q->description))->isNotEmpty())
                                     <div id="activeQuizDescriptionsOnlyBlock" class="space-y-4 mb-3">
                                         @foreach ($activeQuizCompetition->questions as $q)
                                             @if ($q->description)
-                                                <div
-                                                    class="rounded-2xl p-3 border-2 border-green-100 bg-white/80 shadow-sm">
+                                                <div class="rounded-2xl p-3 border-2 border-green-100 bg-white/80 shadow-sm">
                                                     <div class="text-gray-600 text-sm quiz-description">
-                                                        {!! $q->description !!}</div>
+                                                        {!! $q->description !!}
+                                                    </div>
                                                 </div>
                                             @endif
                                         @endforeach
@@ -545,8 +544,8 @@
                             @endif
 
                             {{-- ── QUESTIONS BLOCK ── --}}
-                            <div id="activeQuizQuestionsBlock" class="space-y-4 mb-3"
-                                @if (!($showQuestionsOnHome ?? true)) style="display:none" @endif>
+                            <div id="activeQuizQuestionsBlock" class="space-y-4 mb-3" @if (!($showQuestionsOnHome ?? true))
+                            style="display:none" @endif>
 
                                 <h4 class="text-sm font-bold text-gray-600 mb-2">أسئلة المسابقة — أجب هنا:</h4>
 
@@ -557,7 +556,7 @@
                                         $canAnswerThis =
                                             !$lastAnsweredAt ||
                                             now()->diffInHours(\Carbon\Carbon::parse($lastAnsweredAt)) >=
-                                                $cooldownHours;
+                                            $cooldownHours;
                                     @endphp
 
                                     <div class="rounded-2xl p-3 border-2 border-green-100 bg-white/80 shadow-sm">
@@ -568,11 +567,11 @@
                                         @endif
 
                                         <div class="text-gray-800 font-bold text-base mb-2 question-text">
-                                            {!! $q->question_text !!}</div>
+                                            {!! $q->question_text !!}
+                                        </div>
 
                                         @if ($canAnswerThis)
-                                            <form
-                                                action="{{ route('quiz-competitions.store-answer', [$activeQuizCompetition, $q]) }}"
+                                            <form action="{{ route('quiz-competitions.store-answer', [$activeQuizCompetition, $q]) }}"
                                                 method="POST" class="space-y-4">
                                                 @csrf
 
@@ -581,19 +580,17 @@
                                                         <label class="block text-gray-600 text-xs mb-1 font-medium">
                                                             الاسم <span class="text-red-500">*</span>
                                                         </label>
-                                                        <input type="text" name="name" value="{{ old('name') }}"
-                                                            required placeholder="الاسم الكامل"
+                                                        <input type="text" name="name" value="{{ old('name') }}" required
+                                                            placeholder="الاسم الكامل"
                                                             class="w-full px-3 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-gray-800 text-sm focus:ring-2 focus:ring-green-200 focus:border-green-500">
                                                     </div>
                                                     <div>
                                                         <label class="block text-gray-600 text-xs mb-1 font-medium">
                                                             رقم الهاتف <span class="text-red-500">*</span>
                                                         </label>
-                                                        <input type="text" name="phone" value="{{ old('phone') }}"
-                                                            required pattern="[0-9]{10}" minlength="10" maxlength="10"
-                                                            placeholder="05xxxxxxxx" dir="ltr"
-                                                            style="text-align:right;"
-                                                            title="يجب أن يكون رقم الهاتف 10 أرقام"
+                                                        <input type="text" name="phone" value="{{ old('phone') }}" required
+                                                            pattern="[0-9]{10}" minlength="10" maxlength="10" placeholder="05xxxxxxxx"
+                                                            dir="ltr" style="text-align:right;" title="يجب أن يكون رقم الهاتف 10 أرقام"
                                                             class="w-full px-3 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-gray-800 text-sm focus:ring-2 focus:ring-green-200 focus:border-green-500">
                                                     </div>
                                                 </div>
@@ -602,8 +599,8 @@
                                                     <label class="block text-gray-600 text-xs mb-1 font-medium">
                                                         اسم الأم (للمستخدمين من الأنساب)
                                                     </label>
-                                                    <input type="text" name="mother_name"
-                                                        value="{{ old('mother_name') }}" placeholder="ينتهي باسم السريع"
+                                                    <input type="text" name="mother_name" value="{{ old('mother_name') }}"
+                                                        placeholder="ينتهي باسم السريع"
                                                         class="w-full px-3 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-gray-800 text-sm focus:ring-2 focus:ring-green-200 focus:border-green-500">
                                                     <input type="hidden" name="is_from_ancestry" value="1">
                                                 </div>
@@ -613,7 +610,29 @@
                                                         الإجابة <span class="text-red-500">*</span>
                                                     </label>
 
-                                                    @if ($q->answer_type === 'multiple_choice' && $q->choices->count() > 0)
+                                                    @if ($q->answer_type === 'ordering' && $q->choices->count() > 0)
+                                                        <p class="text-xs text-green-700 font-medium mb-2">
+                                                            <i class="fas fa-info-circle mr-1"></i>
+                                                            قم بسحب وإفلات الخيارات لترتيبها بشكل صحيح
+                                                        </p>
+                                                        @php
+                                                            // نتأكد أن الترتيب عشوائي
+                                                            $shuffledChoices = clone $q->choices;
+                                                            $shuffledChoices = $shuffledChoices->shuffle();
+                                                        @endphp
+                                                        <div class="space-y-2 sortable-list" data-question-id="{{ $q->id }}">
+                                                            @foreach ($shuffledChoices as $choice)
+                                                                <div data-id="{{ $choice->id }}"
+                                                                    class="flex items-center gap-3 p-3 rounded-xl border-2 border-gray-200 bg-white hover:border-green-300 cursor-move transition-all sortable-item select-none shadow-sm">
+                                                                    <i class="fas fa-grip-lines text-gray-400"></i>
+                                                                    <span
+                                                                        class="text-gray-800 text-sm font-medium flex-grow">{{ $choice->choice_text }}</span>
+                                                                    <input type="hidden" name="answer[]" value="{{ $choice->id }}"
+                                                                        class="ordering-input-hidden">
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
+                                                    @elseif ($q->answer_type === 'multiple_choice' && $q->choices->count() > 0)
                                                         @if($q->is_multiple_selections)
                                                             @php
                                                                 $requiredCount = $q->getRequiredCorrectAnswersCount();
@@ -628,12 +647,10 @@
                                                                 <label
                                                                     class="flex items-center gap-3 p-3 rounded-xl border-2 border-gray-200 bg-white hover:border-green-300 hover:bg-green-50/50 cursor-pointer transition-all has-[:checked]:border-green-500 has-[:checked]:bg-green-50">
                                                                     @if($q->is_multiple_selections)
-                                                                        <input type="checkbox" name="answer[]"
-                                                                            value="{{ $choice->id }}"
+                                                                        <input type="checkbox" name="answer[]" value="{{ $choice->id }}"
                                                                             class="w-4 h-4 text-green-600 home-quiz-checkbox">
                                                                     @else
-                                                                        <input type="radio" name="answer"
-                                                                            value="{{ $choice->id }}"
+                                                                        <input type="radio" name="answer" value="{{ $choice->id }}"
                                                                             class="w-4 h-4 text-green-600" required>
                                                                     @endif
                                                                     <span
@@ -721,11 +738,12 @@
 
             </div>
         </section>
-    @endif {{-- /quiz section --}}
+    @endif
+    {{-- /quiz section --}}
 
     {{-- ================================================================
-     DYNAMIC SECTIONS – Universal renderer
-     ================================================================ --}}
+    DYNAMIC SECTIONS – Universal renderer
+    ================================================================ --}}
     @if (isset($dynamicSections) && $dynamicSections->count() > 0)
         @foreach ($dynamicSections as $section)
             @php
@@ -768,8 +786,8 @@
             @endphp
 
             @if ($section->items->count() > 0)
-                <section class="py-3 md:py-6 lg:py-8 {{ $section->css_classes ?? '' }} relative overflow-hidden"
-                    @if ($sectionStyle) style="{{ $sectionStyle }}" @endif>
+                <section class="py-3 md:py-6 lg:py-8 {{ $section->css_classes ?? '' }} relative overflow-hidden" @if ($sectionStyle)
+                style="{{ $sectionStyle }}" @endif>
                     <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
 
                         @if ($showTitle && $section->title)
@@ -785,7 +803,8 @@
                                 @endif
                                 @if ($description)
                                     <p class="text-xs md:text-sm text-gray-400 mt-1 max-w-2xl" style="text-align:right;">
-                                        {{ $description }}</p>
+                                        {{ $description }}
+                                    </p>
                                 @endif
                             </div>
                         @endif
@@ -804,8 +823,8 @@
     @endif
 
     {{-- ================================================================
-     GALLERY – "اخترنا لك"
-     ================================================================ --}}
+    GALLERY – "اخترنا لك"
+    ================================================================ --}}
     {{-- <section class="py-3 md:py-6 lg:py-8 bg-gradient-to-br from-gray-50 to-green-50/50 relative overflow-hidden">
         <div class="absolute bottom-0 left-0 w-48 h-48 bg-emerald-100 rounded-full blur-3xl opacity-30"></div>
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
@@ -815,67 +834,65 @@
             </div>
 
             @if ($latestGalleryImages->count() > 0)
-                <div class="swiper gallerySwiper">
-                    <div class="swiper-wrapper">
-                        @foreach ($latestGalleryImages as $img)
-                            @php
-                                $imgSrc =
-                                    $img->image_url ??
-                                    ((isset($img->image_path) ? asset('storage/' . $img->image_path) : null) ??
-                                        (isset($img->path) ? asset('storage/' . $img->path) : ''));
-                            @endphp
-                            <div class="swiper-slide">
-                                <div class="relative group overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer gallery-item
-                                        {{ isset($img->is_active) && !$img->is_active && Auth::check() ? 'opacity-60 grayscale' : '' }}"
-                                    data-media-type="{{ $img->media_type ?? 'image' }}"
-                                    data-image-url="{{ $imgSrc }}"
-                                    data-youtube-url="{{ $img->youtube_url ?? '' }}"
-                                    data-image-name="{{ $img->name ?? 'صورة' }}"
-                                    data-category-name="{{ $img->category->name ?? '' }}">
+            <div class="swiper gallerySwiper">
+                <div class="swiper-wrapper">
+                    @foreach ($latestGalleryImages as $img)
+                    @php
+                    $imgSrc =
+                    $img->image_url ??
+                    ((isset($img->image_path) ? asset('storage/' . $img->image_path) : null) ??
+                    (isset($img->path) ? asset('storage/' . $img->path) : ''));
+                    @endphp
+                    <div class="swiper-slide">
+                        <div class="relative group overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer gallery-item
+                                                {{ isset($img->is_active) && !$img->is_active && Auth::check() ? 'opacity-60 grayscale' : '' }}"
+                            data-media-type="{{ $img->media_type ?? 'image' }}" data-image-url="{{ $imgSrc }}"
+                            data-youtube-url="{{ $img->youtube_url ?? '' }}" data-image-name="{{ $img->name ?? 'صورة' }}"
+                            data-category-name="{{ $img->category->name ?? '' }}">
 
-                                    @if ($imgSrc)
-                                        <img src="{{ $imgSrc }}" alt="{{ $img->name ?? 'صورة' }}"
-                                            class="w-full h-32 md:h-40 lg:h-48 object-cover transition-transform duration-500 group-hover:scale-110">
+                            @if ($imgSrc)
+                            <img src="{{ $imgSrc }}" alt="{{ $img->name ?? 'صورة' }}"
+                                class="w-full h-32 md:h-40 lg:h-48 object-cover transition-transform duration-500 group-hover:scale-110">
+                            @endif
+
+                            @if (isset($img->is_active) && !$img->is_active && Auth::check())
+                            <div class="absolute top-2 right-2 z-10">
+                                <span
+                                    class="bg-yellow-500 text-white text-[8px] px-1.5 py-0.5 rounded-full font-bold">معطل</span>
+                            </div>
+                            @endif
+
+                            <div
+                                class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <div class="absolute bottom-2 right-2 left-2">
+                                    <p class="text-white text-xs md:text-sm font-bold truncate drop-shadow-lg">
+                                        {{ $img->name ?? 'صورة' }}</p>
+                                    @if ($img->category)
+                                    <p class="text-white/90 text-xs mt-0.5">{{ $img->category->name }}</p>
                                     @endif
-
-                                    @if (isset($img->is_active) && !$img->is_active && Auth::check())
-                                        <div class="absolute top-2 right-2 z-10">
-                                            <span
-                                                class="bg-yellow-500 text-white text-[8px] px-1.5 py-0.5 rounded-full font-bold">معطل</span>
-                                        </div>
-                                    @endif
-
-                                    <div
-                                        class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                        <div class="absolute bottom-2 right-2 left-2">
-                                            <p class="text-white text-xs md:text-sm font-bold truncate drop-shadow-lg">
-                                                {{ $img->name ?? 'صورة' }}</p>
-                                            @if ($img->category)
-                                                <p class="text-white/90 text-xs mt-0.5">{{ $img->category->name }}</p>
-                                            @endif
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
-                        @endforeach
+                        </div>
                     </div>
-                    <div class="swiper-button-next gallery-next"></div>
-                    <div class="swiper-button-prev gallery-prev"></div>
-                    <div class="swiper-pagination gallery-pagination"></div>
+                    @endforeach
                 </div>
+                <div class="swiper-button-next gallery-next"></div>
+                <div class="swiper-button-prev gallery-prev"></div>
+                <div class="swiper-pagination gallery-pagination"></div>
+            </div>
             @else
-                <div class="text-center py-8">
-                    <i class="fas fa-images text-gray-300 text-4xl mb-3"></i>
-                    <p class="text-gray-500 text-sm md:text-base">لا توجد صور متاحة حالياً</p>
-                </div>
+            <div class="text-center py-8">
+                <i class="fas fa-images text-gray-300 text-4xl mb-3"></i>
+                <p class="text-gray-500 text-sm md:text-base">لا توجد صور متاحة حالياً</p>
+            </div>
             @endif
 
         </div>
     </section> --}}
 
     {{-- ================================================================
-     FAMILY NEWS
-     ================================================================ --}}
+    FAMILY NEWS
+    ================================================================ --}}
     @if ($familyNews && $familyNews->count() > 0)
         <section class="py-3 md:py-6 lg:py-8 bg-white relative overflow-hidden">
             <div class="absolute top-0 left-0 w-48 h-48 bg-blue-100 rounded-full blur-3xl opacity-20"></div>
@@ -889,9 +906,8 @@
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
                     @foreach ($familyNews as $news)
-                        <a href="{{ route('family-news.show', $news->id) }}"
-                            class="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 bg-white card-hover
-                          {{ !$news->is_active && Auth::check() ? 'opacity-60 grayscale' : '' }}">
+                        <a href="{{ route('family-news.show', $news->id) }}" class="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 bg-white card-hover
+                                                  {{ !$news->is_active && Auth::check() ? 'opacity-60 grayscale' : '' }}">
 
                             @if ($news->main_image_url)
                                 <div class="relative h-36 md:h-48 overflow-hidden">
@@ -911,8 +927,7 @@
                                             </span>
                                         </div>
                                     @endif
-                                    <div
-                                        class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent">
                                     </div>
                                 </div>
                             @else
@@ -956,8 +971,8 @@
     @endif
 
     {{-- ================================================================
-     FAMILY COUNCILS
-     ================================================================ --}}
+    FAMILY COUNCILS
+    ================================================================ --}}
     <section class="py-2 md:py-4 lg:py-6 bg-white mobile-section">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
 
@@ -992,8 +1007,7 @@
                                             onclick="toggleCouncilDescription({{ $council->id }})">
                                             <td class="px-2 py-1.5 md:px-3 md:py-2 text-right" dir="ltr">
                                                 <div class="flex items-center justify-end gap-1">
-                                                    <span
-                                                        class="text-xs font-semibold text-gray-900">{{ $council->name }}</span>
+                                                    <span class="text-xs font-semibold text-gray-900">{{ $council->name }}</span>
                                                     <i class="fas fa-building text-green-600 ml-1.5 text-xs"></i>
                                                     @if ($council->description)
                                                         <i
@@ -1027,8 +1041,7 @@
                                             </td>
                                         </tr>
                                         @if ($council->description)
-                                            <tr
-                                                class="council-description-row council-description-{{ $council->id }} hidden">
+                                            <tr class="council-description-row council-description-{{ $council->id }} hidden">
                                                 <td colspan="3" class="px-2 py-0 md:px-3">
                                                     <div
                                                         class="council-description-content max-h-0 overflow-hidden transition-all duration-500 ease-in-out">
@@ -1038,12 +1051,12 @@
                                                                 <i
                                                                     class="fas fa-info-circle text-green-600 text-sm flex-shrink-0 mt-0.5"></i>
                                                                 <div>
-                                                                    <h4
-                                                                        class="text-xs md:text-sm font-semibold text-gray-800 mb-1.5">
+                                                                    <h4 class="text-xs md:text-sm font-semibold text-gray-800 mb-1.5">
                                                                         نبذة عن {{ $council->name }}</h4>
                                                                     <p
                                                                         class="text-xs text-gray-700 leading-relaxed whitespace-pre-line">
-                                                                        {{ $council->description }}</p>
+                                                                        {{ $council->description }}
+                                                                    </p>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -1068,8 +1081,8 @@
     </section>
 
     {{-- ================================================================
-     FAMILY EVENTS – مناسبات العائلة
-     ================================================================ --}}
+    FAMILY EVENTS – مناسبات العائلة
+    ================================================================ --}}
     <section class="py-2 md:py-4 lg:py-6 bg-white mobile-section">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
 
@@ -1128,8 +1141,7 @@
                                             <td
                                                 class="px-2 py-1.5 md:px-3 md:py-2 whitespace-nowrap text-xs font-medium text-right">
                                                 @if ($event->location)
-                                                    <a href="{{ $event->location }}" target="_blank"
-                                                        rel="noopener noreferrer"
+                                                    <a href="{{ $event->location }}" target="_blank" rel="noopener noreferrer"
                                                         class="inline-flex items-center text-blue-600 hover:text-blue-800 group"
                                                         onclick="event.stopPropagation();"
                                                         title="{{ $event->location_name ?? 'فتح الموقع على الخريطة' }}">
@@ -1157,8 +1169,7 @@
                                             </td>
                                         </tr>
                                         @if ($event->description)
-                                            <tr
-                                                class="event-description-row event-description-{{ $event->id }} hidden">
+                                            <tr class="event-description-row event-description-{{ $event->id }} hidden">
                                                 <td colspan="4" class="px-2 py-0 md:px-3">
                                                     <div
                                                         class="event-description-content max-h-0 overflow-hidden transition-all duration-500 ease-in-out">
@@ -1168,12 +1179,12 @@
                                                                 <i
                                                                     class="fas fa-info-circle text-green-600 text-sm flex-shrink-0 mt-0.5"></i>
                                                                 <div>
-                                                                    <h4
-                                                                        class="text-xs md:text-sm font-semibold text-gray-800 mb-1.5">
+                                                                    <h4 class="text-xs md:text-sm font-semibold text-gray-800 mb-1.5">
                                                                         نبذة عن {{ $event->title }}</h4>
                                                                     <p
                                                                         class="text-xs text-gray-700 leading-relaxed whitespace-pre-line">
-                                                                        {{ $event->description }}</p>
+                                                                        {{ $event->description }}
+                                                                    </p>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -1198,8 +1209,8 @@
     </section>
 
     {{-- ================================================================
-     FAMILY PROGRAMS
-     ================================================================ --}}
+    FAMILY PROGRAMS
+    ================================================================ --}}
     <section class="py-3 md:py-6 lg:py-8 bg-gradient-to-br from-green-50 to-emerald-50 relative overflow-hidden">
         <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-200 rounded-full blur-3xl opacity-20"></div>
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
@@ -1214,7 +1225,7 @@
                     @foreach ($programs as $program)
                         <a href="{{ route('programs.show', $program) }}"
                             class="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 bg-white card-hover
-                              {{ !$program->program_is_active && Auth::check() ? 'opacity-60 grayscale' : '' }}">
+                                                      {{ !$program->program_is_active && Auth::check() ? 'opacity-60 grayscale' : '' }}">
                             <div class="aspect-square p-1.5 md:p-2">
                                 <img src="{{ asset('storage/' . $program->path) }}"
                                     alt="{{ $program->program_title ?? ($program->name ?? 'برنامج') }}"
@@ -1222,8 +1233,7 @@
                             </div>
                             @if (!$program->program_is_active && Auth::check())
                                 <div class="absolute top-2 right-2 z-10">
-                                    <span
-                                        class="bg-yellow-500 text-white text-[8px] px-1.5 py-0.5 rounded-full font-bold">معطل</span>
+                                    <span class="bg-yellow-500 text-white text-[8px] px-1.5 py-0.5 rounded-full font-bold">معطل</span>
                                 </div>
                             @endif
                             <div
@@ -1248,53 +1258,53 @@
     </section>
 
     {{-- ================================================================
-     PROUD OF
-     ================================================================ --}}
+    PROUD OF
+    ================================================================ --}}
     <!-- @if ($proudOf && $proudOf->count() > 0)
-        <section class="py-3 md:py-6 lg:py-8 bg-gradient-to-br from-green-50 to-emerald-50 relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-200 rounded-full blur-3xl opacity-20"></div>
-            <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
+                <section class="py-3 md:py-6 lg:py-8 bg-gradient-to-br from-green-50 to-emerald-50 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-200 rounded-full blur-3xl opacity-20"></div>
+                    <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
 
-                <div class="text-right mb-3 md:mb-5">
-                    <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">نفخر بهم</h2>
-                    <p class="text-gray-600 text-xs md:text-sm mt-1">إنجازات وإبداعات مميزة</p>
-                </div>
+                        <div class="text-right mb-3 md:mb-5">
+                            <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">نفخر بهم</h2>
+                            <p class="text-gray-600 text-xs md:text-sm mt-1">إنجازات وإبداعات مميزة</p>
+                        </div>
 
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1.5 md:gap-2.5">
-                    @foreach ($proudOf as $item)
-                        <a href="{{ route('programs.show', $item) }}"
-                            class="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 bg-white card-hover
-                          {{ !$item->proud_of_is_active && Auth::check() ? 'opacity-60 grayscale' : '' }}">
-                            <div class="aspect-square p-1.5 md:p-2">
-                                <img src="{{ asset('storage/' . $item->path) }}"
-                                    alt="{{ $item->proud_of_title ?? ($item->name ?? 'عنصر') }}"
-                                    class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
-                            </div>
-                            @if (!$item->proud_of_is_active && Auth::check())
-                                <div class="absolute top-2 right-2 z-10">
-                                    <span
-                                        class="bg-yellow-500 text-white text-[8px] px-1.5 py-0.5 rounded-full font-bold">معطل</span>
-                                </div>
-                            @endif
-                            <div
-                                class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                <div class="absolute bottom-2 right-2 left-2 text-center">
-                                    <p class="text-white text-xs md:text-sm font-bold line-clamp-2 drop-shadow-lg">
-                                        {{ $item->proud_of_title ?? ($item->name ?? 'عنصر') }}
-                                    </p>
-                                </div>
-                            </div>
-                        </a>
-                    @endforeach
-                </div>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1.5 md:gap-2.5">
+                            @foreach ($proudOf as $item)
+                                <a href="{{ route('programs.show', $item) }}"
+                                    class="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 bg-white card-hover
+                                  {{ !$item->proud_of_is_active && Auth::check() ? 'opacity-60 grayscale' : '' }}">
+                                    <div class="aspect-square p-1.5 md:p-2">
+                                        <img src="{{ asset('storage/' . $item->path) }}"
+                                            alt="{{ $item->proud_of_title ?? ($item->name ?? 'عنصر') }}"
+                                            class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
+                                    </div>
+                                    @if (!$item->proud_of_is_active && Auth::check())
+                                        <div class="absolute top-2 right-2 z-10">
+                                            <span
+                                                class="bg-yellow-500 text-white text-[8px] px-1.5 py-0.5 rounded-full font-bold">معطل</span>
+                                        </div>
+                                    @endif
+                                    <div
+                                        class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        <div class="absolute bottom-2 right-2 left-2 text-center">
+                                            <p class="text-white text-xs md:text-sm font-bold line-clamp-2 drop-shadow-lg">
+                                                {{ $item->proud_of_title ?? ($item->name ?? 'عنصر') }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </a>
+                            @endforeach
+                        </div>
 
-            </div>
-        </section>
-    @endif -->
+                    </div>
+                </section>
+            @endif -->
 
     {{-- ================================================================
-     ACADEMIC DEGREES – Graduates
-     ================================================================ --}}
+    ACADEMIC DEGREES – Graduates
+    ================================================================ --}}
     @php
         $bachelorGraduates = $latestGraduates->where('degree_type', 'bachelor')->take(10);
         $masterGraduates = $latestGraduates->where('degree_type', 'master')->take(10);
@@ -1305,9 +1315,10 @@
     @endphp
 
     @if (
-        (isset($bachelorTotalCount) && $bachelorTotalCount > 0) ||
+            (isset($bachelorTotalCount) && $bachelorTotalCount > 0) ||
             (isset($masterTotalCount) && $masterTotalCount > 0) ||
-            (isset($phdTotalCount) && $phdTotalCount > 0))
+            (isset($phdTotalCount) && $phdTotalCount > 0)
+        )
         <section class="py-3 md:py-6 lg:py-8 bg-white relative overflow-hidden">
             <div class="absolute bottom-0 right-0 w-64 h-64 bg-yellow-100 rounded-full blur-3xl opacity-20"></div>
             <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
@@ -1373,8 +1384,8 @@
     @endif
 
     {{-- ================================================================
-     COURSES – أكاديمية السريع
-     ================================================================ --}}
+    COURSES – أكاديمية السريع
+    ================================================================ --}}
     <section class="py-3 md:py-6 lg:py-8 bg-gradient-to-br from-gray-50 to-green-50/50 relative overflow-hidden">
         <div class="absolute top-0 left-0 w-64 h-64 bg-green-200 rounded-full blur-3xl opacity-20"></div>
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
@@ -1392,7 +1403,7 @@
                             <div class="swiper-slide">
                                 <div
                                     class="glass-card rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 h-full flex flex-col
-                                        {{ !$course->is_active && Auth::check() ? 'opacity-60 grayscale' : '' }}">
+                                                                {{ !$course->is_active && Auth::check() ? 'opacity-60 grayscale' : '' }}">
 
                                     <div class="relative h-32 md:h-36 gradient-primary overflow-hidden">
                                         @if ($course->image_url)
@@ -1400,8 +1411,7 @@
                                                 class="w-full h-full object-cover">
                                         @else
                                             <div class="absolute inset-0 flex items-center justify-center">
-                                                <i
-                                                    class="fas fa-book-open text-white text-4xl opacity-30 animate-float"></i>
+                                                <i class="fas fa-book-open text-white text-4xl opacity-30 animate-float"></i>
                                             </div>
                                         @endif
                                         @if (!$course->is_active && Auth::check())
@@ -1414,9 +1424,11 @@
 
                                     <div class="p-2.5 md:p-3 flex-1 flex flex-col">
                                         <h3 class="text-sm md:text-base font-bold text-gray-800 mb-1 line-clamp-2">
-                                            {{ $course->title }}</h3>
+                                            {{ $course->title }}
+                                        </h3>
                                         <p class="text-gray-600 text-xs mb-2 line-clamp-2 flex-1">
-                                            {{ $course->description ?? 'دورة تدريبية متميزة' }}</p>
+                                            {{ $course->description ?? 'دورة تدريبية متميزة' }}
+                                        </p>
 
                                         <div class="space-y-0.5 mb-2">
                                             @if ($course->instructor)
@@ -1471,8 +1483,8 @@
     </section>
 
     {{-- ================================================================
-     GALLERY MODAL
-     ================================================================ --}}
+    GALLERY MODAL
+    ================================================================ --}}
     <div id="galleryModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/95 backdrop-blur-sm"
         style="display:none;">
         <div class="relative w-full h-full flex items-center justify-center p-2 md:p-4">
@@ -1521,11 +1533,14 @@
 @endsection
 
 @push('scripts')
+    <!-- SortableJS for Drag and Drop Ordering -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+
     <script>
         /* ================================================================
        SWIPERS
        ================================================================ */
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             var totalSlides = {{ $latestImages->count() ?? 0 }};
             var totalImages = {{ $latestGalleryImages->count() ?? 0 }};
             var totalCourses = {{ $courses->count() ?? 0 }};
@@ -1560,7 +1575,7 @@
             }
 
             // Gallery & Courses – wait one frame so Swiper gets correct dimensions
-            var initSwipers = function() {
+            var initSwipers = function () {
                 if (totalImages > 0 && typeof Swiper !== 'undefined' && document.querySelector(
                     '.gallerySwiper')) {
                     new Swiper('.gallerySwiper', {
@@ -1597,7 +1612,7 @@
                     });
                 }
                 if (totalCourses > 0 && typeof Swiper !== 'undefined' && document.querySelector(
-                        '.coursesSwiper')) {
+                    '.coursesSwiper')) {
                     new Swiper('.coursesSwiper', {
                         slidesPerView: 1,
                         spaceBetween: 20,
@@ -1631,7 +1646,7 @@
 
             requestAnimationFrame
                 ?
-                requestAnimationFrame(function() {
+                requestAnimationFrame(function () {
                     setTimeout(initSwipers, 50);
                 }) :
                 setTimeout(initSwipers, 100);
@@ -1649,14 +1664,14 @@
             var isHidden = row.classList.contains('hidden');
             if (isHidden) {
                 row.classList.remove('hidden');
-                setTimeout(function() {
+                setTimeout(function () {
                     content.style.maxHeight = content.scrollHeight + 'px';
                 }, 10);
                 if (chevron) chevron.style.transform = 'rotate(180deg)';
             } else {
                 content.style.maxHeight = '0';
                 if (chevron) chevron.style.transform = 'rotate(0deg)';
-                setTimeout(function() {
+                setTimeout(function () {
                     row.classList.add('hidden');
                 }, 500);
             }
@@ -1674,7 +1689,7 @@
            EVENTS – Day countdown
            ================================================================ */
         function updateEventCountdowns() {
-            document.querySelectorAll('[class*="event-countdown-"]').forEach(function(el) {
+            document.querySelectorAll('[class*="event-countdown-"]').forEach(function (el) {
                 var dateStr = el.getAttribute('data-event-date');
                 if (!dateStr) return;
                 var diff = new Date(dateStr) - new Date();
@@ -1692,7 +1707,7 @@
         /* ================================================================
            GALLERY MODAL
            ================================================================ */
-        var Gallery = (function() {
+        var Gallery = (function () {
             var modal = document.getElementById('galleryModal');
             var imageWrapper = document.getElementById('galleryModalImageContainer');
             var videoWrapper = document.getElementById('galleryModalVideoContainer');
@@ -1756,9 +1771,9 @@
             }
 
             // Bind events after DOM ready
-            document.addEventListener('DOMContentLoaded', function() {
-                document.querySelectorAll('.gallery-item').forEach(function(item) {
-                    item.addEventListener('click', function() {
+            document.addEventListener('DOMContentLoaded', function () {
+                document.querySelectorAll('.gallery-item').forEach(function (item) {
+                    item.addEventListener('click', function () {
                         open(this);
                     });
                 });
@@ -1766,22 +1781,22 @@
                 document.getElementById('closeGalleryModal')
                     .addEventListener('click', close);
 
-                modal.addEventListener('click', function(e) {
+                modal.addEventListener('click', function (e) {
                     if (e.target === modal) close();
                 });
 
-                document.addEventListener('keydown', function(e) {
+                document.addEventListener('keydown', function (e) {
                     if (e.key === 'Escape') close();
                 });
 
                 // Swipe-down to close
                 var sy = 0;
-                modal.addEventListener('touchstart', function(e) {
+                modal.addEventListener('touchstart', function (e) {
                     sy = e.changedTouches[0].screenY;
                 }, {
                     passive: true
                 });
-                modal.addEventListener('touchend', function(e) {
+                modal.addEventListener('touchend', function (e) {
                     if (sy - e.changedTouches[0].screenY > 100) close();
                 }, {
                     passive: true
@@ -1798,7 +1813,7 @@
            QUIZ – Next event countdown  (بدون reload – AJAX عند الانتهاء)
            ================================================================ */
         @if (isset($nextQuizEvent) && $nextQuizEvent)
-            (function() {
+            (function () {
                 var el = document.getElementById('quizCountdownTarget');
                 if (!el) return;
 
@@ -1808,7 +1823,7 @@
                 var timer;
 
                 function zeroAll() {
-                    ids.forEach(function(id) {
+                    ids.forEach(function (id) {
                         var node = document.getElementById('countdown-' + id);
                         if (node) node.textContent = '0';
                     });
@@ -1830,15 +1845,15 @@
                     }
 
                     fetch(window.location.href, {
-                            headers: {
-                                'X-Requested-With': 'XMLHttpRequest',
-                                'Accept': 'text/html'
-                            }
-                        })
-                        .then(function(res) {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'text/html'
+                        }
+                    })
+                        .then(function (res) {
                             return res.text();
                         })
-                        .then(function(html) {
+                        .then(function (html) {
                             var parser = new DOMParser();
                             var doc = parser.parseFromString(html, 'text/html');
                             var newActive = doc.getElementById('activeQuizSection');
@@ -1867,7 +1882,7 @@
                                 setTimeout(fetchActiveQuiz, 10000);
                             }
                         })
-                        .catch(function() {
+                        .catch(function () {
                             setTimeout(fetchActiveQuiz, 15000);
                         });
                 }
@@ -1889,7 +1904,7 @@
                     var m = Math.floor((diff % 3600000) / 60000);
                     var s = Math.floor((diff % 60000) / 1000);
 
-                    [d, h, m, s].forEach(function(val, i) {
+                    [d, h, m, s].forEach(function (val, i) {
                         var node = document.getElementById('countdown-' + ids[i]);
                         if (node) node.textContent = val;
                     });
@@ -1900,37 +1915,37 @@
             })();
         @endif
 
-        /* ================================================================
-           QUIZ – Active competition helpers
-           (دوال global عشان AJAX يقدر يستدعيها بعد حقن HTML جديد)
-           ================================================================ */
+            /* ================================================================
+               QUIZ – Active competition helpers
+               (دوال global عشان AJAX يقدر يستدعيها بعد حقن HTML جديد)
+               ================================================================ */
 
-        /* عداد h:m:s لنهاية المسابقة الفعلية */
-        function startActiveQuizTimer(endTimestamp) {
-            function pad(n) {
-                return n.toString().padStart(2, '0');
-            }
-
-            function tick() {
-                var diff = endTimestamp - Date.now();
-                var hEl = document.getElementById('aq-hours');
-                var mEl = document.getElementById('aq-minutes');
-                var sEl = document.getElementById('aq-seconds');
-                if (!hEl) return; // العنصر اتشال من DOM
-                if (diff <= 0) {
-                    hEl.textContent = '00';
-                    mEl.textContent = '00';
-                    sEl.textContent = '00';
-                    window.location.reload(); // انتهاء المسابقة الفعلية → reload
-                    return;
+            /* عداد h:m:s لنهاية المسابقة الفعلية */
+            function startActiveQuizTimer(endTimestamp) {
+                function pad(n) {
+                    return n.toString().padStart(2, '0');
                 }
-                hEl.textContent = pad(Math.floor(diff / 3600000));
-                mEl.textContent = pad(Math.floor((diff % 3600000) / 60000));
-                sEl.textContent = pad(Math.floor((diff % 60000) / 1000));
+
+                function tick() {
+                    var diff = endTimestamp - Date.now();
+                    var hEl = document.getElementById('aq-hours');
+                    var mEl = document.getElementById('aq-minutes');
+                    var sEl = document.getElementById('aq-seconds');
+                    if (!hEl) return; // العنصر اتشال من DOM
+                    if (diff <= 0) {
+                        hEl.textContent = '00';
+                        mEl.textContent = '00';
+                        sEl.textContent = '00';
+                        window.location.reload(); // انتهاء المسابقة الفعلية → reload
+                        return;
+                    }
+                    hEl.textContent = pad(Math.floor(diff / 3600000));
+                    mEl.textContent = pad(Math.floor((diff % 3600000) / 60000));
+                    sEl.textContent = pad(Math.floor((diff % 60000) / 1000));
+                }
+                tick();
+                setInterval(tick, 1000);
             }
-            tick();
-            setInterval(tick, 1000);
-        }
 
         /* عداد الثواني حتى ظهور نص الأسئلة */
         function startRevealCountdown(visibleAtTimestamp) {
@@ -1946,7 +1961,7 @@
                 block.style.display = '';
             }
 
-            var iv = setInterval(function() {
+            var iv = setInterval(function () {
                 var remaining = Math.ceil((visibleAtTimestamp - Date.now()) / 1000);
                 if (remaining <= 0) {
                     clearInterval(iv);
@@ -1968,7 +1983,7 @@
 
         /* تشغيل عند تحميل الصفحة لو المسابقة موجودة أصلاً من السيرفر */
         @if (isset($activeQuizCompetition) && $activeQuizCompetition)
-            (function() {
+            (function () {
                 var endInput = document.getElementById('aqEndTime');
                 if (endInput) startActiveQuizTimer(parseInt(endInput.value, 10));
 
@@ -1982,17 +1997,17 @@
 
         function validateHomeQuiz(event, buttonElement) {
             const form = buttonElement.closest('form');
-            if(!form) return;
+            if (!form) return;
 
             const requiredCountInput = form.querySelector('.required-choices-count');
-            
+
             if (requiredCountInput) {
                 const requiredCount = parseInt(requiredCountInput.value);
                 const checkedBoxes = form.querySelectorAll('input[type="checkbox"][name="answer[]"]:checked');
-                
+
                 if (checkedBoxes.length !== requiredCount) {
                     event.preventDefault(); // Prevent native submission
-                    
+
                     Swal.fire({
                         icon: 'warning',
                         title: 'تنبيه',
@@ -2003,12 +2018,12 @@
                     return false;
                 }
             }
-            
+
             // Allow native form submission validation to continue
             return true;
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Checkbox limits constraint listener
             function attachCheckboxListeners() {
                 const forms = document.querySelectorAll('#activeQuizQuestionsBlock form');
@@ -2017,11 +2032,11 @@
                     if (requiredCountInput) {
                         const requiredCount = parseInt(requiredCountInput.value);
                         const checkboxes = form.querySelectorAll('input[type="checkbox"][name="answer[]"]');
-                        
+
                         checkboxes.forEach(cb => {
                             // Only add if not already added
                             if (!cb.hasAttribute('data-listener-attached')) {
-                                cb.addEventListener('change', function() {
+                                cb.addEventListener('change', function () {
                                     const checkedCount = form.querySelectorAll('input[type="checkbox"][name="answer[]"]:checked').length;
                                     if (checkedCount > requiredCount) {
                                         this.checked = false;
@@ -2048,13 +2063,31 @@
             // Run on load
             attachCheckboxListeners();
 
+            // Initialize SortableJS
+            function initSortables() {
+                const lists = document.querySelectorAll('.sortable-list:not(.sortable-initialized)');
+                lists.forEach(list => {
+                    new Sortable(list, {
+                        animation: 150,
+                        ghostClass: 'bg-green-50',
+                        onEnd: function (evt) {
+                            // Update the order of the hidden inputs to match the DOM order
+                            // which automatically happens because they are inside the dragged elements.
+                        }
+                    });
+                    list.classList.add('sortable-initialized');
+                });
+            }
+            initSortables();
+
             // Setup a MutationObserver to re-attach if AJAX replaces the content
             const observerTarget = document.getElementById('quizCountdownSection') || document.getElementById('activeQuizSection');
             if (observerTarget && observerTarget.parentNode) {
-                const observer = new MutationObserver(function(mutations) {
-                    mutations.forEach(function(mutation) {
+                const observer = new MutationObserver(function (mutations) {
+                    mutations.forEach(function (mutation) {
                         if (mutation.addedNodes.length > 0) {
                             attachCheckboxListeners();
+                            initSortables();
                         }
                     });
                 });

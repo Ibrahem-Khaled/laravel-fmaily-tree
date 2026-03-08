@@ -200,7 +200,7 @@ class QuizCompetitionPublicController extends Controller
             'mother_name' => 'nullable|string|max:255',
         ];
 
-        if ($quizQuestion->is_multiple_selections) {
+        if ($quizQuestion->is_multiple_selections || $quizQuestion->answer_type === 'ordering') {
             $rules['answer'] = 'required|array';
             $rules['answer.*'] = 'required|exists:quiz_question_choices,id';
         } elseif ($quizQuestion->answer_type === 'multiple_choice') {
@@ -226,7 +226,7 @@ class QuizCompetitionPublicController extends Controller
 
             // التحقق من وجود إجابة سابقة بنفس رقم الهاتف
             $existingAnswer = QuizAnswer::where('quiz_question_id', $quizQuestion->id)
-                ->whereHas('user', function($q) use ($validated) {
+                ->whereHas('user', function ($q) use ($validated) {
                     $q->where('phone', $validated['phone']);
                 })
                 ->latest()
@@ -266,16 +266,16 @@ class QuizCompetitionPublicController extends Controller
 
             if ($quizQuestion->answer_type === 'multiple_choice') {
                 $answerType = 'choice';
-                
+
                 if ($quizQuestion->is_multiple_selections) {
                     $selectedChoiceIds = $validated['answer']; // Array of ids
                     $correctChoiceIds = $quizQuestion->choices()->where('is_correct', true)->pluck('id')->toArray();
-                    
+
                     $selectedCorrectCount = 0;
                     $hasIncorrectChoice = false;
 
                     foreach ($selectedChoiceIds as $choiceId) {
-                        if (in_array((int)$choiceId, $correctChoiceIds)) {
+                        if (in_array((int) $choiceId, $correctChoiceIds)) {
                             $selectedCorrectCount++;
                         } else {
                             $hasIncorrectChoice = true;
@@ -292,6 +292,23 @@ class QuizCompetitionPublicController extends Controller
                     $isCorrect = $correctChoice && $correctChoice->id === $choiceId;
                     $answerData = (string) $validated['answer'];
                 }
+            } elseif ($quizQuestion->answer_type === 'ordering') {
+                $answerType = 'ordering';
+                $selectedChoiceIds = $validated['answer']; // Array of ids
+                $correctChoiceIds = $quizQuestion->choices()->orderBy('id')->pluck('id')->toArray();
+
+                $isCorrect = true;
+                if (count($selectedChoiceIds) !== count($correctChoiceIds)) {
+                    $isCorrect = false;
+                } else {
+                    foreach ($correctChoiceIds as $index => $correctId) {
+                        if ((int) $selectedChoiceIds[$index] !== (int) $correctId) {
+                            $isCorrect = false;
+                            break;
+                        }
+                    }
+                }
+                $answerData = json_encode($selectedChoiceIds);
             }
 
             // إنشاء إجابة جديدة دائماً
@@ -303,7 +320,7 @@ class QuizCompetitionPublicController extends Controller
                 'is_correct' => $isCorrect,
             ]);
 
-            if ($quizQuestion->is_multiple_selections && $quizQuestion->answer_type === 'multiple_choice') {
+            if (($quizQuestion->is_multiple_selections && $quizQuestion->answer_type === 'multiple_choice') || $quizQuestion->answer_type === 'ordering') {
                 $selectedChoiceIds = $validated['answer'];
                 foreach ($selectedChoiceIds as $choiceId) {
                     $quizAnswer->selectedChoices()->create([

@@ -22,11 +22,11 @@ class QuizQuestionController extends Controller
         $validated = $request->validate([
             'question_text' => 'required|string',
             'description' => 'nullable|string',
-            'answer_type' => 'required|in:multiple_choice,custom_text',
+            'answer_type' => 'required|in:multiple_choice,custom_text,ordering',
             'is_multiple_selections' => 'nullable|boolean',
             'winners_count' => 'required|integer|min:1',
             'display_order' => 'nullable|integer|min:0',
-            'choices' => 'required_if:answer_type,multiple_choice|array',
+            'choices' => 'required_if:answer_type,multiple_choice,ordering|array',
             'choices.*.text' => 'required_with:choices|string',
             'choices.*.is_correct' => 'nullable|boolean',
             'correct_choices' => 'nullable|array', // For multiple selections
@@ -46,16 +46,19 @@ class QuizQuestionController extends Controller
             'display_order' => $validated['display_order'] ?? 0,
         ]);
 
-        if ($validated['answer_type'] === 'multiple_choice' && !empty($validated['choices'])) {
+        if (in_array($validated['answer_type'], ['multiple_choice', 'ordering']) && !empty($validated['choices'])) {
             $choices = array_filter($validated['choices'], fn($c) => !empty(trim($c['text'] ?? '')));
-            
+
             $isMultiple = !empty($validated['is_multiple_selections']);
+            $isOrdering = $validated['answer_type'] === 'ordering';
             $correctChoicesKeys = $request->input('correct_choices', []);
 
             foreach ($choices as $index => $choice) {
                 $isCorrect = false;
-                if ($isMultiple) {
-                    $isCorrect = in_array((string)$index, $correctChoicesKeys);
+                if ($isOrdering) {
+                    $isCorrect = true; // For ordering, all saved choices are part of the correct order sequence
+                } elseif ($isMultiple) {
+                    $isCorrect = in_array((string) $index, $correctChoicesKeys);
                 } else {
                     $isCorrect = !empty($choice['is_correct']);
                 }
@@ -83,11 +86,11 @@ class QuizQuestionController extends Controller
         $validated = $request->validate([
             'question_text' => 'required|string',
             'description' => 'nullable|string',
-            'answer_type' => 'required|in:multiple_choice,custom_text',
+            'answer_type' => 'required|in:multiple_choice,custom_text,ordering',
             'is_multiple_selections' => 'nullable|boolean',
             'winners_count' => 'required|integer|min:1',
             'display_order' => 'nullable|integer|min:0',
-            'choices' => 'required_if:answer_type,multiple_choice|array',
+            'choices' => 'required_if:answer_type,multiple_choice,ordering|array',
             'choices.*.text' => 'required_with:choices|string',
             'choices.*.is_correct' => 'nullable|boolean',
             'correct_choices' => 'nullable|array',
@@ -107,17 +110,20 @@ class QuizQuestionController extends Controller
             'display_order' => $validated['display_order'] ?? 0,
         ]);
 
-        if ($validated['answer_type'] === 'multiple_choice' && !empty($validated['choices'])) {
+        if (in_array($validated['answer_type'], ['multiple_choice', 'ordering']) && !empty($validated['choices'])) {
             $quizQuestion->choices()->delete();
             $choices = array_filter($validated['choices'], fn($c) => !empty(trim($c['text'] ?? '')));
-            
+
             $isMultiple = !empty($validated['is_multiple_selections']);
+            $isOrdering = $validated['answer_type'] === 'ordering';
             $correctChoicesKeys = $request->input('correct_choices', []);
 
             foreach ($choices as $index => $choice) {
                 $isCorrect = false;
-                if ($isMultiple) {
-                    $isCorrect = in_array((string)$index, $correctChoicesKeys);
+                if ($isOrdering) {
+                    $isCorrect = true; // All ordering choices are technically "correct" parts of the sequence
+                } elseif ($isMultiple) {
+                    $isCorrect = in_array((string) $index, $correctChoicesKeys);
                 } else {
                     $isCorrect = !empty($choice['is_correct']);
                 }
