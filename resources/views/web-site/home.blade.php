@@ -5,8 +5,8 @@
 @push('styles')
     <style>
         /* ============================================================
-               SWIPER – Hero
-               ============================================================ */
+                   SWIPER – Hero
+                   ============================================================ */
         .heroSwiper {
             width: 100%;
             height: 100%;
@@ -75,8 +75,8 @@
         }
 
         /* ============================================================
-               SWIPER – Gallery & Courses (shared)
-               ============================================================ */
+                   SWIPER – Gallery & Courses (shared)
+                   ============================================================ */
         .gallerySwiper,
         .coursesSwiper {
             padding: 10px 35px 30px !important;
@@ -142,8 +142,8 @@
         }
 
         /* ============================================================
-               Gallery Modal Animations
-               ============================================================ */
+                   Gallery Modal Animations
+                   ============================================================ */
         #galleryModal {
             animation: fadeIn 0.3s ease-out;
         }
@@ -192,8 +192,8 @@
         }
 
         /* ============================================================
-               Quiz – Rich-text content (description & question)
-               ============================================================ */
+                   Quiz – Rich-text content (description & question)
+                   ============================================================ */
         .quiz-description,
         .question-text {
             direction: rtl;
@@ -274,8 +274,8 @@
         }
 
         /* ============================================================
-               Responsive overrides
-               ============================================================ */
+                   Responsive overrides
+                   ============================================================ */
         @media (max-width: 768px) {
 
             .heroSwiper .swiper-button-next,
@@ -570,7 +570,21 @@
                                             {!! $q->question_text !!}
                                         </div>
 
-                                        @if ($canAnswerThis)
+                                        @if ($activeQuizCompetition->show_draw_only)
+                                            <div
+                                                class="rounded-xl p-4 bg-green-50 border border-green-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                                                <p class="text-green-800 text-sm font-medium">
+                                                    <i class="fas fa-info-circle text-green-600 ml-1"></i>
+                                                    باب الإجابة مغلق حالياً، يمكنك متابعة فرز النتائج والقرعة من هنا.
+                                                </p>
+                                                <a href="{{ route('quiz-competitions.question', [$activeQuizCompetition, $q]) }}"
+                                                    class="flex-shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-white transition-all hover:opacity-90"
+                                                    style="background: linear-gradient(135deg, #22c55e, #16a34a);">
+                                                    <i class="fas fa-trophy"></i>
+                                                    متابعة القرعة
+                                                </a>
+                                            </div>
+                                        @elseif ($canAnswerThis)
                                             <form action="{{ route('quiz-competitions.store-answer', [$activeQuizCompetition, $q]) }}"
                                                 method="POST" class="space-y-4">
                                                 @csrf
@@ -845,7 +859,7 @@
                     @endphp
                     <div class="swiper-slide">
                         <div class="relative group overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer gallery-item
-                                                {{ isset($img->is_active) && !$img->is_active && Auth::check() ? 'opacity-60 grayscale' : '' }}"
+                                                    {{ isset($img->is_active) && !$img->is_active && Auth::check() ? 'opacity-60 grayscale' : '' }}"
                             data-media-type="{{ $img->media_type ?? 'image' }}" data-image-url="{{ $imgSrc }}"
                             data-youtube-url="{{ $img->youtube_url ?? '' }}" data-image-name="{{ $img->name ?? 'صورة' }}"
                             data-category-name="{{ $img->category->name ?? '' }}">
@@ -906,8 +920,9 @@
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
                     @foreach ($familyNews as $news)
-                        <a href="{{ route('family-news.show', $news->id) }}" class="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 bg-white card-hover
-                                                  {{ !$news->is_active && Auth::check() ? 'opacity-60 grayscale' : '' }}">
+                        <a href="{{ route('family-news.show', $news->id) }}"
+                            class="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 bg-white card-hover
+                                                              {{ !$news->is_active && Auth::check() ? 'opacity-60 grayscale' : '' }}">
 
                             @if ($news->main_image_url)
                                 <div class="relative h-36 md:h-48 overflow-hidden">
@@ -1225,7 +1240,7 @@
                     @foreach ($programs as $program)
                         <a href="{{ route('programs.show', $program) }}"
                             class="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 bg-white card-hover
-                                                      {{ !$program->program_is_active && Auth::check() ? 'opacity-60 grayscale' : '' }}">
+                                                                  {{ !$program->program_is_active && Auth::check() ? 'opacity-60 grayscale' : '' }}">
                             <div class="aspect-square p-1.5 md:p-2">
                                 <img src="{{ asset('storage/' . $program->path) }}"
                                     alt="{{ $program->program_title ?? ($program->name ?? 'برنامج') }}"
@@ -1261,46 +1276,46 @@
     PROUD OF
     ================================================================ --}}
     <!-- @if ($proudOf && $proudOf->count() > 0)
-                <section class="py-3 md:py-6 lg:py-8 bg-gradient-to-br from-green-50 to-emerald-50 relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-200 rounded-full blur-3xl opacity-20"></div>
-                    <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
+                    <section class="py-3 md:py-6 lg:py-8 bg-gradient-to-br from-green-50 to-emerald-50 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-200 rounded-full blur-3xl opacity-20"></div>
+                        <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
 
-                        <div class="text-right mb-3 md:mb-5">
-                            <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">نفخر بهم</h2>
-                            <p class="text-gray-600 text-xs md:text-sm mt-1">إنجازات وإبداعات مميزة</p>
-                        </div>
+                            <div class="text-right mb-3 md:mb-5">
+                                <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">نفخر بهم</h2>
+                                <p class="text-gray-600 text-xs md:text-sm mt-1">إنجازات وإبداعات مميزة</p>
+                            </div>
 
-                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1.5 md:gap-2.5">
-                            @foreach ($proudOf as $item)
-                                <a href="{{ route('programs.show', $item) }}"
-                                    class="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 bg-white card-hover
-                                  {{ !$item->proud_of_is_active && Auth::check() ? 'opacity-60 grayscale' : '' }}">
-                                    <div class="aspect-square p-1.5 md:p-2">
-                                        <img src="{{ asset('storage/' . $item->path) }}"
-                                            alt="{{ $item->proud_of_title ?? ($item->name ?? 'عنصر') }}"
-                                            class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
-                                    </div>
-                                    @if (!$item->proud_of_is_active && Auth::check())
-                                        <div class="absolute top-2 right-2 z-10">
-                                            <span
-                                                class="bg-yellow-500 text-white text-[8px] px-1.5 py-0.5 rounded-full font-bold">معطل</span>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1.5 md:gap-2.5">
+                                @foreach ($proudOf as $item)
+                                    <a href="{{ route('programs.show', $item) }}"
+                                        class="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 bg-white card-hover
+                                      {{ !$item->proud_of_is_active && Auth::check() ? 'opacity-60 grayscale' : '' }}">
+                                        <div class="aspect-square p-1.5 md:p-2">
+                                            <img src="{{ asset('storage/' . $item->path) }}"
+                                                alt="{{ $item->proud_of_title ?? ($item->name ?? 'عنصر') }}"
+                                                class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
                                         </div>
-                                    @endif
-                                    <div
-                                        class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                        <div class="absolute bottom-2 right-2 left-2 text-center">
-                                            <p class="text-white text-xs md:text-sm font-bold line-clamp-2 drop-shadow-lg">
-                                                {{ $item->proud_of_title ?? ($item->name ?? 'عنصر') }}
-                                            </p>
+                                        @if (!$item->proud_of_is_active && Auth::check())
+                                            <div class="absolute top-2 right-2 z-10">
+                                                <span
+                                                    class="bg-yellow-500 text-white text-[8px] px-1.5 py-0.5 rounded-full font-bold">معطل</span>
+                                            </div>
+                                        @endif
+                                        <div
+                                            class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                            <div class="absolute bottom-2 right-2 left-2 text-center">
+                                                <p class="text-white text-xs md:text-sm font-bold line-clamp-2 drop-shadow-lg">
+                                                    {{ $item->proud_of_title ?? ($item->name ?? 'عنصر') }}
+                                                </p>
+                                            </div>
                                         </div>
-                                    </div>
-                                </a>
-                            @endforeach
-                        </div>
+                                    </a>
+                                @endforeach
+                            </div>
 
-                    </div>
-                </section>
-            @endif -->
+                        </div>
+                    </section>
+                @endif -->
 
     {{-- ================================================================
     ACADEMIC DEGREES – Graduates
@@ -1403,7 +1418,7 @@
                             <div class="swiper-slide">
                                 <div
                                     class="glass-card rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 h-full flex flex-col
-                                                                {{ !$course->is_active && Auth::check() ? 'opacity-60 grayscale' : '' }}">
+                                                                            {{ !$course->is_active && Auth::check() ? 'opacity-60 grayscale' : '' }}">
 
                                     <div class="relative h-32 md:h-36 gradient-primary overflow-hidden">
                                         @if ($course->image_url)

@@ -257,31 +257,48 @@
                                     @if($question->description)
                                         <div class="text-muted mb-3 small quiz-description">{!! Str::limit(strip_tags($question->description), 150) !!}</div>
                                     @endif
-                                    <div class="row mb-3">
-                                        <div class="col-md-12">
-                                            <span class="badge badge-success badge-lg">عدد الفائزين: {{ $question->winners->count() }}</span>
+                                    <div class="row mb-3 align-items-center">
+                                        <div class="col-md-6">
+                                            <span class="badge badge-success badge-lg">عدد الفائزين الحالي: {{ $question->winners->count() }} / {{ $question->winners_count }}</span>
                                         </div>
+                                        <div class="col-md-6 text-right">
+                                            @if($question->winners->count() < $question->winners_count && $question->hasEnded() && $question->answers->where('is_correct', true)->count() > $question->winners->count())
+                                                <form action="{{ route('dashboard.quiz-questions.fill-winners', [$quizCompetition, $question]) }}" method="POST" class="d-inline">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-sm btn-info" title="اختيار فائزين عشوائياً للمقاعد الشاغرة فقط">
+                                                        <i class="fas fa-plus-circle mr-1"></i>إكمال الفائزين (شاغر: {{ $question->winners_count - $question->winners->count() }})
+                                                    </button>
+                                                </form>
+                                            @endif
+                                            
+                                            <form action="{{ route('dashboard.quiz-questions.select-winners', [$quizCompetition, $question]) }}" method="POST" class="d-inline ml-1" onsubmit="return confirm('سيتم حذف الفائزين الحاليين واختيار فائزين جدد عشوائياً. هل أنت متأكد؟');">
+                                                @csrf
+                                                <button type="submit" class="btn btn-sm btn-outline-warning" title="إعادة تصفير واختيار جميع الفائزين">
+                                                    <i class="fas fa-sync-alt mr-1"></i>إعادة اختيار الكل
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <div class="alert alert-info py-2 small">
+                                        <i class="fas fa-info-circle mr-1"></i> يمكنك سحب وإفلات الصفوف لتغيير ترتيب مراكز الفائزين يدوياً.
                                     </div>
                                     <div class="table-responsive">
                                         <table class="table table-sm table-hover">
                                             <thead>
                                                 <tr>
+                                                    <th style="width: 40px"></th>
                                                     <th>المركز</th>
                                                     <th>الاسم</th>
                                                     <th>رقم الهاتف</th>
                                                     <th>اسم الأم</th>
-                                                    <th>الإجابة</th>
-                                                    <th>تاريخ الإجابة</th>
                                                     <th>الإجراءات</th>
                                                 </tr>
                                             </thead>
-                                            <tbody>
+                                            <tbody class="sortable-winners" data-question-id="{{ $question->id }}">
                                                 @foreach($question->winners->sortBy('position') as $winner)
-                                                    @php
-                                                        $answer = $question->answers->where('user_id', $winner->user_id)->first();
-                                                    @endphp
-                                                    <tr>
-                                                        <td>
+                                                    <tr data-winner-id="{{ $winner->id }}">
+                                                        <td class="drag-handle" style="cursor: move;"><i class="fas fa-grip-vertical text-muted"></i></td>
+                                                        <td class="position-cell">
                                                             @if($winner->position == 1)
                                                                 <span class="badge badge-warning"><i class="fas fa-crown"></i> المركز الأول</span>
                                                             @elseif($winner->position == 2)
@@ -302,26 +319,7 @@
                                                             @endif
                                                         </td>
                                                         <td>
-                                                            @if($answer)
-                                                                @if($answer->answer_type === 'choice')
-                                                                    @php $choice = $question->choices->firstWhere('id', (int) $answer->answer); @endphp
-                                                                    {{ $choice ? $choice->choice_text : $answer->answer }}
-                                                                @else
-                                                                    {{ Str::limit($answer->answer, 80) }}
-                                                                @endif
-                                                            @else
-                                                                <span class="text-muted">—</span>
-                                                            @endif
-                                                        </td>
-                                                        <td>
-                                                            @if($answer)
-                                                                {{ $answer->created_at->format('Y-m-d H:i') }}
-                                                            @else
-                                                                <span class="text-muted">—</span>
-                                                            @endif
-                                                        </td>
-                                                        <td>
-                                                            <form action="{{ route('dashboard.quiz-questions.remove-winner', $winner) }}" method="POST" onsubmit="return confirm('هل أنت متأكد من إزالة هذا الفائز؟');">
+                                                            <form action="{{ route('dashboard.quiz-questions.remove-winner', $winner) }}" method="POST" class="d-inline" onsubmit="return confirm('هل أنت متأكد من إزالة هذا الفائز؟');">
                                                                 @csrf
                                                                 @method('DELETE')
                                                                 <button type="submit" class="btn btn-sm btn-outline-danger" title="إزالة الفائز">
@@ -333,6 +331,16 @@
                                                 @endforeach
                                             </tbody>
                                         </table>
+                                    </div>
+                                    
+                                    <div class="text-right mt-3 save-order-container" id="saveOrder{{ $question->id }}" style="display: none;">
+                                        <form action="{{ route('dashboard.quiz-questions.reorder-winners', [$quizCompetition, $question]) }}" method="POST">
+                                            @csrf
+                                            <input type="hidden" name="winner_ids[]" class="winner-ids-input">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fas fa-save mr-1"></i> حفظ الترتيب الجديد
+                                            </button>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
@@ -454,4 +462,40 @@
         margin: 0.5rem 0;
     }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const sortableLists = document.querySelectorAll('.sortable-winners');
+        
+        sortableLists.forEach(list => {
+            const questionId = list.dataset.questionId;
+            const saveBtnContainer = document.getElementById('saveOrder' + questionId);
+            
+            new Sortable(list, {
+                animation: 150,
+                handle: '.drag-handle',
+                ghostClass: 'bg-light',
+                onEnd: function() {
+                    saveBtnContainer.style.display = 'block';
+                    
+                    // Update hidden inputs
+                    const winnerIds = Array.from(list.querySelectorAll('tr')).map(tr => tr.dataset.winnerId);
+                    const container = saveBtnContainer.querySelector('form');
+                    
+                    // Clear existing inputs
+                    container.querySelectorAll('input[name="winner_ids[]"]').forEach(el => el.remove());
+                    
+                    // Add new inputs
+                    winnerIds.forEach(id => {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'winner_ids[]';
+                        input.value = id;
+                        container.appendChild(input);
+                    });
+                }
+            });
+        });
+    });
+</script>
 @endpush

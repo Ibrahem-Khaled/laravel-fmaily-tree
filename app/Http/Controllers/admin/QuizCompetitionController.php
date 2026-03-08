@@ -45,6 +45,7 @@ class QuizCompetitionController extends Controller
             'end_at' => 'nullable|date|after_or_equal:start_at',
             'reveal_delay_seconds' => 'nullable|integer|min:0',
             'is_active' => 'boolean',
+            'show_draw_only' => 'boolean',
             'display_order' => 'nullable|integer|min:0',
         ], [
             'title.required' => 'عنوان المسابقة مطلوب',
@@ -52,6 +53,7 @@ class QuizCompetitionController extends Controller
         ]);
 
         $validated['is_active'] = $request->has('is_active');
+        $validated['show_draw_only'] = $request->has('show_draw_only');
         $validated['display_order'] = $validated['display_order'] ?? 0;
 
         $competition = QuizCompetition::create($validated);
@@ -87,6 +89,7 @@ class QuizCompetitionController extends Controller
             'end_at' => 'nullable|date|after_or_equal:start_at',
             'reveal_delay_seconds' => 'nullable|integer|min:0',
             'is_active' => 'boolean',
+            'show_draw_only' => 'boolean',
             'display_order' => 'nullable|integer|min:0',
         ], [
             'title.required' => 'عنوان المسابقة مطلوب',
@@ -94,10 +97,11 @@ class QuizCompetitionController extends Controller
         ]);
 
         $validated['is_active'] = $request->has('is_active');
+        $validated['show_draw_only'] = $request->has('show_draw_only');
         $validated['display_order'] = $validated['display_order'] ?? 0;
 
         $quizCompetition->update($validated);
-        
+
         if ($request->has('sponsors')) {
             $quizCompetition->sponsors()->sync($request->input('sponsors'));
         } else {
@@ -138,10 +142,10 @@ class QuizCompetitionController extends Controller
                     if ($question->is_multiple_selections) {
                         $requiredCount = $question->getRequiredCorrectAnswersCount();
                         $correctChoices = $choices->where('is_correct', true);
-                        
+
                         // randomly decide if we want to simulate a fully correct answer or a randomly partially wrong answer
                         $simulatePerfectAnswer = rand(0, 1) == 1;
-                        
+
                         if ($simulatePerfectAnswer && $correctChoices->count() >= $requiredCount) {
                             $picked = $correctChoices->random($requiredCount);
                             $selectedChoicesIds = $picked->pluck('id')->toArray();
@@ -152,7 +156,7 @@ class QuizCompetitionController extends Controller
                             if ($choices->count() >= $requiredCount) {
                                 $picked = $choices->random($requiredCount);
                                 $selectedChoicesIds = $picked->pluck('id')->toArray();
-                                
+
                                 // Check if this random mix happens to be perfectly correct
                                 $correctIds = $correctChoices->pluck('id')->toArray();
                                 $allCorrect = true;
@@ -168,13 +172,13 @@ class QuizCompetitionController extends Controller
                                 $isCorrect = false;
                             }
                         }
-                        
+
                         $answerText = json_encode($selectedChoicesIds);
 
                     } else {
                         // Single Choice Simulation
                         $correctChoices = $choices->where('is_correct', true);
-                        
+
                         if ($correctChoices->isNotEmpty()) {
                             // 80% chance to be correct
                             if (rand(1, 100) <= 80) {
@@ -189,7 +193,7 @@ class QuizCompetitionController extends Controller
                             $choice = $choices->random();
                             $isCorrect = (bool) $choice->is_correct;
                         }
-                        
+
                         $answerText = (string) $choice->id;
                     }
                 } else {

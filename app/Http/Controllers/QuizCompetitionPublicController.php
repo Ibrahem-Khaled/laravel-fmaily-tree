@@ -176,6 +176,10 @@ class QuizCompetitionPublicController extends Controller
 
     public function storeAnswer(Request $request, QuizCompetition $quizCompetition, QuizQuestion $quizQuestion): RedirectResponse
     {
+        if ($quizCompetition->show_draw_only) {
+            return back()->with('error', 'عذراً، باب الإجابة مغلق حالياً للمتابعة مع القرعة والسحب.');
+        }
+
         // if ($quizQuestion->quiz_competition_id !== $quizCompetition->id) {
         //     abort(404);
         // }

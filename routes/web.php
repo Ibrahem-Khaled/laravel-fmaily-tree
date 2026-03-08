@@ -174,7 +174,7 @@ Route::prefix('health-websites')->name('health-websites.')->group(function () {
 
 // Public Quiz Competitions Routes (لا يوجد index - التوجيه للرئيسية)
 Route::prefix('quiz-competitions')->name('quiz-competitions.')->group(function () {
-    Route::get('/', fn () => redirect()->route('home')->withFragment('activeQuizSection'))->name('index');
+    Route::get('/', fn() => redirect()->route('home')->withFragment('activeQuizSection'))->name('index');
     Route::get('{quizCompetition}', [\App\Http\Controllers\QuizCompetitionPublicController::class, 'show'])->name('show');
     Route::get('{quizCompetition}/questions/{quizQuestion}', [\App\Http\Controllers\QuizCompetitionPublicController::class, 'question'])->name('question');
     Route::get('{quizCompetition}/questions/{quizQuestion}/winner', [\App\Http\Controllers\QuizCompetitionPublicController::class, 'getWinner'])->name('question.winner');
@@ -226,13 +226,13 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
         ->name('attachments.download');
 
     // معرض الصور
-    Route::get('images/index',        [ImageController::class, 'index'])->name('dashboard.images.index')->middleware(['permission:images.view']);
+    Route::get('images/index', [ImageController::class, 'index'])->name('dashboard.images.index')->middleware(['permission:images.view']);
     Route::get('gallery/category/{category}', [ImageController::class, 'showCategory'])->name('dashboard.gallery.category')->middleware(['permission:images.view']);
     Route::get('images/{image}/edit', [ImageController::class, 'edit'])->name('images.edit')->middleware(['permission:images.view']);
-    Route::put('images/{image}',      [ImageController::class, 'update'])->name('images.update')->middleware(['permission:images.update']);
+    Route::put('images/{image}', [ImageController::class, 'update'])->name('images.update')->middleware(['permission:images.update']);
     Route::post('gallery/upload', [ImageController::class, 'store'])->name('gallery.store')->middleware(['permission:images.upload']);
     Route::delete('images/{image}', [ImageController::class, 'destroy'])->name('images.destroy')->middleware(['permission:images.delete']);
-    Route::delete('images',         [ImageController::class, 'bulkDestroy'])->name('images.bulk-destroy')->middleware(['permission:images.delete']);
+    Route::delete('images', [ImageController::class, 'bulkDestroy'])->name('images.bulk-destroy')->middleware(['permission:images.delete']);
     Route::post('images/bulk-move', [ImageController::class, 'bulkMove'])->name('images.bulk-move')->middleware(['permission:images.update']);
     Route::delete('images/{image}/remove-person/{person}', [ImageController::class, 'removePerson'])->name('images.remove-person')->middleware(['permission:images.update']);
     Route::post('images/{image}/reorder-persons', [ImageController::class, 'reorderPersons'])->name('images.reorder-persons')->middleware(['permission:images.update']);
@@ -336,6 +336,8 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::put('quiz-competitions/{quizCompetition}/questions/{quizQuestion}', [\App\Http\Controllers\admin\QuizQuestionController::class, 'update'])->name('dashboard.quiz-questions.update');
     Route::delete('quiz-competitions/{quizCompetition}/questions/{quizQuestion}', [\App\Http\Controllers\admin\QuizQuestionController::class, 'destroy'])->name('dashboard.quiz-questions.destroy');
     Route::post('quiz-competitions/{quizCompetition}/questions/{quizQuestion}/select-winners', [\App\Http\Controllers\admin\QuizQuestionController::class, 'selectWinners'])->name('dashboard.quiz-questions.select-winners');
+    Route::post('quiz-competitions/{quizCompetition}/questions/{quizQuestion}/fill-winners', [\App\Http\Controllers\admin\QuizQuestionController::class, 'fillWinners'])->name('dashboard.quiz-questions.fill-winners');
+    Route::post('quiz-competitions/{quizCompetition}/questions/{quizQuestion}/reorder-winners', [\App\Http\Controllers\admin\QuizQuestionController::class, 'reorderWinners'])->name('dashboard.quiz-questions.reorder-winners');
     Route::delete('quiz-competitions/winners/{winner}', [\App\Http\Controllers\admin\QuizQuestionController::class, 'removeWinner'])->name('dashboard.quiz-questions.remove-winner');
 
     // Stories routes
@@ -343,7 +345,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
 
     // Logs routes
     Route::get('logs/activity', [LogsController::class, 'activity'])->name('logs.activity')->middleware(['permission:logs.view']);
-    Route::get('logs/audits',   [LogsController::class, 'audits'])->name('logs.audits')->middleware(['permission:audit.view']);
+    Route::get('logs/audits', [LogsController::class, 'audits'])->name('logs.audits')->middleware(['permission:audit.view']);
 
     // Visit Logs routes
     Route::get('visit-logs', [VisitLogController::class, 'index'])->name('dashboard.visit-logs.index')->middleware(['permission:visit-logs.view']);

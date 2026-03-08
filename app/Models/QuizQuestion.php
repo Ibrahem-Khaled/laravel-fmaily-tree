@@ -89,21 +89,34 @@ class QuizQuestion extends BaseModel
 
     public function selectRandomWinners(): int
     {
-        $correctUserIds = $this->answers()
+        $this->winners()->delete();
+        return $this->fillVacantWinners();
+    }
+
+    public function fillVacantWinners(): int
+    {
+        $existingWinnerUserIds = $this->winners()->pluck('user_id')->all();
+        $currentWinnerCount = $this->winners()->count();
+        $vacancies = $this->winners_count - $currentWinnerCount;
+
+        if ($vacancies <= 0) {
+            return 0;
+        }
+
+        $newWinnerUserIds = $this->answers()
             ->where('is_correct', true)
+            ->whereNotIn('user_id', $existingWinnerUserIds)
             ->pluck('user_id')
             ->shuffle()
-            ->take($this->winners_count)
+            ->take($vacancies)
             ->values()
             ->all();
 
-        $this->winners()->delete();
-
-        foreach ($correctUserIds as $position => $userId) {
+        foreach ($newWinnerUserIds as $index => $userId) {
             QuizWinner::create([
                 'quiz_question_id' => $this->id,
                 'user_id' => $userId,
-                'position' => $position + 1,
+                'position' => $currentWinnerCount + $index + 1,
             ]);
         }
 
@@ -111,6 +124,6 @@ class QuizQuestion extends BaseModel
         \Illuminate\Support\Facades\Cache::forget('quiz_winner_json_' . $this->id);
         \Illuminate\Support\Facades\Cache::forget('quiz-winner-selection-' . $this->id);
 
-        return count($correctUserIds);
+        return count($newWinnerUserIds);
     }
 }

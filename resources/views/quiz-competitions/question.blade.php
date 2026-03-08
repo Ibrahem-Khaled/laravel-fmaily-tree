@@ -869,7 +869,8 @@
                                 class="fas fa-flag-checkered"></i> انتهت المسابقة</span>
                     </div>
                     <div class="text-xl md:text-2xl font-bold text-gray-800 mb-2 leading-relaxed question-text">
-                        {!! $quizQuestion->question_text !!}</div>
+                        {!! $quizQuestion->question_text !!}
+                    </div>
                     @if($quizQuestion->description)
                         <div class="text-gray-600 text-sm mb-2 quiz-description">{!! $quizQuestion->description !!}</div>
                     @endif
@@ -884,7 +885,8 @@
                     <div class="glass-effect rounded-2xl p-4 md:p-5 text-center">
                         <div
                             class="w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200">
-                            <i class="fas fa-users text-blue-500 text-lg"></i></div>
+                            <i class="fas fa-users text-blue-500 text-lg"></i>
+                        </div>
                         <p class="text-2xl md:text-3xl font-bold text-gray-800">{{ $stats['total'] }}</p>
                         <p class="text-gray-500 text-xs mt-1">إجمالي المشاركين</p>
                     </div>
@@ -892,14 +894,16 @@
                         style="box-shadow:0 0 20px rgba(34,197,94,0.15);">
                         <div
                             class="w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center bg-gradient-to-br from-green-50 to-green-100 border border-green-200">
-                            <i class="fas fa-check-circle text-green-500 text-lg"></i></div>
+                            <i class="fas fa-check-circle text-green-500 text-lg"></i>
+                        </div>
                         <p class="text-2xl md:text-3xl font-bold text-green-600">{{ $stats['correct'] }}</p>
                         <p class="text-gray-500 text-xs mt-1">إجابة صحيحة</p>
                     </div>
                     <div class="glass-effect rounded-2xl p-4 md:p-5 text-center">
                         <div
                             class="w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center bg-gradient-to-br from-red-50 to-red-100 border border-red-200">
-                            <i class="fas fa-times-circle text-red-500 text-lg"></i></div>
+                            <i class="fas fa-times-circle text-red-500 text-lg"></i>
+                        </div>
                         <p class="text-2xl md:text-3xl font-bold text-red-500">{{ $stats['wrong'] }}</p>
                         <p class="text-gray-500 text-xs mt-1">إجابة خاطئة</p>
                     </div>
@@ -955,8 +959,8 @@
                                                 @endif
                                             </div>
                                             <!-- @if($firstSponsor->image)
-                                                        <span class="text-[8px] sm:text-[10px] md:text-sm font-bold text-gray-800 text-center break-words w-full">{{ $firstSponsor->name }}</span>
-                                                    @endif -->
+                                                                    <span class="text-[8px] sm:text-[10px] md:text-sm font-bold text-gray-800 text-center break-words w-full">{{ $firstSponsor->name }}</span>
+                                                                @endif -->
                                         </div>
                                     @endif
                                 </div>
@@ -967,7 +971,8 @@
                                             style="filter:drop-shadow(0 0 20px rgba(245,158,11,0.5));"></i></div>
                                     <h3
                                         class="text-xl sm:text-2xl md:text-3xl font-bold mt-1 md:mt-3 break-words leading-tight">
-                                        <span class="text-shimmer-gold line-clamp-2">الفائزون</span></h3>
+                                        <span class="text-shimmer-gold line-clamp-2">الفائزون</span>
+                                    </h3>
                                 </div>
 
                                 <div class="flex-shrink-0 w-16 sm:w-20 md:w-auto">
@@ -987,8 +992,8 @@
                                                 @endif
                                             </div>
                                             <!-- @if($lastSponsor->image)
-                                                        <span class="text-[8px] sm:text-[10px] md:text-sm font-bold text-gray-800 text-center break-words w-full">{{ $lastSponsor->name }}</span>
-                                                    @endif -->
+                                                                    <span class="text-[8px] sm:text-[10px] md:text-sm font-bold text-gray-800 text-center break-words w-full">{{ $lastSponsor->name }}</span>
+                                                                @endif -->
                                         </div>
                                     @endif
                                 </div>
@@ -997,8 +1002,8 @@
                                 @foreach($quizQuestion->winners as $winner)
                                     <div class="winner-card-anim flex items-center gap-4 rounded-2xl p-5 relative overflow-hidden"
                                         style="animation-delay:{{ 0.7 + ($loop->index * 0.3) }}s;
-                                                    background:linear-gradient(135deg,{{ $winner->position == 1 ? 'rgba(245,158,11,0.08),rgba(251,191,36,0.15)' : 'rgba(255,255,255,0.6),rgba(249,250,251,0.8)' }});
-                                                    border:2px solid {{ $winner->position == 1 ? 'rgba(245,158,11,0.3)' : 'rgba(229,231,235,0.5)' }};">
+                                                                background:linear-gradient(135deg,{{ $winner->position == 1 ? 'rgba(245,158,11,0.08),rgba(251,191,36,0.15)' : 'rgba(255,255,255,0.6),rgba(249,250,251,0.8)' }});
+                                                                border:2px solid {{ $winner->position == 1 ? 'rgba(245,158,11,0.3)' : 'rgba(229,231,235,0.5)' }};">
                                         @if($winner->position == 1)
                                             <div class="absolute inset-0 opacity-20"
                                                 style="background:radial-gradient(ellipse at 30% 50%,rgba(245,158,11,0.3),transparent 70%);">
@@ -1016,7 +1021,8 @@
                                         <div class="flex-1 relative z-10">
                                             <p
                                                 class="font-bold text-lg md:text-xl {{ $winner->position == 1 ? 'text-amber-800' : 'text-gray-800' }}">
-                                                {{ $winner->user->name ?? '-' }}</p>
+                                                {{ $winner->user->name ?? '-' }}
+                                            </p>
                                             @if($winner->position == 1)
                                                 <p class="font-bold text-green-600 text-sm md:text-base mt-2 flex items-center gap-2">
                                                     مبروك عليك 500 ريال</p>
@@ -1148,7 +1154,8 @@
                     <p class="text-green-600 text-xs font-medium mb-3"><i class="fas fa-trophy ml-1"></i>
                         {{ $quizCompetition->title }}</p>
                     <div class="text-xl md:text-2xl lg:text-3xl font-bold text-gray-800 leading-relaxed question-text">
-                        {!! $quizQuestion->question_text !!}</div>
+                        {!! $quizQuestion->question_text !!}
+                    </div>
                     @if($quizQuestion->description)
                         <div class="text-gray-600 text-sm mt-2 quiz-description">{!! $quizQuestion->description !!}</div>
                     @endif
@@ -1173,7 +1180,8 @@
                     <div class="glass-effect rounded-2xl p-4 md:p-5 text-center">
                         <div
                             class="w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200">
-                            <i class="fas fa-users text-blue-500 text-lg"></i></div>
+                            <i class="fas fa-users text-blue-500 text-lg"></i>
+                        </div>
                         <p class="text-2xl md:text-3xl font-bold text-gray-800">{{ $stats['total'] }}</p>
                         <p class="text-gray-500 text-xs mt-1">إجمالي الإجابات</p>
                     </div>
@@ -1181,14 +1189,16 @@
                         style="box-shadow:0 0 20px rgba(34,197,94,0.15);">
                         <div
                             class="w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center bg-gradient-to-br from-green-50 to-green-100 border border-green-200">
-                            <i class="fas fa-check-circle text-green-500 text-lg"></i></div>
+                            <i class="fas fa-check-circle text-green-500 text-lg"></i>
+                        </div>
                         <p class="text-2xl md:text-3xl font-bold text-green-600">{{ $stats['correct'] }}</p>
                         <p class="text-gray-500 text-xs mt-1">إجابة صحيحة</p>
                     </div>
                     <div class="glass-effect rounded-2xl p-4 md:p-5 text-center">
                         <div
                             class="w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center bg-gradient-to-br from-red-50 to-red-100 border border-red-200">
-                            <i class="fas fa-times-circle text-red-500 text-lg"></i></div>
+                            <i class="fas fa-times-circle text-red-500 text-lg"></i>
+                        </div>
                         <p class="text-2xl md:text-3xl font-bold text-red-500">{{ $stats['wrong'] }}</p>
                         <p class="text-gray-500 text-xs mt-1">إجابة خاطئة</p>
                     </div>
@@ -1198,7 +1208,8 @@
                     <div class="rounded-2xl p-4 flex items-center gap-3 bg-red-50 border border-red-200 slide-in">
                         <div
                             class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-gradient-to-br from-red-400 to-red-500">
-                            <i class="fas fa-exclamation-circle text-white text-lg"></i></div>
+                            <i class="fas fa-exclamation-circle text-white text-lg"></i>
+                        </div>
                         <p class="text-red-700 font-bold">{{ session('error') }}</p>
                     </div>
                 @endif
@@ -1227,14 +1238,32 @@
                 @endif
 
                 @if(!session('answer_submitted') && ($canAnswer ?? true))
-                    <form action="{{ route('quiz-competitions.store-answer', [$quizCompetition, $quizQuestion]) }}"
-                        method="POST" class="space-y-5" id="quizForm">
+                    @if ($quizCompetition->show_draw_only)
+                        <div class="rounded-3xl p-8 bg-green-50 border-2 border-green-200 text-center space-y-4">
+                            <div class="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-info-circle text-green-600 text-2xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-green-800">باب الإجابة مغلق حالياً</h3>
+                            <p class="text-green-700">يمكنك الآن متابعة فرز النتائج والقرعة لاختيار الفائزين مباشرة.</p>
+                            <div class="pt-4">
+                                <span
+                                    class="px-6 py-3 rounded-2xl font-bold bg-green-600 text-white inline-flex items-center gap-2">
+                                    <i class="fas fa-sync fa-spin"></i>
+                                    يرجى الانتظار لبدء السحب...
+                                </span>
+                            </div>
+                        </div>
+                    @else
+                        <form action="{{ route('quiz-competitions.store-answer', [$quizCompetition, $quizQuestion]) }}"
+                            method="POST" class="space-y-5" id="quizForm">
+                    @endif
                         @csrf
                         <div class="glass-effect rounded-2xl p-5 md:p-6">
                             <div class="flex items-center gap-2 mb-4">
                                 <div
                                     class="w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-200 border border-blue-300">
-                                    <i class="fas fa-user text-blue-500 text-sm"></i></div>
+                                    <i class="fas fa-user text-blue-500 text-sm"></i>
+                                </div>
                                 <h3 class="font-bold text-gray-800">بياناتك</h3>
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1274,7 +1303,8 @@
                             <div class="flex items-center gap-2 mb-4">
                                 <div
                                     class="w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-br from-green-100 to-green-200 border border-green-300">
-                                    <i class="fas fa-pen text-green-600 text-sm"></i></div>
+                                    <i class="fas fa-pen text-green-600 text-sm"></i>
+                                </div>
                                 <h3 class="font-bold text-gray-800">إجابتك</h3>
                             </div>
                             <div class="space-y-3">

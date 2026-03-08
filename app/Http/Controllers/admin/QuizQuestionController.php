@@ -170,4 +170,35 @@ class QuizQuestionController extends Controller
 
         return back()->with('success', 'تم إزالة الفائز بنجاح');
     }
+
+    public function fillWinners(QuizCompetition $quizCompetition, QuizQuestion $quizQuestion): RedirectResponse
+    {
+        if (!$quizQuestion->hasEnded()) {
+            return back()->with('error', 'لا يمكن اختيار الفائزين قبل انتهاء فترة الإجابة');
+        }
+
+        $count = $quizQuestion->fillVacantWinners();
+
+        if ($count > 0) {
+            return back()->with('success', "تم اختيار {$count} فائز إضافي عشوائياً");
+        }
+
+        return back()->with('info', "لا يوجد خانات فائزين شاغرة حالياً");
+    }
+
+    public function reorderWinners(Request $request, QuizCompetition $quizCompetition, QuizQuestion $quizQuestion): RedirectResponse
+    {
+        $winnerIds = $request->input('winner_ids', []);
+
+        foreach ($winnerIds as $index => $id) {
+            \App\Models\QuizWinner::where('id', $id)
+                ->where('quiz_question_id', $quizQuestion->id)
+                ->update(['position' => $index + 1]);
+        }
+
+        // إزالة التخزين المؤقت
+        \Illuminate\Support\Facades\Cache::forget('quiz_winner_json_' . $quizQuestion->id);
+
+        return back()->with('success', 'تم إعادة ترتيب الفائزين بنجاح');
+    }
 }

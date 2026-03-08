@@ -18,6 +18,7 @@ class QuizCompetition extends BaseModel
         'start_at',
         'end_at',
         'reveal_delay_seconds',
+        'show_draw_only',
     ];
 
     protected $casts = [
@@ -26,6 +27,7 @@ class QuizCompetition extends BaseModel
         'start_at' => 'datetime',
         'end_at' => 'datetime',
         'reveal_delay_seconds' => 'integer',
+        'show_draw_only' => 'boolean',
     ];
 
     public function questions(): HasMany
