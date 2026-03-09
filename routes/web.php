@@ -403,6 +403,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::get('home-sections/create', [\App\Http\Controllers\admin\HomeSectionController::class, 'create'])->name('dashboard.home-sections.create')->middleware(['permission:site-content.create']);
     Route::post('home-sections', [\App\Http\Controllers\admin\HomeSectionController::class, 'store'])->name('dashboard.home-sections.store')->middleware(['permission:site-content.create']);
     Route::post('home-sections/reorder', [\App\Http\Controllers\admin\HomeSectionController::class, 'reorder'])->name('dashboard.home-sections.reorder')->middleware(['permission:site-content.update']);
+    Route::get('home-sections/search-source', [\App\Http\Controllers\admin\HomeSectionController::class, 'searchSource'])->name('dashboard.home-sections.search-source')->middleware(['permission:site-content.view']);
     Route::get('home-sections/{homeSection}/edit', [\App\Http\Controllers\admin\HomeSectionController::class, 'edit'])->name('dashboard.home-sections.edit')->middleware(['permission:site-content.view']);
     Route::post('home-sections/{homeSection}', [\App\Http\Controllers\admin\HomeSectionController::class, 'update'])->name('dashboard.home-sections.update')->middleware(['permission:site-content.update']);
     Route::delete('home-sections/{homeSection}', [\App\Http\Controllers\admin\HomeSectionController::class, 'destroy'])->name('dashboard.home-sections.destroy')->middleware(['permission:site-content.delete']);

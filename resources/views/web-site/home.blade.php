@@ -818,11 +818,24 @@
                 ];
                 $colsClass = $colsMap[$columns] ?? $colsMap[3];
 
+                $layoutStyle = $ss['layout_style'] ?? 'grid';
                 $isGrid = in_array($section->section_type, ['gallery', 'cards', 'stats']);
                 $isTwoCol = in_array($section->section_type, ['text_with_image']);
+
+                $hasSourceItems = isset($section->content_source_items) && $section->content_source_items && $section->content_source_items->count() > 0;
+                $hasManualItems = $section->items->count() > 0;
+
+                // حساب كلاس الـ layout بناءً على نمط العرض المختار
+                if ($layoutStyle === 'horizontal') {
+                    $layoutClass = 'flex flex-row gap-3 md:gap-4 overflow-x-auto pb-4';
+                } elseif ($layoutStyle === 'vertical') {
+                    $layoutClass = 'flex flex-col gap-3 md:gap-4';
+                } else {
+                    $layoutClass = $isGrid ? 'grid ' . $colsClass . ' gap-3 md:gap-4' : ($isTwoCol ? 'grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 items-center' : 'space-y-4');
+                }
             @endphp
 
-            @if ($section->items->count() > 0)
+            @if ($hasSourceItems || $hasManualItems)
                 <section class="py-3 md:py-6 lg:py-8 {{ $section->css_classes ?? '' }} relative overflow-hidden" @if ($sectionStyle)
                 style="{{ $sectionStyle }}" @endif>
                     <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
@@ -846,11 +859,20 @@
                             </div>
                         @endif
 
-                        <div
-                            class="dynamic-section-content {{ $isGrid ? 'grid ' . $colsClass . ' gap-3 md:gap-4' : ($isTwoCol ? 'grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 items-center' : 'space-y-4') }}">
-                            @foreach ($section->items as $item)
-                                @include('partials.home-section-item', ['item' => $item])
-                            @endforeach
+                        <div class="dynamic-section-content {{ $layoutClass }}">
+                            @if ($hasSourceItems)
+                                @foreach ($section->content_source_items as $entity)
+                                    @include('partials.home-section-entity-card', [
+                                        'entity' => $entity,
+                                        'sourceType' => $section->content_source_type,
+                                        'layoutStyle' => $layoutStyle,
+                                    ])
+                                @endforeach
+                            @else
+                                @foreach ($section->items as $item)
+                                    @include('partials.home-section-item', ['item' => $item])
+                                @endforeach
+                            @endif
                         </div>
 
                     </div>

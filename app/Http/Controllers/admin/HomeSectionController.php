@@ -55,15 +55,29 @@ class HomeSectionController extends Controller
             'settings.columns' => 'nullable|integer|min:1|max:6',
             'settings.carousel_autoplay' => 'nullable|boolean',
             'settings.carousel_interval' => 'nullable|integer|min:1000|max:30000',
+            'settings.layout_style' => 'nullable|string|in:grid,horizontal,vertical',
+            'settings.source_limit' => 'nullable|integer|min:1|max:100',
+            'settings.source_order' => 'nullable|string|in:latest,oldest,name_asc,name_desc',
+            'settings.source_mode' => 'nullable|string|in:all,selected',
+            'settings.source_ids' => 'nullable|array',
+            'settings.source_ids.*' => 'nullable|integer',
             'css_classes' => 'nullable|string|max:500',
+            'content_source_type' => 'nullable|string|max:255',
         ]);
 
         $lastOrder = HomeSection::max('display_order') ?? 0;
 
         $settings = $request->settings ?? [];
-        // تأكد من تحويل checkbox values
         $settings['show_title'] = isset($settings['show_title']) ? true : ($request->has('settings.show_title') ? true : true);
         $settings['carousel_autoplay'] = isset($settings['carousel_autoplay']) ? true : false;
+        if (isset($settings['source_ids'])) {
+            $settings['source_ids'] = array_map('intval', array_filter($settings['source_ids']));
+        }
+
+        $contentSource = $request->content_source_type;
+        if ($contentSource && !array_key_exists($contentSource, HomeSection::ALLOWED_SOURCES)) {
+            $contentSource = null;
+        }
 
         $section = HomeSection::create([
             'title' => $request->title,
@@ -72,6 +86,7 @@ class HomeSectionController extends Controller
             'is_active' => $request->has('is_active') ? true : false,
             'settings' => $settings,
             'css_classes' => $request->css_classes,
+            'content_source_type' => $contentSource,
         ]);
 
         return redirect()->route('dashboard.home-sections.edit', $section)
@@ -97,12 +112,27 @@ class HomeSectionController extends Controller
             'section_type' => 'required|string|max:255',
             'is_active' => 'nullable|boolean',
             'settings' => 'nullable|array',
+            'settings.layout_style' => 'nullable|string|in:grid,horizontal,vertical',
+            'settings.source_limit' => 'nullable|integer|min:1|max:100',
+            'settings.source_order' => 'nullable|string|in:latest,oldest,name_asc,name_desc',
+            'settings.source_mode' => 'nullable|string|in:all,selected',
+            'settings.source_ids' => 'nullable|array',
+            'settings.source_ids.*' => 'nullable|integer',
             'css_classes' => 'nullable|string|max:500',
+            'content_source_type' => 'nullable|string|max:255',
         ]);
 
         $settings = $request->settings ?? [];
         $settings['show_title'] = isset($settings['show_title']) ? true : false;
         $settings['carousel_autoplay'] = isset($settings['carousel_autoplay']) ? true : false;
+        if (isset($settings['source_ids'])) {
+            $settings['source_ids'] = array_map('intval', array_filter($settings['source_ids']));
+        }
+
+        $contentSource = $request->content_source_type;
+        if ($contentSource && !array_key_exists($contentSource, HomeSection::ALLOWED_SOURCES)) {
+            $contentSource = null;
+        }
 
         $homeSection->update([
             'title' => $request->title,
@@ -110,6 +140,7 @@ class HomeSectionController extends Controller
             'is_active' => $request->has('is_active') ? true : false,
             'settings' => $settings,
             'css_classes' => $request->css_classes,
+            'content_source_type' => $contentSource ?: null,
         ]);
 
         return redirect()->route('dashboard.home-sections.edit', $homeSection)
@@ -163,6 +194,57 @@ class HomeSectionController extends Controller
 
         return redirect()->route('dashboard.home-sections.index')
             ->with('success', 'تم تحديث حالة القسم بنجاح');
+    }
+
+    /**
+     * بحث AJAX في مصادر المحتوى (مستخدمين / أشخاص)
+     */
+    public function searchSource(Request $request)
+    {
+        $request->validate([
+            'type' => 'required|string',
+            'q' => 'nullable|string|max:255',
+        ]);
+
+        $type = $request->type;
+        if (!array_key_exists($type, HomeSection::ALLOWED_SOURCES)) {
+            return response()->json([]);
+        }
+
+        $q = $request->q ?? '';
+        $query = $type::query();
+
+        if ($type === 'App\\Models\\Person') {
+            if ($q) {
+                $query->where(function ($qb) use ($q) {
+                    $qb->where('first_name', 'like', "%{$q}%")
+                       ->orWhere('last_name', 'like', "%{$q}%");
+                });
+            }
+            $results = $query->limit(30)->get()->map(function ($p) {
+                return [
+                    'id' => $p->id,
+                    'text' => $p->full_name,
+                    'avatar' => $p->avatar,
+                ];
+            });
+        } else {
+            if ($q) {
+                $query->where(function ($qb) use ($q) {
+                    $qb->where('name', 'like', "%{$q}%")
+                       ->orWhere('email', 'like', "%{$q}%");
+                });
+            }
+            $results = $query->limit(30)->get()->map(function ($u) {
+                return [
+                    'id' => $u->id,
+                    'text' => $u->name . ($u->email ? " ({$u->email})" : ''),
+                    'avatar' => $u->avatar ? asset('storage/' . $u->avatar) : null,
+                ];
+            });
+        }
+
+        return response()->json($results->values());
     }
 
     /**

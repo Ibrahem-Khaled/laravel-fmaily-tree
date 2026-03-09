@@ -374,6 +374,17 @@
                                 </div>
                             </div>
 
+                            <div class="form-group">
+                                <label class="font-weight-bold">
+                                    <i class="fas fa-th-list text-primary mr-1"></i>نمط العرض
+                                </label>
+                                <select name="settings[layout_style]" class="form-control no-search">
+                                    <option value="grid" {{ old('settings.layout_style', 'grid') === 'grid' ? 'selected' : '' }}>شبكة</option>
+                                    <option value="horizontal" {{ old('settings.layout_style') === 'horizontal' ? 'selected' : '' }}>أفقي (بالعرض)</option>
+                                    <option value="vertical" {{ old('settings.layout_style') === 'vertical' ? 'selected' : '' }}>عمودي (بالطول)</option>
+                                </select>
+                            </div>
+
                             <div class="form-group" id="columns-setting" style="display: none;">
                                 <label class="font-weight-bold">
                                     <i class="fas fa-columns text-info mr-1"></i>عدد الأعمدة
@@ -384,6 +395,51 @@
                                     <option value="4" {{ old('settings.columns') == '4' ? 'selected' : '' }}>4 أعمدة</option>
                                     <option value="6" {{ old('settings.columns') == '6' ? 'selected' : '' }}>6 أعمدة</option>
                                 </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="font-weight-bold">
+                                    <i class="fas fa-database text-warning mr-1"></i>مصدر المحتوى
+                                </label>
+                                <select name="content_source_type" id="content_source_type_create" class="form-control no-search" onchange="toggleSourceOptionsCreate()">
+                                    <option value="">بدون (عناصر يدوية)</option>
+                                    @foreach(\App\Models\HomeSection::ALLOWED_SOURCES as $class => $label)
+                                        <option value="{{ $class }}" {{ old('content_source_type') === $class ? 'selected' : '' }}>{{ $label }}</option>
+                                    @endforeach
+                                </select>
+                                <small class="form-text text-muted">اختر لعرض قائمة تلقائية من المستخدمين أو الأشخاص</small>
+                            </div>
+                            <div id="source-options-create" style="{{ old('content_source_type') ? '' : 'display:none;' }}">
+                                <div class="form-group">
+                                    <label class="font-weight-bold small">طريقة الاختيار</label>
+                                    <select name="settings[source_mode]" id="source_mode_create" class="form-control no-search form-control-sm" onchange="toggleSourceModeCreate()">
+                                        <option value="all" {{ old('settings.source_mode', 'all') === 'all' ? 'selected' : '' }}>الكل (حسب الترتيب والحد)</option>
+                                        <option value="selected" {{ old('settings.source_mode') === 'selected' ? 'selected' : '' }}>اختيار محدد</option>
+                                    </select>
+                                </div>
+                                <div id="sourceModeAllCreate" style="{{ old('settings.source_mode') === 'selected' ? 'display:none;' : '' }}">
+                                    <div class="form-group">
+                                        <label class="font-weight-bold small">حد العدد</label>
+                                        <input type="number" name="settings[source_limit]" class="form-control form-control-sm" value="{{ old('settings.source_limit', 10) }}" min="1" max="100">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="font-weight-bold small">الترتيب</label>
+                                        <select name="settings[source_order]" class="form-control no-search form-control-sm">
+                                            <option value="latest">الأحدث أولاً</option>
+                                            <option value="oldest">الأقدم أولاً</option>
+                                            <option value="name_asc">الاسم (أ-ي)</option>
+                                            <option value="name_desc">الاسم (ي-أ)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div id="sourceModeSelectedCreate" style="{{ old('settings.source_mode') === 'selected' ? '' : 'display:none;' }}">
+                                    <div class="form-group">
+                                        <label class="font-weight-bold small">اختر العناصر</label>
+                                        <select name="settings[source_ids][]" id="source_ids_select_create" class="form-control no-search" multiple="multiple">
+                                        </select>
+                                        <small class="form-text text-muted">ابحث واختر العناصر التي تريد عرضها</small>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="form-group">
@@ -470,6 +526,65 @@
     document.getElementById('text_color').addEventListener('input', function() {
         document.getElementById('text_color_text').value = this.value;
     });
+
+    // ============================================
+    // Content Source Options
+    // ============================================
+    function toggleSourceOptionsCreate() {
+        var sel = document.getElementById('content_source_type_create');
+        document.getElementById('source-options-create').style.display = sel.value ? 'block' : 'none';
+        initSourceIdsSelect2Create();
+    }
+
+    function toggleSourceModeCreate() {
+        var mode = document.getElementById('source_mode_create').value;
+        document.getElementById('sourceModeAllCreate').style.display = mode === 'all' ? '' : 'none';
+        document.getElementById('sourceModeSelectedCreate').style.display = mode === 'selected' ? '' : 'none';
+        if (mode === 'selected') {
+            initSourceIdsSelect2Create();
+        }
+    }
+
+    function initSourceIdsSelect2Create() {
+        var $sel = $('#source_ids_select_create');
+        if (!$sel.length) return;
+        var type = document.getElementById('content_source_type_create').value;
+        if (!type) return;
+
+        if ($sel.data('select2')) {
+            $sel.select2('destroy');
+        }
+        $sel.select2({
+            theme: 'bootstrap4',
+            language: 'ar',
+            width: '100%',
+            placeholder: 'ابحث واختر...',
+            allowClear: true,
+            minimumInputLength: 0,
+            ajax: {
+                url: '{{ route("dashboard.home-sections.search-source") }}',
+                dataType: 'json',
+                delay: 300,
+                data: function(params) {
+                    return { type: type, q: params.term || '' };
+                },
+                processResults: function(data) {
+                    return { results: data };
+                },
+                cache: true
+            },
+            templateResult: function(item) {
+                if (item.loading) return item.text;
+                var $el = $('<span></span>');
+                if (item.avatar) {
+                    $el.append('<img src="' + item.avatar + '" style="width:28px;height:28px;border-radius:50%;margin-left:8px;object-fit:cover;vertical-align:middle;">');
+                }
+                $el.append('<span>' + item.text + '</span>');
+                return $el;
+            },
+            templateSelection: function(item) { return item.text; }
+        });
+    }
 
     // إذا كان هناك old section_type، انتقل للخطوة 2
     @if(old('section_type'))

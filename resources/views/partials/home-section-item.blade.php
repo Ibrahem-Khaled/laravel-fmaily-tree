@@ -27,13 +27,31 @@
 
 {{-- ======================== IMAGE ======================== --}}
 @elseif ($item->item_type === 'image' && $item->image_url)
-    <div class="relative group overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300">
+    @php
+        $mediaSize = $settings['media_size'] ?? 'full';
+        $mediaSizeClass = match($mediaSize) {
+            'small' => 'max-w-xs',
+            'medium' => 'max-w-md',
+            'large' => 'max-w-4xl',
+            default => 'w-full',
+        };
+        $mediaStyle = '';
+        if (!empty($settings['media_max_width'])) {
+            $mediaStyle .= 'max-width:' . (int)$settings['media_max_width'] . 'px;';
+        }
+        if (!empty($settings['media_max_height'])) {
+            $mediaStyle .= 'max-height:' . (int)$settings['media_max_height'] . 'px;';
+        }
+    @endphp
+    <div class="relative group overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 {{ $mediaSizeClass }} mx-auto"
+         @if($mediaStyle) style="{{ $mediaStyle }}" @endif>
         @if (isset($content['link']) && $content['link'])
             <a href="{{ $content['link'] }}" target="_blank" class="block">
         @endif
         <img src="{{ $item->image_url }}" alt="{{ $content['alt'] ?? '' }}"
              class="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
-             loading="lazy">
+             loading="lazy"
+             @if(!empty($settings['media_max_height'])) style="max-height:{{ (int)$settings['media_max_height'] }}px; object-fit:cover;" @endif>
         @if (isset($content['caption']) && $content['caption'])
             <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3 md:p-4">
                 <p class="text-white text-xs md:text-sm font-semibold text-right">{{ $content['caption'] }}</p>
@@ -46,7 +64,20 @@
 
 {{-- ======================== VIDEO ======================== --}}
 @elseif ($item->item_type === 'video')
-    <div class="w-full">
+    @php
+        $mediaSize = $settings['media_size'] ?? 'full';
+        $videoSizeClass = match($mediaSize) {
+            'small' => 'max-w-sm',
+            'medium' => 'max-w-xl',
+            'large' => 'max-w-4xl',
+            default => 'w-full',
+        };
+        $videoStyle = '';
+        if (!empty($settings['media_max_width'])) {
+            $videoStyle .= 'max-width:' . (int)$settings['media_max_width'] . 'px;';
+        }
+    @endphp
+    <div class="{{ $videoSizeClass }} mx-auto" @if($videoStyle) style="{{ $videoStyle }}" @endif>
         @if (isset($content['title']) && $content['title'])
             <h4 class="font-bold text-lg mb-3 text-right">{{ $content['title'] }}</h4>
         @endif
@@ -66,7 +97,10 @@
                 </div>
             @endif
         @elseif ($item->video_url)
-            <video controls class="w-full rounded-2xl shadow-lg" style="max-height: 500px;" preload="metadata">
+            @php
+                $videoMaxHeight = !empty($settings['media_max_height']) ? (int)$settings['media_max_height'] . 'px' : '500px';
+            @endphp
+            <video controls class="w-full rounded-2xl shadow-lg" style="max-height: {{ $videoMaxHeight }};" preload="metadata">
                 <source src="{{ $item->video_url }}" type="video/mp4">
             </video>
         @endif

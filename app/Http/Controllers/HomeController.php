@@ -69,8 +69,13 @@ class HomeController extends Controller
         // جلب قسم ما الجديد
         $whatsNew = SiteContent::getContent('whats_new', 'آخر أخبار عائلة السريع');
 
-        // جلب الأقسام الديناميكية
+        // جلب الأقسام الديناميكية مع مصادر المحتوى
         $dynamicSections = HomeSection::getActiveSections();
+        foreach ($dynamicSections as $section) {
+            if ($section->content_source_type) {
+                $section->content_source_items = $section->getContentSourceCollection();
+            }
+        }
 
         // جلب الدورات
         // إذا كان المستخدم مسجل دخول، اجلب جميع الدورات (المفعلة وغير المفعلة)
