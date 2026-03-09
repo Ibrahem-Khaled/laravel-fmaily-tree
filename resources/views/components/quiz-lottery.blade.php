@@ -249,14 +249,15 @@
     @if($quizCompetition->sponsors && $quizCompetition->sponsors->count() > 0)
         @php $firstSponsor = $quizCompetition->sponsors->first(); @endphp
         @if($firstSponsor->image)
-            <div class="absolute top-3 md:top-6 left-4 right-4 flex flex-col items-center z-50 pointer-events-none">
-                <img src="{{ asset('storage/' . $firstSponsor->image) }}"
-                     class="max-h-[25vh] w-auto object-contain drop-shadow-2xl max-w-full"
-                     style="filter: drop-shadow(0 0 30px rgba(255,255,255,0.7));">
-                <p class="mt-2 text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-white text-center"
-                   style="text-shadow: 0 0 15px rgba(0,0,0,0.8), 0 0 8px var(--lt-green-glow);">
-                    برعاية: {{ $firstSponsor->name }}
+            <div class="absolute top-2 sm:top-3 md:top-4 left-4 right-4 flex items-center justify-center gap-2 sm:gap-3 z-50 pointer-events-none">
+                <p class="text-[10px] sm:text-xs md:text-sm font-bold text-white/70 whitespace-nowrap"
+                   style="text-shadow: 0 0 10px rgba(0,0,0,0.8);">
+                    برعاية
                 </p>
+                <img src="{{ asset('storage/' . $firstSponsor->image) }}"
+                     class="h-8 sm:h-10 md:h-12 w-auto object-contain max-w-[120px] sm:max-w-[150px] md:max-w-[180px]"
+                     style="filter: drop-shadow(0 0 15px rgba(255,255,255,0.5));"
+                     alt="{{ $firstSponsor->name }}">
             </div>
         @endif
     @endif
