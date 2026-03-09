@@ -26,8 +26,12 @@ class QuizQuestionController extends Controller
             'is_multiple_selections' => 'nullable|boolean',
             'winners_count' => 'required|integer|min:1',
             'display_order' => 'nullable|integer|min:0',
+            'prize' => 'nullable|array',
+            'prize.*' => 'nullable|string',
             'choices' => 'required_if:answer_type,multiple_choice,ordering|array',
-            'choices.*.text' => 'required_with:choices|string',
+            'choices.*.text' => 'nullable|string',
+            'choices.*.image' => 'nullable|image|max:2048',
+            'choices.*.video' => 'nullable|mimes:mp4,mov,ogg,qt|max:20000',
             'choices.*.is_correct' => 'nullable|boolean',
             'correct_choices' => 'nullable|array', // For multiple selections
         ], [
@@ -44,6 +48,7 @@ class QuizQuestionController extends Controller
             'is_multiple_selections' => !empty($validated['is_multiple_selections']),
             'winners_count' => $validated['winners_count'],
             'display_order' => $validated['display_order'] ?? 0,
+            'prize' => $validated['prize'] ?? [],
         ]);
 
         if (in_array($validated['answer_type'], ['multiple_choice', 'ordering']) && !empty($validated['choices'])) {
@@ -64,8 +69,10 @@ class QuizQuestionController extends Controller
                 }
 
                 $question->choices()->create([
-                    'choice_text' => $choice['text'],
+                    'choice_text' => $choice['text'] ?? '',
                     'is_correct' => $isCorrect,
+                    'image' => isset($choice['image']) ? $choice['image']->store('quiz/choices/images', 'public') : null,
+                    'video' => isset($choice['video']) ? $choice['video']->store('quiz/choices/videos', 'public') : null,
                 ]);
             }
         }
@@ -90,8 +97,12 @@ class QuizQuestionController extends Controller
             'is_multiple_selections' => 'nullable|boolean',
             'winners_count' => 'required|integer|min:1',
             'display_order' => 'nullable|integer|min:0',
+            'prize' => 'nullable|array',
+            'prize.*' => 'nullable|string',
             'choices' => 'required_if:answer_type,multiple_choice,ordering|array',
-            'choices.*.text' => 'required_with:choices|string',
+            'choices.*.text' => 'nullable|string',
+            'choices.*.image' => 'nullable|image|max:2048',
+            'choices.*.video' => 'nullable|mimes:mp4,mov,ogg,qt|max:20000',
             'choices.*.is_correct' => 'nullable|boolean',
             'correct_choices' => 'nullable|array',
         ], [
@@ -108,11 +119,13 @@ class QuizQuestionController extends Controller
             'is_multiple_selections' => !empty($validated['is_multiple_selections']),
             'winners_count' => $validated['winners_count'],
             'display_order' => $validated['display_order'] ?? 0,
+            'prize' => $validated['prize'] ?? [],
         ]);
 
         if (in_array($validated['answer_type'], ['multiple_choice', 'ordering']) && !empty($validated['choices'])) {
+            $oldChoices = $quizQuestion->choices->keyBy('choice_text');
             $quizQuestion->choices()->delete();
-            $choices = array_filter($validated['choices'], fn($c) => !empty(trim($c['text'] ?? '')));
+            $choices = $validated['choices'];
 
             $isMultiple = !empty($validated['is_multiple_selections']);
             $isOrdering = $validated['answer_type'] === 'ordering';
@@ -121,19 +134,44 @@ class QuizQuestionController extends Controller
             foreach ($choices as $index => $choice) {
                 $isCorrect = false;
                 if ($isOrdering) {
-                    $isCorrect = true; // All ordering choices are technically "correct" parts of the sequence
+                    $isCorrect = true;
                 } elseif ($isMultiple) {
                     $isCorrect = in_array((string) $index, $correctChoicesKeys);
                 } else {
                     $isCorrect = !empty($choice['is_correct']);
                 }
 
+                $oldChoice = $oldChoices->get($choice['text'] ?? '');
+
+                // Handle media
+                $imagePath = $oldChoice ? $oldChoice->image : null;
+                $videoPath = $oldChoice ? $oldChoice->video : null;
+
+                if (isset($choice['image'])) {
+                    if ($imagePath)
+                        \Illuminate\Support\Facades\Storage::disk('public')->delete($imagePath);
+                    $imagePath = $choice['image']->store('quiz/choices/images', 'public');
+                }
+                if (isset($choice['video'])) {
+                    if ($videoPath)
+                        \Illuminate\Support\Facades\Storage::disk('public')->delete($videoPath);
+                    $videoPath = $choice['video']->store('quiz/choices/videos', 'public');
+                }
+
                 $quizQuestion->choices()->create([
-                    'choice_text' => $choice['text'],
+                    'choice_text' => $choice['text'] ?? '',
                     'is_correct' => $isCorrect,
+                    'image' => $imagePath,
+                    'video' => $videoPath,
                 ]);
             }
         } else {
+            foreach ($quizQuestion->choices as $choice) {
+                if ($choice->image)
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($choice->image);
+                if ($choice->video)
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($choice->video);
+            }
             $quizQuestion->choices()->delete();
         }
 

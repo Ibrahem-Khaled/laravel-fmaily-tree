@@ -707,7 +707,7 @@
                 <i class="fas fa-crown text-amber-400 text-5xl md:text-6xl"
                     style="filter:drop-shadow(0 0 30px rgba(245,158,11,0.5));"></i>
             </div>
-            <p class="text-shimmer-gold text-2xl md:text-3xl font-bold mb-5" id="announceTitle">مبروك للفائز!</p>
+            <p class="text-shimmer-gold text-2xl md:text-3xl font-bold mb-5" id="announceTitle">مبروك عليك!</p>
 
             <div
                 class="flex flex-row items-center justify-between gap-2 sm:gap-4 md:gap-8 my-8 relative z-10 w-full max-w-5xl mx-auto px-2">
@@ -737,8 +737,14 @@
                         class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white px-1 break-words leading-tight"
                         style="text-shadow:0 0 40px rgba(255,255,255,0.4);"></div>
                     <div id="announcePrize"
-                        class="mt-2 md:mt-4 text-sm sm:text-xl md:text-3xl font-bold text-amber-300 hidden px-1 break-words"
-                        style="text-shadow:0 0 20px rgba(245,158,11,0.6);"></div>
+                        class="mt-2 md:mt-4 text-sm sm:text-xl md:text-3xl font-bold text-amber-300 px-1 break-words {{ !empty($quizQuestion->prize) ? '' : 'hidden' }}"
+                        style="text-shadow:0 0 20px rgba(245,158,11,0.6);">
+                        @if(!empty($quizQuestion->prize) && is_array($quizQuestion->prize) && count($quizQuestion->prize) > 0)
+                            مبروك عليك {{ $quizQuestion->prize[0] }}
+                        @elseif(!empty($quizQuestion->prize) && is_string($quizQuestion->prize))
+                            مبروك عليك {{ $quizQuestion->prize }}
+                        @endif
+                    </div>
                 </div>
 
                 <div class="flex-shrink-0 w-20 md:w-auto">
@@ -959,8 +965,8 @@
                                                 @endif
                                             </div>
                                             <!-- @if($firstSponsor->image)
-                                                                    <span class="text-[8px] sm:text-[10px] md:text-sm font-bold text-gray-800 text-center break-words w-full">{{ $firstSponsor->name }}</span>
-                                                                @endif -->
+                                                                                                        <span class="text-[8px] sm:text-[10px] md:text-sm font-bold text-gray-800 text-center break-words w-full">{{ $firstSponsor->name }}</span>
+                                                                                                    @endif -->
                                         </div>
                                     @endif
                                 </div>
@@ -992,8 +998,8 @@
                                                 @endif
                                             </div>
                                             <!-- @if($lastSponsor->image)
-                                                                    <span class="text-[8px] sm:text-[10px] md:text-sm font-bold text-gray-800 text-center break-words w-full">{{ $lastSponsor->name }}</span>
-                                                                @endif -->
+                                                                                                        <span class="text-[8px] sm:text-[10px] md:text-sm font-bold text-gray-800 text-center break-words w-full">{{ $lastSponsor->name }}</span>
+                                                                                                    @endif -->
                                         </div>
                                     @endif
                                 </div>
@@ -1002,8 +1008,8 @@
                                 @foreach($quizQuestion->winners as $winner)
                                     <div class="winner-card-anim flex items-center gap-4 rounded-2xl p-5 relative overflow-hidden"
                                         style="animation-delay:{{ 0.7 + ($loop->index * 0.3) }}s;
-                                                                background:linear-gradient(135deg,{{ $winner->position == 1 ? 'rgba(245,158,11,0.08),rgba(251,191,36,0.15)' : 'rgba(255,255,255,0.6),rgba(249,250,251,0.8)' }});
-                                                                border:2px solid {{ $winner->position == 1 ? 'rgba(245,158,11,0.3)' : 'rgba(229,231,235,0.5)' }};">
+                                                                                                    background:linear-gradient(135deg,{{ $winner->position == 1 ? 'rgba(245,158,11,0.08),rgba(251,191,36,0.15)' : 'rgba(255,255,255,0.6),rgba(249,250,251,0.8)' }});
+                                                                                                    border:2px solid {{ $winner->position == 1 ? 'rgba(245,158,11,0.3)' : 'rgba(229,231,235,0.5)' }};">
                                         @if($winner->position == 1)
                                             <div class="absolute inset-0 opacity-20"
                                                 style="background:radial-gradient(ellipse at 30% 50%,rgba(245,158,11,0.3),transparent 70%);">
@@ -1019,68 +1025,73 @@
                                             @endif
                                         </div>
                                         <div class="flex-1 relative z-10">
-                                            <p
-                                                class="font-bold text-lg md:text-xl {{ $winner->position == 1 ? 'text-amber-800' : 'text-gray-800' }}">
-                                                {{ $winner->user->name ?? '-' }}
-                                            </p>
-                                            @if($winner->position == 1)
-                                                <p class="font-bold text-green-600 text-sm md:text-base mt-2 flex items-center gap-2">
-                                                    مبروك عليك 500 ريال</p>
-                                            @elseif($winner->position == 2)
-                                                <p class="font-bold text-green-600 text-sm md:text-base mt-2 flex items-center gap-2">
-                                                    مبروك عليك 300 ريال</p>
-                                            @elseif($winner->position == 3)
-                                                <p class="font-bold text-green-600 text-sm md:text-base mt-2 flex items-center gap-2">
-                                                    مبروك عليك 200 ريال</p>
-                                            @endif
-                                        </div>
-                                        @if($winner->position == 1)<i class="fas fa-crown text-amber-400 text-2xl relative z-10"
-                                            style="filter:drop-shadow(0 0 10px rgba(245,158,11,0.4));"></i>
-                                        @elseif($winner->position <= 3)<i
-                                        class="fas fa-medal text-{{ $winner->position == 2 ? 'gray-400' : 'amber-700/60' }} text-xl relative z-10"></i>@endif
+                                                        <p class="font-bold text-lg md:text-xl {{ $winner->position == 1 ? 'text-amber-800' : 'text-gray-800' }}">
+                                                            {{ $winner->user->name ?? '-' }}
+                                                        </p>
+                                                        @php 
+                                                                                                                                                $prize = '-';
+                                                            if (!empty($quizQuestion->prize)) {
+                                                                if (is_array($quizQuestion->prize)) {
+                                                                    $prize = $quizQuestion->prize[$winner->position - 1] ?? ($quizQuestion->prize[0] ?? '-');
+                                                                } else {
+                                                                    $prize = $quizQuestion->prize;
+                                                                }
+                                                            }
+                                                        @endphp
+                                                        <p class="font-bold text-green-600 text-sm md:text-base mt-2 flex items-center gap-2">
+                                                            مبروك عليك {{ $prize }}
+                                                        </p>
+                                                    </div>
+                                                    @if($winner->position == 1)
+                                                        <i class="fas fa-crown text-amber-400 text-2xl relative z-10" style="filter:drop-shadow(0 0 10px rgba(245,158,11,0.4));"></i>
+                                                    @elseif($winner->position <= 3)
+                                                        <i class="fas fa-medal text-{{ $winner->position == 2 ? 'gray-400' : 'amber-700/60' }} text-xl relative z-10"></i>
+                                                    @endif
+                                                </div>
+                                @endforeach
                                     </div>
+                                </div>
+                            </div>
+                @endif
+
+                    @php $correctAnswers = $quizQuestion->answers->where('is_correct', true); @endphp
+                    @if($correctAnswers->count() > 0)
+                        <div id="correctAnswersSection" class="glass-effect rounded-2xl p-5"
+                            style="{{ $hideWinnersForAnim ?? false ? 'display:none;' : '' }}">
+                            <h4 class="text-sm font-bold text-green-600 mb-3 flex items-center gap-2">
+                                <i class="fas fa-check-circle"></i> من جاوب صح ({{ $correctAnswers->count() }})
+                            </h4>
+                            <div class="flex flex-wrap gap-2">
+                                @foreach($correctAnswers as $ans)
+                                    <span class="inline-flex items-center gap-1 bg-green-50 text-green-700 px-3 py-1.5 rounded-lg text-sm border border-green-200">
+                                        {{ $ans->user->name ?? '-' }}
+                                    </span>
                                 @endforeach
                             </div>
                         </div>
-                    </div>
-                @endif
+                    @endif
 
-                @php $correctAnswers = $quizQuestion->answers->where('is_correct', true); @endphp
-                @if($correctAnswers->count() > 0)
-                    <div id="correctAnswersSection" class="glass-effect rounded-2xl p-5"
-                        style="{{ $hideWinnersForAnim ?? false ? 'display:none;' : '' }}">
-                        <h4 class="text-sm font-bold text-green-600 mb-3 flex items-center gap-2"><i
-                                class="fas fa-check-circle"></i> من جاوب صح ({{ $correctAnswers->count() }})</h4>
-                        <div class="flex flex-wrap gap-2">
-                            @foreach($correctAnswers as $ans)
-                                <span
-                                    class="inline-flex items-center gap-1 bg-green-50 text-green-700 px-3 py-1.5 rounded-lg text-sm border border-green-200">{{ $ans->user->name ?? '-' }}</span>
-                            @endforeach
+                    @if($quizQuestion->winners->count() === 0 && !(isset($selectionAt) && $selectionAt && now()->lt($selectionAt)))
+                        <div class="glass-effect rounded-2xl p-6 text-center"
+                            style="{{ $hideWinnersForAnim ?? false ? 'display:none;' : '' }}">
+                            <i class="fas fa-hourglass-end text-gray-300 text-3xl mb-3"></i>
+                            <p class="text-gray-500 font-medium">لم يتم اختيار فائزين بعد</p>
                         </div>
-                    </div>
+                    @endif
+                </div>
+
+                @if(isset($selectionAt) && $selectionAt)
+                    <input type="hidden" id="selectionAtMs" value="{{ $selectionAt->getTimestamp() * 1000 }}">
+                    <input type="hidden" id="endAtMs" value="{{ $quizCompetition->end_at->getTimestamp() * 1000 }}">
+                    <input type="hidden" id="winnerApiUrl" value="{{ route('quiz-competitions.question.winner', [$quizCompetition, $quizQuestion]) }}">
+                    <input type="hidden" id="hasWinnersAlready" value="{{ $quizQuestion->winners->count() > 0 ? '1' : '0' }}">
+                    <input type="hidden" id="correctCount" value="{{ $stats['correct'] }}">
+                    <input type="hidden" id="candidateNamesJsonEnded" value='@json($candidateNames ?? [])'>
                 @endif
 
-                @if($quizQuestion->winners->count() === 0 && !(isset($selectionAt) && $selectionAt && now()->lt($selectionAt)))
-                    <div class="glass-effect rounded-2xl p-6 text-center"
-                        style="{{ $hideWinnersForAnim ?? false ? 'display:none;' : '' }}"><i
-                            class="fas fa-hourglass-end text-gray-300 text-3xl mb-3"></i>
-                        <p class="text-gray-500 font-medium">لم يتم اختيار فائزين بعد</p>
-                    </div>
-                @endif
-            </div>
-
-            @if(isset($selectionAt) && $selectionAt)
-                <input type="hidden" id="selectionAtMs" value="{{ $selectionAt->getTimestamp() * 1000 }}">
-                <input type="hidden" id="endAtMs" value="{{ $quizCompetition->end_at->getTimestamp() * 1000 }}">
-                <input type="hidden" id="winnerApiUrl"
-                    value="{{ route('quiz-competitions.question.winner', [$quizCompetition, $quizQuestion]) }}">
-                <input type="hidden" id="hasWinnersAlready" value="{{ $quizQuestion->winners->count() > 0 ? '1' : '0' }}">
-                <input type="hidden" id="correctCount" value="{{ $stats['correct'] }}">
-                <input type="hidden" id="candidateNamesJsonEnded" value='@json($candidateNames ?? [])'>
-            @endif
-
-            {{-- ==================== نشط ==================== --}}
         @else
+            {{-- ==================== نشط ==================== --}}
+
             {{-- مودال نتيجة الإجابة (صح / خطأ) --}}
             @if(session('answer_submitted') && isset($quizQuestion))
                 <div id="answerResultOverlay" class="{{ session('answer_correct') ? 'result-correct' : 'result-wrong' }}"
@@ -1092,19 +1103,30 @@
                             <div class="absolute inset-0 opacity-20 pointer-events-none"
                                 style="background: radial-gradient(circle at 50% 30%, rgba(34,197,94,0.4), transparent 60%);"></div>
                             <div class="relative z-10">
-                                <div
-                                    class="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center bg-gradient-to-br from-green-400 to-green-600 shadow-lg">
+                                <div class="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center bg-gradient-to-br from-green-400 to-green-600 shadow-lg">
                                     <i class="fas fa-check-circle text-white text-4xl"></i>
                                 </div>
                                 <h2 id="answerResultTitle" class="text-xl md:text-2xl font-bold text-green-800 mb-2">أحسنت!</h2>
                                 <p class="text-green-700 font-medium">إجابتك صحيحة</p>
+                                @if(!empty($quizQuestion->prize))
+                                    @php 
+                                        $displayPrize = is_array($quizQuestion->prize) ? ($quizQuestion->prize[0] ?? null) : $quizQuestion->prize;
+                                    @endphp
+                                    @if($displayPrize)
+                                        <div class="mt-4 p-4 rounded-2xl bg-white/50 border border-green-200">
+                                            <p class="text-green-800 font-bold"><i class="fas fa-gift mr-1"></i> مبروك عليك: {{ $displayPrize }}</p>
+                                            @if(is_array($quizQuestion->prize) && count($quizQuestion->prize) > 1)
+                                                <p class="text-xs text-green-600 mt-1">بالإضافة إلى جوائز أخرى للمراكز التالية</p>
+                                            @endif
+                                        </div>
+                                    @endif
+                                @endif
                             </div>
                         @else
                             <div class="absolute inset-0 opacity-20 pointer-events-none"
                                 style="background: radial-gradient(circle at 50% 30%, rgba(239,68,68,0.3), transparent 60%);"></div>
                             <div class="relative z-10">
-                                <div
-                                    class="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center bg-gradient-to-br from-red-400 to-red-600 shadow-lg">
+                                <div class="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center bg-gradient-to-br from-red-400 to-red-600 shadow-lg">
                                     <i class="fas fa-times-circle text-white text-4xl"></i>
                                 </div>
                                 <h2 id="answerResultTitle" class="text-xl md:text-2xl font-bold text-red-800 mb-2">للأسف</h2>
@@ -1319,43 +1341,72 @@
                                     <div class="space-y-2 sortable-list" data-question-id="{{ $quizQuestion->id }}">
                                         @foreach($shuffledChoices as $choice)
                                             <div data-id="{{ $choice->id }}"
-                                                class="flex items-center gap-4 p-4 rounded-xl border-2 border-gray-200 bg-white hover:border-green-300 cursor-move transition-all sortable-item select-none shadow-sm text-gray-700">
-                                                <i class="fas fa-grip-lines text-gray-400"></i>
-                                                <span
-                                                    class="font-medium text-sm md:text-base flex-grow">{{ $choice->choice_text }}</span>
-                                                <input type="hidden" name="answer[]" value="{{ $choice->id }}"
-                                                    class="ordering-input-hidden">
+                                                class="flex flex-col gap-2 p-4 rounded-xl border-2 border-gray-200 bg-white hover:border-green-300 cursor-move transition-all sortable-item select-none shadow-sm text-gray-700">
+                                                <div class="flex items-center gap-4">
+                                                    <i class="fas fa-grip-lines text-gray-400"></i>
+                                                    @if($choice->image)
+                                                        <img src="{{ asset('storage/' . $choice->image) }}"
+                                                            class="w-16 h-16 object-cover rounded-lg shadow-sm">
+                                                    @endif
+                                                    <span
+                                                        class="font-medium text-sm md:text-base flex-grow">{{ $choice->choice_text }}</span>
+                                                    <input type="hidden" name="answer[]" value="{{ $choice->id }}"
+                                                        class="ordering-input-hidden">
+                                                </div>
+                                                @if($choice->video)
+                                                    <video src="{{ asset('storage/' . $choice->video) }}"
+                                                        class="w-full max-h-48 rounded-lg mt-2" controls></video>
+                                                @endif
                                             </div>
                                         @endforeach
                                     </div>
-                                @elseif($quizQuestion->is_multiple_selections)
-                                    @php
-                                        $requiredCount = $quizQuestion->getRequiredCorrectAnswersCount();
-                                    @endphp
-                                    <p class="text-sm text-green-700 font-medium mb-2 pr-2">
-                                        <i class="fas fa-info-circle ml-1"></i> بجب اختيار عدد ({{ $requiredCount }}) إجابات صحيحة
-                                        <input type="hidden" id="requiredChoicesCount" value="{{ $requiredCount }}">
-                                    </p>
-                                @endif
+                                @elseif($quizQuestion->answer_type === 'custom_text')
+                                    <textarea name="answer" rows="4" required
+                                        class="w-full px-4 py-3.5 rounded-xl border-2 border-gray-200 bg-white/70 text-gray-800 text-sm resize-none focus:ring-4 focus:ring-green-200 focus:border-green-500 transition-all"
+                                        placeholder="اكتب إجابتك هنا...">{{ old('answer') }}</textarea>
+                                @else
+                                    @if($quizQuestion->is_multiple_selections)
+                                        @php
+                                            $requiredCount = $quizQuestion->getRequiredCorrectAnswersCount();
+                                        @endphp
+                                        <p class="text-sm text-green-700 font-medium mb-2 pr-2">
+                                            <i class="fas fa-info-circle ml-1"></i> بجب اختيار عدد ({{ $requiredCount }}) إجابات صحيحة
+                                            <input type="hidden" id="requiredChoicesCount" value="{{ $requiredCount }}">
+                                        </p>
+                                    @endif
 
-                                @foreach($quizQuestion->choices as $choice)
-                                    <label class="choice-option flex items-center gap-4 p-4 rounded-xl cursor-pointer">
-                                        @if($quizQuestion->is_multiple_selections)
-                                            <input type="checkbox" name="answer[]" value="{{ $choice->id }}"
-                                                class="hidden quiz-checkbox-input">
-                                            <div
-                                                class="relative w-6 h-6 rounded flex items-center justify-center border-2 border-gray-300 bg-gray-100 flex-shrink-0 transition-all custom-checkbox">
-                                                <i class="fas fa-check text-white text-xs opacity-0 transition-opacity"></i>
+                                    @foreach($quizQuestion->choices as $choice)
+                                        <label class="choice-option flex items-center gap-4 p-4 rounded-xl cursor-pointer">
+                                            @if($quizQuestion->is_multiple_selections)
+                                                <input type="checkbox" name="answer[]" value="{{ $choice->id }}"
+                                                    class="hidden quiz-checkbox-input">
+                                                <div
+                                                    class="relative w-6 h-6 rounded flex items-center justify-center border-2 border-gray-300 bg-gray-100 flex-shrink-0 transition-all custom-checkbox">
+                                                    <i class="fas fa-check text-white text-xs opacity-0 transition-opacity"></i>
+                                                </div>
+                                            @else
+                                                <input type="radio" name="answer" value="{{ $choice->id }}" class="hidden" required>
+                                                <span
+                                                    class="choice-number w-10 h-10 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-500 font-bold text-sm flex-shrink-0 transition-all">{{ $loop->iteration }}</span>
+                                            @endif
+                                            <div class="flex-grow flex flex-col gap-2">
+                                                <div class="flex items-center gap-3">
+                                                    @if($choice->image)
+                                                        <img src="{{ asset('storage/' . $choice->image) }}"
+                                                            class="w-16 h-16 md:w-20 md:h-20 object-cover rounded-lg shadow-sm">
+                                                    @endif
+                                                    <span
+                                                        class="text-gray-700 font-medium text-sm md:text-base">{{ $choice->choice_text }}</span>
+                                                </div>
+                                                @if($choice->video)
+                                                    <video src="{{ asset('storage/' . $choice->video) }}"
+                                                        class="w-full max-h-64 rounded-xl mt-2 border border-gray-100 shadow-inner"
+                                                        controls></video>
+                                                @endif
                                             </div>
-                                        @else
-                                            <input type="radio" name="answer" value="{{ $choice->id }}" class="hidden" required>
-                                            <span
-                                                class="choice-number w-10 h-10 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-500 font-bold text-sm flex-shrink-0 transition-all">{{ $loop->iteration }}</span>
-                                        @endif
-                                        <span
-                                            class="text-gray-700 font-medium text-sm md:text-base">{{ $choice->choice_text }}</span>
-                                    </label>
-                                @endforeach
+                                        </label>
+                                    @endforeach
+                                @endif
                             </div>
 
                             <style>
@@ -1368,92 +1419,88 @@
                                     opacity: 1;
                                 }
                             </style>
-                            <textarea name="answer" rows="4" required
-                                class="w-full px-4 py-3.5 rounded-xl border-2 border-gray-200 bg-white/70 text-gray-800 text-sm resize-none focus:ring-4 focus:ring-green-200 focus:border-green-500 transition-all"
-                                placeholder="اكتب إجابتك هنا...">{{ old('answer') }}</textarea>
+                        @if(!$quizCompetition->show_draw_only)</form>@endif
                 @endif
-                        <!-- <button type="button" onclick="submitQuizForm()" class="w-full py-4 md:py-5 rounded-2xl text-white font-bold text-lg flex items-center justify-center gap-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl active:scale-[0.98]" style="background:linear-gradient(135deg,#22c55e,#16a34a);box-shadow:0 8px 25px rgba(34,197,94,0.4);"><i class="fas fa-paper-plane"></i><span>إرسال الإجابة</span></button> -->
-                </form>
-        @endif
-        </div>
+            </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <!-- SortableJS for Drag and Drop Ordering -->
-        <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            <!-- SortableJS for Drag and Drop Ordering -->
+            <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 
-        <script>
-            function submitQuizForm() {
-                const form = document.getElementById('quizForm');
-                const requiredCountInput = document.getElementById('requiredChoicesCount');
+            <script>
+                function submitQuizForm() {
+                    const form = document.getElementById('quizForm');
+                    const requiredCountInput = document.getElementById('requiredChoicesCount');
 
-                if (requiredCountInput) {
-                    const requiredCount = parseInt(requiredCountInput.value);
-                    const checkedBoxes = document.querySelectorAll('.quiz-checkbox-input:checked');
+                    if (requiredCountInput) {
+                        const requiredCount = parseInt(requiredCountInput.value);
+                        const checkedBoxes = document.querySelectorAll('.quiz-checkbox-input:checked');
 
-                    if (checkedBoxes.length !== requiredCount) {
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'تنبيه',
-                            text: `الرجاء اختيار عدد ${requiredCount} إجابات كما هو مطلوب بالسؤال.`,
-                            confirmButtonColor: '#22c55e',
-                            confirmButtonText: 'حسناً'
-                        });
+                        if (checkedBoxes.length !== requiredCount) {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'تنبيه',
+                                text: `الرجاء اختيار عدد ${requiredCount} إجابات كما هو مطلوب بالسؤال.`,
+                                confirmButtonColor: '#22c55e',
+                                confirmButtonText: 'حسناً'
+                            });
+                            return;
+                        }
+                    }
+
+                    // Trigger native form submission validation
+                    if (!form.reportValidity()) {
                         return;
                     }
+
+                    form.submit();
                 }
 
-                // Trigger native form submission validation
-                if (!form.reportValidity()) {
-                    return;
-                }
+                // Limit checkbox selections
+                document.addEventListener('DOMContentLoaded', function () {
+                    const requiredCountInput = document.getElementById('requiredChoicesCount');
+                    if (requiredCountInput) {
+                        const requiredCount = parseInt(requiredCountInput.value);
+                        const checkboxes = document.querySelectorAll('.quiz-checkbox-input');
 
-                form.submit();
-            }
+                        checkboxes.forEach(cb => {
+                            cb.addEventListener('change', function () {
+                                const checked = document.querySelectorAll('.quiz-checkbox-input:checked');
+                                if (checked.length > requiredCount) {
+                                    this.checked = false;
+                                    Swal.fire({
+                                        icon: 'info',
+                                        title: 'تم تجاوز الحد الأقصى',
+                                        text: `لا يمكنك اختيار أكثر من ${requiredCount} إجابات.`,
+                                        confirmButtonColor: '#22c55e',
+                                        confirmButtonText: 'حسناً',
+                                        toast: true,
+                                        position: 'top-end',
+                                        showConfirmButton: false,
+                                        timer: 3000
+                                    });
+                                }
+                            });
+                        });
+                    }
 
-            // Limit checkbox selections
-            document.addEventListener('DOMContentLoaded', function () {
-                const requiredCountInput = document.getElementById('requiredChoicesCount');
-                if (requiredCountInput) {
-                    const requiredCount = parseInt(requiredCountInput.value);
-                    const checkboxes = document.querySelectorAll('.quiz-checkbox-input');
-
-                    checkboxes.forEach(cb => {
-                        cb.addEventListener('change', function () {
-                            const checked = document.querySelectorAll('.quiz-checkbox-input:checked');
-                            if (checked.length > requiredCount) {
-                                this.checked = false;
-                                Swal.fire({
-                                    icon: 'info',
-                                    title: 'تم تجاوز الحد الأقصى',
-                                    text: `لا يمكنك اختيار أكثر من ${requiredCount} إجابات.`,
-                                    confirmButtonColor: '#22c55e',
-                                    confirmButtonText: 'حسناً',
-                                    toast: true,
-                                    position: 'top-end',
-                                    showConfirmButton: false,
-                                    timer: 3000
-                                });
-                            }
+                    // Initialize SortableJS
+                    const lists = document.querySelectorAll('.sortable-list');
+                    lists.forEach(list => {
+                        new Sortable(list, {
+                            animation: 150,
+                            ghostClass: 'bg-green-50',
                         });
                     });
-                }
-
-                // Initialize SortableJS
-                const lists = document.querySelectorAll('.sortable-list');
-                lists.forEach(list => {
-                    new Sortable(list, {
-                        animation: 150,
-                        ghostClass: 'bg-green-50',
-                    });
                 });
-            });
-        </script>
+            </script>
 
-        <div class="mt-8 text-center">
-            <a href="{{ route('quiz-competitions.show', $quizCompetition) }}"
-                class="inline-flex items-center gap-2 text-green-600 hover:text-green-700 transition-colors text-sm font-medium"><i
-                    class="fas fa-arrow-right"></i><span>العودة للمسابقة</span></a>
-        </div>
+            <div class="mt-8 text-center">
+                <a href="{{ route('quiz-competitions.show', $quizCompetition) }}"
+                    class="inline-flex items-center gap-2 text-green-600 hover:text-green-700 transition-colors text-sm font-medium"><i
+                        class="fas fa-arrow-right"></i><span>العودة للمسابقة</span></a>
+            </div>
+        @endif
     </div>
 
     <script>
@@ -1764,17 +1811,24 @@
                             else if (currentWinnerIndex === 2) positionText = "المركز الثالث";
                             else positionText = "المركز " + (currentWinnerIndex + 1);
 
-                            document.getElementById('announceTitle').textContent = "مبروك للفائز بـ " + positionText + "!";
+                            document.getElementById('announceTitle').textContent = "مبروك عليك الفوز بـ " + positionText + "!";
 
                             var prizeEl = document.getElementById('announcePrize');
                             if (prizeEl) {
+                                let prizes = @json($quizQuestion->prize ?? []);
+                                if (typeof prizes === 'string' && prizes !== '') {
+                                    prizes = [prizes];
+                                }
+                                
                                 let prizeText = "";
-                                if (currentWinnerIndex === 0) prizeText = "مبروك عليك 500 ريال";
-                                else if (currentWinnerIndex === 1) prizeText = "مبروك عليك 300 ريال";
-                                else if (currentWinnerIndex === 2) prizeText = "مبروك عليك 200 ريال";
+                                if (Array.isArray(prizes) && prizes.length > currentWinnerIndex) {
+                                    prizeText = prizes[currentWinnerIndex];
+                                } else if (Array.isArray(prizes) && prizes.length > 0) {
+                                    prizeText = prizes[0]; // Fallback to first prize if not specified for this rank
+                                }
 
                                 if (prizeText) {
-                                    prizeEl.textContent = prizeText;
+                                    prizeEl.textContent = "مبروك عليك " + prizeText;
                                     prizeEl.classList.remove('hidden');
                                 } else {
                                     prizeEl.classList.add('hidden');

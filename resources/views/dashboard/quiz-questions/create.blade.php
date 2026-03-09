@@ -19,7 +19,7 @@
         <div class="card shadow-sm border-0">
             <div class="card-body">
                 <form action="{{ route('dashboard.quiz-questions.store', $quizCompetition) }}" method="POST"
-                    id="questionForm">
+                    id="questionForm" enctype="multipart/form-data">
                     @csrf
 
                     <div class="form-group">
@@ -38,6 +38,14 @@
                         @error('description')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
+                    </div>
+
+                    <div class="form-group" id="prizesContainerGroup">
+                        <label>الجوائز (تظهر لكل مركز حسب الترتيب)</label>
+                        <div id="prizesContainer" class="mb-3">
+                            <!-- Dynamic prize inputs will appear here -->
+                        </div>
+                        <p class="text-muted small">سيتم إنشاء حقول الجوائز تلقائياً بناءً على "عدد الفائزين".</p>
                     </div>
 
                     <div class="form-group">
@@ -87,6 +95,20 @@
                                     </div>
                                     <input type="text" class="form-control" name="choices[{{ $i }}][text]"
                                         placeholder="نص الخيار {{ $i + 1 }}" value="{{ old("choices.{$i}.text") }}">
+
+                                    <div class="input-group-append">
+                                        <label class="btn btn-outline-info mb-0" title="رفع صورة">
+                                            <i class="fas fa-image"></i>
+                                            <input type="file" name="choices[{{ $i }}][image]" class="choice-image-input d-none"
+                                                accept="image/*">
+                                        </label>
+                                        <label class="btn btn-outline-info mb-0" title="رفع فيديو">
+                                            <i class="fas fa-video"></i>
+                                            <input type="file" name="choices[{{ $i }}][video]" class="choice-video-input d-none"
+                                                accept="video/*">
+                                        </label>
+                                    </div>
+
                                     <input type="hidden" name="choices[{{ $i }}][is_correct]" value="{{ $i == 0 ? '1' : '0' }}"
                                         class="choice-correct">
 
@@ -95,6 +117,7 @@
                                             style="display:none;"><i class="fas fa-trash"></i></button>
                                     </div>
                                 </div>
+                                <div class="choice-media-preview mb-2 px-3 small text-muted" id="preview-{{ $i }}"></div>
                             @endfor
                         </div>
                         <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="addChoice"><i
@@ -290,23 +313,39 @@
                 const div = document.createElement('div');
                 div.className = 'input-group mb-2 choice-row';
                 div.innerHTML = `
-                        <div class="input-group-prepend">
-                            <div class="input-group-text correct-choice-container">
-                                ${inputHtml}
-                            </div>
-                        </div>
-                        <input type="text" class="form-control" name="choices[${idx}][text]" placeholder="نص الخيار">
-                        <input type="hidden" name="choices[${idx}][is_correct]" value="0" class="choice-correct">
-                        <div class="input-group-append">
-                            <button type="button" class="btn btn-outline-danger remove-choice"><i class="fas fa-trash"></i></button>
-                        </div>
-                    `;
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text correct-choice-container">
+                                        ${inputHtml}
+                                    </div>
+                                </div>
+                                <input type="text" class="form-control" name="choices[${idx}][text]" placeholder="نص الخيار">
+                                <div class="input-group-append">
+                                    <label class="btn btn-outline-info mb-0" title="رفع صورة">
+                                        <i class="fas fa-image"></i>
+                                        <input type="file" name="choices[${idx}][image]" class="choice-image-input d-none" accept="image/*">
+                                    </label>
+                                    <label class="btn btn-outline-info mb-0" title="رفع فيديو">
+                                        <i class="fas fa-video"></i>
+                                        <input type="file" name="choices[${idx}][video]" class="choice-video-input d-none" accept="video/*">
+                                    </label>
+                                </div>
+                                <input type="hidden" name="choices[${idx}][is_correct]" value="0" class="choice-correct">
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-outline-danger remove-choice"><i class="fas fa-trash"></i></button>
+                                </div>
+                            `;
                 choicesContainer.appendChild(div);
 
+                const mediaPreviewDiv = document.createElement('div');
+                mediaPreviewDiv.className = 'choice-media-preview mb-2 px-3 small text-muted';
+                div.after(mediaPreviewDiv);
+
                 attachChoiceListeners();
+                attachMediaListeners(div); // Attach listeners to the new row
 
                 div.querySelector('.remove-choice').addEventListener('click', function () {
                     div.remove();
+                    mediaPreviewDiv.remove(); // Remove the associated preview div
                     reindexChoices();
                 });
             });
@@ -319,6 +358,8 @@
                     const container = row.querySelector('.correct-choice-container');
                     const hidden = row.querySelector('.choice-correct');
                     const textInput = row.querySelector('input[type="text"]');
+                    const imageInput = row.querySelector('.choice-image-input');
+                    const videoInput = row.querySelector('.choice-video-input');
 
                     if (isOrdering) {
                         container.innerHTML = `<i class="fas fa-grip-lines drag-handle text-muted mr-2" style="cursor: move;" title="اسحب للترتيب"></i><span class="badge badge-info">${idx + 1}</span>`;
@@ -329,6 +370,8 @@
 
                     textInput.name = `choices[${idx}][text]`;
                     hidden.name = `choices[${idx}][is_correct]`;
+                    if (imageInput) imageInput.name = `choices[${idx}][image]`;
+                    if (videoInput) videoInput.name = `choices[${idx}][video]`;
                 });
 
                 if (!isOrdering) attachChoiceListeners();
@@ -339,7 +382,11 @@
                     btn.addEventListener('click', function () {
                         const row = btn.closest('.choice-row');
                         if (choicesContainer.querySelectorAll('.choice-row').length > 1) {
+                            const mediaPreview = row.nextElementSibling;
                             row.remove();
+                            if (mediaPreview && mediaPreview.classList.contains('choice-media-preview')) {
+                                mediaPreview.remove();
+                            }
                             reindexChoices();
                         }
                     });
@@ -349,36 +396,95 @@
             // Initial listener attachment
             attachChoiceListeners();
 
+            function attachMediaListeners(container = choicesContainer) {
+                container.querySelectorAll('.choice-image-input, .choice-video-input').forEach(input => {
+                    input.addEventListener('change', function () {
+                        const row = this.closest('.choice-row');
+                        let preview = row.nextElementSibling;
+                        if (!preview || !preview.classList.contains('choice-media-preview')) {
+                            preview = document.createElement('div');
+                            preview.className = 'choice-media-preview mb-2 px-3 small text-muted';
+                            row.after(preview);
+                        }
+
+                        if (this.files && this.files[0]) {
+                            const fileName = this.files[0].name;
+                            const type = this.classList.contains('choice-image-input') ? 'صورة' : 'فيديو';
+                            preview.innerHTML = `<span class="badge badge-light border"><i class="fas fa-${type === 'صورة' ? 'image' : 'video'} mr-1"></i> ${type}: ${fileName}</span>`;
+                        } else {
+                            preview.innerHTML = ''; // Clear preview if no file selected
+                        }
+                    });
+                });
+            }
+
+            attachMediaListeners();
+
+            // Prizes dynamic inputs
+            const winnersCountInput = document.getElementById('winners_count');
+            const prizesContainer = document.getElementById('prizesContainer');
+
+            function updatePrizeInputs() {
+                const count = parseInt(winnersCountInput.value) || 0;
+                const currentPrizes = @json(old('prize', []));
+
+                // Keep track of existing values to preserve them if count changes
+                const existingValues = [];
+                prizesContainer.querySelectorAll('input').forEach(input => {
+                    existingValues.push(input.value);
+                });
+
+                prizesContainer.innerHTML = '';
+                for (let i = 0; i < count; i++) {
+                    const div = document.createElement('div');
+                    div.className = 'input-group mb-2';
+
+                    const label = i === 0 ? 'المركز الأول' : (i === 1 ? 'المركز الثاني' : (i === 2 ? 'المركز الثالث' : `المركز ${i + 1}`));
+                    const placeholder = i === 0 ? 'مثال: آيفون 15' : 'الجائزة';
+                    const value = (existingValues[i] !== undefined) ? existingValues[i] : (currentPrizes[i] || '');
+
+                    div.innerHTML = `
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">${label}</span>
+                            </div>
+                            <input type="text" name="prize[]" class="form-control" placeholder="${placeholder}" value="${value}">
+                        `;
+                    prizesContainer.appendChild(div);
+                }
+            }
+
+            winnersCountInput.addEventListener('input', updatePrizeInputs);
+            updatePrizeInputs(); // Initial call
+
             document.getElementById('questionForm').addEventListener('submit', function () {
                 updateHiddenValues();
             });
         });
-    </script>
 @endsection
 
-@push('styles')
-    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-bs4.min.css" rel="stylesheet">
-@endpush
+    @push('styles')
+        <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-bs4.min.css" rel="stylesheet">
+    @endpush
 
-@push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-bs4.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            // Summernote editor for description (rich text)
-            $('#description').summernote({
-                height: 200,
-                direction: 'rtl',
-                toolbar: [
-                    ['style', ['style']],
-                    ['font', ['bold', 'italic', 'underline', 'clear']],
-                    ['fontname', ['fontname']],
-                    ['color', ['color']],
-                    ['para', ['ul', 'ol', 'paragraph']],
-                    ['table', ['table']],
-                    ['insert', ['link', 'picture', 'video']],
-                    ['view', ['fullscreen', 'codeview', 'help']]
-                ]
-            });
-        });
-    </script>
-@endpush
+        @push('scripts')
+                    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-bs4.min.js"></script>
+            <script>
+                            $(document).ready(function () {
+                                // Summernote editor for description (rich text)
+                                $('#description').summernote({
+                                    height: 200,
+                                    direction: 'rtl',
+                                    toolbar: [
+                                        ['style', ['style']],
+                                        ['font', ['bold', 'italic', 'underline', 'clear']],
+                                        ['fontname', ['fontname']],
+                                        ['color', ['color']],
+                                        ['para', ['ul', 'ol', 'paragraph']],
+                                        ['table', ['table']],
+                                        ['insert', ['link', 'picture', 'video']],
+                                        ['view', ['fullscreen', 'codeview', 'help']]
+                                    ]
+                                });
+                                });
+            </script>
+        @endpush

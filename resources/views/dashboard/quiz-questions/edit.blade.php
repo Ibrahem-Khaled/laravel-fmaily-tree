@@ -19,7 +19,7 @@
         <div class="card shadow-sm border-0">
             <div class="card-body">
                 <form action="{{ route('dashboard.quiz-questions.update', [$quizCompetition, $quizQuestion]) }}"
-                    method="POST" id="questionForm">
+                    method="POST" id="questionForm" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
 
@@ -40,6 +40,14 @@
                         @error('description')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
+                    </div>
+
+                    <div class="form-group" id="prizesContainerGroup">
+                        <label>الجوائز (تظهر لكل مركز حسب الترتيب)</label>
+                        <div id="prizesContainer" class="mb-3">
+                            <!-- Dynamic prize inputs will appear here -->
+                        </div>
+                        <p class="text-muted small">سيتم إنشاء حقول الجوائز تلقائياً بناءً على "عدد الفائزين".</p>
                     </div>
 
                     <div class="form-group">
@@ -80,26 +88,54 @@
                         <label>الخيارات <span class="text-danger">*</span></label>
                         <p class="text-muted small" id="choicesHint">حدد الخيار الصحيح بعلامة ✓</p>
                         <div id="choicesContainer">
-                            @php $choices = old('choices', $quizQuestion->choices->map(fn($c) => ['text' => $c->choice_text, 'is_correct' => $c->is_correct])->values()->all()); @endphp
+                            @php 
+                                $choices = old('choices', $quizQuestion->choices->map(fn($c) => [
+                                    'text' => $c->choice_text, 
+                                    'is_correct' => $c->is_correct,
+                                    'image' => $c->image,
+                                    'video' => $c->video
+                                ])->values()->all()); 
+                            @endphp
                             @if(count($choices) > 0)
                                 @foreach($choices as $i => $choice)
-                                    <div class="input-group mb-2 choice-row">
-                                        <div class="input-group-prepend">
-                                            <div class="input-group-text correct-choice-container">
-                                                <input type="radio" class="correct-choice-input" name="correct_choice"
-                                                    value="{{ $i }}" {{ !empty($choice['is_correct']) ? 'checked' : '' }}
-                                                    title="الإجابة الصحيحة">
+                                        <div class="input-group mb-2 choice-row">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text correct-choice-container">
+                                                    <input type="radio" class="correct-choice-input" name="correct_choice"
+                                                        value="{{ $i }}" {{ !empty($choice['is_correct']) ? 'checked' : '' }}
+                                                        title="الإجابة الصحيحة">
+                                                </div>
+                                            </div>
+                                            <input type="text" class="form-control" name="choices[{{ $i }}][text]"
+                                                placeholder="نص الخيار {{ $i + 1 }}" value="{{ $choice['text'] ?? '' }}">
+                                            
+                                            <div class="input-group-append">
+                                                <label class="btn btn-outline-info mb-0" title="رفع صورة">
+                                                    <i class="fas fa-image"></i>
+                                                    <input type="file" name="choices[{{ $i }}][image]" class="choice-image-input d-none" accept="image/*">
+                                                </label>
+                                                <label class="btn btn-outline-info mb-0" title="رفع فيديو">
+                                                    <i class="fas fa-video"></i>
+                                                    <input type="file" name="choices[{{ $i }}][video]" class="choice-video-input d-none" accept="video/*">
+                                                </label>
+                                            </div>
+
+                                            <input type="hidden" name="choices[{{ $i }}][is_correct]"
+                                                value="{{ !empty($choice['is_correct']) ? '1' : '0' }}" class="choice-correct">
+                                            
+                                            <div class="input-group-append">
+                                                <button type="button" class="btn btn-outline-danger remove-choice"><i
+                                                        class="fas fa-trash"></i></button>
                                             </div>
                                         </div>
-                                        <input type="text" class="form-control" name="choices[{{ $i }}][text]"
-                                            placeholder="نص الخيار {{ $i + 1 }}" value="{{ $choice['text'] ?? '' }}">
-                                        <input type="hidden" name="choices[{{ $i }}][is_correct]"
-                                            value="{{ !empty($choice['is_correct']) ? '1' : '0' }}" class="choice-correct">
-                                        <div class="input-group-append">
-                                            <button type="button" class="btn btn-outline-danger remove-choice"><i
-                                                    class="fas fa-trash"></i></button>
+                                        <div class="choice-media-preview mb-2 px-3 small text-muted">
+                                            @if(!empty($choice['image']))
+                                                <span class="badge badge-info mr-1" title="صورة موجودة"><i class="fas fa-image"></i> تم الرفع</span>
+                                            @endif
+                                            @if(!empty($choice['video']))
+                                                <span class="badge badge-info mr-1" title="فيديو موجود"><i class="fas fa-video"></i> تم الرفع</span>
+                                            @endif
                                         </div>
-                                    </div>
                                 @endforeach
                             @else
                                 @for($i = 0; $i < 4; $i++)
@@ -371,8 +407,71 @@
                 });
             });
 
-            // Initial listener attachment
-            attachChoiceListeners();
+            function attachMediaListeners(container = choicesContainer) {
+                container.querySelectorAll('.choice-image-input, .choice-video-input').forEach(input => {
+                    input.addEventListener('change', function() {
+                        const row = this.closest('.choice-row');
+                        let preview = row.nextElementSibling;
+                        if (!preview || !preview.classList.contains('choice-media-preview')) {
+                            preview = document.createElement('div');
+                            preview.className = 'choice-media-preview mb-2 px-3 small text-muted';
+                            row.after(preview);
+                        }
+                        
+                        if (this.files && this.files[0]) {
+                            const fileName = this.files[0].name;
+                            const type = this.classList.contains('choice-image-input') ? 'صورة' : 'فيديو';
+                            preview.innerHTML = `<span class="badge badge-light border"><i class="fas fa-${type === 'صورة' ? 'image' : 'video'} mr-1"></i> ${type}: ${fileName}</span>`;
+                        } else {
+                            preview.innerHTML = '';
+                        }
+                    });
+                });
+            }
+
+            attachMediaListeners();
+
+            // Prizes dynamic inputs
+            const winnersCountInput = document.getElementById('winners_count');
+            const prizesContainer = document.getElementById('prizesContainer');
+
+            function updatePrizeInputs() {
+                const count = parseInt(winnersCountInput.value) || 0;
+                // Important: handle both string (legacy) and array (new) formats for prizes
+                let existingPrizes = @json(old('prize', $quizQuestion->prize ?? []));
+                if (typeof existingPrizes === 'string') {
+                    existingPrizes = [existingPrizes];
+                }
+                
+                // Track current inputs to preserve them during live editing if count changes
+                const currentInputValues = [];
+                prizesContainer.querySelectorAll('input').forEach(input => {
+                    currentInputValues.push(input.value);
+                });
+
+                prizesContainer.innerHTML = '';
+                for (let i = 0; i < count; i++) {
+                    const div = document.createElement('div');
+                    div.className = 'input-group mb-2';
+                    
+                    const label = i === 0 ? 'المركز الأول' : (i === 1 ? 'المركز الثاني' : (i === 2 ? 'المركز الثالث' : `المركز ${i+1}`));
+                    const placeholder = i === 0 ? 'مثال: آيفون 15' : 'الجائزة';
+                    
+                    // Priority: Current typing > Old input > Database value
+                    let val = (currentInputValues[i] !== undefined) ? currentInputValues[i] : (existingPrizes[i] || '');
+
+                    div.innerHTML = `
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">${label}</span>
+                        </div>
+                        <input type="text" name="prize[]" class="form-control" placeholder="${placeholder}" value="${val}">
+                    `;
+                    prizesContainer.appendChild(div);
+                }
+            }
+
+            winnersCountInput.addEventListener('input', updatePrizeInputs);
+            updatePrizeInputs(); // Initial call
 
             document.getElementById('questionForm').addEventListener('submit', function () {
                 updateHiddenValues();

@@ -18,10 +18,12 @@ class QuizQuestion extends BaseModel
         'is_multiple_selections',
         'winners_count',
         'display_order',
+        'prize',
     ];
 
     protected $casts = [
         'is_multiple_selections' => 'boolean',
+        'prize' => 'array',
         'winners_count' => 'integer',
         'display_order' => 'integer',
     ];

@@ -13,6 +13,8 @@ class QuizQuestionChoice extends BaseModel
         'quiz_question_id',
         'choice_text',
         'is_correct',
+        'image',
+        'video',
     ];
 
     protected $casts = [
