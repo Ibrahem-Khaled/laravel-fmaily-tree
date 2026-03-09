@@ -2,6 +2,10 @@
 
 @section('title', 'تعديل سؤال')
 
+@push('styles')
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-bs4.min.css" rel="stylesheet">
+@endpush
+
 @section('content')
     <div class="container-fluid">
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
@@ -44,9 +48,7 @@
 
                     <div class="form-group" id="prizesContainerGroup">
                         <label>الجوائز (تظهر لكل مركز حسب الترتيب)</label>
-                        <div id="prizesContainer" class="mb-3">
-                            <!-- Dynamic prize inputs will appear here -->
-                        </div>
+                        <div id="prizesContainer" class="mb-3"></div>
                         <p class="text-muted small">سيتم إنشاء حقول الجوائز تلقائياً بناءً على "عدد الفائزين".</p>
                     </div>
 
@@ -55,30 +57,33 @@
                         <div class="d-flex gap-4">
                             <div class="custom-control custom-radio custom-control-inline">
                                 <input type="radio" id="type_multiple_choice" name="answer_type"
-                                    class="custom-control-input answer-type-radio" value="multiple_choice" {{ old('answer_type', $quizQuestion->answer_type) == 'multiple_choice' ? 'checked' : '' }}
-                                    required>
+                                    class="custom-control-input answer-type-radio" value="multiple_choice"
+                                    {{ old('answer_type', $quizQuestion->answer_type) == 'multiple_choice' ? 'checked' : '' }} required>
                                 <label class="custom-control-label" for="type_multiple_choice">اختيار من متعدد</label>
                             </div>
                             <div class="custom-control custom-radio custom-control-inline">
                                 <input type="radio" id="type_ordering" name="answer_type"
-                                    class="custom-control-input answer-type-radio" value="ordering" {{ old('answer_type', $quizQuestion->answer_type) == 'ordering' ? 'checked' : '' }} required>
+                                    class="custom-control-input answer-type-radio" value="ordering"
+                                    {{ old('answer_type', $quizQuestion->answer_type) == 'ordering' ? 'checked' : '' }} required>
                                 <label class="custom-control-label" for="type_ordering">ترتيب (سحب وإفلات)</label>
                             </div>
                             <div class="custom-control custom-radio custom-control-inline">
                                 <input type="radio" id="type_custom_text" name="answer_type"
-                                    class="custom-control-input answer-type-radio" value="custom_text" {{ old('answer_type', $quizQuestion->answer_type) == 'custom_text' ? 'checked' : '' }} required>
+                                    class="custom-control-input answer-type-radio" value="custom_text"
+                                    {{ old('answer_type', $quizQuestion->answer_type) == 'custom_text' ? 'checked' : '' }} required>
                                 <label class="custom-control-label" for="type_custom_text">إجابة حرة (نص)</label>
                             </div>
                         </div>
                         @error('answer_type')
-                            <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
                         @enderror
                     </div>
 
                     <div class="form-group" id="multipleSelectionsGroup">
                         <div class="custom-control custom-switch">
                             <input type="checkbox" class="custom-control-input" id="is_multiple_selections"
-                                name="is_multiple_selections" value="1" {{ old('is_multiple_selections', $quizQuestion->is_multiple_selections) ? 'checked' : '' }}>
+                                name="is_multiple_selections" value="1"
+                                {{ old('is_multiple_selections', $quizQuestion->is_multiple_selections) ? 'checked' : '' }}>
                             <label class="custom-control-label font-weight-bold text-primary"
                                 for="is_multiple_selections">السؤال يقبل إجابات صحيحة متعددة؟</label>
                         </div>
@@ -87,55 +92,55 @@
                     <div id="choicesSection" class="form-group">
                         <label>الخيارات <span class="text-danger">*</span></label>
                         <p class="text-muted small" id="choicesHint">حدد الخيار الصحيح بعلامة ✓</p>
+                        <p class="text-info small" id="singleChoiceHint" style="display:none;">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            عند ترك خيار واحد فقط، سيظهر للمستخدم كزر واحد في صفحة السؤال والرئيسية.
+                        </p>
                         <div id="choicesContainer">
-                            @php 
+                            @php
                                 $choices = old('choices', $quizQuestion->choices->map(fn($c) => [
-                                    'text' => $c->choice_text, 
+                                    'text' => $c->choice_text,
                                     'is_correct' => $c->is_correct,
                                     'image' => $c->image,
                                     'video' => $c->video
-                                ])->values()->all()); 
+                                ])->values()->all());
                             @endphp
                             @if(count($choices) > 0)
                                 @foreach($choices as $i => $choice)
-                                        <div class="input-group mb-2 choice-row">
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text correct-choice-container">
-                                                    <input type="radio" class="correct-choice-input" name="correct_choice"
-                                                        value="{{ $i }}" {{ !empty($choice['is_correct']) ? 'checked' : '' }}
-                                                        title="الإجابة الصحيحة">
-                                                </div>
-                                            </div>
-                                            <input type="text" class="form-control" name="choices[{{ $i }}][text]"
-                                                placeholder="نص الخيار {{ $i + 1 }}" value="{{ $choice['text'] ?? '' }}">
-                                            
-                                            <div class="input-group-append">
-                                                <label class="btn btn-outline-info mb-0" title="رفع صورة">
-                                                    <i class="fas fa-image"></i>
-                                                    <input type="file" name="choices[{{ $i }}][image]" class="choice-image-input d-none" accept="image/*">
-                                                </label>
-                                                <label class="btn btn-outline-info mb-0" title="رفع فيديو">
-                                                    <i class="fas fa-video"></i>
-                                                    <input type="file" name="choices[{{ $i }}][video]" class="choice-video-input d-none" accept="video/*">
-                                                </label>
-                                            </div>
-
-                                            <input type="hidden" name="choices[{{ $i }}][is_correct]"
-                                                value="{{ !empty($choice['is_correct']) ? '1' : '0' }}" class="choice-correct">
-                                            
-                                            <div class="input-group-append">
-                                                <button type="button" class="btn btn-outline-danger remove-choice"><i
-                                                        class="fas fa-trash"></i></button>
+                                    <div class="input-group mb-2 choice-row">
+                                        <div class="input-group-prepend">
+                                            <div class="input-group-text correct-choice-container">
+                                                <input type="radio" class="correct-choice-input" name="correct_choice"
+                                                    value="{{ $i }}" {{ !empty($choice['is_correct']) ? 'checked' : '' }}
+                                                    title="الإجابة الصحيحة">
                                             </div>
                                         </div>
-                                        <div class="choice-media-preview mb-2 px-3 small text-muted">
-                                            @if(!empty($choice['image']))
-                                                <span class="badge badge-info mr-1" title="صورة موجودة"><i class="fas fa-image"></i> تم الرفع</span>
-                                            @endif
-                                            @if(!empty($choice['video']))
-                                                <span class="badge badge-info mr-1" title="فيديو موجود"><i class="fas fa-video"></i> تم الرفع</span>
-                                            @endif
+                                        <input type="text" class="form-control" name="choices[{{ $i }}][text]"
+                                            placeholder="نص الخيار {{ $i + 1 }}" value="{{ $choice['text'] ?? '' }}">
+                                        <div class="input-group-append">
+                                            <label class="btn btn-outline-info mb-0" title="رفع صورة">
+                                                <i class="fas fa-image"></i>
+                                                <input type="file" name="choices[{{ $i }}][image]" class="choice-image-input d-none" accept="image/*">
+                                            </label>
+                                            <label class="btn btn-outline-info mb-0" title="رفع فيديو">
+                                                <i class="fas fa-video"></i>
+                                                <input type="file" name="choices[{{ $i }}][video]" class="choice-video-input d-none" accept="video/*">
+                                            </label>
                                         </div>
+                                        <input type="hidden" name="choices[{{ $i }}][is_correct]"
+                                            value="{{ !empty($choice['is_correct']) ? '1' : '0' }}" class="choice-correct">
+                                        <div class="input-group-append">
+                                            <button type="button" class="btn btn-outline-danger remove-choice"><i class="fas fa-trash"></i></button>
+                                        </div>
+                                    </div>
+                                    <div class="choice-media-preview mb-2 px-3 small text-muted">
+                                        @if(!empty($choice['image']))
+                                            <span class="badge badge-info mr-1" title="صورة موجودة"><i class="fas fa-image"></i> تم الرفع</span>
+                                        @endif
+                                        @if(!empty($choice['video']))
+                                            <span class="badge badge-info mr-1" title="فيديو موجود"><i class="fas fa-video"></i> تم الرفع</span>
+                                        @endif
+                                    </div>
                                 @endforeach
                             @else
                                 @for($i = 0; $i < 4; $i++)
@@ -148,24 +153,33 @@
                                         </div>
                                         <input type="text" class="form-control" name="choices[{{ $i }}][text]"
                                             placeholder="نص الخيار {{ $i + 1 }}">
-                                        <input type="hidden" name="choices[{{ $i }}][is_correct]" value="{{ $i == 0 ? '1' : '0' }}"
-                                            class="choice-correct">
                                         <div class="input-group-append">
-                                            <button type="button" class="btn btn-outline-danger remove-choice"><i
-                                                    class="fas fa-trash"></i></button>
+                                            <label class="btn btn-outline-info mb-0" title="رفع صورة">
+                                                <i class="fas fa-image"></i>
+                                                <input type="file" name="choices[{{ $i }}][image]" class="choice-image-input d-none" accept="image/*">
+                                            </label>
+                                            <label class="btn btn-outline-info mb-0" title="رفع فيديو">
+                                                <i class="fas fa-video"></i>
+                                                <input type="file" name="choices[{{ $i }}][video]" class="choice-video-input d-none" accept="video/*">
+                                            </label>
+                                        </div>
+                                        <input type="hidden" name="choices[{{ $i }}][is_correct]" value="{{ $i == 0 ? '1' : '0' }}" class="choice-correct">
+                                        <div class="input-group-append">
+                                            <button type="button" class="btn btn-outline-danger remove-choice"><i class="fas fa-trash"></i></button>
                                         </div>
                                     </div>
+                                    <div class="choice-media-preview mb-2 px-3 small text-muted"></div>
                                 @endfor
                             @endif
                         </div>
-                        <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="addChoice"><i
-                                class="fas fa-plus mr-1"></i>إضافة خيار</button>
+                        <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="addChoice">
+                            <i class="fas fa-plus mr-1"></i>إضافة خيار
+                        </button>
                     </div>
 
                     <div class="alert alert-info small">
-                        <i class="fas fa-info-circle mr-2"></i>وقت بداية ونهاية الأسئلة يحدد من المسابقة نفسها في <a
-                            href="{{ route('dashboard.quiz-competitions.edit', $quizCompetition) }}"
-                            class="alert-link">تعديل المسابقة</a>.
+                        <i class="fas fa-info-circle mr-2"></i>وقت بداية ونهاية الأسئلة يحدد من المسابقة نفسها في
+                        <a href="{{ route('dashboard.quiz-competitions.edit', $quizCompetition) }}" class="alert-link">تعديل المسابقة</a>.
                     </div>
 
                     <div class="row">
@@ -197,8 +211,7 @@
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-save mr-2"></i>حفظ التعديلات
                         </button>
-                        <a href="{{ route('dashboard.quiz-competitions.show', $quizCompetition) }}"
-                            class="btn btn-secondary">
+                        <a href="{{ route('dashboard.quiz-competitions.show', $quizCompetition) }}" class="btn btn-secondary">
                             <i class="fas fa-times mr-2"></i>إلغاء
                         </a>
                     </div>
@@ -206,64 +219,89 @@
             </div>
         </div>
     </div>
+@endsection
 
-    <!-- SortableJS for Drag and Drop -->
+@push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-bs4.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const answerTypeRadios = document.querySelectorAll('.answer-type-radio');
+        $(document).ready(function () {
+            if ($('#description').length) {
+                $('#description').summernote({
+                    height: 200,
+                    direction: 'rtl',
+                    toolbar: [
+                        ['style', ['style']],
+                        ['font', ['bold', 'italic', 'underline', 'clear']],
+                        ['fontname', ['fontname']],
+                        ['color', ['color']],
+                        ['para', ['ul', 'ol', 'paragraph']],
+                        ['table', ['table']],
+                        ['insert', ['link', 'picture', 'video']],
+                        ['view', ['fullscreen', 'codeview', 'help']]
+                    ]
+                });
+            }
+
+            var choicesContainer = document.getElementById('choicesContainer');
+            var choicesSection = document.getElementById('choicesSection');
+            var multipleSelectionsGroup = document.getElementById('multipleSelectionsGroup');
+            var isMultipleSwitch = document.getElementById('is_multiple_selections');
+            var addChoiceBtn = document.getElementById('addChoice');
+            var singleChoiceHint = document.getElementById('singleChoiceHint');
+            var sortableInstance = null;
 
             function getSelectedAnswerType() {
-                const checked = document.querySelector('.answer-type-radio:checked');
+                var checked = document.querySelector('.answer-type-radio:checked');
                 return checked ? checked.value : 'multiple_choice';
             }
 
-            const isMultipleSwitch = document.getElementById('is_multiple_selections');
-            const multipleSelectionsGroup = document.getElementById('multipleSelectionsGroup');
-            const choicesSection = document.getElementById('choicesSection');
-            const choicesContainer = document.getElementById('choicesContainer');
-            const addChoiceBtn = document.getElementById('addChoice');
+            function updateSingleChoiceHint() {
+                var rows = choicesContainer.querySelectorAll('.choice-row');
+                var type = getSelectedAnswerType();
+                if (singleChoiceHint) {
+                    singleChoiceHint.style.display = (type === 'multiple_choice' && !isMultipleSwitch.checked && rows.length === 1) ? 'block' : 'none';
+                }
+            }
 
             function toggleChoices() {
-                const type = getSelectedAnswerType();
-                const isChoice = type === 'multiple_choice';
-                const isOrdering = type === 'ordering';
+                var type = getSelectedAnswerType();
+                var isChoice = type === 'multiple_choice';
+                var isOrdering = type === 'ordering';
 
                 choicesSection.style.display = (isChoice || isOrdering) ? 'block' : 'none';
                 multipleSelectionsGroup.style.display = isChoice ? 'block' : 'none';
 
-                const hint = document.getElementById('choicesHint');
-                if (isOrdering) {
-                    hint.textContent = 'أدخل الخيارات بالترتيب الصحيح، ستظهر للمستخدم بشكل عشوائي ليرتبها.';
-                } else {
-                    hint.textContent = 'حدد الخيار الصحيح بعلامة ✓';
-                }
+                var hint = document.getElementById('choicesHint');
+                hint.textContent = isOrdering
+                    ? 'أدخل الخيارات بالترتيب الصحيح، ستظهر للمستخدم بشكل عشوائي ليرتبها.'
+                    : 'حدد الخيار الصحيح بعلامة ✓';
 
                 updateChoiceInputsType();
+                updateSingleChoiceHint();
             }
 
             function updateChoiceInputsType() {
-                const type = getSelectedAnswerType();
-                const isOrdering = type === 'ordering';
-                const isMultiple = isMultipleSwitch.checked && !isOrdering;
-                const rows = choicesContainer.querySelectorAll('.choice-row');
+                var type = getSelectedAnswerType();
+                var isOrdering = type === 'ordering';
+                var isMultiple = isMultipleSwitch.checked && !isOrdering;
+                var rows = choicesContainer.querySelectorAll('.choice-row');
 
-                rows.forEach((row, idx) => {
-                    const container = row.querySelector('.correct-choice-container');
-                    const hidden = row.querySelector('.choice-correct');
-                    const wasChecked = hidden.value === '1';
+                rows.forEach(function (row, idx) {
+                    var container = row.querySelector('.correct-choice-container');
+                    var hidden = row.querySelector('.choice-correct');
+                    var wasChecked = hidden.value === '1';
 
                     if (isOrdering) {
-                        container.innerHTML = `<i class="fas fa-grip-lines drag-handle text-muted mr-2" style="cursor: move;" title="اسحب للترتيب"></i><span class="badge badge-info">${idx + 1}</span>`;
+                        container.innerHTML = '<i class="fas fa-grip-lines drag-handle text-muted mr-2" style="cursor:move;" title="اسحب للترتيب"></i><span class="badge badge-info">' + (idx + 1) + '</span>';
                         hidden.value = '1';
                         row.classList.add('is-ordering');
                     } else {
                         row.classList.remove('is-ordering');
                         if (isMultiple) {
-                            container.innerHTML = `<input type="checkbox" class="correct-choice-input" name="correct_choices[]" value="${idx}" ${wasChecked ? 'checked' : ''} title="إجابة صحيحة">`;
+                            container.innerHTML = '<input type="checkbox" class="correct-choice-input" name="correct_choices[]" value="' + idx + '" ' + (wasChecked ? 'checked' : '') + ' title="إجابة صحيحة">';
                         } else {
-                            container.innerHTML = `<input type="radio" class="correct-choice-input" name="correct_choice" value="${idx}" ${wasChecked ? 'checked' : ''} title="الإجابة الصحيحة">`;
+                            container.innerHTML = '<input type="radio" class="correct-choice-input" name="correct_choice" value="' + idx + '" ' + (wasChecked ? 'checked' : '') + ' title="الإجابة الصحيحة">';
                         }
                     }
                 });
@@ -272,37 +310,35 @@
             }
 
             function attachChoiceListeners() {
-                choicesContainer.querySelectorAll('.correct-choice-input').forEach(input => {
+                choicesContainer.querySelectorAll('.correct-choice-input').forEach(function (input) {
                     input.addEventListener('change', updateHiddenValues);
                 });
             }
 
             function updateHiddenValues() {
-                const type = getSelectedAnswerType();
-                const isOrdering = type === 'ordering';
-                const isMultiple = isMultipleSwitch.checked && !isOrdering;
-                const rows = choicesContainer.querySelectorAll('.choice-row');
+                var type = getSelectedAnswerType();
+                var isOrdering = type === 'ordering';
+                var isMultiple = isMultipleSwitch.checked && !isOrdering;
+                var rows = choicesContainer.querySelectorAll('.choice-row');
 
-                rows.forEach((row, idx) => {
-                    const hidden = row.querySelector('.choice-correct');
-
+                rows.forEach(function (row, idx) {
+                    var hidden = row.querySelector('.choice-correct');
                     if (isOrdering) {
                         hidden.value = '1';
                     } else if (isMultiple) {
-                        const input = row.querySelector('.correct-choice-input');
+                        var input = row.querySelector('.correct-choice-input');
                         if (input) hidden.value = input.checked ? '1' : '0';
                     }
                 });
 
                 if (!isMultiple && !isOrdering) {
-                    document.querySelectorAll('.choice-correct').forEach((h, i) => {
-                        const r = document.querySelector(`input[name="correct_choice"][value="${i}"]`);
+                    document.querySelectorAll('.choice-correct').forEach(function (h, i) {
+                        var r = document.querySelector('input[name="correct_choice"][value="' + i + '"]');
                         if (r) h.value = r.checked ? '1' : '0';
                     });
                 }
             }
 
-            let sortableInstance = null;
             function toggleSortable() {
                 if (getSelectedAnswerType() === 'ordering') {
                     if (!sortableInstance) {
@@ -310,118 +346,66 @@
                             animation: 150,
                             handle: '.drag-handle',
                             ghostClass: 'bg-light',
-                            onEnd: function () {
-                                reindexChoices();
-                            }
+                            onEnd: function () { reindexChoices(); }
                         });
                     }
                 } else {
-                    if (sortableInstance) {
-                        sortableInstance.destroy();
-                        sortableInstance = null;
-                    }
+                    if (sortableInstance) { sortableInstance.destroy(); sortableInstance = null; }
                 }
             }
 
-            answerTypeRadios.forEach(radio => {
-                radio.addEventListener('change', function () {
-                    toggleChoices();
-                    toggleSortable();
-                });
-            });
-            isMultipleSwitch.addEventListener('change', updateChoiceInputsType);
-            toggleChoices();
-            toggleSortable();
-
-            addChoiceBtn.addEventListener('click', function () {
-                const idx = choicesContainer.querySelectorAll('.choice-row').length;
-                const type = getSelectedAnswerType();
-                const isOrdering = type === 'ordering';
-                const isMultiple = isMultipleSwitch.checked && !isOrdering;
-
-                let inputHtml = '';
-                if (isOrdering) {
-                    inputHtml = `<i class="fas fa-grip-lines drag-handle text-muted mr-2" style="cursor: move;" title="اسحب للترتيب"></i><span class="badge badge-info">${idx + 1}</span>`;
-                } else if (isMultiple) {
-                    inputHtml = `<input type="checkbox" class="correct-choice-input" name="correct_choices[]" value="${idx}" title="إجابة صحيحة">`;
-                } else {
-                    inputHtml = `<input type="radio" class="correct-choice-input" name="correct_choice" value="${idx}" title="الإجابة الصحيحة">`;
-                }
-
-                const div = document.createElement('div');
-                div.className = 'input-group mb-2 choice-row';
-                div.innerHTML = `
-                            <div class="input-group-prepend">
-                                <div class="input-group-text correct-choice-container">
-                                    ${inputHtml}
-                                </div>
-                            </div>
-                            <input type="text" class="form-control" name="choices[${idx}][text]" placeholder="نص الخيار">
-                            <input type="hidden" name="choices[${idx}][is_correct]" value="0" class="choice-correct">
-                            <div class="input-group-append">
-                                <button type="button" class="btn btn-outline-danger remove-choice"><i class="fas fa-trash"></i></button>
-                            </div>
-                        `;
-                choicesContainer.appendChild(div);
-
-                attachChoiceListeners();
-
-                div.querySelector('.remove-choice').addEventListener('click', function () {
-                    if (choicesContainer.querySelectorAll('.choice-row').length > 1) {
-                        div.remove();
-                        reindexChoices();
-                    }
-                });
-            });
+            function removeChoiceRow(row) {
+                if (choicesContainer.querySelectorAll('.choice-row').length <= 1) return;
+                var preview = row.nextElementSibling;
+                row.remove();
+                if (preview && preview.classList.contains('choice-media-preview')) preview.remove();
+                reindexChoices();
+                updateSingleChoiceHint();
+            }
 
             function reindexChoices() {
-                const rows = choicesContainer.querySelectorAll('.choice-row');
-                const isOrdering = getSelectedAnswerType() === 'ordering';
-                rows.forEach((row, idx) => {
-                    const input = row.querySelector('.correct-choice-input');
-                    const container = row.querySelector('.correct-choice-container');
-                    const hidden = row.querySelector('.choice-correct');
-                    const textInput = row.querySelector('input[type="text"]');
+                var rows = choicesContainer.querySelectorAll('.choice-row');
+                var isOrdering = getSelectedAnswerType() === 'ordering';
+                rows.forEach(function (row, idx) {
+                    var input = row.querySelector('.correct-choice-input');
+                    var container = row.querySelector('.correct-choice-container');
+                    var hidden = row.querySelector('.choice-correct');
+                    var textInput = row.querySelector('input[type="text"]');
+                    var imageInput = row.querySelector('.choice-image-input');
+                    var videoInput = row.querySelector('.choice-video-input');
 
                     if (isOrdering) {
-                        container.innerHTML = `<i class="fas fa-grip-lines drag-handle text-muted mr-2" style="cursor: move;" title="اسحب للترتيب"></i><span class="badge badge-info">${idx + 1}</span>`;
+                        container.innerHTML = '<i class="fas fa-grip-lines drag-handle text-muted mr-2" style="cursor:move;" title="اسحب للترتيب"></i><span class="badge badge-info">' + (idx + 1) + '</span>';
                         hidden.value = '1';
                     } else if (input) {
                         input.value = idx;
                     }
 
-                    textInput.name = `choices[${idx}][text]`;
-                    hidden.name = `choices[${idx}][is_correct]`;
+                    textInput.name = 'choices[' + idx + '][text]';
+                    hidden.name = 'choices[' + idx + '][is_correct]';
+                    if (imageInput) imageInput.name = 'choices[' + idx + '][image]';
+                    if (videoInput) videoInput.name = 'choices[' + idx + '][video]';
                 });
 
                 if (!isOrdering) attachChoiceListeners();
             }
 
-            choicesContainer.querySelectorAll('.remove-choice').forEach(btn => {
-                btn.addEventListener('click', function () {
-                    const row = btn.closest('.choice-row');
-                    if (choicesContainer.querySelectorAll('.choice-row').length > 1) {
-                        row.remove();
-                        reindexChoices();
-                    }
-                });
-            });
-
-            function attachMediaListeners(container = choicesContainer) {
-                container.querySelectorAll('.choice-image-input, .choice-video-input').forEach(input => {
-                    input.addEventListener('change', function() {
-                        const row = this.closest('.choice-row');
-                        let preview = row.nextElementSibling;
+            function attachMediaListeners(container) {
+                container = container || choicesContainer;
+                container.querySelectorAll('.choice-image-input, .choice-video-input').forEach(function (input) {
+                    input.addEventListener('change', function () {
+                        var row = this.closest('.choice-row');
+                        var preview = row.nextElementSibling;
                         if (!preview || !preview.classList.contains('choice-media-preview')) {
                             preview = document.createElement('div');
                             preview.className = 'choice-media-preview mb-2 px-3 small text-muted';
                             row.after(preview);
                         }
-                        
                         if (this.files && this.files[0]) {
-                            const fileName = this.files[0].name;
-                            const type = this.classList.contains('choice-image-input') ? 'صورة' : 'فيديو';
-                            preview.innerHTML = `<span class="badge badge-light border"><i class="fas fa-${type === 'صورة' ? 'image' : 'video'} mr-1"></i> ${type}: ${fileName}</span>`;
+                            var fileName = this.files[0].name;
+                            var mediaType = this.classList.contains('choice-image-input') ? 'صورة' : 'فيديو';
+                            var icon = mediaType === 'صورة' ? 'image' : 'video';
+                            preview.innerHTML = '<span class="badge badge-light border"><i class="fas fa-' + icon + ' mr-1"></i> ' + mediaType + ': ' + fileName + '</span>';
                         } else {
                             preview.innerHTML = '';
                         }
@@ -429,80 +413,105 @@
                 });
             }
 
-            attachMediaListeners();
+            // Bind answer type change
+            document.querySelectorAll('.answer-type-radio').forEach(function (radio) {
+                radio.addEventListener('change', function () {
+                    toggleChoices();
+                    toggleSortable();
+                });
+            });
+            isMultipleSwitch.addEventListener('change', function () {
+                updateChoiceInputsType();
+                updateSingleChoiceHint();
+            });
 
-            // Prizes dynamic inputs
-            const winnersCountInput = document.getElementById('winners_count');
-            const prizesContainer = document.getElementById('prizesContainer');
+            // Bind existing remove buttons
+            choicesContainer.querySelectorAll('.remove-choice').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    removeChoiceRow(btn.closest('.choice-row'));
+                });
+            });
+
+            // Add choice button
+            addChoiceBtn.addEventListener('click', function () {
+                var idx = choicesContainer.querySelectorAll('.choice-row').length;
+                var type = getSelectedAnswerType();
+                var isOrdering = type === 'ordering';
+                var isMultiple = isMultipleSwitch.checked && !isOrdering;
+
+                var inputHtml = '';
+                if (isOrdering) {
+                    inputHtml = '<i class="fas fa-grip-lines drag-handle text-muted mr-2" style="cursor:move;" title="اسحب للترتيب"></i><span class="badge badge-info">' + (idx + 1) + '</span>';
+                } else if (isMultiple) {
+                    inputHtml = '<input type="checkbox" class="correct-choice-input" name="correct_choices[]" value="' + idx + '" title="إجابة صحيحة">';
+                } else {
+                    inputHtml = '<input type="radio" class="correct-choice-input" name="correct_choice" value="' + idx + '" title="الإجابة الصحيحة">';
+                }
+
+                var div = document.createElement('div');
+                div.className = 'input-group mb-2 choice-row';
+                div.innerHTML =
+                    '<div class="input-group-prepend"><div class="input-group-text correct-choice-container">' + inputHtml + '</div></div>' +
+                    '<input type="text" class="form-control" name="choices[' + idx + '][text]" placeholder="نص الخيار">' +
+                    '<div class="input-group-append">' +
+                        '<label class="btn btn-outline-info mb-0" title="رفع صورة"><i class="fas fa-image"></i><input type="file" name="choices[' + idx + '][image]" class="choice-image-input d-none" accept="image/*"></label>' +
+                        '<label class="btn btn-outline-info mb-0" title="رفع فيديو"><i class="fas fa-video"></i><input type="file" name="choices[' + idx + '][video]" class="choice-video-input d-none" accept="video/*"></label>' +
+                    '</div>' +
+                    '<input type="hidden" name="choices[' + idx + '][is_correct]" value="0" class="choice-correct">' +
+                    '<div class="input-group-append"><button type="button" class="btn btn-outline-danger remove-choice"><i class="fas fa-trash"></i></button></div>';
+
+                choicesContainer.appendChild(div);
+
+                var mediaPreviewDiv = document.createElement('div');
+                mediaPreviewDiv.className = 'choice-media-preview mb-2 px-3 small text-muted';
+                div.after(mediaPreviewDiv);
+
+                attachChoiceListeners();
+                attachMediaListeners(div);
+                div.querySelector('.remove-choice').addEventListener('click', function () {
+                    removeChoiceRow(div);
+                });
+                updateSingleChoiceHint();
+            });
+
+            // Prizes
+            var winnersCountInput = document.getElementById('winners_count');
+            var prizesContainer = document.getElementById('prizesContainer');
+            var existingPrizes = @json(old('prize', $quizQuestion->prize ?? []));
+            if (typeof existingPrizes === 'string') existingPrizes = [existingPrizes];
 
             function updatePrizeInputs() {
-                const count = parseInt(winnersCountInput.value) || 0;
-                // Important: handle both string (legacy) and array (new) formats for prizes
-                let existingPrizes = @json(old('prize', $quizQuestion->prize ?? []));
-                if (typeof existingPrizes === 'string') {
-                    existingPrizes = [existingPrizes];
-                }
-                
-                // Track current inputs to preserve them during live editing if count changes
-                const currentInputValues = [];
-                prizesContainer.querySelectorAll('input').forEach(input => {
+                var count = parseInt(winnersCountInput.value) || 0;
+                var currentInputValues = [];
+                prizesContainer.querySelectorAll('input').forEach(function (input) {
                     currentInputValues.push(input.value);
                 });
-
                 prizesContainer.innerHTML = '';
-                for (let i = 0; i < count; i++) {
-                    const div = document.createElement('div');
+                for (var i = 0; i < count; i++) {
+                    var label = i === 0 ? 'المركز الأول' : (i === 1 ? 'المركز الثاني' : (i === 2 ? 'المركز الثالث' : 'المركز ' + (i + 1)));
+                    var placeholder = i === 0 ? 'مثال: آيفون 15' : 'الجائزة';
+                    var val = (currentInputValues[i] !== undefined) ? currentInputValues[i] : (existingPrizes[i] || '');
+                    var div = document.createElement('div');
                     div.className = 'input-group mb-2';
-                    
-                    const label = i === 0 ? 'المركز الأول' : (i === 1 ? 'المركز الثاني' : (i === 2 ? 'المركز الثالث' : `المركز ${i+1}`));
-                    const placeholder = i === 0 ? 'مثال: آيفون 15' : 'الجائزة';
-                    
-                    // Priority: Current typing > Old input > Database value
-                    let val = (currentInputValues[i] !== undefined) ? currentInputValues[i] : (existingPrizes[i] || '');
-
-                    div.innerHTML = `
-                        <div class="input-group-prepend">
-                            <span class="input-group-text">${label}</span>
-                        </div>
-                        <input type="text" name="prize[]" class="form-control" placeholder="${placeholder}" value="${val}">
-                    `;
+                    div.innerHTML = '<div class="input-group-prepend"><span class="input-group-text">' + label + '</span></div>' +
+                        '<input type="text" name="prize[]" class="form-control" placeholder="' + placeholder + '" value="' + val + '">';
                     prizesContainer.appendChild(div);
                 }
             }
 
             winnersCountInput.addEventListener('input', updatePrizeInputs);
-            updatePrizeInputs(); // Initial call
+            updatePrizeInputs();
 
+            // Submit
             document.getElementById('questionForm').addEventListener('submit', function () {
                 updateHiddenValues();
             });
-        });
-    </script>
-@endsection
 
-@push('styles')
-    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-bs4.min.css" rel="stylesheet">
-@endpush
-
-@push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-bs4.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            // Summernote editor for description (rich text)
-            $('#description').summernote({
-                height: 200,
-                direction: 'rtl',
-                toolbar: [
-                    ['style', ['style']],
-                    ['font', ['bold', 'italic', 'underline', 'clear']],
-                    ['fontname', ['fontname']],
-                    ['color', ['color']],
-                    ['para', ['ul', 'ol', 'paragraph']],
-                    ['table', ['table']],
-                    ['insert', ['link', 'picture', 'video']],
-                    ['view', ['fullscreen', 'codeview', 'help']]
-                ]
-            });
+            // Initial state
+            attachChoiceListeners();
+            attachMediaListeners();
+            toggleChoices();
+            toggleSortable();
         });
     </script>
 @endpush

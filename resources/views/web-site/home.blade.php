@@ -191,6 +191,11 @@
             }
         }
 
+        @keyframes pulse-soft {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+
         /* ============================================================
                    Quiz – Rich-text content (description & question)
                    ============================================================ */
@@ -647,43 +652,61 @@
                                                             @endforeach
                                                         </div>
                                                     @elseif ($q->answer_type === 'multiple_choice' && $q->choices->count() > 0)
-                                                        @if($q->is_multiple_selections)
-                                                            @php
-                                                                $requiredCount = $q->getRequiredCorrectAnswersCount();
-                                                            @endphp
+                                                        @if(!$q->is_multiple_selections && $q->choices->count() === 1)
+                                                            {{-- Single answer: hidden input + button replaces submit --}}
+                                                            @php $singleChoice = $q->choices->first(); @endphp
+                                                            <input type="hidden" name="answer" value="{{ $singleChoice->id }}">
                                                             <p class="text-xs text-green-700 font-medium mb-2">
-                                                                يجب اختيار {{ $requiredCount }} إجابات
-                                                                <input type="hidden" class="required-choices-count" value="{{ $requiredCount }}">
+                                                                <i class="fas fa-hand-pointer ml-1"></i> اضغط الزر أدناه للإجابة
                                                             </p>
+                                                        @else
+                                                            @if($q->is_multiple_selections)
+                                                                @php
+                                                                    $requiredCount = $q->getRequiredCorrectAnswersCount();
+                                                                @endphp
+                                                                <p class="text-xs text-green-700 font-medium mb-2">
+                                                                    يجب اختيار {{ $requiredCount }} إجابات
+                                                                    <input type="hidden" class="required-choices-count" value="{{ $requiredCount }}">
+                                                                </p>
+                                                            @endif
+                                                            <div class="space-y-2 choice-group">
+                                                                @foreach ($q->choices as $choice)
+                                                                    <label
+                                                                        class="flex items-center gap-3 p-3 rounded-xl border-2 border-gray-200 bg-white hover:border-green-300 hover:bg-green-50/50 cursor-pointer transition-all has-[:checked]:border-green-500 has-[:checked]:bg-green-50">
+                                                                        @if($q->is_multiple_selections)
+                                                                            <input type="checkbox" name="answer[]" value="{{ $choice->id }}"
+                                                                                class="w-4 h-4 text-green-600 home-quiz-checkbox">
+                                                                        @else
+                                                                            <input type="radio" name="answer" value="{{ $choice->id }}"
+                                                                                class="w-4 h-4 text-green-600" required>
+                                                                        @endif
+                                                                        <span
+                                                                            class="text-gray-800 text-sm font-medium">{{ $choice->choice_text }}</span>
+                                                                    </label>
+                                                                @endforeach
+                                                            </div>
                                                         @endif
-                                                        <div class="space-y-2 choice-group">
-                                                            @foreach ($q->choices as $choice)
-                                                                <label
-                                                                    class="flex items-center gap-3 p-3 rounded-xl border-2 border-gray-200 bg-white hover:border-green-300 hover:bg-green-50/50 cursor-pointer transition-all has-[:checked]:border-green-500 has-[:checked]:bg-green-50">
-                                                                    @if($q->is_multiple_selections)
-                                                                        <input type="checkbox" name="answer[]" value="{{ $choice->id }}"
-                                                                            class="w-4 h-4 text-green-600 home-quiz-checkbox">
-                                                                    @else
-                                                                        <input type="radio" name="answer" value="{{ $choice->id }}"
-                                                                            class="w-4 h-4 text-green-600" required>
-                                                                    @endif
-                                                                    <span
-                                                                        class="text-gray-800 text-sm font-medium">{{ $choice->choice_text }}</span>
-                                                                </label>
-                                                            @endforeach
-                                                        </div>
                                                     @else
                                                         <textarea name="answer" rows="3" required placeholder="اكتب إجابتك..."
                                                             class="w-full px-3 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-gray-800 text-sm focus:ring-2 focus:ring-green-200 focus:border-green-500 resize-none">{{ old('answer') }}</textarea>
                                                     @endif
                                                 </div>
 
-                                                <button type="submit" onclick="validateHomeQuiz(event, this)"
-                                                    class="w-full sm:w-auto px-6 py-3 rounded-xl text-white font-bold text-sm inline-flex items-center justify-center gap-2 transition-all hover:opacity-90 mt-4"
-                                                    style="background: linear-gradient(135deg, #22c55e, #16a34a);">
-                                                    <i class="fas fa-paper-plane"></i>
-                                                    إرسال الإجابة
-                                                </button>
+                                                @if($q->answer_type === 'multiple_choice' && !$q->is_multiple_selections && $q->choices->count() === 1)
+                                                    <button type="submit" onclick="validateHomeQuiz(event, this)"
+                                                        class="w-full px-6 py-4 rounded-xl text-white font-bold text-base inline-flex items-center justify-center gap-2 transition-all hover:opacity-90 hover:scale-[1.02] active:scale-[0.98] mt-4"
+                                                        style="background: linear-gradient(135deg, #22c55e, #16a34a); animation: pulse-soft 2s infinite;">
+                                                        <i class="fas fa-hand-pointer"></i>
+                                                        {{ $q->choices->first()->choice_text }}
+                                                    </button>
+                                                @else
+                                                    <button type="submit" onclick="validateHomeQuiz(event, this)"
+                                                        class="w-full sm:w-auto px-6 py-3 rounded-xl text-white font-bold text-sm inline-flex items-center justify-center gap-2 transition-all hover:opacity-90 mt-4"
+                                                        style="background: linear-gradient(135deg, #22c55e, #16a34a);">
+                                                        <i class="fas fa-paper-plane"></i>
+                                                        إرسال الإجابة
+                                                    </button>
+                                                @endif
                                             </form>
                                         @else
                                             <div
