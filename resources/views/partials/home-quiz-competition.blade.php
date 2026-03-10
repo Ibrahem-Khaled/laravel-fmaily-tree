@@ -248,11 +248,15 @@
                                                                 <span class="text-[11px] text-gray-500 font-medium">الترتيب الصحيح (اسقط الصور هنا)</span>
                                                             </div>
                                                             <div class="ordering-slots-grid" id="orderTarget-{{ $q->id }}">
-                                                                @for ($s = 0; $s < $q->choices->count(); $s++)
-                                                                    <div class="ordering-slot" data-slot="{{ $s + 1 }}">
-                                                                        <span class="ordering-slot-num">{{ $s + 1 }}</span>
+                                                                @foreach ($q->choices as $s => $choice)
+                                                                    <div class="ordering-slot flex-col gap-1" data-slot="{{ $s + 1 }}">
+                                                                        @if(!empty($choice->choice_text))
+                                                                            <span class="ordering-slot-text text-xs sm:text-sm text-green-600 font-bold text-center px-1 leading-tight pointer-events-none">{{ $choice->choice_text }}</span>
+                                                                        @else
+                                                                            <span class="ordering-slot-num">{{ $s + 1 }}</span>
+                                                                        @endif
                                                                     </div>
-                                                                @endfor
+                                                                @endforeach
                                                             </div>
                                                         </div>
 
@@ -441,7 +445,8 @@
         background: #fff;
         padding: 0;
     }
-    .ordering-slot.has-image .ordering-slot-num { display: none; }
+    .ordering-slot.has-image .ordering-slot-num,
+    .ordering-slot.has-image .ordering-slot-text { display: none; }
     .ordering-slot.drag-hover {
         border-color: #22c55e;
         background: #dcfce7;
