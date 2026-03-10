@@ -845,6 +845,17 @@
 
                         <!-- ===== Tab: Design ===== -->
                         <div class="sidebar-tab-pane" id="tab-design">
+
+                            {{-- Typography Settings --}}
+                            <div class="setting-group">
+                                <div class="setting-group-title"><i class="fas fa-text-height"></i>الخطوط والنصوص</div>
+                                @include('dashboard.partials.section-typography-settings', [
+                                    'ss'       => $ss,
+                                    'idPrefix' => 'edit',
+                                    'compact'  => true,
+                                ])
+                            </div>
+
                             <div class="setting-group">
                                 <div class="setting-group-title"><i class="fas fa-circle"></i>الألوان</div>
 

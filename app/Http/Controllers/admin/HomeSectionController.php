@@ -39,31 +39,13 @@ class HomeSectionController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'section_type' => 'required|string|max:255',
-            'is_active' => 'nullable|boolean',
-            'settings' => 'nullable|array',
-            'settings.subtitle' => 'nullable|string|max:500',
-            'settings.description' => 'nullable|string|max:2000',
-            'settings.icon' => 'nullable|string|max:100',
-            'settings.background_color' => 'nullable|string|max:50',
-            'settings.text_color' => 'nullable|string|max:50',
-            'settings.padding_top' => 'nullable|integer|min:0|max:200',
-            'settings.padding_bottom' => 'nullable|integer|min:0|max:200',
-            'settings.show_title' => 'nullable|boolean',
-            'settings.columns' => 'nullable|integer|min:1|max:6',
-            'settings.carousel_autoplay' => 'nullable|boolean',
-            'settings.carousel_interval' => 'nullable|integer|min:1000|max:30000',
-            'settings.layout_style' => 'nullable|string|in:grid,horizontal,vertical',
-            'settings.source_limit' => 'nullable|integer|min:1|max:100',
-            'settings.source_order' => 'nullable|string|in:latest,oldest,name_asc,name_desc',
-            'settings.source_mode' => 'nullable|string|in:all,selected',
-            'settings.source_ids' => 'nullable|array',
-            'settings.source_ids.*' => 'nullable|integer',
-            'css_classes' => 'nullable|string|max:500',
-            'content_source_type' => 'nullable|string|max:255',
-        ]);
+        $request->validate(array_merge([
+            'title'                => 'required|string|max:255',
+            'section_type'         => 'required|string|max:255',
+            'is_active'            => 'nullable|boolean',
+            'css_classes'          => 'nullable|string|max:500',
+            'content_source_type'  => 'nullable|string|max:255',
+        ], $this->settingsValidationRules()));
 
         $lastOrder = HomeSection::max('display_order') ?? 0;
 
@@ -107,20 +89,13 @@ class HomeSectionController extends Controller
      */
     public function update(Request $request, HomeSection $homeSection)
     {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'section_type' => 'required|string|max:255',
-            'is_active' => 'nullable|boolean',
-            'settings' => 'nullable|array',
-            'settings.layout_style' => 'nullable|string|in:grid,horizontal,vertical',
-            'settings.source_limit' => 'nullable|integer|min:1|max:100',
-            'settings.source_order' => 'nullable|string|in:latest,oldest,name_asc,name_desc',
-            'settings.source_mode' => 'nullable|string|in:all,selected',
-            'settings.source_ids' => 'nullable|array',
-            'settings.source_ids.*' => 'nullable|integer',
-            'css_classes' => 'nullable|string|max:500',
-            'content_source_type' => 'nullable|string|max:255',
-        ]);
+        $request->validate(array_merge([
+            'title'                => 'required|string|max:255',
+            'section_type'         => 'required|string|max:255',
+            'is_active'            => 'nullable|boolean',
+            'css_classes'          => 'nullable|string|max:500',
+            'content_source_type'  => 'nullable|string|max:255',
+        ], $this->settingsValidationRules()));
 
         $settings = $request->settings ?? [];
         $settings['show_title'] = isset($settings['show_title']) ? true : false;
@@ -194,6 +169,57 @@ class HomeSectionController extends Controller
 
         return redirect()->route('dashboard.home-sections.index')
             ->with('success', 'تم تحديث حالة القسم بنجاح');
+    }
+
+    /**
+     * قواعد التحقق المشتركة لحقل settings بين store() و update()
+     */
+    private function settingsValidationRules(): array
+    {
+        $colorRule  = 'nullable|string|max:50';
+        $sizeValues = implode(',', ['', '13px', '15px', '17px', '20px', '24px', '30px', '36px', '48px']);
+        $weightVals = implode(',', ['', '400', '600', '700', '800', '900']);
+        $alignVals  = 'right,center,left';
+
+        return [
+            'settings'                        => 'nullable|array',
+            // Content
+            'settings.subtitle'               => 'nullable|string|max:500',
+            'settings.description'            => 'nullable|string|max:2000',
+            'settings.icon'                   => 'nullable|string|max:100',
+            'settings.show_title'             => 'nullable|boolean',
+            // Section-wide design
+            'settings.background_color'       => $colorRule,
+            'settings.text_color'             => $colorRule,
+            'settings.padding_top'            => 'nullable|integer|min:0|max:200',
+            'settings.padding_bottom'         => 'nullable|integer|min:0|max:200',
+            // Layout
+            'settings.layout_style'           => 'nullable|string|in:grid,horizontal,vertical',
+            'settings.columns'                => 'nullable|integer|min:1|max:6',
+            // Carousel
+            'settings.carousel_autoplay'      => 'nullable|boolean',
+            'settings.carousel_interval'      => 'nullable|integer|min:1000|max:30000',
+            // Source
+            'settings.source_limit'           => 'nullable|integer|min:1|max:100',
+            'settings.source_order'           => 'nullable|string|in:latest,oldest,name_asc,name_desc',
+            'settings.source_mode'            => 'nullable|string|in:all,selected',
+            'settings.source_ids'             => 'nullable|array',
+            'settings.source_ids.*'           => 'nullable|integer',
+            // Typography – Title
+            'settings.title_color'            => $colorRule,
+            'settings.title_size'             => "nullable|string|in:{$sizeValues}",
+            'settings.title_weight'           => "nullable|string|in:{$weightVals}",
+            'settings.title_align'            => "nullable|string|in:,{$alignVals}",
+            // Typography – Subtitle
+            'settings.subtitle_color'         => $colorRule,
+            'settings.subtitle_size'          => "nullable|string|in:{$sizeValues}",
+            'settings.subtitle_weight'        => "nullable|string|in:{$weightVals}",
+            'settings.subtitle_align'         => "nullable|string|in:,{$alignVals}",
+            // Typography – Description
+            'settings.description_color'      => $colorRule,
+            'settings.description_size'       => "nullable|string|in:{$sizeValues}",
+            'settings.description_align'      => "nullable|string|in:,{$alignVals}",
+        ];
     }
 
     /**

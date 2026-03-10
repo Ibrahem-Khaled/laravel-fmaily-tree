@@ -456,6 +456,23 @@
                 </div>
             </div>
 
+            {{-- Typography Settings --}}
+            <div class="card shadow-sm border-0 mb-4" style="border-radius: 16px;">
+                <div class="card-header bg-white border-bottom py-3" style="border-radius: 16px 16px 0 0;">
+                    <h6 class="mb-0 font-weight-bold text-primary">
+                        <i class="fas fa-text-height mr-2"></i>إعدادات الخطوط والنصوص
+                    </h6>
+                    <small class="text-muted">تحكم في لون وحجم ووزن ومحاذاة كل عنصر نصي بشكل مستقل</small>
+                </div>
+                <div class="card-body p-4">
+                    @include('dashboard.partials.section-typography-settings', [
+                        'ss'       => old('settings', []),
+                        'idPrefix' => 'create',
+                        'compact'  => false,
+                    ])
+                </div>
+            </div>
+
             <div class="text-center mb-4">
                 <button type="button" class="btn btn-light btn-lg mr-2" onclick="goToStep(1)">
                     <i class="fas fa-arrow-right mr-2"></i>تغيير النوع

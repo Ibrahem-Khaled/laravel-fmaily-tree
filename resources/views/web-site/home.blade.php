@@ -440,17 +440,37 @@
     @if (isset($dynamicSections) && $dynamicSections->count() > 0)
         @foreach ($dynamicSections as $section)
             @php
-                $ss = $section->settings ?? [];
-                $bgColor = $ss['background_color'] ?? null;
-                $txtColor = $ss['text_color'] ?? null;
-                $padTop = $ss['padding_top'] ?? null;
-                $padBottom = $ss['padding_bottom'] ?? null;
-                $showTitle = $ss['show_title'] ?? true;
-                $subtitle = $ss['subtitle'] ?? null;
+                $ss          = $section->settings ?? [];
+                $bgColor     = $ss['background_color'] ?? null;
+                $txtColor    = $ss['text_color'] ?? null;
+                $padTop      = $ss['padding_top'] ?? null;
+                $padBottom   = $ss['padding_bottom'] ?? null;
+                $showTitle   = $ss['show_title'] ?? true;
+                $subtitle    = $ss['subtitle'] ?? null;
                 $description = $ss['description'] ?? null;
-                $icon = $ss['icon'] ?? null;
-                $columns = $ss['columns'] ?? 3;
+                $icon        = $ss['icon'] ?? null;
+                $columns     = $ss['columns'] ?? 3;
 
+                // ── Build per-element typography styles ──────────────────────
+                $buildTypoStyle = function (string $prefix) use ($ss): string {
+                    $style = '';
+                    if (!empty($ss["{$prefix}_color"]))  $style .= "color:{$ss["{$prefix}_color"]};";
+                    if (!empty($ss["{$prefix}_size"]))   $style .= "font-size:{$ss["{$prefix}_size"]};";
+                    if (!empty($ss["{$prefix}_weight"])) $style .= "font-weight:{$ss["{$prefix}_weight"]};";
+                    if (!empty($ss["{$prefix}_align"]))  $style .= "text-align:{$ss["{$prefix}_align"]};";
+                    return $style;
+                };
+
+                $titleStyle       = $buildTypoStyle('title');
+                $subtitleStyle    = $buildTypoStyle('subtitle');
+                $descriptionStyle = $buildTypoStyle('description');
+
+                // Default align for description if not set
+                if (empty($ss['description_align'])) {
+                    $descriptionStyle .= 'text-align:right;';
+                }
+
+                // ── Section-wide styles ──────────────────────────────────────
                 $sectionStyle = '';
                 if ($bgColor && $bgColor !== '#ffffff') {
                     $sectionStyle .= "background-color:{$bgColor};";
@@ -504,18 +524,21 @@
                     <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
 
                         @if ($showTitle && $section->title)
-                            <div class="text-right mb-3 md:mb-5">
-                                <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">
+                            <div class="mb-3 md:mb-5" style="{{ $titleStyle ? '' : 'text-align:right;' }}">
+                                <h2 class="text-xl sm:text-2xl md:text-3xl font-bold mb-2 {{ $titleStyle ? '' : 'text-gradient section-title' }}"
+                                    @if ($titleStyle) style="{{ $titleStyle }}" @endif>
                                     @if ($icon)
                                         <i class="{{ $icon }} mr-2"></i>
                                     @endif
                                     {{ $section->title }}
                                 </h2>
                                 @if ($subtitle)
-                                    <p class="text-sm md:text-base text-gray-500 mt-1">{{ $subtitle }}</p>
+                                    <p class="text-sm md:text-base mt-1 {{ $subtitleStyle ? '' : 'text-gray-500' }}"
+                                       @if ($subtitleStyle) style="{{ $subtitleStyle }}" @endif>{{ $subtitle }}</p>
                                 @endif
                                 @if ($description)
-                                    <p class="text-xs md:text-sm text-gray-400 mt-1 max-w-2xl" style="text-align:right;">
+                                    <p class="text-xs md:text-sm mt-1 max-w-2xl {{ $descriptionStyle ? '' : 'text-gray-400' }}"
+                                       style="{{ $descriptionStyle }}">
                                         {{ $description }}
                                     </p>
                                 @endif

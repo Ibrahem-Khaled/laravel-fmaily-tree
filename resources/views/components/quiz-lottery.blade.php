@@ -249,13 +249,13 @@
     @if($quizCompetition->sponsors && $quizCompetition->sponsors->count() > 0)
         @php $firstSponsor = $quizCompetition->sponsors->first(); @endphp
         @if($firstSponsor->image)
-            <div class="absolute top-2 sm:top-3 md:top-4 left-4 right-4 flex items-center justify-center gap-2 sm:gap-3 z-50 pointer-events-none">
-                <p class="text-[10px] sm:text-xs md:text-sm font-bold text-white/70 whitespace-nowrap"
+            <div class="absolute top-2 sm:top-3 md:top-4 left-4 right-4 flex flex-col items-center justify-center z-50 pointer-events-none">
+                <p class="text-xs sm:text-xs md:text-sm font-bold text-white/70 whitespace-nowrap tracking-widest mb-3 sm:mb-2"
                    style="text-shadow: 0 0 10px rgba(0,0,0,0.8);">
                     برعاية
                 </p>
                 <img src="{{ asset('storage/' . $firstSponsor->image) }}"
-                     class="h-8 sm:h-10 md:h-12 w-auto object-contain max-w-[120px] sm:max-w-[150px] md:max-w-[180px]"
+                     class="h-44 max-w-[380px] sm:h-16 sm:max-w-[200px] md:h-20 md:max-w-[240px] w-auto object-contain"
                      style="filter: drop-shadow(0 0 15px rgba(255,255,255,0.5));"
                      alt="{{ $firstSponsor->name }}">
             </div>
