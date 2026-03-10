@@ -5,8 +5,8 @@
 @push('styles')
     <style>
         /* ============================================================
-                   SWIPER – Hero
-                   ============================================================ */
+                       SWIPER – Hero
+                       ============================================================ */
         .heroSwiper {
             width: 100%;
             height: 100%;
@@ -75,8 +75,8 @@
         }
 
         /* ============================================================
-                   SWIPER – Gallery & Courses (shared)
-                   ============================================================ */
+                       SWIPER – Gallery & Courses (shared)
+                       ============================================================ */
         .gallerySwiper,
         .coursesSwiper {
             padding: 10px 35px 30px !important;
@@ -142,8 +142,8 @@
         }
 
         /* ============================================================
-                   Gallery Modal Animations
-                   ============================================================ */
+                       Gallery Modal Animations
+                       ============================================================ */
         #galleryModal {
             animation: fadeIn 0.3s ease-out;
         }
@@ -192,13 +192,20 @@
         }
 
         @keyframes pulse-soft {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.03); }
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.03);
+            }
         }
 
         /* ============================================================
-                   Quiz – Rich-text content (description & question)
-                   ============================================================ */
+                       Quiz – Rich-text content (description & question)
+                       ============================================================ */
         .quiz-description,
         .question-text {
             direction: rtl;
@@ -279,8 +286,8 @@
         }
 
         /* ============================================================
-                   Responsive overrides
-                   ============================================================ */
+                       Responsive overrides
+                       ============================================================ */
         @media (max-width: 768px) {
 
             .heroSwiper .swiper-button-next,
@@ -340,64 +347,64 @@
             <div class="swiper heroSwiper">
                 <div class="swiper-wrapper">
                     @foreach ($latestImages->take(10) as $slide)
-                            <div class="swiper-slide">
-                                @if ($slide->link)
-                                    <a href="{{ $slide->link }}" target="_blank" class="block relative w-full h-full">
+                        <div class="swiper-slide">
+                            @if ($slide->link)
+                                <a href="{{ $slide->link }}" target="_blank" class="block relative w-full h-full">
                                 @else
-                                        <div class="relative w-full h-full">
-                                    @endif
+                                    <div class="relative w-full h-full">
+                            @endif
 
-                                        @if ($slide->image_url)
-                                            <img src="{{ $slide->image_url }}" alt="{{ $slide->title ?? 'صورة' }}"
-                                                class="w-full h-full object-cover">
+                            @if ($slide->image_url)
+                                <img src="{{ $slide->image_url }}" alt="{{ $slide->title ?? 'صورة' }}"
+                                    class="w-full h-full object-cover">
+                            @endif
+
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
+
+                            @if ($slide->title || $slide->description)
+                                <div class="absolute bottom-4 md:bottom-6 right-4 left-4 md:right-6 md:left-6 z-10">
+                                    <div class="glass-effect rounded-xl p-3 md:p-4 max-w-2xl animate-fade-in-up">
+                                        @if ($slide->title)
+                                            <h2
+                                                class="text-white text-base md:text-lg lg:text-xl font-bold mb-1 md:mb-2 drop-shadow-lg">
+                                                {{ $slide->title }}
+                                            </h2>
                                         @endif
-
-                                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
-
-                                        @if ($slide->title || $slide->description)
-                                            <div class="absolute bottom-4 md:bottom-6 right-4 left-4 md:right-6 md:left-6 z-10">
-                                                <div class="glass-effect rounded-xl p-3 md:p-4 max-w-2xl animate-fade-in-up">
-                                                    @if ($slide->title)
-                                                        <h2
-                                                            class="text-white text-base md:text-lg lg:text-xl font-bold mb-1 md:mb-2 drop-shadow-lg">
-                                                            {{ $slide->title }}
-                                                        </h2>
-                                                    @endif
-                                                    @if ($slide->description)
-                                                        <p class="text-white/95 text-xs md:text-sm line-clamp-2 mb-2 drop-shadow">
-                                                            {{ $slide->description }}
-                                                        </p>
-                                                    @endif
-                                                    @if ($slide->link)
-                                                        <span
-                                                            class="inline-flex items-center gap-1.5 text-white text-xs md:text-sm bg-white/20 px-3 py-1.5 rounded-lg hover:bg-white/30 transition-all">
-                                                            <span>اكتشف المزيد</span>
-                                                            <i class="fas fa-arrow-left text-xs"></i>
-                                                        </span>
-                                                    @endif
-                                                </div>
-                                            </div>
+                                        @if ($slide->description)
+                                            <p class="text-white/95 text-xs md:text-sm line-clamp-2 mb-2 drop-shadow">
+                                                {{ $slide->description }}
+                                            </p>
                                         @endif
-
                                         @if ($slide->link)
-                                            </a>
-                                        @else
+                                            <span
+                                                class="inline-flex items-center gap-1.5 text-white text-xs md:text-sm bg-white/20 px-3 py-1.5 rounded-lg hover:bg-white/30 transition-all">
+                                                <span>اكتشف المزيد</span>
+                                                <i class="fas fa-arrow-left text-xs"></i>
+                                            </span>
+                                        @endif
                                     </div>
-                                @endif
+                                </div>
+                            @endif
+
+                            @if ($slide->link)
+                                </a>
+                            @else
                         </div>
-                    @endforeach
-            </div>
-            <div class="swiper-button-next hero-next"></div>
-            <div class="swiper-button-prev hero-prev"></div>
-            <div class="swiper-pagination hero-pagination"></div>
-            </div>
-        @else
-            <div class="absolute inset-0 gradient-primary flex items-center justify-center">
-                <div class="text-center text-white px-4">
-                    <i class="fas fa-images text-4xl md:text-5xl mb-4 opacity-40 animate-float"></i>
-                    <p class="text-base md:text-lg font-semibold">لا توجد صور في السلايدشو حالياً</p>
+                    @endif
                 </div>
+        @endforeach
+        </div>
+        <div class="swiper-button-next hero-next"></div>
+        <div class="swiper-button-prev hero-prev"></div>
+        <div class="swiper-pagination hero-pagination"></div>
+        </div>
+    @else
+        <div class="absolute inset-0 gradient-primary flex items-center justify-center">
+            <div class="text-center text-white px-4">
+                <i class="fas fa-images text-4xl md:text-5xl mb-4 opacity-40 animate-float"></i>
+                <p class="text-base md:text-lg font-semibold">لا توجد صور في السلايدشو حالياً</p>
             </div>
+        </div>
         @endif
 
     </section>
@@ -425,358 +432,7 @@
     {{-- ================================================================
     RAMADAN QUIZ – Active competition OR next event countdown
     ================================================================ --}}
-    @if ((isset($activeQuizCompetition) && $activeQuizCompetition) || (isset($nextQuizEvent) && $nextQuizEvent))
-        <section class="py-3 md:py-6 lg:py-8 relative overflow-hidden"
-            style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);">
-
-            {{-- Decorative blobs --}}
-            <div class="absolute top-0 right-0 w-72 h-72 opacity-5 pointer-events-none"
-                style="animation: float 6s ease-in-out infinite;">
-                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                    <path fill="#22c55e"
-                        d="M44.9,-76.6C59.3,-69.5,72.8,-59.9,80.3,-46.7C87.8,-33.5,89.3,-16.8,88.3,-0.6C87.3,15.6,83.8,31.2,76.3,44.5C68.8,57.8,57.3,68.8,43.3,75.3C29.3,81.8,14.7,83.8,-0.6,84.8C-15.9,85.8,-31.8,85.8,-45.8,79.3C-59.8,72.8,-71.9,59.8,-79.3,44.5C-86.7,29.2,-89.3,11.6,-88.3,-5.9C-87.3,-23.4,-82.7,-46.8,-71.3,-64.3C-59.9,-81.8,-41.7,-93.4,-22.8,-95.8C-3.9,-98.2,15.7,-91.4,34.1,-82.3Z"
-                        transform="translate(100 100)" />
-                </svg>
-            </div>
-            <div class="absolute bottom-0 left-0 w-64 h-64 opacity-5 pointer-events-none"
-                style="animation: float 5s ease-in-out infinite 1s;">
-                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                    <path fill="#4ade80"
-                        d="M37.5,-65.2C48.7,-57.8,57.8,-47.3,64.3,-35.1C70.8,-22.9,74.7,-9,75.6,5.7C76.5,20.4,74.4,36,67.1,48.6C59.8,61.2,47.3,70.8,33.2,75.7C19.1,80.6,3.4,80.8,-12.1,78.1C-27.6,75.4,-42.9,69.8,-55.3,60.2C-67.7,50.6,-77.2,37,-80.3,21.9C-83.4,6.8,-80.1,-9.8,-74.1,-25.3C-68.1,-40.8,-59.4,-55.2,-47.2,-62.2C-35,-69.2,-19.3,-68.8,-5.4,-60.5Z"
-                        transform="translate(100 100)" />
-                </svg>
-            </div>
-
-            <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
-
-                <div class="text-right mb-3 md:mb-5">
-                    <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">
-                        المسابقة الرمضانية
-                    </h2>
-                </div>
-
-                {{-- ── ACTIVE COMPETITION ── --}}
-                @if (isset($activeQuizCompetition) && $activeQuizCompetition)
-                    <div class="mb-3 md:mb-5" id="activeQuizSection">
-                        <div class="glass-card rounded-3xl p-3 md:p-6 shadow-lg relative overflow-hidden"
-                            style="box-shadow: 0 0 40px rgba(34,197,94,0.2);">
-
-                            {{-- Top accent bar --}}
-                            <div class="absolute top-0 right-0 left-0 h-1.5"
-                                style="background: linear-gradient(90deg, #22c55e, #16a34a, #22c55e);"></div>
-
-                            {{-- Status + question count --}}
-                            <div class="flex items-center justify-between mb-2">
-                                <span
-                                    class="inline-flex items-center gap-2 bg-red-50 text-red-600 text-xs font-bold px-3 py-1.5 rounded-full border border-red-200">
-                                    <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-                                    مسابقة جارية الآن
-                                </span>
-                                <span class="text-gray-500 text-xs">
-                                    <i class="fas fa-question-circle text-green-500 ml-1"></i>
-                                    {{ $activeQuizCompetition->questions->count() }} سؤال
-                                </span>
-                            </div>
-
-                            {{-- Countdown to competition END --}}
-                            <div class="flex flex-wrap items-center gap-2 mb-3 text-gray-500 text-sm">
-                                <i class="fas fa-hourglass-half text-amber-500"></i>
-                                <span>ينتهي بعد:</span>
-                                <div class="flex gap-1 flex-row" id="activeQuestionTimer">
-                                    <span
-                                        class="bg-gray-100 rounded-lg px-2 py-1 text-gray-800 font-bold text-sm min-w-[2rem] text-center"
-                                        id="aq-seconds">00</span>
-                                    <span class="text-gray-400 font-bold">:</span>
-                                    <span
-                                        class="bg-gray-100 rounded-lg px-2 py-1 text-gray-800 font-bold text-sm min-w-[2rem] text-center"
-                                        id="aq-minutes">00</span>
-                                    <span class="text-gray-400 font-bold">:</span>
-                                    <span
-                                        class="bg-gray-100 rounded-lg px-2 py-1 text-gray-800 font-bold text-sm min-w-[2rem] text-center"
-                                        id="aq-hours">00</span>
-                                </div>
-                                {{-- End timestamp passed to JS --}}
-                                <input type="hidden" id="aqEndTime"
-                                    value="{{ $activeQuizCompetition->end_at->getTimestamp() * 1000 }}">
-                            </div>
-
-                            {{-- Session / validation errors --}}
-                            @if (session('error'))
-                                <div class="rounded-2xl p-3 mb-3 flex items-center gap-3 bg-red-50 border border-red-200">
-                                    <i class="fas fa-exclamation-circle text-red-500 text-xl"></i>
-                                    <p class="text-red-700 font-medium">{{ session('error') }}</p>
-                                </div>
-                            @endif
-                            @if ($errors->any())
-                                <div class="rounded-2xl p-3 mb-3 bg-red-50 border border-red-200">
-                                    <ul class="space-y-1 text-red-600 text-sm">
-                                        @foreach ($errors->all() as $err)
-                                            <li><i class="fas fa-circle text-[6px] ml-1"></i>{{ $err }}</li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            @endif
-
-                            {{-- ── PRE-REVEAL: descriptions + countdown to show questions ── --}}
-                            @if (!($showQuestionsOnHome ?? true) && isset($questionsVisibleAt) && $questionsVisibleAt)
-                                {{-- Timestamps for JS --}}
-                                <input type="hidden" id="aqQuestionsVisibleAt" value="{{ $questionsVisibleAt->getTimestamp() * 1000 }}">
-
-                                {{-- Question descriptions show immediately --}}
-                                @if ($activeQuizCompetition->questions->filter(fn($q) => !empty($q->description))->isNotEmpty())
-                                    <div id="activeQuizDescriptionsOnlyBlock" class="space-y-4 mb-3">
-                                        @foreach ($activeQuizCompetition->questions as $q)
-                                            @if ($q->description)
-                                                <div class="rounded-2xl p-3 border-2 border-green-100 bg-white/80 shadow-sm">
-                                                    <div class="text-gray-600 text-sm quiz-description">
-                                                        {!! $q->description !!}
-                                                    </div>
-                                                </div>
-                                            @endif
-                                        @endforeach
-                                    </div>
-                                @endif
-
-                                {{-- Countdown banner until question text & answers are revealed --}}
-                                <div id="activeQuizQuestionsCountdown"
-                                    class="rounded-2xl p-4 mb-3 bg-amber-50 border-2 border-amber-200 flex flex-wrap items-center justify-center gap-2">
-                                    <i class="fas fa-clock text-amber-600"></i>
-                                    <span class="text-amber-800 font-medium text-sm">نص السؤال والإجابة تظهران بعد:</span>
-                                    <span id="aqQuestionsSeconds"
-                                        class="bg-amber-200 text-amber-900 font-bold text-lg min-w-[3rem] text-center rounded-lg px-2 py-1">0</span>
-                                    <span class="text-amber-700 text-sm">ثانية</span>
-                                </div>
-                            @endif
-
-                            {{-- ── QUESTIONS BLOCK ── --}}
-                            <div id="activeQuizQuestionsBlock" class="space-y-4 mb-3" @if (!($showQuestionsOnHome ?? true))
-                            style="display:none" @endif>
-
-                                <h4 class="text-sm font-bold text-gray-600 mb-2">أسئلة المسابقة — أجب هنا:</h4>
-
-                                @foreach ($activeQuizCompetition->questions as $q)
-                                    @php
-                                        $cooldownHours = 2;
-                                        $lastAnsweredAt = session('quiz_answered_' . $q->id);
-                                        $canAnswerThis =
-                                            !$lastAnsweredAt ||
-                                            now()->diffInHours(\Carbon\Carbon::parse($lastAnsweredAt)) >=
-                                            $cooldownHours;
-                                    @endphp
-
-                                    <div class="rounded-2xl p-3 border-2 border-green-100 bg-white/80 shadow-sm">
-
-                                        @if ($q->description)
-                                            <div class="text-gray-600 text-sm mb-2 quiz-description">{!! $q->description !!}
-                                            </div>
-                                        @endif
-
-                                        <div class="text-gray-800 font-bold text-base mb-2 question-text">
-                                            {!! $q->question_text !!}
-                                        </div>
-
-                                        @if ($activeQuizCompetition->show_draw_only)
-                                            <div
-                                                class="rounded-xl p-4 bg-green-50 border border-green-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                                                <p class="text-green-800 text-sm font-medium">
-                                                    <i class="fas fa-info-circle text-green-600 ml-1"></i>
-                                                    باب الإجابة مغلق حالياً، يمكنك متابعة فرز النتائج والقرعة من هنا.
-                                                </p>
-                                                <a href="{{ route('quiz-competitions.question', [$activeQuizCompetition, $q]) }}"
-                                                    class="flex-shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-white transition-all hover:opacity-90"
-                                                    style="background: linear-gradient(135deg, #22c55e, #16a34a);">
-                                                    <i class="fas fa-trophy"></i>
-                                                    متابعة القرعة
-                                                </a>
-                                            </div>
-                                        @elseif ($canAnswerThis)
-                                            <form action="{{ route('quiz-competitions.store-answer', [$activeQuizCompetition, $q]) }}"
-                                                method="POST" class="space-y-4">
-                                                @csrf
-
-                                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                                    <div>
-                                                        <label class="block text-gray-600 text-xs mb-1 font-medium">
-                                                            الاسم <span class="text-red-500">*</span>
-                                                        </label>
-                                                        <input type="text" name="name" value="{{ old('name') }}" required
-                                                            placeholder="الاسم الكامل"
-                                                            class="w-full px-3 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-gray-800 text-sm focus:ring-2 focus:ring-green-200 focus:border-green-500">
-                                                    </div>
-                                                    <div>
-                                                        <label class="block text-gray-600 text-xs mb-1 font-medium">
-                                                            رقم الهاتف <span class="text-red-500">*</span>
-                                                        </label>
-                                                        <input type="text" name="phone" value="{{ old('phone') }}" required
-                                                            pattern="[0-9]{10}" minlength="10" maxlength="10" placeholder="05xxxxxxxx"
-                                                            dir="ltr" style="text-align:right;" title="يجب أن يكون رقم الهاتف 10 أرقام"
-                                                            class="w-full px-3 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-gray-800 text-sm focus:ring-2 focus:ring-green-200 focus:border-green-500">
-                                                    </div>
-                                                </div>
-
-                                                <div>
-                                                    <label class="block text-gray-600 text-xs mb-1 font-medium">
-                                                        اسم الأم (للمستخدمين من الأنساب)
-                                                    </label>
-                                                    <input type="text" name="mother_name" value="{{ old('mother_name') }}"
-                                                        placeholder="ينتهي باسم السريع"
-                                                        class="w-full px-3 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-gray-800 text-sm focus:ring-2 focus:ring-green-200 focus:border-green-500">
-                                                    <input type="hidden" name="is_from_ancestry" value="1">
-                                                </div>
-
-                                                <div>
-                                                    <label class="block text-gray-600 text-xs mb-2 font-medium">
-                                                        الإجابة <span class="text-red-500">*</span>
-                                                    </label>
-
-                                                    @if ($q->answer_type === 'ordering' && $q->choices->count() > 0)
-                                                        <p class="text-xs text-green-700 font-medium mb-2">
-                                                            <i class="fas fa-info-circle mr-1"></i>
-                                                            قم بسحب وإفلات الخيارات لترتيبها بشكل صحيح
-                                                        </p>
-                                                        @php
-                                                            // نتأكد أن الترتيب عشوائي
-                                                            $shuffledChoices = clone $q->choices;
-                                                            $shuffledChoices = $shuffledChoices->shuffle();
-                                                        @endphp
-                                                        <div class="space-y-2 sortable-list" data-question-id="{{ $q->id }}">
-                                                            @foreach ($shuffledChoices as $choice)
-                                                                <div data-id="{{ $choice->id }}"
-                                                                    class="flex items-center gap-3 p-3 rounded-xl border-2 border-gray-200 bg-white hover:border-green-300 cursor-move transition-all sortable-item select-none shadow-sm">
-                                                                    <i class="fas fa-grip-lines text-gray-400"></i>
-                                                                    <span
-                                                                        class="text-gray-800 text-sm font-medium flex-grow">{{ $choice->choice_text }}</span>
-                                                                    <input type="hidden" name="answer[]" value="{{ $choice->id }}"
-                                                                        class="ordering-input-hidden">
-                                                                </div>
-                                                            @endforeach
-                                                        </div>
-                                                    @elseif ($q->answer_type === 'multiple_choice' && $q->choices->count() > 0)
-                                                        @if(!$q->is_multiple_selections && $q->choices->count() === 1)
-                                                            {{-- Single answer: hidden input + button replaces submit --}}
-                                                            @php $singleChoice = $q->choices->first(); @endphp
-                                                            <input type="hidden" name="answer" value="{{ $singleChoice->id }}">
-                                                            <p class="text-xs text-green-700 font-medium mb-2">
-                                                                <i class="fas fa-hand-pointer ml-1"></i> اضغط الزر أدناه للإجابة
-                                                            </p>
-                                                        @else
-                                                            @if($q->is_multiple_selections)
-                                                                @php
-                                                                    $requiredCount = $q->getRequiredCorrectAnswersCount();
-                                                                @endphp
-                                                                <p class="text-xs text-green-700 font-medium mb-2">
-                                                                    يجب اختيار {{ $requiredCount }} إجابات
-                                                                    <input type="hidden" class="required-choices-count" value="{{ $requiredCount }}">
-                                                                </p>
-                                                            @endif
-                                                            <div class="space-y-2 choice-group">
-                                                                @foreach ($q->choices as $choice)
-                                                                    <label
-                                                                        class="flex items-center gap-3 p-3 rounded-xl border-2 border-gray-200 bg-white hover:border-green-300 hover:bg-green-50/50 cursor-pointer transition-all has-[:checked]:border-green-500 has-[:checked]:bg-green-50">
-                                                                        @if($q->is_multiple_selections)
-                                                                            <input type="checkbox" name="answer[]" value="{{ $choice->id }}"
-                                                                                class="w-4 h-4 text-green-600 home-quiz-checkbox">
-                                                                        @else
-                                                                            <input type="radio" name="answer" value="{{ $choice->id }}"
-                                                                                class="w-4 h-4 text-green-600" required>
-                                                                        @endif
-                                                                        <span
-                                                                            class="text-gray-800 text-sm font-medium">{{ $choice->choice_text }}</span>
-                                                                    </label>
-                                                                @endforeach
-                                                            </div>
-                                                        @endif
-                                                    @else
-                                                        <textarea name="answer" rows="3" required placeholder="اكتب إجابتك..."
-                                                            class="w-full px-3 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-gray-800 text-sm focus:ring-2 focus:ring-green-200 focus:border-green-500 resize-none">{{ old('answer') }}</textarea>
-                                                    @endif
-                                                </div>
-
-                                                @if($q->answer_type === 'multiple_choice' && !$q->is_multiple_selections && $q->choices->count() === 1)
-                                                    <button type="submit" onclick="validateHomeQuiz(event, this)"
-                                                        class="w-full px-6 py-4 rounded-xl text-white font-bold text-base inline-flex items-center justify-center gap-2 transition-all hover:opacity-90 hover:scale-[1.02] active:scale-[0.98] mt-4"
-                                                        style="background: linear-gradient(135deg, #22c55e, #16a34a); animation: pulse-soft 2s infinite;">
-                                                        <i class="fas fa-hand-pointer"></i>
-                                                        {{ $q->choices->first()->choice_text }}
-                                                    </button>
-                                                @else
-                                                    <button type="submit" onclick="validateHomeQuiz(event, this)"
-                                                        class="w-full sm:w-auto px-6 py-3 rounded-xl text-white font-bold text-sm inline-flex items-center justify-center gap-2 transition-all hover:opacity-90 mt-4"
-                                                        style="background: linear-gradient(135deg, #22c55e, #16a34a);">
-                                                        <i class="fas fa-paper-plane"></i>
-                                                        إرسال الإجابة
-                                                    </button>
-                                                @endif
-                                            </form>
-                                        @else
-                                            <div
-                                                class="rounded-xl p-4 bg-amber-50 border border-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                                                <p class="text-amber-800 text-sm font-medium">
-                                                    <i class="fas fa-check-circle text-amber-600 ml-1"></i>
-                                                    لقد أجبت على هذا السؤال.
-                                                </p>
-                                                <a href="{{ route('quiz-competitions.question', [$activeQuizCompetition, $q]) }}"
-                                                    class="flex-shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-white transition-all hover:opacity-90"
-                                                    style="background: linear-gradient(135deg, #22c55e, #16a34a);">
-                                                    <i class="fas fa-trophy"></i>
-                                                    متابعة القرعة
-                                                </a>
-                                            </div>
-                                        @endif
-
-                                    </div>
-                                @endforeach
-
-                            </div>{{-- /activeQuizQuestionsBlock --}}
-
-                        </div>
-                    </div>
-                @endif {{-- /activeQuizCompetition --}}
-
-                {{-- ── NEXT EVENT COUNTDOWN (only when no active competition) ── --}}
-                @if (isset($nextQuizEvent) && $nextQuizEvent && !(isset($activeQuizCompetition) && $activeQuizCompetition))
-                    <div class="mb-3 md:mb-5" id="quizCountdownSection">
-                        <div class="glass-card rounded-3xl p-3 md:p-6 text-center shadow-lg"
-                            style="box-shadow: 0 0 30px rgba(34,197,94,0.15);">
-
-                            <div
-                                class="inline-flex items-center gap-2 bg-amber-50 text-amber-700 rounded-full px-4 py-1.5 mb-4 border border-amber-200">
-                                <i class="fas fa-clock text-amber-500 text-sm"></i>
-                                <span class="text-xs font-medium">المسابقة تبدأ قريباً</span>
-                            </div>
-
-                            <p class="text-gray-800 font-bold text-base md:text-lg mb-2">{{ $nextQuizEvent['title'] }}</p>
-
-                            @if (!empty($nextQuizEvent['description']))
-                                <div class="text-gray-600 text-sm mb-3 quiz-description text-right">
-                                    {!! $nextQuizEvent['description'] !!}
-                                </div>
-                            @endif
-
-                            {{-- Days / Hours / Minutes / Seconds – RTL order (يوم ← ساعة ← دقيقة ← ثانية) --}}
-                            <div class="flex justify-center flex-row-reverse gap-2 md:gap-4 mb-3" id="quizCountdown">
-                                @foreach ([['days', 'يوم'], ['hours', 'ساعة'], ['minutes', 'دقيقة'], ['seconds', 'ثانية']] as [$unit, $label])
-                                    <div class="text-center">
-                                        <div
-                                            class="w-14 h-14 md:w-18 md:h-18 rounded-2xl flex items-center justify-center mb-1 bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200">
-                                            <span class="text-xl md:text-2xl font-bold text-green-600"
-                                                id="countdown-{{ $unit }}">0</span>
-                                        </div>
-                                        <p class="text-gray-500 text-[10px] md:text-xs">{{ $label }}</p>
-                                    </div>
-                                @endforeach
-                            </div>
-
-                            <input type="hidden" id="quizCountdownTarget"
-                                value="{{ $nextQuizEvent['target_at']->getTimestamp() * 1000 }}">
-                        </div>
-                    </div>
-                @endif
-
-            </div>
-        </section>
-    @endif
-    {{-- /quiz section --}}
+    @include('partials.home-quiz-competition')
 
     {{-- ================================================================
     DYNAMIC SECTIONS – Universal renderer
@@ -822,7 +478,10 @@
                 $isGrid = in_array($section->section_type, ['gallery', 'cards', 'stats']);
                 $isTwoCol = in_array($section->section_type, ['text_with_image']);
 
-                $hasSourceItems = isset($section->content_source_items) && $section->content_source_items && $section->content_source_items->count() > 0;
+                $hasSourceItems =
+                    isset($section->content_source_items) &&
+                    $section->content_source_items &&
+                    $section->content_source_items->count() > 0;
                 $hasManualItems = $section->items->count() > 0;
 
                 // حساب كلاس الـ layout بناءً على نمط العرض المختار
@@ -831,13 +490,17 @@
                 } elseif ($layoutStyle === 'vertical') {
                     $layoutClass = 'flex flex-col gap-3 md:gap-4';
                 } else {
-                    $layoutClass = $isGrid ? 'grid ' . $colsClass . ' gap-3 md:gap-4' : ($isTwoCol ? 'grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 items-center' : 'space-y-4');
+                    $layoutClass = $isGrid
+                        ? 'grid ' . $colsClass . ' gap-3 md:gap-4'
+                        : ($isTwoCol
+                            ? 'grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 items-center'
+                            : 'space-y-4');
                 }
             @endphp
 
             @if ($hasSourceItems || $hasManualItems)
-                <section class="py-3 md:py-6 lg:py-8 {{ $section->css_classes ?? '' }} relative overflow-hidden" @if ($sectionStyle)
-                style="{{ $sectionStyle }}" @endif>
+                <section class="py-3 md:py-6 lg:py-8 {{ $section->css_classes ?? '' }} relative overflow-hidden"
+                    @if ($sectionStyle) style="{{ $sectionStyle }}" @endif>
                     <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
 
                         @if ($showTitle && $section->title)
@@ -987,7 +650,8 @@
                                             </span>
                                         </div>
                                     @endif
-                                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent">
+                                    <div
+                                        class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent">
                                     </div>
                                 </div>
                             @else
@@ -1067,7 +731,8 @@
                                             onclick="toggleCouncilDescription({{ $council->id }})">
                                             <td class="px-2 py-1.5 md:px-3 md:py-2 text-right" dir="ltr">
                                                 <div class="flex items-center justify-end gap-1">
-                                                    <span class="text-xs font-semibold text-gray-900">{{ $council->name }}</span>
+                                                    <span
+                                                        class="text-xs font-semibold text-gray-900">{{ $council->name }}</span>
                                                     <i class="fas fa-building text-green-600 ml-1.5 text-xs"></i>
                                                     @if ($council->description)
                                                         <i
@@ -1101,7 +766,8 @@
                                             </td>
                                         </tr>
                                         @if ($council->description)
-                                            <tr class="council-description-row council-description-{{ $council->id }} hidden">
+                                            <tr
+                                                class="council-description-row council-description-{{ $council->id }} hidden">
                                                 <td colspan="3" class="px-2 py-0 md:px-3">
                                                     <div
                                                         class="council-description-content max-h-0 overflow-hidden transition-all duration-500 ease-in-out">
@@ -1111,7 +777,8 @@
                                                                 <i
                                                                     class="fas fa-info-circle text-green-600 text-sm flex-shrink-0 mt-0.5"></i>
                                                                 <div>
-                                                                    <h4 class="text-xs md:text-sm font-semibold text-gray-800 mb-1.5">
+                                                                    <h4
+                                                                        class="text-xs md:text-sm font-semibold text-gray-800 mb-1.5">
                                                                         نبذة عن {{ $council->name }}</h4>
                                                                     <p
                                                                         class="text-xs text-gray-700 leading-relaxed whitespace-pre-line">
@@ -1201,7 +868,8 @@
                                             <td
                                                 class="px-2 py-1.5 md:px-3 md:py-2 whitespace-nowrap text-xs font-medium text-right">
                                                 @if ($event->location)
-                                                    <a href="{{ $event->location }}" target="_blank" rel="noopener noreferrer"
+                                                    <a href="{{ $event->location }}" target="_blank"
+                                                        rel="noopener noreferrer"
                                                         class="inline-flex items-center text-blue-600 hover:text-blue-800 group"
                                                         onclick="event.stopPropagation();"
                                                         title="{{ $event->location_name ?? 'فتح الموقع على الخريطة' }}">
@@ -1229,7 +897,8 @@
                                             </td>
                                         </tr>
                                         @if ($event->description)
-                                            <tr class="event-description-row event-description-{{ $event->id }} hidden">
+                                            <tr
+                                                class="event-description-row event-description-{{ $event->id }} hidden">
                                                 <td colspan="4" class="px-2 py-0 md:px-3">
                                                     <div
                                                         class="event-description-content max-h-0 overflow-hidden transition-all duration-500 ease-in-out">
@@ -1239,7 +908,8 @@
                                                                 <i
                                                                     class="fas fa-info-circle text-green-600 text-sm flex-shrink-0 mt-0.5"></i>
                                                                 <div>
-                                                                    <h4 class="text-xs md:text-sm font-semibold text-gray-800 mb-1.5">
+                                                                    <h4
+                                                                        class="text-xs md:text-sm font-semibold text-gray-800 mb-1.5">
                                                                         نبذة عن {{ $event->title }}</h4>
                                                                     <p
                                                                         class="text-xs text-gray-700 leading-relaxed whitespace-pre-line">
@@ -1293,7 +963,8 @@
                             </div>
                             @if (!$program->program_is_active && Auth::check())
                                 <div class="absolute top-2 right-2 z-10">
-                                    <span class="bg-yellow-500 text-white text-[8px] px-1.5 py-0.5 rounded-full font-bold">معطل</span>
+                                    <span
+                                        class="bg-yellow-500 text-white text-[8px] px-1.5 py-0.5 rounded-full font-bold">معطل</span>
                                 </div>
                             @endif
                             <div
@@ -1321,46 +992,46 @@
     PROUD OF
     ================================================================ --}}
     <!-- @if ($proudOf && $proudOf->count() > 0)
-                    <section class="py-3 md:py-6 lg:py-8 bg-gradient-to-br from-green-50 to-emerald-50 relative overflow-hidden">
-                        <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-200 rounded-full blur-3xl opacity-20"></div>
-                        <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
+                        <section class="py-3 md:py-6 lg:py-8 bg-gradient-to-br from-green-50 to-emerald-50 relative overflow-hidden">
+                            <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-200 rounded-full blur-3xl opacity-20"></div>
+                            <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
 
-                            <div class="text-right mb-3 md:mb-5">
-                                <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">نفخر بهم</h2>
-                                <p class="text-gray-600 text-xs md:text-sm mt-1">إنجازات وإبداعات مميزة</p>
-                            </div>
+                                <div class="text-right mb-3 md:mb-5">
+                                    <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">نفخر بهم</h2>
+                                    <p class="text-gray-600 text-xs md:text-sm mt-1">إنجازات وإبداعات مميزة</p>
+                                </div>
 
-                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1.5 md:gap-2.5">
-                                @foreach ($proudOf as $item)
-                                    <a href="{{ route('programs.show', $item) }}"
-                                        class="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 bg-white card-hover
+                                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1.5 md:gap-2.5">
+                                    @foreach ($proudOf as $item)
+    <a href="{{ route('programs.show', $item) }}"
+                                            class="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 bg-white card-hover
                                       {{ !$item->proud_of_is_active && Auth::check() ? 'opacity-60 grayscale' : '' }}">
-                                        <div class="aspect-square p-1.5 md:p-2">
-                                            <img src="{{ asset('storage/' . $item->path) }}"
-                                                alt="{{ $item->proud_of_title ?? ($item->name ?? 'عنصر') }}"
-                                                class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
-                                        </div>
-                                        @if (!$item->proud_of_is_active && Auth::check())
-                                            <div class="absolute top-2 right-2 z-10">
-                                                <span
-                                                    class="bg-yellow-500 text-white text-[8px] px-1.5 py-0.5 rounded-full font-bold">معطل</span>
+                                            <div class="aspect-square p-1.5 md:p-2">
+                                                <img src="{{ asset('storage/' . $item->path) }}"
+                                                    alt="{{ $item->proud_of_title ?? ($item->name ?? 'عنصر') }}"
+                                                    class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
                                             </div>
-                                        @endif
-                                        <div
-                                            class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                            <div class="absolute bottom-2 right-2 left-2 text-center">
-                                                <p class="text-white text-xs md:text-sm font-bold line-clamp-2 drop-shadow-lg">
-                                                    {{ $item->proud_of_title ?? ($item->name ?? 'عنصر') }}
-                                                </p>
+                                            @if (!$item->proud_of_is_active && Auth::check())
+    <div class="absolute top-2 right-2 z-10">
+                                                    <span
+                                                        class="bg-yellow-500 text-white text-[8px] px-1.5 py-0.5 rounded-full font-bold">معطل</span>
+                                                </div>
+    @endif
+                                            <div
+                                                class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                                <div class="absolute bottom-2 right-2 left-2 text-center">
+                                                    <p class="text-white text-xs md:text-sm font-bold line-clamp-2 drop-shadow-lg">
+                                                        {{ $item->proud_of_title ?? ($item->name ?? 'عنصر') }}
+                                                    </p>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </a>
-                                @endforeach
-                            </div>
+                                        </a>
+    @endforeach
+                                </div>
 
-                        </div>
-                    </section>
-                @endif -->
+                            </div>
+                        </section>
+                    @endif -->
 
     {{-- ================================================================
     ACADEMIC DEGREES – Graduates
@@ -1375,10 +1046,9 @@
     @endphp
 
     @if (
-            (isset($bachelorTotalCount) && $bachelorTotalCount > 0) ||
+        (isset($bachelorTotalCount) && $bachelorTotalCount > 0) ||
             (isset($masterTotalCount) && $masterTotalCount > 0) ||
-            (isset($phdTotalCount) && $phdTotalCount > 0)
-        )
+            (isset($phdTotalCount) && $phdTotalCount > 0))
         <section class="py-3 md:py-6 lg:py-8 bg-white relative overflow-hidden">
             <div class="absolute bottom-0 right-0 w-64 h-64 bg-yellow-100 rounded-full blur-3xl opacity-20"></div>
             <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
@@ -1471,7 +1141,8 @@
                                                 class="w-full h-full object-cover">
                                         @else
                                             <div class="absolute inset-0 flex items-center justify-center">
-                                                <i class="fas fa-book-open text-white text-4xl opacity-30 animate-float"></i>
+                                                <i
+                                                    class="fas fa-book-open text-white text-4xl opacity-30 animate-float"></i>
                                             </div>
                                         @endif
                                         @if (!$course->is_active && Auth::check())
@@ -1590,6 +1261,31 @@
         </div>
     </div>
 
+    <a href="https://wa.me/966539895800?text=مرحباً%20أريد%20المشاركة%20في%20مسابقة%20أفضل%20مقطع%20فيديو" target="_blank"
+        style="
+     position: fixed;
+     bottom: 24px;
+     left: 24px;
+     width: 58px;
+     height: 58px;
+     background: linear-gradient(135deg, #25d366, #128c7e);
+     border-radius: 50%;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     box-shadow: 0 6px 20px rgba(37,211,102,0.45);
+     text-decoration: none;
+     z-index: 9999;
+     transition: transform 0.2s ease, box-shadow 0.2s ease;
+   "
+        onmouseover="this.style.transform='scale(1.12)'; this.style.boxShadow='0 10px 28px rgba(37,211,102,0.6)'"
+        onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 6px 20px rgba(37,211,102,0.45)'">
+        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 32 32" fill="white">
+            <path
+                d="M16 2C8.268 2 2 8.268 2 16c0 2.478.675 4.8 1.85 6.8L2 30l7.4-1.825A13.94 13.94 0 0 0 16 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm0 25.5a11.44 11.44 0 0 1-5.85-1.6l-.42-.25-4.39 1.08 1.1-4.27-.27-.44A11.47 11.47 0 0 1 4.5 16C4.5 9.648 9.648 4.5 16 4.5S27.5 9.648 27.5 16 22.352 27.5 16 27.5zm6.29-8.57c-.345-.172-2.04-1.006-2.355-1.12-.315-.115-.545-.172-.775.172-.23.345-.89 1.12-1.09 1.35-.2.23-.4.258-.745.086-.345-.172-1.456-.537-2.773-1.71-1.025-.914-1.717-2.043-1.917-2.388-.2-.345-.021-.531.15-.703.154-.155.345-.4.517-.6.172-.2.23-.345.345-.575.115-.23.057-.43-.029-.602-.086-.172-.775-1.868-1.062-2.558-.28-.672-.564-.58-.775-.59l-.66-.011c-.23 0-.602.086-.917.43s-1.204 1.177-1.204 2.87 1.232 3.33 1.404 3.56c.172.23 2.426 3.705 5.877 5.195.821.355 1.463.567 1.962.725.824.262 1.574.225 2.167.137.661-.099 2.04-.834 2.327-1.638.287-.804.287-1.493.2-1.638-.086-.144-.316-.23-.66-.4z" />
+        </svg>
+    </a>
+
 @endsection
 
 @push('scripts')
@@ -1598,9 +1294,9 @@
 
     <script>
         /* ================================================================
-       SWIPERS
-       ================================================================ */
-        document.addEventListener('DOMContentLoaded', function () {
+           SWIPERS
+           ================================================================ */
+        document.addEventListener('DOMContentLoaded', function() {
             var totalSlides = {{ $latestImages->count() ?? 0 }};
             var totalImages = {{ $latestGalleryImages->count() ?? 0 }};
             var totalCourses = {{ $courses->count() ?? 0 }};
@@ -1635,9 +1331,9 @@
             }
 
             // Gallery & Courses – wait one frame so Swiper gets correct dimensions
-            var initSwipers = function () {
+            var initSwipers = function() {
                 if (totalImages > 0 && typeof Swiper !== 'undefined' && document.querySelector(
-                    '.gallerySwiper')) {
+                        '.gallerySwiper')) {
                     new Swiper('.gallerySwiper', {
                         slidesPerView: 2,
                         spaceBetween: 15,
@@ -1672,7 +1368,7 @@
                     });
                 }
                 if (totalCourses > 0 && typeof Swiper !== 'undefined' && document.querySelector(
-                    '.coursesSwiper')) {
+                        '.coursesSwiper')) {
                     new Swiper('.coursesSwiper', {
                         slidesPerView: 1,
                         spaceBetween: 20,
@@ -1706,7 +1402,7 @@
 
             requestAnimationFrame
                 ?
-                requestAnimationFrame(function () {
+                requestAnimationFrame(function() {
                     setTimeout(initSwipers, 50);
                 }) :
                 setTimeout(initSwipers, 100);
@@ -1724,14 +1420,14 @@
             var isHidden = row.classList.contains('hidden');
             if (isHidden) {
                 row.classList.remove('hidden');
-                setTimeout(function () {
+                setTimeout(function() {
                     content.style.maxHeight = content.scrollHeight + 'px';
                 }, 10);
                 if (chevron) chevron.style.transform = 'rotate(180deg)';
             } else {
                 content.style.maxHeight = '0';
                 if (chevron) chevron.style.transform = 'rotate(0deg)';
-                setTimeout(function () {
+                setTimeout(function() {
                     row.classList.add('hidden');
                 }, 500);
             }
@@ -1749,7 +1445,7 @@
            EVENTS – Day countdown
            ================================================================ */
         function updateEventCountdowns() {
-            document.querySelectorAll('[class*="event-countdown-"]').forEach(function (el) {
+            document.querySelectorAll('[class*="event-countdown-"]').forEach(function(el) {
                 var dateStr = el.getAttribute('data-event-date');
                 if (!dateStr) return;
                 var diff = new Date(dateStr) - new Date();
@@ -1767,7 +1463,7 @@
         /* ================================================================
            GALLERY MODAL
            ================================================================ */
-        var Gallery = (function () {
+        var Gallery = (function() {
             var modal = document.getElementById('galleryModal');
             var imageWrapper = document.getElementById('galleryModalImageContainer');
             var videoWrapper = document.getElementById('galleryModalVideoContainer');
@@ -1831,9 +1527,9 @@
             }
 
             // Bind events after DOM ready
-            document.addEventListener('DOMContentLoaded', function () {
-                document.querySelectorAll('.gallery-item').forEach(function (item) {
-                    item.addEventListener('click', function () {
+            document.addEventListener('DOMContentLoaded', function() {
+                document.querySelectorAll('.gallery-item').forEach(function(item) {
+                    item.addEventListener('click', function() {
                         open(this);
                     });
                 });
@@ -1841,22 +1537,22 @@
                 document.getElementById('closeGalleryModal')
                     .addEventListener('click', close);
 
-                modal.addEventListener('click', function (e) {
+                modal.addEventListener('click', function(e) {
                     if (e.target === modal) close();
                 });
 
-                document.addEventListener('keydown', function (e) {
+                document.addEventListener('keydown', function(e) {
                     if (e.key === 'Escape') close();
                 });
 
                 // Swipe-down to close
                 var sy = 0;
-                modal.addEventListener('touchstart', function (e) {
+                modal.addEventListener('touchstart', function(e) {
                     sy = e.changedTouches[0].screenY;
                 }, {
                     passive: true
                 });
-                modal.addEventListener('touchend', function (e) {
+                modal.addEventListener('touchend', function(e) {
                     if (sy - e.changedTouches[0].screenY > 100) close();
                 }, {
                     passive: true
@@ -1873,7 +1569,7 @@
            QUIZ – Next event countdown  (بدون reload – AJAX عند الانتهاء)
            ================================================================ */
         @if (isset($nextQuizEvent) && $nextQuizEvent)
-            (function () {
+            (function() {
                 var el = document.getElementById('quizCountdownTarget');
                 if (!el) return;
 
@@ -1883,7 +1579,7 @@
                 var timer;
 
                 function zeroAll() {
-                    ids.forEach(function (id) {
+                    ids.forEach(function(id) {
                         var node = document.getElementById('countdown-' + id);
                         if (node) node.textContent = '0';
                     });
@@ -1905,15 +1601,15 @@
                     }
 
                     fetch(window.location.href, {
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'Accept': 'text/html'
-                        }
-                    })
-                        .then(function (res) {
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'text/html'
+                            }
+                        })
+                        .then(function(res) {
                             return res.text();
                         })
-                        .then(function (html) {
+                        .then(function(html) {
                             var parser = new DOMParser();
                             var doc = parser.parseFromString(html, 'text/html');
                             var newActive = doc.getElementById('activeQuizSection');
@@ -1942,7 +1638,7 @@
                                 setTimeout(fetchActiveQuiz, 10000);
                             }
                         })
-                        .catch(function () {
+                        .catch(function() {
                             setTimeout(fetchActiveQuiz, 15000);
                         });
                 }
@@ -1964,7 +1660,7 @@
                     var m = Math.floor((diff % 3600000) / 60000);
                     var s = Math.floor((diff % 60000) / 1000);
 
-                    [d, h, m, s].forEach(function (val, i) {
+                    [d, h, m, s].forEach(function(val, i) {
                         var node = document.getElementById('countdown-' + ids[i]);
                         if (node) node.textContent = val;
                     });
@@ -1975,37 +1671,37 @@
             })();
         @endif
 
-            /* ================================================================
-               QUIZ – Active competition helpers
-               (دوال global عشان AJAX يقدر يستدعيها بعد حقن HTML جديد)
-               ================================================================ */
+        /* ================================================================
+           QUIZ – Active competition helpers
+           (دوال global عشان AJAX يقدر يستدعيها بعد حقن HTML جديد)
+           ================================================================ */
 
-            /* عداد h:m:s لنهاية المسابقة الفعلية */
-            function startActiveQuizTimer(endTimestamp) {
-                function pad(n) {
-                    return n.toString().padStart(2, '0');
-                }
-
-                function tick() {
-                    var diff = endTimestamp - Date.now();
-                    var hEl = document.getElementById('aq-hours');
-                    var mEl = document.getElementById('aq-minutes');
-                    var sEl = document.getElementById('aq-seconds');
-                    if (!hEl) return; // العنصر اتشال من DOM
-                    if (diff <= 0) {
-                        hEl.textContent = '00';
-                        mEl.textContent = '00';
-                        sEl.textContent = '00';
-                        window.location.reload(); // انتهاء المسابقة الفعلية → reload
-                        return;
-                    }
-                    hEl.textContent = pad(Math.floor(diff / 3600000));
-                    mEl.textContent = pad(Math.floor((diff % 3600000) / 60000));
-                    sEl.textContent = pad(Math.floor((diff % 60000) / 1000));
-                }
-                tick();
-                setInterval(tick, 1000);
+        /* عداد h:m:s لنهاية المسابقة الفعلية */
+        function startActiveQuizTimer(endTimestamp) {
+            function pad(n) {
+                return n.toString().padStart(2, '0');
             }
+
+            function tick() {
+                var diff = endTimestamp - Date.now();
+                var hEl = document.getElementById('aq-hours');
+                var mEl = document.getElementById('aq-minutes');
+                var sEl = document.getElementById('aq-seconds');
+                if (!hEl) return; // العنصر اتشال من DOM
+                if (diff <= 0) {
+                    hEl.textContent = '00';
+                    mEl.textContent = '00';
+                    sEl.textContent = '00';
+                    window.location.reload(); // انتهاء المسابقة الفعلية → reload
+                    return;
+                }
+                hEl.textContent = pad(Math.floor(diff / 3600000));
+                mEl.textContent = pad(Math.floor((diff % 3600000) / 60000));
+                sEl.textContent = pad(Math.floor((diff % 60000) / 1000));
+            }
+            tick();
+            setInterval(tick, 1000);
+        }
 
         /* عداد الثواني حتى ظهور نص الأسئلة */
         function startRevealCountdown(visibleAtTimestamp) {
@@ -2021,7 +1717,7 @@
                 block.style.display = '';
             }
 
-            var iv = setInterval(function () {
+            var iv = setInterval(function() {
                 var remaining = Math.ceil((visibleAtTimestamp - Date.now()) / 1000);
                 if (remaining <= 0) {
                     clearInterval(iv);
@@ -2043,7 +1739,7 @@
 
         /* تشغيل عند تحميل الصفحة لو المسابقة موجودة أصلاً من السيرفر */
         @if (isset($activeQuizCompetition) && $activeQuizCompetition)
-            (function () {
+            (function() {
                 var endInput = document.getElementById('aqEndTime');
                 if (endInput) startActiveQuizTimer(parseInt(endInput.value, 10));
 
@@ -2059,15 +1755,30 @@
             const form = buttonElement.closest('form');
             if (!form) return;
 
-            const requiredCountInput = form.querySelector('.required-choices-count');
+            const orderingTotal = form.querySelector('.ordering-total-count');
+            if (orderingTotal) {
+                const total = parseInt(orderingTotal.value);
+                const placed = form.querySelectorAll('input[name="answer[]"].ordering-img-hidden').length;
+                if (placed < total) {
+                    event.preventDefault();
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'تنبيه',
+                        text: `يجب وضع جميع الصور (${total}) في المربعات قبل الإرسال.`,
+                        confirmButtonColor: '#22c55e',
+                        confirmButtonText: 'حسناً'
+                    });
+                    return false;
+                }
+            }
 
+            const requiredCountInput = form.querySelector('.required-choices-count');
             if (requiredCountInput) {
                 const requiredCount = parseInt(requiredCountInput.value);
                 const checkedBoxes = form.querySelectorAll('input[type="checkbox"][name="answer[]"]:checked');
 
                 if (checkedBoxes.length !== requiredCount) {
-                    event.preventDefault(); // Prevent native submission
-
+                    event.preventDefault();
                     Swal.fire({
                         icon: 'warning',
                         title: 'تنبيه',
@@ -2079,11 +1790,10 @@
                 }
             }
 
-            // Allow native form submission validation to continue
             return true;
         }
 
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             // Checkbox limits constraint listener
             function attachCheckboxListeners() {
                 const forms = document.querySelectorAll('#activeQuizQuestionsBlock form');
@@ -2096,8 +1806,10 @@
                         checkboxes.forEach(cb => {
                             // Only add if not already added
                             if (!cb.hasAttribute('data-listener-attached')) {
-                                cb.addEventListener('change', function () {
-                                    const checkedCount = form.querySelectorAll('input[type="checkbox"][name="answer[]"]:checked').length;
+                                cb.addEventListener('change', function() {
+                                    const checkedCount = form.querySelectorAll(
+                                        'input[type="checkbox"][name="answer[]"]:checked'
+                                        ).length;
                                     if (checkedCount > requiredCount) {
                                         this.checked = false;
                                         Swal.fire({
@@ -2123,35 +1835,132 @@
             // Run on load
             attachCheckboxListeners();
 
-            // Initialize SortableJS
+            function syncSlotStates(slotsGrid, sourceGrid) {
+                var zone = slotsGrid.closest('.ordering-target-zone');
+                if (!zone) return;
+                var qId = zone.getAttribute('data-question-id');
+                var input = document.getElementById('orderInput-' + qId);
+                if (!input) return;
+
+                var ids = [];
+                slotsGrid.querySelectorAll('.ordering-slot').forEach(function(slot) {
+                    var img = slot.querySelector('.ordering-img-item');
+                    slot.classList.toggle('has-image', !!img);
+                    if (img) ids.push(img.getAttribute('data-id'));
+                });
+                input.value = ids.join(',');
+
+                var parent = input.parentNode;
+                parent.querySelectorAll('input.ordering-img-hidden').forEach(function(h) {
+                    h.remove();
+                });
+                ids.forEach(function(id) {
+                    var h = document.createElement('input');
+                    h.type = 'hidden';
+                    h.name = 'answer[]';
+                    h.value = id;
+                    h.className = 'ordering-img-hidden';
+                    parent.insertBefore(h, input);
+                });
+            }
+
+            function initImageOrdering() {
+                document.querySelectorAll('.ordering-source-grid:not(.sortable-initialized)').forEach(function(
+                    sourceGrid) {
+                    var qId = sourceGrid.closest('.ordering-source-zone').getAttribute('data-question-id');
+                    var slotsGrid = document.getElementById('orderTarget-' + qId);
+                    if (!slotsGrid) return;
+                    var groupName = 'imgOrder-' + qId;
+
+                    new Sortable(sourceGrid, {
+                        group: {
+                            name: groupName,
+                            pull: 'clone',
+                            put: true
+                        },
+                        animation: 150,
+                        sort: false,
+                        ghostClass: 'sortable-ghost',
+                        chosenClass: 'sortable-chosen',
+                        fallbackOnBody: true
+                    });
+
+                    slotsGrid.querySelectorAll('.ordering-slot').forEach(function(slot) {
+                        if (slot.classList.contains('slot-init')) return;
+
+                        new Sortable(slot, {
+                            group: {
+                                name: groupName,
+                                put: function() {
+                                    return !slot.querySelector('.ordering-img-item');
+                                }
+                            },
+                            animation: 150,
+                            ghostClass: 'sortable-ghost',
+                            fallbackOnBody: true,
+                            onAdd: function(evt) {
+                                if (evt.from === sourceGrid) {
+                                    var orig = sourceGrid.querySelector('[data-id="' +
+                                        evt.item.getAttribute('data-id') + '"]');
+                                    if (orig && orig !== evt.item) orig.remove();
+                                }
+                                syncSlotStates(slotsGrid, sourceGrid);
+                            },
+                            onRemove: function(evt) {
+                                if (evt.to !== sourceGrid) {
+                                    sourceGrid.appendChild(evt.item);
+                                }
+                                syncSlotStates(slotsGrid, sourceGrid);
+                            }
+                        });
+
+                        slot.addEventListener('dragenter', function() {
+                            slot.classList.add('drag-hover');
+                        });
+                        slot.addEventListener('dragleave', function() {
+                            slot.classList.remove('drag-hover');
+                        });
+                        slot.addEventListener('drop', function() {
+                            slot.classList.remove('drag-hover');
+                        });
+
+                        slot.classList.add('slot-init');
+                    });
+
+                    sourceGrid.classList.add('sortable-initialized');
+                });
+            }
+
             function initSortables() {
-                const lists = document.querySelectorAll('.sortable-list:not(.sortable-initialized)');
-                lists.forEach(list => {
+                var lists = document.querySelectorAll('.sortable-list:not(.sortable-initialized)');
+                lists.forEach(function(list) {
                     new Sortable(list, {
                         animation: 150,
                         ghostClass: 'bg-green-50',
-                        onEnd: function (evt) {
-                            // Update the order of the hidden inputs to match the DOM order
-                            // which automatically happens because they are inside the dragged elements.
-                        }
+                        chosenClass: 'sortable-chosen'
                     });
                     list.classList.add('sortable-initialized');
                 });
+                initImageOrdering();
             }
             initSortables();
 
             // Setup a MutationObserver to re-attach if AJAX replaces the content
-            const observerTarget = document.getElementById('quizCountdownSection') || document.getElementById('activeQuizSection');
+            const observerTarget = document.getElementById('quizCountdownSection') || document.getElementById(
+                'activeQuizSection');
             if (observerTarget && observerTarget.parentNode) {
-                const observer = new MutationObserver(function (mutations) {
-                    mutations.forEach(function (mutation) {
+                const observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
                         if (mutation.addedNodes.length > 0) {
                             attachCheckboxListeners();
                             initSortables();
                         }
                     });
                 });
-                observer.observe(observerTarget.parentNode, { childList: true, subtree: true });
+                observer.observe(observerTarget.parentNode, {
+                    childList: true,
+                    subtree: true
+                });
             }
         });
     </script>
