@@ -215,7 +215,15 @@
                                             data-name="{{ $user->name }}" 
                                             data-phone="{{ $user->phone ?? '-' }}">
                                     </td>
-                                    <td>{{ $user->name }}</td>
+                                    <td class="competitor-name-cell" data-user-id="{{ $user->id }}" data-competition-id="{{ $competition->id }}">
+                                        <span class="name-text">{{ $user->name }}</span>
+                                        <button type="button" class="btn btn-sm btn-link p-0 mr-1 edit-name-btn" title="تعديل الاسم"><i class="fas fa-pen fa-xs"></i></button>
+                                        <span class="name-edit-wrap" style="display:none;">
+                                            <input type="text" class="form-control form-control-sm d-inline-block name-input" style="width:160px;" value="{{ $user->name }}">
+                                            <button type="button" class="btn btn-sm btn-success save-name-btn"><i class="fas fa-check"></i></button>
+                                            <button type="button" class="btn btn-sm btn-secondary cancel-name-btn"><i class="fas fa-times"></i></button>
+                                        </span>
+                                    </td>
                                     <td>{{ $user->phone ?? '-' }}</td>
                                     <td>{{ $user->email ?? '-' }}</td>
                                     <td>
@@ -298,7 +306,15 @@
                                     </td>
                                     <td>
                                         @if($team->creator)
-                                            {{ $team->creator->name }}
+                                            <span class="competitor-name-cell d-inline-block" data-user-id="{{ $team->creator->id }}" data-competition-id="{{ $competition->id }}">
+                                                <span class="name-text">{{ $team->creator->name }}</span>
+                                                <button type="button" class="btn btn-sm btn-link p-0 mr-1 edit-name-btn" title="تعديل الاسم"><i class="fas fa-pen fa-xs"></i></button>
+                                                <span class="name-edit-wrap" style="display:none;">
+                                                    <input type="text" class="form-control form-control-sm d-inline-block name-input" style="width:140px;" value="{{ $team->creator->name }}">
+                                                    <button type="button" class="btn btn-sm btn-success save-name-btn"><i class="fas fa-check"></i></button>
+                                                    <button type="button" class="btn btn-sm btn-secondary cancel-name-btn"><i class="fas fa-times"></i></button>
+                                                </span>
+                                            </span>
                                             @if($team->creator->phone)
                                                 <br><small class="text-muted">{{ $team->creator->phone }}</small>
                                             @endif
@@ -360,7 +376,15 @@
                                                                     $memberCategories = $memberRegistration ? $memberRegistration->categories : collect();
                                                                 @endphp
                                                                 <tr>
-                                                                    <td>{{ $member->name }}</td>
+                                                                    <td class="competitor-name-cell" data-user-id="{{ $member->id }}" data-competition-id="{{ $competition->id }}">
+                                                                        <span class="name-text">{{ $member->name }}</span>
+                                                                        <button type="button" class="btn btn-sm btn-link p-0 mr-1 edit-name-btn" title="تعديل الاسم"><i class="fas fa-pen fa-xs"></i></button>
+                                                                        <span class="name-edit-wrap" style="display:none;">
+                                                                            <input type="text" class="form-control form-control-sm d-inline-block name-input" style="width:140px;" value="{{ $member->name }}">
+                                                                            <button type="button" class="btn btn-sm btn-success save-name-btn"><i class="fas fa-check"></i></button>
+                                                                            <button type="button" class="btn btn-sm btn-secondary cancel-name-btn"><i class="fas fa-times"></i></button>
+                                                                        </span>
+                                                                    </td>
                                                                     <td>{{ $member->phone ?? '-' }}</td>
                                                                     <td>{{ $member->email ?? '-' }}</td>
                                                                     <td>
@@ -531,6 +555,78 @@ function updateSelectedUsers() {
         submitBtn.disabled = false;
     }
 }
+
+    // ─── تعديل اسم المتسابق (أفراد + أعضاء الفرق + قائد الفريق) ───
+    var competitorNameUrl = '{{ route("dashboard.competitions.competitor-name", $competition) }}';
+    var csrfToken = document.querySelector('meta[name="csrf-token"]') && document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    document.body.addEventListener('click', function(e) {
+        var editBtn = e.target.closest('.edit-name-btn');
+        if (editBtn) {
+            e.preventDefault();
+            var cell = editBtn.closest('.competitor-name-cell');
+            if (!cell) return;
+            cell.querySelector('.name-text').style.display = 'none';
+            editBtn.style.display = 'none';
+            cell.querySelector('.name-edit-wrap').style.display = 'inline';
+            cell.querySelector('.name-input').focus();
+            return;
+        }
+        var cancelBtn = e.target.closest('.cancel-name-btn');
+        if (cancelBtn) {
+            e.preventDefault();
+            var cell = cancelBtn.closest('.competitor-name-cell');
+            if (!cell) return;
+            cell.querySelector('.name-input').value = cell.querySelector('.name-text').textContent;
+            cell.querySelector('.name-edit-wrap').style.display = 'none';
+            cell.querySelector('.name-text').style.display = '';
+            cell.querySelector('.edit-name-btn').style.display = '';
+            return;
+        }
+        var saveBtn = e.target.closest('.save-name-btn');
+        if (saveBtn) {
+            e.preventDefault();
+            var cell = saveBtn.closest('.competitor-name-cell');
+            if (!cell) return;
+            var userId = cell.getAttribute('data-user-id');
+            var competitionId = cell.getAttribute('data-competition-id');
+            var input = cell.querySelector('.name-input');
+            var newName = (input.value || '').trim();
+            if (!newName) {
+                alert('الاسم لا يمكن أن يكون فارغاً');
+                return;
+            }
+            saveBtn.disabled = true;
+            fetch(competitorNameUrl, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken || document.querySelector('input[name="_token"]') && document.querySelector('input[name="_token"]').value
+                },
+                body: JSON.stringify({ user_id: userId, name: newName })
+            })
+            .then(function(r) { return r.json().then(function(data) { return { ok: r.ok, data: data }; }); })
+            .then(function(result) {
+                saveBtn.disabled = false;
+                if (result.ok && result.data.success) {
+                    cell.querySelector('.name-text').textContent = result.data.name;
+                    cell.querySelector('.name-input').value = result.data.name;
+                    cell.querySelector('.name-edit-wrap').style.display = 'none';
+                    cell.querySelector('.name-text').style.display = '';
+                    cell.querySelector('.edit-name-btn').style.display = '';
+                    var cb = document.querySelector('.individual-checkbox[value="' + userId + '"]');
+                    if (cb) cb.setAttribute('data-name', result.data.name);
+                } else {
+                    alert(result.data.message || 'حدث خطأ أثناء تحديث الاسم');
+                }
+            })
+            .catch(function() {
+                saveBtn.disabled = false;
+                alert('حدث خطأ في الاتصال');
+            });
+        }
+    });
 
 // تحديث القائمة عند تغيير أي checkbox
 document.addEventListener('DOMContentLoaded', function() {

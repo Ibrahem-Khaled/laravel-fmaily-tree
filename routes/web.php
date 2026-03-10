@@ -287,6 +287,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
         'destroy' => 'dashboard.competitions.destroy',
     ]);
     Route::post('competitions/{competition}/create-team', [\App\Http\Controllers\admin\CompetitionController::class, 'createTeamFromIndividuals'])->name('dashboard.competitions.create-team');
+    Route::put('competitions/{competition}/competitor-name', [\App\Http\Controllers\admin\CompetitionController::class, 'updateCompetitorName'])->name('dashboard.competitions.competitor-name');
     Route::delete('competitions/{competition}/registrations/{user}', [\App\Http\Controllers\admin\CompetitionController::class, 'removeRegistration'])->name('dashboard.competitions.remove-registration');
     Route::delete('competitions/teams/{team}', [\App\Http\Controllers\admin\CompetitionController::class, 'destroyTeam'])->name('dashboard.competitions.teams.destroy');
     Route::get('competitions/{competition}/export', [\App\Http\Controllers\admin\CompetitionController::class, 'export'])->name('dashboard.competitions.export');

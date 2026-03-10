@@ -245,6 +245,49 @@ class CompetitionController extends Controller
     }
 
     /**
+     * تحديث اسم متسابق (فرد أو عضو فريق) في المسابقة
+     */
+    public function updateCompetitorName(Request $request, Competition $competition): \Illuminate\Http\JsonResponse
+    {
+        $validated = $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'name'    => 'required|string|max:255',
+        ], [
+            'user_id.required' => 'المتسابق مطلوب',
+            'user_id.exists'   => 'المتسابق غير موجود',
+            'name.required'   => 'الاسم مطلوب',
+            'name.max'        => 'الاسم يجب ألا يتجاوز 255 حرفاً',
+        ]);
+
+        $userId = (int) $validated['user_id'];
+        $name   = trim($validated['name']);
+        if ($name === '') {
+            return response()->json(['success' => false, 'message' => 'الاسم لا يمكن أن يكون فارغاً'], 422);
+        }
+
+        // التحقق من أن المستخدم مسجل في هذه المسابقة (فرد غير مجمع أو عضو في فريق)
+        $isIndividual = CompetitionRegistration::where('competition_id', $competition->id)
+            ->where('user_id', $userId)
+            ->whereNull('team_id')
+            ->exists();
+
+        $isTeamMember = DB::table('team_members')
+            ->join('teams', 'team_members.team_id', '=', 'teams.id')
+            ->where('teams.competition_id', $competition->id)
+            ->where('team_members.user_id', $userId)
+            ->exists();
+
+        if (!$isIndividual && !$isTeamMember) {
+            return response()->json(['success' => false, 'message' => 'المتسابق غير مسجل في هذه المسابقة'], 403);
+        }
+
+        $user = User::findOrFail($userId);
+        $user->update(['name' => $name]);
+
+        return response()->json(['success' => true, 'name' => $user->name]);
+    }
+
+    /**
      * عرض نموذج تعديل مسابقة
      */
     public function edit(Competition $competition): View
