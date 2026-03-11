@@ -204,9 +204,14 @@ class QuizCompetitionPublicController extends Controller
             'mother_name' => 'nullable|string|max:255',
         ];
 
-        if ($quizQuestion->is_multiple_selections || $quizQuestion->answer_type === 'ordering') {
+        if ($quizQuestion->is_multiple_selections || $quizQuestion->answer_type === 'ordering' || $quizQuestion->answer_type === 'true_false') {
             $rules['answer'] = 'required|array';
-            $rules['answer.*'] = 'required|exists:quiz_question_choices,id';
+            if ($quizQuestion->answer_type !== 'true_false') {
+                $rules['answer.*'] = 'required|exists:quiz_question_choices,id';
+            } else {
+                // For true_false, keys are choice IDs, values are true/false strings or 1/0
+                $rules['answer.*'] = 'required|in:1,0,true,false';
+            }
         } elseif ($quizQuestion->answer_type === 'multiple_choice') {
             $rules['answer'] = 'required|exists:quiz_question_choices,id';
         } else {
@@ -351,6 +356,34 @@ class QuizCompetitionPublicController extends Controller
                 }
                 
                 $answerData = json_encode($selectedChoiceIds);
+            } elseif ($quizQuestion->answer_type === 'true_false') {
+                $answerType = 'true_false';
+                $selectedAnswers = $validated['answer']; // Array map: choice_id => true/false
+
+                $isCorrect = true;
+                $correctChoicesCount = $quizQuestion->choices->count();
+                
+                if (count($selectedAnswers) !== $correctChoicesCount || $correctChoicesCount === 0) {
+                    $isCorrect = false;
+                } else {
+                    foreach ($quizQuestion->choices as $choice) {
+                        if (!isset($selectedAnswers[$choice->id])) {
+                            $isCorrect = false;
+                            break;
+                        }
+                        
+                        $submittedVal = $selectedAnswers[$choice->id];
+                        $submittedBool = ($submittedVal === '1' || $submittedVal === 'true');
+                        $actualBool = (bool)$choice->is_correct;
+                        
+                        if ($submittedBool !== $actualBool) {
+                            $isCorrect = false;
+                            break;
+                        }
+                    }
+                }
+
+                $answerData = json_encode($selectedAnswers);
             }
 
             // إنشاء إجابة جديدة دائماً
@@ -365,6 +398,12 @@ class QuizCompetitionPublicController extends Controller
             if (($quizQuestion->is_multiple_selections && $quizQuestion->answer_type === 'multiple_choice') || $quizQuestion->answer_type === 'ordering') {
                 $selectedChoiceIds = $validated['answer'];
                 foreach ($selectedChoiceIds as $choiceId) {
+                    $quizAnswer->selectedChoices()->create([
+                        'quiz_question_choice_id' => $choiceId,
+                    ]);
+                }
+            } elseif ($quizQuestion->answer_type === 'true_false') {
+                foreach ($validated['answer'] as $choiceId => $val) {
                     $quizAnswer->selectedChoices()->create([
                         'quiz_question_choice_id' => $choiceId,
                     ]);

@@ -22,14 +22,14 @@ class QuizQuestionController extends Controller
         $validated = $request->validate([
             'question_text' => 'required|string',
             'description' => 'nullable|string',
-            'answer_type' => 'required|in:multiple_choice,custom_text,ordering',
+            'answer_type' => 'required|in:multiple_choice,custom_text,ordering,true_false',
             'is_multiple_selections' => 'nullable|boolean',
             'winners_count' => 'required|integer|min:1',
             'groups_count' => 'nullable|integer|min:1',
             'display_order' => 'nullable|integer|min:0',
             'prize' => 'nullable|array',
             'prize.*' => 'nullable|string',
-            'choices' => 'required_if:answer_type,multiple_choice,ordering|array',
+            'choices' => 'required_if:answer_type,multiple_choice,ordering,true_false|array',
             'choices.*.text' => 'nullable|string',
             'choices.*.group_name' => 'nullable|string|max:255',
             'choices.*.image' => 'nullable|image|max:2048',
@@ -55,12 +55,14 @@ class QuizQuestionController extends Controller
             'prize' => $validated['prize'] ?? [],
         ]);
 
-        if (in_array($validated['answer_type'], ['multiple_choice', 'ordering']) && !empty($validated['choices'])) {
+        if (in_array($validated['answer_type'], ['multiple_choice', 'ordering', 'true_false']) && !empty($validated['choices'])) {
             $choices = array_filter($validated['choices'], fn($c) => !empty(trim($c['text'] ?? '')));
 
             $isMultiple = !empty($validated['is_multiple_selections']);
             $isOrdering = $validated['answer_type'] === 'ordering';
             $correctChoicesKeys = $request->input('correct_choices', []);
+
+            $isTrueFalse = $validated['answer_type'] === 'true_false';
 
             foreach ($choices as $index => $choice) {
                 $isCorrect = false;
@@ -68,8 +70,10 @@ class QuizQuestionController extends Controller
                     $isCorrect = true; // For ordering, all saved choices are part of the correct order sequence
                 } elseif ($isMultiple) {
                     $isCorrect = in_array((string) $index, $correctChoicesKeys);
+                } elseif ($isTrueFalse) {
+                    $isCorrect = !empty($choice['is_correct']) && $choice['is_correct'] != 'false' && $choice['is_correct'] != '0';
                 } else {
-                    $isCorrect = !empty($choice['is_correct']);
+                    $isCorrect = !empty($choice['is_correct']) && $choice['is_correct'] != 'false' && $choice['is_correct'] != '0';
                 }
 
                 $question->choices()->create([
@@ -98,14 +102,14 @@ class QuizQuestionController extends Controller
         $validated = $request->validate([
             'question_text' => 'required|string',
             'description' => 'nullable|string',
-            'answer_type' => 'required|in:multiple_choice,custom_text,ordering',
+            'answer_type' => 'required|in:multiple_choice,custom_text,ordering,true_false',
             'is_multiple_selections' => 'nullable|boolean',
             'winners_count' => 'required|integer|min:1',
             'groups_count' => 'nullable|integer|min:1',
             'display_order' => 'nullable|integer|min:0',
             'prize' => 'nullable|array',
             'prize.*' => 'nullable|string',
-            'choices' => 'required_if:answer_type,multiple_choice,ordering|array',
+            'choices' => 'required_if:answer_type,multiple_choice,ordering,true_false|array',
             'choices.*.text' => 'nullable|string',
             'choices.*.group_name' => 'nullable|string|max:255',
             'choices.*.image' => 'nullable|image|max:2048',
@@ -131,7 +135,7 @@ class QuizQuestionController extends Controller
             'prize' => $validated['prize'] ?? [],
         ]);
 
-        if (in_array($validated['answer_type'], ['multiple_choice', 'ordering']) && !empty($validated['choices'])) {
+        if (in_array($validated['answer_type'], ['multiple_choice', 'ordering', 'true_false']) && !empty($validated['choices'])) {
             $oldChoices = $quizQuestion->choices->keyBy('choice_text');
             $quizQuestion->choices()->delete();
             $choices = $validated['choices'];
@@ -140,14 +144,18 @@ class QuizQuestionController extends Controller
             $isOrdering = $validated['answer_type'] === 'ordering';
             $correctChoicesKeys = $request->input('correct_choices', []);
 
+            $isTrueFalse = $validated['answer_type'] === 'true_false';
+
             foreach ($choices as $index => $choice) {
                 $isCorrect = false;
                 if ($isOrdering) {
                     $isCorrect = true;
                 } elseif ($isMultiple) {
                     $isCorrect = in_array((string) $index, $correctChoicesKeys);
+                } elseif ($isTrueFalse) {
+                    $isCorrect = !empty($choice['is_correct']) && $choice['is_correct'] != 'false' && $choice['is_correct'] != '0';
                 } else {
-                    $isCorrect = !empty($choice['is_correct']);
+                    $isCorrect = !empty($choice['is_correct']) && $choice['is_correct'] != 'false' && $choice['is_correct'] != '0';
                 }
 
                 $oldChoice = $oldChoices->get($choice['text'] ?? '');

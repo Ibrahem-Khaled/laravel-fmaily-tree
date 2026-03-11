@@ -343,6 +343,67 @@
                                                             @endforeach
                                                         </div>
                                                     @endif
+                                                @elseif ($q->answer_type === 'true_false' && $q->choices->count() > 0)
+                                                    <div class="flex items-center gap-2 mb-4 pb-2 border-b border-green-100">
+                                                        <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 text-white text-xs shadow-md">
+                                                            <i class="fas fa-tasks"></i>
+                                                        </span>
+                                                        <span class="text-sm text-green-800 font-bold">حدد هل كل عبارة صحيحة أم خاطئة</span>
+                                                        <span class="text-[10px] text-gray-400 font-medium mr-auto">({{ $q->choices->count() }} عبارات)</span>
+                                                    </div>
+                                                    <div class="space-y-3">
+                                                        @foreach ($q->choices as $idx => $choice)
+                                                            <div class="group relative rounded-xl border border-gray-100 bg-gradient-to-br from-white to-gray-50/80 hover:border-green-200 hover:shadow-md transition-all duration-300 overflow-hidden">
+
+                                                                <div class="p-3">
+                                                                    <div class="flex flex-row gap-3 items-center">
+                                                                        @if(!empty($choice->image))
+                                                                            <div class="relative flex-shrink-0 overflow-hidden rounded-lg shadow-sm border border-gray-100 group-hover:shadow-md transition-shadow cursor-pointer" onclick="openTfLightbox('{{ asset('storage/' . $choice->image) }}')">
+                                                                                <img src="{{ asset('storage/' . $choice->image) }}" alt="صورة توضيحية" class="w-20 h-20 object-cover rounded-lg transition-transform duration-300 group-hover:scale-105">
+                                                                                <div class="absolute inset-0 flex items-center justify-center bg-black/0 hover:bg-black/30 transition-all duration-200 rounded-lg">
+                                                                                    <i class="fas fa-search-plus text-white text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 drop-shadow"></i>
+                                                                                </div>
+                                                                            </div>
+                                                                        @endif
+                                                                        @if(!empty($choice->video))
+                                                                            <div class="relative flex-shrink-0 overflow-hidden rounded-lg shadow-sm border border-gray-100 cursor-pointer" onclick="openTfVideoLightbox('{{ asset('storage/' . $choice->video) }}')">
+                                                                                <video class="w-28 h-20 object-cover rounded-lg" muted>
+                                                                                    <source src="{{ asset('storage/' . $choice->video) }}" type="video/mp4">
+                                                                                </video>
+                                                                                <div class="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/40 transition-all duration-200 rounded-lg">
+                                                                                    <i class="fas fa-play-circle text-white text-xl drop-shadow"></i>
+                                                                                </div>
+                                                                            </div>
+                                                                        @endif
+
+                                                                        <div class="flex-grow flex items-center">
+                                                                            <p class="text-gray-800 text-[13px] font-semibold leading-snug">{{ $choice->choice_text }}</p>
+                                                                        </div>
+
+                                                                        {{-- True / False toggle icons --}}
+                                                                        <div class="flex flex-col gap-1.5 flex-shrink-0">
+                                                                            <label class="cursor-pointer">
+                                                                                <input type="radio" name="answer[{{ $choice->id }}]" value="1" class="hidden peer" required>
+                                                                                <div class="w-9 h-9 flex items-center justify-center rounded-full border-2 border-green-200 bg-green-50/50 text-green-500 transition-all duration-200
+                                                                                            peer-checked:bg-gradient-to-br peer-checked:from-green-500 peer-checked:to-emerald-500 peer-checked:text-white peer-checked:border-green-500 peer-checked:shadow-lg peer-checked:shadow-green-200/50 peer-checked:scale-110
+                                                                                            hover:bg-green-100 hover:border-green-300 active:scale-90">
+                                                                                    <i class="fas fa-check text-sm"></i>
+                                                                                </div>
+                                                                            </label>
+                                                                            <label class="cursor-pointer">
+                                                                                <input type="radio" name="answer[{{ $choice->id }}]" value="0" class="hidden peer" required>
+                                                                                <div class="w-9 h-9 flex items-center justify-center rounded-full border-2 border-red-200 bg-red-50/50 text-red-400 transition-all duration-200
+                                                                                            peer-checked:bg-gradient-to-br peer-checked:from-red-500 peer-checked:to-rose-500 peer-checked:text-white peer-checked:border-red-500 peer-checked:shadow-lg peer-checked:shadow-red-200/50 peer-checked:scale-110
+                                                                                            hover:bg-red-100 hover:border-red-300 active:scale-90">
+                                                                                    <i class="fas fa-times text-sm"></i>
+                                                                                </div>
+                                                                            </label>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
                                                 @else
                                                     <textarea name="answer" rows="3" required placeholder="اكتب إجابتك..."
                                                         class="w-full px-3 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-gray-800 text-sm focus:ring-2 focus:ring-green-200 focus:border-green-500 resize-none">{{ old('answer') }}</textarea>
@@ -535,4 +596,54 @@
         }
     }
 </style>
+
+{{-- Lightbox Modal for True/False images & videos --}}
+<div id="tfLightboxModal" class="fixed inset-0 z-[9999] hidden items-center justify-center bg-black/70 backdrop-blur-sm" onclick="closeTfLightbox()" style="display:none;">
+    <div class="relative max-w-[90vw] max-h-[90vh] animate-[tfZoomIn_0.25s_ease-out]" onclick="event.stopPropagation()">
+        <button onclick="closeTfLightbox()" class="absolute -top-3 -right-3 w-8 h-8 flex items-center justify-center rounded-full bg-white text-gray-700 shadow-lg hover:bg-red-50 hover:text-red-500 transition-all z-10">
+            <i class="fas fa-times text-sm"></i>
+        </button>
+        <img id="tfLightboxImg" src="" alt="صورة مكبرة" class="rounded-2xl shadow-2xl max-w-[90vw] max-h-[85vh] object-contain">
+        <video id="tfLightboxVideo" controls autoplay class="rounded-2xl shadow-2xl max-w-[90vw] max-h-[85vh]" style="display:none;"></video>
+    </div>
+</div>
+
+<style>
+@keyframes tfZoomIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+</style>
+
+<script>
+function openTfLightbox(src) {
+    var modal = document.getElementById('tfLightboxModal');
+    var img = document.getElementById('tfLightboxImg');
+    var vid = document.getElementById('tfLightboxVideo');
+    img.src = src;
+    img.style.display = 'block';
+    vid.style.display = 'none';
+    vid.pause();
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+function openTfVideoLightbox(src) {
+    var modal = document.getElementById('tfLightboxModal');
+    var img = document.getElementById('tfLightboxImg');
+    var vid = document.getElementById('tfLightboxVideo');
+    img.style.display = 'none';
+    vid.src = src;
+    vid.style.display = 'block';
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+function closeTfLightbox() {
+    var modal = document.getElementById('tfLightboxModal');
+    var vid = document.getElementById('tfLightboxVideo');
+    modal.style.display = 'none';
+    vid.pause();
+    vid.src = '';
+    document.body.style.overflow = '';
+}
+</script>
 @endpush

@@ -68,6 +68,12 @@
                                 <label class="custom-control-label" for="type_ordering">ترتيب (سحب وإفلات)</label>
                             </div>
                             <div class="custom-control custom-radio custom-control-inline">
+                                <input type="radio" id="type_true_false" name="answer_type"
+                                    class="custom-control-input answer-type-radio" value="true_false"
+                                    {{ old('answer_type', $quizQuestion->answer_type) == 'true_false' ? 'checked' : '' }} required>
+                                <label class="custom-control-label" for="type_true_false">صح / خطأ</label>
+                            </div>
+                            <div class="custom-control custom-radio custom-control-inline">
                                 <input type="radio" id="type_custom_text" name="answer_type"
                                     class="custom-control-input answer-type-radio" value="custom_text"
                                     {{ old('answer_type', $quizQuestion->answer_type) == 'custom_text' ? 'checked' : '' }} required>
@@ -140,7 +146,7 @@
                                             </label>
                                         </div>
                                         <input type="hidden" name="choices[{{ $i }}][is_correct]"
-                                            value="{{ !empty($choice['is_correct']) ? '1' : '0' }}" class="choice-correct">
+                                            value="{{ !empty($choice['is_correct']) && $choice['is_correct'] != 'false' && $choice['is_correct'] != '0' ? '1' : '0' }}" class="choice-correct">
                                         <div class="input-group-append">
                                             <button type="button" class="btn btn-outline-danger remove-choice"><i class="fas fa-trash"></i></button>
                                         </div>
@@ -282,14 +288,19 @@
                 var type = getSelectedAnswerType();
                 var isChoice = type === 'multiple_choice';
                 var isOrdering = type === 'ordering';
+                var isTrueFalse = type === 'true_false';
 
-                choicesSection.style.display = (isChoice || isOrdering) ? 'block' : 'none';
+                choicesSection.style.display = (isChoice || isOrdering || isTrueFalse) ? 'block' : 'none';
                 multipleSelectionsGroup.style.display = isChoice ? 'block' : 'none';
 
                 var hint = document.getElementById('choicesHint');
-                hint.textContent = isOrdering
-                    ? 'أدخل الخيارات بالترتيب الصحيح، ستظهر للمستخدم بشكل عشوائي ليرتبها.'
-                    : 'حدد الخيار الصحيح بعلامة ✓';
+                if (isOrdering) {
+                    hint.textContent = 'أدخل الخيارات بالترتيب الصحيح، ستظهر للمستخدم بشكل عشوائي ليرتبها.';
+                } else if (isTrueFalse) {
+                    hint.textContent = 'أدخل الجملة وحدد هل هي صحيحة أم خاطئة، يمكنك إرفاق صورة مع كل جملة.';
+                } else {
+                    hint.textContent = 'حدد الخيار الصحيح بعلامة ✓';
+                }
 
                 var groupsCountGroup = document.getElementById('groupsCountGroup');
                 if (groupsCountGroup) groupsCountGroup.style.display = isOrdering ? 'block' : 'none';
@@ -306,13 +317,14 @@
             function updateChoiceInputsType() {
                 var type = getSelectedAnswerType();
                 var isOrdering = type === 'ordering';
-                var isMultiple = isMultipleSwitch.checked && !isOrdering;
+                var isTrueFalse = type === 'true_false';
+                var isMultiple = isMultipleSwitch.checked && !isOrdering && !isTrueFalse;
                 var rows = choicesContainer.querySelectorAll('.choice-row');
 
                 rows.forEach(function (row, idx) {
                     var container = row.querySelector('.correct-choice-container');
                     var hidden = row.querySelector('.choice-correct');
-                    var wasChecked = hidden.value === '1';
+                    var wasChecked = hidden.value === '1' || hidden.value === 'true';
 
                     if (isOrdering) {
                         container.innerHTML = '<i class="fas fa-grip-lines drag-handle text-muted mr-2" style="cursor:move;" title="اسحب للترتيب"></i><span class="badge badge-info">' + (idx + 1) + '</span>';
@@ -320,7 +332,11 @@
                         row.classList.add('is-ordering');
                     } else {
                         row.classList.remove('is-ordering');
-                        if (isMultiple) {
+                        if (isTrueFalse) {
+                            var checkedTrue = wasChecked ? 'checked' : '';
+                            var checkedFalse = !wasChecked ? 'checked' : '';
+                            container.innerHTML = '<div class="d-flex flex-column gap-1" style="min-width:60px;"><label class="mb-0 text-success small"><input type="radio" class="correct-choice-input" name="tf_choice_' + idx + '" value="1" ' + checkedTrue + '> صح</label><label class="mb-0 text-danger small"><input type="radio" class="correct-choice-input" name="tf_choice_' + idx + '" value="0" ' + checkedFalse + '> خطأ</label></div>';
+                        } else if (isMultiple) {
                             container.innerHTML = '<input type="checkbox" class="correct-choice-input" name="correct_choices[]" value="' + idx + '" ' + (wasChecked ? 'checked' : '') + ' title="إجابة صحيحة">';
                         } else {
                             container.innerHTML = '<input type="radio" class="correct-choice-input" name="correct_choice" value="' + idx + '" ' + (wasChecked ? 'checked' : '') + ' title="الإجابة الصحيحة">';
@@ -340,20 +356,24 @@
             function updateHiddenValues() {
                 var type = getSelectedAnswerType();
                 var isOrdering = type === 'ordering';
-                var isMultiple = isMultipleSwitch.checked && !isOrdering;
+                var isTrueFalse = type === 'true_false';
+                var isMultiple = isMultipleSwitch.checked && !isOrdering && !isTrueFalse;
                 var rows = choicesContainer.querySelectorAll('.choice-row');
 
                 rows.forEach(function (row, idx) {
                     var hidden = row.querySelector('.choice-correct');
                     if (isOrdering) {
                         hidden.value = '1';
+                    } else if (isTrueFalse) {
+                        var tfRadio = row.querySelector('input[type="radio"]:checked');
+                        if (tfRadio) hidden.value = tfRadio.value;
                     } else if (isMultiple) {
                         var input = row.querySelector('.correct-choice-input');
                         if (input) hidden.value = input.checked ? '1' : '0';
                     }
                 });
 
-                if (!isMultiple && !isOrdering) {
+                if (!isMultiple && !isOrdering && !isTrueFalse) {
                     document.querySelectorAll('.choice-correct').forEach(function (h, i) {
                         var r = document.querySelector('input[name="correct_choice"][value="' + i + '"]');
                         if (r) h.value = r.checked ? '1' : '0';
@@ -400,6 +420,12 @@
                     if (isOrdering) {
                         container.innerHTML = '<i class="fas fa-grip-lines drag-handle text-muted mr-2" style="cursor:move;" title="اسحب للترتيب"></i><span class="badge badge-info">' + (idx + 1) + '</span>';
                         hidden.value = '1';
+                    } else if (getSelectedAnswerType() === 'true_false') {
+                        // Re-name the radio group mapping for true/false
+                        var radios = container.querySelectorAll('.correct-choice-input');
+                        radios.forEach(function (radio) {
+                            radio.name = 'tf_choice_' + idx;
+                        });
                     } else if (input) {
                         input.value = idx;
                     }
@@ -461,11 +487,14 @@
                 var idx = choicesContainer.querySelectorAll('.choice-row').length;
                 var type = getSelectedAnswerType();
                 var isOrdering = type === 'ordering';
-                var isMultiple = isMultipleSwitch.checked && !isOrdering;
+                var isTrueFalse = type === 'true_false';
+                var isMultiple = isMultipleSwitch.checked && !isOrdering && !isTrueFalse;
 
                 var inputHtml = '';
                 if (isOrdering) {
                     inputHtml = '<i class="fas fa-grip-lines drag-handle text-muted mr-2" style="cursor:move;" title="اسحب للترتيب"></i><span class="badge badge-info">' + (idx + 1) + '</span>';
+                } else if (isTrueFalse) {
+                    inputHtml = '<div class="d-flex flex-column gap-1" style="min-width:60px;"><label class="mb-0 text-success small"><input type="radio" class="correct-choice-input" name="tf_choice_' + idx + '" value="1" checked> صح</label><label class="mb-0 text-danger small"><input type="radio" class="correct-choice-input" name="tf_choice_' + idx + '" value="0"> خطأ</label></div>';
                 } else if (isMultiple) {
                     inputHtml = '<input type="checkbox" class="correct-choice-input" name="correct_choices[]" value="' + idx + '" title="إجابة صحيحة">';
                 } else {

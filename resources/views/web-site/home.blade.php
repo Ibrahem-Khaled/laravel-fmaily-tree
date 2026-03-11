@@ -1284,7 +1284,7 @@
         </div>
     </div>
 
-    <a href="https://wa.me/966539895800?text=مرحباً%20أريد%20المشاركة%20في%20مسابقة%20أفضل%20مقطع%20فيديو" target="_blank"
+    <a href="https://wa.me/966539895800" target="_blank"
         style="
      position: fixed;
      bottom: 24px;
