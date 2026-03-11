@@ -25,11 +25,13 @@ class QuizQuestionController extends Controller
             'answer_type' => 'required|in:multiple_choice,custom_text,ordering',
             'is_multiple_selections' => 'nullable|boolean',
             'winners_count' => 'required|integer|min:1',
+            'groups_count' => 'nullable|integer|min:1',
             'display_order' => 'nullable|integer|min:0',
             'prize' => 'nullable|array',
             'prize.*' => 'nullable|string',
             'choices' => 'required_if:answer_type,multiple_choice,ordering|array',
             'choices.*.text' => 'nullable|string',
+            'choices.*.group_name' => 'nullable|string|max:255',
             'choices.*.image' => 'nullable|image|max:2048',
             'choices.*.video' => 'nullable|mimes:mp4,mov,ogg,qt|max:20000',
             'choices.*.is_correct' => 'nullable|boolean',
@@ -39,6 +41,7 @@ class QuizQuestionController extends Controller
             'answer_type.required' => 'نوع الإجابة مطلوب',
             'winners_count.required' => 'عدد الفائزين مطلوب',
             'winners_count.min' => 'عدد الفائزين يجب أن يكون على الأقل 1',
+            'groups_count.min' => 'عدد المجموعات يجب أن يكون على الأقل 1',
         ]);
 
         $question = $quizCompetition->questions()->create([
@@ -47,6 +50,7 @@ class QuizQuestionController extends Controller
             'answer_type' => $validated['answer_type'],
             'is_multiple_selections' => !empty($validated['is_multiple_selections']),
             'winners_count' => $validated['winners_count'],
+            'groups_count' => ($validated['answer_type'] === 'ordering') ? $validated['groups_count'] ?? null : null,
             'display_order' => $validated['display_order'] ?? 0,
             'prize' => $validated['prize'] ?? [],
         ]);
@@ -71,6 +75,7 @@ class QuizQuestionController extends Controller
                 $question->choices()->create([
                     'choice_text' => $choice['text'] ?? '',
                     'is_correct' => $isCorrect,
+                    'group_name' => $isOrdering ? ($choice['group_name'] ?? null) : null,
                     'image' => isset($choice['image']) ? $choice['image']->store('quiz/choices/images', 'public') : null,
                     'video' => isset($choice['video']) ? $choice['video']->store('quiz/choices/videos', 'public') : null,
                 ]);
@@ -96,11 +101,13 @@ class QuizQuestionController extends Controller
             'answer_type' => 'required|in:multiple_choice,custom_text,ordering',
             'is_multiple_selections' => 'nullable|boolean',
             'winners_count' => 'required|integer|min:1',
+            'groups_count' => 'nullable|integer|min:1',
             'display_order' => 'nullable|integer|min:0',
             'prize' => 'nullable|array',
             'prize.*' => 'nullable|string',
             'choices' => 'required_if:answer_type,multiple_choice,ordering|array',
             'choices.*.text' => 'nullable|string',
+            'choices.*.group_name' => 'nullable|string|max:255',
             'choices.*.image' => 'nullable|image|max:2048',
             'choices.*.video' => 'nullable|mimes:mp4,mov,ogg,qt|max:20000',
             'choices.*.is_correct' => 'nullable|boolean',
@@ -110,6 +117,7 @@ class QuizQuestionController extends Controller
             'answer_type.required' => 'نوع الإجابة مطلوب',
             'winners_count.required' => 'عدد الفائزين مطلوب',
             'winners_count.min' => 'عدد الفائزين يجب أن يكون على الأقل 1',
+            'groups_count.min' => 'عدد المجموعات يجب أن يكون على الأقل 1',
         ]);
 
         $quizQuestion->update([
@@ -118,6 +126,7 @@ class QuizQuestionController extends Controller
             'answer_type' => $validated['answer_type'],
             'is_multiple_selections' => !empty($validated['is_multiple_selections']),
             'winners_count' => $validated['winners_count'],
+            'groups_count' => ($validated['answer_type'] === 'ordering') ? $validated['groups_count'] ?? null : null,
             'display_order' => $validated['display_order'] ?? 0,
             'prize' => $validated['prize'] ?? [],
         ]);
@@ -161,6 +170,7 @@ class QuizQuestionController extends Controller
                 $quizQuestion->choices()->create([
                     'choice_text' => $choice['text'] ?? '',
                     'is_correct' => $isCorrect,
+                    'group_name' => $isOrdering ? ($choice['group_name'] ?? null) : null,
                     'image' => $imagePath,
                     'video' => $videoPath,
                 ]);

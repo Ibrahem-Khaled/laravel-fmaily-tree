@@ -299,19 +299,57 @@ class QuizCompetitionPublicController extends Controller
             } elseif ($quizQuestion->answer_type === 'ordering') {
                 $answerType = 'ordering';
                 $selectedChoiceIds = $validated['answer']; // Array of ids
-                $correctChoiceIds = $quizQuestion->choices()->orderBy('id')->pluck('id')->toArray();
 
                 $isCorrect = true;
-                if (count($selectedChoiceIds) !== count($correctChoiceIds)) {
-                    $isCorrect = false;
-                } else {
-                    foreach ($correctChoiceIds as $index => $correctId) {
-                        if ((int) $selectedChoiceIds[$index] !== (int) $correctId) {
+
+                if ($quizQuestion->groups_count && $quizQuestion->groups_count > 0) {
+                    // Group-based ordering
+                    // Each group has a list of correct IDs (we can find out the group by looking up the ID in $quizQuestion->choices)
+                    // The submitted array answers is just ordered, so we chunk it based on the number of choices per group
+                    
+                    // Group $q->choices by group_name, maintaining the order of choices (which is the correct order of groups)
+                    // Actually, the group sizes are based on $quizQuestion->choices grouping.
+                    $groups = $quizQuestion->choices->filter(fn($c) => !empty($c->group_name))->groupBy('group_name');
+                    
+                    $currentIndex = 0;
+                    foreach ($groups as $groupName => $groupChoices) {
+                        $groupSize = $groupChoices->count();
+                        $groupCorrectIds = $groupChoices->pluck('id')->toArray();
+                        
+                        // Get the submitted IDs for this chunk
+                        $submittedChunk = array_slice($selectedChoiceIds, $currentIndex, $groupSize);
+                        
+                        // Check if the submitted IDs in this chunk are exactly the correct IDs for this group (ignoring order within the group)
+                        // A simple way is to check if the intersection size matches the group size
+                        $intersection = array_intersect($groupCorrectIds, $submittedChunk);
+                        if (count($intersection) !== $groupSize) {
                             $isCorrect = false;
                             break;
                         }
+                        
+                        $currentIndex += $groupSize;
+                    }
+                    
+                    // Extra sanity check - make sure we got the exact total number
+                    if (count($selectedChoiceIds) !== $quizQuestion->choices->count()) {
+                        $isCorrect = false;
+                    }
+                } else {
+                    // Standard exact ordering
+                    $correctChoiceIds = $quizQuestion->choices()->orderBy('id')->pluck('id')->toArray();
+                    
+                    if (count($selectedChoiceIds) !== count($correctChoiceIds)) {
+                        $isCorrect = false;
+                    } else {
+                        foreach ($correctChoiceIds as $index => $correctId) {
+                            if ((int) $selectedChoiceIds[$index] !== (int) $correctId) {
+                                $isCorrect = false;
+                                break;
+                            }
+                        }
                     }
                 }
+                
                 $answerData = json_encode($selectedChoiceIds);
             }
 

@@ -1858,15 +1858,15 @@
             // Run on load
             attachCheckboxListeners();
 
-            function syncSlotStates(slotsGrid, sourceGrid) {
-                var zone = slotsGrid.closest('.ordering-target-zone');
+            function syncSlotStates(zone, sourceGrid) {
                 if (!zone) return;
                 var qId = zone.getAttribute('data-question-id');
                 var input = document.getElementById('orderInput-' + qId);
                 if (!input) return;
 
                 var ids = [];
-                slotsGrid.querySelectorAll('.ordering-slot').forEach(function(slot) {
+                // Query all slots across all grid containers in this zone
+                zone.querySelectorAll('.ordering-slot').forEach(function(slot) {
                     var img = slot.querySelector('.ordering-img-item');
                     slot.classList.toggle('has-image', !!img);
                     if (img) ids.push(img.getAttribute('data-id'));
@@ -1891,8 +1891,9 @@
                 document.querySelectorAll('.ordering-source-grid:not(.sortable-initialized)').forEach(function(
                     sourceGrid) {
                     var qId = sourceGrid.closest('.ordering-source-zone').getAttribute('data-question-id');
-                    var slotsGrid = document.getElementById('orderTarget-' + qId);
-                    if (!slotsGrid) return;
+                    var targetZone = document.querySelector('.ordering-target-zone[data-question-id="' + qId + '"]');
+                    if (!targetZone) return;
+                    
                     var groupName = 'imgOrder-' + qId;
 
                     new Sortable(sourceGrid, {
@@ -1908,7 +1909,7 @@
                         fallbackOnBody: true
                     });
 
-                    slotsGrid.querySelectorAll('.ordering-slot').forEach(function(slot) {
+                    targetZone.querySelectorAll('.ordering-slot').forEach(function(slot) {
                         if (slot.classList.contains('slot-init')) return;
 
                         new Sortable(slot, {
@@ -1927,13 +1928,13 @@
                                         evt.item.getAttribute('data-id') + '"]');
                                     if (orig && orig !== evt.item) orig.remove();
                                 }
-                                syncSlotStates(slotsGrid, sourceGrid);
+                                syncSlotStates(targetZone, sourceGrid);
                             },
                             onRemove: function(evt) {
                                 if (evt.to !== sourceGrid) {
                                     sourceGrid.appendChild(evt.item);
                                 }
-                                syncSlotStates(slotsGrid, sourceGrid);
+                                syncSlotStates(targetZone, sourceGrid);
                             }
                         });
 

@@ -247,17 +247,42 @@
                                                                 <i class="fas fa-sort-numeric-down text-green-500 text-xs"></i>
                                                                 <span class="text-[11px] text-gray-500 font-medium">الترتيب الصحيح (اسقط الصور هنا)</span>
                                                             </div>
-                                                            <div class="ordering-slots-grid" id="orderTarget-{{ $q->id }}">
-                                                                @foreach ($q->choices as $s => $choice)
-                                                                    <div class="ordering-slot flex-col gap-1" data-slot="{{ $s + 1 }}">
-                                                                        @if(!empty($choice->choice_text))
-                                                                            <span class="ordering-slot-text text-xs sm:text-sm text-green-600 font-bold text-center px-1 leading-tight pointer-events-none">{{ $choice->choice_text }}</span>
-                                                                        @else
-                                                                            <span class="ordering-slot-num">{{ $s + 1 }}</span>
-                                                                        @endif
-                                                                    </div>
-                                                                @endforeach
-                                                            </div>
+
+                                                            @php
+                                                                $groups = $q->choices->filter(fn($c) => !empty($c->group_name))->groupBy('group_name');
+                                                            @endphp
+                                                            @if($q->groups_count && $q->groups_count > 0 && $groups->count() > 0)
+                                                                <div class="grid grid-cols-1 md:grid-cols-{{ min($groups->count(), 4) }} gap-4 ordering-groups-container">
+                                                                    @foreach($groups as $groupName => $groupChoices)
+                                                                        <div class="p-3 bg-white border border-green-200 rounded-xl shadow-sm">
+                                                                            <h5 class="text-sm font-bold text-green-700 text-center mb-2">{{ $groupName }}</h5>
+                                                                            <div class="ordering-slots-grid ordering-slots-grouped" id="orderTarget-{{ $q->id }}-{{ Str::slug($groupName) }}" data-group="{{ $groupName }}">
+                                                                                @foreach ($groupChoices as $s => $choice)
+                                                                                    <div class="ordering-slot flex-col gap-1" data-slot="{{ $choice->id }}" data-group="{{ $groupName }}">
+                                                                                        @if(!empty($choice->choice_text))
+                                                                                            <span class="ordering-slot-text text-xs sm:text-sm text-green-600 font-bold text-center px-1 leading-tight pointer-events-none">{{ $choice->choice_text }}</span>
+                                                                                        @else
+                                                                                            <span class="ordering-slot-num">{{ $s + 1 }}</span>
+                                                                                        @endif
+                                                                                    </div>
+                                                                                @endforeach
+                                                                            </div>
+                                                                        </div>
+                                                                    @endforeach
+                                                                </div>
+                                                            @else
+                                                                <div class="ordering-slots-grid" id="orderTarget-{{ $q->id }}">
+                                                                    @foreach ($q->choices as $s => $choice)
+                                                                        <div class="ordering-slot flex-col gap-1" data-slot="{{ $s + 1 }}">
+                                                                            @if(!empty($choice->choice_text))
+                                                                                <span class="ordering-slot-text text-xs sm:text-sm text-green-600 font-bold text-center px-1 leading-tight pointer-events-none">{{ $choice->choice_text }}</span>
+                                                                            @else
+                                                                                <span class="ordering-slot-num">{{ $s + 1 }}</span>
+                                                                            @endif
+                                                                        </div>
+                                                                    @endforeach
+                                                                </div>
+                                                            @endif
                                                         </div>
 
                                                         <input type="hidden" name="answer_order_q{{ $q->id }}" value=""

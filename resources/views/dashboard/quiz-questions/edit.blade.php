@@ -79,6 +79,15 @@
                         @enderror
                     </div>
 
+                    <div class="form-group" id="groupsCountGroup" style="display:none;">
+                        <label for="groups_count">عدد المجموعات للسحب والإفلات (اتركه فارغاً أو 0 لعدم وجود مجموعات)</label>
+                        <input type="number" class="form-control @error('groups_count') is-invalid @enderror"
+                            id="groups_count" name="groups_count" value="{{ old('groups_count', $quizQuestion->groups_count) }}" min="0">
+                        @error('groups_count')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
                     <div class="form-group" id="multipleSelectionsGroup">
                         <div class="custom-control custom-switch">
                             <input type="checkbox" class="custom-control-input" id="is_multiple_selections"
@@ -102,7 +111,8 @@
                                     'text' => $c->choice_text,
                                     'is_correct' => $c->is_correct,
                                     'image' => $c->image,
-                                    'video' => $c->video
+                                    'video' => $c->video,
+                                    'group_name' => $c->group_name
                                 ])->values()->all());
                             @endphp
                             @if(count($choices) > 0)
@@ -117,6 +127,8 @@
                                         </div>
                                         <input type="text" class="form-control" name="choices[{{ $i }}][text]"
                                             placeholder="نص الخيار {{ $i + 1 }}" value="{{ $choice['text'] ?? '' }}">
+                                        <input type="text" class="form-control choice-group-name" name="choices[{{ $i }}][group_name]"
+                                            placeholder="اسم المجموعة (للسحب والإفلات)" value="{{ $choice['group_name'] ?? '' }}" style="display:none; max-width: 25%;">
                                         <div class="input-group-append">
                                             <label class="btn btn-outline-info mb-0" title="رفع صورة">
                                                 <i class="fas fa-image"></i>
@@ -153,6 +165,8 @@
                                         </div>
                                         <input type="text" class="form-control" name="choices[{{ $i }}][text]"
                                             placeholder="نص الخيار {{ $i + 1 }}">
+                                        <input type="text" class="form-control choice-group-name" name="choices[{{ $i }}][group_name]"
+                                            placeholder="اسم المجموعة (للسحب والإفلات)" style="display:none; max-width: 25%;">
                                         <div class="input-group-append">
                                             <label class="btn btn-outline-info mb-0" title="رفع صورة">
                                                 <i class="fas fa-image"></i>
@@ -277,6 +291,14 @@
                     ? 'أدخل الخيارات بالترتيب الصحيح، ستظهر للمستخدم بشكل عشوائي ليرتبها.'
                     : 'حدد الخيار الصحيح بعلامة ✓';
 
+                var groupsCountGroup = document.getElementById('groupsCountGroup');
+                if (groupsCountGroup) groupsCountGroup.style.display = isOrdering ? 'block' : 'none';
+
+                var groupNameInputs = document.querySelectorAll('.choice-group-name');
+                groupNameInputs.forEach(function(el) {
+                    el.style.display = isOrdering ? 'block' : 'none';
+                });
+
                 updateChoiceInputsType();
                 updateSingleChoiceHint();
             }
@@ -370,7 +392,8 @@
                     var input = row.querySelector('.correct-choice-input');
                     var container = row.querySelector('.correct-choice-container');
                     var hidden = row.querySelector('.choice-correct');
-                    var textInput = row.querySelector('input[type="text"]');
+                    var textInput = row.querySelector('input[type="text"]:not(.choice-group-name)');
+                    var groupNameInput = row.querySelector('.choice-group-name');
                     var imageInput = row.querySelector('.choice-image-input');
                     var videoInput = row.querySelector('.choice-video-input');
 
@@ -382,6 +405,7 @@
                     }
 
                     textInput.name = 'choices[' + idx + '][text]';
+                    if (groupNameInput) groupNameInput.name = 'choices[' + idx + '][group_name]';
                     hidden.name = 'choices[' + idx + '][is_correct]';
                     if (imageInput) imageInput.name = 'choices[' + idx + '][image]';
                     if (videoInput) videoInput.name = 'choices[' + idx + '][video]';
@@ -453,6 +477,7 @@
                 div.innerHTML =
                     '<div class="input-group-prepend"><div class="input-group-text correct-choice-container">' + inputHtml + '</div></div>' +
                     '<input type="text" class="form-control" name="choices[' + idx + '][text]" placeholder="نص الخيار">' +
+                    '<input type="text" class="form-control choice-group-name" name="choices[' + idx + '][group_name]" placeholder="اسم المجموعة (للسحب والإفلات)" style="' + (isOrdering ? 'display:block;' : 'display:none;') + ' max-width: 25%;">' +
                     '<div class="input-group-append">' +
                         '<label class="btn btn-outline-info mb-0" title="رفع صورة"><i class="fas fa-image"></i><input type="file" name="choices[' + idx + '][image]" class="choice-image-input d-none" accept="image/*"></label>' +
                         '<label class="btn btn-outline-info mb-0" title="رفع فيديو"><i class="fas fa-video"></i><input type="file" name="choices[' + idx + '][video]" class="choice-video-input d-none" accept="video/*"></label>' +
