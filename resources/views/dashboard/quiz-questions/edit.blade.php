@@ -114,6 +114,7 @@
                         <div id="choicesContainer">
                             @php
                                 $choices = old('choices', $quizQuestion->choices->map(fn($c) => [
+                                    'id' => $c->id,
                                     'text' => $c->choice_text,
                                     'is_correct' => $c->is_correct,
                                     'image' => $c->image,
@@ -131,6 +132,9 @@
                                                     title="الإجابة الصحيحة">
                                             </div>
                                         </div>
+                                        @if(isset($choice['id']))
+                                            <input type="hidden" name="choices[{{ $i }}][id]" value="{{ $choice['id'] }}">
+                                        @endif
                                         <input type="text" class="form-control" name="choices[{{ $i }}][text]"
                                             placeholder="نص الخيار {{ $i + 1 }}" value="{{ $choice['text'] ?? '' }}">
                                         <input type="text" class="form-control choice-group-name" name="choices[{{ $i }}][group_name]"
@@ -430,6 +434,10 @@
                         input.value = idx;
                     }
 
+                    var idInput = row.querySelector('input[name$="[id]"]');
+                    if (idInput) {
+                        idInput.name = 'choices[' + idx + '][id]';
+                    }
                     textInput.name = 'choices[' + idx + '][text]';
                     if (groupNameInput) groupNameInput.name = 'choices[' + idx + '][group_name]';
                     hidden.name = 'choices[' + idx + '][is_correct]';

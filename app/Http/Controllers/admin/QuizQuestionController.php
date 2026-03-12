@@ -30,6 +30,7 @@ class QuizQuestionController extends Controller
             'prize' => 'nullable|array',
             'prize.*' => 'nullable|string',
             'choices' => 'required_if:answer_type,multiple_choice,ordering,true_false|array',
+            'choices.*.id' => 'nullable|integer',
             'choices.*.text' => 'nullable|string',
             'choices.*.group_name' => 'nullable|string|max:255',
             'choices.*.image' => 'nullable|image|max:2048',
@@ -110,6 +111,7 @@ class QuizQuestionController extends Controller
             'prize' => 'nullable|array',
             'prize.*' => 'nullable|string',
             'choices' => 'required_if:answer_type,multiple_choice,ordering,true_false|array',
+            'choices.*.id' => 'nullable|integer',
             'choices.*.text' => 'nullable|string',
             'choices.*.group_name' => 'nullable|string|max:255',
             'choices.*.image' => 'nullable|image|max:2048',
@@ -136,7 +138,7 @@ class QuizQuestionController extends Controller
         ]);
 
         if (in_array($validated['answer_type'], ['multiple_choice', 'ordering', 'true_false']) && !empty($validated['choices'])) {
-            $oldChoices = $quizQuestion->choices->keyBy('choice_text');
+            $oldChoices = $quizQuestion->choices->keyBy('id');
             $quizQuestion->choices()->delete();
             $choices = $validated['choices'];
 
@@ -158,7 +160,8 @@ class QuizQuestionController extends Controller
                     $isCorrect = !empty($choice['is_correct']) && $choice['is_correct'] != 'false' && $choice['is_correct'] != '0';
                 }
 
-                $oldChoice = $oldChoices->get($choice['text'] ?? '');
+                $choiceId = $choice['id'] ?? null;
+                $oldChoice = $choiceId ? $oldChoices->get($choiceId) : null;
 
                 // Handle media
                 $imagePath = $oldChoice ? $oldChoice->image : null;

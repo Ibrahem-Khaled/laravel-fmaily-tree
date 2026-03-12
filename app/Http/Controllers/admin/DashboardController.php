@@ -8,6 +8,7 @@ use App\Models\Person;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Artisan;
 
 class DashboardController extends Controller
 {
@@ -208,5 +209,51 @@ class DashboardController extends Controller
                 'latestMarriage' => $latestMarriage,
             ]
         ]);
+    }
+
+    /**
+     * مسح التخزين المؤقت
+     */
+    public function clearCache(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $type = $request->input('type', 'all');
+
+        $commands = [
+            'view'     => ['command' => 'view:clear',    'label' => 'ملفات العرض (Views)'],
+            'config'   => ['command' => 'config:clear',  'label' => 'الإعدادات (Config)'],
+            'route'    => ['command' => 'route:clear',   'label' => 'المسارات (Routes)'],
+            'cache'    => ['command' => 'cache:clear',   'label' => 'التخزين المؤقت (Cache)'],
+            'event'    => ['command' => 'event:clear',   'label' => 'الأحداث (Events)'],
+            'compiled' => ['command' => 'clear-compiled','label' => 'الملفات المجمعة (Compiled)'],
+        ];
+
+        try {
+            $cleared = [];
+
+            if ($type === 'all') {
+                foreach ($commands as $key => $cmd) {
+                    Artisan::call($cmd['command']);
+                    $cleared[] = $cmd['label'];
+                }
+                $message = 'تم مسح جميع أنواع التخزين المؤقت بنجاح';
+            } elseif (isset($commands[$type])) {
+                Artisan::call($commands[$type]['command']);
+                $cleared[] = $commands[$type]['label'];
+                $message = 'تم مسح ' . $commands[$type]['label'] . ' بنجاح';
+            } else {
+                return response()->json(['success' => false, 'message' => 'نوع غير معروف'], 400);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'cleared' => $cleared,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 }

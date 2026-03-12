@@ -579,6 +579,51 @@
                 </div>
             </div>
 
+            <!-- System Management Card -->
+            @can('dashboard.view')
+            <div class="card shadow mb-4 hover-lift border-left-danger">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between bg-gradient-danger text-white">
+                    <h6 class="m-0 font-weight-bold">
+                        <i class="fas fa-cogs mr-2"></i>إدارة النظام 
+                    </h6>
+                    <span class="badge badge-light">التخزين المؤقت</span>
+                </div>
+                <div class="card-body">
+                    <p class="text-xs text-muted mb-3 text-center">قم بمسح التخزين المؤقت عند مواجهة مشاكل في عرض التحديثات الجديدة.</p>
+                    <div class="row px-2">
+                        <div class="col-12 mb-3">
+                            <button onclick="clearSystemCache('all', this)" class="btn btn-danger btn-block btn-icon-split shadow-sm hover-lift font-weight-bold">
+                                <span class="icon text-white-50">
+                                    <i class="fas fa-trash-alt"></i>
+                                </span>
+                                <span class="text">مسح جميع أنواع التخزين المؤقت</span>
+                            </button>
+                        </div>
+                        <div class="col-6 mb-2 pr-1">
+                            <button onclick="clearSystemCache('view', this)" class="btn btn-outline-secondary btn-block btn-sm py-2">
+                                <i class="fas fa-desktop text-primary mr-1"></i> الواجهات
+                            </button>
+                        </div>
+                        <div class="col-6 mb-2 pl-1">
+                            <button onclick="clearSystemCache('config', this)" class="btn btn-outline-secondary btn-block btn-sm py-2">
+                                <i class="fas fa-cog text-info mr-1"></i> الإعدادات
+                            </button>
+                        </div>
+                        <div class="col-6 mb-2 pr-1">
+                            <button onclick="clearSystemCache('route', this)" class="btn btn-outline-secondary btn-block btn-sm py-2">
+                                <i class="fas fa-route text-success mr-1"></i> المسارات
+                            </button>
+                        </div>
+                        <div class="col-6 mb-2 pl-1">
+                            <button onclick="clearSystemCache('cache', this)" class="btn btn-outline-secondary btn-block btn-sm py-2">
+                                <i class="fas fa-database text-warning mr-1"></i> البيانات
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endcan
+
         </div>
     </div>
 </div>
@@ -661,4 +706,60 @@
     border-left: 0.25rem solid #e74a3b !important;
 }
 </style>
+
+<script>
+function clearSystemCache(type, btn) {
+    if (!confirm('هل أنت متأكد من مسح التخزين المؤقت؟ قد يؤدي هذا إلى إبطاء الموقع مؤقتاً في التحميل القادم.')) {
+        return;
+    }
+
+    const originalHtml = btn.innerHTML;
+    const isIconSplit = btn.classList.contains('btn-icon-split');
+    
+    if (isIconSplit) {
+        btn.innerHTML = '<span class="icon text-white-50"><i class="fas fa-spinner fa-spin"></i></span><span class="text">جاري المسح...</span>';
+    } else {
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> لحظات...';
+    }
+    
+    btn.disabled = true;
+
+    fetch('{{ route("dashboard.clear-cache") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({ type: type })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // استخدام SweetAlert لو كان متاح، او alert العادي
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'تم بنجاح!',
+                    text: data.message,
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+            } else {
+                alert(data.message);
+            }
+        } else {
+            alert(data.message || 'حدث خطأ أثناء مسح التخزين المؤقت');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('حدث خطأ في الاتصال بالخادم');
+    })
+    .finally(() => {
+        btn.innerHTML = originalHtml;
+        btn.disabled = false;
+    });
+}
+</script>
 @endsection

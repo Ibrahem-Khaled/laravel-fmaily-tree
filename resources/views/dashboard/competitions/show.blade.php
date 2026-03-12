@@ -301,8 +301,14 @@
                         <tbody>
                             @foreach($competition->teams as $team)
                                 <tr>
-                                    <td>
-                                        <strong>{{ $team->name }}</strong>
+                                    <td class="team-name-cell" data-team-id="{{ $team->id }}">
+                                        <span class="name-text"><strong>{{ $team->name }}</strong></span>
+                                        <button type="button" class="btn btn-sm btn-link p-0 mr-1 edit-team-name-btn" title="تعديل اسم الفريق"><i class="fas fa-pen fa-xs"></i></button>
+                                        <span class="name-edit-wrap" style="display:none;">
+                                            <input type="text" class="form-control form-control-sm d-inline-block name-input" style="width:160px;" value="{{ $team->name }}">
+                                            <button type="button" class="btn btn-sm btn-success save-team-name-btn"><i class="fas fa-check"></i></button>
+                                            <button type="button" class="btn btn-sm btn-secondary cancel-team-name-btn"><i class="fas fa-times"></i></button>
+                                        </span>
                                     </td>
                                     <td>
                                         @if($team->creator)
@@ -623,6 +629,73 @@ function updateSelectedUsers() {
             })
             .catch(function() {
                 saveBtn.disabled = false;
+                alert('حدث خطأ في الاتصال');
+            });
+        }
+
+        // ─── تعديل اسم الفريق ───
+        var editTeamBtn = e.target.closest('.edit-team-name-btn');
+        if (editTeamBtn) {
+            e.preventDefault();
+            var cell = editTeamBtn.closest('.team-name-cell');
+            if (!cell) return;
+            cell.querySelector('.name-text').style.display = 'none';
+            editTeamBtn.style.display = 'none';
+            cell.querySelector('.name-edit-wrap').style.display = 'inline';
+            cell.querySelector('.name-input').focus();
+            return;
+        }
+        var cancelTeamBtn = e.target.closest('.cancel-team-name-btn');
+        if (cancelTeamBtn) {
+            e.preventDefault();
+            var cell = cancelTeamBtn.closest('.team-name-cell');
+            if (!cell) return;
+            cell.querySelector('.name-input').value = cell.querySelector('.name-text').textContent.trim();
+            cell.querySelector('.name-edit-wrap').style.display = 'none';
+            cell.querySelector('.name-text').style.display = '';
+            cell.querySelector('.edit-team-name-btn').style.display = '';
+            return;
+        }
+        var saveTeamBtn = e.target.closest('.save-team-name-btn');
+        if (saveTeamBtn) {
+            e.preventDefault();
+            var cell = saveTeamBtn.closest('.team-name-cell');
+            if (!cell) return;
+            var teamId = cell.getAttribute('data-team-id');
+            var input = cell.querySelector('.name-input');
+            var newName = (input.value || '').trim();
+            if (!newName) {
+                alert('اسم الفريق لا يمكن أن يكون فارغاً');
+                return;
+            }
+            saveTeamBtn.disabled = true;
+            
+            var updateTeamUrl = '{{ route("dashboard.competitions.teams.update-name", "") }}/' + teamId;
+
+            fetch(updateTeamUrl, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken || document.querySelector('input[name="_token"]') && document.querySelector('input[name="_token"]').value
+                },
+                body: JSON.stringify({ name: newName })
+            })
+            .then(function(r) { return r.json().then(function(data) { return { ok: r.ok, data: data }; }); })
+            .then(function(result) {
+                saveTeamBtn.disabled = false;
+                if (result.ok && result.data.success) {
+                    cell.querySelector('.name-text').innerHTML = '<strong>' + result.data.name + '</strong>';
+                    cell.querySelector('.name-input').value = result.data.name;
+                    cell.querySelector('.name-edit-wrap').style.display = 'none';
+                    cell.querySelector('.name-text').style.display = '';
+                    cell.querySelector('.edit-team-name-btn').style.display = '';
+                } else {
+                    alert(result.data.message || 'حدث خطأ أثناء تحديث اسم الفريق');
+                }
+            })
+            .catch(function() {
+                saveTeamBtn.disabled = false;
                 alert('حدث خطأ في الاتصال');
             });
         }

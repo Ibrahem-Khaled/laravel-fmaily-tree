@@ -288,6 +288,28 @@ class CompetitionController extends Controller
     }
 
     /**
+     * تحديث اسم فريق
+     */
+    public function updateTeamName(Request $request, Team $team): \Illuminate\Http\JsonResponse
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+        ], [
+            'name.required' => 'اسم الفريق مطلوب',
+            'name.max'      => 'اسم الفريق يجب ألا يتجاوز 255 حرفاً',
+        ]);
+
+        $name = trim($validated['name']);
+        if ($name === '') {
+            return response()->json(['success' => false, 'message' => 'اسم الفريق لا يمكن أن يكون فارغاً'], 422);
+        }
+
+        $team->update(['name' => $name]);
+
+        return response()->json(['success' => true, 'name' => $team->name]);
+    }
+
+    /**
      * عرض نموذج تعديل مسابقة
      */
     public function edit(Competition $competition): View
