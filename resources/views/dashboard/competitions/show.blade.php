@@ -670,7 +670,7 @@ function updateSelectedUsers() {
             }
             saveTeamBtn.disabled = true;
             
-            var updateTeamUrl = '{{ route("dashboard.competitions.teams.update-name", "") }}/' + teamId;
+            var updateTeamUrl = '{{ route("dashboard.competitions.teams.update-name", "TEAM_ID") }}'.replace('TEAM_ID', teamId);
 
             fetch(updateTeamUrl, {
                 method: 'PUT',
