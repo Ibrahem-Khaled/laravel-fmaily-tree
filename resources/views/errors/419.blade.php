@@ -1,5 +1,6 @@
-@extends('errors::minimal')
+@extends('errors.layout')
 
-@section('title', __('Page Expired'))
+@section('title', 'انتهت صلاحية الصفحة')
 @section('code', '419')
-@section('message', __('Page Expired'))
+@section('message', 'عذراً، لقد انتهت صلاحية هذه الصفحة بسبب الخمول لفترة طويلة. يرجى تحديث الصفحة والمحاولة مرة أخرى.')
+

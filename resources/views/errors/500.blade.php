@@ -1,5 +1,6 @@
-@extends('errors::minimal')
+@extends('errors.layout')
 
-@section('title', __('Server Error'))
+@section('title', 'خطأ في الخادم')
 @section('code', '500')
-@section('message', __('Server Error'))
+@section('message', 'نعتذر، حدث خطأ داخلي في الخادم. نحن نعمل على إصلاح المشكلة، يرجى المحاولة مرة أخرى لاحقاً.')
+
