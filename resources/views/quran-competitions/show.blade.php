@@ -672,7 +672,7 @@
         const gregorianToHijri = (gregorianDate) => {
             if (!gregorianDate) return '';
             try {
-                const trimmed = String(gregorianDate).trim();
+                let trimmed = String(gregorianDate).trim().replace(/\//g, '-');
                 if (!trimmed || trimmed.startsWith('0000')) return '';
                 const normalized = trimmed.includes('T') ? trimmed : trimmed + 'T12:00:00Z';
                 const date = new Date(normalized);

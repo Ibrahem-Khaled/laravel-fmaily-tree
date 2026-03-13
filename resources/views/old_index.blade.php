@@ -1227,9 +1227,8 @@
                     if (!gregorianDate) return '';
 
                     try {
-                        const trimmed = String(gregorianDate).trim();
+                        let trimmed = String(gregorianDate).trim().replace(/\//g, '-');
                         if (!trimmed || trimmed.startsWith('0000')) return '';
-                        // إلحاق الوقت لتجنب فارق التوقيت (off-by-one day)
                         const normalized = trimmed.includes('T') ? trimmed : trimmed + 'T12:00:00Z';
                         const date = new Date(normalized);
                         if (isNaN(date.getTime())) return '';
@@ -1255,31 +1254,16 @@
                     if (!dateString) return '';
 
                     try {
-                        const date = new Date(dateString);
+                        const iso = String(dateString).trim().replace(/\//g, '-');
+                        const date = new Date(iso + (iso.includes('T') ? '' : 'T12:00:00Z'));
+                        if (isNaN(date.getTime())) return dateString;
 
-                        // عرض التاريخ الميلادي بشكل صريح (إجبار التقويم الميلادي)
-                        const gregorian = date.toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                            calendar: 'gregory'
-                        });
-
-                        // تحويل أسماء الأشهر للعربية
-                        const englishMonths = ['January', 'February', 'March', 'April', 'May', 'June',
-                                              'July', 'August', 'September', 'October', 'November', 'December'];
                         const arabicMonths = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
                                             'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
 
-                        let gregorianArabic = gregorian;
-                        englishMonths.forEach((eng, index) => {
-                            gregorianArabic = gregorianArabic.replace(eng, arabicMonths[index]);
-                        });
-
-                        // أو استخدام طريقة مباشرة لتجنب مشاكل toLocaleDateString
-                        const year = date.getFullYear();
-                        const month = date.getMonth();
-                        const day = date.getDate();
+                        const year = date.getUTCFullYear();
+                        const month = date.getUTCMonth();
+                        const day = date.getUTCDate();
                         const gregorianFormatted = `${day} ${arabicMonths[month]} ${year}`;
 
                         const hijri = gregorianToHijri(dateString);
