@@ -358,8 +358,11 @@
         const gregorianToHijri = (gregorianDate) => {
             if (!gregorianDate) return '';
             try {
-                const normalized = gregorianDate.includes('T') ? gregorianDate : gregorianDate + 'T12:00:00Z';
+                const trimmed = String(gregorianDate).trim();
+                if (!trimmed || trimmed.startsWith('0000')) return '';
+                const normalized = trimmed.includes('T') ? trimmed : trimmed + 'T12:00:00Z';
                 const date = new Date(normalized);
+                if (isNaN(date.getTime())) return '';
                 const formatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
                     timeZone: 'UTC',
                     day: 'numeric',
