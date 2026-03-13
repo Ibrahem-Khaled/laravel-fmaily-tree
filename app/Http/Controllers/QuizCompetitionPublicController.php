@@ -308,26 +308,49 @@ class QuizCompetitionPublicController extends Controller
                 $isCorrect = true;
 
                 if ($quizQuestion->groups_count && $quizQuestion->groups_count > 0) {
-                    // Group-based ordering: each image must be in the correct group AND in the correct position
+                    // Group-based ordering: correct ORDER within each group matters,
+                    // but images can be in ANY group (groups are interchangeable)
                     $groups = $quizQuestion->choices->filter(fn($c) => !empty($c->group_name))->groupBy('group_name');
                     
                     if (count($selectedChoiceIds) !== $quizQuestion->choices->count()) {
                         $isCorrect = false;
                     } else {
-                        $currentIndex = 0;
+                        // Build the correct groups (each is an array of IDs in order)
+                        $correctGroups = [];
+                        $groupSizes = [];
                         foreach ($groups as $groupName => $groupChoices) {
-                            $groupCorrectIds = $groupChoices->pluck('id')->toArray();
-                            $groupSize = count($groupCorrectIds);
-                            $submittedChunk = array_slice($selectedChoiceIds, $currentIndex, $groupSize);
-                            
-                            foreach ($groupCorrectIds as $pos => $correctId) {
-                                if (!isset($submittedChunk[$pos]) || (int) $submittedChunk[$pos] !== (int) $correctId) {
-                                    $isCorrect = false;
-                                    break 2;
+                            $correctGroups[] = array_map('intval', $groupChoices->pluck('id')->toArray());
+                            $groupSizes[] = $groupChoices->count();
+                        }
+                        
+                        // Chunk submitted IDs by group slot sizes
+                        $submittedChunks = [];
+                        $currentIndex = 0;
+                        foreach ($groupSizes as $size) {
+                            $submittedChunks[] = array_map('intval', array_slice($selectedChoiceIds, $currentIndex, $size));
+                            $currentIndex += $size;
+                        }
+                        
+                        // Match each submitted chunk to any correct group (order must match exactly)
+                        $matched = [];
+                        foreach ($submittedChunks as $chunk) {
+                            $found = false;
+                            foreach ($correctGroups as $gIdx => $correctIds) {
+                                if (isset($matched[$gIdx])) continue;
+                                if ($chunk === $correctIds) {
+                                    $matched[$gIdx] = true;
+                                    $found = true;
+                                    break;
                                 }
                             }
-                            
-                            $currentIndex += $groupSize;
+                            if (!$found) {
+                                $isCorrect = false;
+                                break;
+                            }
+                        }
+                        
+                        if (count($matched) !== count($correctGroups)) {
+                            $isCorrect = false;
                         }
                     }
                 } else {
