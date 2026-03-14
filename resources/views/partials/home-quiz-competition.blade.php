@@ -254,20 +254,38 @@
                                                             @if($q->groups_count && $q->groups_count > 0 && $groups->count() > 0)
                                                                 <div class="grid grid-cols-1 md:grid-cols-{{ min($groups->count(), 4) }} gap-4 ordering-groups-container">
                                                                     @foreach($groups as $groupName => $groupChoices)
-                                                                        <div class="p-3 bg-white border border-green-200 rounded-xl shadow-sm">
-                                                                            <h5 class="text-sm font-bold text-green-700 text-center mb-2">{{ $groupName }}</h5>
-                                                                            <div class="ordering-slots-grid ordering-slots-grouped" id="orderTarget-{{ $q->id }}-{{ Str::slug($groupName) }}" data-group="{{ $groupName }}">
-                                                                                @foreach ($groupChoices as $s => $choice)
-                                                                                    <div class="ordering-slot flex-col gap-1" data-slot="{{ $choice->id }}" data-group="{{ $groupName }}">
-                                                                                        @if(!empty($choice->choice_text))
-                                                                                            <span class="ordering-slot-text text-xs sm:text-sm text-green-600 font-bold text-center px-1 leading-tight pointer-events-none">{{ $choice->choice_text }}</span>
+                                                                        @if($groupChoices->count() === 1)
+                                                                            {{-- Single choice per group: display slot next to group name --}}
+                                                                            @php $singleChoice = $groupChoices->first(); @endphp
+                                                                            <div class="p-3 bg-white border border-green-200 rounded-xl shadow-sm">
+                                                                                <div class="flex items-center gap-3">
+                                                                                    <h5 class="text-sm font-bold text-green-700 flex-grow">{{ $groupName }}</h5>
+                                                                                    <div class="ordering-slot flex-col gap-1 flex-shrink-0" data-slot="{{ $singleChoice->id }}" data-group="{{ $groupName }}" style="width: 60px; height: 60px; aspect-ratio: 1;">
+                                                                                        @if(!empty($singleChoice->choice_text))
+                                                                                            <span class="ordering-slot-text text-xs sm:text-sm text-green-600 font-bold text-center px-1 leading-tight pointer-events-none">{{ $singleChoice->choice_text }}</span>
                                                                                         @else
-                                                                                            <span class="ordering-slot-num">{{ $s + 1 }}</span>
+                                                                                            <span class="ordering-slot-num">1</span>
                                                                                         @endif
                                                                                     </div>
-                                                                                @endforeach
+                                                                                </div>
                                                                             </div>
-                                                                        </div>
+                                                                        @else
+                                                                            {{-- Multiple choices per group: display in grid --}}
+                                                                            <div class="p-3 bg-white border border-green-200 rounded-xl shadow-sm">
+                                                                                <h5 class="text-sm font-bold text-green-700 text-center mb-2">{{ $groupName }}</h5>
+                                                                                <div class="ordering-slots-grid ordering-slots-grouped" id="orderTarget-{{ $q->id }}-{{ Str::slug($groupName) }}" data-group="{{ $groupName }}">
+                                                                                    @foreach ($groupChoices as $s => $choice)
+                                                                                        <div class="ordering-slot flex-col gap-1" data-slot="{{ $choice->id }}" data-group="{{ $groupName }}">
+                                                                                            @if(!empty($choice->choice_text))
+                                                                                                <span class="ordering-slot-text text-xs sm:text-sm text-green-600 font-bold text-center px-1 leading-tight pointer-events-none">{{ $choice->choice_text }}</span>
+                                                                                            @else
+                                                                                                <span class="ordering-slot-num">{{ $s + 1 }}</span>
+                                                                                            @endif
+                                                                                        </div>
+                                                                                    @endforeach
+                                                                                </div>
+                                                                            </div>
+                                                                        @endif
                                                                     @endforeach
                                                                 </div>
                                                             @else
