@@ -152,7 +152,7 @@
                                         </div>
                                     @endif
 
-                                    <div class="text-gray-800 font-bold text-base mb-2 question-text">
+                                    <div class="text-gray-800 font-bold text-base mb-2 question-text" @if($q->answer_type === 'fill_blank') style="display:none" @endif>
                                         {!! $q->question_text !!}
                                     </div>
 
@@ -484,6 +484,52 @@
                                                             </label>
                                                         @endforeach
                                                     </div>
+                                                @elseif ($q->answer_type === 'fill_blank' && $q->choices->count() > 0)
+                                                    @php
+                                                        $parts = preg_split('/___/', $q->question_text, 2);
+                                                        $beforeBlank = $parts[0] ?? '';
+                                                        $afterBlank  = $parts[1] ?? '';
+                                                        $shuffledFillChoices = $q->choices->shuffle();
+                                                    @endphp
+                                                    <div class="fill-blank-wrapper" data-question-id="{{ $q->id }}">
+
+                                                        {{-- Sentence with blank --}}
+                                                        <div class="fill-blank-sentence" dir="rtl">
+                                                            @if($beforeBlank)
+                                                                <span class="fill-blank-text">{{ $beforeBlank }}</span>
+                                                            @endif
+                                                            <span class="fill-blank-drop" id="fillDrop-{{ $q->id }}"
+                                                                onclick="fbClearDrop({{ $q->id }})">
+                                                                <span class="fill-blank-placeholder">اسحب أو اضغط كلمة</span>
+                                                            </span>
+                                                            @if($afterBlank)
+                                                                <span class="fill-blank-text">{{ $afterBlank }}</span>
+                                                            @endif
+                                                        </div>
+
+                                                        {{-- Word chips --}}
+                                                        <div class="fill-blank-chips" id="fillChips-{{ $q->id }}">
+                                                            @foreach($shuffledFillChoices as $choice)
+                                                                <button type="button"
+                                                                    class="fill-blank-chip"
+                                                                    data-choice-id="{{ $choice->id }}"
+                                                                    data-question-id="{{ $q->id }}"
+                                                                    onclick="fbSelectChip(this)">
+                                                                    {{ $choice->choice_text }}
+                                                                </button>
+                                                            @endforeach
+                                                        </div>
+
+                                                        {{-- Hidden input carries selected choice id --}}
+                                                        <input type="hidden" name="answer"
+                                                            id="fillAnswer-{{ $q->id }}" value=""
+                                                            class="fill-blank-answer-input">
+
+                                                        <p class="fill-blank-hint" id="fillHint-{{ $q->id }}">
+                                                            <i class="fas fa-hand-point-up ml-1"></i>
+                                                            اختر الكلمة المناسبة لإتمام الجملة
+                                                        </p>
+                                                    </div>
                                                 @else
                                                     <textarea name="answer" rows="3" required placeholder="اكتب إجابتك..."
                                                         class="w-full px-3 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-gray-800 text-sm focus:ring-2 focus:ring-green-200 focus:border-green-500 resize-none">{{ old('answer') }}</textarea>
@@ -551,10 +597,17 @@
                                         @else
                                             <div
                                                 class="rounded-xl p-4 bg-amber-50 border border-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                                                <p class="text-amber-800 text-sm font-medium">
-                                                    <i class="fas fa-check-circle text-amber-600 ml-1"></i>
-                                                    لقد أجبت على هذا السؤال.
-                                                </p>
+                                                <div class="flex-1">
+                                                    <h4 class="font-bold text-amber-800 text-sm mb-1">
+                                                        <i class="fas fa-check-circle text-amber-600 ml-1"></i>
+                                                        تم استلام إجابتك بنجاح
+                                                    </h4>
+                                                    @if(session('answer_correct'))
+                                                        <p class="text-xs text-green-600 font-medium">الإجابة صحيحة، نتمنى لك التوفيق في القرعة!</p>
+                                                    @else
+                                                        <p class="text-xs text-red-600 font-medium">الإجابة خاطئة، حظاً أوفر في المرات القادمة.</p>
+                                                    @endif
+                                                </div>
                                                 <a href="{{ route('quiz-competitions.question', [$activeQuizCompetition, $q]) }}"
                                                     class="flex-shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-white transition-all hover:opacity-90"
                                                     style="background: linear-gradient(135deg, #22c55e, #16a34a);">
@@ -718,6 +771,161 @@
             grid-template-columns: repeat(3, 1fr);
         }
     }
+
+    /* ────────────────────────────────────────────
+       FILL IN THE BLANK – styles
+    ──────────────────────────────────────────── */
+    .fill-blank-wrapper {
+        direction: rtl;
+    }
+    .fill-blank-sentence {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px;
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #1f2937;
+        line-height: 1.8;
+        margin-bottom: 14px;
+        padding: 12px 14px;
+        background: linear-gradient(135deg, #f8fffe, #f0fdf4);
+        border-radius: 16px;
+        border: 2px solid #bbf7d0;
+    }
+    .fill-blank-text {
+        color: #374151;
+        font-weight: 600;
+    }
+    /* The blank drop zone */
+    .fill-blank-drop {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 110px;
+        min-height: 40px;
+        padding: 4px 14px;
+        border-radius: 12px;
+        border: 2.5px dashed #6ee7b7;
+        background: #ffffff;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        position: relative;
+        overflow: hidden;
+    }
+    .fill-blank-drop::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at center, rgba(34,197,94,0.1) 0%, transparent 70%);
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+    .fill-blank-drop.has-word {
+        border-color: #22c55e;
+        border-style: solid;
+        background: linear-gradient(135deg, #dcfce7, #f0fdf4);
+        box-shadow: 0 4px 16px rgba(34,197,94,0.25);
+        animation: fillPopIn 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .fill-blank-drop.has-word::before { opacity: 1; }
+    .fill-blank-drop.drag-over {
+        border-color: #059669;
+        background: #d1fae5;
+        box-shadow: 0 0 20px rgba(34,197,94,0.4);
+        transform: scale(1.05);
+    }
+    .fill-blank-placeholder {
+        font-size: 0.72rem;
+        color: #9ca3af;
+        font-weight: 500;
+        font-style: italic;
+        pointer-events: none;
+        transition: opacity 0.2s;
+    }
+    .fill-blank-drop.has-word .fill-blank-placeholder { display: none; }
+    .fill-blank-word-inside {
+        font-size: 0.95rem;
+        font-weight: 800;
+        color: #16a34a;
+        pointer-events: none;
+        animation: fillWordFadeIn 0.3s ease-out;
+    }
+    /* Chips container */
+    .fill-blank-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+        margin-bottom: 10px;
+    }
+    .fill-blank-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 18px;
+        border-radius: 50px;
+        font-size: 0.92rem;
+        font-weight: 700;
+        color: #1e40af;
+        background: linear-gradient(135deg, #eff6ff, #dbeafe);
+        border: 2px solid #bfdbfe;
+        cursor: grab;
+        transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        user-select: none;
+        -webkit-user-select: none;
+        position: relative;
+        overflow: hidden;
+    }
+    .fill-blank-chip::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at center, rgba(59,130,246,0.15) 0%, transparent 70%);
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+    .fill-blank-chip:hover {
+        transform: translateY(-3px) scale(1.06);
+        box-shadow: 0 8px 20px rgba(59,130,246,0.3);
+        border-color: #3b82f6;
+        background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    }
+    .fill-blank-chip:hover::after { opacity: 1; }
+    .fill-blank-chip:active { transform: scale(0.94); cursor: grabbing; }
+    .fill-blank-chip.selected {
+        opacity: 0.38;
+        pointer-events: none;
+        transform: scale(0.88);
+        filter: grayscale(0.4);
+    }
+    .fill-blank-chip.dragging { opacity: 0.35; }
+    /* Hint */
+    .fill-blank-hint {
+        font-size: 0.72rem;
+        color: #9ca3af;
+        text-align: center;
+        margin: 4px 0 0;
+        transition: opacity 0.3s;
+    }
+    .fill-blank-hint.hidden-hint { opacity: 0; }
+    /* Animations */
+    @keyframes fillPopIn {
+        0%   { transform: scale(0.7); opacity: 0; }
+        70%  { transform: scale(1.1); }
+        100% { transform: scale(1);   opacity: 1; }
+    }
+    @keyframes fillWordFadeIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes chipShake {
+        0%,100% { transform: translateX(0); }
+        20%     { transform: translateX(-6px); }
+        40%     { transform: translateX(6px); }
+        60%     { transform: translateX(-4px); }
+        80%     { transform: translateX(4px); }
+    }
 </style>
 
 {{-- Lightbox Modal for True/False images & videos --}}
@@ -739,6 +947,135 @@
 </style>
 
 <script>
+/* ═══════════════════════════════════════════════
+   FILL IN THE BLANK – interaction JS
+   ═══════════════════════════════════════════════ */
+
+// State: tracks which chip is selected per question
+var fbState = {};
+
+/**
+ * Called when a word chip is clicked.
+ * Puts the word in the blank drop zone.
+ */
+function fbSelectChip(chip) {
+    var qid = chip.getAttribute('data-question-id');
+    var choiceId = chip.getAttribute('data-choice-id');
+    var word = chip.textContent.trim();
+
+    var drop = document.getElementById('fillDrop-' + qid);
+    var answerInput = document.getElementById('fillAnswer-' + qid);
+    var hint = document.getElementById('fillHint-' + qid);
+    var allChips = document.querySelectorAll('.fill-blank-chip[data-question-id="' + qid + '"]');
+
+    // Reset previous selection
+    allChips.forEach(function(c) { c.classList.remove('selected'); });
+
+    // Mark this chip selected
+    chip.classList.add('selected');
+
+    // Put word in drop zone
+    // Remove old word span if any
+    var oldWord = drop.querySelector('.fill-blank-word-inside');
+    if (oldWord) oldWord.remove();
+
+    var wordSpan = document.createElement('span');
+    wordSpan.className = 'fill-blank-word-inside';
+    wordSpan.textContent = word;
+    drop.appendChild(wordSpan);
+
+    drop.classList.add('has-word');
+    answerInput.value = choiceId;
+    fbState[qid] = choiceId;
+
+    // Hide hint
+    if (hint) hint.classList.add('hidden-hint');
+}
+
+/**
+ * Called when the drop zone is clicked.
+ * Clears the selected word back to chips.
+ */
+function fbClearDrop(qid) {
+    var drop = document.getElementById('fillDrop-' + qid);
+    var answerInput = document.getElementById('fillAnswer-' + qid);
+    var hint = document.getElementById('fillHint-' + qid);
+    var allChips = document.querySelectorAll('.fill-blank-chip[data-question-id="' + qid + '"]');
+
+    // Only clear if there's a word
+    if (!drop.classList.contains('has-word')) return;
+
+    // Remove word span
+    var oldWord = drop.querySelector('.fill-blank-word-inside');
+    if (oldWord) oldWord.remove();
+
+    drop.classList.remove('has-word');
+    answerInput.value = '';
+    fbState[qid] = null;
+
+    // Re-enable all chips
+    allChips.forEach(function(c) { c.classList.remove('selected'); });
+
+    // Show hint again
+    if (hint) hint.classList.remove('hidden-hint');
+}
+
+/* ── Interaction relies on click/tap which is fully mobile friendly ── */
+// Drag and Drop support removed as it interferes with mobile touch.
+// Mobile users simply tap the chip to move it to the blank.
+
+/* ── Form submit validation for fill_blank ── */
+function validateHomeQuiz(event, btn) {
+    var form = btn.closest('form');
+    if (!form) return;
+
+    // Check fill_blank
+    var fillInput = form.querySelector('.fill-blank-answer-input');
+    if (fillInput !== null) {
+        if (!fillInput.value || fillInput.value === '') {
+            event.preventDefault();
+
+            // Shake the chips to alert the user
+            var qid = null;
+            var wrapper = form.querySelector('.fill-blank-wrapper');
+            if (wrapper) {
+                qid = wrapper.getAttribute('data-question-id');
+                var drop = document.getElementById('fillDrop-' + qid);
+                if (drop) {
+                    drop.style.animation = 'none';
+                    drop.style.borderColor = '#f87171';
+                    drop.style.background = '#fef2f2';
+                    drop.style.boxShadow = '0 0 14px rgba(248,113,113,0.4)';
+                    setTimeout(function() {
+                        drop.style.borderColor = '';
+                        drop.style.background = '';
+                        drop.style.boxShadow = '';
+                    }, 1400);
+                }
+                var chips = document.querySelectorAll('.fill-blank-chip[data-question-id="' + qid + '"]');
+                chips.forEach(function(c) {
+                    c.style.animation = 'chipShake 0.5s ease';
+                    setTimeout(function() { c.style.animation = ''; }, 600);
+                });
+            }
+
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'انتبه',
+                    text: 'يرجى اختيار كلمة لملء الفراغ أولاً!',
+                    confirmButtonColor: '#22c55e',
+                    confirmButtonText: 'حسناً',
+                    toast: true, position: 'top-end',
+                    showConfirmButton: false, timer: 2500
+                });
+            }
+            return false;
+        }
+    }
+    return true;
+}
+
 function openTfLightbox(src) {
     var modal = document.getElementById('tfLightboxModal');
     var img = document.getElementById('tfLightboxImg');

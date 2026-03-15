@@ -229,6 +229,8 @@ class QuizCompetitionPublicController extends Controller
             }
         } elseif ($quizQuestion->answer_type === 'multiple_choice') {
             $rules['answer'] = 'required|exists:quiz_question_choices,id';
+        } elseif ($quizQuestion->answer_type === 'fill_blank') {
+            $rules['answer'] = 'required|exists:quiz_question_choices,id';
         } else {
             $rules['answer'] = 'required|string|max:1000';
         }
@@ -442,6 +444,12 @@ class QuizCompetitionPublicController extends Controller
                 }
 
                 $answerData = json_encode($selectedAnswers);
+            } elseif ($quizQuestion->answer_type === 'fill_blank') {
+                $answerType = 'fill_blank';
+                $choiceId = (int) $validated['answer'];
+                $selectedChoice = $quizQuestion->choices->firstWhere('id', $choiceId);
+                $isCorrect = $selectedChoice && (bool) $selectedChoice->is_correct;
+                $answerData = (string) $choiceId;
             }
 
             // إنشاء إجابة جديدة دائماً
@@ -473,6 +481,10 @@ class QuizCompetitionPublicController extends Controller
                         'quiz_question_choice_id' => $choiceId,
                     ]);
                 }
+            } elseif ($quizQuestion->answer_type === 'fill_blank') {
+                $quizAnswer->selectedChoices()->create([
+                    'quiz_question_choice_id' => (int) $validated['answer'],
+                ]);
             }
 
             session(['quiz_answered_' . $quizQuestion->id => now()->toDateTimeString()]);
@@ -491,14 +503,6 @@ class QuizCompetitionPublicController extends Controller
                 return redirect()
                     ->route('quiz-competitions.question', [$quizCompetition, $quizQuestion])
                     ->with('vote_submitted', true);
-            }
-
-            if ($request->input('source') === 'home') {
-                return redirect()
-                    ->to(route('home') . '#activeQuizSection')
-                    ->with('answer_submitted', true)
-                    ->with('answered_question_id', $quizQuestion->id)
-                    ->with('answer_correct', $isCorrect);
             }
 
             return redirect()

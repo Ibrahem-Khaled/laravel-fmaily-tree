@@ -83,6 +83,12 @@
                                     {{ old('answer_type') == 'vote' ? 'checked' : '' }} required>
                                 <label class="custom-control-label text-primary" for="type_vote"><i class="fas fa-poll mr-1"></i>تصويت</label>
                             </div>
+                            <div class="custom-control custom-radio custom-control-inline">
+                                <input type="radio" id="type_fill_blank" name="answer_type"
+                                    class="custom-control-input answer-type-radio" value="fill_blank"
+                                    {{ old('answer_type') == 'fill_blank' ? 'checked' : '' }} required>
+                                <label class="custom-control-label text-warning" for="type_fill_blank"><i class="fas fa-pen-nib mr-1"></i>أملأ الفراغ</label>
+                            </div>
                         </div>
                         @error('answer_type')
                             <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -277,8 +283,9 @@
                 var isOrdering = type === 'ordering';
                 var isTrueFalse = type === 'true_false';
                 var isVote = type === 'vote';
+                var isFillBlank = type === 'fill_blank';
 
-                choicesSection.style.display = (isChoice || isOrdering || isTrueFalse || isVote) ? 'block' : 'none';
+                choicesSection.style.display = (isChoice || isOrdering || isTrueFalse || isVote || isFillBlank) ? 'block' : 'none';
                 multipleSelectionsGroup.style.display = isChoice ? 'block' : 'none';
 
                 // Vote options
@@ -292,6 +299,8 @@
                     hint.textContent = 'أدخل الجملة وحدد هل هي صحيحة أم خاطئة، يمكنك إرفاق صورة مع كل جملة.';
                 } else if (isVote) {
                     hint.textContent = 'أدخل خيارات التصويت (لا توجد إجابة صحيحة)، يمكنك إرفاق صورة أو فيديو مع كل خيار.';
+                } else if (isFillBlank) {
+                    hint.innerHTML = 'أدخل كلمات الاختيار وحدد الكلمة <strong>الصحيحة ✓</strong>. ضع <code>___</code> في نص السؤال مكان الفراغ.';
                 } else {
                     hint.textContent = 'حدد الخيار الصحيح بعلامة ✓';
                 }
@@ -313,7 +322,8 @@
                 var isOrdering = type === 'ordering';
                 var isTrueFalse = type === 'true_false';
                 var isVote = type === 'vote';
-                var isMultiple = isMultipleSwitch.checked && !isOrdering && !isTrueFalse && !isVote;
+                var isFillBlank = type === 'fill_blank';
+                var isMultiple = isMultipleSwitch.checked && !isOrdering && !isTrueFalse && !isVote && !isFillBlank;
                 var rows = choicesContainer.querySelectorAll('.choice-row');
 
                 rows.forEach(function (row, idx) {
@@ -490,7 +500,8 @@
                 var type = getSelectedAnswerType();
                 var isOrdering = type === 'ordering';
                 var isTrueFalse = type === 'true_false';
-                var isMultiple = isMultipleSwitch.checked && !isOrdering && !isTrueFalse;
+                var isFillBlank = type === 'fill_blank';
+                var isMultiple = isMultipleSwitch.checked && !isOrdering && !isTrueFalse && !isFillBlank;
 
                 var inputHtml = '';
                 if (isOrdering) {

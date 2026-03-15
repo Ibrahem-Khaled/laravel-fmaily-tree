@@ -22,14 +22,14 @@ class QuizQuestionController extends Controller
         $validated = $request->validate([
             'question_text' => 'required|string',
             'description' => 'nullable|string',
-            'answer_type' => 'required|in:multiple_choice,custom_text,ordering,true_false,vote',
+            'answer_type' => 'required|in:multiple_choice,custom_text,ordering,true_false,vote,fill_blank',
             'is_multiple_selections' => 'nullable|boolean',
             'winners_count' => 'required|integer|min:1',
             'groups_count' => 'nullable|integer|min:1',
             'display_order' => 'nullable|integer|min:0',
             'prize' => 'nullable|array',
             'prize.*' => 'nullable|string',
-            'choices' => 'required_if:answer_type,multiple_choice,ordering,true_false,vote|array',
+            'choices' => 'required_if:answer_type,multiple_choice,ordering,true_false,vote,fill_blank|array',
             'choices.*.id' => 'nullable|integer',
             'choices.*.text' => 'nullable|string',
             'choices.*.group_name' => 'nullable|string|max:255',
@@ -60,7 +60,7 @@ class QuizQuestionController extends Controller
             'require_prior_registration' => ($validated['answer_type'] === 'vote') ? !empty($validated['require_prior_registration']) : false,
         ]);
 
-        if (in_array($validated['answer_type'], ['multiple_choice', 'ordering', 'true_false', 'vote']) && !empty($validated['choices'])) {
+        if (in_array($validated['answer_type'], ['multiple_choice', 'ordering', 'true_false', 'vote', 'fill_blank']) && !empty($validated['choices'])) {
             $choices = array_filter($validated['choices'], fn($c) => !empty(trim($c['text'] ?? '')));
 
             $isMultiple = !empty($validated['is_multiple_selections']);
@@ -110,14 +110,14 @@ class QuizQuestionController extends Controller
         $validated = $request->validate([
             'question_text' => 'required|string',
             'description' => 'nullable|string',
-            'answer_type' => 'required|in:multiple_choice,custom_text,ordering,true_false,vote',
+            'answer_type' => 'required|in:multiple_choice,custom_text,ordering,true_false,vote,fill_blank',
             'is_multiple_selections' => 'nullable|boolean',
             'winners_count' => 'required|integer|min:1',
             'groups_count' => 'nullable|integer|min:1',
             'display_order' => 'nullable|integer|min:0',
             'prize' => 'nullable|array',
             'prize.*' => 'nullable|string',
-            'choices' => 'required_if:answer_type,multiple_choice,ordering,true_false,vote|array',
+            'choices' => 'required_if:answer_type,multiple_choice,ordering,true_false,vote,fill_blank|array',
             'choices.*.id' => 'nullable|integer',
             'choices.*.text' => 'nullable|string',
             'choices.*.group_name' => 'nullable|string|max:255',
@@ -148,7 +148,7 @@ class QuizQuestionController extends Controller
             'require_prior_registration' => ($validated['answer_type'] === 'vote') ? !empty($validated['require_prior_registration']) : false,
         ]);
 
-        if (in_array($validated['answer_type'], ['multiple_choice', 'ordering', 'true_false', 'vote']) && !empty($validated['choices'])) {
+        if (in_array($validated['answer_type'], ['multiple_choice', 'ordering', 'true_false', 'vote', 'fill_blank']) && !empty($validated['choices'])) {
             $oldChoices = $quizQuestion->choices->keyBy('id');
             $quizQuestion->choices()->delete();
             $choices = $validated['choices'];
