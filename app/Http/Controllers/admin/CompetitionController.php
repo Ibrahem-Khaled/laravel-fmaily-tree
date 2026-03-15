@@ -160,16 +160,32 @@ class CompetitionController extends Controller
             ->orderBy('name')
             ->get();
 
-        // إحصائيات المسابقة
+        // إضافة أعضاء الفرق من عضو واحد إلى قائمة الأفراد (مطابقة لصفحة البرنامج العامة)
+        $singleMemberTeamUserIds = $competition->teams
+            ->filter(fn($team) => $team->members->count() === 1)
+            ->pluck('members')
+            ->flatten()
+            ->pluck('id')
+            ->unique()
+            ->values()
+            ->all();
+        if (!empty($singleMemberTeamUserIds)) {
+            $singleMemberUsers = User::whereIn('id', $singleMemberTeamUserIds)
+                ->with(['competitionRegistrations' => function($query) use ($competition) {
+                    $query->where('competition_id', $competition->id)
+                          ->with('categories');
+                }])
+                ->orderBy('name')
+                ->get();
+            $individualUsers = $individualUsers->concat($singleMemberUsers)->unique('id')->sortBy('name')->values();
+        }
+
+        // إحصائيات المسابقة (إجمالي المسجلين = عدد المستخدمين الفريدين من التسجيلات)
         $stats = [
             'total_teams' => $competition->teams()->count(),
             'complete_teams' => $competition->teams()->where('is_complete', true)->count(),
             'incomplete_teams' => $competition->teams()->where('is_complete', false)->count(),
-            'total_members' => DB::table('team_members')
-                ->join('teams', 'team_members.team_id', '=', 'teams.id')
-                ->where('teams.competition_id', $competition->id)
-                ->distinct('team_members.user_id')
-                ->count('team_members.user_id'),
+            'total_members' => $competition->registrations()->distinct('user_id')->count('user_id'),
         ];
 
         return view('dashboard.competitions.show', compact('competition', 'stats', 'individualUsers'));
