@@ -139,20 +139,11 @@ class CompetitionController extends Controller
             'registrations.categories'
         ]);
 
-        // جلب جميع المستخدمين المسجلين في فرق هذه المسابقة
-        $usersInTeams = DB::table('team_members')
-            ->join('teams', 'team_members.team_id', '=', 'teams.id')
-            ->where('teams.competition_id', $competition->id)
-            ->pluck('team_members.user_id')
-            ->unique()
-            ->toArray();
-
-        // جلب الأفراد المسجلين في المسابقة ولكن ليسوا في أي فريق
+        // جلب الأفراد: من لديهم تسجيل بـ team_id = null (مطابق لصفحة البرنامج، بدون استبعاد من في team_members)
         $individualUsers = User::whereHas('competitionRegistrations', function($query) use ($competition) {
                 $query->where('competition_id', $competition->id)
                       ->whereNull('team_id');
             })
-            ->whereNotIn('id', $usersInTeams)
             ->with(['competitionRegistrations' => function($query) use ($competition) {
                 $query->where('competition_id', $competition->id)
                       ->with('categories');
