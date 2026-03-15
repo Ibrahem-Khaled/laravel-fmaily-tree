@@ -93,6 +93,12 @@
                                     <td>
                                         @if($question->answer_type === 'multiple_choice')
                                             <span class="badge badge-info">اختيار من متعدد</span>
+                                        @elseif($question->answer_type === 'vote')
+                                            <span class="badge badge-primary">تصويت</span>
+                                        @elseif($question->answer_type === 'true_false')
+                                            <span class="badge badge-warning">صح / خطأ</span>
+                                        @elseif($question->answer_type === 'ordering')
+                                            <span class="badge badge-success">ترتيب</span>
                                         @else
                                             <span class="badge badge-secondary">إجابة حرة</span>
                                         @endif
@@ -107,15 +113,19 @@
                                     <td>
                                         @if($question->answers->count() > 0)
                                             <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#answersModal{{ $question->id }}" title="عرض الإجابات">
-                                                <i class="fas fa-list-ol mr-1"></i>عرض {{ $question->answers->count() }} إجابة
+                                                <i class="fas fa-list-ol mr-1"></i>عرض {{ $question->answers->count() }} @if($question->answer_type === 'vote') تصويت @else إجابة @endif
                                             </button>
-                                            <small class="d-block text-success mt-1">{{ $question->answers->where('is_correct', true)->count() }} صحيح</small>
+                                            @if($question->answer_type !== 'vote')
+                                                <small class="d-block text-success mt-1">{{ $question->answers->where('is_correct', true)->count() }} صحيح</small>
+                                            @endif
                                         @else
                                             <span class="text-muted">لا توجد إجابات</span>
                                         @endif
                                     </td>
                                     <td>
-                                        @if($question->winners->count() > 0)
+                                        @if($question->answer_type === 'vote')
+                                            <span class="text-muted">—</span>
+                                        @elseif($question->winners->count() > 0)
                                             <button type="button" class="btn btn-sm btn-outline-success" data-toggle="modal" data-target="#winnersModal{{ $question->id }}" title="عرض تفاصيل الفائزين">
                                                 <i class="fas fa-trophy mr-1"></i>عرض {{ $question->winners->count() }} فائز
                                             </button>
@@ -179,12 +189,14 @@
                                         <div class="col-md-4">
                                             <span class="badge badge-primary">الإجمالي: {{ $question->answers->count() }}</span>
                                         </div>
-                                        <div class="col-md-4">
-                                            <span class="badge badge-success">صحيح: {{ $question->answers->where('is_correct', true)->count() }}</span>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <span class="badge badge-danger">خاطئ: {{ $question->answers->where('is_correct', false)->count() }}</span>
-                                        </div>
+                                        @if($question->answer_type !== 'vote')
+                                            <div class="col-md-4">
+                                                <span class="badge badge-success">صحيح: {{ $question->answers->where('is_correct', true)->count() }}</span>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <span class="badge badge-danger">خاطئ: {{ $question->answers->where('is_correct', false)->count() }}</span>
+                                            </div>
+                                        @endif
                                     </div>
                                     <div class="table-responsive">
                                         <table class="table table-sm table-hover">
@@ -213,15 +225,42 @@
                                                             @endif
                                                         </td>
                                                         <td>
-                                                            @if($answer->answer_type === 'choice')
-                                                                @php $choice = $question->choices->firstWhere('id', (int) $answer->answer); @endphp
-                                                                {{ $choice ? $choice->choice_text : $answer->answer }}
+                                                            @if(in_array($answer->answer_type, ['multiple_choice', 'vote', 'ordering', 'true_false', 'choice']))
+                                                                @php 
+                                                                    $decoded = json_decode($answer->answer, true);
+                                                                    $displayText = $answer->answer;
+                                                                    if (is_array($decoded)) {
+                                                                        if ($answer->answer_type === 'true_false') {
+                                                                            $parts = [];
+                                                                            foreach ($decoded as $choiceId => $val) {
+                                                                                $c = $question->choices->firstWhere('id', $choiceId);
+                                                                                $cText = $c ? $c->choice_text : $choiceId;
+                                                                                $valText = ($val === '1' || $val === 'true' || $val === true) ? 'صح' : 'خطأ';
+                                                                                $parts[] = $cText . ': ' . $valText;
+                                                                            }
+                                                                            $displayText = implode(' | ', $parts);
+                                                                        } else {
+                                                                            $choiceTexts = [];
+                                                                            foreach ($decoded as $choiceId) {
+                                                                                $c = $question->choices->firstWhere('id', $choiceId);
+                                                                                if ($c) $choiceTexts[] = $c->choice_text;
+                                                                            }
+                                                                            $displayText = implode(' - ', $choiceTexts);
+                                                                        }
+                                                                    } else {
+                                                                        $c = $question->choices->firstWhere('id', (int) $answer->answer);
+                                                                        if ($c) $displayText = $c->choice_text;
+                                                                    }
+                                                                @endphp
+                                                                {{ Str::limit($displayText, 80) }}
                                                             @else
                                                                 {{ Str::limit($answer->answer, 80) }}
                                                             @endif
                                                         </td>
                                                         <td>
-                                                            @if($answer->is_correct)
+                                                            @if($question->answer_type === 'vote')
+                                                                <span class="badge badge-primary">تم التصويت</span>
+                                                            @elseif($answer->is_correct)
                                                                 <span class="badge badge-success">صحيح</span>
                                                             @else
                                                                 <span class="badge badge-danger">خاطئ</span>
@@ -242,7 +281,7 @@
 
                 {{-- نوافذ عرض الفائزين --}}
                 @foreach($quizCompetition->questions as $question)
-                    @if($question->winners->count() > 0)
+                    @if($question->answer_type !== 'vote' && $question->winners->count() > 0)
                     <div class="modal fade" id="winnersModal{{ $question->id }}" tabindex="-1">
                         <div class="modal-dialog modal-lg modal-dialog-scrollable">
                             <div class="modal-content">

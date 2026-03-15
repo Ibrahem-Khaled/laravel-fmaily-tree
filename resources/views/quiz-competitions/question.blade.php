@@ -62,6 +62,16 @@
         ::-webkit-scrollbar { width: 10px; }
         ::-webkit-scrollbar-track { background: #f0fdf4; }
         ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #22c55e, #16a34a); border-radius: 5px; }
+
+        /* Vote bars */
+        .vote-bar-wrap { background: rgba(229,231,235,0.6); border-radius: 9999px; height: 10px; overflow: hidden; }
+        .vote-bar { height: 100%; border-radius: 9999px; transition: width 1.2s cubic-bezier(0.4,0,0.2,1); background: linear-gradient(90deg, #22c55e, #16a34a); }
+        .vote-choice-option {
+            background: rgba(255,255,255,0.8); border: 2px solid #e5e7eb;
+            transition: all 0.3s; border-radius: 0.75rem; cursor: pointer;
+        }
+        .vote-choice-option:hover { border-color: #86efac; background: rgba(240,253,244,0.9); }
+        .vote-choice-option:has(input:checked) { border-color: #22c55e; background: linear-gradient(135deg,#f0fdf4,#dcfce7); }
     </style>
 
     <x-quiz-lottery
@@ -377,7 +387,26 @@
                     </div>
                 @endif
 
-                @if(!session('answer_submitted') && !($canAnswer ?? true))
+                @if(session('vote_submitted'))
+                    <div class="rounded-2xl p-5 flex items-center gap-3 bg-green-50 border border-green-200">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-green-100">
+                            <i class="fas fa-poll text-green-600"></i>
+                        </div>
+                        <p class="text-green-800 font-medium">شكراً! تم تسجيل صوتك بنجاح. نتائج التصويت:</p>
+                    </div>
+                    {{-- Vote results displayed after voting --}}
+                    <div id="voteResultsAfterSubmit" class="glass-effect rounded-2xl p-5 md:p-6">
+                        <div class="flex items-center gap-2 mb-4">
+                            <i class="fas fa-chart-bar text-green-600"></i>
+                            <h3 class="font-bold text-gray-800">نتائج التصويت الحالية</h3>
+                        </div>
+                        <div id="voteResultsContainer" class="space-y-4">
+                            <p class="text-gray-400 text-sm text-center"><i class="fas fa-spinner fa-spin ml-1"></i> تحميل النتائج...</p>
+                        </div>
+                    </div>
+                @endif
+
+                @if(!session('answer_submitted') && !session('vote_submitted') && !($canAnswer ?? true))
                     <div class="rounded-2xl p-5 flex items-center gap-3 bg-amber-50 border border-amber-200">
                         <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-amber-100">
                             <i class="fas fa-check-circle text-amber-600"></i>
@@ -387,7 +416,7 @@
                 @endif
 
                 {{-- Form / Draw-Only --}}
-                @if(!session('answer_submitted') && ($canAnswer ?? true))
+                @if(!session('answer_submitted') && !session('vote_submitted') && ($canAnswer ?? true))
                     @if($quizCompetition->show_draw_only)
                         <div class="rounded-3xl p-8 bg-green-50 border-2 border-green-200 text-center space-y-4">
                             <div class="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
@@ -414,35 +443,55 @@
                             </div>
                             <h3 class="font-bold text-gray-800">بياناتك</h3>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-gray-600 text-sm mb-2 font-medium">الاسم <span class="text-red-500">*</span></label>
-                                <input type="text" name="name" value="{{ old('name') }}" required
-                                       class="w-full px-4 py-3.5 rounded-xl border-2 border-gray-200 bg-white/70 text-gray-800 text-sm focus:ring-4 focus:ring-green-200 focus:border-green-500 transition-all"
-                                       placeholder="أدخل اسمك الكامل">
-                            </div>
+
+                        @if($quizQuestion->answer_type === 'vote' && $quizQuestion->require_prior_registration)
+                            {{-- Phone-only form for registered participants --}}
+                            <p class="text-sm text-blue-600 mb-3 font-medium">
+                                <i class="fas fa-info-circle ml-1"></i>
+                                هذا التصويت للمشاركين السابقين فقط. أدخل رقم هاتفك للتحقق.
+                            </p>
                             <div>
                                 <label class="block text-gray-600 text-sm mb-2 font-medium">رقم الهاتف <span class="text-red-500">*</span></label>
                                 <input type="text" name="phone" value="{{ old('phone') }}" required
                                        pattern="[0-9]{10}" minlength="10" maxlength="10"
                                        class="w-full px-4 py-3.5 rounded-xl border-2 border-gray-200 bg-white/70 text-gray-800 text-sm focus:ring-4 focus:ring-green-200 focus:border-green-500 transition-all"
-                                       placeholder="05xxxxxxxx" dir="ltr" style="text-align:right;" title="يجب أن يكون رقم الهاتف 10 أرقام">
+                                       placeholder="05xxxxxxxx" dir="ltr" style="text-align:right;" title="يجب أن يكون رقم الهاتف 10 أرقام للمشارك السابق">
                             </div>
-                        </div>
-                        <div class="space-y-3 mt-4">
-                            <div class="flex items-center gap-2 p-3 rounded-xl border-2 border-gray-200 bg-white/80 hover:border-green-300 hover:bg-green-50/50 cursor-pointer transition-all">
-                                <input type="checkbox" name="is_from_ancestry" value="1" id="is_from_ancestry_question"
-                                       class="w-4 h-4 text-green-600 rounded border-gray-300 focus:ring-green-500" {{ old('is_from_ancestry') ? 'checked' : '' }}
-                                       onchange="toggleMotherNameFieldQuestion(this.checked)">
-                                <label for="is_from_ancestry_question" class="text-gray-800 text-sm font-medium cursor-pointer">أنا من الأنساب</label>
+                        @else
+                            {{-- Full form --}}
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-gray-600 text-sm mb-2 font-medium">الاسم
+                                        @if($quizQuestion->answer_type !== 'vote')<span class="text-red-500">*</span>@endif
+                                    </label>
+                                    <input type="text" name="name" value="{{ old('name') }}"
+                                           {{ $quizQuestion->answer_type !== 'vote' ? 'required' : '' }}
+                                           class="w-full px-4 py-3.5 rounded-xl border-2 border-gray-200 bg-white/70 text-gray-800 text-sm focus:ring-4 focus:ring-green-200 focus:border-green-500 transition-all"
+                                           placeholder="أدخل اسمك الكامل">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-600 text-sm mb-2 font-medium">رقم الهاتف <span class="text-red-500">*</span></label>
+                                    <input type="text" name="phone" value="{{ old('phone') }}" required
+                                           pattern="[0-9]{10}" minlength="10" maxlength="10"
+                                           class="w-full px-4 py-3.5 rounded-xl border-2 border-gray-200 bg-white/70 text-gray-800 text-sm focus:ring-4 focus:ring-green-200 focus:border-green-500 transition-all"
+                                           placeholder="05xxxxxxxx" dir="ltr" style="text-align:right;" title="يجب أن يكون رقم الهاتف 10 أرقام">
+                                </div>
                             </div>
-                            <div id="mother_name_field_question" class="hidden">
-                                <label class="block text-gray-600 text-sm mb-2 font-medium">اسم الأم <span class="text-red-500">*</span></label>
-                                <input type="text" name="mother_name" value="{{ old('mother_name') }}"
-                                       class="w-full px-4 py-3.5 rounded-xl border-2 border-gray-200 bg-white/70 text-gray-800 text-sm focus:ring-4 focus:ring-green-200 focus:border-green-500 transition-all"
-                                       placeholder="اسم الأم الكامل">
+                            <div class="space-y-3 mt-4">
+                                <div class="flex items-center gap-2 p-3 rounded-xl border-2 border-gray-200 bg-white/80 hover:border-green-300 hover:bg-green-50/50 cursor-pointer transition-all">
+                                    <input type="checkbox" name="is_from_ancestry" value="1" id="is_from_ancestry_question"
+                                           class="w-4 h-4 text-green-600 rounded border-gray-300 focus:ring-green-500" {{ old('is_from_ancestry') ? 'checked' : '' }}
+                                           onchange="toggleMotherNameFieldQuestion(this.checked)">
+                                    <label for="is_from_ancestry_question" class="text-gray-800 text-sm font-medium cursor-pointer">أنا من الأنساب</label>
+                                </div>
+                                <div id="mother_name_field_question" class="hidden">
+                                    <label class="block text-gray-600 text-sm mb-2 font-medium">اسم الأم <span class="text-red-500">*</span></label>
+                                    <input type="text" name="mother_name" value="{{ old('mother_name') }}"
+                                           class="w-full px-4 py-3.5 rounded-xl border-2 border-gray-200 bg-white/70 text-gray-800 text-sm focus:ring-4 focus:ring-green-200 focus:border-green-500 transition-all"
+                                           placeholder="اسم الأم الكامل">
+                                </div>
                             </div>
-                        </div>
+                        @endif
                     </div>
 
                     {{-- Answer Choices --}}
@@ -480,6 +529,40 @@
                                 <textarea name="answer" rows="4" required
                                           class="w-full px-4 py-3.5 rounded-xl border-2 border-gray-200 bg-white/70 text-gray-800 text-sm resize-none focus:ring-4 focus:ring-green-200 focus:border-green-500 transition-all"
                                           placeholder="اكتب إجابتك هنا...">{{ old('answer') }}</textarea>
+                            @elseif($quizQuestion->answer_type === 'vote')
+                                {{-- Vote answer type --}}
+                                @php $voteMax = $quizQuestion->vote_max_selections ?? 1; @endphp
+                                @if($voteMax > 1)
+                                    <p class="text-sm text-green-700 font-medium mb-2 pr-2">
+                                        <i class="fas fa-poll ml-1"></i>
+                                        يمكنك اختيار حتى <strong>{{ $voteMax }}</strong> خيارات
+                                        <input type="hidden" id="voteMaxSelections" value="{{ $voteMax }}">
+                                    </p>
+                                @endif
+                                @foreach($quizQuestion->choices as $choice)
+                                    <label class="vote-choice-option flex items-center gap-4 p-4">
+                                        @if($voteMax > 1)
+                                            <input type="checkbox" name="answer[]" value="{{ $choice->id }}" class="hidden vote-checkbox">
+                                            <div class="relative w-6 h-6 rounded flex items-center justify-center border-2 border-gray-300 bg-gray-100 flex-shrink-0 transition-all custom-checkbox">
+                                                <i class="fas fa-check text-white text-xs opacity-0 transition-opacity"></i>
+                                            </div>
+                                        @else
+                                            <input type="radio" name="answer" value="{{ $choice->id }}" class="hidden" required>
+                                            <span class="choice-number w-10 h-10 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-500 font-bold text-sm flex-shrink-0 transition-all">{{ $loop->iteration }}</span>
+                                        @endif
+                                        <div class="flex-grow flex flex-col gap-2">
+                                            <div class="flex items-center gap-3">
+                                                @if($choice->image)
+                                                    <img src="{{ asset('storage/' . $choice->image) }}" class="w-16 h-16 md:w-20 md:h-20 object-cover rounded-lg shadow-sm">
+                                                @endif
+                                                <span class="text-gray-700 font-medium text-sm md:text-base">{{ $choice->choice_text }}</span>
+                                            </div>
+                                            @if($choice->video)
+                                                <video src="{{ asset('storage/' . $choice->video) }}" class="w-full max-h-64 rounded-xl mt-2 border border-gray-100 shadow-inner" controls></video>
+                                            @endif
+                                        </div>
+                                    </label>
+                                @endforeach
                             @else
                                 @if(!$quizQuestion->is_multiple_selections && $quizQuestion->choices->count() === 1)
                                     {{-- Single answer: one prominent button --}}
@@ -537,6 +620,11 @@
                                             class="w-full py-5 rounded-2xl font-bold text-white text-lg shadow-lg shadow-green-200 transition-all hover:scale-[1.02] active:scale-[0.98] bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400"
                                             style="animation: pulse-soft 2s infinite;">
                                         <i class="fas fa-hand-pointer ml-2"></i> {{ $quizQuestion->choices->first()->choice_text }}
+                                    </button>
+                                @elseif($quizQuestion->answer_type === 'vote')
+                                    <button type="button" onclick="submitQuizForm()"
+                                            class="w-full py-4 rounded-2xl font-bold text-white shadow-lg shadow-green-200 transition-all hover:scale-[1.02] active:scale-[0.98] bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400">
+                                        <i class="fas fa-poll ml-2"></i> تصويت
                                     </button>
                                 @else
                                     <button type="button" onclick="submitQuizForm()"
@@ -603,6 +691,20 @@
                 });
             }
 
+            // Vote checkboxes max limit
+            var voteMaxEl = document.getElementById('voteMaxSelections');
+            if (voteMaxEl) {
+                var voteMax = parseInt(voteMaxEl.value);
+                document.querySelectorAll('.vote-checkbox').forEach(function(cb) {
+                    cb.addEventListener('change', function() {
+                        if (document.querySelectorAll('.vote-checkbox:checked').length > voteMax) {
+                            this.checked = false;
+                            Swal.fire({ icon: 'info', title: 'تم تجاوز الحد الأقصى', text: 'لا يمكنك اختيار أكثر من ' + voteMax + ' خيارات.', confirmButtonColor: '#22c55e', confirmButtonText: 'حسناً', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 });
+                        }
+                    });
+                });
+            }
+
             document.querySelectorAll('.sortable-list').forEach(function(list) {
                 new Sortable(list, { animation: 150, ghostClass: 'bg-green-50' });
             });
@@ -610,7 +712,49 @@
             @if(old('is_from_ancestry'))
                 toggleMotherNameFieldQuestion(true);
             @endif
+
+            // Load vote results if vote_submitted
+            @if(session('vote_submitted'))
+                loadVoteResults();
+            @endif
         });
+
+        function loadVoteResults() {
+            var url = '{{ route('quiz-competitions.question.vote-results', [$quizCompetition, $quizQuestion]) }}';
+            fetch(url)
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    var container = document.getElementById('voteResultsContainer');
+                    if (!container) return;
+                    if (!data.results || data.results.length === 0) {
+                        container.innerHTML = '<p class="text-gray-400 text-sm text-center">لا توجد أصوات بعد.</p>';
+                        return;
+                    }
+                    var html = '';
+                    data.results.forEach(function(r) {
+                        var colors = ['from-green-400 to-green-600', 'from-blue-400 to-blue-600', 'from-purple-400 to-purple-600', 'from-amber-400 to-amber-600', 'from-pink-400 to-pink-600'];
+                        var colorIdx = data.results.indexOf(r) % colors.length;
+                        var barColor = colors[colorIdx].split(' ')[2].replace('to-','').replace('600','') + '500';
+                        html += '<div class="flex flex-col gap-1">';
+                        html += '  <div class="flex items-center justify-between">';
+                        html += '    <span class="text-sm font-medium text-gray-700">' + r.text + '</span>';
+                        html += '    <span class="text-sm font-bold text-green-600 mr-2">' + r.percent + '% <span class="text-xs text-gray-400 font-normal">(' + r.count + ' صوت)</span></span>';
+                        html += '  </div>';
+                        html += '  <div class="vote-bar-wrap"><div class="vote-bar" style="width:0%;" data-width="' + r.percent + '%"></div></div>';
+                        html += '</div>';
+                    });
+                    container.innerHTML = html;
+                    setTimeout(function() {
+                        container.querySelectorAll('.vote-bar').forEach(function(bar) {
+                            bar.style.width = bar.getAttribute('data-width');
+                        });
+                    }, 100);
+                })
+                .catch(function() {
+                    var container = document.getElementById('voteResultsContainer');
+                    if (container) container.innerHTML = '<p class="text-red-400 text-sm text-center">تعذر تحميل النتائج.</p>';
+                });
+        }
     </script>
 </body>
 

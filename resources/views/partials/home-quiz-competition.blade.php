@@ -128,7 +128,12 @@
                         <div id="activeQuizQuestionsBlock" class="space-y-4 mb-3" @if (!($showQuestionsOnHome ?? true))
                         style="display:none" @endif>
 
-                            <h4 class="text-sm font-bold text-gray-600 mb-2">أسئلة المسابقة — أجب هنا:</h4>
+                            @php
+                                $hasNonVote = $activeQuizCompetition->questions->contains(fn($q) => $q->answer_type !== 'vote');
+                            @endphp
+                            @if($hasNonVote)
+                                <h4 class="text-sm font-bold text-gray-600 mb-2">أسئلة المسابقة — أجب هنا:</h4>
+                            @endif
 
                             @foreach ($activeQuizCompetition->questions as $q)
                                 @php
@@ -169,36 +174,53 @@
                                         <form action="{{ route('quiz-competitions.store-answer', [$activeQuizCompetition, $q]) }}"
                                             method="POST" class="space-y-4">
                                             @csrf
+                                            <input type="hidden" name="source" value="home">
 
-                                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                                <div>
-                                                    <label class="block text-gray-600 text-xs mb-1 font-medium">
-                                                        الاسم <span class="text-red-500">*</span>
-                                                    </label>
-                                                    <input type="text" name="name" value="{{ old('name') }}" required
-                                                        placeholder="الاسم الكامل"
-                                                        class="w-full px-3 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-gray-800 text-sm focus:ring-2 focus:ring-green-200 focus:border-green-500">
-                                                </div>
-                                                <div>
+                                            @if($q->answer_type === 'vote' && $q->require_prior_registration)
+                                                <div class="mb-4">
+                                                    <p class="text-xs text-blue-600 mb-2 font-medium">
+                                                        <i class="fas fa-info-circle mx-1"></i>
+                                                        هذا التصويت للمشاركين السابقين فقط. أدخل رقم هاتفك للتحقق.
+                                                    </p>
                                                     <label class="block text-gray-600 text-xs mb-1 font-medium">
                                                         رقم الهاتف <span class="text-red-500">*</span>
                                                     </label>
                                                     <input type="text" name="phone" value="{{ old('phone') }}" required
                                                         pattern="[0-9]{10}" minlength="10" maxlength="10" placeholder="05xxxxxxxx"
-                                                        dir="ltr" style="text-align:right;" title="يجب أن يكون رقم الهاتف 10 أرقام"
-                                                        class="w-full px-3 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-gray-800 text-sm focus:ring-2 focus:ring-green-200 focus:border-green-500">
+                                                        dir="ltr" style="text-align:right;" title="يجب أن يكون رقم الهاتف 10 أرقام للمشارك السابق"
+                                                        class="w-full px-3 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-gray-800 text-sm focus:ring-2 focus:ring-green-200 focus:border-green-500" autocomplete="off">
                                                 </div>
-                                            </div>
+                                            @else
+                                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                    <div>
+                                                        <label class="block text-gray-600 text-xs mb-1 font-medium">
+                                                            الاسم @if($q->answer_type !== 'vote')<span class="text-red-500">*</span>@endif
+                                                        </label>
+                                                        <input type="text" name="name" value="{{ old('name') }}" {{ $q->answer_type !== 'vote' ? 'required' : '' }}
+                                                            placeholder="الاسم الكامل"
+                                                            class="w-full px-3 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-gray-800 text-sm focus:ring-2 focus:ring-green-200 focus:border-green-500">
+                                                    </div>
+                                                    <div>
+                                                        <label class="block text-gray-600 text-xs mb-1 font-medium">
+                                                            رقم الهاتف <span class="text-red-500">*</span>
+                                                        </label>
+                                                        <input type="text" name="phone" value="{{ old('phone') }}" required
+                                                            pattern="[0-9]{10}" minlength="10" maxlength="10" placeholder="05xxxxxxxx"
+                                                            dir="ltr" style="text-align:right;" title="يجب أن يكون رقم الهاتف 10 أرقام"
+                                                            class="w-full px-3 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-gray-800 text-sm focus:ring-2 focus:ring-green-200 focus:border-green-500">
+                                                    </div>
+                                                </div>
 
-                                            <div>
-                                                <label class="block text-gray-600 text-xs mb-1 font-medium">
-                                                    اسم الأم (للمستخدمين من الأنساب)
-                                                </label>
-                                                <input type="text" name="mother_name" value="{{ old('mother_name') }}"
-                                                    placeholder="ينتهي باسم السريع"
-                                                    class="w-full px-3 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-gray-800 text-sm focus:ring-2 focus:ring-green-200 focus:border-green-500">
-                                                <input type="hidden" name="is_from_ancestry" value="1">
-                                            </div>
+                                                <div>
+                                                    <label class="block text-gray-600 text-xs mb-1 font-medium">
+                                                        اسم الأم (للمستخدمين من الأنساب)
+                                                    </label>
+                                                    <input type="text" name="mother_name" value="{{ old('mother_name') }}"
+                                                        placeholder="ينتهي باسم السريع"
+                                                        class="w-full px-3 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-gray-800 text-sm focus:ring-2 focus:ring-green-200 focus:border-green-500">
+                                                    <input type="hidden" name="is_from_ancestry" value="1">
+                                                </div>
+                                            @endif
 
                                             <div>
                                                 <label class="block text-gray-600 text-xs mb-2 font-medium">
@@ -422,6 +444,46 @@
                                                             </div>
                                                         @endforeach
                                                     </div>
+                                                @elseif ($q->answer_type === 'vote' && $q->choices->count() > 0)
+                                                    @php $voteMax = $q->vote_max_selections ?? 1; @endphp
+                                                    @if($voteMax > 1)
+                                                        <p class="text-xs text-green-700 font-medium mb-2">
+                                                            <i class="fas fa-poll ml-1"></i> يمكنك اختيار حتى <strong>{{ $voteMax }}</strong> خيارات
+                                                            <input type="hidden" class="home-vote-max" value="{{ $voteMax }}">
+                                                        </p>
+                                                    @endif
+                                                    <div class="space-y-3">
+                                                        @foreach ($q->choices as $choice)
+                                                            <label class="group flex items-center gap-3 p-3 rounded-2xl border-2 border-gray-100 bg-white hover:border-green-300 hover:shadow-md cursor-pointer transition-all has-[:checked]:border-green-500 has-[:checked]:bg-gradient-to-r has-[:checked]:from-green-50 has-[:checked]:to-emerald-50 relative overflow-hidden">
+                                                                @if($voteMax > 1)
+                                                                    <input type="checkbox" name="answer[]" value="{{ $choice->id }}" class="hidden home-vote-checkbox" {{ $voteMax > 1 ? '' : 'required' }}>
+                                                                    <div class="w-6 h-6 flex-shrink-0 rounded flex items-center justify-center border-2 border-gray-300 bg-gray-50 transition-all group-has-[:checked]:border-green-500 group-has-[:checked]:bg-green-500 z-10">
+                                                                        <i class="fas fa-check text-white text-xs opacity-0 group-has-[:checked]:opacity-100 transition-opacity"></i>
+                                                                    </div>
+                                                                @else
+                                                                    <input type="radio" name="answer" value="{{ $choice->id }}" class="hidden peer" required>
+                                                                    <div class="w-6 h-6 flex-shrink-0 rounded-full border-2 border-gray-300 flex items-center justify-center peer-checked:border-green-500 peer-checked:bg-green-500 transition-all z-10">
+                                                                        <div class="w-2 h-2 rounded-full bg-white opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+                                                                    </div>
+                                                                @endif
+                                                                <div class="flex-grow flex items-center gap-3 z-10">
+                                                                    @if($choice->image)
+                                                                        <img src="{{ asset('storage/' . $choice->image) }}" class="w-12 h-12 md:w-14 md:h-14 object-cover rounded-xl shadow-sm border border-gray-100">
+                                                                    @endif
+                                                                    <div class="flex flex-col">
+                                                                        <span class="text-gray-800 text-[13px] md:text-sm font-bold leading-snug">{{ $choice->choice_text }}</span>
+                                                                    </div>
+                                                                </div>
+                                                                @if($choice->video)
+                                                                    <div class="z-10 ml-auto flex-shrink-0" onclick="openTfVideoLightbox('{{ asset('storage/' . $choice->video) }}')">
+                                                                        <div class="w-9 h-9 md:w-10 md:h-10 rounded-full bg-gray-50 flex items-center justify-center border border-gray-200 hover:bg-green-50 hover:border-green-200 hover:text-green-600 transition-all shadow-sm">
+                                                                            <i class="fas fa-play ml-0.5 text-gray-400 group-hover:text-green-500 transition-colors"></i>
+                                                                        </div>
+                                                                    </div>
+                                                                @endif
+                                                            </label>
+                                                        @endforeach
+                                                    </div>
                                                 @else
                                                     <textarea name="answer" rows="3" required placeholder="اكتب إجابتك..."
                                                         class="w-full px-3 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-gray-800 text-sm focus:ring-2 focus:ring-green-200 focus:border-green-500 resize-none">{{ old('answer') }}</textarea>
@@ -435,6 +497,13 @@
                                                     <i class="fas fa-hand-pointer"></i>
                                                     {{ $q->choices->first()->choice_text }}
                                                 </button>
+                                            @elseif($q->answer_type === 'vote')
+                                                <button type="submit" onclick="validateHomeQuiz(event, this)"
+                                                    class="w-full sm:w-auto min-w-[150px] px-6 py-3.5 rounded-xl text-white font-bold text-sm inline-flex items-center justify-center gap-2 transition-all hover:opacity-90 hover:scale-[1.02] active:scale-[0.98] mt-4 shadow-lg shadow-blue-200"
+                                                    style="background: linear-gradient(135deg, #3b82f6, #2563eb);">
+                                                    <i class="fas fa-poll"></i>
+                                                    إرسال التصويت
+                                                </button>
                                             @else
                                                 <button type="submit" onclick="validateHomeQuiz(event, this)"
                                                     class="w-full sm:w-auto px-6 py-3 rounded-xl text-white font-bold text-sm inline-flex items-center justify-center gap-2 transition-all hover:opacity-90 mt-4"
@@ -444,20 +513,56 @@
                                                 </button>
                                             @endif
                                         </form>
-                                    @else
-                                        <div
-                                            class="rounded-xl p-4 bg-amber-50 border border-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                                            <p class="text-amber-800 text-sm font-medium">
-                                                <i class="fas fa-check-circle text-amber-600 ml-1"></i>
-                                                لقد أجبت على هذا السؤال.
-                                            </p>
-                                            <a href="{{ route('quiz-competitions.question', [$activeQuizCompetition, $q]) }}"
-                                                class="flex-shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-white transition-all hover:opacity-90"
-                                                style="background: linear-gradient(135deg, #22c55e, #16a34a);">
-                                                <i class="fas fa-trophy"></i>
-                                                متابعة القرعة
-                                            </a>
+                                    @elseif (session('vote_submitted') && session('answered_question_id') == $q->id)
+                                        <div class="rounded-2xl p-4 md:p-5 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 shadow-sm relative overflow-hidden mt-2">
+                                            <div class="absolute top-0 right-0 left-0 h-1.5" style="background: linear-gradient(90deg, #22c55e, #16a34a);"></div>
+                                            <div class="flex items-center gap-3 mb-4">
+                                                <div class="w-10 h-10 rounded-full flex items-center justify-center bg-green-100 flex-shrink-0 border border-green-200">
+                                                    <i class="fas fa-check-circle text-green-600 text-lg"></i>
+                                                </div>
+                                                <div>
+                                                    <h4 class="font-bold text-green-800 text-sm">تم تسجيل صوتك بنجاح</h4>
+                                                    <p class="text-xs text-green-600 mt-0.5">إليك نتائج التصويت الحالية:</p>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="home-vote-results space-y-3" data-url="{{ route('quiz-competitions.question.vote-results', [$activeQuizCompetition, $q]) }}">
+                                                <p class="text-gray-400 text-xs text-center py-4"><i class="fas fa-spinner fa-spin mx-1"></i> تحميل النتائج...</p>
+                                            </div>
                                         </div>
+                                    @else
+                                        @if($q->answer_type === 'vote')
+                                            <div class="rounded-2xl p-4 md:p-5 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 shadow-sm relative overflow-hidden mt-2">
+                                                <div class="absolute top-0 right-0 left-0 h-1.5" style="background: linear-gradient(90deg, #22c55e, #16a34a);"></div>
+                                                <div class="flex items-center gap-3 mb-4">
+                                                    <div class="w-10 h-10 rounded-full flex items-center justify-center bg-green-100 flex-shrink-0 border border-green-200">
+                                                        <i class="fas fa-check-circle text-green-600 text-lg"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h4 class="font-bold text-green-800 text-sm">تفضيلات التصويت الحالية</h4>
+                                                        <p class="text-xs text-green-600 mt-0.5">لقد قمت بالتصويت مسبقاً، وإليك النتائج:</p>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="home-vote-results space-y-3" data-url="{{ route('quiz-competitions.question.vote-results', [$activeQuizCompetition, $q]) }}">
+                                                    <p class="text-gray-400 text-xs text-center py-4"><i class="fas fa-spinner fa-spin mx-1"></i> تحميل النتائج...</p>
+                                                </div>
+                                            </div>
+                                        @else
+                                            <div
+                                                class="rounded-xl p-4 bg-amber-50 border border-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                                                <p class="text-amber-800 text-sm font-medium">
+                                                    <i class="fas fa-check-circle text-amber-600 ml-1"></i>
+                                                    لقد أجبت على هذا السؤال.
+                                                </p>
+                                                <a href="{{ route('quiz-competitions.question', [$activeQuizCompetition, $q]) }}"
+                                                    class="flex-shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-white transition-all hover:opacity-90"
+                                                    style="background: linear-gradient(135deg, #22c55e, #16a34a);">
+                                                    <i class="fas fa-trophy"></i>
+                                                    متابعة القرعة
+                                                </a>
+                                            </div>
+                                        @endif
                                     @endif
 
                                 </div>
@@ -663,5 +768,63 @@ function closeTfLightbox() {
     vid.src = '';
     document.body.style.overflow = '';
 }
+document.addEventListener('DOMContentLoaded', function() {
+    // Vote checkboxes max limit
+    document.querySelectorAll('.home-vote-max').forEach(function(el) {
+        var form = el.closest('form');
+        var max = parseInt(el.value);
+        if (form && max > 1) {
+            var checkboxes = form.querySelectorAll('.home-vote-checkbox');
+            checkboxes.forEach(function(cb) {
+                cb.addEventListener('change', function() {
+                    if (form.querySelectorAll('.home-vote-checkbox:checked').length > max) {
+                        this.checked = false;
+                        if(typeof Swal !== 'undefined') {
+                            Swal.fire({ icon: 'info', title: 'تنبيه', text: 'لا يمكنك اختيار أكثر من ' + max + ' خيارات.', confirmButtonColor: '#22c55e', confirmButtonText: 'حسناً', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 });
+                        } else {
+                            alert('لا يمكنك اختيار أكثر من ' + max + ' خيارات.');
+                        }
+                    }
+                });
+            });
+        }
+    });
+
+    // Load vote results
+    document.querySelectorAll('.home-vote-results').forEach(function(container) {
+        var url = container.getAttribute('data-url');
+        if (url) {
+            fetch(url)
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (!data.results || data.results.length === 0) {
+                        container.innerHTML = '<p class="text-gray-400 text-xs text-center py-2">لا توجد أصوات بعد.</p>';
+                        return;
+                    }
+                    var html = '';
+                    data.results.forEach(function(r) {
+                        html += '<div class="flex flex-col gap-1.5">';
+                        html += '  <div class="flex items-center justify-between">';
+                        html += '    <span class="text-xs font-bold text-gray-700">' + r.text + '</span>';
+                        html += '    <span class="text-xs font-bold text-green-600">' + r.percent + '% <span class="text-[10px] text-gray-400 font-normal">(' + r.count + ')</span></span>';
+                        html += '  </div>';
+                        html += '  <div style="background: rgba(229,231,235,0.6); border-radius: 9999px; height: 8px; overflow: hidden;">';
+                        html += '    <div style="height: 100%; border-radius: 9999px; width: 0%; transition: width 1s ease-out; background: linear-gradient(90deg, #22c55e, #16a34a);" data-width="' + r.percent + '%"></div>';
+                        html += '  </div>';
+                        html += '</div>';
+                    });
+                    container.innerHTML = html;
+                    setTimeout(function() {
+                        container.querySelectorAll('[data-width]').forEach(function(bar) {
+                            bar.style.width = bar.getAttribute('data-width');
+                        });
+                    }, 100);
+                })
+                .catch(function() {
+                    container.innerHTML = '<p class="text-red-400 text-xs text-center py-2">تعذر تحميل النتائج.</p>';
+                });
+        }
+    });
+});
 </script>
 @endpush

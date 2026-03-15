@@ -20,6 +20,8 @@ class QuizQuestion extends BaseModel
         'display_order',
         'prize',
         'groups_count',
+        'vote_max_selections',
+        'require_prior_registration',
     ];
 
     protected $casts = [
@@ -28,6 +30,8 @@ class QuizQuestion extends BaseModel
         'winners_count' => 'integer',
         'groups_count' => 'integer',
         'display_order' => 'integer',
+        'vote_max_selections' => 'integer',
+        'require_prior_registration' => 'boolean',
     ];
 
     public function competition(): BelongsTo

@@ -178,6 +178,7 @@ Route::prefix('quiz-competitions')->name('quiz-competitions.')->group(function (
     Route::get('{quizCompetition}', [\App\Http\Controllers\QuizCompetitionPublicController::class, 'show'])->name('show');
     Route::get('{quizCompetition}/questions/{quizQuestion}', [\App\Http\Controllers\QuizCompetitionPublicController::class, 'question'])->name('question');
     Route::get('{quizCompetition}/questions/{quizQuestion}/winner', [\App\Http\Controllers\QuizCompetitionPublicController::class, 'getWinner'])->name('question.winner');
+    Route::get('{quizCompetition}/questions/{quizQuestion}/vote-results', [\App\Http\Controllers\QuizCompetitionPublicController::class, 'getVoteResults'])->name('question.vote-results');
     Route::post('{quizCompetition}/questions/{quizQuestion}/answer', [\App\Http\Controllers\QuizCompetitionPublicController::class, 'storeAnswer'])->name('store-answer');
 });
 

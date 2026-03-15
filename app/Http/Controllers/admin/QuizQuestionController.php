@@ -22,14 +22,14 @@ class QuizQuestionController extends Controller
         $validated = $request->validate([
             'question_text' => 'required|string',
             'description' => 'nullable|string',
-            'answer_type' => 'required|in:multiple_choice,custom_text,ordering,true_false',
+            'answer_type' => 'required|in:multiple_choice,custom_text,ordering,true_false,vote',
             'is_multiple_selections' => 'nullable|boolean',
             'winners_count' => 'required|integer|min:1',
             'groups_count' => 'nullable|integer|min:1',
             'display_order' => 'nullable|integer|min:0',
             'prize' => 'nullable|array',
             'prize.*' => 'nullable|string',
-            'choices' => 'required_if:answer_type,multiple_choice,ordering,true_false|array',
+            'choices' => 'required_if:answer_type,multiple_choice,ordering,true_false,vote|array',
             'choices.*.id' => 'nullable|integer',
             'choices.*.text' => 'nullable|string',
             'choices.*.group_name' => 'nullable|string|max:255',
@@ -37,6 +37,8 @@ class QuizQuestionController extends Controller
             'choices.*.video' => 'nullable|mimes:mp4,mov,ogg,qt|max:20000',
             'choices.*.is_correct' => 'nullable|boolean',
             'correct_choices' => 'nullable|array', // For multiple selections
+            'vote_max_selections' => 'nullable|integer|min:1',
+            'require_prior_registration' => 'nullable|boolean',
         ], [
             'question_text.required' => 'نص السؤال مطلوب',
             'answer_type.required' => 'نوع الإجابة مطلوب',
@@ -54,13 +56,16 @@ class QuizQuestionController extends Controller
             'groups_count' => ($validated['answer_type'] === 'ordering') ? $validated['groups_count'] ?? null : null,
             'display_order' => $validated['display_order'] ?? 0,
             'prize' => $validated['prize'] ?? [],
+            'vote_max_selections' => ($validated['answer_type'] === 'vote') ? ($validated['vote_max_selections'] ?? 1) : null,
+            'require_prior_registration' => ($validated['answer_type'] === 'vote') ? !empty($validated['require_prior_registration']) : false,
         ]);
 
-        if (in_array($validated['answer_type'], ['multiple_choice', 'ordering', 'true_false']) && !empty($validated['choices'])) {
+        if (in_array($validated['answer_type'], ['multiple_choice', 'ordering', 'true_false', 'vote']) && !empty($validated['choices'])) {
             $choices = array_filter($validated['choices'], fn($c) => !empty(trim($c['text'] ?? '')));
 
             $isMultiple = !empty($validated['is_multiple_selections']);
             $isOrdering = $validated['answer_type'] === 'ordering';
+            $isVote = $validated['answer_type'] === 'vote';
             $correctChoicesKeys = $request->input('correct_choices', []);
 
             $isTrueFalse = $validated['answer_type'] === 'true_false';
@@ -69,6 +74,8 @@ class QuizQuestionController extends Controller
                 $isCorrect = false;
                 if ($isOrdering) {
                     $isCorrect = true; // For ordering, all saved choices are part of the correct order sequence
+                } elseif ($isVote) {
+                    $isCorrect = false; // Vote has no correct answer
                 } elseif ($isMultiple) {
                     $isCorrect = in_array((string) $index, $correctChoicesKeys);
                 } elseif ($isTrueFalse) {
@@ -103,14 +110,14 @@ class QuizQuestionController extends Controller
         $validated = $request->validate([
             'question_text' => 'required|string',
             'description' => 'nullable|string',
-            'answer_type' => 'required|in:multiple_choice,custom_text,ordering,true_false',
+            'answer_type' => 'required|in:multiple_choice,custom_text,ordering,true_false,vote',
             'is_multiple_selections' => 'nullable|boolean',
             'winners_count' => 'required|integer|min:1',
             'groups_count' => 'nullable|integer|min:1',
             'display_order' => 'nullable|integer|min:0',
             'prize' => 'nullable|array',
             'prize.*' => 'nullable|string',
-            'choices' => 'required_if:answer_type,multiple_choice,ordering,true_false|array',
+            'choices' => 'required_if:answer_type,multiple_choice,ordering,true_false,vote|array',
             'choices.*.id' => 'nullable|integer',
             'choices.*.text' => 'nullable|string',
             'choices.*.group_name' => 'nullable|string|max:255',
@@ -118,6 +125,8 @@ class QuizQuestionController extends Controller
             'choices.*.video' => 'nullable|mimes:mp4,mov,ogg,qt|max:20000',
             'choices.*.is_correct' => 'nullable|boolean',
             'correct_choices' => 'nullable|array',
+            'vote_max_selections' => 'nullable|integer|min:1',
+            'require_prior_registration' => 'nullable|boolean',
         ], [
             'question_text.required' => 'نص السؤال مطلوب',
             'answer_type.required' => 'نوع الإجابة مطلوب',
@@ -135,15 +144,18 @@ class QuizQuestionController extends Controller
             'groups_count' => ($validated['answer_type'] === 'ordering') ? $validated['groups_count'] ?? null : null,
             'display_order' => $validated['display_order'] ?? 0,
             'prize' => $validated['prize'] ?? [],
+            'vote_max_selections' => ($validated['answer_type'] === 'vote') ? ($validated['vote_max_selections'] ?? 1) : null,
+            'require_prior_registration' => ($validated['answer_type'] === 'vote') ? !empty($validated['require_prior_registration']) : false,
         ]);
 
-        if (in_array($validated['answer_type'], ['multiple_choice', 'ordering', 'true_false']) && !empty($validated['choices'])) {
+        if (in_array($validated['answer_type'], ['multiple_choice', 'ordering', 'true_false', 'vote']) && !empty($validated['choices'])) {
             $oldChoices = $quizQuestion->choices->keyBy('id');
             $quizQuestion->choices()->delete();
             $choices = $validated['choices'];
 
             $isMultiple = !empty($validated['is_multiple_selections']);
             $isOrdering = $validated['answer_type'] === 'ordering';
+            $isVote = $validated['answer_type'] === 'vote';
             $correctChoicesKeys = $request->input('correct_choices', []);
 
             $isTrueFalse = $validated['answer_type'] === 'true_false';
@@ -152,6 +164,8 @@ class QuizQuestionController extends Controller
                 $isCorrect = false;
                 if ($isOrdering) {
                     $isCorrect = true;
+                } elseif ($isVote) {
+                    $isCorrect = false; // Vote has no correct answer
                 } elseif ($isMultiple) {
                     $isCorrect = in_array((string) $index, $correctChoicesKeys);
                 } elseif ($isTrueFalse) {

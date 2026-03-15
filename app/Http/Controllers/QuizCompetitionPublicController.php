@@ -198,11 +198,18 @@ class QuizCompetitionPublicController extends Controller
         }
 
         $rules = [
-            'name' => 'required|string|max:255',
+            'name' => 'nullable|string|max:255',
             'phone' => 'required|string|size:10|regex:/^[0-9]{10}$/',
             'is_from_ancestry' => 'nullable|in:1',
             'mother_name' => 'nullable|string|max:255',
         ];
+
+        // For vote type: name is not required
+        $isVoteType = $quizQuestion->answer_type === 'vote';
+
+        if (!$isVoteType) {
+            $rules['name'] = 'required|string|max:255';
+        }
 
         if ($quizQuestion->is_multiple_selections || $quizQuestion->answer_type === 'ordering' || $quizQuestion->answer_type === 'true_false') {
             $rules['answer'] = 'required|array';
@@ -211,6 +218,14 @@ class QuizCompetitionPublicController extends Controller
             } else {
                 // For true_false, keys are choice IDs, values are true/false strings or 1/0
                 $rules['answer.*'] = 'required|in:1,0,true,false';
+            }
+        } elseif ($isVoteType) {
+            $maxSelections = $quizQuestion->vote_max_selections ?? 1;
+            if ($maxSelections > 1) {
+                $rules['answer'] = 'required|array|min:1|max:' . $maxSelections;
+                $rules['answer.*'] = 'required|exists:quiz_question_choices,id';
+            } else {
+                $rules['answer'] = 'required|exists:quiz_question_choices,id';
             }
         } elseif ($quizQuestion->answer_type === 'multiple_choice') {
             $rules['answer'] = 'required|exists:quiz_question_choices,id';
@@ -224,7 +239,16 @@ class QuizCompetitionPublicController extends Controller
             'phone.size' => 'يجب أن يكون رقم الهاتف 10 أرقام بالضبط',
             'phone.regex' => 'يجب أن يكون رقم الهاتف 10 أرقام فقط',
             'answer.required' => 'الإجابة مطلوبة',
+            'answer.max' => 'لا يمكنك اختيار أكثر من ' . ($quizQuestion->vote_max_selections ?? 1) . ' خيارات',
         ]);
+
+        // Vote type with require_prior_registration: verify phone exists
+        if ($isVoteType && $quizQuestion->require_prior_registration) {
+            $phoneExists = User::where('phone', $validated['phone'])->exists();
+            if (!$phoneExists) {
+                return back()->withInput()->with('error', 'رقم الهاتف غير مسجل. هذا التصويت للمشاركين السابقين فقط.');
+            }
+        }
 
         try {
             DB::beginTransaction();
@@ -248,19 +272,28 @@ class QuizCompetitionPublicController extends Controller
 
                 if (!$canAnswerAgain) {
                     DB::rollBack();
-                    return back()->with('error', 'لقد أجبت على هذا السؤال مسبقاً.');
+                    return back()->with('error', $isVoteType ? 'لقد صوّتت مسبقاً على هذا السؤال.' : 'لقد أجبت على هذا السؤال مسبقاً.');
                 }
             }
 
-            // إنشاء مستخدم جديد دائماً
-            $user = User::create([
-                'name' => $validated['name'],
-                'phone' => $validated['phone'],
-                'password' => Hash::make(uniqid()),
-                'status' => 1,
-                'is_from_ancestry' => $isFromAncestry,
-                'mother_name' => $hasMotherName ? $validated['mother_name'] : null,
-            ]);
+            // إنشاء مستخدم أو استخدام الموجود (للتصويت نحاول إيجاده أولاً)
+            if ($isVoteType && $quizQuestion->require_prior_registration) {
+                // For vote with required registration: find the existing user
+                $user = User::where('phone', $validated['phone'])->latest()->first();
+                if (!$user) {
+                    DB::rollBack();
+                    return back()->withInput()->with('error', 'رقم الهاتف غير مسجل.');
+                }
+            } else {
+                $user = User::create([
+                    'name' => $validated['name'] ?? ('مصوّت_' . $validated['phone']),
+                    'phone' => $validated['phone'],
+                    'password' => Hash::make(uniqid()),
+                    'status' => 1,
+                    'is_from_ancestry' => $isFromAncestry,
+                    'mother_name' => $hasMotherName ? $validated['mother_name'] : null,
+                ]);
+            }
 
             QuizRegistration::firstOrCreate(
                 [
@@ -301,6 +334,17 @@ class QuizCompetitionPublicController extends Controller
                     $isCorrect = $correctChoice && $correctChoice->id === $choiceId;
                     $answerData = (string) $validated['answer'];
                 }
+            } elseif ($quizQuestion->answer_type === 'vote') {
+                $answerType = 'vote';
+                $maxSelections = $quizQuestion->vote_max_selections ?? 1;
+                if ($maxSelections > 1) {
+                    $selectedChoiceIds = (array) $validated['answer'];
+                    $answerData = json_encode($selectedChoiceIds);
+                } else {
+                    $selectedChoiceIds = [(int) $validated['answer']];
+                    $answerData = (string) $validated['answer'];
+                }
+                $isCorrect = false; // Vote has no correct answer
             } elseif ($quizQuestion->answer_type === 'ordering') {
                 $answerType = 'ordering';
                 $selectedChoiceIds = $validated['answer']; // Array of ids
@@ -409,6 +453,7 @@ class QuizCompetitionPublicController extends Controller
                 'is_correct' => $isCorrect,
             ]);
 
+            // Store selected choices for vote type
             if (($quizQuestion->is_multiple_selections && $quizQuestion->answer_type === 'multiple_choice') || $quizQuestion->answer_type === 'ordering') {
                 $selectedChoiceIds = $validated['answer'];
                 foreach ($selectedChoiceIds as $choiceId) {
@@ -422,11 +467,39 @@ class QuizCompetitionPublicController extends Controller
                         'quiz_question_choice_id' => $choiceId,
                     ]);
                 }
+            } elseif ($quizQuestion->answer_type === 'vote') {
+                foreach ($selectedChoiceIds as $choiceId) {
+                    $quizAnswer->selectedChoices()->create([
+                        'quiz_question_choice_id' => $choiceId,
+                    ]);
+                }
             }
 
             session(['quiz_answered_' . $quizQuestion->id => now()->toDateTimeString()]);
 
             DB::commit();
+
+            if ($isVoteType) {
+                if ($request->input('source') === 'home') {
+                    // Redirect back to home page with fragment to scroll to quiz block
+                    return redirect()
+                        ->to(route('home') . '#activeQuizSection')
+                        ->with('vote_submitted', true)
+                        ->with('answered_question_id', $quizQuestion->id);
+                }
+
+                return redirect()
+                    ->route('quiz-competitions.question', [$quizCompetition, $quizQuestion])
+                    ->with('vote_submitted', true);
+            }
+
+            if ($request->input('source') === 'home') {
+                return redirect()
+                    ->to(route('home') . '#activeQuizSection')
+                    ->with('answer_submitted', true)
+                    ->with('answered_question_id', $quizQuestion->id)
+                    ->with('answer_correct', $isCorrect);
+            }
 
             return redirect()
                 ->route('quiz-competitions.question', [$quizCompetition, $quizQuestion])
@@ -447,6 +520,48 @@ class QuizCompetitionPublicController extends Controller
             DB::rollBack();
             return back()->withInput()->with('error', 'حدث خطأ: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * JSON endpoint to get vote results (percentage per choice) for vote-type questions.
+     */
+    public function getVoteResults(QuizCompetition $quizCompetition, QuizQuestion $quizQuestion)
+    {
+        if ($quizQuestion->answer_type !== 'vote') {
+            return response()->json(['error' => 'Not a vote question'], 400);
+        }
+
+        $quizQuestion->load('choices');
+
+        // Count votes per choice via selected_choices
+        $totalVotes = DB::table('quiz_answer_choices')
+            ->join('quiz_answers', 'quiz_answers.id', '=', 'quiz_answer_choices.quiz_answer_id')
+            ->where('quiz_answers.quiz_question_id', $quizQuestion->id)
+            ->count();
+
+        $results = [];
+        foreach ($quizQuestion->choices as $choice) {
+            $voteCount = DB::table('quiz_answer_choices')
+                ->join('quiz_answers', 'quiz_answers.id', '=', 'quiz_answer_choices.quiz_answer_id')
+                ->where('quiz_answers.quiz_question_id', $quizQuestion->id)
+                ->where('quiz_answer_choices.quiz_question_choice_id', $choice->id)
+                ->count();
+
+            $percent = $totalVotes > 0 ? round(($voteCount / $totalVotes) * 100, 1) : 0;
+
+            $results[] = [
+                'id' => $choice->id,
+                'text' => $choice->choice_text,
+                'count' => $voteCount,
+                'percent' => $percent,
+                'image' => $choice->image ? asset('storage/' . $choice->image) : null,
+            ];
+        }
+
+        return response()->json([
+            'total' => $totalVotes,
+            'results' => $results,
+        ]);
     }
 
     /**

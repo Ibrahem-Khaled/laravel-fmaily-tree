@@ -77,10 +77,51 @@
                                     {{ old('answer_type') == 'custom_text' ? 'checked' : '' }} required>
                                 <label class="custom-control-label" for="type_custom_text">إجابة حرة (نص)</label>
                             </div>
+                            <div class="custom-control custom-radio custom-control-inline">
+                                <input type="radio" id="type_vote" name="answer_type"
+                                    class="custom-control-input answer-type-radio" value="vote"
+                                    {{ old('answer_type') == 'vote' ? 'checked' : '' }} required>
+                                <label class="custom-control-label text-primary" for="type_vote"><i class="fas fa-poll mr-1"></i>تصويت</label>
+                            </div>
                         </div>
                         @error('answer_type')
                             <div class="invalid-feedback d-block">{{ $message }}</div>
                         @enderror
+                    </div>
+
+                    {{-- Vote-specific options --}}
+                    <div class="form-group" id="voteOptionsGroup" style="display:none;">
+                        <div class="card border-primary">
+                            <div class="card-header bg-primary text-white py-2">
+                                <i class="fas fa-poll mr-1"></i> إعدادات التصويت
+                            </div>
+                            <div class="card-body py-3">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label for="vote_max_selections">الحد الأقصى للخيارات التي يمكن التصويت عليها <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control @error('vote_max_selections') is-invalid @enderror"
+                                            id="vote_max_selections" name="vote_max_selections"
+                                            value="{{ old('vote_max_selections', 1) }}" min="1">
+                                        <small class="text-muted">1 = تصويت على خيار واحد فقط، أكثر = تعدد التحديد</small>
+                                        @error('vote_max_selections')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="d-block mb-2">شرط المشاركة</label>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="require_prior_registration"
+                                                name="require_prior_registration" value="1"
+                                                {{ old('require_prior_registration') ? 'checked' : '' }}>
+                                            <label class="custom-control-label" for="require_prior_registration">
+                                                يشترط تسجيل مسبق (يظهر لحقل الهاتف فقط للتحقق)
+                                            </label>
+                                        </div>
+                                        <small class="text-muted">إذا كان مفعلاً، لا يمكن التصويت إلا لمن سبق تسجيله برقم هاتفه.</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="form-group" id="groupsCountGroup" style="display:none;">
@@ -235,15 +276,22 @@
                 var isChoice = type === 'multiple_choice';
                 var isOrdering = type === 'ordering';
                 var isTrueFalse = type === 'true_false';
+                var isVote = type === 'vote';
 
-                choicesSection.style.display = (isChoice || isOrdering || isTrueFalse) ? 'block' : 'none';
+                choicesSection.style.display = (isChoice || isOrdering || isTrueFalse || isVote) ? 'block' : 'none';
                 multipleSelectionsGroup.style.display = isChoice ? 'block' : 'none';
+
+                // Vote options
+                var voteOptionsGroup = document.getElementById('voteOptionsGroup');
+                if (voteOptionsGroup) voteOptionsGroup.style.display = isVote ? 'block' : 'none';
 
                 var hint = document.getElementById('choicesHint');
                 if (isOrdering) {
                     hint.textContent = 'أدخل الخيارات بالترتيب الصحيح، ستظهر للمستخدم بشكل عشوائي ليرتبها.';
                 } else if (isTrueFalse) {
                     hint.textContent = 'أدخل الجملة وحدد هل هي صحيحة أم خاطئة، يمكنك إرفاق صورة مع كل جملة.';
+                } else if (isVote) {
+                    hint.textContent = 'أدخل خيارات التصويت (لا توجد إجابة صحيحة)، يمكنك إرفاق صورة أو فيديو مع كل خيار.';
                 } else {
                     hint.textContent = 'حدد الخيار الصحيح بعلامة ✓';
                 }
@@ -264,7 +312,8 @@
                 var type = getSelectedAnswerType();
                 var isOrdering = type === 'ordering';
                 var isTrueFalse = type === 'true_false';
-                var isMultiple = isMultipleSwitch.checked && !isOrdering && !isTrueFalse;
+                var isVote = type === 'vote';
+                var isMultiple = isMultipleSwitch.checked && !isOrdering && !isTrueFalse && !isVote;
                 var rows = choicesContainer.querySelectorAll('.choice-row');
 
                 rows.forEach(function (row, idx) {
@@ -282,6 +331,9 @@
                             var checkedTrue = wasChecked ? 'checked' : '';
                             var checkedFalse = !wasChecked ? 'checked' : '';
                             container.innerHTML = '<div class="d-flex flex-column gap-1" style="min-width:60px;"><label class="mb-0 text-success small"><input type="radio" class="correct-choice-input" name="tf_choice_' + idx + '" value="1" ' + checkedTrue + '> صح</label><label class="mb-0 text-danger small"><input type="radio" class="correct-choice-input" name="tf_choice_' + idx + '" value="0" ' + checkedFalse + '> خطأ</label></div>';
+                        } else if (isVote) {
+                            container.innerHTML = '<span class="badge badge-primary"><i class="fas fa-poll"></i> ' + (idx + 1) + '</span>';
+                            hidden.value = '0';
                         } else if (isMultiple) {
                             container.innerHTML = '<input type="checkbox" class="correct-choice-input" name="correct_choices[]" value="' + idx + '" ' + (wasChecked ? 'checked' : '') + ' title="إجابة صحيحة">';
                         } else {
@@ -354,6 +406,7 @@
             function reindexChoices() {
                 var rows = choicesContainer.querySelectorAll('.choice-row');
                 var isOrdering = getSelectedAnswerType() === 'ordering';
+                var isVote = getSelectedAnswerType() === 'vote';
                 rows.forEach(function (row, idx) {
                     var input = row.querySelector('.correct-choice-input');
                     var container = row.querySelector('.correct-choice-container');
@@ -366,6 +419,9 @@
                     if (isOrdering) {
                         container.innerHTML = '<i class="fas fa-grip-lines drag-handle text-muted mr-2" style="cursor:move;" title="اسحب للترتيب"></i><span class="badge badge-info">' + (idx + 1) + '</span>';
                         hidden.value = '1';
+                    } else if (isVote) {
+                        container.innerHTML = '<span class="badge badge-primary"><i class="fas fa-poll"></i> ' + (idx + 1) + '</span>';
+                        hidden.value = '0';
                     } else if (getSelectedAnswerType() === 'true_false') {
                         // Re-name the radio group mapping for true/false
                         var radios = container.querySelectorAll('.correct-choice-input');
@@ -441,6 +497,8 @@
                     inputHtml = '<i class="fas fa-grip-lines drag-handle text-muted mr-2" style="cursor:move;" title="اسحب للترتيب"></i><span class="badge badge-info">' + (idx + 1) + '</span>';
                 } else if (isTrueFalse) {
                     inputHtml = '<div class="d-flex flex-column gap-1" style="min-width:60px;"><label class="mb-0 text-success small"><input type="radio" class="correct-choice-input" name="tf_choice_' + idx + '" value="1" checked> صح</label><label class="mb-0 text-danger small"><input type="radio" class="correct-choice-input" name="tf_choice_' + idx + '" value="0"> خطأ</label></div>';
+                } else if (type === 'vote') {
+                    inputHtml = '<span class="badge badge-primary"><i class="fas fa-poll"></i> ' + (idx + 1) + '</span>';
                 } else if (isMultiple) {
                     inputHtml = '<input type="checkbox" class="correct-choice-input" name="correct_choices[]" value="' + idx + '" title="إجابة صحيحة">';
                 } else {
