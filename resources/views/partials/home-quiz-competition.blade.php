@@ -597,17 +597,10 @@
                                         @else
                                             <div
                                                 class="rounded-xl p-4 bg-amber-50 border border-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                                                <div class="flex-1">
-                                                    <h4 class="font-bold text-amber-800 text-sm mb-1">
-                                                        <i class="fas fa-check-circle text-amber-600 ml-1"></i>
-                                                        تم استلام إجابتك بنجاح
-                                                    </h4>
-                                                    @if(session('answer_correct'))
-                                                        <p class="text-xs text-green-600 font-medium">الإجابة صحيحة، نتمنى لك التوفيق في القرعة!</p>
-                                                    @else
-                                                        <p class="text-xs text-red-600 font-medium">الإجابة خاطئة، حظاً أوفر في المرات القادمة.</p>
-                                                    @endif
-                                                </div>
+                                                <p class="text-amber-800 text-sm font-medium">
+                                                    <i class="fas fa-check-circle text-amber-600 ml-1"></i>
+                                                    لقد أجبت على هذا السؤال مسبقاً، يمكنك متابعة القرعة من هنا.
+                                                </p>
                                                 <a href="{{ route('quiz-competitions.question', [$activeQuizCompetition, $q]) }}"
                                                     class="flex-shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-white transition-all hover:opacity-90"
                                                     style="background: linear-gradient(135deg, #22c55e, #16a34a);">
