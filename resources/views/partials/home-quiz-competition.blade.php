@@ -280,8 +280,8 @@
                                                                             {{-- Single choice per group: display slot next to group name --}}
                                                                             @php $singleChoice = $groupChoices->first(); @endphp
                                                                             <div class="p-3 bg-white border border-green-200 rounded-xl shadow-sm">
-                                                                                <div class="flex items-center gap-3">
-                                                                                    <h5 class="text-sm font-bold text-green-700 flex-grow">{{ $groupName }}</h5>
+                                                                                <div class="flex items-center justify-between gap-3">
+                                                                                    <h5 class="text-sm font-bold text-green-700">{{ $groupName }}</h5>
                                                                                     <div class="ordering-slot flex-col gap-1 flex-shrink-0" data-slot="{{ $singleChoice->id }}" data-group="{{ $groupName }}" style="width: 60px; height: 60px; aspect-ratio: 1;">
                                                                                         @if(!empty($singleChoice->choice_text))
                                                                                             <span class="ordering-slot-text text-xs sm:text-sm text-green-600 font-bold text-center px-1 leading-tight pointer-events-none">{{ $singleChoice->choice_text }}</span>
