@@ -528,6 +528,7 @@ class QuizCompetitionPublicController extends Controller
 
     /**
      * JSON endpoint to get vote results (percentage per choice) for vote-type questions.
+     * Returns aggregate counts from ALL respondents (no filter by current user).
      */
     public function getVoteResults(QuizCompetition $quizCompetition, QuizQuestion $quizQuestion)
     {
@@ -535,9 +536,13 @@ class QuizCompetitionPublicController extends Controller
             return response()->json(['error' => 'Not a vote question'], 400);
         }
 
+        if ($quizQuestion->quiz_competition_id != $quizCompetition->id) {
+            abort(404);
+        }
+
         $quizQuestion->load('choices');
 
-        // Count votes per choice via selected_choices
+        // Count votes per choice via selected_choices (all respondents, not filtered by user)
         $totalVotes = DB::table('quiz_answer_choices')
             ->join('quiz_answers', 'quiz_answers.id', '=', 'quiz_answer_choices.quiz_answer_id')
             ->where('quiz_answers.quiz_question_id', $quizQuestion->id)
@@ -565,6 +570,9 @@ class QuizCompetitionPublicController extends Controller
         return response()->json([
             'total' => $totalVotes,
             'results' => $results,
+        ])->withHeaders([
+            'Cache-Control' => 'no-store, no-cache, must-revalidate',
+            'Pragma' => 'no-cache',
         ]);
     }
 
