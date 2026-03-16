@@ -75,93 +75,93 @@
     @keyframes lbIn{from{transform:scale(.82);opacity:0}to{transform:scale(1);opacity:1}}
 
     /* ═══════════════════════════════════════════
-       VOTE SECTION – dark spectacular
+       VOTE SECTION – green/white brand identity
     ═══════════════════════════════════════════ */
-    .vote-wrap{background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 45%,#0f172a 100%);border-radius:28px;overflow:hidden;position:relative}
-    .vote-wrap::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 20% 10%,rgba(99,102,241,.2) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 90%,rgba(168,85,247,.15) 0%,transparent 55%);pointer-events:none}
-    .vote-grid{position:absolute;inset:0;opacity:.045;background-image:linear-gradient(rgba(255,255,255,.6) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.6) 1px,transparent 1px);background-size:32px 32px;pointer-events:none}
-    .vote-header{position:relative;z-index:2;padding:20px 22px 16px;border-bottom:1px solid rgba(255,255,255,.07)}
-    .vote-live-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(239,68,68,.14);border:1px solid rgba(239,68,68,.32);color:#fca5a5;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:5px 12px 5px 8px;border-radius:50px;margin-bottom:11px}
+    .vote-wrap{background:#fff;border-radius:28px;overflow:hidden;position:relative;border:1.5px solid #bbf7d0;box-shadow:0 0 40px rgba(34,197,94,.13)}
+    .vote-wrap::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 55% at 15% 0%,rgba(34,197,94,.08) 0%,transparent 55%),radial-gradient(ellipse 55% 45% at 85% 100%,rgba(74,222,128,.07) 0%,transparent 50%);pointer-events:none}
+    .vote-grid{position:absolute;inset:0;opacity:.03;background-image:linear-gradient(#16a34a 1px,transparent 1px),linear-gradient(90deg,#16a34a 1px,transparent 1px);background-size:28px 28px;pointer-events:none}
+    .vote-header{position:relative;z-index:2;padding:20px 22px 16px;border-bottom:1px solid #dcfce7}
+    .vote-live-badge{display:inline-flex;align-items:center;gap:7px;background:#fef2f2;border:1px solid #fecaca;color:#ef4444;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:5px 12px 5px 8px;border-radius:50px;margin-bottom:11px}
     .vote-live-dot{width:7px;height:7px;border-radius:50%;background:#ef4444;animation:vpulse 1.4s ease-in-out infinite}
-    @keyframes vpulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.5)}50%{box-shadow:0 0 0 6px rgba(239,68,68,0)}}
-    .vote-title-text{font-size:1.15rem;font-weight:800;color:#f8fafc;line-height:1.45;margin:0}
-    .vote-sub-text{font-size:.78rem;color:rgba(148,163,184,.8);margin-top:5px}
+    @keyframes vpulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.45)}50%{box-shadow:0 0 0 6px rgba(239,68,68,0)}}
+    .vote-title-text{font-size:1.15rem;font-weight:800;color:#14532d;line-height:1.45;margin:0}
+    .vote-sub-text{font-size:.78rem;color:#6b7280;margin-top:5px}
     .vote-body{position:relative;z-index:2;padding:18px 20px 22px}
 
     /* Choices */
-    .vote-choice{position:relative;display:flex;align-items:center;gap:14px;padding:13px 15px;border-radius:16px;border:1.5px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);cursor:pointer;transition:border-color .2s,background .2s,transform .15s;margin-bottom:10px;overflow:hidden;-webkit-tap-highlight-color:transparent}
-    .vote-choice::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(99,102,241,.18),rgba(168,85,247,.1));opacity:0;transition:opacity .25s;border-radius:inherit}
-    .vote-choice:hover{border-color:rgba(165,180,252,.4);background:rgba(255,255,255,.08)}
+    .vote-choice{position:relative;display:flex;align-items:center;gap:14px;padding:13px 15px;border-radius:16px;border:1.5px solid #d1fae5;background:#f0fdf4;cursor:pointer;transition:border-color .2s,background .2s,transform .15s,box-shadow .15s;margin-bottom:10px;overflow:hidden;-webkit-tap-highlight-color:transparent}
+    .vote-choice::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(34,197,94,.1),rgba(74,222,128,.06));opacity:0;transition:opacity .25s;border-radius:inherit}
+    .vote-choice:hover{border-color:#86efac;background:#ecfdf5;box-shadow:0 3px 14px rgba(34,197,94,.12)}
     .vote-choice:hover::before{opacity:1}
-    .vote-choice.vote-sel{border-color:#818cf8;background:rgba(99,102,241,.18)}
+    .vote-choice.vote-sel{border-color:#22c55e;background:#dcfce7;box-shadow:0 4px 18px rgba(34,197,94,.18)}
     .vote-choice.vote-sel::before{opacity:1}
     .vote-choice:last-child{margin-bottom:0}
 
     /* Indicator */
-    .vote-ind{width:22px;height:22px;border-radius:50%;border:2px solid rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:border-color .2s,background .2s}
-    .vote-choice.vote-sel .vote-ind{border-color:#818cf8;background:#818cf8}
+    .vote-ind{width:22px;height:22px;border-radius:50%;border:2px solid #86efac;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:border-color .2s,background .2s}
+    .vote-choice.vote-sel .vote-ind{border-color:#16a34a;background:#22c55e}
     .vote-ind-dot{width:8px;height:8px;border-radius:50%;background:#fff;opacity:0;transform:scale(.4);transition:opacity .2s,transform .2s}
     .vote-choice.vote-sel .vote-ind-dot{opacity:1;transform:scale(1)}
     .vote-ind-sq{border-radius:6px}
     .vote-ind-sq-check{display:none;color:#fff;font-size:11px}
-    .vote-choice.vote-sel .vote-ind-sq{background:#818cf8;border-color:#818cf8}
+    .vote-choice.vote-sel .vote-ind-sq{background:#22c55e;border-color:#16a34a}
     .vote-choice.vote-sel .vote-ind-sq-check{display:block}
 
     /* Choice image */
-    .vote-cimg{width:54px;height:54px;border-radius:12px;object-fit:cover;flex-shrink:0;border:2px solid rgba(255,255,255,.1);transition:border-color .2s}
-    .vote-choice.vote-sel .vote-cimg{border-color:#818cf8}
+    .vote-cimg{width:54px;height:54px;border-radius:12px;object-fit:cover;flex-shrink:0;border:2px solid #d1fae5;transition:border-color .2s}
+    .vote-choice.vote-sel .vote-cimg{border-color:#22c55e}
 
     /* Choice text */
-    .vote-cname{font-size:.9rem;font-weight:700;color:#f1f5f9;line-height:1.3}
+    .vote-cname{font-size:.9rem;font-weight:700;color:#14532d;line-height:1.3}
 
-    /* Video thumb inside dark card */
-    .vote-vthumb{position:relative;width:70px;height:54px;border-radius:11px;overflow:hidden;cursor:pointer;flex-shrink:0;background:#000;border:2px solid rgba(255,255,255,.1);transition:border-color .2s,transform .15s;margin-right:auto}
-    .vote-vthumb:hover{border-color:#818cf8;transform:scale(1.06)}
+    /* Video thumb inside green card */
+    .vote-vthumb{position:relative;width:70px;height:54px;border-radius:11px;overflow:hidden;cursor:pointer;flex-shrink:0;background:#052e16;border:2px solid #bbf7d0;transition:border-color .2s,transform .15s,box-shadow .2s;margin-right:auto}
+    .vote-vthumb:hover{border-color:#22c55e;transform:scale(1.06);box-shadow:0 4px 14px rgba(34,197,94,.25)}
     .vote-vthumb video{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
-    .vote-vthumb-ov{position:absolute;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;transition:background .15s}
-    .vote-vthumb:hover .vote-vthumb-ov{background:rgba(0,0,0,.58)}
-    .vote-vthumb-play{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.9);display:flex;align-items:center;justify-content:center;transition:transform .15s}
+    .vote-vthumb-ov{position:absolute;inset:0;background:rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;transition:background .15s}
+    .vote-vthumb:hover .vote-vthumb-ov{background:rgba(0,0,0,.45)}
+    .vote-vthumb-play{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.95);display:flex;align-items:center;justify-content:center;transition:transform .15s;box-shadow:0 2px 8px rgba(0,0,0,.2)}
     .vote-vthumb:hover .vote-vthumb-play{transform:scale(1.15)}
-    .vote-vthumb-play i{color:#4f46e5;font-size:10px;margin-left:2px}
+    .vote-vthumb-play i{color:#16a34a;font-size:10px;margin-left:2px}
 
     /* Submit */
-    .vote-submit{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;padding:14px 24px;border-radius:16px;border:none;cursor:pointer;font-size:.95rem;font-weight:800;color:#fff;background:linear-gradient(135deg,#6366f1,#8b5cf6);box-shadow:0 4px 22px rgba(99,102,241,.38);transition:opacity .2s,transform .15s,box-shadow .2s;margin-top:18px}
-    .vote-submit:hover{opacity:.91;transform:translateY(-1px);box-shadow:0 6px 30px rgba(99,102,241,.5)}
+    .vote-submit{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;padding:14px 24px;border-radius:16px;border:none;cursor:pointer;font-size:.95rem;font-weight:800;color:#fff;background:linear-gradient(135deg,#22c55e,#16a34a);box-shadow:0 4px 22px rgba(34,197,94,.3);transition:opacity .2s,transform .15s,box-shadow .2s;margin-top:18px}
+    .vote-submit:hover{opacity:.91;transform:translateY(-1px);box-shadow:0 6px 30px rgba(34,197,94,.4)}
     .vote-submit:active{transform:scale(.97)}
 
     /* Inputs */
-    .vote-lbl{display:block;font-size:.73rem;font-weight:600;color:rgba(148,163,184,.85);margin-bottom:4px}
-    .vote-inp{width:100%;padding:10px 14px;border-radius:12px;border:1.5px solid rgba(255,255,255,.11);background:rgba(255,255,255,.07);color:#f1f5f9;font-size:.87rem;outline:none;transition:border-color .2s,background .2s;box-sizing:border-box}
-    .vote-inp::placeholder{color:rgba(148,163,184,.45)}
-    .vote-inp:focus{border-color:#818cf8;background:rgba(255,255,255,.1)}
+    .vote-lbl{display:block;font-size:.73rem;font-weight:600;color:#4b5563;margin-bottom:4px}
+    .vote-inp{width:100%;padding:10px 14px;border-radius:12px;border:1.5px solid #d1fae5;background:#f8fffe;color:#1f2937;font-size:.87rem;outline:none;transition:border-color .2s,background .2s,box-shadow .2s;box-sizing:border-box}
+    .vote-inp::placeholder{color:#9ca3af}
+    .vote-inp:focus{border-color:#22c55e;background:#fff;box-shadow:0 0 0 3px rgba(34,197,94,.12)}
 
     /* Results */
     .vote-rrow{margin-bottom:11px}
     .vote-rrow:last-child{margin-bottom:0}
     .vote-rmeta{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
-    .vote-rname{font-size:.82rem;font-weight:700;color:#e2e8f0}
-    .vote-rpct{font-size:.79rem;font-weight:700;color:#a5b4fc}
-    .vote-rcnt{font-size:.69rem;color:rgba(148,163,184,.65);margin-right:3px}
-    .vote-rbg{height:8px;border-radius:999px;background:rgba(255,255,255,.1);overflow:hidden}
-    .vote-rfill{height:100%;border-radius:999px;background:linear-gradient(90deg,#6366f1,#8b5cf6);width:0%;transition:width 1.1s cubic-bezier(.22,1,.36,1)}
+    .vote-rname{font-size:.82rem;font-weight:700;color:#14532d}
+    .vote-rpct{font-size:.79rem;font-weight:700;color:#16a34a}
+    .vote-rcnt{font-size:.69rem;color:#9ca3af;margin-right:3px}
+    .vote-rbg{height:8px;border-radius:999px;background:#d1fae5;overflow:hidden}
+    .vote-rfill{height:100%;border-radius:999px;background:linear-gradient(90deg,#22c55e,#16a34a);width:0%;transition:width 1.1s cubic-bezier(.22,1,.36,1)}
 
     /* Voted banner */
-    .vote-ok-banner{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:14px;background:rgba(99,102,241,.14);border:1px solid rgba(129,140,248,.32);margin-bottom:15px}
-    .vote-ok-icon{width:32px;height:32px;border-radius:50%;background:rgba(99,102,241,.22);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-    .vote-ok-icon i{color:#a5b4fc;font-size:13px}
-    .vote-ok-title{font-size:.81rem;font-weight:700;color:#c7d2fe}
-    .vote-ok-sub{font-size:.71rem;color:rgba(148,163,184,.75);margin-top:2px}
+    .vote-ok-banner{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:14px;background:#f0fdf4;border:1px solid #bbf7d0;margin-bottom:15px}
+    .vote-ok-icon{width:32px;height:32px;border-radius:50%;background:#dcfce7;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid #86efac}
+    .vote-ok-icon i{color:#16a34a;font-size:13px}
+    .vote-ok-title{font-size:.81rem;font-weight:700;color:#14532d}
+    .vote-ok-sub{font-size:.71rem;color:#6b7280;margin-top:2px}
 
     /* Max badge */
-    .vote-max-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:rgba(99,102,241,.14);border:1px solid rgba(129,140,248,.28);border-radius:50px;font-size:.74rem;font-weight:700;color:#a5b4fc;margin-bottom:13px}
+    .vote-max-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:50px;font-size:.74rem;font-weight:700;color:#16a34a;margin-bottom:13px}
 
     /* Reg hint */
-    .vote-reg-hint{display:flex;align-items:flex-start;gap:8px;padding:9px 12px;background:rgba(59,130,246,.09);border:1px solid rgba(59,130,246,.22);border-radius:11px;margin-bottom:13px;font-size:.75rem;color:#93c5fd}
+    .vote-reg-hint{display:flex;align-items:flex-start;gap:8px;padding:9px 12px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:11px;margin-bottom:13px;font-size:.75rem;color:#2563eb}
 
     /* Countdown units */
-    .cd-box{min-width:56px;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.1);border-radius:16px;padding:10px 6px 8px;text-align:center}
-    .cd-num{font-size:1.55rem;font-weight:800;color:#a5b4fc;line-height:1}
-    .cd-lbl{font-size:.67rem;color:rgba(148,163,184,.65);margin-top:4px}
+    .cd-box{min-width:56px;background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:16px;padding:10px 6px 8px;text-align:center}
+    .cd-num{font-size:1.55rem;font-weight:800;color:#16a34a;line-height:1}
+    .cd-lbl{font-size:.67rem;color:#6b7280;margin-top:4px}
     </style>
     @endpush
 
@@ -211,28 +211,28 @@
                                     {{-- Timer --}}
                                     <div class="flex items-center gap-3 mb-3">
                                         <i class="fas fa-hourglass-half" style="color:#f59e0b;font-size:12px"></i>
-                                        <span style="color:rgba(148,163,184,.75);font-size:.76rem">ينتهي بعد:</span>
+                                        <span style="color:#6b7280;font-size:.76rem">ينتهي بعد:</span>
                                         <div class="flex gap-1" id="activeQuestionTimer">
-                                            <span style="background:rgba(255,255,255,.1);color:#e2e8f0;border-radius:8px;padding:3px 9px;font-weight:700;font-size:.8rem;min-width:2rem;text-align:center" id="aq-hours">00</span>
-                                            <span style="color:rgba(148,163,184,.45);font-weight:700">:</span>
-                                            <span style="background:rgba(255,255,255,.1);color:#e2e8f0;border-radius:8px;padding:3px 9px;font-weight:700;font-size:.8rem;min-width:2rem;text-align:center" id="aq-minutes">00</span>
-                                            <span style="color:rgba(148,163,184,.45);font-weight:700">:</span>
-                                            <span style="background:rgba(255,255,255,.1);color:#e2e8f0;border-radius:8px;padding:3px 9px;font-weight:700;font-size:.8rem;min-width:2rem;text-align:center" id="aq-seconds">00</span>
+                                            <span style="background:#dcfce7;color:#14532d;border-radius:8px;padding:3px 9px;font-weight:700;font-size:.8rem;min-width:2rem;text-align:center" id="aq-hours">00</span>
+                                            <span style="color:#86efac;font-weight:700">:</span>
+                                            <span style="background:#dcfce7;color:#14532d;border-radius:8px;padding:3px 9px;font-weight:700;font-size:.8rem;min-width:2rem;text-align:center" id="aq-minutes">00</span>
+                                            <span style="color:#86efac;font-weight:700">:</span>
+                                            <span style="background:#dcfce7;color:#14532d;border-radius:8px;padding:3px 9px;font-weight:700;font-size:.8rem;min-width:2rem;text-align:center" id="aq-seconds">00</span>
                                         </div>
                                         <input type="hidden" id="aqEndTime" value="{{ $activeQuizCompetition->end_at->getTimestamp() * 1000 }}">
                                     </div>
 
                                     {{-- Errors --}}
                                     @if (session('error'))
-                                        <div style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.28);border-radius:12px;padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;gap:9px">
-                                            <i class="fas fa-exclamation-circle" style="color:#f87171"></i>
-                                            <span style="color:#fca5a5;font-size:.83rem">{{ session('error') }}</span>
+                                        <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;gap:9px">
+                                            <i class="fas fa-exclamation-circle" style="color:#ef4444"></i>
+                                            <span style="color:#b91c1c;font-size:.83rem">{{ session('error') }}</span>
                                         </div>
                                     @endif
                                     @if ($errors->any())
-                                        <div style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.28);border-radius:12px;padding:10px 14px;margin-bottom:10px">
+                                        <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:10px 14px;margin-bottom:10px">
                                             @foreach ($errors->all() as $err)
-                                                <p style="color:#fca5a5;font-size:.79rem;margin:2px 0">· {{ $err }}</p>
+                                                <p style="color:#b91c1c;font-size:.79rem;margin:2px 0">· {{ $err }}</p>
                                             @endforeach
                                         </div>
                                     @endif
@@ -250,10 +250,10 @@
                                             $voteMax        = $q->vote_max_selections ?? 1;
                                         @endphp
 
-                                        <div class="vote-body" @if (!$loop->first) style="border-top:1px solid rgba(255,255,255,.065)" @endif>
+                                        <div class="vote-body" @if (!$loop->first) style="border-top:1px solid #dcfce7" @endif>
 
                                             @if ($q->description)
-                                                <div class="text-sm mb-3 quiz-description" style="color:rgba(148,163,184,.85)">{!! $q->description !!}</div>
+                                                <div class="text-sm mb-3 quiz-description" style="color:#4b5563">{!! $q->description !!}</div>
                                             @endif
                                             <p class="vote-title-text mb-1">{!! $q->question_text !!}</p>
                                             <p class="vote-sub-text mb-4">
@@ -263,13 +263,13 @@
 
                                             {{-- Draw-only --}}
                                             @if ($activeQuizCompetition->show_draw_only)
-                                                <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:15px;padding:13px 15px">
-                                                    <p style="color:rgba(148,163,184,.85);font-size:.83rem">
-                                                        <i class="fas fa-info-circle" style="color:#818cf8;margin-left:5px"></i>
+                                                <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:15px;padding:13px 15px">
+                                                    <p style="color:#166534;font-size:.83rem">
+                                                        <i class="fas fa-info-circle" style="color:#22c55e;margin-left:5px"></i>
                                                         باب التصويت مغلق — تابع نتائج القرعة
                                                     </p>
                                                     <a href="{{ route('quiz-competitions.question', [$activeQuizCompetition, $q]) }}"
-                                                        style="display:inline-flex;align-items:center;gap:7px;padding:9px 20px;border-radius:12px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-size:.83rem;font-weight:700;text-decoration:none">
+                                                        style="display:inline-flex;align-items:center;gap:7px;padding:9px 20px;border-radius:12px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-size:.83rem;font-weight:700;text-decoration:none">
                                                         <i class="fas fa-trophy"></i> متابعة القرعة
                                                     </a>
                                                 </div>
@@ -381,8 +381,8 @@
                                                 </div>
                                                 <div class="home-vote-results"
                                                     data-url="{{ route('quiz-competitions.question.vote-results', [$activeQuizCompetition, $q]) }}"
-                                                    data-theme="dark">
-                                                    <p style="color:rgba(148,163,184,.55);font-size:.77rem;text-align:center;padding:10px 0">
+                                                    data-theme="green">
+                                                    <p style="color:#9ca3af;font-size:.77rem;text-align:center;padding:10px 0">
                                                         <i class="fas fa-spinner fa-spin" style="margin-left:5px"></i> تحميل النتائج...
                                                     </p>
                                                 </div>
@@ -890,13 +890,13 @@
                         <div class="vote-wrap">
                             <div class="vote-grid"></div>
                             <div style="position:relative;z-index:2;padding:26px 22px;text-align:center">
-                                <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.28);color:#fbbf24;border-radius:50px;padding:6px 16px;margin-bottom:15px;font-size:.76rem;font-weight:700">
+                                <div style="display:inline-flex;align-items:center;gap:8px;background:#fefce8;border:1px solid #fde68a;color:#92400e;border-radius:50px;padding:6px 16px;margin-bottom:15px;font-size:.76rem;font-weight:700">
                                     <i class="fas fa-clock" style="font-size:11px"></i>
                                     المسابقة تبدأ قريباً
                                 </div>
-                                <p style="color:#f1f5f9;font-weight:800;font-size:1.08rem;margin-bottom:8px">{{ $nextQuizEvent['title'] }}</p>
+                                <p style="color:#14532d;font-weight:800;font-size:1.08rem;margin-bottom:8px">{{ $nextQuizEvent['title'] }}</p>
                                 @if (!empty($nextQuizEvent['description']))
-                                    <div style="color:rgba(148,163,184,.75);font-size:.82rem;margin-bottom:18px;text-align:right" class="quiz-description">
+                                    <div style="color:#4b5563;font-size:.82rem;margin-bottom:18px;text-align:right" class="quiz-description">
                                         {!! $nextQuizEvent['description'] !!}
                                     </div>
                                 @endif
@@ -957,20 +957,8 @@
         /* vote max limit */
         document.querySelectorAll('.home-vote-max').forEach(function(el){var form=el.closest('form'),max=parseInt(el.value,10);if(!form||max<=1)return;form.querySelectorAll('.home-vote-checkbox').forEach(function(cb){cb.addEventListener('change',function(){if(form.querySelectorAll('.home-vote-checkbox:checked').length>max){this.checked=false;var p=this.closest('.vote-choice');if(p)p.classList.remove('vote-sel');if(typeof Swal!=='undefined')Swal.fire({icon:'info',title:'تنبيه',text:'لا يمكنك اختيار أكثر من '+max+' خيارات.',confirmButtonColor:'#22c55e',confirmButtonText:'حسناً',toast:true,position:'top-end',showConfirmButton:false,timer:3000})}})})});
 
-        /* vote results: each .home-vote-results has its own data-url; we apply the response only to that container (c) so multiple vote questions on the page each show the correct aggregate results */
-        document.querySelectorAll('.home-vote-results').forEach(function(c){
-            var url=c.getAttribute('data-url'), dark=c.getAttribute('data-theme')==='dark';
-            if(!url)return;
-            fetch(url).then(function(r){return r.json()}).then(function(data){
-                if(!data.results||!data.results.length){c.innerHTML='<p style="color:'+(dark?'rgba(148,163,184,.55)':'#9ca3af')+';font-size:.77rem;text-align:center;padding:8px 0">لا توجد أصوات بعد.</p>';return}
-                var html=data.results.map(function(r){
-                    if(dark)return'<div class="vote-rrow"><div class="vote-rmeta"><span class="vote-rname">'+r.text+'</span><span class="vote-rpct">'+r.percent+'% <span class="vote-rcnt">('+r.count+')</span></span></div><div class="vote-rbg"><div class="vote-rfill" data-width="'+r.percent+'%"></div></div></div>';
-                    return'<div class="flex flex-col gap-1.5"><div class="flex items-center justify-between"><span class="text-xs font-bold text-gray-700">'+r.text+'</span><span class="text-xs font-bold text-green-600">'+r.percent+'% <span class="text-[10px] text-gray-400 font-normal">('+r.count+')</span></span></div><div style="background:rgba(229,231,235,.6);border-radius:9999px;height:8px;overflow:hidden"><div style="height:100%;border-radius:9999px;width:0%;transition:width 1.1s ease-out;background:linear-gradient(90deg,#22c55e,#16a34a)" data-width="'+r.percent+'%"></div></div></div>';
-                }).join('');
-                c.innerHTML=html;
-                setTimeout(function(){c.querySelectorAll('[data-width]').forEach(function(b){b.style.width=b.getAttribute('data-width')})},100);
-            }).catch(function(){c.innerHTML='<p style="color:#f87171;font-size:.77rem;text-align:center;padding:8px 0">تعذر تحميل النتائج.</p>'});
-        });
+        /* vote results */
+        document.querySelectorAll('.home-vote-results').forEach(function(c){var url=c.getAttribute('data-url'),dark=c.getAttribute('data-theme')==='dark';if(!url)return;fetch(url).then(function(r){return r.json()}).then(function(data){if(!data.results||!data.results.length){c.innerHTML='<p style="color:#9ca3af;font-size:.77rem;text-align:center;padding:8px 0">لا توجد أصوات بعد.</p>';return}var html=data.results.map(function(r){return'<div class="vote-rrow"><div class="vote-rmeta"><span class="vote-rname">'+r.text+'</span><span class="vote-rpct">'+r.percent+'% <span class="vote-rcnt">('+r.count+')</span></span></div><div class="vote-rbg"><div class="vote-rfill" data-width="'+r.percent+'%"></div></div></div>'}).join('');c.innerHTML=html;setTimeout(function(){c.querySelectorAll('[data-width]').forEach(function(b){b.style.width=b.getAttribute('data-width')})},100)}).catch(function(){c.innerHTML='<p style="color:#ef4444;font-size:.77rem;text-align:center;padding:8px 0">تعذر تحميل النتائج.</p>'})});
     });
     </script>
     @endpush
