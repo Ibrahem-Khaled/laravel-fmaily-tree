@@ -1,379 +1,1234 @@
 {{-- ================================================================
     RAMADAN QUIZ – Active competition OR next event countdown
     ================================================================ --}}
-    @if ((isset($activeQuizCompetition) && $activeQuizCompetition) || (isset($nextQuizEvent) && $nextQuizEvent))
+@if ((isset($activeQuizCompetition) && $activeQuizCompetition) || (isset($nextQuizEvent) && $nextQuizEvent))
 
     @push('styles')
-    <style>
-    /* ═══════════════════════════════════════════
-       ORDERING – Image & Text grids
-    ═══════════════════════════════════════════ */
-    .ordering-source-grid,
-    .ordering-slots-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 6px;
-    }
-    .ordering-source-grid { min-height: 50px; }
+        <style>
+            /* ═══════════════════════════════════════════
+           ORDERING
+        ═══════════════════════════════════════════ */
+            .ordering-source-grid,
+            .ordering-slots-grid {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 6px
+            }
 
-    .ordering-slot {
-        aspect-ratio: 1;
-        border: 2px dashed #86efac;
-        border-radius: 12px;
-        background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-        transition: border-color .2s, background .2s, box-shadow .2s;
-    }
-    .ordering-slot-num {
-        font-size: 18px;
-        font-weight: 700;
-        color: #bbf7d0;
-        pointer-events: none;
-    }
-    .ordering-slot.has-image {
-        border-style: solid;
-        border-color: #22c55e;
-        background: #fff;
-        padding: 0;
-    }
-    .ordering-slot.has-image .ordering-slot-num,
-    .ordering-slot.has-image .ordering-slot-text { display: none; }
-    .ordering-slot.drag-hover {
-        border-color: #22c55e;
-        background: #dcfce7;
-        box-shadow: 0 0 12px rgba(34,197,94,.3);
-    }
-    .ordering-slot .ordering-img-item { width: 100%; aspect-ratio: 1; }
-    .ordering-slot .ordering-img-item img { border: none; border-radius: 10px; }
+            .ordering-source-grid {
+                min-height: 50px
+            }
 
-    .ordering-img-item {
-        cursor: grab;
-        touch-action: none;
-        user-select: none;
-        -webkit-user-select: none;
-        border-radius: 12px;
-        overflow: hidden;
-        aspect-ratio: 1;
-    }
-    .ordering-img-item:active { cursor: grabbing; }
-    .ordering-img-item img {
-        width: 100%; height: 100%;
-        object-fit: cover;
-        pointer-events: none;
-        display: block;
-        border-radius: 12px;
-        border: 2px solid #d1d5db;
-        transition: border-color .2s, box-shadow .2s;
-    }
-    .ordering-source-grid .ordering-img-item:hover img {
-        border-color: #22c55e;
-        box-shadow: 0 2px 10px rgba(34,197,94,.25);
-    }
-    .ordering-img-item.sortable-chosen { opacity: .6; }
-    .ordering-img-item.sortable-ghost  { opacity: .15; }
+            .ordering-slot {
+                aspect-ratio: 1;
+                border: 2px dashed #86efac;
+                border-radius: 12px;
+                background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                overflow: hidden;
+                transition: border-color .2s, background .2s, box-shadow .2s
+            }
 
-    .sortable-item.sortable-chosen {
-        background: #f0fdf4;
-        border-color: #22c55e;
-        box-shadow: 0 4px 15px rgba(34,197,94,.2);
-    }
-    .sortable-item.sortable-ghost { opacity: .3; }
+            .ordering-slot-num {
+                font-size: 18px;
+                font-weight: 700;
+                color: #bbf7d0;
+                pointer-events: none
+            }
 
-    @media (max-width: 374px) {
-        .ordering-source-grid,
-        .ordering-slots-grid { grid-template-columns: repeat(3, 1fr); }
-    }
+            .ordering-slot.has-image {
+                border-style: solid;
+                border-color: #22c55e;
+                background: #fff;
+                padding: 0
+            }
 
-    /* ═══════════════════════════════════════════
-       FILL IN THE BLANK
-    ═══════════════════════════════════════════ */
-    .fill-blank-wrapper { direction: rtl; }
+            .ordering-slot.has-image .ordering-slot-num,
+            .ordering-slot.has-image .ordering-slot-text {
+                display: none
+            }
 
-    .fill-blank-sentence {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 6px;
-        font-size: 1.05rem;
-        font-weight: 700;
-        color: #1f2937;
-        line-height: 1.8;
-        margin-bottom: 14px;
-        padding: 12px 14px;
-        background: linear-gradient(135deg, #f8fffe, #f0fdf4);
-        border-radius: 16px;
-        border: 2px solid #bbf7d0;
-    }
-    .fill-blank-text { color: #374151; font-weight: 600; }
+            .ordering-slot.drag-hover {
+                border-color: #22c55e;
+                background: #dcfce7;
+                box-shadow: 0 0 12px rgba(34, 197, 94, .3)
+            }
 
-    .fill-blank-drop {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 110px;
-        min-height: 40px;
-        padding: 4px 14px;
-        border-radius: 12px;
-        border: 2.5px dashed #6ee7b7;
-        background: #ffffff;
-        cursor: pointer;
-        transition: all .3s cubic-bezier(.34,1.56,.64,1);
-        position: relative;
-        overflow: hidden;
-    }
-    .fill-blank-drop::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: radial-gradient(circle at center, rgba(34,197,94,.1) 0%, transparent 70%);
-        opacity: 0;
-        transition: opacity .3s;
-    }
-    .fill-blank-drop.has-word {
-        border-color: #22c55e;
-        border-style: solid;
-        background: linear-gradient(135deg, #dcfce7, #f0fdf4);
-        box-shadow: 0 4px 16px rgba(34,197,94,.25);
-        animation: fillPopIn .35s cubic-bezier(.34,1.56,.64,1);
-    }
-    .fill-blank-drop.has-word::before { opacity: 1; }
-    .fill-blank-drop.drag-over {
-        border-color: #059669;
-        background: #d1fae5;
-        box-shadow: 0 0 20px rgba(34,197,94,.4);
-        transform: scale(1.05);
-    }
-    .fill-blank-placeholder {
-        font-size: .72rem; color: #9ca3af;
-        font-weight: 500; font-style: italic;
-        pointer-events: none; transition: opacity .2s;
-    }
-    .fill-blank-drop.has-word .fill-blank-placeholder { display: none; }
-    .fill-blank-word-inside {
-        font-size: .95rem; font-weight: 800;
-        color: #16a34a; pointer-events: none;
-        animation: fillWordFadeIn .3s ease-out;
-    }
-    .fill-blank-chips {
-        display: flex; flex-wrap: wrap;
-        gap: 8px; justify-content: center;
-        margin-bottom: 10px;
-    }
-    .fill-blank-chip {
-        display: inline-flex; align-items: center;
-        gap: 6px; padding: 8px 18px;
-        border-radius: 50px; font-size: .92rem;
-        font-weight: 700; color: #1e40af;
-        background: linear-gradient(135deg, #eff6ff, #dbeafe);
-        border: 2px solid #bfdbfe;
-        cursor: grab;
-        transition: all .25s cubic-bezier(.34,1.56,.64,1);
-        user-select: none; -webkit-user-select: none;
-        position: relative; overflow: hidden;
-    }
-    .fill-blank-chip::after {
-        content: '';
-        position: absolute; inset: 0;
-        background: radial-gradient(circle at center, rgba(59,130,246,.15) 0%, transparent 70%);
-        opacity: 0; transition: opacity .2s;
-    }
-    .fill-blank-chip:hover {
-        transform: translateY(-3px) scale(1.06);
-        box-shadow: 0 8px 20px rgba(59,130,246,.3);
-        border-color: #3b82f6;
-        background: linear-gradient(135deg, #dbeafe, #bfdbfe);
-    }
-    .fill-blank-chip:hover::after { opacity: 1; }
-    .fill-blank-chip:active { transform: scale(.94); cursor: grabbing; }
-    .fill-blank-chip.selected {
-        opacity: .38; pointer-events: none;
-        transform: scale(.88); filter: grayscale(.4);
-    }
-    .fill-blank-chip.dragging { opacity: .35; }
+            .ordering-slot .ordering-img-item {
+                width: 100%;
+                aspect-ratio: 1
+            }
 
-    .fill-blank-hint {
-        font-size: .72rem; color: #9ca3af;
-        text-align: center; margin: 4px 0 0;
-        transition: opacity .3s;
-    }
-    .fill-blank-hint.hidden-hint { opacity: 0; }
+            .ordering-slot .ordering-img-item img {
+                border: none;
+                border-radius: 10px
+            }
 
-    @keyframes fillPopIn {
-        0%   { transform: scale(.7);  opacity: 0; }
-        70%  { transform: scale(1.1); }
-        100% { transform: scale(1);   opacity: 1; }
-    }
-    @keyframes fillWordFadeIn {
-        from { opacity: 0; transform: translateY(6px); }
-        to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes chipShake {
-        0%,100% { transform: translateX(0); }
-        20%     { transform: translateX(-6px); }
-        40%     { transform: translateX(6px); }
-        60%     { transform: translateX(-4px); }
-        80%     { transform: translateX(4px); }
-    }
+            .ordering-img-item {
+                cursor: grab;
+                touch-action: none;
+                user-select: none;
+                -webkit-user-select: none;
+                border-radius: 12px;
+                overflow: hidden;
+                aspect-ratio: 1
+            }
 
-    /* ═══════════════════════════════════════════
-       VIDEO THUMBNAIL
-    ═══════════════════════════════════════════ */
-    .video-thumb-wrap {
-        position: relative;
-        display: inline-block;
-        border-radius: 12px;
-        overflow: hidden;
-        cursor: pointer;
-        flex-shrink: 0;
-        border: 2px solid #e5e7eb;
-        transition: border-color .2s, box-shadow .2s;
-    }
-    .video-thumb-wrap:hover {
-        border-color: #22c55e;
-        box-shadow: 0 4px 14px rgba(34,197,94,.25);
-    }
-    .video-thumb-wrap video,
-    .video-thumb-wrap img {
-        display: block;
-        width: 100%; height: 100%;
-        object-fit: cover;
-        pointer-events: none;
-    }
-    .video-thumb-overlay {
-        position: absolute;
-        inset: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(0,0,0,.28);
-        transition: background .2s;
-    }
-    .video-thumb-wrap:hover .video-thumb-overlay { background: rgba(0,0,0,.42); }
-    .video-thumb-play {
-        width: 38px; height: 38px;
-        border-radius: 50%;
-        background: rgba(255,255,255,.92);
-        display: flex; align-items: center; justify-content: center;
-        transition: transform .2s, box-shadow .2s;
-        box-shadow: 0 2px 10px rgba(0,0,0,.25);
-    }
-    .video-thumb-wrap:hover .video-thumb-play {
-        transform: scale(1.12);
-        box-shadow: 0 4px 18px rgba(0,0,0,.35);
-    }
-    .video-thumb-play i { color: #16a34a; font-size: 14px; margin-left: 2px; }
+            .ordering-img-item:active {
+                cursor: grabbing
+            }
 
-    /* ═══════════════════════════════════════════
-       UNIFIED LIGHTBOX MODAL
-    ═══════════════════════════════════════════ */
-    #quizLightboxModal {
-        position: fixed;
-        inset: 0;
-        z-index: 9999;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        background: rgba(0,0,0,.75);
-        backdrop-filter: blur(6px);
-        -webkit-backdrop-filter: blur(6px);
-        padding: 16px;
-    }
-    #quizLightboxModal.open { display: flex; }
+            .ordering-img-item img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                pointer-events: none;
+                display: block;
+                border-radius: 12px;
+                border: 2px solid #d1d5db;
+                transition: border-color .2s, box-shadow .2s
+            }
 
-    .quiz-lightbox-inner {
-        position: relative;
-        max-width: 90vw;
-        max-height: 90vh;
-        animation: lbZoomIn .25s ease-out;
-    }
-    .quiz-lightbox-close {
-        position: absolute;
-        top: -14px; right: -14px;
-        width: 34px; height: 34px;
-        border-radius: 50%;
-        background: #fff;
-        border: none;
-        cursor: pointer;
-        display: flex; align-items: center; justify-content: center;
-        box-shadow: 0 2px 10px rgba(0,0,0,.25);
-        color: #374151;
-        transition: background .2s, color .2s;
-        z-index: 10;
-    }
-    .quiz-lightbox-close:hover { background: #fee2e2; color: #ef4444; }
-    .quiz-lightbox-close i { font-size: 13px; pointer-events: none; }
+            .ordering-source-grid .ordering-img-item:hover img {
+                border-color: #22c55e;
+                box-shadow: 0 2px 10px rgba(34, 197, 94, .25)
+            }
 
-    #quizLightboxImg {
-        border-radius: 16px;
-        box-shadow: 0 8px 40px rgba(0,0,0,.45);
-        max-width: 90vw;
-        max-height: 85vh;
-        object-fit: contain;
-        display: block;
-    }
-    #quizLightboxVideo {
-        border-radius: 16px;
-        box-shadow: 0 8px 40px rgba(0,0,0,.45);
-        max-width: 90vw;
-        max-height: 85vh;
-        display: none;
-        outline: none;
-    }
+            .ordering-img-item.sortable-chosen {
+                opacity: .6
+            }
 
-    @keyframes lbZoomIn {
-        from { transform: scale(.8); opacity: 0; }
-        to   { transform: scale(1);  opacity: 1; }
-    }
-    </style>
+            .ordering-img-item.sortable-ghost {
+                opacity: .15
+            }
+
+            .sortable-item.sortable-chosen {
+                background: #f0fdf4;
+                border-color: #22c55e;
+                box-shadow: 0 4px 15px rgba(34, 197, 94, .2)
+            }
+
+            .sortable-item.sortable-ghost {
+                opacity: .3
+            }
+
+            @media(max-width:374px) {
+
+                .ordering-source-grid,
+                .ordering-slots-grid {
+                    grid-template-columns: repeat(3, 1fr)
+                }
+            }
+
+            /* ═══════════════════════════════════════════
+           FILL IN THE BLANK
+        ═══════════════════════════════════════════ */
+            .fill-blank-wrapper {
+                direction: rtl
+            }
+
+            .fill-blank-sentence {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 6px;
+                font-size: 1.05rem;
+                font-weight: 700;
+                color: #1f2937;
+                line-height: 1.8;
+                margin-bottom: 14px;
+                padding: 12px 14px;
+                background: linear-gradient(135deg, #f8fffe, #f0fdf4);
+                border-radius: 16px;
+                border: 2px solid #bbf7d0
+            }
+
+            .fill-blank-text {
+                color: #374151;
+                font-weight: 600
+            }
+
+            .fill-blank-drop {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-width: 110px;
+                min-height: 40px;
+                padding: 4px 14px;
+                border-radius: 12px;
+                border: 2.5px dashed #6ee7b7;
+                background: #fff;
+                cursor: pointer;
+                transition: all .3s cubic-bezier(.34, 1.56, .64, 1);
+                position: relative;
+                overflow: hidden
+            }
+
+            .fill-blank-drop.has-word {
+                border-color: #22c55e;
+                border-style: solid;
+                background: linear-gradient(135deg, #dcfce7, #f0fdf4);
+                box-shadow: 0 4px 16px rgba(34, 197, 94, .25);
+                animation: fillPopIn .35s cubic-bezier(.34, 1.56, .64, 1)
+            }
+
+            .fill-blank-drop.drag-over {
+                border-color: #059669;
+                background: #d1fae5;
+                transform: scale(1.05)
+            }
+
+            .fill-blank-placeholder {
+                font-size: .72rem;
+                color: #9ca3af;
+                font-weight: 500;
+                font-style: italic;
+                pointer-events: none;
+                transition: opacity .2s
+            }
+
+            .fill-blank-drop.has-word .fill-blank-placeholder {
+                display: none
+            }
+
+            .fill-blank-word-inside {
+                font-size: .95rem;
+                font-weight: 800;
+                color: #16a34a;
+                pointer-events: none;
+                animation: fillWordFadeIn .3s ease-out
+            }
+
+            .fill-blank-chips {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                justify-content: center;
+                margin-bottom: 10px
+            }
+
+            .fill-blank-chip {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 8px 18px;
+                border-radius: 50px;
+                font-size: .92rem;
+                font-weight: 700;
+                color: #1e40af;
+                background: linear-gradient(135deg, #eff6ff, #dbeafe);
+                border: 2px solid #bfdbfe;
+                cursor: grab;
+                transition: all .25s cubic-bezier(.34, 1.56, .64, 1);
+                user-select: none;
+                -webkit-user-select: none
+            }
+
+            .fill-blank-chip:hover {
+                transform: translateY(-3px) scale(1.06);
+                box-shadow: 0 8px 20px rgba(59, 130, 246, .3);
+                border-color: #3b82f6
+            }
+
+            .fill-blank-chip:active {
+                transform: scale(.94);
+                cursor: grabbing
+            }
+
+            .fill-blank-chip.selected {
+                opacity: .38;
+                pointer-events: none;
+                transform: scale(.88);
+                filter: grayscale(.4)
+            }
+
+            .fill-blank-hint {
+                font-size: .72rem;
+                color: #9ca3af;
+                text-align: center;
+                margin: 4px 0 0;
+                transition: opacity .3s
+            }
+
+            .fill-blank-hint.hidden-hint {
+                opacity: 0
+            }
+
+            @keyframes fillPopIn {
+                0% {
+                    transform: scale(.7);
+                    opacity: 0
+                }
+
+                70% {
+                    transform: scale(1.1)
+                }
+
+                100% {
+                    transform: scale(1);
+                    opacity: 1
+                }
+            }
+
+            @keyframes fillWordFadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(6px)
+                }
+
+                to {
+                    opacity: 1;
+                    transform: translateY(0)
+                }
+            }
+
+            @keyframes chipShake {
+
+                0%,
+                100% {
+                    transform: translateX(0)
+                }
+
+                20% {
+                    transform: translateX(-6px)
+                }
+
+                40% {
+                    transform: translateX(6px)
+                }
+
+                60% {
+                    transform: translateX(-4px)
+                }
+
+                80% {
+                    transform: translateX(4px)
+                }
+            }
+
+            /* ═══════════════════════════════════════════
+           VIDEO / IMAGE THUMBNAIL
+        ═══════════════════════════════════════════ */
+            .vthumb {
+                position: relative;
+                border-radius: 14px;
+                overflow: hidden;
+                cursor: pointer;
+                flex-shrink: 0;
+                border: 2.5px solid rgba(0, 0, 0, .1);
+                transition: border-color .2s, transform .2s, box-shadow .2s;
+                display: block;
+                background: #111
+            }
+
+            .vthumb:hover {
+                border-color: #22c55e;
+                transform: scale(1.04);
+                box-shadow: 0 6px 22px rgba(0, 0, 0, .25)
+            }
+
+            .vthumb video,
+            .vthumb img {
+                display: block;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                pointer-events: none
+            }
+
+            .vthumb-overlay {
+                position: absolute;
+                inset: 0;
+                background: rgba(0, 0, 0, .35);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: background .2s
+            }
+
+            .vthumb:hover .vthumb-overlay {
+                background: rgba(0, 0, 0, .52)
+            }
+
+            .vthumb-play {
+                width: 48px;
+                height: 48px;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, .95);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 3px 14px rgba(0, 0, 0, .3);
+                transition: transform .2s
+            }
+
+            .vthumb:hover .vthumb-play {
+                transform: scale(1.13)
+            }
+
+            .vthumb-play i {
+                color: #16a34a;
+                font-size: 17px;
+                margin-left: 3px
+            }
+
+            /* ═══════════════════════════════════════════
+           LIGHTBOX
+        ═══════════════════════════════════════════ */
+            #quizLightboxModal {
+                position: fixed;
+                inset: 0;
+                z-index: 9999;
+                display: none;
+                align-items: center;
+                justify-content: center;
+                background: rgba(0, 0, 0, .84);
+                backdrop-filter: blur(8px);
+                -webkit-backdrop-filter: blur(8px);
+                padding: 16px
+            }
+
+            #quizLightboxModal.lb-open {
+                display: flex
+            }
+
+            .quiz-lb-inner {
+                position: relative;
+                max-width: 92vw;
+                max-height: 90vh;
+                animation: lbIn .22s cubic-bezier(.22, 1, .36, 1)
+            }
+
+            .quiz-lb-close {
+                position: absolute;
+                top: -15px;
+                right: -15px;
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                background: #fff;
+                border: none;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 3px 12px rgba(0, 0, 0, .3);
+                color: #374151;
+                z-index: 10;
+                transition: background .15s, color .15s, transform .15s
+            }
+
+            .quiz-lb-close:hover {
+                background: #fee2e2;
+                color: #ef4444;
+                transform: scale(1.1)
+            }
+
+            #quizLightboxImg {
+                border-radius: 18px;
+                box-shadow: 0 10px 50px rgba(0, 0, 0, .55);
+                max-width: 92vw;
+                max-height: 86vh;
+                object-fit: contain;
+                display: block
+            }
+
+            #quizLightboxVideo {
+                border-radius: 18px;
+                box-shadow: 0 10px 50px rgba(0, 0, 0, .55);
+                max-width: 92vw;
+                max-height: 86vh;
+                display: none;
+                outline: none;
+                background: #000
+            }
+
+            @keyframes lbIn {
+                from {
+                    transform: scale(.82);
+                    opacity: 0
+                }
+
+                to {
+                    transform: scale(1);
+                    opacity: 1
+                }
+            }
+
+            /* ═══════════════════════════════════════════
+           VOTE SECTION – dark spectacular
+        ═══════════════════════════════════════════ */
+            .vote-wrap {
+                background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 45%, #0f172a 100%);
+                border-radius: 28px;
+                overflow: hidden;
+                position: relative
+            }
+
+            .vote-wrap::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: radial-gradient(ellipse 80% 60% at 20% 10%, rgba(99, 102, 241, .2) 0%, transparent 60%), radial-gradient(ellipse 60% 50% at 80% 90%, rgba(168, 85, 247, .15) 0%, transparent 55%);
+                pointer-events: none
+            }
+
+            .vote-grid {
+                position: absolute;
+                inset: 0;
+                opacity: .045;
+                background-image: linear-gradient(rgba(255, 255, 255, .6) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, .6) 1px, transparent 1px);
+                background-size: 32px 32px;
+                pointer-events: none
+            }
+
+            .vote-header {
+                position: relative;
+                z-index: 2;
+                padding: 20px 22px 16px;
+                border-bottom: 1px solid rgba(255, 255, 255, .07)
+            }
+
+            .vote-live-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 7px;
+                background: rgba(239, 68, 68, .14);
+                border: 1px solid rgba(239, 68, 68, .32);
+                color: #fca5a5;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: .06em;
+                text-transform: uppercase;
+                padding: 5px 12px 5px 8px;
+                border-radius: 50px;
+                margin-bottom: 11px
+            }
+
+            .vote-live-dot {
+                width: 7px;
+                height: 7px;
+                border-radius: 50%;
+                background: #ef4444;
+                animation: vpulse 1.4s ease-in-out infinite
+            }
+
+            @keyframes vpulse {
+
+                0%,
+                100% {
+                    box-shadow: 0 0 0 0 rgba(239, 68, 68, .5)
+                }
+
+                50% {
+                    box-shadow: 0 0 0 6px rgba(239, 68, 68, 0)
+                }
+            }
+
+            .vote-title-text {
+                font-size: 1.15rem;
+                font-weight: 800;
+                color: #f8fafc;
+                line-height: 1.45;
+                margin: 0
+            }
+
+            .vote-sub-text {
+                font-size: .78rem;
+                color: rgba(148, 163, 184, .8);
+                margin-top: 5px
+            }
+
+            .vote-body {
+                position: relative;
+                z-index: 2;
+                padding: 18px 20px 22px
+            }
+
+            /* Choices */
+            .vote-choice {
+                position: relative;
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                padding: 13px 15px;
+                border-radius: 16px;
+                border: 1.5px solid rgba(255, 255, 255, .1);
+                background: rgba(255, 255, 255, .05);
+                cursor: pointer;
+                transition: border-color .2s, background .2s, transform .15s;
+                margin-bottom: 10px;
+                overflow: hidden;
+                -webkit-tap-highlight-color: transparent
+            }
+
+            .vote-choice::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(135deg, rgba(99, 102, 241, .18), rgba(168, 85, 247, .1));
+                opacity: 0;
+                transition: opacity .25s;
+                border-radius: inherit
+            }
+
+            .vote-choice:hover {
+                border-color: rgba(165, 180, 252, .4);
+                background: rgba(255, 255, 255, .08)
+            }
+
+            .vote-choice:hover::before {
+                opacity: 1
+            }
+
+            .vote-choice.vote-sel {
+                border-color: #818cf8;
+                background: rgba(99, 102, 241, .18)
+            }
+
+            .vote-choice.vote-sel::before {
+                opacity: 1
+            }
+
+            .vote-choice:last-child {
+                margin-bottom: 0
+            }
+
+            /* Indicator */
+            .vote-ind {
+                width: 22px;
+                height: 22px;
+                border-radius: 50%;
+                border: 2px solid rgba(255, 255, 255, .22);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+                transition: border-color .2s, background .2s
+            }
+
+            .vote-choice.vote-sel .vote-ind {
+                border-color: #818cf8;
+                background: #818cf8
+            }
+
+            .vote-ind-dot {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background: #fff;
+                opacity: 0;
+                transform: scale(.4);
+                transition: opacity .2s, transform .2s
+            }
+
+            .vote-choice.vote-sel .vote-ind-dot {
+                opacity: 1;
+                transform: scale(1)
+            }
+
+            .vote-ind-sq {
+                border-radius: 6px
+            }
+
+            .vote-ind-sq-check {
+                display: none;
+                color: #fff;
+                font-size: 11px
+            }
+
+            .vote-choice.vote-sel .vote-ind-sq {
+                background: #818cf8;
+                border-color: #818cf8
+            }
+
+            .vote-choice.vote-sel .vote-ind-sq-check {
+                display: block
+            }
+
+            /* Choice image */
+            .vote-cimg {
+                width: 54px;
+                height: 54px;
+                border-radius: 12px;
+                object-fit: cover;
+                flex-shrink: 0;
+                border: 2px solid rgba(255, 255, 255, .1);
+                transition: border-color .2s
+            }
+
+            .vote-choice.vote-sel .vote-cimg {
+                border-color: #818cf8
+            }
+
+            /* Choice text */
+            .vote-cname {
+                font-size: .9rem;
+                font-weight: 700;
+                color: #f1f5f9;
+                line-height: 1.3
+            }
+
+            /* Video thumb inside dark card */
+            .vote-vthumb {
+                position: relative;
+                width: 70px;
+                height: 54px;
+                border-radius: 11px;
+                overflow: hidden;
+                cursor: pointer;
+                flex-shrink: 0;
+                background: #000;
+                border: 2px solid rgba(255, 255, 255, .1);
+                transition: border-color .2s, transform .15s;
+                margin-right: auto
+            }
+
+            .vote-vthumb:hover {
+                border-color: #818cf8;
+                transform: scale(1.06)
+            }
+
+            .vote-vthumb video {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                display: block;
+                pointer-events: none
+            }
+
+            .vote-vthumb-ov {
+                position: absolute;
+                inset: 0;
+                background: rgba(0, 0, 0, .4);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: background .15s
+            }
+
+            .vote-vthumb:hover .vote-vthumb-ov {
+                background: rgba(0, 0, 0, .58)
+            }
+
+            .vote-vthumb-play {
+                width: 28px;
+                height: 28px;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, .9);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: transform .15s
+            }
+
+            .vote-vthumb:hover .vote-vthumb-play {
+                transform: scale(1.15)
+            }
+
+            .vote-vthumb-play i {
+                color: #4f46e5;
+                font-size: 10px;
+                margin-left: 2px
+            }
+
+            /* Submit */
+            .vote-submit {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 9px;
+                width: 100%;
+                padding: 14px 24px;
+                border-radius: 16px;
+                border: none;
+                cursor: pointer;
+                font-size: .95rem;
+                font-weight: 800;
+                color: #fff;
+                background: linear-gradient(135deg, #6366f1, #8b5cf6);
+                box-shadow: 0 4px 22px rgba(99, 102, 241, .38);
+                transition: opacity .2s, transform .15s, box-shadow .2s;
+                margin-top: 18px
+            }
+
+            .vote-submit:hover {
+                opacity: .91;
+                transform: translateY(-1px);
+                box-shadow: 0 6px 30px rgba(99, 102, 241, .5)
+            }
+
+            .vote-submit:active {
+                transform: scale(.97)
+            }
+
+            /* Inputs */
+            .vote-lbl {
+                display: block;
+                font-size: .73rem;
+                font-weight: 600;
+                color: rgba(148, 163, 184, .85);
+                margin-bottom: 4px
+            }
+
+            .vote-inp {
+                width: 100%;
+                padding: 10px 14px;
+                border-radius: 12px;
+                border: 1.5px solid rgba(255, 255, 255, .11);
+                background: rgba(255, 255, 255, .07);
+                color: #f1f5f9;
+                font-size: .87rem;
+                outline: none;
+                transition: border-color .2s, background .2s;
+                box-sizing: border-box
+            }
+
+            .vote-inp::placeholder {
+                color: rgba(148, 163, 184, .45)
+            }
+
+            .vote-inp:focus {
+                border-color: #818cf8;
+                background: rgba(255, 255, 255, .1)
+            }
+
+            /* Results */
+            .vote-rrow {
+                margin-bottom: 11px
+            }
+
+            .vote-rrow:last-child {
+                margin-bottom: 0
+            }
+
+            .vote-rmeta {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 5px
+            }
+
+            .vote-rname {
+                font-size: .82rem;
+                font-weight: 700;
+                color: #e2e8f0
+            }
+
+            .vote-rpct {
+                font-size: .79rem;
+                font-weight: 700;
+                color: #a5b4fc
+            }
+
+            .vote-rcnt {
+                font-size: .69rem;
+                color: rgba(148, 163, 184, .65);
+                margin-right: 3px
+            }
+
+            .vote-rbg {
+                height: 8px;
+                border-radius: 999px;
+                background: rgba(255, 255, 255, .1);
+                overflow: hidden
+            }
+
+            .vote-rfill {
+                height: 100%;
+                border-radius: 999px;
+                background: linear-gradient(90deg, #6366f1, #8b5cf6);
+                width: 0%;
+                transition: width 1.1s cubic-bezier(.22, 1, .36, 1)
+            }
+
+            /* Voted banner */
+            .vote-ok-banner {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 11px 14px;
+                border-radius: 14px;
+                background: rgba(99, 102, 241, .14);
+                border: 1px solid rgba(129, 140, 248, .32);
+                margin-bottom: 15px
+            }
+
+            .vote-ok-icon {
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                background: rgba(99, 102, 241, .22);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0
+            }
+
+            .vote-ok-icon i {
+                color: #a5b4fc;
+                font-size: 13px
+            }
+
+            .vote-ok-title {
+                font-size: .81rem;
+                font-weight: 700;
+                color: #c7d2fe
+            }
+
+            .vote-ok-sub {
+                font-size: .71rem;
+                color: rgba(148, 163, 184, .75);
+                margin-top: 2px
+            }
+
+            /* Max badge */
+            .vote-max-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                padding: 5px 12px;
+                background: rgba(99, 102, 241, .14);
+                border: 1px solid rgba(129, 140, 248, .28);
+                border-radius: 50px;
+                font-size: .74rem;
+                font-weight: 700;
+                color: #a5b4fc;
+                margin-bottom: 13px
+            }
+
+            /* Reg hint */
+            .vote-reg-hint {
+                display: flex;
+                align-items: flex-start;
+                gap: 8px;
+                padding: 9px 12px;
+                background: rgba(59, 130, 246, .09);
+                border: 1px solid rgba(59, 130, 246, .22);
+                border-radius: 11px;
+                margin-bottom: 13px;
+                font-size: .75rem;
+                color: #93c5fd
+            }
+
+            /* Countdown units */
+            .cd-box {
+                min-width: 56px;
+                background: rgba(255, 255, 255, .07);
+                border: 1.5px solid rgba(255, 255, 255, .1);
+                border-radius: 16px;
+                padding: 10px 6px 8px;
+                text-align: center
+            }
+
+            .cd-num {
+                font-size: 1.55rem;
+                font-weight: 800;
+                color: #a5b4fc;
+                line-height: 1
+            }
+
+            .cd-lbl {
+                font-size: .67rem;
+                color: rgba(148, 163, 184, .65);
+                margin-top: 4px
+            }
+        </style>
     @endpush
 
-        <section class="py-3 md:py-6 lg:py-8 relative overflow-hidden"
-            style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);">
+    <section class="py-3 md:py-6 lg:py-8 relative overflow-hidden"
+        style="background:linear-gradient(135deg,#f0fdf4 0%,#dcfce7 50%,#bbf7d0 100%)">
 
-            {{-- Decorative blobs --}}
-            <div class="absolute top-0 right-0 w-72 h-72 opacity-5 pointer-events-none"
-                style="animation: float 6s ease-in-out infinite;">
-                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                    <path fill="#22c55e"
-                        d="M44.9,-76.6C59.3,-69.5,72.8,-59.9,80.3,-46.7C87.8,-33.5,89.3,-16.8,88.3,-0.6C87.3,15.6,83.8,31.2,76.3,44.5C68.8,57.8,57.3,68.8,43.3,75.3C29.3,81.8,14.7,83.8,-0.6,84.8C-15.9,85.8,-31.8,85.8,-45.8,79.3C-59.8,72.8,-71.9,59.8,-79.3,44.5C-86.7,29.2,-89.3,11.6,-88.3,-5.9C-87.3,-23.4,-82.7,-46.8,-71.3,-64.3C-59.9,-81.8,-41.7,-93.4,-22.8,-95.8C-3.9,-98.2,15.7,-91.4,34.1,-82.3Z"
-                        transform="translate(100 100)" />
-                </svg>
-            </div>
-            <div class="absolute bottom-0 left-0 w-64 h-64 opacity-5 pointer-events-none"
-                style="animation: float 5s ease-in-out infinite 1s;">
-                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                    <path fill="#4ade80"
-                        d="M37.5,-65.2C48.7,-57.8,57.8,-47.3,64.3,-35.1C70.8,-22.9,74.7,-9,75.6,5.7C76.5,20.4,74.4,36,67.1,48.6C59.8,61.2,47.3,70.8,33.2,75.7C19.1,80.6,3.4,80.8,-12.1,78.1C-27.6,75.4,-42.9,69.8,-55.3,60.2C-67.7,50.6,-77.2,37,-80.3,21.9C-83.4,6.8,-80.1,-9.8,-74.1,-25.3C-68.1,-40.8,-59.4,-55.2,-47.2,-62.2C-35,-69.2,-19.3,-68.8,-5.4,-60.5Z"
-                        transform="translate(100 100)" />
-                </svg>
-            </div>
+        {{-- Decorative blobs --}}
+        <div class="absolute top-0 right-0 w-72 h-72 opacity-5 pointer-events-none"
+            style="animation:float 6s ease-in-out infinite">
+            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <path fill="#22c55e"
+                    d="M44.9,-76.6C59.3,-69.5,72.8,-59.9,80.3,-46.7C87.8,-33.5,89.3,-16.8,88.3,-0.6C87.3,15.6,83.8,31.2,76.3,44.5C68.8,57.8,57.3,68.8,43.3,75.3C29.3,81.8,14.7,83.8,-0.6,84.8C-15.9,85.8,-31.8,85.8,-45.8,79.3C-59.8,72.8,-71.9,59.8,-79.3,44.5C-86.7,29.2,-89.3,11.6,-88.3,-5.9C-87.3,-23.4,-82.7,-46.8,-71.3,-64.3C-59.9,-81.8,-41.7,-93.4,-22.8,-95.8C-3.9,-98.2,15.7,-91.4,34.1,-82.3Z"
+                    transform="translate(100 100)" />
+            </svg>
+        </div>
+        <div class="absolute bottom-0 left-0 w-64 h-64 opacity-5 pointer-events-none"
+            style="animation:float 5s ease-in-out infinite 1s">
+            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <path fill="#4ade80"
+                    d="M37.5,-65.2C48.7,-57.8,57.8,-47.3,64.3,-35.1C70.8,-22.9,74.7,-9,75.6,5.7C76.5,20.4,74.4,36,67.1,48.6C59.8,61.2,47.3,70.8,33.2,75.7C19.1,80.6,3.4,80.8,-12.1,78.1C-27.6,75.4,-42.9,69.8,-55.3,60.2C-67.7,50.6,-77.2,37,-80.3,21.9C-83.4,6.8,-80.1,-9.8,-74.1,-25.3C-68.1,-40.8,-59.4,-55.2,-47.2,-62.2C-35,-69.2,-19.3,-68.8,-5.4,-60.5Z"
+                    transform="translate(100 100)" />
+            </svg>
+        </div>
 
-            <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
 
+            {{-- ══════════════════════════════════════
+                     ACTIVE COMPETITION
+                ══════════════════════════════════════ --}}
+            @if (isset($activeQuizCompetition) && $activeQuizCompetition)
+                @php $isVoteOnly = $activeQuizCompetition->questions->every(fn($q) => $q->answer_type === 'vote'); @endphp
+
+                {{-- Section heading --}}
                 <div class="text-right mb-3 md:mb-5">
                     <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">
-                        المسابقة الرمضانية
+                        {{ $isVoteOnly ? 'التصويت' : 'المسابقة الرمضانية' }}
                     </h2>
                 </div>
 
-                {{-- ══════════════════════════════════════
-                     ACTIVE COMPETITION
-                ══════════════════════════════════════ --}}
-                @if (isset($activeQuizCompetition) && $activeQuizCompetition)
-                    <div class="mb-3 md:mb-5" id="activeQuizSection">
+                <div class="mb-3 md:mb-5" id="activeQuizSection">
+
+                    {{-- ▌VOTE-ONLY → dark card --}}
+                    @if ($isVoteOnly)
+                        <div class="vote-wrap">
+                            <div class="vote-grid"></div>
+
+                            <div class="vote-header">
+                                <div class="vote-live-badge">
+                                    <span class="vote-live-dot"></span>
+                                    تصويت مباشر
+                                </div>
+
+                                {{-- Timer --}}
+                                <div class="flex items-center gap-3 mb-3">
+                                    <i class="fas fa-hourglass-half" style="color:#f59e0b;font-size:12px"></i>
+                                    <span style="color:rgba(148,163,184,.75);font-size:.76rem">ينتهي بعد:</span>
+                                    <div class="flex gap-1" id="activeQuestionTimer">
+                                        <span
+                                            style="background:rgba(255,255,255,.1);color:#e2e8f0;border-radius:8px;padding:3px 9px;font-weight:700;font-size:.8rem;min-width:2rem;text-align:center"
+                                            id="aq-hours">00</span>
+                                        <span style="color:rgba(148,163,184,.45);font-weight:700">:</span>
+                                        <span
+                                            style="background:rgba(255,255,255,.1);color:#e2e8f0;border-radius:8px;padding:3px 9px;font-weight:700;font-size:.8rem;min-width:2rem;text-align:center"
+                                            id="aq-minutes">00</span>
+                                        <span style="color:rgba(148,163,184,.45);font-weight:700">:</span>
+                                        <span
+                                            style="background:rgba(255,255,255,.1);color:#e2e8f0;border-radius:8px;padding:3px 9px;font-weight:700;font-size:.8rem;min-width:2rem;text-align:center"
+                                            id="aq-seconds">00</span>
+                                    </div>
+                                    <input type="hidden" id="aqEndTime"
+                                        value="{{ $activeQuizCompetition->end_at->getTimestamp() * 1000 }}">
+                                </div>
+
+                                {{-- Errors --}}
+                                @if (session('error'))
+                                    <div
+                                        style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.28);border-radius:12px;padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;gap:9px">
+                                        <i class="fas fa-exclamation-circle" style="color:#f87171"></i>
+                                        <span style="color:#fca5a5;font-size:.83rem">{{ session('error') }}</span>
+                                    </div>
+                                @endif
+                                @if ($errors->any())
+                                    <div
+                                        style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.28);border-radius:12px;padding:10px 14px;margin-bottom:10px">
+                                        @foreach ($errors->all() as $err)
+                                            <p style="color:#fca5a5;font-size:.79rem;margin:2px 0">· {{ $err }}
+                                            </p>
+                                        @endforeach
+                                    </div>
+                                @endif
+                            </div>
+
+                            {{-- Questions --}}
+                            <div id="activeQuizQuestionsBlock"
+                                @if (!($showQuestionsOnHome ?? true)) style="display:none" @endif>
+
+                                @foreach ($activeQuizCompetition->questions->where('answer_type', 'vote') as $q)
+                                    @php
+                                        $cooldownHours = 2;
+                                        $lastAnsweredAt = session('quiz_answered_' . $q->id);
+                                        $canAnswerThis =
+                                            !$lastAnsweredAt ||
+                                            now()->diffInHours(\Carbon\Carbon::parse($lastAnsweredAt)) >=
+                                                $cooldownHours;
+                                        $voteMax = $q->vote_max_selections ?? 1;
+                                    @endphp
+
+                                    <div class="vote-body"
+                                        @if (!$loop->first) style="border-top:1px solid rgba(255,255,255,.065)" @endif>
+
+                                        @if ($q->description)
+                                            <div class="text-sm mb-3 quiz-description"
+                                                style="color:rgba(148,163,184,.85)">{!! $q->description !!}</div>
+                                        @endif
+                                        <p class="vote-title-text mb-1">{!! $q->question_text !!}</p>
+                                        <p class="vote-sub-text mb-4">
+                                            {{ $q->choices->count() }} خيارات متاحة
+                                            @if ($voteMax > 1)
+                                                · اختر حتى {{ $voteMax }}
+                                            @endif
+                                        </p>
+
+                                        {{-- Draw-only --}}
+                                        @if ($activeQuizCompetition->show_draw_only)
+                                            <div
+                                                style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:15px;padding:13px 15px">
+                                                <p style="color:rgba(148,163,184,.85);font-size:.83rem">
+                                                    <i class="fas fa-info-circle"
+                                                        style="color:#818cf8;margin-left:5px"></i>
+                                                    باب التصويت مغلق — تابع نتائج القرعة
+                                                </p>
+                                                <a href="{{ route('quiz-competitions.question', [$activeQuizCompetition, $q]) }}"
+                                                    style="display:inline-flex;align-items:center;gap:7px;padding:9px 20px;border-radius:12px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-size:.83rem;font-weight:700;text-decoration:none">
+                                                    <i class="fas fa-trophy"></i> متابعة القرعة
+                                                </a>
+                                            </div>
+
+                                            {{-- Can answer --}}
+                                        @elseif ($canAnswerThis)
+                                            <form
+                                                action="{{ route('quiz-competitions.store-answer', [$activeQuizCompetition, $q]) }}"
+                                                method="POST">
+                                                @csrf
+                                                <input type="hidden" name="source" value="home">
+
+                                                {{-- Participant fields --}}
+                                                @if ($q->require_prior_registration)
+                                                    <div class="vote-reg-hint">
+                                                        <i class="fas fa-info-circle"
+                                                            style="margin-top:1px;flex-shrink:0"></i>
+                                                        <span>هذا التصويت للمشاركين السابقين فقط — أدخل رقم هاتفك
+                                                            للتحقق</span>
+                                                    </div>
+                                                    <div style="margin-bottom:13px">
+                                                        <label class="vote-lbl">رقم الهاتف <span
+                                                                style="color:#f87171">*</span></label>
+                                                        <input type="text" name="phone" value="{{ old('phone') }}"
+                                                            required pattern="[0-9]{10}" minlength="10" maxlength="10"
+                                                            placeholder="05xxxxxxxx" dir="ltr"
+                                                            style="text-align:right" class="vote-inp"
+                                                            autocomplete="off">
+                                                    </div>
+                                                @else
+                                                    <div
+                                                        style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+                                                        <div>
+                                                            <label class="vote-lbl">الاسم</label>
+                                                            <input type="text" name="name"
+                                                                value="{{ old('name') }}" placeholder="الاسم الكامل"
+                                                                class="vote-inp">
+                                                        </div>
+                                                        <div>
+                                                            <label class="vote-lbl">رقم الهاتف <span
+                                                                    style="color:#f87171">*</span></label>
+                                                            <input type="text" name="phone"
+                                                                value="{{ old('phone') }}" required
+                                                                pattern="[0-9]{10}" minlength="10" maxlength="10"
+                                                                placeholder="05xxxxxxxx" dir="ltr"
+                                                                style="text-align:right" class="vote-inp">
+                                                        </div>
+                                                    </div>
+                                                    <div style="margin-bottom:12px">
+                                                        <label class="vote-lbl">اسم الأم (للمستخدمين من
+                                                            الأنساب)</label>
+                                                        <input type="text" name="mother_name"
+                                                            value="{{ old('mother_name') }}"
+                                                            placeholder="ينتهي باسم السريع" class="vote-inp">
+                                                        <input type="hidden" name="is_from_ancestry" value="1">
+                                                    </div>
+                                                @endif
+
+                                                @if ($voteMax > 1)
+                                                    <div class="vote-max-badge">
+                                                        <i class="fas fa-poll" style="font-size:11px"></i>
+                                                        اختر حتى {{ $voteMax }} خيارات
+                                                        <input type="hidden" class="home-vote-max"
+                                                            value="{{ $voteMax }}">
+                                                    </div>
+                                                @endif
+
+                                                {{-- Choices --}}
+                                                @foreach ($q->choices as $choice)
+                                                    <label class="vote-choice"
+                                                        id="vc-{{ $q->id }}-{{ $choice->id }}">
+                                                        @if ($voteMax > 1)
+                                                            <input type="checkbox" name="answer[]"
+                                                                value="{{ $choice->id }}"
+                                                                class="hidden home-vote-checkbox"
+                                                                onchange="voteToggle(this)">
+                                                            <div class="vote-ind vote-ind-sq"
+                                                                id="vi-{{ $q->id }}-{{ $choice->id }}">
+                                                                <i class="fas fa-check vote-ind-sq-check"></i>
+                                                            </div>
+                                                        @else
+                                                            <input type="radio" name="answer"
+                                                                value="{{ $choice->id }}" class="hidden" required
+                                                                onchange="voteToggle(this)">
+                                                            <div class="vote-ind"
+                                                                id="vi-{{ $q->id }}-{{ $choice->id }}">
+                                                                <div class="vote-ind-dot"></div>
+                                                            </div>
+                                                        @endif
+
+                                                        @if ($choice->image)
+                                                            <img src="{{ asset('storage/' . $choice->image) }}"
+                                                                class="vote-cimg" alt="{{ $choice->choice_text }}">
+                                                        @endif
+
+                                                        <div style="flex:1;min-width:0">
+                                                            <p class="vote-cname">{{ $choice->choice_text }}</p>
+                                                        </div>
+
+                                                        @if ($choice->video)
+                                                            <div class="vote-vthumb"
+                                                                onclick="event.preventDefault();event.stopPropagation();quizOpenVideo('{{ asset('storage/' . $choice->video) }}')">
+                                                                <video muted preload="metadata"
+                                                                    src="{{ asset('storage/' . $choice->video) }}#t=0.5"></video>
+                                                                <div class="vote-vthumb-ov">
+                                                                    <div class="vote-vthumb-play"><i
+                                                                            class="fas fa-play"></i></div>
+                                                                </div>
+                                                            </div>
+                                                        @endif
+                                                    </label>
+                                                @endforeach
+
+                                                <button type="submit" class="vote-submit"
+                                                    onclick="return validateHomeQuiz(event,this)">
+                                                    <i class="fas fa-paper-plane" style="font-size:13px"></i>
+                                                    إرسال التصويت
+                                                </button>
+                                            </form>
+
+                                            {{-- Already voted --}}
+                                        @else
+                                            @php $isJustVoted = session('vote_submitted') && session('answered_question_id') == $q->id; @endphp
+                                            <div class="vote-ok-banner">
+                                                <div class="vote-ok-icon">
+                                                    <i class="fas {{ $isJustVoted ? 'fa-check' : 'fa-poll' }}"></i>
+                                                </div>
+                                                <div>
+                                                    <p class="vote-ok-title">
+                                                        {{ $isJustVoted ? 'تم تسجيل صوتك بنجاح' : 'لقد صوّتت مسبقاً' }}
+                                                    </p>
+                                                    <p class="vote-ok-sub">إليك نتائج التصويت الحالية</p>
+                                                </div>
+                                            </div>
+                                            <div class="home-vote-results"
+                                                data-url="{{ route('quiz-competitions.question.vote-results', [$activeQuizCompetition, $q]) }}"
+                                                data-theme="dark">
+                                                <p
+                                                    style="color:rgba(148,163,184,.55);font-size:.77rem;text-align:center;padding:10px 0">
+                                                    <i class="fas fa-spinner fa-spin" style="margin-left:5px"></i>
+                                                    تحميل النتائج...
+                                                </p>
+                                            </div>
+                                        @endif
+
+                                    </div>
+                                @endforeach
+
+                            </div>{{-- /questions block --}}
+                        </div>{{-- /vote-wrap --}}
+
+                        {{-- ▌MIXED / NON-VOTE → standard green card --}}
+                    @else
                         <div class="glass-card rounded-3xl p-3 md:p-6 shadow-lg relative overflow-hidden"
-                            style="box-shadow: 0 0 40px rgba(34,197,94,.2);">
-
-                            {{-- Top accent bar --}}
+                            style="box-shadow:0 0 40px rgba(34,197,94,.2)">
                             <div class="absolute top-0 right-0 left-0 h-1.5"
-                                style="background: linear-gradient(90deg, #22c55e, #16a34a, #22c55e);"></div>
+                                style="background:linear-gradient(90deg,#22c55e,#16a34a,#22c55e)"></div>
 
-                            {{-- Status + question count --}}
                             <div class="flex items-center justify-between mb-2">
-                                <span class="inline-flex items-center gap-2 bg-red-50 text-red-600 text-xs font-bold px-3 py-1.5 rounded-full border border-red-200">
+                                <span
+                                    class="inline-flex items-center gap-2 bg-red-50 text-red-600 text-xs font-bold px-3 py-1.5 rounded-full border border-red-200">
                                     <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
                                     مسابقة جارية الآن
                                 </span>
@@ -383,24 +1238,29 @@
                                 </span>
                             </div>
 
-                            {{-- Countdown to competition END --}}
                             <div class="flex flex-wrap items-center gap-2 mb-3 text-gray-500 text-sm">
                                 <i class="fas fa-hourglass-half text-amber-500"></i>
                                 <span>ينتهي بعد:</span>
                                 <div class="flex gap-1 flex-row" id="activeQuestionTimer">
-                                    <span class="bg-gray-100 rounded-lg px-2 py-1 text-gray-800 font-bold text-sm min-w-[2rem] text-center" id="aq-seconds">00</span>
+                                    <span
+                                        class="bg-gray-100 rounded-lg px-2 py-1 text-gray-800 font-bold text-sm min-w-[2rem] text-center"
+                                        id="aq-seconds">00</span>
                                     <span class="text-gray-400 font-bold">:</span>
-                                    <span class="bg-gray-100 rounded-lg px-2 py-1 text-gray-800 font-bold text-sm min-w-[2rem] text-center" id="aq-minutes">00</span>
+                                    <span
+                                        class="bg-gray-100 rounded-lg px-2 py-1 text-gray-800 font-bold text-sm min-w-[2rem] text-center"
+                                        id="aq-minutes">00</span>
                                     <span class="text-gray-400 font-bold">:</span>
-                                    <span class="bg-gray-100 rounded-lg px-2 py-1 text-gray-800 font-bold text-sm min-w-[2rem] text-center" id="aq-hours">00</span>
+                                    <span
+                                        class="bg-gray-100 rounded-lg px-2 py-1 text-gray-800 font-bold text-sm min-w-[2rem] text-center"
+                                        id="aq-hours">00</span>
                                 </div>
                                 <input type="hidden" id="aqEndTime"
                                     value="{{ $activeQuizCompetition->end_at->getTimestamp() * 1000 }}">
                             </div>
 
-                            {{-- Session / validation errors --}}
                             @if (session('error'))
-                                <div class="rounded-2xl p-3 mb-3 flex items-center gap-3 bg-red-50 border border-red-200">
+                                <div
+                                    class="rounded-2xl p-3 mb-3 flex items-center gap-3 bg-red-50 border border-red-200">
                                     <i class="fas fa-exclamation-circle text-red-500 text-xl"></i>
                                     <p class="text-red-700 font-medium">{{ session('error') }}</p>
                                 </div>
@@ -415,143 +1275,138 @@
                                 </div>
                             @endif
 
-                            {{-- ── PRE-REVEAL: descriptions + countdown to show questions ── --}}
+                            {{-- Pre-reveal --}}
                             @if (!($showQuestionsOnHome ?? true) && isset($questionsVisibleAt) && $questionsVisibleAt)
                                 <input type="hidden" id="aqQuestionsVisibleAt"
                                     value="{{ $questionsVisibleAt->getTimestamp() * 1000 }}">
-
                                 @if ($activeQuizCompetition->questions->filter(fn($q) => !empty($q->description))->isNotEmpty())
                                     <div id="activeQuizDescriptionsOnlyBlock" class="space-y-4 mb-3">
                                         @foreach ($activeQuizCompetition->questions as $q)
                                             @if ($q->description)
-                                                <div class="rounded-2xl p-3 border-2 border-green-100 bg-white/80 shadow-sm">
-                                                    <div class="text-gray-600 text-sm quiz-description">{!! $q->description !!}</div>
+                                                <div
+                                                    class="rounded-2xl p-3 border-2 border-green-100 bg-white/80 shadow-sm">
+                                                    <div class="text-gray-600 text-sm quiz-description">
+                                                        {!! $q->description !!}</div>
                                                 </div>
                                             @endif
                                         @endforeach
                                     </div>
                                 @endif
-
                                 <div id="activeQuizQuestionsCountdown"
                                     class="rounded-2xl p-4 mb-3 bg-amber-50 border-2 border-amber-200 flex flex-wrap items-center justify-center gap-2">
                                     <i class="fas fa-clock text-amber-600"></i>
-                                    <span class="text-amber-800 font-medium text-sm">نص السؤال والإجابة تظهران بعد:</span>
+                                    <span class="text-amber-800 font-medium text-sm">نص السؤال والإجابة تظهران
+                                        بعد:</span>
                                     <span id="aqQuestionsSeconds"
                                         class="bg-amber-200 text-amber-900 font-bold text-lg min-w-[3rem] text-center rounded-lg px-2 py-1">0</span>
                                     <span class="text-amber-700 text-sm">ثانية</span>
                                 </div>
                             @endif
 
-                            {{-- ── QUESTIONS BLOCK ── --}}
                             <div id="activeQuizQuestionsBlock" class="space-y-4 mb-3"
                                 @if (!($showQuestionsOnHome ?? true)) style="display:none" @endif>
 
-                                @php
-                                    $hasNonVote = $activeQuizCompetition->questions
-                                        ->contains(fn($q) => $q->answer_type !== 'vote');
-                                @endphp
-
-                                @if ($hasNonVote)
+                                @if ($activeQuizCompetition->questions->contains(fn($q) => $q->answer_type !== 'vote'))
                                     <h4 class="text-sm font-bold text-gray-600 mb-2">أسئلة المسابقة — أجب هنا:</h4>
                                 @endif
 
                                 @foreach ($activeQuizCompetition->questions as $q)
                                     @php
-                                        $cooldownHours  = 2;
+                                        $cooldownHours = 2;
                                         $lastAnsweredAt = session('quiz_answered_' . $q->id);
-                                        $canAnswerThis  = !$lastAnsweredAt
-                                            || now()->diffInHours(\Carbon\Carbon::parse($lastAnsweredAt)) >= $cooldownHours;
+                                        $canAnswerThis =
+                                            !$lastAnsweredAt ||
+                                            now()->diffInHours(\Carbon\Carbon::parse($lastAnsweredAt)) >=
+                                                $cooldownHours;
                                     @endphp
 
                                     <div class="rounded-2xl p-3 border-2 border-green-100 bg-white/80 shadow-sm">
 
                                         @if ($q->description)
-                                            <div class="text-gray-600 text-sm mb-2 quiz-description">{!! $q->description !!}</div>
+                                            <div class="text-gray-600 text-sm mb-2 quiz-description">
+                                                {!! $q->description !!}</div>
                                         @endif
-
                                         <div class="text-gray-800 font-bold text-base mb-2 question-text"
                                             @if ($q->answer_type === 'fill_blank') style="display:none" @endif>
                                             {!! $q->question_text !!}
                                         </div>
 
-                                        {{-- ── Show-draw-only state ── --}}
                                         @if ($activeQuizCompetition->show_draw_only)
-                                            <div class="rounded-xl p-4 bg-green-50 border border-green-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                                            <div
+                                                class="rounded-xl p-4 bg-green-50 border border-green-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                                                 <p class="text-green-800 text-sm font-medium">
                                                     <i class="fas fa-info-circle text-green-600 ml-1"></i>
                                                     باب الإجابة مغلق حالياً، يمكنك متابعة فرز النتائج والقرعة من هنا.
                                                 </p>
                                                 <a href="{{ route('quiz-competitions.question', [$activeQuizCompetition, $q]) }}"
                                                     class="flex-shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-white transition-all hover:opacity-90"
-                                                    style="background: linear-gradient(135deg, #22c55e, #16a34a);">
-                                                    <i class="fas fa-trophy"></i>
-                                                    متابعة القرعة
+                                                    style="background:linear-gradient(135deg,#22c55e,#16a34a)">
+                                                    <i class="fas fa-trophy"></i> متابعة القرعة
                                                 </a>
                                             </div>
-
-                                        {{-- ── Can answer ── --}}
                                         @elseif ($canAnswerThis)
-                                            <form action="{{ route('quiz-competitions.store-answer', [$activeQuizCompetition, $q]) }}"
+                                            <form
+                                                action="{{ route('quiz-competitions.store-answer', [$activeQuizCompetition, $q]) }}"
                                                 method="POST" class="space-y-4">
                                                 @csrf
                                                 <input type="hidden" name="source" value="home">
 
-                                                {{-- ── Participant fields ── --}}
                                                 @if ($q->answer_type === 'vote' && $q->require_prior_registration)
                                                     <div class="mb-4">
                                                         <p class="text-xs text-blue-600 mb-2 font-medium">
                                                             <i class="fas fa-info-circle mx-1"></i>
                                                             هذا التصويت للمشاركين السابقين فقط. أدخل رقم هاتفك للتحقق.
                                                         </p>
-                                                        <label class="block text-gray-600 text-xs mb-1 font-medium">
-                                                            رقم الهاتف <span class="text-red-500">*</span>
-                                                        </label>
-                                                        <input type="text" name="phone" value="{{ old('phone') }}" required
-                                                            pattern="[0-9]{10}" minlength="10" maxlength="10"
-                                                            placeholder="05xxxxxxxx" dir="ltr" style="text-align:right;"
-                                                            title="يجب أن يكون رقم الهاتف 10 أرقام للمشارك السابق"
+                                                        <label class="block text-gray-600 text-xs mb-1 font-medium">رقم
+                                                            الهاتف <span class="text-red-500">*</span></label>
+                                                        <input type="text" name="phone"
+                                                            value="{{ old('phone') }}" required pattern="[0-9]{10}"
+                                                            minlength="10" maxlength="10" placeholder="05xxxxxxxx"
+                                                            dir="ltr" style="text-align:right"
                                                             class="w-full px-3 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-gray-800 text-sm focus:ring-2 focus:ring-green-200 focus:border-green-500"
                                                             autocomplete="off">
                                                     </div>
                                                 @else
                                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                                         <div>
-                                                            <label class="block text-gray-600 text-xs mb-1 font-medium">
-                                                                الاسم @if ($q->answer_type !== 'vote')<span class="text-red-500">*</span>@endif
+                                                            <label
+                                                                class="block text-gray-600 text-xs mb-1 font-medium">
+                                                                الاسم @if ($q->answer_type !== 'vote')
+                                                                    <span class="text-red-500">*</span>
+                                                                @endif
                                                             </label>
-                                                            <input type="text" name="name" value="{{ old('name') }}"
+                                                            <input type="text" name="name"
+                                                                value="{{ old('name') }}"
                                                                 {{ $q->answer_type !== 'vote' ? 'required' : '' }}
                                                                 placeholder="الاسم الكامل"
                                                                 class="w-full px-3 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-gray-800 text-sm focus:ring-2 focus:ring-green-200 focus:border-green-500">
                                                         </div>
                                                         <div>
-                                                            <label class="block text-gray-600 text-xs mb-1 font-medium">
-                                                                رقم الهاتف <span class="text-red-500">*</span>
-                                                            </label>
-                                                            <input type="text" name="phone" value="{{ old('phone') }}" required
+                                                            <label
+                                                                class="block text-gray-600 text-xs mb-1 font-medium">رقم
+                                                                الهاتف <span class="text-red-500">*</span></label>
+                                                            <input type="text" name="phone"
+                                                                value="{{ old('phone') }}" required
                                                                 pattern="[0-9]{10}" minlength="10" maxlength="10"
-                                                                placeholder="05xxxxxxxx" dir="ltr" style="text-align:right;"
-                                                                title="يجب أن يكون رقم الهاتف 10 أرقام"
+                                                                placeholder="05xxxxxxxx" dir="ltr"
+                                                                style="text-align:right"
                                                                 class="w-full px-3 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-gray-800 text-sm focus:ring-2 focus:ring-green-200 focus:border-green-500">
                                                         </div>
                                                     </div>
-
                                                     <div>
-                                                        <label class="block text-gray-600 text-xs mb-1 font-medium">
-                                                            اسم الأم (للمستخدمين من الأنساب)
-                                                        </label>
-                                                        <input type="text" name="mother_name" value="{{ old('mother_name') }}"
+                                                        <label class="block text-gray-600 text-xs mb-1 font-medium">اسم
+                                                            الأم (للمستخدمين من الأنساب)</label>
+                                                        <input type="text" name="mother_name"
+                                                            value="{{ old('mother_name') }}"
                                                             placeholder="ينتهي باسم السريع"
                                                             class="w-full px-3 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-gray-800 text-sm focus:ring-2 focus:ring-green-200 focus:border-green-500">
                                                         <input type="hidden" name="is_from_ancestry" value="1">
                                                     </div>
                                                 @endif
 
-                                                {{-- ── Answer area ── --}}
                                                 <div>
-                                                    <label class="block text-gray-600 text-xs mb-2 font-medium">
-                                                        الإجابة <span class="text-red-500">*</span>
-                                                    </label>
+                                                    <label class="block text-gray-600 text-xs mb-2 font-medium">الإجابة
+                                                        <span class="text-red-500">*</span></label>
 
                                                     {{-- ORDERING --}}
                                                     @if ($q->answer_type === 'ordering' && $q->choices->count() > 0)
@@ -559,72 +1414,88 @@
                                                             $shuffledChoices = $q->choices->shuffle();
                                                             $hasImages = $q->choices->contains(fn($c) => !empty($c->image));
                                                         @endphp
-
                                                         @if ($hasImages)
-                                                            {{-- IMAGE-BASED ORDERING --}}
                                                             <p class="text-xs text-green-700 font-medium mb-2">
-                                                                <i class="fas fa-hand-pointer ml-1"></i>
-                                                                اسحب الصور من الأعلى وأسقطها على المربع المناسب بالترتيب الصحيح
+                                                                <i class="fas fa-hand-pointer ml-1"></i> اسحب الصور من
+                                                                الأعلى وأسقطها على المربع المناسب بالترتيب الصحيح
                                                             </p>
-                                                            <div class="ordering-source-zone mb-3" data-question-id="{{ $q->id }}">
+                                                            <div class="ordering-source-zone mb-3"
+                                                                data-question-id="{{ $q->id }}">
                                                                 <div class="flex items-center gap-1.5 mb-1.5">
-                                                                    <i class="fas fa-images text-green-500 text-xs"></i>
-                                                                    <span class="text-[11px] text-gray-500 font-medium">الصور المتاحة</span>
+                                                                    <i
+                                                                        class="fas fa-images text-green-500 text-xs"></i>
+                                                                    <span
+                                                                        class="text-[11px] text-gray-500 font-medium">الصور
+                                                                        المتاحة</span>
                                                                 </div>
-                                                                <div class="ordering-source-grid" id="orderSource-{{ $q->id }}">
+                                                                <div class="ordering-source-grid"
+                                                                    id="orderSource-{{ $q->id }}">
                                                                     @foreach ($shuffledChoices as $choice)
-                                                                        <div data-id="{{ $choice->id }}" class="ordering-img-item" title="{{ $choice->choice_text }}">
+                                                                        <div data-id="{{ $choice->id }}"
+                                                                            class="ordering-img-item"
+                                                                            title="{{ $choice->choice_text }}">
                                                                             <img src="{{ asset('storage/' . $choice->image) }}"
-                                                                                alt="{{ $choice->choice_text }}" draggable="false">
+                                                                                alt="{{ $choice->choice_text }}"
+                                                                                draggable="false">
                                                                         </div>
                                                                     @endforeach
                                                                 </div>
                                                             </div>
-
-                                                            <div class="flex justify-center mb-2">
-                                                                <i class="fas fa-arrow-down text-green-400 text-lg animate-bounce"></i>
+                                                            <div class="flex justify-center mb-2"><i
+                                                                    class="fas fa-arrow-down text-green-400 text-lg animate-bounce"></i>
                                                             </div>
-
-                                                            <div class="ordering-target-zone" data-question-id="{{ $q->id }}">
+                                                            <div class="ordering-target-zone"
+                                                                data-question-id="{{ $q->id }}">
                                                                 <div class="flex items-center gap-1.5 mb-1.5">
-                                                                    <i class="fas fa-sort-numeric-down text-green-500 text-xs"></i>
-                                                                    <span class="text-[11px] text-gray-500 font-medium">الترتيب الصحيح (اسقط الصور هنا)</span>
+                                                                    <i
+                                                                        class="fas fa-sort-numeric-down text-green-500 text-xs"></i>
+                                                                    <span
+                                                                        class="text-[11px] text-gray-500 font-medium">الترتيب
+                                                                        الصحيح (اسقط الصور هنا)</span>
                                                                 </div>
-                                                                @php
-                                                                    $groups = $q->choices->filter(fn($c) => !empty($c->group_name))->groupBy('group_name');
-                                                                @endphp
+                                                                @php $groups = $q->choices->filter(fn($c) => !empty($c->group_name))->groupBy('group_name'); @endphp
                                                                 @if ($q->groups_count && $q->groups_count > 0 && $groups->count() > 0)
-                                                                    <div class="grid grid-cols-1 md:grid-cols-{{ min($groups->count(), 4) }} gap-4 ordering-groups-container">
+                                                                    <div
+                                                                        class="grid grid-cols-1 md:grid-cols-{{ min($groups->count(), 4) }} gap-4 ordering-groups-container">
                                                                         @foreach ($groups as $groupName => $groupChoices)
                                                                             @if ($groupChoices->count() === 1)
-                                                                                @php $singleChoice = $groupChoices->first(); @endphp
-                                                                                <div class="p-3 bg-white border border-green-200 rounded-xl shadow-sm">
-                                                                                    <div class="flex items-center justify-between gap-3">
-                                                                                        <h5 class="text-sm font-bold text-green-700">{{ $groupName }}</h5>
+                                                                                @php $sc = $groupChoices->first(); @endphp
+                                                                                <div
+                                                                                    class="p-3 bg-white border border-green-200 rounded-xl shadow-sm">
+                                                                                    <div
+                                                                                        class="flex items-center justify-between gap-3">
+                                                                                        <h5
+                                                                                            class="text-sm font-bold text-green-700">
+                                                                                            {{ $groupName }}</h5>
                                                                                         <div class="ordering-slot flex-col gap-1 flex-shrink-0"
-                                                                                            data-slot="{{ $singleChoice->id }}" data-group="{{ $groupName }}"
-                                                                                            style="width:60px;height:60px;aspect-ratio:1;">
-                                                                                            @if (!empty($singleChoice->choice_text))
-                                                                                                <span class="ordering-slot-text text-xs sm:text-sm text-green-600 font-bold text-center px-1 leading-tight pointer-events-none">{{ $singleChoice->choice_text }}</span>
-                                                                                            @else
-                                                                                                <span class="ordering-slot-num">1</span>
+                                                                                            data-slot="{{ $sc->id }}"
+                                                                                            data-group="{{ $groupName }}"
+                                                                                            style="width:60px;height:60px;aspect-ratio:1">
+                                                                                            @if (!empty($sc->choice_text))
+                                                                                                <span
+                                                                                                class="ordering-slot-text text-xs sm:text-sm text-green-600 font-bold text-center px-1 leading-tight pointer-events-none">{{ $sc->choice_text }}</span>@else<span
+                                                                                                    class="ordering-slot-num">1</span>
                                                                                             @endif
                                                                                         </div>
                                                                                     </div>
                                                                                 </div>
                                                                             @else
-                                                                                <div class="p-3 bg-white border border-green-200 rounded-xl shadow-sm">
-                                                                                    <h5 class="text-sm font-bold text-green-700 text-center mb-2">{{ $groupName }}</h5>
+                                                                                <div
+                                                                                    class="p-3 bg-white border border-green-200 rounded-xl shadow-sm">
+                                                                                    <h5
+                                                                                        class="text-sm font-bold text-green-700 text-center mb-2">
+                                                                                        {{ $groupName }}</h5>
                                                                                     <div class="ordering-slots-grid ordering-slots-grouped"
                                                                                         id="orderTarget-{{ $q->id }}-{{ Str::slug($groupName) }}"
                                                                                         data-group="{{ $groupName }}">
                                                                                         @foreach ($groupChoices as $s => $choice)
                                                                                             <div class="ordering-slot flex-col gap-1"
-                                                                                                data-slot="{{ $choice->id }}" data-group="{{ $groupName }}">
+                                                                                                data-slot="{{ $choice->id }}"
+                                                                                                data-group="{{ $groupName }}">
                                                                                                 @if (!empty($choice->choice_text))
-                                                                                                    <span class="ordering-slot-text text-xs sm:text-sm text-green-600 font-bold text-center px-1 leading-tight pointer-events-none">{{ $choice->choice_text }}</span>
-                                                                                                @else
-                                                                                                    <span class="ordering-slot-num">{{ $s + 1 }}</span>
+                                                                                                    <span
+                                                                                                    class="ordering-slot-text text-xs sm:text-sm text-green-600 font-bold text-center px-1 leading-tight pointer-events-none">{{ $choice->choice_text }}</span>@else<span
+                                                                                                        class="ordering-slot-num">{{ $s + 1 }}</span>
                                                                                                 @endif
                                                                                             </div>
                                                                                         @endforeach
@@ -634,111 +1505,132 @@
                                                                         @endforeach
                                                                     </div>
                                                                 @else
-                                                                    <div class="ordering-slots-grid" id="orderTarget-{{ $q->id }}">
+                                                                    <div class="ordering-slots-grid"
+                                                                        id="orderTarget-{{ $q->id }}">
                                                                         @foreach ($q->choices as $s => $choice)
-                                                                            <div class="ordering-slot flex-col gap-1" data-slot="{{ $s + 1 }}">
+                                                                            <div class="ordering-slot flex-col gap-1"
+                                                                                data-slot="{{ $s + 1 }}">
                                                                                 @if (!empty($choice->choice_text))
-                                                                                    <span class="ordering-slot-text text-xs sm:text-sm text-green-600 font-bold text-center px-1 leading-tight pointer-events-none">{{ $choice->choice_text }}</span>
-                                                                                @else
-                                                                                    <span class="ordering-slot-num">{{ $s + 1 }}</span>
+                                                                                    <span
+                                                                                    class="ordering-slot-text text-xs sm:text-sm text-green-600 font-bold text-center px-1 leading-tight pointer-events-none">{{ $choice->choice_text }}</span>@else<span
+                                                                                        class="ordering-slot-num">{{ $s + 1 }}</span>
                                                                                 @endif
                                                                             </div>
                                                                         @endforeach
                                                                     </div>
                                                                 @endif
                                                             </div>
-
-                                                            <input type="hidden" name="answer_order_q{{ $q->id }}" value=""
-                                                                class="ordering-final-input" data-question-id="{{ $q->id }}"
+                                                            <input type="hidden"
+                                                                name="answer_order_q{{ $q->id }}"
+                                                                value="" class="ordering-final-input"
+                                                                data-question-id="{{ $q->id }}"
                                                                 id="orderInput-{{ $q->id }}">
-                                                            <input type="hidden" class="ordering-total-count" value="{{ $q->choices->count() }}">
+                                                            <input type="hidden" class="ordering-total-count"
+                                                                value="{{ $q->choices->count() }}">
                                                         @else
-                                                            {{-- TEXT-BASED ORDERING --}}
-                                                            <p class="text-xs text-green-700 font-medium mb-2">
-                                                                <i class="fas fa-info-circle mr-1"></i>
-                                                                قم بسحب وإفلات الخيارات لترتيبها بشكل صحيح
-                                                            </p>
-                                                            <div class="space-y-2 sortable-list" data-question-id="{{ $q->id }}">
+                                                            <p class="text-xs text-green-700 font-medium mb-2"><i
+                                                                    class="fas fa-info-circle mr-1"></i> قم بسحب وإفلات
+                                                                الخيارات لترتيبها بشكل صحيح</p>
+                                                            <div class="space-y-2 sortable-list"
+                                                                data-question-id="{{ $q->id }}">
                                                                 @foreach ($shuffledChoices as $choice)
                                                                     <div data-id="{{ $choice->id }}"
                                                                         class="flex items-center gap-3 p-3 rounded-xl border-2 border-gray-200 bg-white hover:border-green-300 cursor-move transition-all sortable-item select-none shadow-sm">
                                                                         <i class="fas fa-grip-lines text-gray-400"></i>
-                                                                        <span class="text-gray-800 text-sm font-medium flex-grow">{{ $choice->choice_text }}</span>
-                                                                        <input type="hidden" name="answer[]" value="{{ $choice->id }}" class="ordering-input-hidden">
+                                                                        <span
+                                                                            class="text-gray-800 text-sm font-medium flex-grow">{{ $choice->choice_text }}</span>
+                                                                        <input type="hidden" name="answer[]"
+                                                                            value="{{ $choice->id }}"
+                                                                            class="ordering-input-hidden">
                                                                     </div>
                                                                 @endforeach
                                                             </div>
                                                         @endif
 
-                                                    {{-- MULTIPLE CHOICE --}}
+                                                        {{-- MULTIPLE CHOICE --}}
                                                     @elseif ($q->answer_type === 'multiple_choice' && $q->choices->count() > 0)
                                                         @if (!$q->is_multiple_selections && $q->choices->count() === 1)
-                                                            @php $singleChoice = $q->choices->first(); @endphp
-                                                            <input type="hidden" name="answer" value="{{ $singleChoice->id }}">
-                                                            <p class="text-xs text-green-700 font-medium mb-2">
-                                                                <i class="fas fa-hand-pointer ml-1"></i> اضغط الزر أدناه للإجابة
-                                                            </p>
+                                                            <input type="hidden" name="answer"
+                                                                value="{{ $q->choices->first()->id }}">
+                                                            <p class="text-xs text-green-700 font-medium mb-2"><i
+                                                                    class="fas fa-hand-pointer ml-1"></i> اضغط الزر
+                                                                أدناه للإجابة</p>
                                                         @else
                                                             @if ($q->is_multiple_selections)
                                                                 @php $requiredCount = $q->getRequiredCorrectAnswersCount(); @endphp
-                                                                <p class="text-xs text-green-700 font-medium mb-2">
-                                                                    يجب اختيار {{ $requiredCount }} إجابات
-                                                                    <input type="hidden" class="required-choices-count" value="{{ $requiredCount }}">
-                                                                </p>
+                                                                <p class="text-xs text-green-700 font-medium mb-2">يجب
+                                                                    اختيار {{ $requiredCount }} إجابات<input
+                                                                        type="hidden" class="required-choices-count"
+                                                                        value="{{ $requiredCount }}"></p>
                                                             @endif
                                                             <div class="space-y-2 choice-group">
                                                                 @foreach ($q->choices as $choice)
-                                                                    <label class="flex items-center gap-3 p-3 rounded-xl border-2 border-gray-200 bg-white hover:border-green-300 hover:bg-green-50/50 cursor-pointer transition-all has-[:checked]:border-green-500 has-[:checked]:bg-green-50">
+                                                                    <label
+                                                                        class="flex items-center gap-3 p-3 rounded-xl border-2 border-gray-200 bg-white hover:border-green-300 hover:bg-green-50/50 cursor-pointer transition-all has-[:checked]:border-green-500 has-[:checked]:bg-green-50">
                                                                         @if ($q->is_multiple_selections)
-                                                                            <input type="checkbox" name="answer[]" value="{{ $choice->id }}"
+                                                                            <input type="checkbox" name="answer[]"
+                                                                                value="{{ $choice->id }}"
                                                                                 class="w-4 h-4 text-green-600 home-quiz-checkbox">
                                                                         @else
-                                                                            <input type="radio" name="answer" value="{{ $choice->id }}"
-                                                                                class="w-4 h-4 text-green-600" required>
+                                                                            <input type="radio" name="answer"
+                                                                                value="{{ $choice->id }}"
+                                                                                class="w-4 h-4 text-green-600"
+                                                                                required>
                                                                         @endif
-                                                                        <span class="text-gray-800 text-sm font-medium">{{ $choice->choice_text }}</span>
+                                                                        <span
+                                                                            class="text-gray-800 text-sm font-medium">{{ $choice->choice_text }}</span>
                                                                     </label>
                                                                 @endforeach
                                                             </div>
                                                         @endif
 
-                                                    {{-- TRUE / FALSE --}}
+                                                        {{-- TRUE / FALSE --}}
                                                     @elseif ($q->answer_type === 'true_false' && $q->choices->count() > 0)
-                                                        <div class="flex items-center gap-2 mb-4 pb-2 border-b border-green-100">
-                                                            <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 text-white text-xs shadow-md">
-                                                                <i class="fas fa-tasks"></i>
-                                                            </span>
-                                                            <span class="text-sm text-green-800 font-bold">حدد هل كل عبارة صحيحة أم خاطئة</span>
-                                                            <span class="text-[10px] text-gray-400 font-medium mr-auto">({{ $q->choices->count() }} عبارات)</span>
+                                                        <div
+                                                            class="flex items-center gap-2 mb-4 pb-2 border-b border-green-100">
+                                                            <span
+                                                                class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 text-white text-xs shadow-md"><i
+                                                                    class="fas fa-tasks"></i></span>
+                                                            <span class="text-sm text-green-800 font-bold">حدد هل كل
+                                                                عبارة صحيحة أم خاطئة</span>
+                                                            <span
+                                                                class="text-[10px] text-gray-400 font-medium mr-auto">({{ $q->choices->count() }}
+                                                                عبارات)</span>
                                                         </div>
                                                         <div class="space-y-3">
                                                             @foreach ($q->choices as $choice)
-                                                                <div class="group relative rounded-xl border border-gray-100 bg-gradient-to-br from-white to-gray-50/80 hover:border-green-200 hover:shadow-md transition-all duration-300 overflow-hidden">
+                                                                <div
+                                                                    class="group relative rounded-xl border border-gray-100 bg-gradient-to-br from-white to-gray-50/80 hover:border-green-200 hover:shadow-md transition-all duration-300 overflow-hidden">
                                                                     <div class="p-3">
                                                                         <div class="flex flex-row gap-3 items-center">
 
-                                                                            {{-- Image thumbnail --}}
+                                                                            {{-- Image thumb --}}
                                                                             @if (!empty($choice->image))
-                                                                                <div class="video-thumb-wrap w-20 h-20"
+                                                                                <div class="vthumb"
+                                                                                    style="width:82px;height:82px"
                                                                                     onclick="quizOpenImage('{{ asset('storage/' . $choice->image) }}')">
-                                                                                    <img src="{{ asset('storage/' . $choice->image) }}" alt="صورة توضيحية">
-                                                                                    <div class="video-thumb-overlay">
-                                                                                        <div class="video-thumb-play">
-                                                                                            <i class="fas fa-search-plus" style="color:#16a34a;margin-left:0;"></i>
+                                                                                    <img src="{{ asset('storage/' . $choice->image) }}"
+                                                                                        alt="صورة">
+                                                                                    <div class="vthumb-overlay">
+                                                                                        <div class="vthumb-play"
+                                                                                            style="width:38px;height:38px">
+                                                                                            <i class="fas fa-search-plus"
+                                                                                                style="color:#16a34a;font-size:14px;margin-left:0"></i>
                                                                                         </div>
                                                                                     </div>
                                                                                 </div>
                                                                             @endif
 
-                                                                            {{-- Video thumbnail --}}
+                                                                            {{-- Video thumb – big & clear --}}
                                                                             @if (!empty($choice->video))
-                                                                                <div class="video-thumb-wrap w-28 h-20"
+                                                                                <div class="vthumb"
+                                                                                    style="width:118px;height:82px"
                                                                                     onclick="quizOpenVideo('{{ asset('storage/' . $choice->video) }}')">
                                                                                     <video muted preload="metadata"
                                                                                         src="{{ asset('storage/' . $choice->video) }}#t=0.5">
                                                                                     </video>
-                                                                                    <div class="video-thumb-overlay">
-                                                                                        <div class="video-thumb-play">
+                                                                                    <div class="vthumb-overlay">
+                                                                                        <div class="vthumb-play">
                                                                                             <i class="fas fa-play"></i>
                                                                                         </div>
                                                                                     </div>
@@ -746,80 +1638,98 @@
                                                                             @endif
 
                                                                             <div class="flex-grow flex items-center">
-                                                                                <p class="text-gray-800 text-[13px] font-semibold leading-snug">{{ $choice->choice_text }}</p>
+                                                                                <p
+                                                                                    class="text-gray-800 text-[13px] font-semibold leading-snug">
+                                                                                    {{ $choice->choice_text }}</p>
                                                                             </div>
 
-                                                                            {{-- True / False toggle --}}
-                                                                            <div class="flex flex-col gap-1.5 flex-shrink-0">
+                                                                            <div
+                                                                                class="flex flex-col gap-1.5 flex-shrink-0">
                                                                                 <label class="cursor-pointer">
-                                                                                    <input type="radio" name="answer[{{ $choice->id }}]" value="1" class="hidden peer" required>
-                                                                                    <div class="w-9 h-9 flex items-center justify-center rounded-full border-2 border-green-200 bg-green-50/50 text-green-500 transition-all duration-200
-                                                                                        peer-checked:bg-gradient-to-br peer-checked:from-green-500 peer-checked:to-emerald-500 peer-checked:text-white peer-checked:border-green-500 peer-checked:shadow-lg peer-checked:shadow-green-200/50 peer-checked:scale-110
-                                                                                        hover:bg-green-100 hover:border-green-300 active:scale-90">
-                                                                                        <i class="fas fa-check text-sm"></i>
+                                                                                    <input type="radio"
+                                                                                        name="answer[{{ $choice->id }}]"
+                                                                                        value="1"
+                                                                                        class="hidden peer" required>
+                                                                                    <div
+                                                                                        class="w-9 h-9 flex items-center justify-center rounded-full border-2 border-green-200 bg-green-50/50 text-green-500 transition-all duration-200 peer-checked:bg-gradient-to-br peer-checked:from-green-500 peer-checked:to-emerald-500 peer-checked:text-white peer-checked:border-green-500 peer-checked:shadow-lg peer-checked:shadow-green-200/50 peer-checked:scale-110 hover:bg-green-100 hover:border-green-300 active:scale-90">
+                                                                                        <i
+                                                                                            class="fas fa-check text-sm"></i>
                                                                                     </div>
                                                                                 </label>
                                                                                 <label class="cursor-pointer">
-                                                                                    <input type="radio" name="answer[{{ $choice->id }}]" value="0" class="hidden peer" required>
-                                                                                    <div class="w-9 h-9 flex items-center justify-center rounded-full border-2 border-red-200 bg-red-50/50 text-red-400 transition-all duration-200
-                                                                                        peer-checked:bg-gradient-to-br peer-checked:from-red-500 peer-checked:to-rose-500 peer-checked:text-white peer-checked:border-red-500 peer-checked:shadow-lg peer-checked:shadow-red-200/50 peer-checked:scale-110
-                                                                                        hover:bg-red-100 hover:border-red-300 active:scale-90">
-                                                                                        <i class="fas fa-times text-sm"></i>
+                                                                                    <input type="radio"
+                                                                                        name="answer[{{ $choice->id }}]"
+                                                                                        value="0"
+                                                                                        class="hidden peer" required>
+                                                                                    <div
+                                                                                        class="w-9 h-9 flex items-center justify-center rounded-full border-2 border-red-200 bg-red-50/50 text-red-400 transition-all duration-200 peer-checked:bg-gradient-to-br peer-checked:from-red-500 peer-checked:to-rose-500 peer-checked:text-white peer-checked:border-red-500 peer-checked:shadow-lg peer-checked:shadow-red-200/50 peer-checked:scale-110 hover:bg-red-100 hover:border-red-300 active:scale-90">
+                                                                                        <i
+                                                                                            class="fas fa-times text-sm"></i>
                                                                                     </div>
                                                                                 </label>
                                                                             </div>
-
                                                                         </div>
                                                                     </div>
                                                                 </div>
                                                             @endforeach
                                                         </div>
 
-                                                    {{-- VOTE --}}
+                                                        {{-- VOTE inside mixed --}}
                                                     @elseif ($q->answer_type === 'vote' && $q->choices->count() > 0)
                                                         @php $voteMax = $q->vote_max_selections ?? 1; @endphp
                                                         @if ($voteMax > 1)
                                                             <p class="text-xs text-green-700 font-medium mb-2">
-                                                                <i class="fas fa-poll ml-1"></i> يمكنك اختيار حتى <strong>{{ $voteMax }}</strong> خيارات
-                                                                <input type="hidden" class="home-vote-max" value="{{ $voteMax }}">
+                                                                <i class="fas fa-poll ml-1"></i> يمكنك اختيار حتى
+                                                                <strong>{{ $voteMax }}</strong> خيارات
+                                                                <input type="hidden" class="home-vote-max"
+                                                                    value="{{ $voteMax }}">
                                                             </p>
                                                         @endif
                                                         <div class="space-y-3">
                                                             @foreach ($q->choices as $choice)
-                                                                <label class="group flex items-center gap-3 p-3 rounded-2xl border-2 border-gray-100 bg-white hover:border-green-300 hover:shadow-md cursor-pointer transition-all has-[:checked]:border-green-500 has-[:checked]:bg-gradient-to-r has-[:checked]:from-green-50 has-[:checked]:to-emerald-50 relative overflow-hidden">
+                                                                <label
+                                                                    class="group flex items-center gap-3 p-3 rounded-2xl border-2 border-gray-100 bg-white hover:border-green-300 hover:shadow-md cursor-pointer transition-all has-[:checked]:border-green-500 has-[:checked]:bg-gradient-to-r has-[:checked]:from-green-50 has-[:checked]:to-emerald-50 relative overflow-hidden">
                                                                     @if ($voteMax > 1)
-                                                                        <input type="checkbox" name="answer[]" value="{{ $choice->id }}"
+                                                                        <input type="checkbox" name="answer[]"
+                                                                            value="{{ $choice->id }}"
                                                                             class="hidden home-vote-checkbox">
-                                                                        <div class="w-6 h-6 flex-shrink-0 rounded flex items-center justify-center border-2 border-gray-300 bg-gray-50 transition-all group-has-[:checked]:border-green-500 group-has-[:checked]:bg-green-500 z-10">
-                                                                            <i class="fas fa-check text-white text-xs opacity-0 group-has-[:checked]:opacity-100 transition-opacity"></i>
+                                                                        <div
+                                                                            class="w-6 h-6 flex-shrink-0 rounded flex items-center justify-center border-2 border-gray-300 bg-gray-50 transition-all group-has-[:checked]:border-green-500 group-has-[:checked]:bg-green-500 z-10">
+                                                                            <i
+                                                                                class="fas fa-check text-white text-xs opacity-0 group-has-[:checked]:opacity-100 transition-opacity"></i>
                                                                         </div>
                                                                     @else
-                                                                        <input type="radio" name="answer" value="{{ $choice->id }}" class="hidden peer" required>
-                                                                        <div class="w-6 h-6 flex-shrink-0 rounded-full border-2 border-gray-300 flex items-center justify-center peer-checked:border-green-500 peer-checked:bg-green-500 transition-all z-10">
-                                                                            <div class="w-2 h-2 rounded-full bg-white opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+                                                                        <input type="radio" name="answer"
+                                                                            value="{{ $choice->id }}"
+                                                                            class="hidden peer" required>
+                                                                        <div
+                                                                            class="w-6 h-6 flex-shrink-0 rounded-full border-2 border-gray-300 flex items-center justify-center peer-checked:border-green-500 peer-checked:bg-green-500 transition-all z-10">
+                                                                            <div
+                                                                                class="w-2 h-2 rounded-full bg-white opacity-0 peer-checked:opacity-100 transition-opacity">
+                                                                            </div>
                                                                         </div>
                                                                     @endif
-
-                                                                    <div class="flex-grow flex items-center gap-3 z-10 min-w-0">
+                                                                    <div
+                                                                        class="flex-grow flex items-center gap-3 z-10 min-w-0">
                                                                         @if ($choice->image)
                                                                             <img src="{{ asset('storage/' . $choice->image) }}"
                                                                                 class="w-12 h-12 md:w-14 md:h-14 object-cover rounded-xl shadow-sm border border-gray-100 flex-shrink-0">
                                                                         @endif
-                                                                        <span class="text-gray-800 text-[13px] md:text-sm font-bold leading-snug">{{ $choice->choice_text }}</span>
+                                                                        <span
+                                                                            class="text-gray-800 text-[13px] md:text-sm font-bold leading-snug">{{ $choice->choice_text }}</span>
                                                                     </div>
-
-                                                                    {{-- Video thumbnail inline in vote choice --}}
                                                                     @if ($choice->video)
                                                                         <div class="z-10 flex-shrink-0"
-                                                                            onclick="event.preventDefault(); event.stopPropagation(); quizOpenVideo('{{ asset('storage/' . $choice->video) }}')">
-                                                                            <div class="video-thumb-wrap w-16 h-12 rounded-xl">
+                                                                            onclick="event.preventDefault();event.stopPropagation();quizOpenVideo('{{ asset('storage/' . $choice->video) }}')">
+                                                                            <div class="vthumb"
+                                                                                style="width:74px;height:54px;border-radius:11px">
                                                                                 <video muted preload="metadata"
-                                                                                    src="{{ asset('storage/' . $choice->video) }}#t=0.5"
-                                                                                    class="rounded-xl">
-                                                                                </video>
-                                                                                <div class="video-thumb-overlay rounded-xl">
-                                                                                    <div class="video-thumb-play" style="width:28px;height:28px;">
-                                                                                        <i class="fas fa-play" style="font-size:11px;"></i>
+                                                                                    src="{{ asset('storage/' . $choice->video) }}#t=0.5"></video>
+                                                                                <div class="vthumb-overlay">
+                                                                                    <div class="vthumb-play"
+                                                                                        style="width:32px;height:32px">
+                                                                                        <i class="fas fa-play"
+                                                                                            style="font-size:12px"></i>
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
@@ -829,107 +1739,140 @@
                                                             @endforeach
                                                         </div>
 
-                                                    {{-- FILL IN THE BLANK --}}
+                                                        {{-- FILL BLANK --}}
                                                     @elseif ($q->answer_type === 'fill_blank' && $q->choices->count() > 0)
                                                         @php
-                                                            $parts       = preg_split('/___/', $q->question_text, 2);
+                                                            $parts = preg_split('/___/', $q->question_text, 2);
                                                             $beforeBlank = $parts[0] ?? '';
-                                                            $afterBlank  = $parts[1] ?? '';
-                                                            $shuffledFillChoices = $q->choices->shuffle();
+                                                            $afterBlank = $parts[1] ?? '';
                                                         @endphp
-                                                        <div class="fill-blank-wrapper" data-question-id="{{ $q->id }}">
+                                                        <div class="fill-blank-wrapper"
+                                                            data-question-id="{{ $q->id }}">
                                                             <div class="fill-blank-sentence" dir="rtl">
                                                                 @if ($beforeBlank)
-                                                                    <span class="fill-blank-text">{{ $beforeBlank }}</span>
+                                                                    <span
+                                                                        class="fill-blank-text">{{ $beforeBlank }}</span>
                                                                 @endif
-                                                                <span class="fill-blank-drop" id="fillDrop-{{ $q->id }}"
+                                                                <span class="fill-blank-drop"
+                                                                    id="fillDrop-{{ $q->id }}"
                                                                     onclick="fbClearDrop({{ $q->id }})">
-                                                                    <span class="fill-blank-placeholder">اسحب أو اضغط كلمة</span>
+                                                                    <span class="fill-blank-placeholder">اسحب أو اضغط
+                                                                        كلمة</span>
                                                                 </span>
                                                                 @if ($afterBlank)
-                                                                    <span class="fill-blank-text">{{ $afterBlank }}</span>
+                                                                    <span
+                                                                        class="fill-blank-text">{{ $afterBlank }}</span>
                                                                 @endif
                                                             </div>
-                                                            <div class="fill-blank-chips" id="fillChips-{{ $q->id }}">
-                                                                @foreach ($shuffledFillChoices as $choice)
+                                                            <div class="fill-blank-chips"
+                                                                id="fillChips-{{ $q->id }}">
+                                                                @foreach ($q->choices->shuffle() as $choice)
                                                                     <button type="button" class="fill-blank-chip"
                                                                         data-choice-id="{{ $choice->id }}"
                                                                         data-question-id="{{ $q->id }}"
-                                                                        onclick="fbSelectChip(this)">
-                                                                        {{ $choice->choice_text }}
-                                                                    </button>
+                                                                        onclick="fbSelectChip(this)">{{ $choice->choice_text }}</button>
                                                                 @endforeach
                                                             </div>
                                                             <input type="hidden" name="answer"
                                                                 id="fillAnswer-{{ $q->id }}" value=""
                                                                 class="fill-blank-answer-input">
-                                                            <p class="fill-blank-hint" id="fillHint-{{ $q->id }}">
-                                                                <i class="fas fa-hand-point-up ml-1"></i>
-                                                                اختر الكلمة المناسبة لإتمام الجملة
+                                                            <p class="fill-blank-hint"
+                                                                id="fillHint-{{ $q->id }}">
+                                                                <i class="fas fa-hand-point-up ml-1"></i> اختر الكلمة
+                                                                المناسبة لإتمام الجملة
                                                             </p>
                                                         </div>
 
-                                                    {{-- TEXT / DEFAULT --}}
+                                                        {{-- TEXT --}}
                                                     @else
                                                         <textarea name="answer" rows="3" required placeholder="اكتب إجابتك..."
                                                             class="w-full px-3 py-2.5 rounded-xl border-2 border-gray-200 bg-white text-gray-800 text-sm focus:ring-2 focus:ring-green-200 focus:border-green-500 resize-none">{{ old('answer') }}</textarea>
                                                     @endif
                                                 </div>
 
-                                                {{-- Submit button --}}
+                                                {{-- Submit --}}
                                                 @if ($q->answer_type === 'multiple_choice' && !$q->is_multiple_selections && $q->choices->count() === 1)
-                                                    <button type="submit" onclick="validateHomeQuiz(event, this)"
+                                                    <button type="submit" onclick="validateHomeQuiz(event,this)"
                                                         class="w-full px-6 py-4 rounded-xl text-white font-bold text-base inline-flex items-center justify-center gap-2 transition-all hover:opacity-90 hover:scale-[1.02] active:scale-[0.98] mt-4"
-                                                        style="background: linear-gradient(135deg, #22c55e, #16a34a); animation: pulse-soft 2s infinite;">
+                                                        style="background:linear-gradient(135deg,#22c55e,#16a34a)">
                                                         <i class="fas fa-hand-pointer"></i>
                                                         {{ $q->choices->first()->choice_text }}
                                                     </button>
                                                 @elseif ($q->answer_type === 'vote')
-                                                    <button type="submit" onclick="validateHomeQuiz(event, this)"
-                                                        class="w-full sm:w-auto min-w-[150px] px-6 py-3.5 rounded-xl text-white font-bold text-sm inline-flex items-center justify-center gap-2 transition-all hover:opacity-90 hover:scale-[1.02] active:scale-[0.98] mt-4 shadow-lg shadow-blue-200"
-                                                        style="background: linear-gradient(135deg, #3b82f6, #2563eb);">
-                                                        <i class="fas fa-poll"></i>
-                                                        إرسال التصويت
+                                                    <button type="submit" onclick="validateHomeQuiz(event,this)"
+                                                        class="w-full sm:w-auto min-w-[150px] px-6 py-3.5 rounded-xl text-white font-bold text-sm inline-flex items-center justify-center gap-2 transition-all hover:opacity-90 hover:scale-[1.02] active:scale-[0.98] mt-4"
+                                                        style="background:linear-gradient(135deg,#3b82f6,#2563eb)">
+                                                        <i class="fas fa-poll"></i> إرسال التصويت
                                                     </button>
                                                 @else
-                                                    <button type="submit" onclick="validateHomeQuiz(event, this)"
+                                                    <button type="submit" onclick="validateHomeQuiz(event,this)"
                                                         class="w-full sm:w-auto px-6 py-3 rounded-xl text-white font-bold text-sm inline-flex items-center justify-center gap-2 transition-all hover:opacity-90 mt-4"
-                                                        style="background: linear-gradient(135deg, #22c55e, #16a34a);">
-                                                        <i class="fas fa-paper-plane"></i>
-                                                        إرسال الإجابة
+                                                        style="background:linear-gradient(135deg,#22c55e,#16a34a)">
+                                                        <i class="fas fa-paper-plane"></i> إرسال الإجابة
                                                     </button>
                                                 @endif
                                             </form>
-
-                                        {{-- ── Already answered (vote) – show results ── --}}
                                         @elseif (session('vote_submitted') && session('answered_question_id') == $q->id)
-                                            @include('partials._quiz-vote-results', [
-                                                'competition' => $activeQuizCompetition,
-                                                'question'    => $q,
-                                                'title'       => 'تم تسجيل صوتك بنجاح',
-                                                'subtitle'    => 'إليك نتائج التصويت الحالية:',
-                                            ])
-
-                                        {{-- ── Already answered (non-vote or vote without flash) ── --}}
+                                            <div
+                                                class="rounded-2xl p-4 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 shadow-sm relative overflow-hidden mt-2">
+                                                <div class="absolute top-0 right-0 left-0 h-1.5"
+                                                    style="background:linear-gradient(90deg,#22c55e,#16a34a)"></div>
+                                                <div class="flex items-center gap-3 mb-4">
+                                                    <div
+                                                        class="w-10 h-10 rounded-full flex items-center justify-center bg-green-100 flex-shrink-0 border border-green-200">
+                                                        <i class="fas fa-check-circle text-green-600 text-lg"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h4 class="font-bold text-green-800 text-sm">تم تسجيل صوتك
+                                                            بنجاح</h4>
+                                                        <p class="text-xs text-green-600 mt-0.5">إليك نتائج التصويت
+                                                            الحالية:</p>
+                                                    </div>
+                                                </div>
+                                                <div class="home-vote-results space-y-3"
+                                                    data-url="{{ route('quiz-competitions.question.vote-results', [$activeQuizCompetition, $q]) }}">
+                                                    <p class="text-gray-400 text-xs text-center py-4"><i
+                                                            class="fas fa-spinner fa-spin mx-1"></i> تحميل النتائج...
+                                                    </p>
+                                                </div>
+                                            </div>
                                         @else
                                             @if ($q->answer_type === 'vote')
-                                                @include('partials._quiz-vote-results', [
-                                                    'competition' => $activeQuizCompetition,
-                                                    'question'    => $q,
-                                                    'title'       => 'تفضيلات التصويت الحالية',
-                                                    'subtitle'    => 'لقد قمت بالتصويت مسبقاً، وإليك النتائج:',
-                                                ])
+                                                <div
+                                                    class="rounded-2xl p-4 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 shadow-sm relative overflow-hidden mt-2">
+                                                    <div class="absolute top-0 right-0 left-0 h-1.5"
+                                                        style="background:linear-gradient(90deg,#22c55e,#16a34a)">
+                                                    </div>
+                                                    <div class="flex items-center gap-3 mb-4">
+                                                        <div
+                                                            class="w-10 h-10 rounded-full flex items-center justify-center bg-green-100 flex-shrink-0 border border-green-200">
+                                                            <i class="fas fa-check-circle text-green-600 text-lg"></i>
+                                                        </div>
+                                                        <div>
+                                                            <h4 class="font-bold text-green-800 text-sm">تفضيلات
+                                                                التصويت الحالية</h4>
+                                                            <p class="text-xs text-green-600 mt-0.5">لقد قمت بالتصويت
+                                                                مسبقاً:</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="home-vote-results space-y-3"
+                                                        data-url="{{ route('quiz-competitions.question.vote-results', [$activeQuizCompetition, $q]) }}">
+                                                        <p class="text-gray-400 text-xs text-center py-4"><i
+                                                                class="fas fa-spinner fa-spin mx-1"></i> تحميل
+                                                            النتائج...</p>
+                                                    </div>
+                                                </div>
                                             @else
-                                                <div class="rounded-xl p-4 bg-amber-50 border border-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                                                <div
+                                                    class="rounded-xl p-4 bg-amber-50 border border-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                                                     <p class="text-amber-800 text-sm font-medium">
                                                         <i class="fas fa-check-circle text-amber-600 ml-1"></i>
                                                         لقد أجبت على هذا السؤال مسبقاً، يمكنك متابعة القرعة من هنا.
                                                     </p>
                                                     <a href="{{ route('quiz-competitions.question', [$activeQuizCompetition, $q]) }}"
                                                         class="flex-shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-white transition-all hover:opacity-90"
-                                                        style="background: linear-gradient(135deg, #22c55e, #16a34a);">
-                                                        <i class="fas fa-trophy"></i>
-                                                        متابعة القرعة
+                                                        style="background:linear-gradient(135deg,#22c55e,#16a34a)">
+                                                        <i class="fas fa-trophy"></i> متابعة القرعة
                                                     </a>
                                                 </div>
                                             @endif
@@ -937,266 +1880,293 @@
 
                                     </div>
                                 @endforeach
-                            </div>{{-- /activeQuizQuestionsBlock --}}
+                            </div>{{-- /questions --}}
+                        </div>{{-- /glass-card --}}
+                    @endif{{-- /isVoteOnly --}}
 
-                        </div>
-                    </div>
-                @endif{{-- /activeQuizCompetition --}}
+                </div>
+            @endif{{-- /activeQuizCompetition --}}
 
-                {{-- ══════════════════════════════════════
+            {{-- Section heading when no active comp --}}
+            @if (!(isset($activeQuizCompetition) && $activeQuizCompetition))
+                <div class="text-right mb-3 md:mb-5">
+                    <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">المسابقة
+                        الرمضانية</h2>
+                </div>
+            @endif
+
+            {{-- ══════════════════════════════════════
                      NEXT EVENT COUNTDOWN
-                     (shown only when no active competition)
                 ══════════════════════════════════════ --}}
-                @if (isset($nextQuizEvent) && $nextQuizEvent && !(isset($activeQuizCompetition) && $activeQuizCompetition))
-                    <div class="mb-3 md:mb-5" id="quizCountdownSection">
-                        <div class="glass-card rounded-3xl p-3 md:p-6 text-center shadow-lg"
-                            style="box-shadow: 0 0 30px rgba(34,197,94,.15);">
-
-                            <div class="inline-flex items-center gap-2 bg-amber-50 text-amber-700 rounded-full px-4 py-1.5 mb-4 border border-amber-200">
-                                <i class="fas fa-clock text-amber-500 text-sm"></i>
-                                <span class="text-xs font-medium">المسابقة تبدأ قريباً</span>
+            @if (isset($nextQuizEvent) && $nextQuizEvent && !(isset($activeQuizCompetition) && $activeQuizCompetition))
+                <div class="mb-3 md:mb-5" id="quizCountdownSection">
+                    <div class="vote-wrap">
+                        <div class="vote-grid"></div>
+                        <div style="position:relative;z-index:2;padding:26px 22px;text-align:center">
+                            <div
+                                style="display:inline-flex;align-items:center;gap:8px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.28);color:#fbbf24;border-radius:50px;padding:6px 16px;margin-bottom:15px;font-size:.76rem;font-weight:700">
+                                <i class="fas fa-clock" style="font-size:11px"></i>
+                                المسابقة تبدأ قريباً
                             </div>
-
-                            <p class="text-gray-800 font-bold text-base md:text-lg mb-2">{{ $nextQuizEvent['title'] }}</p>
-
+                            <p style="color:#f1f5f9;font-weight:800;font-size:1.08rem;margin-bottom:8px">
+                                {{ $nextQuizEvent['title'] }}</p>
                             @if (!empty($nextQuizEvent['description']))
-                                <div class="text-gray-600 text-sm mb-3 quiz-description text-right">
+                                <div style="color:rgba(148,163,184,.75);font-size:.82rem;margin-bottom:18px;text-align:right"
+                                    class="quiz-description">
                                     {!! $nextQuizEvent['description'] !!}
                                 </div>
                             @endif
-
-                            <div class="flex justify-center flex-row-reverse gap-2 md:gap-4 mb-3" id="quizCountdown">
-                                @foreach ([['days','يوم'],['hours','ساعة'],['minutes','دقيقة'],['seconds','ثانية']] as [$unit,$label])
-                                    <div class="text-center">
-                                        <div class="w-14 h-14 md:w-18 md:h-18 rounded-2xl flex items-center justify-center mb-1 bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200">
-                                            <span class="text-xl md:text-2xl font-bold text-green-600" id="countdown-{{ $unit }}">0</span>
-                                        </div>
-                                        <p class="text-gray-500 text-[10px] md:text-xs">{{ $label }}</p>
+                            <div class="flex justify-center flex-row-reverse gap-3 mb-2" id="quizCountdown">
+                                @foreach ([['days', 'يوم'], ['hours', 'ساعة'], ['minutes', 'دقيقة'], ['seconds', 'ثانية']] as [$unit, $label])
+                                    <div class="cd-box">
+                                        <div class="cd-num" id="countdown-{{ $unit }}">0</div>
+                                        <div class="cd-lbl">{{ $label }}</div>
                                     </div>
                                 @endforeach
                             </div>
-
                             <input type="hidden" id="quizCountdownTarget"
                                 value="{{ $nextQuizEvent['target_at']->getTimestamp() * 1000 }}">
                         </div>
                     </div>
-                @endif
+                </div>
+            @endif
 
-            </div>
-        </section>
-
-        {{-- ══════════════════════════════════════
-             UNIFIED LIGHTBOX (images + videos)
-        ══════════════════════════════════════ --}}
-        <div id="quizLightboxModal" onclick="quizCloseLightbox()">
-            <div class="quiz-lightbox-inner" onclick="event.stopPropagation()">
-                <button class="quiz-lightbox-close" onclick="quizCloseLightbox()" aria-label="إغلاق">
-                    <i class="fas fa-times"></i>
-                </button>
-                <img id="quizLightboxImg" src="" alt="صورة مكبرة">
-                <video id="quizLightboxVideo" controls playsinline></video>
-            </div>
         </div>
+    </section>
+
+    {{-- ══════════════════════════════════════
+             UNIFIED LIGHTBOX
+        ══════════════════════════════════════ --}}
+    <div id="quizLightboxModal" onclick="quizCloseLightbox()">
+        <div class="quiz-lb-inner" onclick="event.stopPropagation()">
+            <button class="quiz-lb-close" onclick="quizCloseLightbox()" aria-label="إغلاق">
+                <i class="fas fa-times" style="font-size:13px;pointer-events:none"></i>
+            </button>
+            <img id="quizLightboxImg" src="" alt="صورة">
+            <video id="quizLightboxVideo" controls playsinline></video>
+        </div>
+    </div>
 
     @push('scripts')
-    <script>
-    /* ═══════════════════════════════════════════════════════════
-       UNIFIED LIGHTBOX
-    ═══════════════════════════════════════════════════════════ */
-    var _quizLb = {
-        modal : document.getElementById('quizLightboxModal'),
-        img   : document.getElementById('quizLightboxImg'),
-        video : document.getElementById('quizLightboxVideo'),
-    };
-
-    function quizOpenImage(src) {
-        _quizLb.img.src = src;
-        _quizLb.img.style.display   = 'block';
-        _quizLb.video.style.display = 'none';
-        _quizLb.video.pause();
-        _quizLb.modal.classList.add('open');
-        document.body.style.overflow = 'hidden';
-    }
-
-    function quizOpenVideo(src) {
-        _quizLb.img.style.display   = 'none';
-        _quizLb.video.src = src;
-        _quizLb.video.style.display = 'block';
-        _quizLb.modal.classList.add('open');
-        document.body.style.overflow = 'hidden';
-        _quizLb.video.play().catch(function() {});
-    }
-
-    function quizCloseLightbox() {
-        _quizLb.modal.classList.remove('open');
-        _quizLb.video.pause();
-        _quizLb.video.src = '';
-        _quizLb.img.src   = '';
-        document.body.style.overflow = '';
-    }
-
-    // Close on Escape key
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') quizCloseLightbox();
-    });
-
-    /* ═══════════════════════════════════════════════════════════
-       FILL IN THE BLANK – interaction
-    ═══════════════════════════════════════════════════════════ */
-    var fbState = {};
-
-    function fbSelectChip(chip) {
-        var qid      = chip.getAttribute('data-question-id');
-        var choiceId = chip.getAttribute('data-choice-id');
-        var word     = chip.textContent.trim();
-        var drop     = document.getElementById('fillDrop-' + qid);
-        var input    = document.getElementById('fillAnswer-' + qid);
-        var hint     = document.getElementById('fillHint-' + qid);
-        var chips    = document.querySelectorAll('.fill-blank-chip[data-question-id="' + qid + '"]');
-
-        chips.forEach(function(c) { c.classList.remove('selected'); });
-        chip.classList.add('selected');
-
-        var old = drop.querySelector('.fill-blank-word-inside');
-        if (old) old.remove();
-
-        var span = document.createElement('span');
-        span.className   = 'fill-blank-word-inside';
-        span.textContent = word;
-        drop.appendChild(span);
-
-        drop.classList.add('has-word');
-        input.value  = choiceId;
-        fbState[qid] = choiceId;
-        if (hint) hint.classList.add('hidden-hint');
-    }
-
-    function fbClearDrop(qid) {
-        var drop  = document.getElementById('fillDrop-' + qid);
-        var input = document.getElementById('fillAnswer-' + qid);
-        var hint  = document.getElementById('fillHint-' + qid);
-        var chips = document.querySelectorAll('.fill-blank-chip[data-question-id="' + qid + '"]');
-
-        if (!drop.classList.contains('has-word')) return;
-
-        var old = drop.querySelector('.fill-blank-word-inside');
-        if (old) old.remove();
-
-        drop.classList.remove('has-word');
-        input.value  = '';
-        fbState[qid] = null;
-        chips.forEach(function(c) { c.classList.remove('selected'); });
-        if (hint) hint.classList.remove('hidden-hint');
-    }
-
-    /* ═══════════════════════════════════════════════════════════
-       FORM SUBMIT VALIDATION
-    ═══════════════════════════════════════════════════════════ */
-    function validateHomeQuiz(event, btn) {
-        var form      = btn.closest('form');
-        if (!form) return true;
-
-        var fillInput = form.querySelector('.fill-blank-answer-input');
-        if (fillInput && !fillInput.value) {
-            event.preventDefault();
-            var wrapper = form.querySelector('.fill-blank-wrapper');
-            if (wrapper) {
-                var qid  = wrapper.getAttribute('data-question-id');
-                var drop = document.getElementById('fillDrop-' + qid);
-                if (drop) {
-                    drop.style.borderColor = '#f87171';
-                    drop.style.background  = '#fef2f2';
-                    drop.style.boxShadow   = '0 0 14px rgba(248,113,113,.4)';
-                    setTimeout(function() {
-                        drop.style.borderColor = '';
-                        drop.style.background  = '';
-                        drop.style.boxShadow   = '';
-                    }, 1400);
+        <script>
+            /* ─── Lightbox ─── */
+            var _qlb = {
+                modal: null,
+                img: null,
+                video: null,
+                init: function() {
+                    this.modal = document.getElementById('quizLightboxModal');
+                    this.img = document.getElementById('quizLightboxImg');
+                    this.video = document.getElementById('quizLightboxVideo')
                 }
-                document.querySelectorAll('.fill-blank-chip[data-question-id="' + qid + '"]')
-                    .forEach(function(c) {
-                        c.style.animation = 'chipShake .5s ease';
-                        setTimeout(function() { c.style.animation = ''; }, 600);
+            };
+
+            function quizOpenImage(s) {
+                if (!_qlb.modal) _qlb.init();
+                _qlb.img.src = s;
+                _qlb.img.style.display = 'block';
+                _qlb.video.style.display = 'none';
+                _qlb.video.pause();
+                _qlb.modal.classList.add('lb-open');
+                document.body.style.overflow = 'hidden'
+            }
+
+            function quizOpenVideo(s) {
+                if (!_qlb.modal) _qlb.init();
+                _qlb.img.style.display = 'none';
+                _qlb.video.src = s;
+                _qlb.video.style.display = 'block';
+                _qlb.modal.classList.add('lb-open');
+                document.body.style.overflow = 'hidden';
+                _qlb.video.play().catch(function() {})
+            }
+
+            function quizCloseLightbox() {
+                if (!_qlb.modal) return;
+                _qlb.modal.classList.remove('lb-open');
+                _qlb.video.pause();
+                _qlb.video.src = '';
+                _qlb.img.src = '';
+                document.body.style.overflow = ''
+            }
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') quizCloseLightbox()
+            });
+
+            /* ─── Vote toggle visual ─── */
+            function voteToggle(inp) {
+                var form = inp.closest('form');
+                if (!form) return;
+                if (inp.type === 'radio') {
+                    form.querySelectorAll('.vote-choice').forEach(function(c) {
+                        c.classList.remove('vote-sel')
                     });
+                    var p = inp.closest('.vote-choice');
+                    if (p) p.classList.add('vote-sel')
+                } else {
+                    var p = inp.closest('.vote-choice');
+                    if (p) p.classList.toggle('vote-sel', inp.checked)
+                }
             }
-            if (typeof Swal !== 'undefined') {
-                Swal.fire({
-                    icon: 'warning', title: 'انتبه',
-                    text: 'يرجى اختيار كلمة لملء الفراغ أولاً!',
-                    confirmButtonColor: '#22c55e', confirmButtonText: 'حسناً',
-                    toast: true, position: 'top-end',
-                    showConfirmButton: false, timer: 2500,
+
+            /* ─── Fill blank ─── */
+            var fbState = {};
+
+            function fbSelectChip(chip) {
+                var qid = chip.getAttribute('data-question-id'),
+                    cid = chip.getAttribute('data-choice-id'),
+                    drop = document.getElementById('fillDrop-' + qid),
+                    inp = document.getElementById('fillAnswer-' + qid),
+                    hint = document.getElementById('fillHint-' + qid);
+                document.querySelectorAll('.fill-blank-chip[data-question-id="' + qid + '"]').forEach(function(c) {
+                    c.classList.remove('selected')
                 });
+                chip.classList.add('selected');
+                var old = drop.querySelector('.fill-blank-word-inside');
+                if (old) old.remove();
+                var span = document.createElement('span');
+                span.className = 'fill-blank-word-inside';
+                span.textContent = chip.textContent.trim();
+                drop.appendChild(span);
+                drop.classList.add('has-word');
+                inp.value = cid;
+                fbState[qid] = cid;
+                if (hint) hint.classList.add('hidden-hint')
             }
-            return false;
-        }
-        return true;
-    }
 
-    /* ═══════════════════════════════════════════════════════════
-       DOM READY
-    ═══════════════════════════════════════════════════════════ */
-    document.addEventListener('DOMContentLoaded', function() {
+            function fbClearDrop(qid) {
+                var drop = document.getElementById('fillDrop-' + qid),
+                    inp = document.getElementById('fillAnswer-' + qid),
+                    hint = document.getElementById('fillHint-' + qid);
+                if (!drop.classList.contains('has-word')) return;
+                var old = drop.querySelector('.fill-blank-word-inside');
+                if (old) old.remove();
+                drop.classList.remove('has-word');
+                inp.value = '';
+                fbState[qid] = null;
+                document.querySelectorAll('.fill-blank-chip[data-question-id="' + qid + '"]').forEach(function(c) {
+                    c.classList.remove('selected')
+                });
+                if (hint) hint.classList.remove('hidden-hint')
+            }
 
-        /* Vote checkbox max-selection limit */
-        document.querySelectorAll('.home-vote-max').forEach(function(el) {
-            var form = el.closest('form');
-            var max  = parseInt(el.value, 10);
-            if (!form || max <= 1) return;
-            form.querySelectorAll('.home-vote-checkbox').forEach(function(cb) {
-                cb.addEventListener('change', function() {
-                    if (form.querySelectorAll('.home-vote-checkbox:checked').length > max) {
-                        this.checked = false;
-                        if (typeof Swal !== 'undefined') {
-                            Swal.fire({
-                                icon: 'info', title: 'تنبيه',
-                                text: 'لا يمكنك اختيار أكثر من ' + max + ' خيارات.',
-                                confirmButtonColor: '#22c55e', confirmButtonText: 'حسناً',
-                                toast: true, position: 'top-end',
-                                showConfirmButton: false, timer: 3000,
-                            });
+            /* ─── Submit validation ─── */
+            function validateHomeQuiz(event, btn) {
+                var form = btn.closest('form');
+                if (!form) return true;
+                var fi = form.querySelector('.fill-blank-answer-input');
+                if (fi && !fi.value) {
+                    event.preventDefault();
+                    var w = form.querySelector('.fill-blank-wrapper');
+                    if (w) {
+                        var qid = w.getAttribute('data-question-id'),
+                            drop = document.getElementById('fillDrop-' + qid);
+                        if (drop) {
+                            drop.style.borderColor = '#f87171';
+                            drop.style.background = '#fef2f2';
+                            setTimeout(function() {
+                                drop.style.borderColor = '';
+                                drop.style.background = ''
+                            }, 1400)
                         }
+                        document.querySelectorAll('.fill-blank-chip[data-question-id="' + qid + '"]').forEach(function(c) {
+                            c.style.animation = 'chipShake .5s ease';
+                            setTimeout(function() {
+                                c.style.animation = ''
+                            }, 600)
+                        })
                     }
+                    if (typeof Swal !== 'undefined') Swal.fire({
+                        icon: 'warning',
+                        title: 'انتبه',
+                        text: 'يرجى اختيار كلمة لملء الفراغ أولاً!',
+                        confirmButtonColor: '#22c55e',
+                        confirmButtonText: 'حسناً',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 2500
+                    });
+                    return false
+                }
+                return true
+            }
+
+            /* ─── DOM Ready ─── */
+            document.addEventListener('DOMContentLoaded', function() {
+                _qlb.init();
+
+                /* vote max limit */
+                document.querySelectorAll('.home-vote-max').forEach(function(el) {
+                    var form = el.closest('form'),
+                        max = parseInt(el.value, 10);
+                    if (!form || max <= 1) return;
+                    form.querySelectorAll('.home-vote-checkbox').forEach(function(cb) {
+                        cb.addEventListener('change', function() {
+                            if (form.querySelectorAll('.home-vote-checkbox:checked').length >
+                                max) {
+                                this.checked = false;
+                                var p = this.closest('.vote-choice');
+                                if (p) p.classList.remove('vote-sel');
+                                if (typeof Swal !== 'undefined') Swal.fire({
+                                    icon: 'info',
+                                    title: 'تنبيه',
+                                    text: 'لا يمكنك اختيار أكثر من ' + max + ' خيارات.',
+                                    confirmButtonColor: '#22c55e',
+                                    confirmButtonText: 'حسناً',
+                                    toast: true,
+                                    position: 'top-end',
+                                    showConfirmButton: false,
+                                    timer: 3000
+                                })
+                            }
+                        })
+                    })
+                });
+
+                /* vote results */
+                document.querySelectorAll('.home-vote-results').forEach(function(c) {
+                    var url = c.getAttribute('data-url'),
+                        dark = c.getAttribute('data-theme') === 'dark';
+                    if (!url) return;
+                    fetch(url).then(function(r) {
+                        return r.json()
+                    }).then(function(data) {
+                        if (!data.results || !data.results.length) {
+                            c.innerHTML = '<p style="color:' + (dark ? 'rgba(148,163,184,.55)' :
+                                    '#9ca3af') +
+                                ';font-size:.77rem;text-align:center;padding:8px 0">لا توجد أصوات بعد.</p>';
+                            return
+                        }
+                        var html = data.results.map(function(r) {
+                            if (dark)
+                            return '<div class="vote-rrow"><div class="vote-rmeta"><span class="vote-rname">' +
+                                r.text + '</span><span class="vote-rpct">' + r.percent +
+                                '% <span class="vote-rcnt">(' + r.count +
+                                ')</span></span></div><div class="vote-rbg"><div class="vote-rfill" data-width="' +
+                                r.percent + '%"></div></div></div>';
+                            return '<div class="flex flex-col gap-1.5"><div class="flex items-center justify-between"><span class="text-xs font-bold text-gray-700">' +
+                                r.text +
+                                '</span><span class="text-xs font-bold text-green-600">' + r
+                                .percent +
+                                '% <span class="text-[10px] text-gray-400 font-normal">(' + r
+                                .count +
+                                ')</span></span></div><div style="background:rgba(229,231,235,.6);border-radius:9999px;height:8px;overflow:hidden"><div style="height:100%;border-radius:9999px;width:0%;transition:width 1.1s ease-out;background:linear-gradient(90deg,#22c55e,#16a34a)" data-width="' +
+                                r.percent + '%"></div></div></div>'
+                        }).join('');
+                        c.innerHTML = html;
+                        setTimeout(function() {
+                            c.querySelectorAll('[data-width]').forEach(function(b) {
+                                b.style.width = b.getAttribute('data-width')
+                            })
+                        }, 100)
+                    }).catch(function() {
+                        c.innerHTML =
+                            '<p style="color:#f87171;font-size:.77rem;text-align:center;padding:8px 0">تعذر تحميل النتائج.</p>'
+                    })
                 });
             });
-        });
-
-        /* Load vote results */
-        document.querySelectorAll('.home-vote-results').forEach(function(container) {
-            var url = container.getAttribute('data-url');
-            if (!url) return;
-            fetch(url)
-                .then(function(r) { return r.json(); })
-                .then(function(data) {
-                    if (!data.results || !data.results.length) {
-                        container.innerHTML = '<p class="text-gray-400 text-xs text-center py-2">لا توجد أصوات بعد.</p>';
-                        return;
-                    }
-                    var html = data.results.map(function(r) {
-                        return '<div class="flex flex-col gap-1.5">'
-                            + '<div class="flex items-center justify-between">'
-                            + '<span class="text-xs font-bold text-gray-700">' + r.text + '</span>'
-                            + '<span class="text-xs font-bold text-green-600">' + r.percent
-                            + '% <span class="text-[10px] text-gray-400 font-normal">(' + r.count + ')</span></span>'
-                            + '</div>'
-                            + '<div style="background:rgba(229,231,235,.6);border-radius:9999px;height:8px;overflow:hidden;">'
-                            + '<div style="height:100%;border-radius:9999px;width:0%;transition:width 1s ease-out;background:linear-gradient(90deg,#22c55e,#16a34a);" data-width="' + r.percent + '%"></div>'
-                            + '</div></div>';
-                    }).join('');
-                    container.innerHTML = html;
-                    setTimeout(function() {
-                        container.querySelectorAll('[data-width]').forEach(function(bar) {
-                            bar.style.width = bar.getAttribute('data-width');
-                        });
-                    }, 100);
-                })
-                .catch(function() {
-                    container.innerHTML = '<p class="text-red-400 text-xs text-center py-2">تعذر تحميل النتائج.</p>';
-                });
-        });
-
-    });
-    </script>
+        </script>
     @endpush
 
-    @endif{{-- /quiz section --}}
+@endif{{-- /quiz section --}}
