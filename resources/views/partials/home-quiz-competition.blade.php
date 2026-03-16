@@ -1,7 +1,8 @@
 {{-- ================================================================
-    RAMADAN QUIZ – Active competition OR next event countdown
+    RAMADAN QUIZ – Active competition(s) OR next event countdown
     ================================================================ --}}
-    @if ((isset($activeQuizCompetition) && $activeQuizCompetition) || (isset($nextQuizEvent) && $nextQuizEvent))
+    @php $activeQuizCompetitionsList = $activeQuizCompetitions ?? collect(); @endphp
+    @if ($activeQuizCompetitionsList->isNotEmpty() || (isset($nextQuizEvent) && $nextQuizEvent))
 
     @push('styles')
     <style>
@@ -58,9 +59,11 @@
     .vthumb video,.vthumb img{display:block;width:100%;height:100%;object-fit:cover;pointer-events:none}
     .vthumb-overlay{position:absolute;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;transition:background .2s}
     .vthumb:hover .vthumb-overlay{background:rgba(0,0,0,.52)}
-    .vthumb-play{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.95);display:flex;align-items:center;justify-content:center;box-shadow:0 3px 14px rgba(0,0,0,.3);transition:transform .2s}
+    /* ↓ تعديل: تصغير دايرة البلاي من 48px إلى 36px */
+    .vthumb-play{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.95);display:flex;align-items:center;justify-content:center;box-shadow:0 3px 14px rgba(0,0,0,.3);transition:transform .2s}
     .vthumb:hover .vthumb-play{transform:scale(1.13)}
-    .vthumb-play i{color:#16a34a;font-size:17px;margin-left:3px}
+    /* ↓ تعديل: تصغير أيقونة البلاي من 17px إلى 13px */
+    .vthumb-play i{color:#16a34a;font-size:13px;margin-left:2px}
 
     /* ═══════════════════════════════════════════
        LIGHTBOX
@@ -114,15 +117,18 @@
     /* Choice text */
     .vote-cname{font-size:.9rem;font-weight:700;color:#14532d;line-height:1.3}
 
-    /* Video thumb inside green card */
-    .vote-vthumb{position:relative;width:70px;height:54px;border-radius:11px;overflow:hidden;cursor:pointer;flex-shrink:0;background:#052e16;border:2px solid #bbf7d0;transition:border-color .2s,transform .15s,box-shadow .2s;margin-right:auto}
+    /* Video thumb inside vote card */
+    /* ↓ تعديل: حجم أكبر للـ vote-vthumb */
+    .vote-vthumb{position:relative;width:90px;height:68px;border-radius:11px;overflow:hidden;cursor:pointer;flex-shrink:0;background:#052e16;border:2px solid #bbf7d0;transition:border-color .2s,transform .15s,box-shadow .2s;margin-right:auto}
     .vote-vthumb:hover{border-color:#22c55e;transform:scale(1.06);box-shadow:0 4px 14px rgba(34,197,94,.25)}
     .vote-vthumb video{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
     .vote-vthumb-ov{position:absolute;inset:0;background:rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;transition:background .15s}
     .vote-vthumb:hover .vote-vthumb-ov{background:rgba(0,0,0,.45)}
-    .vote-vthumb-play{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.95);display:flex;align-items:center;justify-content:center;transition:transform .15s;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+    /* ↓ تعديل: تصغير دايرة البلاي من 28px إلى 22px */
+    .vote-vthumb-play{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.95);display:flex;align-items:center;justify-content:center;transition:transform .15s;box-shadow:0 2px 8px rgba(0,0,0,.2)}
     .vote-vthumb:hover .vote-vthumb-play{transform:scale(1.15)}
-    .vote-vthumb-play i{color:#16a34a;font-size:10px;margin-left:2px}
+    /* ↓ تعديل: تصغير أيقونة البلاي من 10px إلى 8px */
+    .vote-vthumb-play i{color:#16a34a;font-size:8px;margin-left:1px}
 
     /* Submit */
     .vote-submit{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;padding:14px 24px;border-radius:16px;border:none;cursor:pointer;font-size:.95rem;font-weight:800;color:#fff;background:linear-gradient(135deg,#22c55e,#16a34a);box-shadow:0 4px 22px rgba(34,197,94,.3);transition:opacity .2s,transform .15s,box-shadow .2s;margin-top:18px}
@@ -183,23 +189,33 @@
             <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
 
                 {{-- ══════════════════════════════════════
-                     ACTIVE COMPETITION
+                     ACTIVE COMPETITION(S)
                 ══════════════════════════════════════ --}}
-                @if (isset($activeQuizCompetition) && $activeQuizCompetition)
-                    @php $isVoteOnly = $activeQuizCompetition->questions->every(fn($q) => $q->answer_type === 'vote'); @endphp
-
-                    {{-- Section heading --}}
+                @if ($activeQuizCompetitionsList->isNotEmpty())
+                    {{-- Section heading (once) --}}
                     <div class="text-right mb-3 md:mb-5">
-                        <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">
-                            {{ $isVoteOnly ? 'التصويت' : 'المسابقة الرمضانية' }}
-                        </h2>
+                        <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">المسابقة الرمضانية</h2>
                     </div>
 
-                    <div class="mb-3 md:mb-5" id="activeQuizSection">
+                    <div id="activeQuizSection" class="space-y-6">
+                    @foreach ($activeQuizCompetitionsList as $activeQuizCompetition)
+                        @php
+                            $isVoteOnly = $activeQuizCompetition->questions->every(fn($q) => $q->answer_type === 'vote');
+                            $questionsVisibleAt = $activeQuizCompetition->getQuestionsVisibleAt();
+                            $showQuestionsOnHome = !$questionsVisibleAt || now()->gte($questionsVisibleAt);
+                            $aqSuffix = '-' . $activeQuizCompetition->id;
+                        @endphp
+
+                        <div class="mb-3 md:mb-5 js-active-quiz-block" id="activeQuizSection-{{ $activeQuizCompetition->id }}">
 
                         {{-- ▌VOTE-ONLY → dark card --}}
                         @if ($isVoteOnly)
                             <div class="vote-wrap">
+                                @if ($activeQuizCompetitionsList->count() > 1)
+                                    <div class="vote-header" style="border-bottom:none;padding-bottom:0">
+                                        <p class="vote-title-text mb-0" style="font-size:1rem">{{ $activeQuizCompetition->title }}</p>
+                                    </div>
+                                @endif
                                 <div class="vote-grid"></div>
 
                                 <div class="vote-header">
@@ -212,14 +228,14 @@
                                     <div class="flex items-center gap-3 mb-3">
                                         <i class="fas fa-hourglass-half" style="color:#f59e0b;font-size:12px"></i>
                                         <span style="color:#6b7280;font-size:.76rem">ينتهي بعد:</span>
-                                        <div class="flex gap-1" id="activeQuestionTimer">
-                                            <span style="background:#dcfce7;color:#14532d;border-radius:8px;padding:3px 9px;font-weight:700;font-size:.8rem;min-width:2rem;text-align:center" id="aq-hours">00</span>
+                                        <div class="flex gap-1" id="activeQuestionTimer{{ $aqSuffix }}">
+                                            <span style="background:#dcfce7;color:#14532d;border-radius:8px;padding:3px 9px;font-weight:700;font-size:.8rem;min-width:2rem;text-align:center" id="aq-hours{{ $aqSuffix }}">00</span>
                                             <span style="color:#86efac;font-weight:700">:</span>
-                                            <span style="background:#dcfce7;color:#14532d;border-radius:8px;padding:3px 9px;font-weight:700;font-size:.8rem;min-width:2rem;text-align:center" id="aq-minutes">00</span>
+                                            <span style="background:#dcfce7;color:#14532d;border-radius:8px;padding:3px 9px;font-weight:700;font-size:.8rem;min-width:2rem;text-align:center" id="aq-minutes{{ $aqSuffix }}">00</span>
                                             <span style="color:#86efac;font-weight:700">:</span>
-                                            <span style="background:#dcfce7;color:#14532d;border-radius:8px;padding:3px 9px;font-weight:700;font-size:.8rem;min-width:2rem;text-align:center" id="aq-seconds">00</span>
+                                            <span style="background:#dcfce7;color:#14532d;border-radius:8px;padding:3px 9px;font-weight:700;font-size:.8rem;min-width:2rem;text-align:center" id="aq-seconds{{ $aqSuffix }}">00</span>
                                         </div>
-                                        <input type="hidden" id="aqEndTime" value="{{ $activeQuizCompetition->end_at->getTimestamp() * 1000 }}">
+                                        <input type="hidden" id="aqEndTime{{ $aqSuffix }}" value="{{ $activeQuizCompetition->end_at->getTimestamp() * 1000 }}">
                                     </div>
 
                                     {{-- Errors --}}
@@ -239,8 +255,8 @@
                                 </div>
 
                                 {{-- Questions --}}
-                                <div id="activeQuizQuestionsBlock"
-                                    @if (!($showQuestionsOnHome ?? true)) style="display:none" @endif>
+                                <div id="activeQuizQuestionsBlock{{ $aqSuffix }}"
+                                    @if (!$showQuestionsOnHome) style="display:none" @endif>
 
                                     @foreach ($activeQuizCompetition->questions->where('answer_type','vote') as $q)
                                         @php
@@ -349,11 +365,13 @@
                                                                 <p class="vote-cname">{{ $choice->choice_text }}</p>
                                                             </div>
 
+                                                            {{-- ↓ تعديل: الـ vote-vthumb بقى أكبر (width/height في الـ CSS مباشرة) --}}
                                                             @if ($choice->video)
                                                                 <div class="vote-vthumb"
                                                                     onclick="event.preventDefault();event.stopPropagation();quizOpenVideo('{{ asset('storage/' . $choice->video) }}')">
                                                                     <video muted preload="metadata" src="{{ asset('storage/' . $choice->video) }}#t=0.5"></video>
                                                                     <div class="vote-vthumb-ov">
+                                                                        {{-- ↓ الدايرة أصغر من الـ CSS --}}
                                                                         <div class="vote-vthumb-play"><i class="fas fa-play"></i></div>
                                                                     </div>
                                                                 </div>
@@ -400,6 +418,11 @@
                                 style="box-shadow:0 0 40px rgba(34,197,94,.2)">
                                 <div class="absolute top-0 right-0 left-0 h-1.5" style="background:linear-gradient(90deg,#22c55e,#16a34a,#22c55e)"></div>
 
+                                @if ($activeQuizCompetitionsList->count() > 1)
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-gray-700 font-bold text-sm">{{ $activeQuizCompetition->title }}</span>
+                                    </div>
+                                @endif
                                 <div class="flex items-center justify-between mb-2">
                                     <span class="inline-flex items-center gap-2 bg-red-50 text-red-600 text-xs font-bold px-3 py-1.5 rounded-full border border-red-200">
                                         <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
@@ -414,14 +437,14 @@
                                 <div class="flex flex-wrap items-center gap-2 mb-3 text-gray-500 text-sm">
                                     <i class="fas fa-hourglass-half text-amber-500"></i>
                                     <span>ينتهي بعد:</span>
-                                    <div class="flex gap-1 flex-row" id="activeQuestionTimer">
-                                        <span class="bg-gray-100 rounded-lg px-2 py-1 text-gray-800 font-bold text-sm min-w-[2rem] text-center" id="aq-seconds">00</span>
+                                    <div class="flex gap-1 flex-row" id="activeQuestionTimer{{ $aqSuffix }}">
+                                        <span class="bg-gray-100 rounded-lg px-2 py-1 text-gray-800 font-bold text-sm min-w-[2rem] text-center" id="aq-seconds{{ $aqSuffix }}">00</span>
                                         <span class="text-gray-400 font-bold">:</span>
-                                        <span class="bg-gray-100 rounded-lg px-2 py-1 text-gray-800 font-bold text-sm min-w-[2rem] text-center" id="aq-minutes">00</span>
+                                        <span class="bg-gray-100 rounded-lg px-2 py-1 text-gray-800 font-bold text-sm min-w-[2rem] text-center" id="aq-minutes{{ $aqSuffix }}">00</span>
                                         <span class="text-gray-400 font-bold">:</span>
-                                        <span class="bg-gray-100 rounded-lg px-2 py-1 text-gray-800 font-bold text-sm min-w-[2rem] text-center" id="aq-hours">00</span>
+                                        <span class="bg-gray-100 rounded-lg px-2 py-1 text-gray-800 font-bold text-sm min-w-[2rem] text-center" id="aq-hours{{ $aqSuffix }}">00</span>
                                     </div>
-                                    <input type="hidden" id="aqEndTime" value="{{ $activeQuizCompetition->end_at->getTimestamp() * 1000 }}">
+                                    <input type="hidden" id="aqEndTime{{ $aqSuffix }}" value="{{ $activeQuizCompetition->end_at->getTimestamp() * 1000 }}">
                                 </div>
 
                                 @if (session('error'))
@@ -441,10 +464,10 @@
                                 @endif
 
                                 {{-- Pre-reveal --}}
-                                @if (!($showQuestionsOnHome ?? true) && isset($questionsVisibleAt) && $questionsVisibleAt)
-                                    <input type="hidden" id="aqQuestionsVisibleAt" value="{{ $questionsVisibleAt->getTimestamp() * 1000 }}">
+                                @if (!$showQuestionsOnHome && $questionsVisibleAt)
+                                    <input type="hidden" id="aqQuestionsVisibleAt{{ $aqSuffix }}" value="{{ $questionsVisibleAt->getTimestamp() * 1000 }}">
                                     @if ($activeQuizCompetition->questions->filter(fn($q) => !empty($q->description))->isNotEmpty())
-                                        <div id="activeQuizDescriptionsOnlyBlock" class="space-y-4 mb-3">
+                                        <div id="activeQuizDescriptionsOnlyBlock{{ $aqSuffix }}" class="space-y-4 mb-3">
                                             @foreach ($activeQuizCompetition->questions as $q)
                                                 @if ($q->description)
                                                     <div class="rounded-2xl p-3 border-2 border-green-100 bg-white/80 shadow-sm">
@@ -454,17 +477,17 @@
                                             @endforeach
                                         </div>
                                     @endif
-                                    <div id="activeQuizQuestionsCountdown"
+                                    <div id="activeQuizQuestionsCountdown{{ $aqSuffix }}"
                                         class="rounded-2xl p-4 mb-3 bg-amber-50 border-2 border-amber-200 flex flex-wrap items-center justify-center gap-2">
                                         <i class="fas fa-clock text-amber-600"></i>
                                         <span class="text-amber-800 font-medium text-sm">نص السؤال والإجابة تظهران بعد:</span>
-                                        <span id="aqQuestionsSeconds" class="bg-amber-200 text-amber-900 font-bold text-lg min-w-[3rem] text-center rounded-lg px-2 py-1">0</span>
+                                        <span id="aqQuestionsSeconds{{ $aqSuffix }}" class="bg-amber-200 text-amber-900 font-bold text-lg min-w-[3rem] text-center rounded-lg px-2 py-1">0</span>
                                         <span class="text-amber-700 text-sm">ثانية</span>
                                     </div>
                                 @endif
 
-                                <div id="activeQuizQuestionsBlock" class="space-y-4 mb-3"
-                                    @if (!($showQuestionsOnHome ?? true)) style="display:none" @endif>
+                                <div id="activeQuizQuestionsBlock{{ $aqSuffix }}" class="space-y-4 mb-3 js-active-quiz-questions-block"
+                                    @if (!$showQuestionsOnHome) style="display:none" @endif>
 
                                     @if ($activeQuizCompetition->questions->contains(fn($q) => $q->answer_type !== 'vote'))
                                         <h4 class="text-sm font-bold text-gray-600 mb-2">أسئلة المسابقة — أجب هنا:</h4>
@@ -672,14 +695,15 @@
                                                                                         onclick="quizOpenImage('{{ asset('storage/' . $choice->image) }}')">
                                                                                         <img src="{{ asset('storage/' . $choice->image) }}" alt="صورة">
                                                                                         <div class="vthumb-overlay">
-                                                                                            <div class="vthumb-play" style="width:38px;height:38px">
-                                                                                                <i class="fas fa-search-plus" style="color:#16a34a;font-size:14px;margin-left:0"></i>
+                                                                                            {{-- ↓ تعديل: الدايرة أصغر من الـ CSS (36px بدل 48px) --}}
+                                                                                            <div class="vthumb-play" style="width:36px;height:36px">
+                                                                                                <i class="fas fa-search-plus" style="color:#16a34a;font-size:13px;margin-left:0"></i>
                                                                                             </div>
                                                                                         </div>
                                                                                     </div>
                                                                                 @endif
 
-                                                                                {{-- Video thumb – big & clear --}}
+                                                                                {{-- Video thumb --}}
                                                                                 @if (!empty($choice->video))
                                                                                     <div class="vthumb" style="width:118px;height:82px"
                                                                                         onclick="quizOpenVideo('{{ asset('storage/' . $choice->video) }}')">
@@ -687,6 +711,7 @@
                                                                                             src="{{ asset('storage/' . $choice->video) }}#t=0.5">
                                                                                         </video>
                                                                                         <div class="vthumb-overlay">
+                                                                                            {{-- ↓ تعديل: الدايرة أصغر (36px بدل 48px) --}}
                                                                                             <div class="vthumb-play">
                                                                                                 <i class="fas fa-play"></i>
                                                                                             </div>
@@ -748,13 +773,14 @@
                                                                             <span class="text-gray-800 text-[13px] md:text-sm font-bold leading-snug">{{ $choice->choice_text }}</span>
                                                                         </div>
                                                                         @if ($choice->video)
+                                                                            {{-- ↓ تعديل: حجم أكبر للـ vthumb في الـ mixed vote + دايرة play أصغر --}}
                                                                             <div class="z-10 flex-shrink-0"
                                                                                 onclick="event.preventDefault();event.stopPropagation();quizOpenVideo('{{ asset('storage/' . $choice->video) }}')">
-                                                                                <div class="vthumb" style="width:74px;height:54px;border-radius:11px">
+                                                                                <div class="vthumb" style="width:96px;height:72px;border-radius:11px">
                                                                                     <video muted preload="metadata" src="{{ asset('storage/' . $choice->video) }}#t=0.5"></video>
                                                                                     <div class="vthumb-overlay">
-                                                                                        <div class="vthumb-play" style="width:32px;height:32px">
-                                                                                            <i class="fas fa-play" style="font-size:12px"></i>
+                                                                                        <div class="vthumb-play" style="width:24px;height:24px">
+                                                                                            <i class="fas fa-play" style="font-size:9px"></i>
                                                                                         </div>
                                                                                     </div>
                                                                                 </div>
@@ -872,11 +898,13 @@
                             </div>{{-- /glass-card --}}
                         @endif{{-- /isVoteOnly --}}
 
-                    </div>
-                @endif{{-- /activeQuizCompetition --}}
+                        </div>{{-- /activeQuizSection-{{ $activeQuizCompetition->id }} --}}
+                    @endforeach
+                    </div>{{-- /activeQuizSection --}}
+                @endif{{-- /activeQuizCompetitionsList --}}
 
                 {{-- Section heading when no active comp --}}
-                @if (!(isset($activeQuizCompetition) && $activeQuizCompetition))
+                @if ($activeQuizCompetitionsList->isEmpty())
                     <div class="text-right mb-3 md:mb-5">
                         <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">المسابقة الرمضانية</h2>
                     </div>
@@ -885,7 +913,7 @@
                 {{-- ══════════════════════════════════════
                      NEXT EVENT COUNTDOWN
                 ══════════════════════════════════════ --}}
-                @if (isset($nextQuizEvent) && $nextQuizEvent && !(isset($activeQuizCompetition) && $activeQuizCompetition))
+                @if (isset($nextQuizEvent) && $nextQuizEvent && $activeQuizCompetitionsList->isEmpty())
                     <div class="mb-3 md:mb-5" id="quizCountdownSection">
                         <div class="vote-wrap">
                             <div class="vote-grid"></div>

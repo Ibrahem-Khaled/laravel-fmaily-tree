@@ -282,18 +282,15 @@ class HomeController extends Controller
         $quizCompetitions = QuizCompetition::active()->ordered()->with('questions.choices')->get();
         $nextQuizEvent = QuizCompetition::getNextUpcomingEvent();
 
-        // آخر مسابقة جارية ولم تنتهِ (حسب وقت المسابقة) + الخيارات لعرض الإجابات في الرئيسية
-        $activeQuizCompetition = QuizCompetition::active()
+        // كل المسابقات الجارية التي لم تنتهِ (حسب وقت المسابقة) + الخيارات لعرض الإجابات في الرئيسية
+        $activeQuizCompetitions = QuizCompetition::active()
             ->whereNotNull('start_at')
             ->whereNotNull('end_at')
             ->where('start_at', '<=', now())
             ->where('end_at', '>=', now())
             ->ordered()
             ->with('questions.choices')
-            ->first();
-
-        $questionsVisibleAt = $activeQuizCompetition?->getQuestionsVisibleAt();
-        $showQuestionsOnHome = !$questionsVisibleAt || now()->gte($questionsVisibleAt);
+            ->get();
 
         return view('web-site.home', [
             'latestImages' => $slideshowImages,
@@ -315,9 +312,7 @@ class HomeController extends Controller
             'dynamicSections' => $dynamicSections,
             'quizCompetitions' => $quizCompetitions,
             'nextQuizEvent' => $nextQuizEvent,
-            'activeQuizCompetition' => $activeQuizCompetition,
-            'questionsVisibleAt' => $questionsVisibleAt,
-            'showQuestionsOnHome' => $showQuestionsOnHome,
+            'activeQuizCompetitions' => $activeQuizCompetitions,
         ]);
     }
 }

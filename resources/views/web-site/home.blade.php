@@ -1805,16 +1805,12 @@
                             var newActive = doc.getElementById('activeQuizSection');
 
                             if (newActive) {
-                                /* المسابقة بدأت → استبدل قسم العداد بكتلة المسابقة */
+                                /* المسابقة بدأت → استبدل قسم العداد بكتلة المسابقة (قد تحتوي أكثر من مسابقة) */
                                 if (wrapper) wrapper.outerHTML = newActive.outerHTML;
 
-                                /* شغّل عداد نهاية المسابقة */
-                                var endInput = document.getElementById('aqEndTime');
-                                if (endInput) startActiveQuizTimer(parseInt(endInput.value, 10));
-
-                                /* شغّل عداد كشف الأسئلة */
-                                var visInput = document.getElementById('aqQuestionsVisibleAt');
-                                if (visInput) startRevealCountdown(parseInt(visInput.value, 10));
+                                /* شغّل عدادات نهاية كل مسابقة وعدادات كشف الأسئلة */
+                                if (typeof startAllActiveQuizTimers === 'function') startAllActiveQuizTimers();
+                                if (typeof startAllRevealCountdowns === 'function') startAllRevealCountdowns();
                             } else {
                                 /* لم تبدأ بعد → إعادة المحاولة بعد 10 ثوانٍ */
                                 var current = document.getElementById('quizCountdownSection');
@@ -1866,17 +1862,18 @@
            (دوال global عشان AJAX يقدر يستدعيها بعد حقن HTML جديد)
            ================================================================ */
 
-        /* عداد h:m:s لنهاية المسابقة الفعلية */
-        function startActiveQuizTimer(endTimestamp) {
+        /* عداد h:m:s لنهاية المسابقة الفعلية (suffix اختياري، مثال: '' أو '-5' لمسابقة id=5) */
+        function startActiveQuizTimer(endTimestamp, suffix) {
+            suffix = suffix || '';
             function pad(n) {
                 return n.toString().padStart(2, '0');
             }
 
             function tick() {
                 var diff = endTimestamp - Date.now();
-                var hEl = document.getElementById('aq-hours');
-                var mEl = document.getElementById('aq-minutes');
-                var sEl = document.getElementById('aq-seconds');
+                var hEl = document.getElementById('aq-hours' + suffix);
+                var mEl = document.getElementById('aq-minutes' + suffix);
+                var sEl = document.getElementById('aq-seconds' + suffix);
                 if (!hEl) return; // العنصر اتشال من DOM
                 if (diff <= 0) {
                     hEl.textContent = '00';
@@ -1893,12 +1890,13 @@
             setInterval(tick, 1000);
         }
 
-        /* عداد الثواني حتى ظهور نص الأسئلة */
-        function startRevealCountdown(visibleAtTimestamp) {
-            var banner = document.getElementById('activeQuizQuestionsCountdown');
-            var descs = document.getElementById('activeQuizDescriptionsOnlyBlock');
-            var block = document.getElementById('activeQuizQuestionsBlock');
-            var display = document.getElementById('aqQuestionsSeconds');
+        /* عداد الثواني حتى ظهور نص الأسئلة (suffix اختياري) */
+        function startRevealCountdown(visibleAtTimestamp, suffix) {
+            suffix = suffix || '';
+            var banner = document.getElementById('activeQuizQuestionsCountdown' + suffix);
+            var descs = document.getElementById('activeQuizDescriptionsOnlyBlock' + suffix);
+            var block = document.getElementById('activeQuizQuestionsBlock' + suffix);
+            var display = document.getElementById('aqQuestionsSeconds' + suffix);
             if (!banner || !block || !display) return;
 
             function reveal() {
@@ -1927,14 +1925,36 @@
             }
         }
 
-        /* تشغيل عند تحميل الصفحة لو المسابقة موجودة أصلاً من السيرفر */
-        @if (isset($activeQuizCompetition) && $activeQuizCompetition)
-            (function() {
-                var endInput = document.getElementById('aqEndTime');
-                if (endInput) startActiveQuizTimer(parseInt(endInput.value, 10));
+        /* تشغيل كل عدادات المسابقات النشطة (عند التحميل أو بعد حقن AJAX) */
+        function startAllActiveQuizTimers() {
+            document.querySelectorAll('[id^="aqEndTime-"]').forEach(function(el) {
+                var id = el.id;
+                var suffix = id.indexOf('-') >= 0 ? id.substring(id.indexOf('-')) : '';
+                startActiveQuizTimer(parseInt(el.value, 10), suffix);
+            });
+            /* توافق قديم: عنصر واحد بدون suffix */
+            var legacyEnd = document.getElementById('aqEndTime');
+            if (legacyEnd && !legacyEnd.id.match(/-/)) {
+                startActiveQuizTimer(parseInt(legacyEnd.value, 10));
+            }
+        }
+        function startAllRevealCountdowns() {
+            document.querySelectorAll('[id^="aqQuestionsVisibleAt-"]').forEach(function(el) {
+                var id = el.id;
+                var suffix = id.indexOf('-') >= 0 ? id.substring(id.indexOf('-')) : '';
+                startRevealCountdown(parseInt(el.value, 10), suffix);
+            });
+            var legacyVis = document.getElementById('aqQuestionsVisibleAt');
+            if (legacyVis && !legacyVis.id.match(/-/)) {
+                startRevealCountdown(parseInt(legacyVis.value, 10));
+            }
+        }
 
-                var visInput = document.getElementById('aqQuestionsVisibleAt');
-                if (visInput) startRevealCountdown(parseInt(visInput.value, 10));
+        /* تشغيل عند تحميل الصفحة لو مسابقة/مسابقات موجودة أصلاً من السيرفر */
+        @if (isset($activeQuizCompetitions) && $activeQuizCompetitions->isNotEmpty())
+            (function() {
+                startAllActiveQuizTimers();
+                startAllRevealCountdowns();
             })();
         @endif
         /* ================================================================
@@ -1986,7 +2006,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Checkbox limits constraint listener
             function attachCheckboxListeners() {
-                const forms = document.querySelectorAll('#activeQuizQuestionsBlock form');
+                const forms = document.querySelectorAll('.js-active-quiz-questions-block form, [id^="activeQuizQuestionsBlock-"] form');
                 forms.forEach(form => {
                     const requiredCountInput = form.querySelector('.required-choices-count');
                     if (requiredCountInput) {
@@ -2022,7 +2042,7 @@
                 });
             }
 
-            // Run on load
+            // Run on load (يدعم أكثر من مسابقة: كل الكتل ذات الأسئلة)
             attachCheckboxListeners();
 
             function syncSlotStates(zone, sourceGrid) {
@@ -2136,9 +2156,8 @@
             }
             initSortables();
 
-            // Setup a MutationObserver to re-attach if AJAX replaces the content
-            const observerTarget = document.getElementById('quizCountdownSection') || document.getElementById(
-                'activeQuizSection');
+            // Setup a MutationObserver to re-attach when countdown/active section is replaced (e.g. after AJAX)
+            const observerTarget = document.getElementById('quizCountdownSection') || document.getElementById('activeQuizSection');
             if (observerTarget && observerTarget.parentNode) {
                 const observer = new MutationObserver(function(mutations) {
                     mutations.forEach(function(mutation) {
