@@ -170,6 +170,20 @@
                                                     <div class="col-md-4 mb-2 survey-media-col" style="{{ $si->block_type === 'text' ? 'display:none' : '' }}">
                                                         <label class="small font-weight-bold">استبدال الملف (اختياري)</label>
                                                         <input type="file" name="survey_items[{{ $idx }}][media]" class="form-control-file survey-media-input" accept="image/*,video/*">
+                                                        <div class="survey-youtube-col mt-2" style="{{ $si->block_type === 'video' ? '' : 'display:none' }}">
+                                                            <label class="small font-weight-bold">يوتيوب URL (بديل للفيديو)</label>
+                                                            <input type="text" name="survey_items[{{ $idx }}][youtube_url]"
+                                                                class="form-control form-control-sm survey-youtube-input"
+                                                                placeholder="https://youtube.com/watch?v=..."
+                                                                value="{{ old("survey_items.$idx.youtube_url", $si->youtube_url ?? '') }}">
+                                                        </div>
+                                                        @php
+                                                            $ytUrl = old("survey_items.$idx.youtube_url", $si->youtube_url ?? '');
+                                                            $ytId = null;
+                                                            if (!empty($ytUrl) && preg_match('/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/', $ytUrl, $m)) {
+                                                                $ytId = $m[1];
+                                                            }
+                                                        @endphp
                                                         @if($si->media_path)
                                                             <small class="text-success d-block mt-1"><i class="fas fa-check"></i> يوجد ملف محفوظ</small>
                                                         @endif
@@ -186,6 +200,15 @@
                                                                         style="max-height:110px; max-width:260px; object-fit:contain;"
                                                                         class="border rounded bg-white"></video>
                                                                 @endif
+                                                            @endif
+                                                        </div>
+                                                        <div class="survey-youtube-preview mt-2 small text-muted"
+                                                            style="{{ $si->block_type === 'video' && !empty($ytId) && empty($si->media_path) ? '' : 'display:none' }}">
+                                                            @if(!empty($ytId))
+                                                                <img src="https://img.youtube.com/vi/{{ $ytId }}/maxresdefault.jpg"
+                                                                    alt="يوتيوب"
+                                                                    style="max-height:90px; max-width:220px; object-fit:contain;"
+                                                                    class="img-thumbnail bg-white p-1 d-block">
                                                             @endif
                                                         </div>
                                                     </div>
@@ -449,7 +472,10 @@
                     '<option value="text">نص / سؤال</option><option value="image">صورة</option><option value="video">فيديو</option></select></div>' +
                     '<div class="col-md-4 mb-2 survey-media-col" style="display:none"><label class="small font-weight-bold">رفع ملف</label>' +
                     '<input type="file" name="survey_items[' + idx + '][media]" class="form-control-file survey-media-input" accept="image/*,video/*">' +
-                    '<div class="survey-media-preview mt-2 small text-muted"></div></div>' +
+                    '<div class="survey-youtube-col mt-2" style="display:none"><label class="small font-weight-bold">يوتيوب URL</label>' +
+                    '<input type="text" name="survey_items[' + idx + '][youtube_url]" class="form-control form-control-sm survey-youtube-input" placeholder="https://youtube.com/watch?v=..."></div>' +
+                    '<div class="survey-media-preview mt-2 small text-muted"></div>' +
+                    '<div class="survey-youtube-preview mt-2 small text-muted" style="display:none"></div></div>' +
                     '<div class="col-md-5 mb-2 survey-body-col"><label class="small font-weight-bold">نص</label>' +
                     '<textarea name="survey_items[' + idx + '][body_text]" class="form-control form-control-sm" rows="2"></textarea></div></div>' +
                     '<div class="form-row align-items-end">' +
@@ -468,8 +494,14 @@
                 var block = row.querySelector('.survey-block-type');
                 var resp = row.querySelector('.survey-response-kind');
                 var mediaInput = row.querySelector('.survey-media-input');
+                var youtubeCol = row.querySelector('.survey-youtube-col');
+                var youtubeInput = row.querySelector('.survey-youtube-input');
+                var youtubePreview = row.querySelector('.survey-youtube-preview');
                 function updBlock() {
                     row.querySelector('.survey-media-col').style.display = (block.value === 'text') ? 'none' : 'block';
+                    if (youtubeCol) youtubeCol.style.display = (block.value === 'video') ? 'block' : 'none';
+                    if (youtubePreview) youtubePreview.style.display = 'none';
+                    if (block.value === 'video' && youtubeInput) youtubeInput.dispatchEvent(new Event('input'));
                 }
                 function updResp() {
                     var r = resp.value;
@@ -478,6 +510,29 @@
                 }
                 block.addEventListener('change', updBlock);
                 resp.addEventListener('change', updResp);
+
+                function extractYouTubeId(url) {
+                    var pattern = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/;
+                    var m = (url || '').match(pattern);
+                    return m ? m[1] : null;
+                }
+
+                if (youtubeInput) {
+                    youtubeInput.addEventListener('input', function () {
+                        if (!youtubePreview) return;
+                        var id = extractYouTubeId(this.value.trim());
+                        if (!id) {
+                            youtubePreview.style.display = 'none';
+                            youtubePreview.innerHTML = '';
+                            return;
+                        }
+                        youtubePreview.style.display = 'block';
+                        youtubePreview.innerHTML =
+                            '<img src="https://img.youtube.com/vi/' + id + '/maxresdefault.jpg"' +
+                            ' style="max-height:90px; max-width:220px; object-fit:contain"' +
+                            ' class="img-thumbnail bg-white p-1 mt-2 d-block" alt="صورة يوتيوب">';
+                    });
+                }
 
                 // Render image/video preview for uploaded survey media
                 if (mediaInput) {
@@ -533,6 +588,7 @@
                 });
                 updBlock();
                 updResp();
+                if (youtubeInput) youtubeInput.dispatchEvent(new Event('input'));
             }
 
             function appendSurveyRow() {

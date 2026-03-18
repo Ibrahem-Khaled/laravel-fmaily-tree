@@ -12,6 +12,7 @@ class QuizSurveyItem extends BaseModel
         'block_type',
         'body_text',
         'media_path',
+        'youtube_url',
         'response_kind',
         'rating_max',
         'number_min',

@@ -310,7 +310,13 @@
                     '<select name="survey_items[' + idx + '][block_type]" class="form-control form-control-sm survey-block-type">' +
                     '<option value="text">نص / سؤال</option><option value="image">صورة</option><option value="video">فيديو</option></select></div>' +
                     '<div class="col-md-4 mb-2 survey-media-col" style="display:none"><label class="small font-weight-bold">رفع ملف</label>' +
-                    '<input type="file" name="survey_items[' + idx + '][media]" class="form-control-file survey-media-input" accept="image/*,video/*"></div>' +
+                    '<input type="file" name="survey_items[' + idx + '][media]" class="form-control-file survey-media-input" accept="image/*,video/*">' +
+                    '<div class="survey-youtube-col mt-2" style="display:none">' +
+                    '<label class="small font-weight-bold">يوتيوب URL</label>' +
+                    '<input type="text" name="survey_items[' + idx + '][youtube_url]" class="form-control form-control-sm survey-youtube-input" placeholder="https://youtube.com/watch?v=...">' +
+                    '</div>' +
+                    '<div class="survey-youtube-preview mt-2 small text-muted" style="display:none"></div>' +
+                    '</div>' +
                     '<div class="col-md-5 mb-2 survey-body-col"><label class="small font-weight-bold">نص (إلزامي للعنصر النصي، اختياري كتعليق)</label>' +
                     '<textarea name="survey_items[' + idx + '][body_text]" class="form-control form-control-sm" rows="2"></textarea></div></div>' +
                     '<div class="form-row align-items-end">' +
@@ -328,15 +334,46 @@
             function bindSurveyRow(row) {
                 var block = row.querySelector('.survey-block-type');
                 var resp = row.querySelector('.survey-response-kind');
+                var youtubeCol = row.querySelector('.survey-youtube-col');
+                var youtubeInput = row.querySelector('.survey-youtube-input');
+                var youtubePreview = row.querySelector('.survey-youtube-preview');
+
                 function updBlock() {
                     var v = block.value;
                     row.querySelector('.survey-media-col').style.display = (v === 'text') ? 'none' : 'block';
+                    if (youtubeCol) youtubeCol.style.display = (v === 'video') ? 'block' : 'none';
+                    if (youtubePreview) youtubePreview.style.display = 'none';
+                    if (v === 'video' && youtubeInput) youtubeInput.dispatchEvent(new Event('input'));
                 }
                 function updResp() {
                     var r = resp.value;
                     row.querySelector('.survey-rating-wrap').style.display = r === 'rating' ? 'block' : 'none';
                     row.querySelector('.survey-number-wrap').style.display = r === 'number' ? 'block' : 'none';
                 }
+
+                function extractYouTubeId(url) {
+                    var pattern = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/;
+                    var m = (url || '').match(pattern);
+                    return m ? m[1] : null;
+                }
+
+                if (youtubeInput) {
+                    youtubeInput.addEventListener('input', function () {
+                        if (!youtubePreview) return;
+                        var id = extractYouTubeId(this.value.trim());
+                        if (!id) {
+                            youtubePreview.style.display = 'none';
+                            youtubePreview.innerHTML = '';
+                            return;
+                        }
+                        youtubePreview.style.display = 'block';
+                        youtubePreview.innerHTML =
+                            '<img src="https://img.youtube.com/vi/' + id + '/maxresdefault.jpg"' +
+                            ' style="max-height:90px; max-width:220px; object-fit:contain"' +
+                            ' class="img-thumbnail bg-white p-1 mt-2 d-block" alt="صورة يوتيوب">';
+                    });
+                }
+
                 block.addEventListener('change', updBlock);
                 resp.addEventListener('change', updResp);
                 row.querySelector('.remove-survey-item').addEventListener('click', function () {
@@ -345,6 +382,7 @@
                 });
                 updBlock();
                 updResp();
+                if (youtubeInput) youtubeInput.dispatchEvent(new Event('input'));
             }
 
             function appendSurveyRow() {

@@ -48,6 +48,7 @@ class QuizQuestionController extends Controller
             'survey_items.*.rating_max' => 'nullable|integer|min:2|max:100',
             'survey_items.*.number_min' => 'nullable|integer',
             'survey_items.*.number_max' => 'nullable|integer',
+            'survey_items.*.youtube_url' => 'nullable|string|max:2000',
             'survey_items.*.media' => 'nullable|file|max:20000',
         ], [
             'question_text.required' => 'نص السؤال مطلوب',
@@ -159,6 +160,7 @@ class QuizQuestionController extends Controller
             'survey_items.*.rating_max' => 'nullable|integer|min:2|max:100',
             'survey_items.*.number_min' => 'nullable|integer',
             'survey_items.*.number_max' => 'nullable|integer',
+            'survey_items.*.youtube_url' => 'nullable|string|max:2000',
             'survey_items.*.media' => 'nullable|file|max:20000',
         ], [
             'question_text.required' => 'نص السؤال مطلوب',
@@ -308,10 +310,28 @@ class QuizQuestionController extends Controller
             }
             if ($blockType === 'video') {
                 $existingRow = $this->findSurveyRow($existingQuestion, (int) ($item['id'] ?? 0));
-                $keep = $existingRow && $existingRow->block_type === 'video' && $existingRow->media_path && ! $file;
-                if (! $file && ! $keep) {
-                    return back()->withInput()->withErrors(["survey_items.$key.media" => 'ارفع فيديو لهذا العنصر.']);
+                $youtubeUrl = $this->normalizeYouTubeUrl($item['youtube_url'] ?? null);
+                $keep = $existingRow
+                    && $existingRow->block_type === 'video'
+                    && ! $file
+                    && empty($youtubeUrl)
+                    && (! empty($existingRow->media_path) || ! empty($existingRow->youtube_url));
+
+                if (! $file && empty($youtubeUrl) && ! $keep) {
+                    return back()->withInput()->withErrors([
+                        "survey_items.$key.youtube_url" => 'ارفع فيديو لهذا العنصر أو الصق رابط يوتيوب.',
+                    ]);
                 }
+
+                if (! empty($youtubeUrl)) {
+                    $id = $this->extractYouTubeIdFromUrl($youtubeUrl);
+                    if (! $id) {
+                        return back()->withInput()->withErrors([
+                            "survey_items.$key.youtube_url" => 'رابط يوتيوب غير صالح.',
+                        ]);
+                    }
+                }
+
                 if ($file) {
                     $v = \Illuminate\Support\Facades\Validator::make(['f' => $file], ['f' => 'mimes:mp4,mov,ogg,qt|max:20000']);
                     if ($v->fails()) {
@@ -348,7 +368,12 @@ class QuizQuestionController extends Controller
         foreach ($rows as $key => $item) {
             $sort++;
             $mediaPath = $this->storeSurveyMedia($request, $key, $item['block_type']);
-            $question->surveyItems()->create($this->surveyItemAttributes($item, $sort, $mediaPath));
+            $youtubeUrl = $item['block_type'] === 'video' ? $this->normalizeYouTubeUrl($item['youtube_url'] ?? null) : null;
+            if ($item['block_type'] === 'video' && $mediaPath) {
+                // If user uploaded a file, prefer it over YouTube.
+                $youtubeUrl = null;
+            }
+            $question->surveyItems()->create($this->surveyItemAttributes($item, $sort, $mediaPath, $youtubeUrl));
         }
     }
 
@@ -374,7 +399,10 @@ class QuizQuestionController extends Controller
         $sort = 0;
         foreach ($rows as $key => $item) {
             $sort++;
-            $attrs = $this->surveyItemAttributes($item, $sort, null);
+            $incomingYoutubeUrl = $item['block_type'] === 'video'
+                ? $this->normalizeYouTubeUrl($item['youtube_url'] ?? null)
+                : null;
+            $attrs = $this->surveyItemAttributes($item, $sort, null, $incomingYoutubeUrl);
             if (! empty($item['id'])) {
                 $row = QuizSurveyItem::where('quiz_question_id', $question->id)->find($item['id']);
                 if (! $row) {
@@ -385,33 +413,59 @@ class QuizQuestionController extends Controller
                         $disk->delete($row->media_path);
                     }
                     $attrs['media_path'] = null;
+                    $attrs['youtube_url'] = null;
                 } else {
                     $file = $request->file("survey_items.$key.media");
-                    if ($file) {
-                        if ($row->media_path) {
-                            $disk->delete($row->media_path);
+
+                    if ($item['block_type'] === 'image') {
+                        $attrs['youtube_url'] = null;
+                        if ($file) {
+                            if ($row->media_path) {
+                                $disk->delete($row->media_path);
+                            }
+                            $attrs['media_path'] = $file->store('quiz/survey/images', 'public');
+                        } else {
+                            if ($row->block_type !== $item['block_type'] && $row->media_path) {
+                                $disk->delete($row->media_path);
+                                $attrs['media_path'] = null;
+                            } else {
+                                $attrs['media_path'] = $row->media_path;
+                            }
                         }
-                        $attrs['media_path'] = $item['block_type'] === 'image'
-                            ? $file->store('quiz/survey/images', 'public')
-                            : $file->store('quiz/survey/videos', 'public');
-                    } else {
-                        if ($row->block_type !== $item['block_type'] && $row->media_path) {
-                            $disk->delete($row->media_path);
+                    } elseif ($item['block_type'] === 'video') {
+                        // Prefer uploaded file if present.
+                        if ($file) {
+                            if ($row->media_path) {
+                                $disk->delete($row->media_path);
+                            }
+                            $attrs['media_path'] = $file->store('quiz/survey/videos', 'public');
+                            $attrs['youtube_url'] = null;
+                        } elseif (! empty($attrs['youtube_url'])) {
+                            // If YouTube URL provided, clear media_path (and delete old file).
+                            if ($row->media_path) {
+                                $disk->delete($row->media_path);
+                            }
                             $attrs['media_path'] = null;
                         } else {
+                            // No new input => keep existing content.
                             $attrs['media_path'] = $row->media_path;
+                            $attrs['youtube_url'] = $row->youtube_url;
                         }
                     }
                 }
                 $row->update($attrs);
             } else {
                 $attrs['media_path'] = $this->storeSurveyMedia($request, $key, $item['block_type']);
+                if ($item['block_type'] === 'video' && ! empty($attrs['media_path'])) {
+                    // Prefer uploaded file over YouTube when both exist.
+                    $attrs['youtube_url'] = null;
+                }
                 $question->surveyItems()->create($attrs);
             }
         }
     }
 
-    private function surveyItemAttributes(array $item, int $sort, ?string $mediaPath): array
+    private function surveyItemAttributes(array $item, int $sort, ?string $mediaPath, ?string $youtubeUrl): array
     {
         $responseKind = $item['response_kind'];
         $ratingMax = max(2, min(100, (int) ($item['rating_max'] ?? 10)));
@@ -421,6 +475,7 @@ class QuizQuestionController extends Controller
             'block_type' => $item['block_type'],
             'body_text' => $item['body_text'] ?? null,
             'media_path' => $mediaPath,
+            'youtube_url' => $youtubeUrl,
             'response_kind' => $responseKind,
             'rating_max' => $responseKind === 'rating' ? $ratingMax : 10,
             'number_min' => $responseKind === 'number' ? (int) ($item['number_min'] ?? 0) : null,
@@ -441,6 +496,31 @@ class QuizQuestionController extends Controller
         return $blockType === 'image'
             ? $file->store('quiz/survey/images', 'public')
             : $file->store('quiz/survey/videos', 'public');
+    }
+
+    private function normalizeYouTubeUrl(?string $url): ?string
+    {
+        $url = trim((string) ($url ?? ''));
+        if ($url === '') {
+            return null;
+        }
+
+        // Allow pasting raw 11-char YouTube ID.
+        if (preg_match('/^[a-zA-Z0-9_-]{11}$/', $url)) {
+            return 'https://www.youtube.com/watch?v='.$url;
+        }
+
+        return $url;
+    }
+
+    private function extractYouTubeIdFromUrl(string $url): ?string
+    {
+        $pattern = '/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/';
+        if (preg_match($pattern, $url, $m)) {
+            return $m[1];
+        }
+
+        return null;
     }
 
     public function destroy(QuizCompetition $quizCompetition, QuizQuestion $quizQuestion): RedirectResponse

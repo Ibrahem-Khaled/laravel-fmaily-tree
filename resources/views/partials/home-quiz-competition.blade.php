@@ -73,6 +73,7 @@
     .quiz-lb-close:hover{background:#fee2e2;color:#ef4444;transform:scale(1.1)}
     #quizLightboxImg{border-radius:18px;box-shadow:0 10px 50px rgba(0,0,0,.55);max-width:92vw;max-height:86vh;object-fit:contain;display:block}
     #quizLightboxVideo{border-radius:18px;box-shadow:0 10px 50px rgba(0,0,0,.55);max-width:92vw;max-height:86vh;display:none;outline:none;background:#000}
+    #quizLightboxIframe{border-radius:18px;box-shadow:0 10px 50px rgba(0,0,0,.55);max-width:92vw;max-height:86vh;width:100%;height:100%;display:none;outline:none;background:#000}
     @keyframes lbIn{from{transform:scale(.82);opacity:0}to{transform:scale(1);opacity:1}}
 
     /* ═══════════════════════════════════════════
@@ -861,13 +862,33 @@
                                                                                     </div>
                                                                                 </div>
 
-                                                                            {{-- ▌ VIDEO – صغيرة على اليسار تفتح lightbox --}}
-                                                                            @elseif ($si->block_type === 'video' && $si->media_path)
+                                                                            {{-- ▌ VIDEO / YOUTUBE – صغيرة على اليسار تفتح lightbox --}}
+                                                                            @elseif ($si->block_type === 'video' && (!empty($si->media_path) || !empty($si->youtube_url)))
+                                                                                @php
+                                                                                    $ytId = null;
+                                                                                    if (!empty($si->youtube_url) && is_string($si->youtube_url)) {
+                                                                                        if (preg_match('/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/', $si->youtube_url, $m)) {
+                                                                                            $ytId = $m[1] ?? null;
+                                                                                        }
+                                                                                    }
+                                                                                @endphp
                                                                                 <div class="survey-item-media"
-                                                                                    onclick="quizOpenVideo('{{ asset('storage/' . $si->media_path) }}')">
-                                                                                    <video muted preload="metadata"
-                                                                                        src="{{ asset('storage/' . $si->media_path) }}#t=0.5">
-                                                                                    </video>
+                                                                                    onclick="quizOpenVideo('{{ !empty($si->media_path) ? asset('storage/' . $si->media_path) : $si->youtube_url }}')">
+                                                                                    @if (!empty($si->media_path))
+                                                                                        <video muted preload="metadata"
+                                                                                            src="{{ asset('storage/' . $si->media_path) }}#t=0.5">
+                                                                                        </video>
+                                                                                    @else
+                                                                                        @if(!empty($ytId))
+                                                                                            <img src="https://img.youtube.com/vi/{{ $ytId }}/maxresdefault.jpg"
+                                                                                                alt="صورة يوتيوب"
+                                                                                                style="width:100%;height:100%;object-fit:cover;">
+                                                                                        @else
+                                                                                            <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#000">
+                                                                                                <i class="fab fa-youtube text-white" style="font-size:22px"></i>
+                                                                                            </div>
+                                                                                        @endif
+                                                                                    @endif
                                                                                     <div class="sim-overlay">
                                                                                         <div class="sim-play">
                                                                                             <i class="fas fa-play"></i>
@@ -1091,16 +1112,19 @@
                 </button>
                 <img id="quizLightboxImg" src="" alt="صورة">
                 <video id="quizLightboxVideo" controls playsinline></video>
+                <iframe id="quizLightboxIframe" src="" frameborder="0"
+                    allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
             </div>
         </div>
 
     @push('scripts')
     <script>
     /* ─── Lightbox ─── */
-    var _qlb={modal:null,img:null,video:null,init:function(){this.modal=document.getElementById('quizLightboxModal');this.img=document.getElementById('quizLightboxImg');this.video=document.getElementById('quizLightboxVideo')}};
-    function quizOpenImage(s){if(!_qlb.modal)_qlb.init();_qlb.img.src=s;_qlb.img.style.display='block';_qlb.video.style.display='none';_qlb.video.pause();_qlb.modal.classList.add('lb-open');document.body.style.overflow='hidden'}
-    function quizOpenVideo(s){if(!_qlb.modal)_qlb.init();_qlb.img.style.display='none';_qlb.video.src=s;_qlb.video.style.display='block';_qlb.modal.classList.add('lb-open');document.body.style.overflow='hidden';_qlb.video.play().catch(function(){})}
-    function quizCloseLightbox(){if(!_qlb.modal)return;_qlb.modal.classList.remove('lb-open');_qlb.video.pause();_qlb.video.src='';_qlb.img.src='';document.body.style.overflow=''}
+    var _qlb={modal:null,img:null,video:null,iframe:null,init:function(){this.modal=document.getElementById('quizLightboxModal');this.img=document.getElementById('quizLightboxImg');this.video=document.getElementById('quizLightboxVideo');this.iframe=document.getElementById('quizLightboxIframe')}};
+    function quizExtractYouTubeId(url){if(!url)return null;var m=(''+url).match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/);return m?m[1]:null}
+    function quizOpenImage(s){if(!_qlb.modal)_qlb.init();_qlb.img.src=s;_qlb.img.style.display='block';_qlb.video.style.display='none';_qlb.video.pause();_qlb.video.src='';_qlb.iframe.style.display='none';_qlb.iframe.src='';_qlb.modal.classList.add('lb-open');document.body.style.overflow='hidden'}
+    function quizOpenVideo(s){if(!_qlb.modal)_qlb.init();_qlb.img.style.display='none';var ytId=quizExtractYouTubeId(s);_qlb.modal.classList.add('lb-open');document.body.style.overflow='hidden';if(ytId){_qlb.video.style.display='none';_qlb.video.pause();_qlb.video.src='';_qlb.iframe.style.display='block';_qlb.iframe.src='https://www.youtube.com/embed/'+ytId+'?autoplay=1&rel=0'}else{_qlb.iframe.style.display='none';_qlb.iframe.src='';_qlb.video.src=s;_qlb.video.style.display='block';_qlb.video.play().catch(function(){})}}
+    function quizCloseLightbox(){if(!_qlb.modal)return;_qlb.modal.classList.remove('lb-open');_qlb.video.pause();_qlb.video.src='';_qlb.img.src='';_qlb.iframe.src='';_qlb.iframe.style.display='none';document.body.style.overflow=''}
     document.addEventListener('keydown',function(e){if(e.key==='Escape')quizCloseLightbox()});
 
     /* ─── Vote toggle visual ─── */
