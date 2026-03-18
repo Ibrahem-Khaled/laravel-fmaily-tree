@@ -189,6 +189,10 @@ Route::prefix('competitions')->name('competitions.')->group(function () {
     Route::post('team/{team}/register', [\App\Http\Controllers\CompetitionRegistrationController::class, 'teamStore'])->name('team.register.store');
 });
 
+// Public Competition Data (JSON)
+Route::get('competitions/{competition}/json', [\App\Http\Controllers\admin\CompetitionController::class, 'json'])
+    ->name('competitions.json');
+
 Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
 
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard')->middleware(['permission:dashboard.view']);

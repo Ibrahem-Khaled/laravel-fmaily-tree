@@ -11,6 +11,7 @@ use App\Models\Image;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\DB;
 
@@ -180,6 +181,67 @@ class CompetitionController extends Controller
         ];
 
         return view('dashboard.competitions.show', compact('competition', 'stats', 'individualUsers'));
+    }
+
+    /**
+     * إرجاع بيانات المسابقة بصيغة JSON (Tournament + Groups + Players)
+     */
+    public function json(Competition $competition): JsonResponse
+    {
+        $competition->load(['teams.members']);
+
+        $teams = $competition->teams
+            ->sortBy('id')
+            ->values();
+
+        $totalTeams = $teams->count();
+        $totalGroups = (int) ceil($totalTeams / 2);
+
+        $season = $competition->start_date ? $competition->start_date->year : 1;
+
+        $formatTeam = static function (?Team $team) {
+            if (!$team) {
+                return [
+                    'id' => null,
+                    'name' => null,
+                    'players_count' => 0,
+                    'players' => [],
+                ];
+            }
+
+            return [
+                'id' => $team->id,
+                'name' => $team->name,
+                'players_count' => $team->members->count(),
+                'players' => $team->members->pluck('name')->values()->all(),
+            ];
+        };
+
+        $groups = [];
+        $groupNumber = 1;
+        for ($i = 0; $i < $totalTeams; $i += 2) {
+            $team1 = $teams[$i] ?? null;
+            $team2 = $teams[$i + 1] ?? null;
+
+            $groups[] = [
+                'group_number' => $groupNumber,
+                'team_1' => $formatTeam($team1),
+                'team_2' => $formatTeam($team2),
+            ];
+
+            $groupNumber++;
+        }
+
+        return response()->json([
+            'tournament' => [
+                'id' => (string) $competition->id,
+                'name' => $competition->title,
+                'season' => $season,
+                'total_teams' => $totalTeams,
+                'total_groups' => $totalGroups,
+            ],
+            'groups' => $groups,
+        ]);
     }
 
     /**
