@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Facades\Storage;
 
 class QuizQuestion extends BaseModel
@@ -27,13 +28,39 @@ class QuizQuestion extends BaseModel
 
     protected $casts = [
         'is_multiple_selections' => 'boolean',
-        'prize' => 'array',
         'winners_count' => 'integer',
         'groups_count' => 'integer',
         'display_order' => 'integer',
         'vote_max_selections' => 'integer',
         'require_prior_registration' => 'boolean',
     ];
+
+    protected function prize(): Attribute
+    {
+        return Attribute::make(
+            get: function ($value) {
+                if ($value === null || $value === '') {
+                    return [];
+                }
+
+                if (is_array($value)) {
+                    return $value;
+                }
+
+                if (is_string($value)) {
+                    $decoded = json_decode($value, true);
+                    if (json_last_error() === JSON_ERROR_NONE) {
+                        return is_array($decoded) ? $decoded : [];
+                    }
+
+                    return [$value];
+                }
+
+                return [];
+            },
+            set: fn ($value) => $value === null ? null : json_encode(is_array($value) ? $value : [$value], JSON_UNESCAPED_UNICODE)
+        );
+    }
 
     protected static function booted(): void
     {
