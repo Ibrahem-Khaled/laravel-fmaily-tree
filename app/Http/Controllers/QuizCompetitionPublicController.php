@@ -598,13 +598,26 @@ class QuizCompetitionPublicController extends Controller
         $cacheKey = 'quiz_winner_json_' . $quizQuestion->id;
         $result = Cache::remember($cacheKey, now()->addMinutes(10), function () use ($quizQuestion) {
             // Atomic lock: only one process selects winners
-            if ($quizQuestion->winners()->count() === 0) {
+            $targetWinners = (int) ($quizQuestion->winners_count ?? 1);
+            $currentWinnersCount = (int) $quizQuestion->winners()->count();
+
+            // If we have no winners yet OR we have fewer than requested winners, attempt to fill vacancies.
+            if ($currentWinnersCount < $targetWinners) {
                 $lockKey = 'quiz-winner-selection-' . $quizQuestion->id;
                 Cache::lock($lockKey, 15)->block(10, function () use ($quizQuestion) {
                     $quizQuestion->refresh();
                     $quizQuestion->load(['winners']);
-                    if ($quizQuestion->winners->count() === 0 && $quizQuestion->answers()->where('is_correct', true)->exists()) {
-                        $quizQuestion->selectRandomWinners();
+                    $targetWinnersInside = (int) ($quizQuestion->winners_count ?? 1);
+
+                    if ($quizQuestion->answers()->where('is_correct', true)->exists()) {
+                        // If partially filled (or empty), top up to winners_count.
+                        if ($quizQuestion->winners->count() < $targetWinnersInside) {
+                            if ($quizQuestion->winners->count() === 0) {
+                                $quizQuestion->selectRandomWinners();
+                            } else {
+                                $quizQuestion->fillVacantWinners();
+                            }
+                        }
                     }
                 });
             }
