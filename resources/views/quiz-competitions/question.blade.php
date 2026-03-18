@@ -473,11 +473,11 @@
                             <h3 class="font-bold text-gray-800">بياناتك</h3>
                         </div>
 
-                        @if($quizQuestion->answer_type === 'vote' && $quizQuestion->require_prior_registration)
+                        @if($quizQuestion->require_prior_registration)
                             {{-- Phone-only form for registered participants --}}
                             <p class="text-sm text-blue-600 mb-3 font-medium">
                                 <i class="fas fa-info-circle ml-1"></i>
-                                هذا التصويت للمشاركين السابقين فقط. أدخل رقم هاتفك للتحقق.
+                                هذه المشاركة للمشاركين السابقين فقط. أدخل رقم هاتفك للتحقق.
                             </p>
                             <div>
                                 <label class="block text-gray-600 text-sm mb-2 font-medium">رقم الهاتف <span class="text-red-500">*</span></label>

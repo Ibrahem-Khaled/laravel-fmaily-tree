@@ -75,7 +75,7 @@ class QuizQuestionController extends Controller
             'display_order' => $validated['display_order'] ?? 0,
             'prize' => $validated['prize'] ?? [],
             'vote_max_selections' => ($validated['answer_type'] === 'vote') ? ($validated['vote_max_selections'] ?? 1) : null,
-            'require_prior_registration' => ($validated['answer_type'] === 'vote') ? ! empty($validated['require_prior_registration']) : false,
+            'require_prior_registration' => ! empty($validated['require_prior_registration']),
         ]);
 
         if ($validated['answer_type'] === 'survey') {
@@ -188,7 +188,7 @@ class QuizQuestionController extends Controller
             'display_order' => $validated['display_order'] ?? 0,
             'prize' => $validated['prize'] ?? [],
             'vote_max_selections' => ($validated['answer_type'] === 'vote') ? ($validated['vote_max_selections'] ?? 1) : null,
-            'require_prior_registration' => ($validated['answer_type'] === 'vote') ? ! empty($validated['require_prior_registration']) : false,
+            'require_prior_registration' => ! empty($validated['require_prior_registration']),
         ]);
 
         if ($validated['answer_type'] === 'survey') {

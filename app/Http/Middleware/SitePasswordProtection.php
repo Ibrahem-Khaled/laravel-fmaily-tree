@@ -26,6 +26,11 @@ class SitePasswordProtection
             return $next($request);
         }
 
+        // استثناء: بيانات المسابقة بصيغة JSON تكون عامة بدون كلمة مرور الموقع
+        if ($request->routeIs('competitions.json')) {
+            return $next($request);
+        }
+
         // التحقق من أن المستخدم قد أدخل كلمة المرور في الجلسة
         if (!session('site_password_verified')) {
             return redirect()->route('site.password.show');

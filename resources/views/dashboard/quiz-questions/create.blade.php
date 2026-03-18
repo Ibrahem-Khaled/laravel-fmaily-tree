@@ -119,8 +119,20 @@
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
-                                    <div class="col-md-6">
-                                        <label class="d-block mb-2">شرط المشاركة</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Participation condition (applies to all answer types) --}}
+                    <div class="form-group">
+                        <div class="card border-secondary">
+                            <div class="card-header bg-secondary text-white py-2">
+                                <i class="fas fa-user-check mr-1"></i> شرط المشاركة
+                            </div>
+                            <div class="card-body py-3">
+                                <div class="row">
+                                    <div class="col-md-12">
                                         <div class="custom-control custom-switch">
                                             <input type="checkbox" class="custom-control-input" id="require_prior_registration"
                                                 name="require_prior_registration" value="1"
@@ -129,7 +141,7 @@
                                                 يشترط تسجيل مسبق (يظهر لحقل الهاتف فقط للتحقق)
                                             </label>
                                         </div>
-                                        <small class="text-muted">إذا كان مفعلاً، لا يمكن التصويت إلا لمن سبق تسجيله برقم هاتفه.</small>
+                                        <small class="text-muted">إذا كان مفعلاً، لا يمكن المشاركة إلا لمن سبق تسجيله برقم هاتفه.</small>
                                     </div>
                                 </div>
                             </div>

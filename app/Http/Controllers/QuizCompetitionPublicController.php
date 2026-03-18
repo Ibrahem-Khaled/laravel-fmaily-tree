@@ -195,19 +195,16 @@ class QuizCompetitionPublicController extends Controller
             return back()->with('error', 'انتهت فترة الإجابة على هذا السؤال');
         }
 
+        $requiresPriorRegistration = (bool) $quizQuestion->require_prior_registration;
+        $isVoteType = $quizQuestion->answer_type === 'vote';
+
         $rules = [
-            'name' => 'nullable|string|max:255',
+            // When prior-registration is required, phone is enough (no name input required).
+            'name' => ($requiresPriorRegistration || $isVoteType) ? 'nullable|string|max:255' : 'required|string|max:255',
             'phone' => 'required|string|size:10|regex:/^[0-9]{10}$/',
             'is_from_ancestry' => 'nullable|in:1',
             'mother_name' => 'nullable|string|max:255',
         ];
-
-        // For vote type: name is not required
-        $isVoteType = $quizQuestion->answer_type === 'vote';
-
-        if (! $isVoteType) {
-            $rules['name'] = 'required|string|max:255';
-        }
 
         if ($quizQuestion->is_multiple_selections || $quizQuestion->answer_type === 'ordering' || $quizQuestion->answer_type === 'true_false') {
             $rules['answer'] = 'required|array';
@@ -264,11 +261,12 @@ class QuizCompetitionPublicController extends Controller
             'answer.max' => 'لا يمكنك اختيار أكثر من '.($quizQuestion->vote_max_selections ?? 1).' خيارات',
         ]);
 
-        // Vote type with require_prior_registration: verify phone exists
-        if ($isVoteType && $quizQuestion->require_prior_registration) {
+        // Participation requirement: verify phone exists
+        if ($requiresPriorRegistration) {
             $phoneExists = User::where('phone', $validated['phone'])->exists();
             if (! $phoneExists) {
-                return back()->withInput()->with('error', 'رقم الهاتف غير مسجل. هذا التصويت للمشاركين السابقين فقط.');
+                $actionMsg = $isVoteType ? 'التصويت' : 'المشاركة';
+                return back()->withInput()->with('error', 'رقم الهاتف غير مسجل. لا يمكنك '.$actionMsg.' إلا لمن سبق تسجيله برقم هاتفه.');
             }
         }
 
@@ -299,14 +297,15 @@ class QuizCompetitionPublicController extends Controller
                 }
             }
 
-            // إنشاء مستخدم أو استخدام الموجود (للتصويت نحاول إيجاده أولاً)
-            if ($isVoteType && $quizQuestion->require_prior_registration) {
-                // For vote with required registration: find the existing user
+            // إنشاء مستخدم أو استخدام الموجود
+            if ($requiresPriorRegistration) {
+                // If prior-registration is required: do not create a new user.
                 $user = User::where('phone', $validated['phone'])->latest()->first();
                 if (! $user) {
                     DB::rollBack();
 
-                    return back()->withInput()->with('error', 'رقم الهاتف غير مسجل.');
+                    $actionMsg = $isVoteType ? 'التصويت' : 'المشاركة';
+                    return back()->withInput()->with('error', 'رقم الهاتف غير مسجل. لا يمكنك '.$actionMsg.' إلا لمن سبق تسجيله برقم هاتفه.');
                 }
             } else {
                 $user = User::create([

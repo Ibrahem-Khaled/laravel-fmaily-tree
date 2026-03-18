@@ -322,7 +322,7 @@
                                                     @if ($q->require_prior_registration)
                                                         <div class="vote-reg-hint">
                                                             <i class="fas fa-info-circle" style="margin-top:1px;flex-shrink:0"></i>
-                                                            <span>هذا التصويت للمشاركين السابقين فقط — أدخل رقم هاتفك للتحقق</span>
+                                                            <span>هذه المشاركة للمشاركين السابقين فقط — أدخل رقم هاتفك للتحقق</span>
                                                         </div>
                                                         <div style="margin-bottom:13px">
                                                             <label class="vote-lbl">رقم الهاتف <span style="color:#f87171">*</span></label>
@@ -558,11 +558,11 @@
                                                     @csrf
                                                     <input type="hidden" name="source" value="home">
 
-                                                    @if ($q->answer_type === 'vote' && $q->require_prior_registration)
+                                                    @if ($q->require_prior_registration)
                                                         <div class="mb-4">
                                                             <p class="text-xs text-blue-600 mb-2 font-medium">
                                                                 <i class="fas fa-info-circle mx-1"></i>
-                                                                هذا التصويت للمشاركين السابقين فقط. أدخل رقم هاتفك للتحقق.
+                                                                هذه المشاركة للمشاركين السابقين فقط. أدخل رقم هاتفك للتحقق.
                                                             </p>
                                                             <label class="block text-gray-600 text-xs mb-1 font-medium">رقم الهاتف <span class="text-red-500">*</span></label>
                                                             <input type="text" name="phone" value="{{ old('phone') }}" required
