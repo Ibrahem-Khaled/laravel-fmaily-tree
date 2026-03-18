@@ -450,6 +450,11 @@ class QuizCompetitionPublicController extends Controller
                 $selectedChoice = $quizQuestion->choices->firstWhere('id', $choiceId);
                 $isCorrect = $selectedChoice && (bool) $selectedChoice->is_correct;
                 $answerData = (string) $choiceId;
+            } else {
+                // Free-text / custom answers: treat any submitted answer as correct (as requested).
+                $answerType = 'custom';
+                $isCorrect = true;
+                $answerData = (string) $validated['answer'];
             }
 
             // إنشاء إجابة جديدة دائماً
