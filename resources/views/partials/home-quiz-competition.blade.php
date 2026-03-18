@@ -59,10 +59,8 @@
     .vthumb video,.vthumb img{display:block;width:100%;height:100%;object-fit:cover;pointer-events:none}
     .vthumb-overlay{position:absolute;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;transition:background .2s}
     .vthumb:hover .vthumb-overlay{background:rgba(0,0,0,.52)}
-    /* ↓ تعديل: تصغير دايرة البلاي من 48px إلى 36px */
     .vthumb-play{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.95);display:flex;align-items:center;justify-content:center;box-shadow:0 3px 14px rgba(0,0,0,.3);transition:transform .2s}
     .vthumb:hover .vthumb-play{transform:scale(1.13)}
-    /* ↓ تعديل: تصغير أيقونة البلاي من 17px إلى 13px */
     .vthumb-play i{color:#16a34a;font-size:13px;margin-left:2px}
 
     /* ═══════════════════════════════════════════
@@ -118,16 +116,13 @@
     .vote-cname{font-size:.9rem;font-weight:700;color:#14532d;line-height:1.3}
 
     /* Video thumb inside vote card */
-    /* ↓ تعديل: حجم أكبر للـ vote-vthumb */
     .vote-vthumb{position:relative;width:90px;height:68px;border-radius:11px;overflow:hidden;cursor:pointer;flex-shrink:0;background:#052e16;border:2px solid #bbf7d0;transition:border-color .2s,transform .15s,box-shadow .2s;margin-right:auto}
     .vote-vthumb:hover{border-color:#22c55e;transform:scale(1.06);box-shadow:0 4px 14px rgba(34,197,94,.25)}
     .vote-vthumb video{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
     .vote-vthumb-ov{position:absolute;inset:0;background:rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;transition:background .15s}
     .vote-vthumb:hover .vote-vthumb-ov{background:rgba(0,0,0,.45)}
-    /* ↓ تعديل: تصغير دايرة البلاي من 28px إلى 22px */
     .vote-vthumb-play{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.95);display:flex;align-items:center;justify-content:center;transition:transform .15s;box-shadow:0 2px 8px rgba(0,0,0,.2)}
     .vote-vthumb:hover .vote-vthumb-play{transform:scale(1.15)}
-    /* ↓ تعديل: تصغير أيقونة البلاي من 10px إلى 8px */
     .vote-vthumb-play i{color:#16a34a;font-size:8px;margin-left:1px}
 
     /* Submit */
@@ -168,6 +163,32 @@
     .cd-box{min-width:56px;background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:16px;padding:10px 6px 8px;text-align:center}
     .cd-num{font-size:1.55rem;font-weight:800;color:#16a34a;line-height:1}
     .cd-lbl{font-size:.67rem;color:#6b7280;margin-top:4px}
+
+    /* ═══════════════════════════════════════════
+       SURVEY ITEM ROW (media inline-left + content)
+    ═══════════════════════════════════════════ */
+    .survey-item-row{display:flex;align-items:flex-start;gap:10px;direction:rtl;flex-direction:row-reverse}
+    .survey-item-media{position:relative;flex-shrink:0;width:80px;height:80px;border-radius:12px;overflow:hidden;cursor:pointer;border:2px solid #bbf7d0;background:#052e16;transition:border-color .2s,transform .15s,box-shadow .2s}
+    .survey-item-media:hover{border-color:#22c55e;transform:scale(1.06);box-shadow:0 4px 14px rgba(34,197,94,.25)}
+    .survey-item-media video,.survey-item-media img{display:block;width:100%;height:100%;object-fit:cover;pointer-events:none}
+    .survey-item-media .sim-overlay{position:absolute;inset:0;background:rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;transition:background .15s}
+    .survey-item-media:hover .sim-overlay{background:rgba(0,0,0,.46)}
+    .survey-item-media .sim-play{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.95);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.22);transition:transform .15s}
+    .survey-item-media:hover .sim-play{transform:scale(1.14)}
+    .survey-item-media .sim-play i{color:#16a34a;font-size:10px;margin-left:1px}
+    .survey-item-media.sim-img .sim-play i{margin-left:0;font-size:10px}
+    .survey-item-content{flex:1;min-width:0}
+
+    /* ═══════════════════════════════════════════
+       STAR RATING – responsive
+    ═══════════════════════════════════════════ */
+    .star-rating{display:flex;flex-direction:row-reverse;flex-wrap:nowrap;justify-content:flex-start;gap:clamp(2px,1vw,6px);margin:6px 0 4px;width:100%}
+    .star-rating input{display:none}
+    .star-rating label{font-size:clamp(18px,5vw,28px);color:#d1d5db;cursor:pointer;transition:color .15s,transform .15s;line-height:1;flex-shrink:0}
+    .star-rating label:hover,.star-rating label:hover~label,.star-rating input:checked~label{color:#f59e0b}
+    .star-rating label:hover{transform:scale(1.2)}
+    .star-rating input:checked+label{transform:scale(1.15)}
+    .star-val-display{font-size:.75rem;color:#6b7280;margin-top:2px}
     </style>
     @endpush
 
@@ -365,13 +386,11 @@
                                                                 <p class="vote-cname">{{ $choice->choice_text }}</p>
                                                             </div>
 
-                                                            {{-- ↓ تعديل: الـ vote-vthumb بقى أكبر (width/height في الـ CSS مباشرة) --}}
                                                             @if ($choice->video)
                                                                 <div class="vote-vthumb"
                                                                     onclick="event.preventDefault();event.stopPropagation();quizOpenVideo('{{ asset('storage/' . $choice->video) }}')">
                                                                     <video muted preload="metadata" src="{{ asset('storage/' . $choice->video) }}#t=0.5"></video>
                                                                     <div class="vote-vthumb-ov">
-                                                                        {{-- ↓ الدايرة أصغر من الـ CSS --}}
                                                                         <div class="vote-vthumb-play"><i class="fas fa-play"></i></div>
                                                                     </div>
                                                                 </div>
@@ -704,7 +723,6 @@
                                                                                         onclick="quizOpenImage('{{ asset('storage/' . $choice->image) }}')">
                                                                                         <img src="{{ asset('storage/' . $choice->image) }}" alt="صورة">
                                                                                         <div class="vthumb-overlay">
-                                                                                            {{-- ↓ تعديل: الدايرة أصغر من الـ CSS (36px بدل 48px) --}}
                                                                                             <div class="vthumb-play" style="width:36px;height:36px">
                                                                                                 <i class="fas fa-search-plus" style="color:#16a34a;font-size:13px;margin-left:0"></i>
                                                                                             </div>
@@ -720,7 +738,6 @@
                                                                                             src="{{ asset('storage/' . $choice->video) }}#t=0.5">
                                                                                         </video>
                                                                                         <div class="vthumb-overlay">
-                                                                                            {{-- ↓ تعديل: الدايرة أصغر (36px بدل 48px) --}}
                                                                                             <div class="vthumb-play">
                                                                                                 <i class="fas fa-play"></i>
                                                                                             </div>
@@ -782,7 +799,6 @@
                                                                             <span class="text-gray-800 text-[13px] md:text-sm font-bold leading-snug">{{ $choice->choice_text }}</span>
                                                                         </div>
                                                                         @if ($choice->video)
-                                                                            {{-- ↓ تعديل: حجم أكبر للـ vthumb في الـ mixed vote + دايرة play أصغر --}}
                                                                             <div class="z-10 flex-shrink-0"
                                                                                 onclick="event.preventDefault();event.stopPropagation();quizOpenVideo('{{ asset('storage/' . $choice->video) }}')">
                                                                                 <div class="vthumb" style="width:96px;height:72px;border-radius:11px">
@@ -824,37 +840,92 @@
                                                                 </p>
                                                             </div>
 
+                                                        {{-- ══════════════════════════════════════
+                                                             SURVEY
+                                                        ══════════════════════════════════════ --}}
                                                         @elseif ($q->answer_type === 'survey' && $q->surveyItems->isNotEmpty())
-                                                            <div class="space-y-4">
+                                                            <div class="space-y-3">
                                                                 @foreach ($q->surveyItems as $si)
                                                                     <div class="rounded-xl border border-green-200 bg-white p-3">
-                                                                        @if ($si->block_type === 'image' && $si->media_path)
-                                                                            <img src="{{ asset('storage/' . $si->media_path) }}" alt="" class="w-full max-h-56 object-contain rounded-lg mb-2">
-                                                                        @elseif ($si->block_type === 'video' && $si->media_path)
-                                                                            <video src="{{ asset('storage/' . $si->media_path) }}" controls playsinline class="w-full max-h-56 rounded-lg mb-2 bg-black"></video>
-                                                                        @endif
-                                                                        @if ($si->body_text)
-                                                                            <div class="text-gray-700 text-sm mb-2 quiz-description">{!! $si->body_text !!}</div>
-                                                                        @endif
-                                                                        @if ($si->response_kind === 'rating')
-                                                                            @php $rm = max(2, min(100, (int) $si->rating_max)); @endphp
-                                                                            <label class="text-xs font-bold text-green-800 block mb-1">تقييم (1–{{ $rm }})</label>
-                                                                            <input type="range" name="survey_item[{{ $si->id }}]" min="1" max="{{ $rm }}" required
-                                                                                value="{{ old('survey_item.'.$si->id, (int) ceil($rm / 2)) }}"
-                                                                                class="w-full h-2 rounded-lg accent-green-600"
-                                                                                oninput="var el=document.getElementById('srv-r-{{ $q->id }}-{{ $si->id }}');if(el)el.textContent=this.value;">
-                                                                            <p id="srv-r-{{ $q->id }}-{{ $si->id }}" class="text-center text-lg font-bold text-green-700">{{ old('survey_item.'.$si->id, (int) ceil($rm / 2)) }}</p>
-                                                                        @elseif ($si->response_kind === 'number')
-                                                                            <label class="text-xs font-bold text-green-800 block mb-1">رقم ({{ $si->number_min }}–{{ $si->number_max }})</label>
-                                                                            <input type="number" name="survey_item[{{ $si->id }}]" required
-                                                                                min="{{ $si->number_min ?? 0 }}" max="{{ $si->number_max ?? 100 }}"
-                                                                                value="{{ old('survey_item.'.$si->id) }}"
-                                                                                class="w-full px-3 py-2 rounded-xl border-2 border-gray-200 text-sm">
-                                                                        @else
-                                                                            <label class="text-xs font-bold text-green-800 block mb-1">إجابتك</label>
-                                                                            <textarea name="survey_item[{{ $si->id }}]" rows="2" required maxlength="2000"
-                                                                                class="w-full px-3 py-2 rounded-xl border-2 border-gray-200 text-sm resize-none">{{ old('survey_item.'.$si->id) }}</textarea>
-                                                                        @endif
+                                                                        <div class="survey-item-row">
+
+                                                                            {{-- ▌ IMAGE – صغيرة على اليسار تفتح lightbox --}}
+                                                                            @if ($si->block_type === 'image' && $si->media_path)
+                                                                                <div class="survey-item-media sim-img"
+                                                                                    onclick="quizOpenImage('{{ asset('storage/' . $si->media_path) }}')">
+                                                                                    <img src="{{ asset('storage/' . $si->media_path) }}" alt="صورة">
+                                                                                    <div class="sim-overlay">
+                                                                                        <div class="sim-play">
+                                                                                            <i class="fas fa-search-plus"></i>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+
+                                                                            {{-- ▌ VIDEO – صغيرة على اليسار تفتح lightbox --}}
+                                                                            @elseif ($si->block_type === 'video' && $si->media_path)
+                                                                                <div class="survey-item-media"
+                                                                                    onclick="quizOpenVideo('{{ asset('storage/' . $si->media_path) }}')">
+                                                                                    <video muted preload="metadata"
+                                                                                        src="{{ asset('storage/' . $si->media_path) }}#t=0.5">
+                                                                                    </video>
+                                                                                    <div class="sim-overlay">
+                                                                                        <div class="sim-play">
+                                                                                            <i class="fas fa-play"></i>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            @endif
+
+                                                                            {{-- ▌ CONTENT (نص + إجابة) --}}
+                                                                            <div class="survey-item-content">
+                                                                                @if ($si->body_text)
+                                                                                    <div class="text-gray-700 text-sm mb-2 quiz-description">{!! $si->body_text !!}</div>
+                                                                                @endif
+
+                                                                                @if ($si->response_kind === 'rating')
+                                                                                    @php
+                                                                                        $rm      = max(2, min(10, (int) $si->rating_max));
+                                                                                        $oldVal  = old('survey_item.'.$si->id, 0);
+                                                                                        $siId    = $si->id;
+                                                                                        $qId     = $q->id;
+                                                                                    @endphp
+                                                                                    <label class="text-xs font-bold text-green-800 block mb-1">
+                                                                                        <i class="fas fa-star text-amber-400 ml-1" style="font-size:11px"></i>
+                                                                                        اختر تقييمك (1–{{ $rm }})
+                                                                                    </label>
+                                                                                    {{-- نجوم: نعرض بالعكس (RTL) فـ flex-row-reverse --}}
+                                                                                    <div class="star-rating" id="stars-{{ $qId }}-{{ $siId }}">
+                                                                                        @for ($star = $rm; $star >= 1; $star--)
+                                                                                            <input type="radio"
+                                                                                                name="survey_item[{{ $siId }}]"
+                                                                                                id="star-{{ $qId }}-{{ $siId }}-{{ $star }}"
+                                                                                                value="{{ $star }}"
+                                                                                                {{ (int)$oldVal === $star ? 'checked' : '' }}
+                                                                                                required>
+                                                                                            <label for="star-{{ $qId }}-{{ $siId }}-{{ $star }}"
+                                                                                                title="{{ $star }}"
+                                                                                                onclick="srvStarPick('{{ $qId }}-{{ $siId }}',{{ $star }},{{ $rm }})">&#9733;</label>
+                                                                                        @endfor
+                                                                                    </div>
+                                                                                    <p class="star-val-display" id="srv-r-{{ $qId }}-{{ $siId }}">
+                                                                                        {{ $oldVal ? $oldVal . ' / ' . $rm : 'لم تختر بعد' }}
+                                                                                    </p>
+
+                                                                                @elseif ($si->response_kind === 'number')
+                                                                                    <label class="text-xs font-bold text-green-800 block mb-1">رقم ({{ $si->number_min }}–{{ $si->number_max }})</label>
+                                                                                    <input type="number" name="survey_item[{{ $si->id }}]" required
+                                                                                        min="{{ $si->number_min ?? 0 }}" max="{{ $si->number_max ?? 100 }}"
+                                                                                        value="{{ old('survey_item.'.$si->id) }}"
+                                                                                        class="w-full px-3 py-2 rounded-xl border-2 border-gray-200 text-sm">
+
+                                                                                @else
+                                                                                    <label class="text-xs font-bold text-green-800 block mb-1">إجابتك</label>
+                                                                                    <textarea name="survey_item[{{ $si->id }}]" rows="2" required maxlength="2000"
+                                                                                        class="w-full px-3 py-2 rounded-xl border-2 border-gray-200 text-sm resize-none">{{ old('survey_item.'.$si->id) }}</textarea>
+                                                                                @endif
+                                                                            </div>{{-- /survey-item-content --}}
+
+                                                                        </div>{{-- /survey-item-row --}}
                                                                     </div>
                                                                 @endforeach
                                                             </div>
@@ -1042,6 +1113,9 @@
 
     /* ─── Submit validation ─── */
     function validateHomeQuiz(event,btn){var form=btn.closest('form');if(!form)return true;var fi=form.querySelector('.fill-blank-answer-input');if(fi&&!fi.value){event.preventDefault();var w=form.querySelector('.fill-blank-wrapper');if(w){var qid=w.getAttribute('data-question-id'),drop=document.getElementById('fillDrop-'+qid);if(drop){drop.style.borderColor='#f87171';drop.style.background='#fef2f2';setTimeout(function(){drop.style.borderColor='';drop.style.background=''},1400)}document.querySelectorAll('.fill-blank-chip[data-question-id="'+qid+'"]').forEach(function(c){c.style.animation='chipShake .5s ease';setTimeout(function(){c.style.animation=''},600)})}if(typeof Swal!=='undefined')Swal.fire({icon:'warning',title:'انتبه',text:'يرجى اختيار كلمة لملء الفراغ أولاً!',confirmButtonColor:'#22c55e',confirmButtonText:'حسناً',toast:true,position:'top-end',showConfirmButton:false,timer:2500});return false}return true}
+
+    /* ─── Star rating display ─── */
+    function srvStarPick(key,val,max){var el=document.getElementById('srv-r-'+key);if(el)el.textContent=val+' / '+max}
 
     /* ─── DOM Ready ─── */
     document.addEventListener('DOMContentLoaded',function(){
