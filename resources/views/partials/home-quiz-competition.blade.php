@@ -920,7 +920,7 @@
 
                                                                                 @else
                                                                                     <label class="text-xs font-bold text-green-800 block mb-1">إجابتك</label>
-                                                                                    <textarea name="survey_item[{{ $si->id }}]" rows="2" required maxlength="2000"
+                                                                                    <textarea name="survey_item[{{ $si->id }}]" rows="4" required maxlength="2000"
                                                                                         class="w-full px-3 py-2 rounded-xl border-2 border-gray-200 text-sm resize-none">{{ old('survey_item.'.$si->id) }}</textarea>
                                                                                 @endif
                                                                             </div>{{-- /survey-item-content --}}
