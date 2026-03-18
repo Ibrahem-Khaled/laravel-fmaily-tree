@@ -249,7 +249,10 @@
                     <div id="activeQuizSection" class="space-y-6">
                     @foreach ($activeQuizCompetitionsList as $activeQuizCompetition)
                         @php
-                            $isVoteOnly = $activeQuizCompetition->questions->every(fn($q) => $q->answer_type === 'vote');
+                            $isVoteOnly = $activeQuizCompetition->questions->isNotEmpty()
+                                && $activeQuizCompetition->questions->every(fn($q) => $q->answer_type === 'vote');
+                            $isSurveyOnly = $activeQuizCompetition->questions->isNotEmpty()
+                                && $activeQuizCompetition->questions->every(fn($q) => $q->answer_type === 'survey');
                             $questionsVisibleAt = $activeQuizCompetition->getQuestionsVisibleAt();
                             $showQuestionsOnHome = !$questionsVisibleAt || now()->gte($questionsVisibleAt);
                             $aqSuffix = '-' . $activeQuizCompetition->id;
@@ -471,10 +474,12 @@
                                     </div>
                                 @endif
                                 <div class="flex items-center justify-between mb-2">
-                                    <span class="inline-flex items-center gap-2 bg-red-50 text-red-600 text-xs font-bold px-3 py-1.5 rounded-full border border-red-200">
-                                        <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-                                        مسابقة جارية الآن
-                                    </span>
+                                    @if (!$isSurveyOnly)
+                                        <span class="inline-flex items-center gap-2 bg-red-50 text-red-600 text-xs font-bold px-3 py-1.5 rounded-full border border-red-200">
+                                            <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                                            مسابقة جارية الآن
+                                        </span>
+                                    @endif
                                     <span class="text-gray-500 text-xs">
                                         <i class="fas fa-question-circle text-green-500 ml-1"></i>
                                         {{ $activeQuizCompetition->questions->count() }} سؤال
