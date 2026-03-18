@@ -93,9 +93,9 @@ class QuizCompetition extends BaseModel
         if ($answerTypes->count() === 1) {
             $type = $answerTypes->first();
             if ($type === 'vote') {
-                $sectionTitle = 'التصويت ';
+                $sectionTitle = 'التصويت';
             } elseif ($type === 'survey') {
-                $sectionTitle = 'الاستبيان ';
+                $sectionTitle = 'الاستبيان';
             }
         }
 

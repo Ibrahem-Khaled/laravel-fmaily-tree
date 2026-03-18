@@ -21,9 +21,9 @@
             );
 
             if ($allAreVote) {
-                $sectionTitle = 'التصويت ';
+                $sectionTitle = 'التصويت';
             } elseif ($allAreSurvey) {
-                $sectionTitle = 'الاستبيان ';
+                $sectionTitle = 'الاستبيان';
             }
         } elseif (isset($nextQuizEvent) && is_array($nextQuizEvent) && !empty($nextQuizEvent['section_title'])) {
             $sectionTitle = $nextQuizEvent['section_title'];
@@ -482,7 +482,11 @@
                                     @endif
                                     <span class="text-gray-500 text-xs">
                                         <i class="fas fa-question-circle text-green-500 ml-1"></i>
-                                        {{ $activeQuizCompetition->questions->count() }} سؤال
+                                        @php
+                                            $aqQuestionsCount = $activeQuizCompetition->questions->count();
+                                            $aqQuestionsLabel = $aqQuestionsCount === 1 ? 'سؤال' : 'أسئلة';
+                                        @endphp
+                                        {{ $aqQuestionsCount }} {{ $aqQuestionsLabel }}
                                     </span>
                                 </div>
 
@@ -542,7 +546,12 @@
                                     @if (!$showQuestionsOnHome) style="display:none" @endif>
 
                                     @if ($activeQuizCompetition->questions->contains(fn($q) => $q->answer_type !== 'vote'))
-                                        <h4 class="text-sm font-bold text-gray-600 mb-2">أسئلة المسابقة — أجب هنا:</h4>
+                                        @php
+                                            $aqQuestionsCountForTitle = $activeQuizCompetition->questions->count();
+                                            $aqTitleNoun = $aqQuestionsCountForTitle === 1 ? 'سؤال' : 'أسئلة';
+                                            $aqTitleType = $isSurveyOnly ? 'الاستبيان' : 'المسابقة';
+                                        @endphp
+                                        <h4 class="text-sm font-bold text-gray-600 mb-2">{{ $aqTitleNoun }} {{ $aqTitleType }} — أجب هنا:</h4>
                                     @endif
 
                                     @foreach ($activeQuizCompetition->questions as $q)
@@ -1109,7 +1118,12 @@
                             <div style="position:relative;z-index:2;padding:26px 22px;text-align:center">
                                 <div style="display:inline-flex;align-items:center;gap:8px;background:#fefce8;border:1px solid #fde68a;color:#92400e;border-radius:50px;padding:6px 16px;margin-bottom:15px;font-size:.76rem;font-weight:700">
                                     <i class="fas fa-clock" style="font-size:11px"></i>
-                                    المسابقة تبدأ قريباً
+                                    @php
+                                        $countdownNoun = $sectionTitle === 'التصويت'
+                                            ? 'التصويت'
+                                            : ($sectionTitle === 'الاستبيان' ? 'الاستبيان' : 'المسابقة');
+                                    @endphp
+                                    {{ $countdownNoun }} تبدأ قريباً
                                 </div>
                                 <p style="color:#14532d;font-weight:800;font-size:1.08rem;margin-bottom:8px">{{ $nextQuizEvent['title'] }}</p>
                                 @if (!empty($nextQuizEvent['description']))
