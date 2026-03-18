@@ -161,6 +161,14 @@
                                 <i class="fas fa-copy"></i> نسخ
                             </button>
                         </div>
+                        <div class="col-12 mb-3">
+                            <strong>رابط الـJSON:</strong><br>
+                            <code>{{ route('competitions.json', $competition) }}</code>
+                            <button type="button" class="btn btn-sm btn-outline-primary ml-2"
+                                onclick="copyToClipboard(@json(route('competitions.json', $competition)))">
+                                <i class="fas fa-copy"></i> نسخ
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
