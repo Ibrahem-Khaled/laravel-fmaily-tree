@@ -565,7 +565,8 @@
             }
             targetOffset = (finalIdx - centerIdx) * itemH;
 
-            var duration = 7000;
+            // ✅ FIX: Reduced reveal duration from 7000ms to 4000ms to support many winners
+            var duration = 4000;
             var startTime = Date.now();
             var startOffset = currentOffset;
             var distance = targetOffset - startOffset;
@@ -646,9 +647,18 @@
         window.location.href = url.toString();
     }
     var _safetyTimer = null;
-    function armSafetyRefresh(ms) {
+
+    /**
+     * ✅ FIX: Calculate safety timeout dynamically based on winner count
+     * Each winner cycle = ~2500ms spin wait + 4000ms reveal + 700ms pause + 3000ms announce = ~10.2s
+     * Add 30s buffer on top
+     */
+    function armSafetyRefresh(winnersCount) {
         clearTimeout(_safetyTimer);
-        _safetyTimer = setTimeout(function() { if (!_navigated) location.reload(); }, ms || 120000);
+        var perWinner = 10200; // ms per winner
+        var buffer = 30000;   // 30s extra buffer
+        var totalMs = (winnersCount * perWinner) + buffer;
+        _safetyTimer = setTimeout(function() { if (!_navigated) location.reload(); }, totalMs);
     }
 
     /* ===== Orchestrator ===== */
@@ -686,20 +696,36 @@
 
         if (!winners || winners.length === 0) { navigateDone(); return; }
 
-        var idx = winners.length - 1;
+        // ✅ FIX: Use a queue-based approach instead of closure-captured idx
+        // winners array: index 0 = المركز الأول (first place), last = lowest place
+        // We display from last place → first place (highest rank revealed last)
+        var queue = winners.slice(); // copy, we'll pop from the end
+        var totalWinners = queue.length;
+        var currentPosition = totalWinners; // starts at total, counts down to 1
 
-        function next() {
-            if (idx < 0) { setTimeout(navigateDone, 4000); return; }
+        function processNext() {
+            if (queue.length === 0) {
+                // All done — navigate after showing last winner for a bit
+                setTimeout(navigateDone, 5000);
+                return;
+            }
+
+            // ✅ FIX: Reset slot DOM before each round
+            var slotBox = $('slotBox');
+            var slotTrack = $('slotTrack');
+            if (slotBox) slotBox.classList.remove('winner-found');
+            if (slotTrack) slotTrack.innerHTML = '';
+            var scanLine = $('slotScanLine');
+            if (scanLine) scanLine.style.display = 'block';
 
             if (phaseAnn) phaseAnn.style.display = 'none';
             if (phaseSel) phaseSel.style.display = 'block';
 
-            var slotBox = $('slotBox');
-            if (slotBox) slotBox.classList.remove('winner-found');
-            var scanLine = $('slotScanLine');
-            if (scanLine) scanLine.style.display = 'block';
+            // Pop the last element (lowest remaining rank)
+            var target = queue.pop();
+            var position = currentPosition;
+            currentPosition--;
 
-            var target = winners[idx];
             var slot = new SlotMachine(pool);
             slot.start();
 
@@ -715,17 +741,20 @@
 
                         $('announceName').textContent = name;
 
+                        // Build position label
                         var posText = '';
-                        if (idx === 0) posText = 'المركز الأول';
-                        else if (idx === 1) posText = 'المركز الثاني';
-                        else if (idx === 2) posText = 'المركز الثالث';
-                        else posText = 'المركز ' + (idx + 1);
+                        if (position === 1) posText = 'المركز الأول';
+                        else if (position === 2) posText = 'المركز الثاني';
+                        else if (position === 3) posText = 'المركز الثالث';
+                        else posText = 'المركز ' + position;
                         $('announceTitle').textContent = 'مبروك عليك الفوز بـ ' + posText + '!';
 
+                        // Prize text: position-1 index maps to prize array
                         var prizeEl = $('announcePrize');
                         if (prizeEl) {
+                            var prizeIndex = position - 1;
                             var prizeText = '';
-                            if (Array.isArray(PRIZES) && PRIZES.length > idx) prizeText = PRIZES[idx];
+                            if (Array.isArray(PRIZES) && PRIZES.length > prizeIndex) prizeText = PRIZES[prizeIndex];
                             else if (Array.isArray(PRIZES) && PRIZES.length > 0) prizeText = PRIZES[0];
                             if (prizeText) { prizeEl.textContent = 'مبروك عليك ' + prizeText; prizeEl.classList.remove('hidden'); }
                             else prizeEl.classList.add('hidden');
@@ -734,22 +763,28 @@
                         Confetti.launch(120, 2000);
                         setTimeout(showSponsors, 300);
 
-                        idx--;
-                        setTimeout(next, idx < 0 ? 5000 : 4000);
+                        // ✅ FIX: Wait then process next winner
+                        // Last winner (position 1) gets 5s, others get 3.5s
+                        var delay = (queue.length === 0) ? 5000 : 3500;
+                        setTimeout(processNext, delay);
+
                     }, 700);
                 });
             }, 2500);
         }
-        next();
+
+        processNext();
     }
 
     function startWinnerReveal(winners, pool) {
-        armSafetyRefresh(120000);
+        // ✅ FIX: Dynamic safety timeout based on winner count
+        armSafetyRefresh(winners.length);
         runCountdown(function() { revealSequential(winners, pool); });
     }
 
     function startZeroDelayAnimation(pool) {
-        armSafetyRefresh(120000);
+        // Use a generous default for zero-delay (we don't know winner count yet)
+        armSafetyRefresh(20);
         var overlay = $('selectionOverlay');
         var phaseCount = $('phaseCountdown');
         var phaseSel = $('phaseSelector');
@@ -766,6 +801,8 @@
 
     function finalizeZeroDelay(slot, winners, pool) {
         if (slot) slot.stop();
+        // ✅ FIX: Re-arm safety timer now that we know the real winner count
+        armSafetyRefresh(winners.length);
         var phaseSel = $('phaseSelector');
         if (phaseSel) phaseSel.style.display = 'none';
         revealSequential(winners, pool);
