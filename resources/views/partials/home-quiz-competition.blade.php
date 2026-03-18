@@ -21,9 +21,9 @@
             );
 
             if ($allAreVote) {
-                $sectionTitle = 'التصويت الرمضاني';
+                $sectionTitle = 'التصويت ';
             } elseif ($allAreSurvey) {
-                $sectionTitle = 'الاستبيان الرمضاني';
+                $sectionTitle = 'الاستبيان ';
             }
         } elseif (isset($nextQuizEvent) && is_array($nextQuizEvent) && !empty($nextQuizEvent['section_title'])) {
             $sectionTitle = $nextQuizEvent['section_title'];
