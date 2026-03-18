@@ -1,7 +1,34 @@
 {{-- ================================================================
     RAMADAN QUIZ – Active competition(s) OR next event countdown
     ================================================================ --}}
-    @php $activeQuizCompetitionsList = $activeQuizCompetitions ?? collect(); @endphp
+    @php
+        $activeQuizCompetitionsList = $activeQuizCompetitions ?? collect();
+
+        // Default: quiz (questions) section title.
+        $sectionTitle = 'المسابقة الرمضانية';
+
+        if ($activeQuizCompetitionsList->isNotEmpty()) {
+            // If all active competitions are "vote-only" => show vote title,
+            // if all are "survey-only" => show survey title, otherwise keep quiz title.
+            $allAreVote = $activeQuizCompetitionsList->every(
+                fn ($c) => $c->questions->isNotEmpty()
+                    && $c->questions->every(fn ($q) => $q->answer_type === 'vote')
+            );
+
+            $allAreSurvey = $activeQuizCompetitionsList->every(
+                fn ($c) => $c->questions->isNotEmpty()
+                    && $c->questions->every(fn ($q) => $q->answer_type === 'survey')
+            );
+
+            if ($allAreVote) {
+                $sectionTitle = 'التصويت الرمضاني';
+            } elseif ($allAreSurvey) {
+                $sectionTitle = 'الاستبيان الرمضاني';
+            }
+        } elseif (isset($nextQuizEvent) && is_array($nextQuizEvent) && !empty($nextQuizEvent['section_title'])) {
+            $sectionTitle = $nextQuizEvent['section_title'];
+        }
+    @endphp
     @if ($activeQuizCompetitionsList->isNotEmpty() || (isset($nextQuizEvent) && $nextQuizEvent))
 
     @push('styles')
@@ -216,7 +243,7 @@
                 @if ($activeQuizCompetitionsList->isNotEmpty())
                     {{-- Section heading (once) --}}
                     <div class="text-right mb-3 md:mb-5">
-                        <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">المسابقة الرمضانية</h2>
+                        <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">{{ $sectionTitle }}</h2>
                     </div>
 
                     <div id="activeQuizSection" class="space-y-6">
@@ -1063,7 +1090,7 @@
                 {{-- Section heading when no active comp --}}
                 @if ($activeQuizCompetitionsList->isEmpty())
                     <div class="text-right mb-3 md:mb-5">
-                        <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">المسابقة الرمضانية</h2>
+                        <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">{{ $sectionTitle }}</h2>
                     </div>
                 @endif
 

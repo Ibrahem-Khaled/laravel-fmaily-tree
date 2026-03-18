@@ -85,11 +85,26 @@ class QuizCompetition extends BaseModel
             return null;
         }
 
+        $sectionTitle = 'المسابقة الرمضانية';
+        $answerTypes = $nextCompetition->questions()
+            ->pluck('answer_type')
+            ->unique();
+
+        if ($answerTypes->count() === 1) {
+            $type = $answerTypes->first();
+            if ($type === 'vote') {
+                $sectionTitle = 'التصويت الرمضاني';
+            } elseif ($type === 'survey') {
+                $sectionTitle = 'الاستبيان الرمضاني';
+            }
+        }
+
         return [
             'type' => 'competition',
             'target_at' => $nextCompetition->start_at,
             'title' => $nextCompetition->title,
             'description' => $nextCompetition->description,
+            'section_title' => $sectionTitle,
         ];
     }
 }
