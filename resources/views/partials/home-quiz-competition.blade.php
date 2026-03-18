@@ -511,17 +511,26 @@
                                             </div>
 
                                             @if ($activeQuizCompetition->show_draw_only)
-                                                <div class="rounded-xl p-4 bg-green-50 border border-green-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                                                    <p class="text-green-800 text-sm font-medium">
-                                                        <i class="fas fa-info-circle text-green-600 ml-1"></i>
-                                                        باب الإجابة مغلق حالياً، يمكنك متابعة فرز النتائج والقرعة من هنا.
-                                                    </p>
-                                                    <a href="{{ route('quiz-competitions.question', [$activeQuizCompetition, $q]) }}"
-                                                        class="flex-shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-white transition-all hover:opacity-90"
-                                                        style="background:linear-gradient(135deg,#22c55e,#16a34a)">
-                                                        <i class="fas fa-trophy"></i> متابعة القرعة
-                                                    </a>
-                                                </div>
+                                                @if ($q->answer_type === 'survey')
+                                                    <div class="rounded-xl p-4 bg-green-50 border border-green-200">
+                                                        <p class="text-green-800 text-sm font-medium">
+                                                            <i class="fas fa-clipboard-check text-green-600 ml-1"></i>
+                                                            باب الاستبيان مغلق حالياً. شكراً لاهتمامك.
+                                                        </p>
+                                                    </div>
+                                                @else
+                                                    <div class="rounded-xl p-4 bg-green-50 border border-green-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                                                        <p class="text-green-800 text-sm font-medium">
+                                                            <i class="fas fa-info-circle text-green-600 ml-1"></i>
+                                                            باب الإجابة مغلق حالياً، يمكنك متابعة فرز النتائج والقرعة من هنا.
+                                                        </p>
+                                                        <a href="{{ route('quiz-competitions.question', [$activeQuizCompetition, $q]) }}"
+                                                            class="flex-shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-white transition-all hover:opacity-90"
+                                                            style="background:linear-gradient(135deg,#22c55e,#16a34a)">
+                                                            <i class="fas fa-trophy"></i> متابعة القرعة
+                                                        </a>
+                                                    </div>
+                                                @endif
 
                                             @elseif ($canAnswerThis)
                                                 <form action="{{ route('quiz-competitions.store-answer', [$activeQuizCompetition, $q]) }}"
@@ -815,6 +824,41 @@
                                                                 </p>
                                                             </div>
 
+                                                        @elseif ($q->answer_type === 'survey' && $q->surveyItems->isNotEmpty())
+                                                            <div class="space-y-4">
+                                                                @foreach ($q->surveyItems as $si)
+                                                                    <div class="rounded-xl border border-green-200 bg-white p-3">
+                                                                        @if ($si->block_type === 'image' && $si->media_path)
+                                                                            <img src="{{ asset('storage/' . $si->media_path) }}" alt="" class="w-full max-h-56 object-contain rounded-lg mb-2">
+                                                                        @elseif ($si->block_type === 'video' && $si->media_path)
+                                                                            <video src="{{ asset('storage/' . $si->media_path) }}" controls playsinline class="w-full max-h-56 rounded-lg mb-2 bg-black"></video>
+                                                                        @endif
+                                                                        @if ($si->body_text)
+                                                                            <div class="text-gray-700 text-sm mb-2 quiz-description">{!! $si->body_text !!}</div>
+                                                                        @endif
+                                                                        @if ($si->response_kind === 'rating')
+                                                                            @php $rm = max(2, min(100, (int) $si->rating_max)); @endphp
+                                                                            <label class="text-xs font-bold text-green-800 block mb-1">تقييم (1–{{ $rm }})</label>
+                                                                            <input type="range" name="survey_item[{{ $si->id }}]" min="1" max="{{ $rm }}" required
+                                                                                value="{{ old('survey_item.'.$si->id, (int) ceil($rm / 2)) }}"
+                                                                                class="w-full h-2 rounded-lg accent-green-600"
+                                                                                oninput="var el=document.getElementById('srv-r-{{ $q->id }}-{{ $si->id }}');if(el)el.textContent=this.value;">
+                                                                            <p id="srv-r-{{ $q->id }}-{{ $si->id }}" class="text-center text-lg font-bold text-green-700">{{ old('survey_item.'.$si->id, (int) ceil($rm / 2)) }}</p>
+                                                                        @elseif ($si->response_kind === 'number')
+                                                                            <label class="text-xs font-bold text-green-800 block mb-1">رقم ({{ $si->number_min }}–{{ $si->number_max }})</label>
+                                                                            <input type="number" name="survey_item[{{ $si->id }}]" required
+                                                                                min="{{ $si->number_min ?? 0 }}" max="{{ $si->number_max ?? 100 }}"
+                                                                                value="{{ old('survey_item.'.$si->id) }}"
+                                                                                class="w-full px-3 py-2 rounded-xl border-2 border-gray-200 text-sm">
+                                                                        @else
+                                                                            <label class="text-xs font-bold text-green-800 block mb-1">إجابتك</label>
+                                                                            <textarea name="survey_item[{{ $si->id }}]" rows="2" required maxlength="2000"
+                                                                                class="w-full px-3 py-2 rounded-xl border-2 border-gray-200 text-sm resize-none">{{ old('survey_item.'.$si->id) }}</textarea>
+                                                                        @endif
+                                                                    </div>
+                                                                @endforeach
+                                                            </div>
+
                                                         {{-- TEXT --}}
                                                         @else
                                                             <textarea name="answer" rows="3" required placeholder="اكتب إجابتك..."
@@ -860,6 +904,19 @@
                                                         <p class="text-gray-400 text-xs text-center py-4"><i class="fas fa-spinner fa-spin mx-1"></i> تحميل النتائج...</p>
                                                     </div>
                                                 </div>
+                                            @elseif (session('survey_submitted') && session('answered_question_id') == $q->id)
+                                                <div class="rounded-2xl p-4 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 shadow-sm relative overflow-hidden mt-2">
+                                                    <div class="absolute top-0 right-0 left-0 h-1.5" style="background:linear-gradient(90deg,#22c55e,#16a34a)"></div>
+                                                    <div class="flex items-start gap-3">
+                                                        <div class="w-10 h-10 rounded-full flex items-center justify-center bg-green-100 flex-shrink-0 border border-green-200">
+                                                            <i class="fas fa-clipboard-check text-green-600 text-lg"></i>
+                                                        </div>
+                                                        <div class="flex-1 min-w-0">
+                                                            <h4 class="font-bold text-green-800 text-sm">تم تسجيل إجابتك على الاستبيان</h4>
+                                                            <p class="text-xs text-green-700 mt-1">شكراً لمشاركتك، تم استلام إجاباتك بنجاح.</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             @else
                                                 @if ($q->answer_type === 'vote')
                                                     <div class="rounded-2xl p-4 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 shadow-sm relative overflow-hidden mt-2">
@@ -876,6 +933,14 @@
                                                         <div class="home-vote-results space-y-3" data-url="{{ route('quiz-competitions.question.vote-results', [$activeQuizCompetition, $q]) }}">
                                                             <p class="text-gray-400 text-xs text-center py-4"><i class="fas fa-spinner fa-spin mx-1"></i> تحميل النتائج...</p>
                                                         </div>
+                                                    </div>
+                                                @elseif ($q->answer_type === 'survey')
+                                                    <div class="rounded-xl p-4 bg-green-50 border border-green-200">
+                                                        <p class="text-green-800 text-sm font-medium">
+                                                            <i class="fas fa-clipboard-check text-green-600 ml-1"></i>
+                                                            سبق أن سجّلت إجابتك على هذا الاستبيان. شكراً لمشاركتك.
+                                                        </p>
+                                                        <p class="text-green-700 text-xs mt-2">يمكنك إعادة الإجابة بعد حوالي ساعتين إن رغبت.</p>
                                                     </div>
                                                 @else
                                                     <div class="rounded-xl p-4 bg-amber-50 border border-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">

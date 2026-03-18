@@ -2,23 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Image;
-use App\Models\SiteContent;
-use App\Models\SlideshowImage;
-use App\Models\HomeGalleryImage;
-use App\Models\HomeSection;
+use App\Models\Article;
+use App\Models\Category;
 use App\Models\Course;
 use App\Models\FamilyCouncil;
 use App\Models\FamilyEvent;
-use App\Models\Person;
-use App\Models\Article;
-use App\Models\Category;
-use App\Models\ImportantLink;
 use App\Models\FamilyNews;
+use App\Models\HomeGalleryImage;
+use App\Models\HomeSection;
+use App\Models\Image;
+use App\Models\ImportantLink;
+use App\Models\Person;
 use App\Models\QuizCompetition;
-use Illuminate\Http\Request;
+use App\Models\SiteContent;
+use App\Models\SlideshowImage;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
@@ -45,12 +43,12 @@ class HomeController extends Controller
         if ($latestGalleryImages->isEmpty()) {
             $latestGalleryImages = Image::whereNotNull('category_id')
                 ->whereNotNull('path')
-                ->where(function($query) {
+                ->where(function ($query) {
                     $query->whereNull('youtube_url')
-                          ->where(function($q) {
-                              $q->where('media_type', 'image')
+                        ->where(function ($q) {
+                            $q->where('media_type', 'image')
                                 ->orWhereNull('media_type');
-                          });
+                        });
                 })
                 ->with(['category:id,name'])
                 ->latest('created_at')
@@ -62,8 +60,8 @@ class HomeController extends Controller
         $familyBriefContent = SiteContent::where('key', 'family_brief')
             ->where('is_active', true)
             ->first();
-        $familyBrief = $familyBriefContent && !empty(trim($familyBriefContent->content)) 
-            ? $familyBriefContent->content 
+        $familyBrief = $familyBriefContent && ! empty(trim($familyBriefContent->content))
+            ? $familyBriefContent->content
             : null;
 
         // جلب قسم ما الجديد
@@ -92,12 +90,12 @@ class HomeController extends Controller
             $programs = Image::where('is_program', true)
                 ->whereNull('program_id') // استبعاد البرامج الفرعية
                 ->whereNotNull('path')
-                ->where(function($query) {
+                ->where(function ($query) {
                     $query->whereNull('youtube_url')
-                          ->where(function($q) {
-                              $q->where('media_type', 'image')
+                        ->where(function ($q) {
+                            $q->where('media_type', 'image')
                                 ->orWhereNull('media_type');
-                          });
+                        });
                 })
                 ->orderBy('program_order')
                 ->get();
@@ -111,12 +109,12 @@ class HomeController extends Controller
         if (Auth::check()) {
             $proudOf = Image::where('is_proud_of', true)
                 ->whereNotNull('path')
-                ->where(function($query) {
+                ->where(function ($query) {
                     $query->whereNull('youtube_url')
-                          ->where(function($q) {
-                              $q->where('media_type', 'image')
+                        ->where(function ($q) {
+                            $q->where('media_type', 'image')
                                 ->orWhereNull('media_type');
-                          });
+                        });
                 })
                 ->orderBy('proud_of_order')
                 ->get();
@@ -169,32 +167,32 @@ class HomeController extends Controller
 
         // جلب فئات الشهادات بناءً على ID محددة (يجب تحديد الـ IDs الصحيحة من قاعدة البيانات)
         // البحث عن الفئات التي تحتوي على مقالات فقط
-        $bachelorCategoryIds = Category::where(function($query) {
+        $bachelorCategoryIds = Category::where(function ($query) {
             $query->where('name', 'like', '%بكالوريوس%')
-                  ->orWhere('name', 'like', '%Bachelor%')
-                  ->orWhere('name', 'like', '%Bachelors%')
-                  ->orWhere('name', 'like', '%ليسانس%');
+                ->orWhere('name', 'like', '%Bachelor%')
+                ->orWhere('name', 'like', '%Bachelors%')
+                ->orWhere('name', 'like', '%ليسانس%');
         })
-        ->where('is_active', true) // فقط الفئات النشطة
-        ->whereHas('articles') // فقط الفئات التي تحتوي على مقالات
-        ->pluck('id');
+            ->where('is_active', true) // فقط الفئات النشطة
+            ->whereHas('articles') // فقط الفئات التي تحتوي على مقالات
+            ->pluck('id');
 
-        $masterCategoryIds = Category::where(function($query) {
+        $masterCategoryIds = Category::where(function ($query) {
             $query->where('name', 'like', '%ماجستير%')
-                  ->orWhere('name', 'like', '%Master%');
+                ->orWhere('name', 'like', '%Master%');
         })
-        ->where('is_active', true) // فقط الفئات النشطة
-        ->whereHas('articles') // فقط الفئات التي تحتوي على مقالات
-        ->pluck('id');
+            ->where('is_active', true) // فقط الفئات النشطة
+            ->whereHas('articles') // فقط الفئات التي تحتوي على مقالات
+            ->pluck('id');
 
-        $phdCategoryIds = Category::where(function($query) {
+        $phdCategoryIds = Category::where(function ($query) {
             $query->where('name', 'like', '%دكتوراه%')
-                  ->orWhere('name', 'like', '%PhD%')
-                  ->orWhere('name', 'like', '%Ph.D%');
+                ->orWhere('name', 'like', '%PhD%')
+                ->orWhere('name', 'like', '%Ph.D%');
         })
-        ->where('is_active', true) // فقط الفئات النشطة
-        ->whereHas('articles') // فقط الفئات التي تحتوي على مقالات
-        ->pluck('id');
+            ->where('is_active', true) // فقط الفئات النشطة
+            ->whereHas('articles') // فقط الفئات التي تحتوي على مقالات
+            ->pluck('id');
 
         // حساب العدد الكلي لكل فئة (عدد الأشخاص المميزين)
         $bachelorTotalCount = Article::whereIn('status', ['published', 'draft'])
@@ -245,16 +243,19 @@ class HomeController extends Controller
 
         // دمج جميع الخريجين مع إضافة نوع الشهادة
         $latestGraduates = collect()
-            ->merge($bachelorGraduates->map(function($article) {
+            ->merge($bachelorGraduates->map(function ($article) {
                 $article->degree_type = 'bachelor';
+
                 return $article;
             }))
-            ->merge($masterGraduates->map(function($article) {
+            ->merge($masterGraduates->map(function ($article) {
                 $article->degree_type = 'master';
+
                 return $article;
             }))
-            ->merge($phdGraduates->map(function($article) {
+            ->merge($phdGraduates->map(function ($article) {
                 $article->degree_type = 'phd';
+
                 return $article;
             }));
 
@@ -279,7 +280,7 @@ class HomeController extends Controller
         }
 
         // مسابقات الأسئلة النشطة
-        $quizCompetitions = QuizCompetition::active()->ordered()->with('questions.choices')->get();
+        $quizCompetitions = QuizCompetition::active()->ordered()->with(['questions.choices', 'questions.surveyItems'])->get();
         $nextQuizEvent = QuizCompetition::getNextUpcomingEvent();
 
         // كل المسابقات الجارية التي لم تنتهِ (حسب وقت المسابقة) + الخيارات لعرض الإجابات في الرئيسية
@@ -289,7 +290,7 @@ class HomeController extends Controller
             ->where('start_at', '<=', now())
             ->where('end_at', '>=', now())
             ->ordered()
-            ->with('questions.choices')
+            ->with(['questions.choices', 'questions.surveyItems'])
             ->get();
 
         return view('web-site.home', [

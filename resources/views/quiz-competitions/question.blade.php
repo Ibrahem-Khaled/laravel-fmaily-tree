@@ -378,7 +378,19 @@
                     </div>
                 @endif
 
-                @if(session('answer_submitted'))
+                @if(session('survey_submitted'))
+                    <div class="rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 shadow-sm">
+                        <div class="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 bg-green-500 text-white shadow-lg">
+                            <i class="fas fa-clipboard-check text-2xl"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h3 class="font-bold text-green-900 text-lg mb-1">تم تسجيل إجابتك على الاستبيان</h3>
+                            <p class="text-green-800 text-sm leading-relaxed">شكراً لمشاركتك، تم استلام إجاباتك بنجاح.</p>
+                        </div>
+                    </div>
+                @endif
+
+                @if(session('answer_submitted') && !session('survey_submitted'))
                     <div class="rounded-2xl p-5 flex items-center gap-3 bg-amber-50 border border-amber-200">
                         <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-amber-100">
                             <i class="fas fa-check-circle text-amber-600"></i>
@@ -406,30 +418,47 @@
                     </div>
                 @endif
 
-                @if(!session('answer_submitted') && !session('vote_submitted') && !($canAnswer ?? true))
-                    <div class="rounded-2xl p-5 flex items-center gap-3 bg-amber-50 border border-amber-200">
+                @if(!session('answer_submitted') && !session('vote_submitted') && !session('survey_submitted') && !($canAnswer ?? true))
+                    <div class="rounded-2xl p-5 flex items-start gap-3 bg-amber-50 border border-amber-200">
                         <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-amber-100">
                             <i class="fas fa-check-circle text-amber-600"></i>
                         </div>
-                        <p class="text-amber-800 font-medium">لقد أجبت على هذا السؤال</p>
+                        <div>
+                            @if($quizQuestion->answer_type === 'survey')
+                                <p class="text-amber-900 font-bold mb-1">إجابتك على الاستبيان مسجّلة</p>
+                                <p class="text-amber-800 text-sm">يمكنك إعادة الإجابة بعد حوالي ساعتين من آخر إرسال إن رغبت.</p>
+                            @else
+                                <p class="text-amber-800 font-medium">لقد أجبت على هذا السؤال</p>
+                            @endif
+                        </div>
                     </div>
                 @endif
 
                 {{-- Form / Draw-Only --}}
-                @if(!session('answer_submitted') && !session('vote_submitted') && ($canAnswer ?? true))
+                @if(!session('answer_submitted') && !session('vote_submitted') && !session('survey_submitted') && ($canAnswer ?? true))
                     @if($quizCompetition->show_draw_only)
-                        <div class="rounded-3xl p-8 bg-green-50 border-2 border-green-200 text-center space-y-4">
-                            <div class="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
-                                <i class="fas fa-info-circle text-green-600 text-2xl"></i>
+                        @if($quizQuestion->answer_type === 'survey')
+                            <div class="rounded-3xl p-8 bg-green-50 border-2 border-green-200 text-center space-y-4">
+                                <div class="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+                                    <i class="fas fa-clipboard-check text-green-600 text-2xl"></i>
+                                </div>
+                                <h3 class="text-xl font-bold text-green-800">باب الاستبيان مغلق حالياً</h3>
+                                <p class="text-green-700 text-sm">شكراً لاهتمامك.</p>
                             </div>
-                            <h3 class="text-xl font-bold text-green-800">باب الإجابة مغلق حالياً</h3>
-                            <p class="text-green-700">يمكنك الآن متابعة فرز النتائج والقرعة لاختيار الفائزين مباشرة.</p>
-                            <div class="pt-4">
-                                <span class="px-6 py-3 rounded-2xl font-bold bg-green-600 text-white inline-flex items-center gap-2">
-                                    <i class="fas fa-sync fa-spin"></i> يرجى الانتظار لبدء السحب...
-                                </span>
+                        @else
+                            <div class="rounded-3xl p-8 bg-green-50 border-2 border-green-200 text-center space-y-4">
+                                <div class="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+                                    <i class="fas fa-info-circle text-green-600 text-2xl"></i>
+                                </div>
+                                <h3 class="text-xl font-bold text-green-800">باب الإجابة مغلق حالياً</h3>
+                                <p class="text-green-700">يمكنك الآن متابعة فرز النتائج والقرعة لاختيار الفائزين مباشرة.</p>
+                                <div class="pt-4">
+                                    <span class="px-6 py-3 rounded-2xl font-bold bg-green-600 text-white inline-flex items-center gap-2">
+                                        <i class="fas fa-sync fa-spin"></i> يرجى الانتظار لبدء السحب...
+                                    </span>
+                                </div>
                             </div>
-                        </div>
+                        @endif
                     @else
                         <form action="{{ route('quiz-competitions.store-answer', [$quizCompetition, $quizQuestion]) }}" method="POST" class="space-y-5" id="quizForm">
                     @endif
@@ -521,6 +550,45 @@
                                             </div>
                                             @if($choice->video)
                                                 <video src="{{ asset('storage/' . $choice->video) }}" class="w-full max-h-48 rounded-lg mt-2" controls></video>
+                                            @endif
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @elseif($quizQuestion->answer_type === 'survey' && $quizQuestion->surveyItems->isNotEmpty())
+                                <div class="space-y-6">
+                                    @foreach($quizQuestion->surveyItems as $si)
+                                        <div class="rounded-2xl border-2 border-green-100 bg-white/90 p-4 shadow-sm">
+                                            @if($si->block_type === 'image' && $si->media_path)
+                                                <img src="{{ asset('storage/' . $si->media_path) }}" alt="" class="w-full max-h-72 object-contain rounded-xl mb-3 border border-gray-100">
+                                            @elseif($si->block_type === 'video' && $si->media_path)
+                                                <video src="{{ asset('storage/' . $si->media_path) }}" controls playsinline class="w-full max-h-72 rounded-xl mb-3 border border-gray-200 bg-black"></video>
+                                            @endif
+                                            @if($si->body_text)
+                                                <div class="text-gray-800 text-sm mb-3 quiz-description">{!! $si->body_text !!}</div>
+                                            @endif
+                                            <label class="block text-sm font-bold text-green-800 mb-2">
+                                                @if($si->response_kind === 'rating')
+                                                    تقييمك (من 1 إلى {{ $si->rating_max }})
+                                                @elseif($si->response_kind === 'number')
+                                                    أدخل رقماً بين {{ $si->number_min }} و {{ $si->number_max }}
+                                                @else
+                                                    إجابتك
+                                                @endif
+                                            </label>
+                                            @if($si->response_kind === 'rating')
+                                                @php $rm = max(2, min(100, (int) $si->rating_max)); @endphp
+                                                <input type="range" name="survey_item[{{ $si->id }}]" min="1" max="{{ $rm }}" value="{{ old('survey_item.'.$si->id, (int) ceil($rm / 2)) }}" required
+                                                       class="w-full h-3 rounded-lg appearance-none bg-green-100 accent-green-600 survey-range-input"
+                                                       oninput="this.nextElementSibling.textContent = this.value">
+                                                <p class="text-center text-2xl font-black text-green-700 mt-2 survey-range-val">{{ old('survey_item.'.$si->id, (int) ceil($rm / 2)) }}</p>
+                                            @elseif($si->response_kind === 'number')
+                                                <input type="number" name="survey_item[{{ $si->id }}]" required
+                                                       min="{{ $si->number_min ?? 0 }}" max="{{ $si->number_max ?? 100 }}"
+                                                       value="{{ old('survey_item.'.$si->id) }}"
+                                                       class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-green-500 focus:ring-2 focus:ring-green-200">
+                                            @else
+                                                <textarea name="survey_item[{{ $si->id }}]" rows="3" required maxlength="2000"
+                                                          class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 resize-none focus:border-green-500 focus:ring-2 focus:ring-green-200">{{ old('survey_item.'.$si->id) }}</textarea>
                                             @endif
                                         </div>
                                     @endforeach

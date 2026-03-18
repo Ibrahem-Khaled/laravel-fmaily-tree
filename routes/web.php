@@ -1,11 +1,12 @@
 <?php
 
-use App\Http\Controllers\admin\LocationController;
 use App\Http\Controllers\admin\ArticleController;
+use App\Http\Controllers\admin\ArticleController as AdminArticleController;
 use App\Http\Controllers\admin\BreastfeedingController;
 use App\Http\Controllers\admin\CategoryController;
 use App\Http\Controllers\admin\DashboardController;
 use App\Http\Controllers\admin\ImageController;
+use App\Http\Controllers\admin\LocationController;
 use App\Http\Controllers\admin\MarriageController;
 use App\Http\Controllers\admin\OutsideFamilyPersonController;
 use App\Http\Controllers\admin\PadgeController;
@@ -13,23 +14,21 @@ use App\Http\Controllers\admin\PadgePeopleController;
 use App\Http\Controllers\admin\PersonController;
 use App\Http\Controllers\admin\PersonSearchController;
 use App\Http\Controllers\admin\RoleController;
+use App\Http\Controllers\admin\StoryController;
 use App\Http\Controllers\admin\UserController;
-use App\Http\Controllers\admin\ArticleController as AdminArticleController;
+use App\Http\Controllers\admin\VisitLogController;
 use App\Http\Controllers\BreastfeedingPublicController;
 use App\Http\Controllers\FamilyNewsController;
-use App\Http\Controllers\QuranCompetitionPublicController;
 use App\Http\Controllers\FamilyTreeController;
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\HomePersonController;
-use App\Http\Controllers\ReportsController;
-use App\Http\Controllers\ProgramPageController;
 use App\Http\Controllers\LogsController;
-use App\Http\Controllers\StoriesPublicController;
-use App\Http\Controllers\admin\StoryController;
-use App\Http\Controllers\admin\VisitLogController;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProgramPageController;
+use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\SitePasswordController;
+use App\Http\Controllers\StoriesPublicController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -174,7 +173,7 @@ Route::prefix('health-websites')->name('health-websites.')->group(function () {
 
 // Public Quiz Competitions Routes (لا يوجد index - التوجيه للرئيسية)
 Route::prefix('quiz-competitions')->name('quiz-competitions.')->group(function () {
-    Route::get('/', fn() => redirect()->route('home')->withFragment('activeQuizSection'))->name('index');
+    Route::get('/', fn () => redirect()->route('home')->withFragment('activeQuizSection'))->name('index');
     Route::get('{quizCompetition}', [\App\Http\Controllers\QuizCompetitionPublicController::class, 'show'])->name('show');
     Route::get('{quizCompetition}/questions/{quizQuestion}', [\App\Http\Controllers\QuizCompetitionPublicController::class, 'question'])->name('question');
     Route::get('{quizCompetition}/questions/{quizQuestion}/winner', [\App\Http\Controllers\QuizCompetitionPublicController::class, 'getWinner'])->name('question.winner');
@@ -189,7 +188,6 @@ Route::prefix('competitions')->name('competitions.')->group(function () {
     Route::get('team/{team}/register', [\App\Http\Controllers\CompetitionRegistrationController::class, 'teamRegister'])->name('team.register');
     Route::post('team/{team}/register', [\App\Http\Controllers\CompetitionRegistrationController::class, 'teamStore'])->name('team.register.store');
 });
-
 
 Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
 
@@ -323,6 +321,8 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
         ->name('dashboard.quran-competitions.sections.detach-person');
 
     // Quiz Competitions routes (Admin)
+    Route::get('quiz-competitions/{quizCompetition}/responses', [\App\Http\Controllers\admin\QuizCompetitionController::class, 'responses'])
+        ->name('dashboard.quiz-competitions.responses');
     Route::resource('quiz-competitions', \App\Http\Controllers\admin\QuizCompetitionController::class)->names([
         'index' => 'dashboard.quiz-competitions.index',
         'create' => 'dashboard.quiz-competitions.create',
@@ -591,4 +591,4 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     });
 });
 
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';

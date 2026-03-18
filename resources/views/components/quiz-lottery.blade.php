@@ -833,7 +833,7 @@
         Confetti.init();
         function pad(n) { return n.toString().padStart(2, '0'); }
 
-        @if(session('answer_submitted'))
+        @if(session('answer_submitted') && !session('survey_submitted'))
             setTimeout(function() {
                 var overlay = $('answerResultOverlay');
                 if (overlay) {

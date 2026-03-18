@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
 class QuizQuestion extends BaseModel
 {
@@ -34,6 +35,19 @@ class QuizQuestion extends BaseModel
         'require_prior_registration' => 'boolean',
     ];
 
+    protected static function booted(): void
+    {
+        static::deleting(function (QuizQuestion $question) {
+            $question->loadMissing('surveyItems');
+            $disk = Storage::disk('public');
+            foreach ($question->surveyItems as $item) {
+                if ($item->media_path) {
+                    $disk->delete($item->media_path);
+                }
+            }
+        });
+    }
+
     public function competition(): BelongsTo
     {
         return $this->belongsTo(QuizCompetition::class, 'quiz_competition_id');
@@ -42,6 +56,11 @@ class QuizQuestion extends BaseModel
     public function choices(): HasMany
     {
         return $this->hasMany(QuizQuestionChoice::class)->orderBy('id');
+    }
+
+    public function surveyItems(): HasMany
+    {
+        return $this->hasMany(QuizSurveyItem::class)->orderBy('sort_order')->orderBy('id');
     }
 
     public function answers(): HasMany
@@ -57,28 +76,31 @@ class QuizQuestion extends BaseModel
     public function isActive(): bool
     {
         $comp = $this->competition;
-        if (!$comp || !$comp->start_at || !$comp->end_at) {
+        if (! $comp || ! $comp->start_at || ! $comp->end_at) {
             return false;
         }
         $now = now();
+
         return $now->gte($comp->start_at) && $now->lte($comp->end_at);
     }
 
     public function hasEnded(): bool
     {
         $comp = $this->competition;
-        if (!$comp || !$comp->end_at) {
+        if (! $comp || ! $comp->end_at) {
             return false;
         }
+
         return now()->gt($comp->end_at);
     }
 
     public function hasNotStarted(): bool
     {
         $comp = $this->competition;
-        if (!$comp || !$comp->start_at) {
+        if (! $comp || ! $comp->start_at) {
             return true;
         }
+
         return now()->lt($comp->start_at);
     }
 
@@ -92,12 +114,14 @@ class QuizQuestion extends BaseModel
         if ($this->answer_type !== 'multiple_choice') {
             return 1;
         }
+
         return $this->choices()->where('is_correct', true)->count();
     }
 
     public function selectRandomWinners(): int
     {
         $this->winners()->delete();
+
         return $this->fillVacantWinners();
     }
 
@@ -129,8 +153,8 @@ class QuizQuestion extends BaseModel
         }
 
         // إزالة التخزين المؤقت لكي تظهر النتيجة الجديدة فوراً للجمهور
-        \Illuminate\Support\Facades\Cache::forget('quiz_winner_json_' . $this->id);
-        \Illuminate\Support\Facades\Cache::forget('quiz-winner-selection-' . $this->id);
+        \Illuminate\Support\Facades\Cache::forget('quiz_winner_json_'.$this->id);
+        \Illuminate\Support\Facades\Cache::forget('quiz-winner-selection-'.$this->id);
 
         return count($newWinnerUserIds);
     }

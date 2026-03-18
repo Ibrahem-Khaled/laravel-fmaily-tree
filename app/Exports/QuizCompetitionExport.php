@@ -2,11 +2,11 @@
 
 namespace App\Exports;
 
-use App\Models\QuizCompetition;
+use App\Exports\QuizCompetition\QuizAnswersSheet;
 use App\Exports\QuizCompetition\QuizCompetitionInfoSheet;
 use App\Exports\QuizCompetition\QuizQuestionsSheet;
-use App\Exports\QuizCompetition\QuizAnswersSheet;
 use App\Exports\QuizCompetition\QuizWinnersSheet;
+use App\Models\QuizCompetition;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 
 class QuizCompetitionExport implements WithMultipleSheets
@@ -16,6 +16,7 @@ class QuizCompetitionExport implements WithMultipleSheets
     ) {
         $this->competition->load([
             'questions.choices',
+            'questions.surveyItems',
             'questions.answers.user',
             'questions.winners.user',
         ]);

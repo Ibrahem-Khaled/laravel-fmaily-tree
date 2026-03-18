@@ -15,6 +15,9 @@
             <a href="{{ route('quiz-competitions.show', $quizCompetition) }}" class="btn btn-info shadow-sm mr-2" target="_blank" rel="noopener" title="معاينة المسابقة كما يراها الزوار">
                 <i class="fas fa-external-link-alt mr-2"></i>معاينة
             </a>
+            <a href="{{ route('dashboard.quiz-competitions.responses', $quizCompetition) }}" class="btn btn-dark shadow-sm mr-2" title="لوحة الإجابات والإحصائيات">
+                <i class="fas fa-chart-bar mr-2"></i>لوحة الإجابات
+            </a>
             <a href="{{ route('dashboard.quiz-competitions.export', $quizCompetition) }}" class="btn btn-success shadow-sm mr-2" target="_blank" rel="noopener">
                 <i class="fas fa-file-excel mr-2"></i>تصدير إلى Excel
             </a>
@@ -99,6 +102,8 @@
                                             <span class="badge badge-warning">صح / خطأ</span>
                                         @elseif($question->answer_type === 'ordering')
                                             <span class="badge badge-success">ترتيب</span>
+                                        @elseif($question->answer_type === 'survey')
+                                            <span class="badge badge-success">استبيان ديناميكي</span>
                                         @else
                                             <span class="badge badge-secondary">إجابة حرة</span>
                                         @endif
@@ -111,25 +116,26 @@
                                         @endif
                                     </td>
                                     <td>
-                                        @if($question->answers->count() > 0)
-                                            <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#answersModal{{ $question->id }}" title="عرض الإجابات">
-                                                <i class="fas fa-list-ol mr-1"></i>عرض {{ $question->answers->count() }} @if($question->answer_type === 'vote') تصويت @else إجابة @endif
-                                            </button>
-                                            @if($question->answer_type !== 'vote')
-                                                <small class="d-block text-success mt-1">{{ $question->answers->where('is_correct', true)->count() }} صحيح</small>
+                                        @if($question->answers_count > 0)
+                                            <a href="{{ route('dashboard.quiz-competitions.responses', ['quizCompetition' => $quizCompetition, 'question_id' => $question->id]) }}" class="btn btn-sm btn-outline-primary" title="لوحة الإجابات والإحصائيات">
+                                                <i class="fas fa-chart-line mr-1"></i>{{ $question->answers_count }} @if($question->answer_type === 'vote') تصويت @else إجابة @endif
+                                            </a>
+                                            @if(!in_array($question->answer_type, ['vote', 'survey'], true))
+                                                <small class="d-block text-success mt-1">{{ $question->correct_answers_count }} صحيح</small>
                                             @endif
                                         @else
-                                            <span class="text-muted">لا توجد إجابات</span>
+                                            <a href="{{ route('dashboard.quiz-competitions.responses', ['quizCompetition' => $quizCompetition, 'question_id' => $question->id]) }}" class="btn btn-sm btn-outline-secondary">لوحة الإجابات</a>
+                                            <span class="text-muted d-block small mt-1">لا توجد إجابات بعد</span>
                                         @endif
                                     </td>
                                     <td>
-                                        @if($question->answer_type === 'vote')
-                                            <span class="text-muted">—</span>
+                                        @if(in_array($question->answer_type, ['vote', 'survey'], true))
+                                            <span class="text-muted small" title="لا يوجد فائزون لهذا النوع">—</span>
                                         @elseif($question->winners->count() > 0)
                                             <button type="button" class="btn btn-sm btn-outline-success" data-toggle="modal" data-target="#winnersModal{{ $question->id }}" title="عرض تفاصيل الفائزين">
                                                 <i class="fas fa-trophy mr-1"></i>عرض {{ $question->winners->count() }} فائز
                                             </button>
-                                            @if($question->hasEnded() && $question->answers->where('is_correct', true)->count() > 0)
+                                            @if($question->hasEnded() && $question->correct_answers_count > 0)
                                                 <form action="{{ route('dashboard.quiz-questions.select-winners', [$quizCompetition, $question]) }}" method="POST" class="d-inline mr-1" onsubmit="return confirm('سيتم حذف الفائزين الحاليين واختيار فائزين جدد عشوائياً من الإجابات الصحيحة. هل أنت متأكد؟');">
                                                     @csrf
                                                     <button type="submit" class="btn btn-sm btn-outline-warning" title="إعادة اختيار الفائزين عشوائياً">
@@ -168,120 +174,9 @@
                     </table>
                 </div>
 
-                {{-- نوافذ عرض الإجابات --}}
-                @foreach($quizCompetition->questions as $question)
-                    @if($question->answers->count() > 0)
-                    <div class="modal fade" id="answersModal{{ $question->id }}" tabindex="-1">
-                        <div class="modal-dialog modal-lg modal-dialog-scrollable">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title">
-                                        <i class="fas fa-list-ol mr-2"></i>إجابات السؤال
-                                    </h5>
-                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="text-muted mb-3 font-weight-bold question-text">{!! Str::limit(strip_tags($question->question_text), 150) !!}</div>
-                                    @if($question->description)
-                                        <div class="text-muted mb-3 small quiz-description">{!! Str::limit(strip_tags($question->description), 150) !!}</div>
-                                    @endif
-                                    <div class="row mb-3">
-                                        <div class="col-md-4">
-                                            <span class="badge badge-primary">الإجمالي: {{ $question->answers->count() }}</span>
-                                        </div>
-                                        @if($question->answer_type !== 'vote')
-                                            <div class="col-md-4">
-                                                <span class="badge badge-success">صحيح: {{ $question->answers->where('is_correct', true)->count() }}</span>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <span class="badge badge-danger">خاطئ: {{ $question->answers->where('is_correct', false)->count() }}</span>
-                                            </div>
-                                        @endif
-                                    </div>
-                                    <div class="table-responsive">
-                                        <table class="table table-sm table-hover">
-                                            <thead>
-                                                <tr>
-                                                    <th>#</th>
-                                                    <th>المشارك</th>
-                                                    <th>رقم الهاتف</th>
-                                                    <th>اسم الأم</th>
-                                                    <th>الإجابة</th>
-                                                    <th>النتيجة</th>
-                                                    <th>التاريخ</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach($question->answers as $i => $answer)
-                                                    <tr>
-                                                        <td>{{ $i + 1 }}</td>
-                                                        <td>{{ $answer->user->name ?? '-' }}</td>
-                                                        <td dir="ltr">{{ $answer->user->phone ?? '-' }}</td>
-                                                        <td>
-                                                            @if($answer->user->is_from_ancestry && $answer->user->mother_name)
-                                                                <span class="badge badge-info">{{ $answer->user->mother_name }}</span>
-                                                            @else
-                                                                <span class="text-muted">—</span>
-                                                            @endif
-                                                        </td>
-                                                        <td>
-                                                            @if(in_array($answer->answer_type, ['multiple_choice', 'vote', 'ordering', 'true_false', 'choice']))
-                                                                @php 
-                                                                    $decoded = json_decode($answer->answer, true);
-                                                                    $displayText = $answer->answer;
-                                                                    if (is_array($decoded)) {
-                                                                        if ($answer->answer_type === 'true_false') {
-                                                                            $parts = [];
-                                                                            foreach ($decoded as $choiceId => $val) {
-                                                                                $c = $question->choices->firstWhere('id', $choiceId);
-                                                                                $cText = $c ? $c->choice_text : $choiceId;
-                                                                                $valText = ($val === '1' || $val === 'true' || $val === true) ? 'صح' : 'خطأ';
-                                                                                $parts[] = $cText . ': ' . $valText;
-                                                                            }
-                                                                            $displayText = implode(' | ', $parts);
-                                                                        } else {
-                                                                            $choiceTexts = [];
-                                                                            foreach ($decoded as $choiceId) {
-                                                                                $c = $question->choices->firstWhere('id', $choiceId);
-                                                                                if ($c) $choiceTexts[] = $c->choice_text;
-                                                                            }
-                                                                            $displayText = implode(' - ', $choiceTexts);
-                                                                        }
-                                                                    } else {
-                                                                        $c = $question->choices->firstWhere('id', (int) $answer->answer);
-                                                                        if ($c) $displayText = $c->choice_text;
-                                                                    }
-                                                                @endphp
-                                                                {{ Str::limit($displayText, 80) }}
-                                                            @else
-                                                                {{ Str::limit($answer->answer, 80) }}
-                                                            @endif
-                                                        </td>
-                                                        <td>
-                                                            @if($question->answer_type === 'vote')
-                                                                <span class="badge badge-primary">تم التصويت</span>
-                                                            @elseif($answer->is_correct)
-                                                                <span class="badge badge-success">صحيح</span>
-                                                            @else
-                                                                <span class="badge badge-danger">خاطئ</span>
-                                                            @endif
-                                                        </td>
-                                                        <td>{{ $answer->created_at->format('Y-m-d H:i') }}</td>
-                                                    </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    @endif
-                @endforeach
-
                 {{-- نوافذ عرض الفائزين --}}
                 @foreach($quizCompetition->questions as $question)
-                    @if($question->answer_type !== 'vote' && $question->winners->count() > 0)
+                    @if(!in_array($question->answer_type, ['vote', 'survey'], true) && $question->winners->count() > 0)
                     <div class="modal fade" id="winnersModal{{ $question->id }}" tabindex="-1">
                         <div class="modal-dialog modal-lg modal-dialog-scrollable">
                             <div class="modal-content">
@@ -301,7 +196,7 @@
                                             <span class="badge badge-success badge-lg">عدد الفائزين الحالي: {{ $question->winners->count() }} / {{ $question->winners_count }}</span>
                                         </div>
                                         <div class="col-md-6 text-right">
-                                            @if($question->winners->count() < $question->winners_count && $question->hasEnded() && $question->answers->where('is_correct', true)->count() > $question->winners->count())
+                                            @if($question->winners->count() < $question->winners_count && $question->hasEnded() && $question->correct_answers_count > $question->winners->count())
                                                 <form action="{{ route('dashboard.quiz-questions.fill-winners', [$quizCompetition, $question]) }}" method="POST" class="d-inline">
                                                     @csrf
                                                     <button type="submit" class="btn btn-sm btn-info" title="اختيار فائزين عشوائياً للمقاعد الشاغرة فقط">

@@ -89,6 +89,12 @@
                                     {{ old('answer_type') == 'fill_blank' ? 'checked' : '' }} required>
                                 <label class="custom-control-label text-warning" for="type_fill_blank"><i class="fas fa-pen-nib mr-1"></i>أملأ الفراغ</label>
                             </div>
+                            <div class="custom-control custom-radio custom-control-inline">
+                                <input type="radio" id="type_survey" name="answer_type"
+                                    class="custom-control-input answer-type-radio" value="survey"
+                                    {{ old('answer_type') == 'survey' ? 'checked' : '' }} required>
+                                <label class="custom-control-label text-success" for="type_survey"><i class="fas fa-stream mr-1"></i>استبيان ديناميكي</label>
+                            </div>
                         </div>
                         @error('answer_type')
                             <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -137,6 +143,21 @@
                         @error('groups_count')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
+                    </div>
+
+                    <div class="form-group" id="surveySection" style="display:none;">
+                        <div class="card border-success shadow-sm">
+                            <div class="card-header bg-success text-white py-2">
+                                <i class="fas fa-stream mr-1"></i> عناصر الاستبيان (صورة / فيديو / نص — ونوع إجابة لكل عنصر)
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted small">الترتيب كما يظهر للمشارك. لكل عنصر: اختر نوع المحتوى ثم نوع إجابة المشارك (تقييم، رقم، أو نص حر).</p>
+                                <div id="surveyItemsContainer"></div>
+                                <button type="button" class="btn btn-sm btn-outline-success mt-2" id="addSurveyItem">
+                                    <i class="fas fa-plus mr-1"></i>إضافة عنصر
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="form-group" id="multipleSelectionsGroup">
@@ -277,6 +298,64 @@
                 }
             }
 
+            var surveySection = document.getElementById('surveySection');
+            var surveyItemsContainer = document.getElementById('surveyItemsContainer');
+            var surveyItemSeq = 0;
+
+            function surveyRowTemplate(idx) {
+                return '<div class="survey-item-row mb-3 p-3 border rounded bg-white">' +
+                    '<input type="hidden" name="survey_items[' + idx + '][id]" value="">' +
+                    '<div class="form-row">' +
+                    '<div class="col-md-3 mb-2"><label class="small font-weight-bold">نوع العنصر</label>' +
+                    '<select name="survey_items[' + idx + '][block_type]" class="form-control form-control-sm survey-block-type">' +
+                    '<option value="text">نص / سؤال</option><option value="image">صورة</option><option value="video">فيديو</option></select></div>' +
+                    '<div class="col-md-4 mb-2 survey-media-col" style="display:none"><label class="small font-weight-bold">رفع ملف</label>' +
+                    '<input type="file" name="survey_items[' + idx + '][media]" class="form-control-file survey-media-input" accept="image/*,video/*"></div>' +
+                    '<div class="col-md-5 mb-2 survey-body-col"><label class="small font-weight-bold">نص (إلزامي للعنصر النصي، اختياري كتعليق)</label>' +
+                    '<textarea name="survey_items[' + idx + '][body_text]" class="form-control form-control-sm" rows="2"></textarea></div></div>' +
+                    '<div class="form-row align-items-end">' +
+                    '<div class="col-md-3 mb-2"><label class="small font-weight-bold">إجابة المشارك</label>' +
+                    '<select name="survey_items[' + idx + '][response_kind]" class="form-control form-control-sm survey-response-kind">' +
+                    '<option value="rating">تقييم (من 1 إلى N)</option><option value="number">رقم (نطاق)</option><option value="text">نص حر</option></select></div>' +
+                    '<div class="col-md-2 mb-2 survey-rating-wrap"><label class="small">حتى</label>' +
+                    '<input type="number" name="survey_items[' + idx + '][rating_max]" value="10" min="2" max="100" class="form-control form-control-sm"></div>' +
+                    '<div class="col-md-4 mb-2 survey-number-wrap" style="display:none"><label class="small">من — إلى</label>' +
+                    '<div class="input-group input-group-sm"><input type="number" name="survey_items[' + idx + '][number_min]" class="form-control" placeholder="من" value="0">' +
+                    '<input type="number" name="survey_items[' + idx + '][number_max]" class="form-control" placeholder="إلى" value="100"></div></div>' +
+                    '<div class="col-md-2 mb-2 text-left"><button type="button" class="btn btn-sm btn-outline-danger remove-survey-item mt-3"><i class="fas fa-trash"></i></button></div></div></div>';
+            }
+
+            function bindSurveyRow(row) {
+                var block = row.querySelector('.survey-block-type');
+                var resp = row.querySelector('.survey-response-kind');
+                function updBlock() {
+                    var v = block.value;
+                    row.querySelector('.survey-media-col').style.display = (v === 'text') ? 'none' : 'block';
+                }
+                function updResp() {
+                    var r = resp.value;
+                    row.querySelector('.survey-rating-wrap').style.display = r === 'rating' ? 'block' : 'none';
+                    row.querySelector('.survey-number-wrap').style.display = r === 'number' ? 'block' : 'none';
+                }
+                block.addEventListener('change', updBlock);
+                resp.addEventListener('change', updResp);
+                row.querySelector('.remove-survey-item').addEventListener('click', function () {
+                    if (surveyItemsContainer.querySelectorAll('.survey-item-row').length <= 1) return;
+                    row.remove();
+                });
+                updBlock();
+                updResp();
+            }
+
+            function appendSurveyRow() {
+                var idx = surveyItemSeq++;
+                var div = document.createElement('div');
+                div.innerHTML = surveyRowTemplate(idx);
+                var row = div.firstElementChild;
+                surveyItemsContainer.appendChild(row);
+                bindSurveyRow(row);
+            }
+
             function toggleChoices() {
                 var type = getSelectedAnswerType();
                 var isChoice = type === 'multiple_choice';
@@ -284,13 +363,24 @@
                 var isTrueFalse = type === 'true_false';
                 var isVote = type === 'vote';
                 var isFillBlank = type === 'fill_blank';
+                var isSurvey = type === 'survey';
 
-                choicesSection.style.display = (isChoice || isOrdering || isTrueFalse || isVote || isFillBlank) ? 'block' : 'none';
-                multipleSelectionsGroup.style.display = isChoice ? 'block' : 'none';
+                if (surveySection) {
+                    surveySection.style.display = isSurvey ? 'block' : 'none';
+                    if (!isSurvey && surveyItemsContainer) {
+                        surveyItemsContainer.innerHTML = '';
+                        surveyItemSeq = 0;
+                    } else if (isSurvey && surveyItemsContainer && surveyItemsContainer.querySelectorAll('.survey-item-row').length === 0) {
+                        appendSurveyRow();
+                    }
+                }
+
+                choicesSection.style.display = (isChoice || isOrdering || isTrueFalse || isVote || isFillBlank) && !isSurvey ? 'block' : 'none';
+                multipleSelectionsGroup.style.display = isChoice && !isSurvey ? 'block' : 'none';
 
                 // Vote options
                 var voteOptionsGroup = document.getElementById('voteOptionsGroup');
-                if (voteOptionsGroup) voteOptionsGroup.style.display = isVote ? 'block' : 'none';
+                if (voteOptionsGroup) voteOptionsGroup.style.display = (isVote && !isSurvey) ? 'block' : 'none';
 
                 var hint = document.getElementById('choicesHint');
                 if (isOrdering) {
@@ -306,7 +396,7 @@
                 }
 
                 var groupsCountGroup = document.getElementById('groupsCountGroup');
-                if (groupsCountGroup) groupsCountGroup.style.display = isOrdering ? 'block' : 'none';
+                if (groupsCountGroup) groupsCountGroup.style.display = (isOrdering && !isSurvey) ? 'block' : 'none';
 
                 var groupNameInputs = document.querySelectorAll('.choice-group-name');
                 groupNameInputs.forEach(function(el) {
@@ -473,6 +563,11 @@
                         }
                     });
                 });
+            }
+
+            var addSurveyItemBtn = document.getElementById('addSurveyItem');
+            if (addSurveyItemBtn) {
+                addSurveyItemBtn.addEventListener('click', function () { appendSurveyRow(); });
             }
 
             // Bind answer type change

@@ -2,24 +2,24 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\QuizAnswer;
 use App\Models\QuizCompetition;
 use App\Models\QuizQuestion;
-use App\Models\QuizAnswer;
 use App\Models\QuizRegistration;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\View\View;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\View\View;
 
 class QuizCompetitionPublicController extends Controller
 {
     public function show(QuizCompetition $quizCompetition): View
     {
-        $quizCompetition->load(['questions.choices', 'questions.winners.user', 'questions.answers.user']);
+        $quizCompetition->load(['questions.choices', 'questions.surveyItems', 'questions.winners.user', 'questions.answers.user']);
 
         $now = now();
         $comp = $quizCompetition;
@@ -42,8 +42,8 @@ class QuizCompetitionPublicController extends Controller
         // إضافة معلومات عن إجابات المستخدم لكل سؤال بناءً على session
         $userAnsweredQuestions = [];
         foreach ($questions as $question) {
-            $lastAnsweredAt = session('quiz_answered_' . $question->id);
-            $userAnsweredQuestions[$question->id] = !empty($lastAnsweredAt);
+            $lastAnsweredAt = session('quiz_answered_'.$question->id);
+            $userAnsweredQuestions[$question->id] = ! empty($lastAnsweredAt);
         }
 
         return view('quiz-competitions.show', compact('quizCompetition', 'questions', 'upcomingQuestions', 'endedQuestions', 'userAnsweredQuestions'));
@@ -55,7 +55,7 @@ class QuizCompetitionPublicController extends Controller
         //     abort(404);
         // }
 
-        $quizQuestion->load(['choices', 'winners.user', 'answers.user']);
+        $quizQuestion->load(['choices', 'surveyItems', 'winners.user', 'answers.user']);
 
         $stats = [
             'total' => $quizQuestion->answers->count(),
@@ -70,7 +70,7 @@ class QuizCompetitionPublicController extends Controller
             ->limit(50)
             ->with('user')
             ->get()
-            ->map(fn($a) => $a->user->name ?? 'مجهول')
+            ->map(fn ($a) => $a->user->name ?? 'مجهول')
             ->filter()
             ->values()
             ->all();
@@ -101,14 +101,14 @@ class QuizCompetitionPublicController extends Controller
             $selectionAt = $quizCompetition->end_at ? $quizCompetition->end_at->copy() : null;
 
             if ($selectionAt && now()->gte($selectionAt)) {
-                $cacheKey = 'quiz_question_ended_' . $quizQuestion->id;
+                $cacheKey = 'quiz_question_ended_'.$quizQuestion->id;
                 $cachedHtml = Cache::get($cacheKey);
                 if ($cachedHtml !== null) {
                     return response($cachedHtml)->header('Content-Type', 'text/html; charset=UTF-8');
                 }
 
                 if ($quizQuestion->winners->count() === 0) {
-                    $lockKey = 'quiz-winner-selection-' . $quizQuestion->id;
+                    $lockKey = 'quiz-winner-selection-'.$quizQuestion->id;
                     Cache::lock($lockKey, 15)->block(10, function () use ($quizQuestion) {
                         $quizQuestion->refresh();
                         $quizQuestion->load(['winners']);
@@ -119,7 +119,7 @@ class QuizCompetitionPublicController extends Controller
                 }
 
                 $quizQuestion->refresh();
-                $quizQuestion->load(['choices', 'winners.user', 'answers.user']);
+                $quizQuestion->load(['choices', 'surveyItems', 'winners.user', 'answers.user']);
 
                 $stats = [
                     'total' => $quizQuestion->answers->count(),
@@ -152,17 +152,15 @@ class QuizCompetitionPublicController extends Controller
         }
 
         $cooldownHours = 2;
-        $lastAnsweredAt = session('quiz_answered_' . $quizQuestion->id);
+        $lastAnsweredAt = session('quiz_answered_'.$quizQuestion->id);
         $canAnswer = true;
         if ($lastAnsweredAt) {
             $lastAt = \Carbon\Carbon::parse($lastAnsweredAt);
             $canAnswer = now()->diffInHours($lastAt) >= $cooldownHours;
             if ($canAnswer) {
-                session()->forget('quiz_answered_' . $quizQuestion->id);
+                session()->forget('quiz_answered_'.$quizQuestion->id);
             }
         }
-
-
 
         return view('quiz-competitions.question', [
             'quizCompetition' => $quizCompetition,
@@ -207,7 +205,7 @@ class QuizCompetitionPublicController extends Controller
         // For vote type: name is not required
         $isVoteType = $quizQuestion->answer_type === 'vote';
 
-        if (!$isVoteType) {
+        if (! $isVoteType) {
             $rules['name'] = 'required|string|max:255';
         }
 
@@ -222,7 +220,7 @@ class QuizCompetitionPublicController extends Controller
         } elseif ($isVoteType) {
             $maxSelections = $quizQuestion->vote_max_selections ?? 1;
             if ($maxSelections > 1) {
-                $rules['answer'] = 'required|array|min:1|max:' . $maxSelections;
+                $rules['answer'] = 'required|array|min:1|max:'.$maxSelections;
                 $rules['answer.*'] = 'required|exists:quiz_question_choices,id';
             } else {
                 $rules['answer'] = 'required|exists:quiz_question_choices,id';
@@ -231,6 +229,28 @@ class QuizCompetitionPublicController extends Controller
             $rules['answer'] = 'required|exists:quiz_question_choices,id';
         } elseif ($quizQuestion->answer_type === 'fill_blank') {
             $rules['answer'] = 'required|exists:quiz_question_choices,id';
+        } elseif ($quizQuestion->answer_type === 'survey') {
+            $quizQuestion->loadMissing('surveyItems');
+            if ($quizQuestion->surveyItems->isEmpty()) {
+                return back()->with('error', 'هذا الاستبيان غير مكتمل الإعداد.');
+            }
+            $rules['survey_item'] = 'required|array';
+            foreach ($quizQuestion->surveyItems as $item) {
+                $key = 'survey_item.'.$item->id;
+                if ($item->response_kind === 'rating') {
+                    $rules[$key] = 'required|integer|min:1|max:'.max(1, (int) $item->rating_max);
+                } elseif ($item->response_kind === 'number') {
+                    $min = (int) ($item->number_min ?? 0);
+                    $max = (int) ($item->number_max ?? 100);
+                    if ($min > $max) {
+                        $min = 0;
+                        $max = 100;
+                    }
+                    $rules[$key] = 'required|integer|min:'.$min.'|max:'.$max;
+                } else {
+                    $rules[$key] = 'required|string|max:2000';
+                }
+            }
         } else {
             $rules['answer'] = 'required|string|max:1000';
         }
@@ -241,13 +261,13 @@ class QuizCompetitionPublicController extends Controller
             'phone.size' => 'يجب أن يكون رقم الهاتف 10 أرقام بالضبط',
             'phone.regex' => 'يجب أن يكون رقم الهاتف 10 أرقام فقط',
             'answer.required' => 'الإجابة مطلوبة',
-            'answer.max' => 'لا يمكنك اختيار أكثر من ' . ($quizQuestion->vote_max_selections ?? 1) . ' خيارات',
+            'answer.max' => 'لا يمكنك اختيار أكثر من '.($quizQuestion->vote_max_selections ?? 1).' خيارات',
         ]);
 
         // Vote type with require_prior_registration: verify phone exists
         if ($isVoteType && $quizQuestion->require_prior_registration) {
             $phoneExists = User::where('phone', $validated['phone'])->exists();
-            if (!$phoneExists) {
+            if (! $phoneExists) {
                 return back()->withInput()->with('error', 'رقم الهاتف غير مسجل. هذا التصويت للمشاركين السابقين فقط.');
             }
         }
@@ -256,7 +276,7 @@ class QuizCompetitionPublicController extends Controller
             DB::beginTransaction();
 
             // إذا تم إدخال اسم الأم، يعتبر المستخدم من الأنساب تلقائياً
-            $hasMotherName = !empty($validated['mother_name']);
+            $hasMotherName = ! empty($validated['mother_name']);
             $isFromAncestry = isset($validated['is_from_ancestry']) && $validated['is_from_ancestry'] || $hasMotherName;
 
             // التحقق من وجود إجابة سابقة بنفس رقم الهاتف
@@ -272,8 +292,9 @@ class QuizCompetitionPublicController extends Controller
                 $lastAnswerTime = $existingAnswer->created_at;
                 $canAnswerAgain = now()->diffInHours($lastAnswerTime) >= $cooldownHours;
 
-                if (!$canAnswerAgain) {
+                if (! $canAnswerAgain) {
                     DB::rollBack();
+
                     return back()->with('error', $isVoteType ? 'لقد صوّتت مسبقاً على هذا السؤال.' : 'لقد أجبت على هذا السؤال مسبقاً.');
                 }
             }
@@ -282,13 +303,14 @@ class QuizCompetitionPublicController extends Controller
             if ($isVoteType && $quizQuestion->require_prior_registration) {
                 // For vote with required registration: find the existing user
                 $user = User::where('phone', $validated['phone'])->latest()->first();
-                if (!$user) {
+                if (! $user) {
                     DB::rollBack();
+
                     return back()->withInput()->with('error', 'رقم الهاتف غير مسجل.');
                 }
             } else {
                 $user = User::create([
-                    'name' => $validated['name'] ?? ('مصوّت_' . $validated['phone']),
+                    'name' => $validated['name'] ?? ('مصوّت_'.$validated['phone']),
                     'phone' => $validated['phone'],
                     'password' => Hash::make(uniqid()),
                     'status' => 1,
@@ -306,7 +328,10 @@ class QuizCompetitionPublicController extends Controller
 
             $isCorrect = false;
             $answerType = 'custom';
-            $answerData = $validated['answer'];
+            $answerData = '';
+            if ($quizQuestion->answer_type !== 'survey') {
+                $answerData = $validated['answer'];
+            }
 
             if ($quizQuestion->answer_type === 'multiple_choice') {
                 $answerType = 'choice';
@@ -328,7 +353,7 @@ class QuizCompetitionPublicController extends Controller
                     }
 
                     // Must select ALL correct choices and NO incorrect choices
-                    $isCorrect = !$hasIncorrectChoice && ($selectedCorrectCount === count($correctChoiceIds));
+                    $isCorrect = ! $hasIncorrectChoice && ($selectedCorrectCount === count($correctChoiceIds));
                     $answerData = json_encode($selectedChoiceIds);
                 } else {
                     $choiceId = (int) $validated['answer'];
@@ -356,8 +381,8 @@ class QuizCompetitionPublicController extends Controller
                 if ($quizQuestion->groups_count && $quizQuestion->groups_count > 0) {
                     // Group-based ordering: correct ORDER within each group matters,
                     // but images can be in ANY group (groups are interchangeable)
-                    $groups = $quizQuestion->choices->filter(fn($c) => !empty($c->group_name))->groupBy('group_name');
-                    
+                    $groups = $quizQuestion->choices->filter(fn ($c) => ! empty($c->group_name))->groupBy('group_name');
+
                     if (count($selectedChoiceIds) !== $quizQuestion->choices->count()) {
                         $isCorrect = false;
                     } else {
@@ -368,7 +393,7 @@ class QuizCompetitionPublicController extends Controller
                             $correctGroups[] = array_map('intval', $groupChoices->pluck('id')->toArray());
                             $groupSizes[] = $groupChoices->count();
                         }
-                        
+
                         // Chunk submitted IDs by group slot sizes
                         $submittedChunks = [];
                         $currentIndex = 0;
@@ -376,25 +401,27 @@ class QuizCompetitionPublicController extends Controller
                             $submittedChunks[] = array_map('intval', array_slice($selectedChoiceIds, $currentIndex, $size));
                             $currentIndex += $size;
                         }
-                        
+
                         // Match each submitted chunk to any correct group (order must match exactly)
                         $matched = [];
                         foreach ($submittedChunks as $chunk) {
                             $found = false;
                             foreach ($correctGroups as $gIdx => $correctIds) {
-                                if (isset($matched[$gIdx])) continue;
+                                if (isset($matched[$gIdx])) {
+                                    continue;
+                                }
                                 if ($chunk === $correctIds) {
                                     $matched[$gIdx] = true;
                                     $found = true;
                                     break;
                                 }
                             }
-                            if (!$found) {
+                            if (! $found) {
                                 $isCorrect = false;
                                 break;
                             }
                         }
-                        
+
                         if (count($matched) !== count($correctGroups)) {
                             $isCorrect = false;
                         }
@@ -402,7 +429,7 @@ class QuizCompetitionPublicController extends Controller
                 } else {
                     // Standard exact ordering
                     $correctChoiceIds = $quizQuestion->choices()->orderBy('id')->pluck('id')->toArray();
-                    
+
                     if (count($selectedChoiceIds) !== count($correctChoiceIds)) {
                         $isCorrect = false;
                     } else {
@@ -414,7 +441,7 @@ class QuizCompetitionPublicController extends Controller
                         }
                     }
                 }
-                
+
                 $answerData = json_encode($selectedChoiceIds);
             } elseif ($quizQuestion->answer_type === 'true_false') {
                 $answerType = 'true_false';
@@ -422,20 +449,20 @@ class QuizCompetitionPublicController extends Controller
 
                 $isCorrect = true;
                 $correctChoicesCount = $quizQuestion->choices->count();
-                
+
                 if (count($selectedAnswers) !== $correctChoicesCount || $correctChoicesCount === 0) {
                     $isCorrect = false;
                 } else {
                     foreach ($quizQuestion->choices as $choice) {
-                        if (!isset($selectedAnswers[$choice->id])) {
+                        if (! isset($selectedAnswers[$choice->id])) {
                             $isCorrect = false;
                             break;
                         }
-                        
+
                         $submittedVal = $selectedAnswers[$choice->id];
                         $submittedBool = ($submittedVal === '1' || $submittedVal === 'true');
-                        $actualBool = (bool)$choice->is_correct;
-                        
+                        $actualBool = (bool) $choice->is_correct;
+
                         if ($submittedBool !== $actualBool) {
                             $isCorrect = false;
                             break;
@@ -450,6 +477,22 @@ class QuizCompetitionPublicController extends Controller
                 $selectedChoice = $quizQuestion->choices->firstWhere('id', $choiceId);
                 $isCorrect = $selectedChoice && (bool) $selectedChoice->is_correct;
                 $answerData = (string) $choiceId;
+            } elseif ($quizQuestion->answer_type === 'survey') {
+                $quizQuestion->loadMissing('surveyItems');
+                $answerType = 'survey';
+                $isCorrect = true;
+                $payload = [];
+                foreach ($quizQuestion->surveyItems as $item) {
+                    $raw = $validated['survey_item'][$item->id] ?? null;
+                    if ($item->response_kind === 'rating') {
+                        $payload[$item->id] = ['k' => 'rating', 'v' => (int) $raw];
+                    } elseif ($item->response_kind === 'number') {
+                        $payload[$item->id] = ['k' => 'number', 'v' => (int) $raw];
+                    } else {
+                        $payload[$item->id] = ['k' => 'text', 'v' => (string) $raw];
+                    }
+                }
+                $answerData = json_encode($payload, JSON_UNESCAPED_UNICODE);
             } else {
                 // Free-text / custom answers: treat any submitted answer as correct (as requested).
                 $answerType = 'custom';
@@ -492,15 +535,30 @@ class QuizCompetitionPublicController extends Controller
                 ]);
             }
 
-            session(['quiz_answered_' . $quizQuestion->id => now()->toDateTimeString()]);
+            session(['quiz_answered_'.$quizQuestion->id => now()->toDateTimeString()]);
 
             DB::commit();
+
+            // الاستبيان: لا يُنقل المستخدم لصفحة أخرى — يبقى حيث أرسل (رئيسية مثل التصويت، أو نفس صفحة السؤال)
+            if ($quizQuestion->answer_type === 'survey') {
+                if ($request->input('source') === 'home') {
+                    return redirect()
+                        ->to(route('home').'#activeQuizSection')
+                        ->with('survey_submitted', true)
+                        ->with('answered_question_id', $quizQuestion->id);
+                }
+
+                return redirect()
+                    ->back()
+                    ->with('survey_submitted', true)
+                    ->with('answered_question_id', $quizQuestion->id);
+            }
 
             if ($isVoteType) {
                 if ($request->input('source') === 'home') {
                     // Redirect back to home page with fragment to scroll to quiz block
                     return redirect()
-                        ->to(route('home') . '#activeQuizSection')
+                        ->to(route('home').'#activeQuizSection')
                         ->with('vote_submitted', true)
                         ->with('answered_question_id', $quizQuestion->id);
                 }
@@ -522,12 +580,15 @@ class QuizCompetitionPublicController extends Controller
                 if (str_contains($e->getMessage(), 'quiz_answers_quiz_question_id_user_id_unique')) {
                     return back()->withInput()->with('error', 'لقد أجبت على هذا السؤال مسبقاً.');
                 }
+
                 return back()->withInput()->with('error', 'حدث خطأ في حفظ البيانات. يرجى المحاولة مرة أخرى.');
             }
+
             return back()->withInput()->with('error', 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withInput()->with('error', 'حدث خطأ: ' . $e->getMessage());
+
+            return back()->withInput()->with('error', 'حدث خطأ: '.$e->getMessage());
         }
     }
 
@@ -568,7 +629,7 @@ class QuizCompetitionPublicController extends Controller
                 'text' => $choice->choice_text,
                 'count' => $voteCount,
                 'percent' => $percent,
-                'image' => $choice->image ? asset('storage/' . $choice->image) : null,
+                'image' => $choice->image ? asset('storage/'.$choice->image) : null,
             ];
         }
 
@@ -590,16 +651,16 @@ class QuizCompetitionPublicController extends Controller
         $selectionAt = $quizCompetition->end_at ? $quizCompetition->end_at->copy() : null;
 
         // Not time yet
-        if (!$selectionAt || now()->lt($selectionAt)) {
+        if (! $selectionAt || now()->lt($selectionAt)) {
             return response()->json(['status' => 'pending', 'message' => 'لم يحن وقت الاختيار بعد']);
         }
 
         // Try to get from cache first (10 min TTL)
-        $cacheKey = 'quiz_winner_json_' . $quizQuestion->id;
+        $cacheKey = 'quiz_winner_json_'.$quizQuestion->id;
         $result = Cache::remember($cacheKey, now()->addMinutes(10), function () use ($quizQuestion) {
             // Atomic lock: only one process selects winners
             if ($quizQuestion->winners()->count() === 0) {
-                $lockKey = 'quiz-winner-selection-' . $quizQuestion->id;
+                $lockKey = 'quiz-winner-selection-'.$quizQuestion->id;
                 Cache::lock($lockKey, 15)->block(10, function () use ($quizQuestion) {
                     $quizQuestion->refresh();
                     $quizQuestion->load(['winners']);
@@ -619,6 +680,7 @@ class QuizCompetitionPublicController extends Controller
                         'name' => $w->user->name ?? 'مجهول',
                     ];
                 })->values()->all();
+
                 return ['status' => 'done', 'winners' => $winners];
             }
 
