@@ -173,6 +173,21 @@
                                                         @if($si->media_path)
                                                             <small class="text-success d-block mt-1"><i class="fas fa-check"></i> يوجد ملف محفوظ</small>
                                                         @endif
+                                                        <div class="survey-media-preview mt-2 small text-muted">
+                                                            @if($si->media_path)
+                                                                @if($si->block_type === 'image')
+                                                                    <img src="{{ asset('storage/' . $si->media_path) }}"
+                                                                        alt="صورة عنصر الاستبيان"
+                                                                        style="max-height:90px; max-width:220px; object-fit:contain;"
+                                                                        class="img-thumbnail bg-white p-1">
+                                                                @elseif($si->block_type === 'video')
+                                                                    <video controls
+                                                                        src="{{ asset('storage/' . $si->media_path) }}"
+                                                                        style="max-height:110px; max-width:260px; object-fit:contain;"
+                                                                        class="border rounded bg-white"></video>
+                                                                @endif
+                                                            @endif
+                                                        </div>
                                                     </div>
                                                     <div class="col-md-5 mb-2 survey-body-col">
                                                         <label class="small font-weight-bold">نص</label>
@@ -278,9 +293,22 @@
                                     <div class="choice-media-preview mb-2 px-3 small text-muted">
                                         @if(!empty($choice['image']))
                                             <span class="badge badge-info mr-1" title="صورة موجودة"><i class="fas fa-image"></i> تم الرفع</span>
+                                            <div class="mt-2">
+                                                <img src="{{ asset('storage/' . $choice['image']) }}"
+                                                    alt="صورة الخيار"
+                                                    style="max-height:90px; max-width:220px; object-fit:contain;"
+                                                    class="img-thumbnail bg-white p-1">
+                                            </div>
                                         @endif
                                         @if(!empty($choice['video']))
                                             <span class="badge badge-info mr-1" title="فيديو موجود"><i class="fas fa-video"></i> تم الرفع</span>
+                                            <div class="mt-2">
+                                                <video controls
+                                                    src="{{ asset('storage/' . $choice['video']) }}"
+                                                    style="max-height:110px; max-width:260px; object-fit:contain;"
+                                                    class="border rounded bg-white">
+                                                </video>
+                                            </div>
                                         @endif
                                     </div>
                                 @endforeach
@@ -420,7 +448,8 @@
                     '<select name="survey_items[' + idx + '][block_type]" class="form-control form-control-sm survey-block-type">' +
                     '<option value="text">نص / سؤال</option><option value="image">صورة</option><option value="video">فيديو</option></select></div>' +
                     '<div class="col-md-4 mb-2 survey-media-col" style="display:none"><label class="small font-weight-bold">رفع ملف</label>' +
-                    '<input type="file" name="survey_items[' + idx + '][media]" class="form-control-file survey-media-input" accept="image/*,video/*"></div>' +
+                    '<input type="file" name="survey_items[' + idx + '][media]" class="form-control-file survey-media-input" accept="image/*,video/*">' +
+                    '<div class="survey-media-preview mt-2 small text-muted"></div></div>' +
                     '<div class="col-md-5 mb-2 survey-body-col"><label class="small font-weight-bold">نص</label>' +
                     '<textarea name="survey_items[' + idx + '][body_text]" class="form-control form-control-sm" rows="2"></textarea></div></div>' +
                     '<div class="form-row align-items-end">' +
@@ -438,6 +467,7 @@
             function bindSurveyRow(row) {
                 var block = row.querySelector('.survey-block-type');
                 var resp = row.querySelector('.survey-response-kind');
+                var mediaInput = row.querySelector('.survey-media-input');
                 function updBlock() {
                     row.querySelector('.survey-media-col').style.display = (block.value === 'text') ? 'none' : 'block';
                 }
@@ -448,6 +478,55 @@
                 }
                 block.addEventListener('change', updBlock);
                 resp.addEventListener('change', updResp);
+
+                // Render image/video preview for uploaded survey media
+                if (mediaInput) {
+                    mediaInput.addEventListener('change', function () {
+                        var preview = row.querySelector('.survey-media-preview');
+                        if (!preview) return;
+                        if (!this.files || !this.files[0]) return;
+
+                        if (preview.dataset.objectUrl) {
+                            try { URL.revokeObjectURL(preview.dataset.objectUrl); } catch (e) {}
+                        }
+                        preview.dataset.objectUrl = '';
+
+                        var file = this.files[0];
+                        var objectUrl = URL.createObjectURL(file);
+                        preview.dataset.objectUrl = objectUrl;
+
+                        // Clear and render
+                        preview.innerHTML = '';
+                        var isImage = file.type && file.type.startsWith('image/');
+
+                        var fileName = file.name || '';
+                        var badge = document.createElement('span');
+                        badge.className = 'badge badge-light border d-inline-flex align-items-center';
+                        badge.innerHTML = '<i class="fas fa-' + (isImage ? 'image' : 'video') + ' mr-1"></i> ' + (isImage ? 'صورة' : 'فيديو') + (fileName ? (': ' + fileName) : '');
+                        preview.appendChild(badge);
+
+                        if (isImage) {
+                            var img = document.createElement('img');
+                            img.src = objectUrl;
+                            img.alt = 'صورة عنصر الاستبيان';
+                            img.style.maxHeight = '90px';
+                            img.style.maxWidth = '220px';
+                            img.style.objectFit = 'contain';
+                            img.className = 'img-thumbnail bg-white p-1 mt-2 d-block';
+                            preview.appendChild(img);
+                        } else {
+                            var vid = document.createElement('video');
+                            vid.controls = true;
+                            vid.src = objectUrl;
+                            vid.style.maxHeight = '110px';
+                            vid.style.maxWidth = '260px';
+                            vid.style.objectFit = 'contain';
+                            vid.className = 'border rounded bg-white mt-2 d-block';
+                            preview.appendChild(vid);
+                        }
+                    });
+                }
+
                 row.querySelector('.remove-survey-item').addEventListener('click', function () {
                     if (surveyItemsContainer.querySelectorAll('.survey-item-row').length <= 1) return;
                     row.remove();
@@ -669,13 +748,48 @@
                             preview.className = 'choice-media-preview mb-2 px-3 small text-muted';
                             row.after(preview);
                         }
-                        if (this.files && this.files[0]) {
-                            var fileName = this.files[0].name;
-                            var mediaType = this.classList.contains('choice-image-input') ? 'صورة' : 'فيديو';
-                            var icon = mediaType === 'صورة' ? 'image' : 'video';
-                            preview.innerHTML = '<span class="badge badge-light border"><i class="fas fa-' + icon + ' mr-1"></i> ' + mediaType + ': ' + fileName + '</span>';
+                        if (!this.files || !this.files[0]) return;
+
+                        // Revoke previous object URL (if any)
+                        if (preview.dataset.objectUrl) {
+                            try { URL.revokeObjectURL(preview.dataset.objectUrl); } catch (e) {}
+                        }
+                        preview.dataset.objectUrl = '';
+
+                        var file = this.files[0];
+                        var objectUrl = URL.createObjectURL(file);
+                        preview.dataset.objectUrl = objectUrl;
+
+                        preview.innerHTML = '';
+
+                        var isImage = this.classList.contains('choice-image-input') || (file.type && file.type.startsWith('image/'));
+                        var mediaType = isImage ? 'صورة' : 'فيديو';
+                        var icon = isImage ? 'image' : 'video';
+                        var fileName = file.name || '';
+
+                        var badge = document.createElement('span');
+                        badge.className = 'badge badge-light border d-inline-flex align-items-center';
+                        badge.innerHTML = '<i class="fas fa-' + icon + ' mr-1"></i> ' + mediaType + (fileName ? (': ' + fileName) : '');
+                        preview.appendChild(badge);
+
+                        if (isImage) {
+                            var img = document.createElement('img');
+                            img.src = objectUrl;
+                            img.alt = 'صورة الخيار';
+                            img.style.maxHeight = '90px';
+                            img.style.maxWidth = '220px';
+                            img.style.objectFit = 'contain';
+                            img.className = 'img-thumbnail bg-white p-1 mt-2 d-block';
+                            preview.appendChild(img);
                         } else {
-                            preview.innerHTML = '';
+                            var vid = document.createElement('video');
+                            vid.controls = true;
+                            vid.src = objectUrl;
+                            vid.style.maxHeight = '110px';
+                            vid.style.maxWidth = '260px';
+                            vid.style.objectFit = 'contain';
+                            vid.className = 'border rounded bg-white mt-2 d-block';
+                            preview.appendChild(vid);
                         }
                     });
                 });
