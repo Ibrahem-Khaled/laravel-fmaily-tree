@@ -319,10 +319,9 @@
                         <label for="program_description" class="font-weight-bold">وصف البرنامج (اختياري)</label>
                         <textarea name="program_description" id="program_description" rows="3"
                                   class="form-control @error('program_description') is-invalid @enderror"
-                                  placeholder="أدخل وصف للبرنامج..."
-                                  maxlength="1000">{{ old('program_description') }}</textarea>
+                                  placeholder="أدخل وصف للبرنامج...">{{ old('program_description') }}</textarea>
                         <small class="form-text text-muted">
-                            <span id="charCount">0</span> / 1000 حرف
+                            <span id="charCount">0</span> حرف
                         </small>
                         @error('program_description')
                             <div class="invalid-feedback">{{ $message }}</div>

@@ -42,7 +42,7 @@ class ProgramController extends Controller
         $request->validate([
             'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'program_title' => 'required|string|max:255',
-            'program_description' => 'nullable|string|max:10000',
+            'program_description' => 'nullable|string',
             'name' => 'nullable|string|max:255',
             'category_id' => 'nullable|exists:categories,id',
         ]);
@@ -78,7 +78,7 @@ class ProgramController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'program_title' => 'required|string|max:255',
-            'program_description' => 'nullable|string|max:10000',
+            'program_description' => 'nullable|string',
             'name' => 'nullable|string|max:255',
             'category_id' => 'nullable|exists:categories,id',
         ]);
