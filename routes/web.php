@@ -296,6 +296,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::delete('competitions/{competition}/registrations/{user}', [\App\Http\Controllers\admin\CompetitionController::class, 'removeRegistration'])->name('dashboard.competitions.remove-registration');
     Route::delete('competitions/teams/{team}', [\App\Http\Controllers\admin\CompetitionController::class, 'destroyTeam'])->name('dashboard.competitions.teams.destroy');
     Route::get('competitions/{competition}/export', [\App\Http\Controllers\admin\CompetitionController::class, 'export'])->name('dashboard.competitions.export');
+    Route::put('competitions/{competition}/bracket-winners', [\App\Http\Controllers\admin\CompetitionController::class, 'updateBracketGroupWinners'])->name('dashboard.competitions.bracket-winners');
 
     // Quran Competitions routes (Admin)
     Route::resource('quran-competitions', \App\Http\Controllers\admin\QuranCompetitionController::class)->names([

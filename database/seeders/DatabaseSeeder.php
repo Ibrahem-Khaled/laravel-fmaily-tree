@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             // ProductStoreSeeder::class,
             QuranCompetitionSeeder::class,
             WalkingRecordSeeder::class,
+            // CompetitionDemoTeamsSeeder::class, // مسابقة + فرق وهمية للتجربة: php artisan db:seed --class=CompetitionDemoTeamsSeeder
             // يمكن إضافة سيدرات أخرى هنا
         ]);
     }

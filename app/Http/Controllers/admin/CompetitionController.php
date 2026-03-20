@@ -180,7 +180,10 @@ class CompetitionController extends Controller
             'total_members' => $competition->registrations()->distinct('user_id')->count('user_id'),
         ];
 
-        return view('dashboard.competitions.show', compact('competition', 'stats', 'individualUsers'));
+        $knockoutRounds = $competition->getKnockoutRounds();
+        $teamsOrdered = $competition->getTeamsOrderedForBracket();
+
+        return view('dashboard.competitions.show', compact('competition', 'stats', 'individualUsers', 'knockoutRounds', 'teamsOrdered'));
     }
 
     /**
@@ -190,12 +193,8 @@ class CompetitionController extends Controller
     {
         $competition->load(['teams.members']);
 
-        $teams = $competition->teams
-            ->sortBy('id')
-            ->values();
-
-        $totalTeams = $teams->count();
-        $totalGroups = (int) ceil($totalTeams / 2);
+        $totalTeams = $competition->teams->count();
+        $totalGroups = $totalTeams === 0 ? 0 : (int) ceil($totalTeams / 2);
 
         $season = $competition->start_date ? $competition->start_date->year : 1;
 
@@ -217,20 +216,16 @@ class CompetitionController extends Controller
             ];
         };
 
-        $groups = [];
-        $groupNumber = 1;
-        for ($i = 0; $i < $totalTeams; $i += 2) {
-            $team1 = $teams[$i] ?? null;
-            $team2 = $teams[$i + 1] ?? null;
-
-            $groups[] = [
-                'group_number' => $groupNumber,
-                'team_1' => $formatTeam($team1),
-                'team_2' => $formatTeam($team2),
+        $groups = $competition->getBracketGroups()->map(function (array $g) use ($formatTeam) {
+            return [
+                'group_number' => $g['group_number'],
+                'team_1' => $formatTeam($g['team_1']),
+                'team_2' => $formatTeam($g['team_2']),
             ];
+        })->all();
 
-            $groupNumber++;
-        }
+        $roundWinners = $competition->normalizeBracketRoundWinners($competition->bracket_round_winners ?? []);
+        $manualOpponents = $competition->normalizeBracketManualOpponents($competition->bracket_manual_opponents ?? []);
 
         return response()->json([
             'tournament' => [
@@ -238,10 +233,105 @@ class CompetitionController extends Controller
                 'name' => $competition->title,
                 'season' => $season,
                 'total_teams' => $totalTeams,
-                'total_groups' => $totalGroups,
+                'total_groups' => $totalTeams === 0 ? 0 : $totalGroups,
             ],
             'groups' => $groups,
+            'knockout' => [
+                'round_winners' => $roundWinners,
+                'manual_opponents' => $manualOpponents,
+            ],
         ]);
+    }
+
+    /**
+     * حفظ فائزي كل مباراة في الشجرة (مجموعات ثم فائز ضد فائز حتى النهائي)
+     */
+    public function updateBracketGroupWinners(Request $request, Competition $competition): RedirectResponse
+    {
+        $competition->load(['teams.members']);
+
+        $request->validate([
+            'winners' => 'nullable|array',
+            'winners.*' => 'nullable|array',
+            'winners.*.*' => 'nullable|integer|exists:teams,id',
+            'manual_opponents' => 'nullable|array',
+            'manual_opponents.*' => 'nullable|array',
+            'manual_opponents.*.*' => 'nullable|integer|exists:teams,id',
+        ]);
+
+        $manualMerged = $competition->normalizeBracketManualOpponents($competition->bracket_manual_opponents ?? []);
+        foreach ($request->input('manual_opponents', []) as $rKey => $matches) {
+            if (!is_array($matches)) {
+                continue;
+            }
+            $r = (int) $rKey;
+            foreach ($matches as $mKey => $tid) {
+                $m = (int) $mKey;
+                if ($tid === null || $tid === '') {
+                    unset($manualMerged[$r][$m]);
+                } else {
+                    $tid = (int) $tid;
+                    if (!Team::where('competition_id', $competition->id)->where('id', $tid)->exists()) {
+                        return back()->withInput()->with('error', 'فريق المنافس غير تابع لهذه المسابقة.');
+                    }
+                    $manualMerged[$r][$m] = $tid;
+                }
+            }
+        }
+        foreach (array_keys($manualMerged) as $r) {
+            if (($manualMerged[$r] ?? []) === []) {
+                unset($manualMerged[$r]);
+            }
+        }
+
+        $base = $competition->normalizeBracketRoundWinners($competition->bracket_round_winners ?? []);
+        foreach ($request->input('winners', []) as $rKey => $matches) {
+            if (!is_array($matches)) {
+                continue;
+            }
+            $r = (int) $rKey;
+            foreach ($matches as $mKey => $tid) {
+                $m = (int) $mKey;
+                if ($tid === null || $tid === '') {
+                    unset($base[$r][$m]);
+                } else {
+                    $base[$r][$m] = (int) $tid;
+                }
+            }
+        }
+        foreach (array_keys($base) as $r) {
+            if (($base[$r] ?? []) === []) {
+                unset($base[$r]);
+            }
+        }
+
+        $competition->fill([
+            'bracket_manual_opponents' => $manualMerged,
+            'bracket_round_winners' => $base,
+        ]);
+
+        foreach ($competition->getKnockoutRounds() as $roundData) {
+            foreach ($roundData['matches'] as $match) {
+                $r = $match['round'];
+                $m = $match['match'];
+                $mid = $manualMerged[$r][$m] ?? null;
+                if ($mid && !empty($match['team_1']) && (int) $mid === (int) $match['team_1']->id) {
+                    return back()->withInput()->with('error', 'لا يمكن اختيار نفس الفريق كمنافس لنفسه.');
+                }
+            }
+        }
+
+        $base = $competition->cleanBracketRoundWinners($base);
+
+        $manualCleaned = $competition->cleanBracketManualOpponents($manualMerged, $base);
+
+        $competition->update([
+            'bracket_round_winners' => $base,
+            'bracket_manual_opponents' => $manualCleaned,
+        ]);
+
+        return redirect()->route('dashboard.competitions.show', $competition)
+            ->with('success', 'تم حفظ نتائج الشجرة');
     }
 
     /**

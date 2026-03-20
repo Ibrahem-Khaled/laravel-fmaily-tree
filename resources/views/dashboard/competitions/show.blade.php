@@ -175,6 +175,140 @@
         </div>
     </div>
 
+    @if($knockoutRounds->isNotEmpty())
+        @php
+            $storedWinners = $competition->bracket_round_winners ?? [];
+            $storedManual = $competition->bracket_manual_opponents ?? [];
+            $lastRound = $knockoutRounds->last();
+            $championId = null;
+            if ($lastRound && count($lastRound['matches'] ?? []) === 1) {
+                $fm = $lastRound['matches'][0];
+                $championId = $fm['winner_id'] ?? null;
+            }
+            $championTeam = $championId ? $competition->teams->firstWhere('id', (int) $championId) : null;
+        @endphp
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm border-0 border-left-info">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center flex-wrap">
+                        <div>
+                            <h6 class="mb-0 font-weight-bold text-info">
+                                <i class="fas fa-sitemap mr-2"></i>شجرة الإقصاء
+                            </h6>
+                            <small class="text-muted">دور المجموعات ثم فائز ضد فائز بالترتيب حتى النهائي. إن وُجد فريق بلا منافس طبيعي، تختار المنافس من جميع فرق المسابقة (لا إعفاء تلقائي).</small>
+                        </div>
+                        @if($championTeam)
+                            <div class="mt-2 mt-md-0 text-left">
+                                <span class="text-muted small d-block mb-1">البطل</span>
+                                <span class="badge badge-warning p-2"><i class="fas fa-crown mr-1"></i>{{ $championTeam->name }}</span>
+                            </div>
+                        @endif
+                    </div>
+                    <div class="card-body">
+                        <form action="{{ route('dashboard.competitions.bracket-winners', $competition) }}" method="POST">
+                            @csrf
+                            @method('PUT')
+                            @foreach($knockoutRounds as $roundData)
+                                <div class="mb-4 pb-2 border-bottom">
+                                    <h6 class="font-weight-bold text-primary mb-3">
+                                        <i class="fas fa-layer-group mr-2"></i>{{ $roundData['title'] }}
+                                    </h6>
+                                    <div class="row">
+                                        @foreach($roundData['matches'] as $match)
+                                            @php
+                                                $r = $match['round'];
+                                                $m = $match['match'];
+                                                $roundStored = $storedWinners[$r] ?? $storedWinners[(string) $r] ?? [];
+                                                $manualRound = $storedManual[$r] ?? $storedManual[(string) $r] ?? [];
+                                                $currentWinner = old('winners.'.$r.'.'.$m, $roundStored[$m] ?? $roundStored[(string) $m] ?? '');
+                                                $currentManual = old('manual_opponents.'.$r.'.'.$m, $manualRound[$m] ?? $manualRound[(string) $m] ?? '');
+                                                $showManualOpponent = !empty($match['team_1']) && empty($match['has_natural_second']);
+                                                $bothSidesReady = !empty($match['team_1']) && !empty($match['team_2']);
+                                            @endphp
+                                            <div class="col-lg-6 mb-4">
+                                                <div class="card h-100 border {{ $currentWinner ? 'border-success' : 'border-secondary' }}">
+                                                    <div class="card-header py-2 bg-light d-flex justify-content-between align-items-center">
+                                                        <strong>مباراة {{ $m }}</strong>
+                                                        @if(!empty($match['uses_manual_opponent']))
+                                                            <span class="badge badge-info">منافس معيّن يدوياً</span>
+                                                        @endif
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <div class="d-flex align-items-stretch justify-content-between flex-wrap">
+                                                            <div class="flex-fill text-center p-2 rounded {{ !empty($match['team_1']) && (int) $currentWinner === (int) $match['team_1']->id ? 'bg-success text-white' : 'bg-white border' }}">
+                                                                @if(!empty($match['team_1']))
+                                                                    <div class="font-weight-bold">{{ $match['team_1']->name }}</div>
+                                                                    <small class="d-block {{ (int) $currentWinner === (int) $match['team_1']->id ? 'text-light' : 'text-muted' }}">{{ $match['team_1']->members->count() }} لاعب</small>
+                                                                @else
+                                                                    <span class="text-muted small">{{ $match['label_1'] ?? '—' }}</span>
+                                                                @endif
+                                                            </div>
+                                                            <div class="d-flex align-items-center px-2 text-muted font-weight-bold">ضد</div>
+                                                            <div class="flex-fill text-center p-2 rounded {{ !empty($match['team_2']) && (int) $currentWinner === (int) $match['team_2']->id ? 'bg-success text-white' : 'bg-white border' }}">
+                                                                @if(!empty($match['team_2']))
+                                                                    <div class="font-weight-bold">{{ $match['team_2']->name }}</div>
+                                                                    <small class="d-block {{ (int) $currentWinner === (int) $match['team_2']->id ? 'text-light' : 'text-muted' }}">{{ $match['team_2']->members->count() }} لاعب</small>
+                                                                @else
+                                                                    <span class="text-muted small">{{ $match['label_2'] ?? '—' }}</span>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                        @if($showManualOpponent)
+                                                            <div class="form-group mb-2 mt-3">
+                                                                <label class="small font-weight-bold text-muted mb-1">المنافس الثاني (من جميع الفرق)</label>
+                                                                <select name="manual_opponents[{{ $r }}][{{ $m }}]" class="form-control form-control-sm">
+                                                                    <option value="">— اختر الفريق المنافس —</option>
+                                                                    @foreach($teamsOrdered as $pickTeam)
+                                                                        @if(empty($match['team_1']) || (int) $pickTeam->id !== (int) $match['team_1']->id)
+                                                                            <option value="{{ $pickTeam->id }}" {{ (int) $currentManual === (int) $pickTeam->id ? 'selected' : '' }}>{{ $pickTeam->name }}</option>
+                                                                        @endif
+                                                                    @endforeach
+                                                                </select>
+                                                                <small class="text-muted">يُحدد من يقابل الطرف الأول عندما لا يوجد منافس تلقائي من الإقران.</small>
+                                                            </div>
+                                                        @endif
+                                                        <div class="form-group mb-0 mt-2">
+                                                            <label class="small font-weight-bold text-muted mb-1">فائز المباراة</label>
+                                                            <select name="winners[{{ $r }}][{{ $m }}]" class="form-control form-control-sm bracket-winner-select" data-round="{{ $r }}" data-match="{{ $m }}" {{ !$bothSidesReady ? 'disabled' : '' }}>
+                                                                <option value="">— لم يُحدد بعد —</option>
+                                                                @if(!empty($match['team_1']))
+                                                                    <option value="{{ $match['team_1']->id }}" {{ (int) $currentWinner === (int) $match['team_1']->id ? 'selected' : '' }}>{{ $match['team_1']->name }}</option>
+                                                                @endif
+                                                                @if(!empty($match['team_2']))
+                                                                    <option value="{{ $match['team_2']->id }}" {{ (int) $currentWinner === (int) $match['team_2']->id ? 'selected' : '' }}>{{ $match['team_2']->name }}</option>
+                                                                @endif
+                                                            </select>
+                                                            @if(!$bothSidesReady)
+                                                                <small class="text-muted d-block mt-1">
+                                                                    @if($match['round'] > 1 && empty($match['team_1']))
+                                                                        حدّد فائزي الجولة السابقة أولاً.
+                                                                    @elseif($showManualOpponent && empty($match['team_2']))
+                                                                        اختر المنافس من القائمة أعلاه ثم حدّد الفائز.
+                                                                    @else
+                                                                        انتظر اكتمال طرفي المباراة.
+                                                                    @endif
+                                                                </small>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endforeach
+                            <div class="text-left">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save mr-1"></i>حفظ نتائج الشجرة
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <!-- Individual Users Section -->
     @if(session('error'))
         <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
@@ -218,9 +352,9 @@
                                 @endphp
                                 <tr>
                                     <td>
-                                        <input type="checkbox" class="individual-checkbox" value="{{ $user->id }}" 
-                                            onchange="updateSelectedUsers()" 
-                                            data-name="{{ $user->name }}" 
+                                        <input type="checkbox" class="individual-checkbox" value="{{ $user->id }}"
+                                            onchange="updateSelectedUsers()"
+                                            data-name="{{ $user->name }}"
                                             data-phone="{{ $user->phone ?? '-' }}">
                                     </td>
                                     <td class="competitor-name-cell" data-user-id="{{ $user->id }}" data-competition-id="{{ $competition->id }}">
@@ -307,7 +441,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($competition->teams as $team)
+                            @foreach($teamsOrdered as $team)
                                 <tr>
                                     <td class="team-name-cell" data-team-id="{{ $team->id }}">
                                         <span class="name-text"><strong>{{ $team->name }}</strong></span>
@@ -443,7 +577,7 @@
     </div>
 </div>
 
-@foreach($competition->teams as $team)
+@foreach($teamsOrdered as $team)
 <div class="modal fade" id="deleteTeamModal{{ $team->id }}" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -536,11 +670,11 @@ function updateSelectedUsers() {
     const form = document.getElementById('createTeamForm');
     const submitBtn = document.getElementById('submitTeamBtn');
     const maxTeamSize = {{ $competition->team_size }};
-    
+
     // إزالة جميع hidden inputs السابقة
     const existingInputs = form.querySelectorAll('input[name="user_ids[]"]');
     existingInputs.forEach(input => input.remove());
-    
+
     if (checkboxes.length === 0) {
         selectedUsersList.innerHTML = '<p class="text-muted mb-0">لم يتم اختيار أي أعضاء</p>';
         submitBtn.disabled = true;
@@ -550,13 +684,13 @@ function updateSelectedUsers() {
             submitBtn.disabled = true;
             return;
         }
-        
+
         let html = '<ul class="list-unstyled mb-0">';
         checkboxes.forEach(cb => {
             const name = cb.getAttribute('data-name');
             const phone = cb.getAttribute('data-phone');
             html += `<li><strong>${name}</strong> - ${phone}</li>`;
-            
+
             // إضافة hidden input
             const hiddenInput = document.createElement('input');
             hiddenInput.type = 'hidden';
@@ -677,7 +811,7 @@ function updateSelectedUsers() {
                 return;
             }
             saveTeamBtn.disabled = true;
-            
+
             var updateTeamUrl = '{{ route("dashboard.competitions.teams.update-name", "TEAM_ID") }}'.replace('TEAM_ID', teamId);
 
             fetch(updateTeamUrl, {
@@ -715,7 +849,7 @@ document.addEventListener('DOMContentLoaded', function() {
     $('#createTeamModal').on('show.bs.modal', function() {
         updateSelectedUsers();
     });
-    
+
     // إعادة تعيين المودال عند إغلاقه
     $('#createTeamModal').on('hidden.bs.modal', function() {
         document.querySelectorAll('.individual-checkbox').forEach(cb => cb.checked = false);
