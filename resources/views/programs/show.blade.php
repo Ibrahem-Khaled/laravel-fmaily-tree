@@ -125,69 +125,6 @@
             display: flex;
         }
 
-        .program-description {
-            direction: rtl;
-            text-align: right;
-        }
-
-        .program-description p {
-            margin-bottom: 1rem;
-        }
-
-        .program-description strong,
-        .program-description b {
-            font-weight: 700;
-            color: #059669;
-        }
-
-        .program-description em,
-        .program-description i {
-            font-style: italic;
-        }
-
-        .program-description ul,
-        .program-description ol {
-            margin-right: 1.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .program-description li {
-            margin-bottom: 0.5rem;
-        }
-
-        .program-description a {
-            color: #10b981;
-            text-decoration: underline;
-            transition: color 0.2s;
-        }
-
-        .program-description a:hover {
-            color: #059669;
-        }
-
-        /* الجدول يعرض بنفس اتجاه الإدخال من لوحة التحكم (LTR) وليس معكوساً بسبب RTL الصفحة */
-        .program-description table {
-            width: 100%;
-            margin-bottom: 1rem;
-            border-collapse: collapse;
-            direction: ltr;
-            text-align: left;
-        }
-
-        .program-description table td,
-        .program-description table th {
-            padding: 0.5rem;
-            border: 1px solid #e5e7eb;
-            text-align: left;
-        }
-
-        .program-description img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 0.5rem;
-            margin: 1rem 0;
-        }
-
         /* تحسينات إضافية للجداول */
         table {
             border-collapse: separate;
@@ -358,11 +295,11 @@
                                     @endif
                                 </h1>
                                 @if ($program->is_proud_of && $program->proud_of_description)
-                                    <div class="text-gray-600 leading-relaxed text-sm sm:text-base program-description">
+                                    <div>
                                         {!! $program->proud_of_description !!}
                                     </div>
                                 @elseif($program->program_description)
-                                    <div class="text-gray-600 leading-relaxed text-sm sm:text-base program-description">
+                                    <div>
                                         {!! $program->program_description !!}
                                     </div>
                                 @endif
@@ -514,7 +451,7 @@
                                                     {{ $gallery->title }}
                                                 </h2>
                                                 @if ($gallery->description)
-                                                    <div class="text-gray-600 text-sm sm:text-base mt-2 program-description">{!! $gallery->description !!}</div>
+                                                    <div>{!! $gallery->description !!}</div>
                                                 @endif
                                                 @if ($firstImage->name || $firstImage->description)
                                                     <div class="mt-4 space-y-2">
@@ -544,7 +481,7 @@
                                                 {{ $gallery->title }}
                                             </h2>
                                             @if ($gallery->description)
-                                                <div class="text-gray-600 text-xs sm:text-sm mt-1 sm:mt-2 program-description">{!! $gallery->description !!}</div>
+                                                <div>{!! $gallery->description !!}</div>
                                             @endif
                                             </div>
                                         </div>
@@ -604,7 +541,7 @@
                                             {{ $gallery->title }}
                                         </h2>
                                         @if ($gallery->description)
-                                            <div class="text-gray-600 text-xs sm:text-sm mt-1 sm:mt-2 program-description">{!! $gallery->description !!}</div>
+                                            <div>{!! $gallery->description !!}</div>
                                         @endif
                                         </div>
                                     </div>

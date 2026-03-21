@@ -832,7 +832,7 @@
                                             <video controls preload="metadata" playsinline
                                                 class="w-full rounded-2xl shadow-lg" style="max-height: {{ $videoMaxHeight }};"
                                                 @if (!empty($itemSettings['autoplay'])) autoplay muted @endif>
-                                                <source src="{{ $item->video_url }}" type="video/mp4">
+                                                <source src="{{ $item->video_url }}#t=0.001" type="video/mp4">
                                             </video>
                                         </div>
                                     @else
