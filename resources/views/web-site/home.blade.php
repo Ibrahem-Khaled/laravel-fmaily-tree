@@ -805,7 +805,39 @@
                                 @endforeach
                             @else
                                 @foreach ($section->items as $item)
-                                    @include('partials.home-section-item', ['item' => $item])
+                                    @if ($item->item_type === 'video' && !$item->youtube_url && $item->video_url)
+                                        @php
+                                            $itemContent = $item->content ?? [];
+                                            $itemSettings = $item->settings ?? [];
+                                            $videoMediaSize = $itemSettings['media_size'] ?? 'full';
+                                            $videoSizeClass = match ($videoMediaSize) {
+                                                'small' => 'max-w-sm',
+                                                'medium' => 'max-w-xl',
+                                                'large' => 'max-w-4xl',
+                                                default => 'w-full',
+                                            };
+                                            $videoWrapperStyle = '';
+                                            if (!empty($itemSettings['media_max_width'])) {
+                                                $videoWrapperStyle .= 'max-width:' . (int) $itemSettings['media_max_width'] . 'px;';
+                                            }
+                                            $videoMaxHeight = !empty($itemSettings['media_max_height'])
+                                                ? (int) $itemSettings['media_max_height'] . 'px'
+                                                : '500px';
+                                        @endphp
+                                        <div class="{{ $videoSizeClass }} mx-auto"
+                                            @if ($videoWrapperStyle) style="{{ $videoWrapperStyle }}" @endif>
+                                            @if (isset($itemContent['title']) && $itemContent['title'])
+                                                <h4 class="font-bold text-lg mb-3 text-right">{{ $itemContent['title'] }}</h4>
+                                            @endif
+                                            <video controls preload="metadata" playsinline
+                                                class="w-full rounded-2xl shadow-lg" style="max-height: {{ $videoMaxHeight }};"
+                                                @if (!empty($itemSettings['autoplay'])) autoplay muted @endif>
+                                                <source src="{{ $item->video_url }}" type="video/mp4">
+                                            </video>
+                                        </div>
+                                    @else
+                                        @include('partials.home-section-item', ['item' => $item])
+                                    @endif
                                 @endforeach
                             @endif
                         </div>
