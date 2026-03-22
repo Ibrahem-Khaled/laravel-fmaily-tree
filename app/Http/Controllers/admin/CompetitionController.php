@@ -187,60 +187,129 @@ class CompetitionController extends Controller
     }
 
     /**
-     * إرجاع بيانات المسابقة بصيغة JSON (Tournament + Groups + Players)
+     * إرجاع بيانات المسابقة بصيغة JSON — شجرة البطولة (جولات + مباريات + فرق ولاعبين)
      */
     public function json(Competition $competition): JsonResponse
     {
         $competition->load(['teams.members']);
 
-        $totalTeams = $competition->teams->count();
-        $totalGroups = $totalTeams === 0 ? 0 : (int) ceil($totalTeams / 2);
+        $firstRoundMatchCount = $competition->getBracketGroups()->count();
+        $roundMatchCounts = $firstRoundMatchCount > 0
+            ? $competition->getKnockoutRoundMatchCounts($firstRoundMatchCount)
+            : [];
 
-        $season = $competition->start_date ? $competition->start_date->year : 1;
+        $knockoutRounds = $competition->getKnockoutRounds();
+        $totalRounds = $knockoutRounds->count();
 
         $formatTeam = static function (?Team $team) {
             if (!$team) {
-                return [
-                    'id' => null,
-                    'name' => null,
-                    'players_count' => 0,
-                    'players' => [],
-                ];
+                return null;
             }
 
             return [
                 'id' => $team->id,
                 'name' => $team->name,
-                'players_count' => $team->members->count(),
                 'players' => $team->members->pluck('name')->values()->all(),
             ];
         };
 
-        $groups = $competition->getBracketGroups()->map(function (array $g) use ($formatTeam) {
-            return [
-                'group_number' => $g['group_number'],
-                'team_1' => $formatTeam($g['team_1']),
-                'team_2' => $formatTeam($g['team_2']),
-            ];
-        })->all();
+        $rounds = [];
+        foreach ($knockoutRounds as $idx => $roundData) {
+            $r = (int) $roundData['round'];
+            $matchCount = count($roundData['matches']);
+            $prevCount = $idx > 0 ? count($knockoutRounds[$idx - 1]['matches']) : 0;
 
-        $roundWinners = $competition->normalizeBracketRoundWinners($competition->bracket_round_winners ?? []);
-        $manualOpponents = $competition->normalizeBracketManualOpponents($competition->bracket_manual_opponents ?? []);
+            $matches = [];
+            foreach ($roundData['matches'] as $match) {
+                $m = (int) $match['match'];
+                $matchId = 'r' . $r . '_m' . $m;
+
+                if ($r === 1) {
+                    $winnerId = $match['winner_id'] ?? null;
+                    $matches[] = [
+                        'id' => $matchId,
+                        'group' => $m,
+                        'team1' => $formatTeam($match['team_1'] ?? null),
+                        'team2' => $formatTeam($match['team_2'] ?? null),
+                        'winner_id' => $winnerId,
+                        'score' => [
+                            'team1' => null,
+                            'team2' => null,
+                        ],
+                        'status' => $winnerId ? 'completed' : 'pending',
+                    ];
+                    continue;
+                }
+
+                $l = 2 * $m - 1;
+                $rr = 2 * $m;
+                $prevR = $r - 1;
+                $winnerId = $match['winner_id'] ?? null;
+                $row = [
+                    'id' => $matchId,
+                    'team1_from' => 'r' . $prevR . '_m' . $l . '_winner',
+                    'team2_from' => $rr <= $prevCount ? ('r' . $prevR . '_m' . $rr . '_winner') : null,
+                    'team1' => $formatTeam($match['team_1'] ?? null),
+                    'team2' => $formatTeam($match['team_2'] ?? null),
+                    'winner_id' => $winnerId,
+                    'status' => $winnerId ? 'completed' : 'pending',
+                ];
+                $matches[] = $row;
+            }
+
+            $rounds[] = [
+                'id' => 'round_' . $r,
+                'name' => $this->knockoutJsonRoundName($r, $matchCount, $totalRounds),
+                'matches' => $matches,
+            ];
+        }
+
+        $edition = $competition->start_date ? (int) $competition->start_date->format('Y') : 1;
+        $totalTeams = $competition->teams->count();
 
         return response()->json([
             'tournament' => [
-                'id' => (string) $competition->id,
+                'id' => $competition->id,
                 'name' => $competition->title,
-                'season' => $season,
+                'edition' => $edition,
+                // total_teams + round_match_counts: مثال 48 فريقًا → [24,12,6,3,2,1]
                 'total_teams' => $totalTeams,
-                'total_groups' => $totalTeams === 0 ? 0 : $totalGroups,
-            ],
-            'groups' => $groups,
-            'knockout' => [
-                'round_winners' => $roundWinners,
-                'manual_opponents' => $manualOpponents,
+                'first_round_match_count' => $firstRoundMatchCount,
+                'round_match_counts' => $roundMatchCounts,
+                'total_rounds' => count($roundMatchCounts),
+                'rounds' => $rounds,
             ],
         ]);
+    }
+
+    /**
+     * اسم الجولة لعرض JSON (الدور الأول / الثاني … أو النهائي).
+     */
+    private function knockoutJsonRoundName(int $roundNum, int $matchCount, int $totalRounds): string
+    {
+        if ($matchCount === 1 && $roundNum === $totalRounds) {
+            return 'النهائي';
+        }
+
+        static $ordinals = [
+            1 => 'الأول',
+            2 => 'الثاني',
+            3 => 'الثالث',
+            4 => 'الرابع',
+            5 => 'الخامس',
+            6 => 'السادس',
+            7 => 'السابع',
+            8 => 'الثامن',
+            9 => 'التاسع',
+            10 => 'العاشر',
+            11 => 'الحادي عشر',
+            12 => 'الثاني عشر',
+            13 => 'الثالث عشر',
+            14 => 'الرابع عشر',
+            15 => 'الخامس عشر',
+        ];
+
+        return 'الدور ' . ($ordinals[$roundNum] ?? (string) $roundNum);
     }
 
     /**
