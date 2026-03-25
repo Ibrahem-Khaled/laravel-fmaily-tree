@@ -149,9 +149,9 @@ class HomeController extends Controller
                 ->get();
         }
 
-        // إخفاء المناسبات التي مرّ على تاريخها أكثر من 24 ساعة
+        // إخفاء المناسبات بعد مرور 15 ساعة على وقت المناسبة
         $events = $events->filter(function ($event) {
-            return $event->event_date->gte(now()->subHours(24));
+            return $event->event_date->gte(now()->subHours(15));
         })->values();
 
         // جلب الأشخاص الذين ولدوا في مثل هذا اليوم (نفس اليوم والشهر)

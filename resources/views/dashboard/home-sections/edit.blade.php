@@ -935,9 +935,10 @@
                                         <span class="label-icon" style="background:#f5f5f5;color:#5a5c69;"><i class="fas fa-code"></i></span>
                                         CSS مخصص
                                     </label>
-                                    <input type="text" name="css_classes" class="form-control s-input"
-                                           value="{{ old('css_classes', $homeSection->css_classes) }}"
-                                           placeholder="أضف فئات CSS إضافية" style="direction:ltr;text-align:left;">
+                                    <textarea name="css_classes" class="form-control s-input"
+                                              rows="4"
+                                              placeholder="اكتب CSS كامل أو فئات/أنماط مخصصة (بدون وسم <style>)"
+                                              style="direction:ltr;text-align:left;">{{ old('css_classes', $homeSection->css_classes) }}</textarea>
                                 </div>
                             </div>
                         </div>

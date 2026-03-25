@@ -43,7 +43,7 @@ class HomeSectionController extends Controller
             'title'                => 'required|string|max:255',
             'section_type'         => 'required|string|max:255',
             'is_active'            => 'nullable|boolean',
-            'css_classes'          => 'nullable|string|max:500',
+            'css_classes'          => 'nullable|string',
             'content_source_type'  => 'nullable|string|max:255',
         ], $this->settingsValidationRules()));
 
@@ -93,7 +93,7 @@ class HomeSectionController extends Controller
             'title'                => 'required|string|max:255',
             'section_type'         => 'required|string|max:255',
             'is_active'            => 'nullable|boolean',
-            'css_classes'          => 'nullable|string|max:500',
+            'css_classes'          => 'nullable|string',
             'content_source_type'  => 'nullable|string|max:255',
         ], $this->settingsValidationRules()));
 

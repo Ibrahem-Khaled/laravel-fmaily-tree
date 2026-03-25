@@ -1030,8 +1030,9 @@
     </section>
 
     {{-- ================================================================
-    FAMILY EVENTS – مناسبات العائلة
+    FAMILY EVENTS – مناسبات العائلة (يُعرض القسم فقط عند وجود مناسبات)
     ================================================================ --}}
+    @if ($events && $events->count() > 0)
     <section class="py-2 md:py-4 lg:py-6 bg-white mobile-section">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
 
@@ -1042,7 +1043,6 @@
                 </div>
             </div>
 
-            @if ($events && $events->count() > 0)
                 <div class="overflow-x-auto -mx-4 sm:mx-0">
                     <div class="inline-block min-w-full align-middle">
                         <div class="overflow-hidden shadow-lg rounded-lg">
@@ -1150,15 +1150,10 @@
                         </div>
                     </div>
                 </div>
-            @else
-                <div class="text-center py-6">
-                    <i class="fas fa-calendar-alt text-gray-400 text-3xl md:text-4xl mb-3"></i>
-                    <p class="text-gray-600 text-sm md:text-base">لا توجد مناسبات متاحة حالياً</p>
-                </div>
-            @endif
 
         </div>
     </section>
+    @endif
 
     {{-- ================================================================
     FAMILY PROGRAMS

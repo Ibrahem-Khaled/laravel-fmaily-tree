@@ -446,10 +446,11 @@
                                 <label for="css_classes" class="font-weight-bold">
                                     <i class="fas fa-code text-secondary mr-1"></i>CSS مخصص
                                 </label>
-                                <input type="text" name="css_classes" id="css_classes" 
-                                       class="form-control @error('css_classes') is-invalid @enderror" 
-                                       value="{{ old('css_classes') }}" 
-                                       placeholder="فئات CSS إضافية">
+                                <textarea name="css_classes" id="css_classes"
+                                          class="form-control @error('css_classes') is-invalid @enderror"
+                                          rows="4"
+                                          placeholder="اكتب CSS كامل أو فئات/أنماط مخصصة (بدون وسم <style>)"
+                                          style="direction:ltr;text-align:left;">{{ old('css_classes') }}</textarea>
                             </div>
                         </div>
                     </div>
