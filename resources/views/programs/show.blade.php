@@ -243,8 +243,8 @@
         </svg>
     </div>
 
-    <main class="relative z-10 max-w-6xl mx-auto px-4 lg:px-6 py-10 lg:py-14 space-y-10 lg:space-y-12">
-        <div class="mb-6">
+    <main class="relative z-10 max-w-6xl mx-auto px-4 lg:px-6 py-6 sm:py-10 lg:py-14 space-y-6 sm:space-y-8 lg:space-y-12">
+        <div class="mb-4 sm:mb-6">
             <a href="{{ route('home') }}"
                 class="inline-flex items-center gap-2 px-5 py-2.5 bg-white/70 backdrop-blur-md border border-white/40 rounded-full hover:bg-white/95 transition-all duration-300 group shadow-sm hover:shadow-lg">
                 <svg class="w-5 h-5 text-emerald-600 transition-transform group-hover:-translate-x-1" fill="none"
@@ -329,7 +329,7 @@
                 </div>
             </header>
 
-            <div class="px-3 py-4 sm:px-6 sm:py-6 lg:px-10 lg:py-8 space-y-8 sm:space-y-10 lg:space-y-14">
+            <div class="px-3 py-4 sm:px-6 sm:py-6 lg:px-10 lg:py-8 space-y-6 sm:space-y-8 lg:space-y-14">
                 {{-- البرامج الفرعية --}}
                 @if ($subPrograms->isNotEmpty())
                     <section class="relative mb-6 sm:mb-8 lg:mb-12">
@@ -414,9 +414,35 @@
                                 @endphp
 
                                 @if ($isSingleImage)
-                                    {{-- عرض صورة واحدة: الصورة في الأعلى، ثم العنوان والوصف --}}
+                                    {{-- عرض صورة واحدة: العنوان والوصف في الأعلى، ثم الصورة --}}
                                     <div class="mb-6">
-                                        <div class="group relative overflow-hidden rounded-2xl border border-emerald-100/50 shadow-lg hover:shadow-2xl transition-all duration-500 bg-white/90 backdrop-blur-sm mb-4">
+                                        <div class="flex items-center gap-2 sm:gap-4 mb-3">
+                                            <div class="w-1 h-8 sm:h-12 bg-emerald-600 rounded-full"></div>
+                                            <div class="flex-1">
+                                                <h2 class="text-lg sm:text-xl lg:text-2xl font-bold font-serif text-emerald-700 mb-2">
+                                                    {{ $gallery->title }}
+                                                </h2>
+                                                @if ($gallery->description)
+                                                    <div>{!! $gallery->description !!}</div>
+                                                @endif
+                                                @if ($firstImage->name || $firstImage->description)
+                                                    <div class="mt-4 space-y-2">
+                                                        @if ($firstImage->name)
+                                                            <h3 class="font-bold text-base md:text-lg text-gray-800">
+                                                                {{ $firstImage->name }}
+                                                            </h3>
+                                                        @endif
+                                                        @if ($firstImage->description)
+                                                            <p class="text-sm md:text-base text-gray-600 leading-relaxed">
+                                                                {{ $firstImage->description }}
+                                                            </p>
+                                                        @endif
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        </div>
+
+                                        <div class="group relative overflow-hidden rounded-2xl border border-emerald-100/50 shadow-lg hover:shadow-2xl transition-all duration-500 bg-white/90 backdrop-blur-sm">
                                             <div class="cursor-pointer relative overflow-hidden"
                                                 onclick="openLightbox({{ $galleryStartIndex }})">
                                                 <img src="{{ asset('storage/' . $firstImage->path) }}"
@@ -442,32 +468,6 @@
                                                     </a>
                                                 </div>
                                             @endif
-                                        </div>
-
-                                        <div class="flex items-center gap-2 sm:gap-4 mb-3">
-                                            <div class="w-1 h-8 sm:h-12 bg-emerald-600 rounded-full"></div>
-                                            <div class="flex-1">
-                                                <h2 class="text-lg sm:text-xl lg:text-2xl font-bold font-serif text-emerald-700 mb-2">
-                                                    {{ $gallery->title }}
-                                                </h2>
-                                                @if ($gallery->description)
-                                                    <div>{!! $gallery->description !!}</div>
-                                                @endif
-                                                @if ($firstImage->name || $firstImage->description)
-                                                    <div class="mt-4 space-y-2">
-                                                        @if ($firstImage->name)
-                                                            <h3 class="font-bold text-base md:text-lg text-gray-800">
-                                                                {{ $firstImage->name }}
-                                                            </h3>
-                                                        @endif
-                                                        @if ($firstImage->description)
-                                                            <p class="text-sm md:text-base text-gray-600 leading-relaxed">
-                                                                {{ $firstImage->description }}
-                                                            </p>
-                                                        @endif
-                                                    </div>
-                                                @endif
-                                            </div>
                                         </div>
                                     </div>
                                 @else
@@ -558,7 +558,7 @@
 
                 @if ($galleryMedia->isNotEmpty())
                     <section class="relative">
-                        <div class="flex flex-wrap items-center justify-between gap-3 mb-8">
+                        <div class="flex flex-wrap items-center justify-between gap-3 mb-4 sm:mb-6 lg:mb-8">
                             <div class="flex items-center gap-2 sm:gap-4">
                                 <div class="w-1 h-8 sm:h-12 bg-emerald-600 rounded-full"></div>
                             <div>
@@ -636,7 +636,7 @@
 
                 @if ($videoMedia->isNotEmpty())
                     <section class="relative">
-                        <div class="flex flex-wrap items-center justify-between gap-3 mb-8">
+                        <div class="flex flex-wrap items-center justify-between gap-3 mb-4 sm:mb-6 lg:mb-8">
                             <div class="flex items-center gap-2 sm:gap-4">
                                 <div class="w-1 h-8 sm:h-12 bg-red-600 rounded-full"></div>
                             <div>
@@ -750,7 +750,7 @@
                             </span>
                         </div> --}}
 
-                        <div class="space-y-6 sm:space-y-8">
+                        <div class="space-y-4 sm:space-y-6 lg:space-y-8">
                             @foreach ($competitions as $competition)
                                 <div class="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl border border-purple-100/50 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
                                     <div class="p-4 sm:p-6 lg:p-8">
