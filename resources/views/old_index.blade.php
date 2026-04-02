@@ -464,6 +464,153 @@
             padding: 1.5rem;
         }
 
+        /* ===== شريط البحث ===== */
+        .search-wrapper {
+            max-width: 520px;
+            margin: 0 auto 1.5rem;
+            position: relative;
+        }
+
+        .search-input-group {
+            display: flex;
+            align-items: center;
+            background: #fff;
+            border: 2px solid var(--border-color);
+            border-radius: 50px;
+            padding: 0.4rem 0.6rem 0.4rem 1rem;
+            box-shadow: var(--shadow-soft);
+            transition: all 300ms var(--ease-smooth);
+            gap: 8px;
+        }
+
+        .search-input-group:focus-within {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(55, 160, 92, 0.12), var(--shadow-soft);
+        }
+
+        .search-input-group i {
+            color: var(--primary-color);
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .search-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-family: inherit;
+            font-size: 0.9rem;
+            color: #333;
+            background: transparent;
+            min-width: 0;
+        }
+
+        .search-input::placeholder {
+            color: #aaa;
+        }
+
+        .search-clear-btn {
+            background: #f0f0f0;
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #666;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+            transition: all 200ms;
+        }
+
+        .search-clear-btn:hover {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .search-clear-btn.visible {
+            display: flex;
+        }
+
+        .search-results-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            left: 0;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: var(--shadow-strong);
+            border: 1px solid #eef2f1;
+            max-height: 320px;
+            overflow-y: auto;
+            z-index: 9999;
+            display: none;
+            scrollbar-width: thin;
+        }
+
+        .search-results-dropdown.visible {
+            display: block;
+        }
+
+        .search-result-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            cursor: pointer;
+            transition: background 150ms;
+            border-bottom: 1px solid #f5f5f5;
+        }
+
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-result-item:hover,
+        .search-result-item.highlighted {
+            background: var(--light-green);
+        }
+
+        .search-result-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--light-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .search-result-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .search-result-avatar i {
+            color: var(--primary-color);
+            font-size: 1rem;
+        }
+
+        .search-result-name {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--dark-green);
+            flex: 1;
+            min-width: 0;
+        }
+
+        .search-no-results {
+            padding: 1rem;
+            text-align: center;
+            color: #999;
+            font-size: 0.85rem;
+        }
+
         /* ===== صفوف التفاصيل ===== */
         .detail-card {
             background: linear-gradient(180deg, #fcfcfc 0%, #f4f6f5 100%);
@@ -950,6 +1097,19 @@
             <div class="container-fluid">
                 <div class="hero-header">
                     <h1 class="hero-title">تواصل عائلة السريِّع</h1>
+                    <div class="search-wrapper">
+                        <div class="search-input-group">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="familySearchInput" class="search-input"
+                                   placeholder="ابحث عن عضو بالاسم..."
+                                   autocomplete="off"
+                                   aria-label="بحث عن عضو في شجرة العائلة">
+                            <button class="search-clear-btn" id="searchClearBtn" title="مسح البحث">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="search-results-dropdown" id="searchResultsDropdown"></div>
+                    </div>
                 </div>
 
                 <div class="tree-container">
@@ -1723,6 +1883,130 @@
                     updateBackBtn();
                 } else if (document.body.classList.contains('modal-open')) {
                     personModal.hide();
+                }
+            });
+
+            // ===== منطق البحث =====
+            let allPersons = [];
+            let searchHighlightIndex = -1;
+            const searchInput = document.getElementById('familySearchInput');
+            const searchClearBtn = document.getElementById('searchClearBtn');
+            const searchDropdown = document.getElementById('searchResultsDropdown');
+
+            // تحميل كل الأشخاص مرة واحدة
+            async function loadAllPersons() {
+                if (allPersons.length > 0) return;
+                try {
+                    const res = await fetch('/api/persons/search');
+                    const data = await res.json();
+                    if (data.success) allPersons = data.persons;
+                } catch(e) {
+                    console.error('Search load error', e);
+                }
+            }
+
+            function renderSearchResults(query) {
+                const q = query.trim();
+                searchHighlightIndex = -1;
+
+                if (!q) {
+                    searchDropdown.classList.remove('visible');
+                    searchDropdown.innerHTML = '';
+                    return;
+                }
+
+                const filtered = allPersons.filter(p =>
+                    p.full_name && p.full_name.includes(q)
+                ).slice(0, 30);
+
+                if (filtered.length === 0) {
+                    searchDropdown.innerHTML = `<div class="search-no-results"><i class="fas fa-search me-2"></i>لا توجد نتائج لـ "${q}"</div>`;
+                    searchDropdown.classList.add('visible');
+                    return;
+                }
+
+                searchDropdown.innerHTML = filtered.map((p, i) => {
+                    const avatarHtml = p.photo_url
+                        ? `<div class="search-result-avatar"><img src="${p.photo_url}" alt=""></div>`
+                        : `<div class="search-result-avatar"><i class="fas ${p.gender === 'female' ? 'fa-female' : 'fa-male'}"></i></div>`;
+
+                    const highlighted = p.full_name.replace(
+                        new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'g'),
+                        '<mark style="background:rgba(55,160,92,0.2);border-radius:3px;padding:0 2px;">$1</mark>'
+                    );
+
+                    return `<div class="search-result-item" data-person-id="${p.id}" data-index="${i}">
+                        ${avatarHtml}
+                        <span class="search-result-name">${highlighted}</span>
+                        <i class="fas fa-chevron-left" style="color:#ccc;font-size:0.75rem;"></i>
+                    </div>`;
+                }).join('');
+
+                searchDropdown.classList.add('visible');
+
+                // إضافة أحداث النقر
+                searchDropdown.querySelectorAll('.search-result-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const personId = item.dataset.personId;
+                        closeSearch();
+                        window.showPersonDetails(personId);
+                    });
+                });
+            }
+
+            function closeSearch() {
+                searchInput.value = '';
+                searchDropdown.classList.remove('visible');
+                searchDropdown.innerHTML = '';
+                searchClearBtn.classList.remove('visible');
+                searchHighlightIndex = -1;
+            }
+
+            searchInput.addEventListener('focus', () => loadAllPersons());
+
+            searchInput.addEventListener('input', () => {
+                const q = searchInput.value;
+                searchClearBtn.classList.toggle('visible', q.length > 0);
+                renderSearchResults(q);
+            });
+
+            searchClearBtn.addEventListener('click', closeSearch);
+
+            // تنقل بلوحة المفاتيح
+            searchInput.addEventListener('keydown', (e) => {
+                const items = searchDropdown.querySelectorAll('.search-result-item');
+                if (!items.length) return;
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    items[searchHighlightIndex]?.classList.remove('highlighted');
+                    searchHighlightIndex = Math.min(searchHighlightIndex + 1, items.length - 1);
+                    items[searchHighlightIndex]?.classList.add('highlighted');
+                    items[searchHighlightIndex]?.scrollIntoView({ block: 'nearest' });
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    items[searchHighlightIndex]?.classList.remove('highlighted');
+                    searchHighlightIndex = Math.max(searchHighlightIndex - 1, 0);
+                    items[searchHighlightIndex]?.classList.add('highlighted');
+                    items[searchHighlightIndex]?.scrollIntoView({ block: 'nearest' });
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const active = searchHighlightIndex >= 0
+                        ? items[searchHighlightIndex]
+                        : items[0];
+                    if (active) {
+                        closeSearch();
+                        window.showPersonDetails(active.dataset.personId);
+                    }
+                } else if (e.key === 'Escape') {
+                    closeSearch();
+                }
+            });
+
+            // إغلاق عند النقر خارج البحث
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.search-wrapper')) {
+                    searchDropdown.classList.remove('visible');
                 }
             });
 
