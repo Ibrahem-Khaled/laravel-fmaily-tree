@@ -221,8 +221,16 @@ class FamilyTreeController extends Controller
                 $query->select('id', 'person_id', 'location_id', 'label', 'url', 'is_primary', 'sort_order');
             },
             'personLocations.location:id,name', // تحميل location مع personLocations للحصول على الاسم
-            'breastfedRelationships.nursingMother:id,first_name,last_name,gender,photo_url', // تحميل علاقات الرضاعة - الأم المرضعة
-            'breastfedRelationships.breastfeedingFather:id,first_name,last_name,gender,photo_url' // تحميل علاقات الرضاعة - الأب من الرضاعة
+            'breastfedRelationships.nursingMother:id,first_name,last_name,gender,photo_url,parent_id,death_date', // تحميل علاقات الرضاعة - الأم المرضعة
+            'breastfedRelationships.nursingMother.parent:id,first_name,gender,parent_id',
+            'breastfedRelationships.nursingMother.parent.parent:id,first_name,gender,parent_id',
+            'breastfedRelationships.nursingMother.parent.parent.parent:id,first_name,gender,parent_id',
+            'breastfedRelationships.nursingMother.parent.parent.parent.parent:id,first_name,gender,parent_id',
+            'breastfedRelationships.breastfeedingFather:id,first_name,last_name,gender,photo_url,parent_id,death_date', // تحميل علاقات الرضاعة - الأب من الرضاعة
+            'breastfedRelationships.breastfeedingFather.parent:id,first_name,gender,parent_id',
+            'breastfedRelationships.breastfeedingFather.parent.parent:id,first_name,gender,parent_id',
+            'breastfedRelationships.breastfeedingFather.parent.parent.parent:id,first_name,gender,parent_id',
+            'breastfedRelationships.breastfeedingFather.parent.parent.parent.parent:id,first_name,gender,parent_id'
         ])
         ->withCount(['mentionedImages', 'friendships'])
         ->findOrFail($id);
@@ -241,6 +249,7 @@ class FamilyTreeController extends Controller
                     'name' => $nursingMother->full_name ?? 'غير معروف',
                     'first_name' => $nursingMother->first_name ?? '',
                     'photo_url' => $nursingMother->photo_url ?? null,
+                    'death_date' => $nursingMother->death_date?->format('Y-m-d') ?? null,
                     'notes' => $relationship->notes,
                     'start_date' => $relationship->start_date?->format('Y-m-d'),
                     'end_date' => $relationship->end_date?->format('Y-m-d'),
