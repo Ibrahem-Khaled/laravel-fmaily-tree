@@ -31,7 +31,7 @@ class SitePasswordApiController extends Controller
      */
     public function verify(Request $request): JsonResponse
     {
-        if (!config('site.password_protection_enabled', false)) {
+        if (! config('site.password_protection_enabled', false)) {
             return response()->json([
                 'success' => true,
                 'message' => 'حماية الموقع غير مفعّلة.',
@@ -41,7 +41,7 @@ class SitePasswordApiController extends Controller
             ]);
         }
 
-        $passwordLength = (int) config('site.password_length', 6);
+        $passwordLength = max(1, min(32, (int) config('site.password_length', 6)));
         $storedPassword = config('site.password');
 
         if (empty($storedPassword)) {
@@ -55,12 +55,12 @@ class SitePasswordApiController extends Controller
             'password' => [
                 'required',
                 'string',
-                'size:' . $passwordLength,
+                'size:'.$passwordLength,
                 'regex:/^[0-9]+$/',
             ],
         ], [
             'password.required' => 'يرجى إدخال كلمة المرور.',
-            'password.size' => 'يجب أن تتكون كلمة المرور من ' . $passwordLength . ' أرقام.',
+            'password.size' => 'يجب أن تتكون كلمة المرور من '.$passwordLength.' أرقام.',
             'password.regex' => 'يجب أن تتكون كلمة المرور من أرقام فقط.',
         ]);
 
@@ -79,7 +79,19 @@ class SitePasswordApiController extends Controller
             ], 401);
         }
 
-        $issued = SiteMobileAccessToken::issue();
+        try {
+            $issued = SiteMobileAccessToken::issue();
+        } catch (\Throwable $e) {
+            report($e);
+
+            return response()->json([
+                'success' => false,
+                'code' => 'TOKEN_CACHE_FAILED',
+                'message' => config('app.debug')
+                    ? $e->getMessage()
+                    : 'تعذر حفظ رمز الوصول. تحقق من إعدادات الكاش على الخادم (CACHE_DRIVER، Redis، أو صلاحيات storage).',
+            ], 503);
+        }
 
         return response()->json([
             'success' => true,
@@ -96,7 +108,7 @@ class SitePasswordApiController extends Controller
     public function revoke(Request $request): JsonResponse
     {
         $token = SiteMobileAccessToken::extractFromRequest($request);
-        if (!$token) {
+        if (! $token) {
             return response()->json([
                 'success' => false,
                 'message' => 'لم يُرسل رمز وصول.',

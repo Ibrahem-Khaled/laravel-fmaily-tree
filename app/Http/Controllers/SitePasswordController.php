@@ -16,7 +16,7 @@ class SitePasswordController extends Controller
         if (session('site_password_verified')) {
             $lastVerified = session('site_password_verified_at');
             $timeout = config('site.password_session_timeout', 60);
-            
+
             if ($lastVerified && now()->diffInMinutes($lastVerified) <= $timeout) {
                 return redirect()->intended('/');
             }
