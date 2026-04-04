@@ -1208,13 +1208,13 @@
                 const mourningText = isDeceased ? (person.gender === 'female' ? 'رحمها الله' : 'رحمه الله') : '';
 
                 const photoSection = hasPhoto
-                    ? `<div class="card-header-section has-photo" style="background-image: url('${person.photo_url}');" data-person-id="${person.id}" data-level="${level}" data-is-breastfeeding="${isBreastfeeding}" data-breastfeeding-notes="${(person.breastfeeding_notes || '').replace(/"/g, '&quot;')}" data-breastfeeding-start="${person.breastfeeding_start_date || ''}" data-breastfeeding-end="${person.breastfeeding_end_date || ''}">
+                    ? `<div class="card-header-section has-photo" style="background-image: url('${person.photo_url}');" data-person-id="${person.id}" data-level="${level}" data-gender="${person.gender || ''}" data-is-breastfeeding="${isBreastfeeding}" data-breastfeeding-notes="${(person.breastfeeding_notes || '').replace(/"/g, '&quot;')}" data-breastfeeding-start="${person.breastfeeding_start_date || ''}" data-breastfeeding-end="${person.breastfeeding_end_date || ''}">
                             ${isDeceased ? `<span class="mourning-badge">${mourningText}</span>` : ''}
                             <div class="person-name-container">
                                 <span class="person-name">${person.first_name}</span>
                             </div>
                        </div>`
-                    : `<div class="card-header-section" data-person-id="${person.id}" data-level="${level}" data-is-breastfeeding="${isBreastfeeding}" data-breastfeeding-notes="${(person.breastfeeding_notes || '').replace(/"/g, '&quot;')}" data-breastfeeding-start="${person.breastfeeding_start_date || ''}" data-breastfeeding-end="${person.breastfeeding_end_date || ''}">
+                    : `<div class="card-header-section" data-person-id="${person.id}" data-level="${level}" data-gender="${person.gender || ''}" data-is-breastfeeding="${isBreastfeeding}" data-breastfeeding-notes="${(person.breastfeeding_notes || '').replace(/"/g, '&quot;')}" data-breastfeeding-start="${person.breastfeeding_start_date || ''}" data-breastfeeding-end="${person.breastfeeding_end_date || ''}">
                             ${isDeceased ? `<span class="mourning-badge">${mourningText}</span>` : ''}
                             <div class="person-avatar">
                                 <i class="fas ${iconClass} avatar-icon"></i>
@@ -1324,6 +1324,12 @@
                                 ).join('');
                                 childrenContainer.dataset.loaded = 'true';
                                 initCardClicks();
+                            } else if (this.dataset.gender === 'female') {
+                                childrenContainer.innerHTML = '';
+                                childrenContainer.dataset.loaded = 'true';
+                                childrenContainer.classList.remove('show');
+                                treeItem.classList.remove('expanded');
+                                card.classList.remove('active');
                             } else {
                                 childrenContainer.innerHTML = `
                                     <div class="empty-state" style="padding: 1rem;">
