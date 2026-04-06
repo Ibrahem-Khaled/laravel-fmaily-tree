@@ -369,6 +369,8 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
 
     // Important Links routes
     Route::get('important-links', [\App\Http\Controllers\admin\ImportantLinkController::class, 'index'])->name('dashboard.important-links.index')->middleware(['permission:site-content.view']);
+    Route::get('important-links/create', [\App\Http\Controllers\admin\ImportantLinkController::class, 'create'])->name('dashboard.important-links.create')->middleware(['permission:site-content.update']);
+    Route::get('important-links/{importantLink}/edit', [\App\Http\Controllers\admin\ImportantLinkController::class, 'edit'])->name('dashboard.important-links.edit')->middleware(['permission:site-content.update']);
     Route::post('important-links', [\App\Http\Controllers\admin\ImportantLinkController::class, 'store'])->name('dashboard.important-links.store')->middleware(['permission:site-content.update']);
     Route::put('important-links/{importantLink}', [\App\Http\Controllers\admin\ImportantLinkController::class, 'update'])->name('dashboard.important-links.update')->middleware(['permission:site-content.update']);
     Route::post('important-links/reorder', [\App\Http\Controllers\admin\ImportantLinkController::class, 'reorder'])->name('dashboard.important-links.reorder')->middleware(['permission:site-content.update']);

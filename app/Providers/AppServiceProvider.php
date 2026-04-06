@@ -2,12 +2,11 @@
 
 namespace App\Providers;
 
-use Illuminate\Pagination\Paginator;
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\View;
-use Illuminate\Support\Facades\Auth;
-use App\Models\RentalRequest;
 use App\Models\ImportantLink;
+use App\Models\RentalRequest;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -34,16 +33,6 @@ class AppServiceProvider extends ServiceProvider
                 'pendingRentalRequestsCount' => $pendingRentalRequestsCount,
                 'pendingImportantLinksCount' => $pendingImportantLinksCount,
             ]);
-        });
-
-        // Share important links with header
-        View::composer('partials.main-header', function ($view) {
-            if (Auth::check()) {
-                $importantLinks = ImportantLink::orderBy('order')->get();
-            } else {
-                $importantLinks = ImportantLink::getActiveLinks();
-            }
-            $view->with('importantLinks', $importantLinks);
         });
     }
 }

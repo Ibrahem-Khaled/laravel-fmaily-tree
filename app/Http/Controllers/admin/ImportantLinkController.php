@@ -4,20 +4,26 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ImportantLink;
+use App\Services\ImportantLinkMediaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class ImportantLinkController extends Controller
 {
+    public function __construct(
+        protected ImportantLinkMediaService $mediaService
+    ) {}
+
     /**
      * عرض صفحة إدارة الروابط المهمة
      */
     public function index()
     {
-        $links = ImportantLink::with('submitter')->where('status', 'approved')->orderBy('order')->get();
-        $pendingLinks = ImportantLink::with('submitter')->where('status', 'pending')->orderBy('created_at', 'desc')->get();
+        $links = ImportantLink::with(['submitter', 'media'])->where('status', 'approved')->orderBy('order')->get();
+        $pendingLinks = ImportantLink::with(['submitter', 'media'])->where('status', 'pending')->orderBy('created_at', 'desc')->get();
 
         $stats = [
             'total' => ImportantLink::count(),
@@ -30,19 +36,51 @@ class ImportantLinkController extends Controller
     }
 
     /**
+     * نموذج إضافة رابط (صفحة كاملة)
+     */
+    public function create()
+    {
+        return view('dashboard.important-links.create');
+    }
+
+    /**
+     * نموذج تعديل رابط مع معاينة الوسائط (صفحة كاملة)
+     */
+    public function edit(ImportantLink $importantLink)
+    {
+        $importantLink->load(['media', 'submitter']);
+
+        return view('dashboard.important-links.edit', compact('importantLink'));
+    }
+
+    /**
      * إضافة رابط جديد
      */
     public function store(Request $request)
     {
+        $type = $request->input('type', 'website');
+
         $request->validate([
             'title' => 'required|string|max:255',
-            'url' => 'required|url|max:500',
+            'url' => $type === 'website' ? 'required|url|max:500' : 'nullable|url|max:500',
+            'url_ios' => 'nullable|url|max:500',
+            'url_android' => 'nullable|url|max:500',
             'type' => ['nullable', Rule::in(['app', 'website'])],
             'icon' => 'nullable|string|max:100',
             'description' => 'nullable|string|max:1000',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'open_in_new_tab' => 'nullable|boolean',
+            'media_files' => 'nullable|array',
+            'media_files.*' => 'nullable|file|max:51200',
+            'media_kinds' => 'nullable|array',
+            'media_kinds.*' => ['nullable', Rule::in(['image', 'video'])],
+            'media_titles' => 'nullable|array',
+            'media_titles.*' => 'nullable|string|max:255',
+            'media_descriptions' => 'nullable|array',
+            'media_descriptions.*' => 'nullable|string|max:2000',
         ]);
+
+        $this->assertAppHasAtLeastOneUrl($request, $type);
 
         $lastOrder = ImportantLink::max('order') ?? 0;
         $imagePath = null;
@@ -50,10 +88,15 @@ class ImportantLinkController extends Controller
             $imagePath = $request->file('image')->store('important-links', 'public');
         }
 
-        ImportantLink::create([
+        $urlIos = $type === 'website' ? null : ($request->filled('url_ios') ? $request->url_ios : null);
+        $urlAndroid = $type === 'website' ? null : ($request->filled('url_android') ? $request->url_android : null);
+
+        $link = ImportantLink::create([
             'title' => $request->title,
-            'url' => $request->url,
-            'type' => $request->type ?? 'website',
+            'url' => $request->filled('url') ? $request->url : '',
+            'url_ios' => $urlIos,
+            'url_android' => $urlAndroid,
+            'type' => $type,
             'icon' => $request->icon ?? 'fas fa-link',
             'description' => $request->description,
             'image' => $imagePath,
@@ -64,6 +107,8 @@ class ImportantLinkController extends Controller
             'open_in_new_tab' => $request->has('open_in_new_tab'),
         ]);
 
+        $this->mediaService->attachFromRequest($request, $link);
+
         return redirect()->route('dashboard.important-links.index')
             ->with('success', 'تم إضافة الرابط بنجاح');
     }
@@ -73,21 +118,51 @@ class ImportantLinkController extends Controller
      */
     public function update(Request $request, ImportantLink $importantLink)
     {
+        $importantLink->load('media');
+
+        $type = $request->input('type', $importantLink->type ?? 'website');
+
         $request->validate([
             'title' => 'required|string|max:255',
-            'url' => 'required|url|max:500',
+            'url' => $type === 'website' ? 'required|url|max:500' : 'nullable|url|max:500',
+            'url_ios' => 'nullable|url|max:500',
+            'url_android' => 'nullable|url|max:500',
             'type' => ['nullable', Rule::in(['app', 'website'])],
             'icon' => 'nullable|string|max:100',
             'description' => 'nullable|string|max:1000',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'status' => ['nullable', Rule::in(['pending', 'approved'])],
             'open_in_new_tab' => 'nullable|boolean',
+            'delete_media_ids' => 'nullable|array',
+            'delete_media_ids.*' => 'integer|exists:important_link_media,id',
+            'media_files' => 'nullable|array',
+            'media_files.*' => 'nullable|file|max:51200',
+            'media_kinds' => 'nullable|array',
+            'media_kinds.*' => ['nullable', Rule::in(['image', 'video'])],
+            'media_titles' => 'nullable|array',
+            'media_titles.*' => 'nullable|string|max:255',
+            'media_descriptions' => 'nullable|array',
+            'media_descriptions.*' => 'nullable|string|max:2000',
         ]);
+
+        $this->assertAppHasAtLeastOneUrl($request, $type);
+
+        $deleteIds = $request->input('delete_media_ids', []);
+        if (is_array($deleteIds) && $deleteIds !== []) {
+            $ownedIds = $importantLink->media->pluck('id')->all();
+            $deleteIds = array_values(array_intersect(array_map('intval', $deleteIds), $ownedIds));
+            $this->mediaService->deleteMediaByIds($importantLink, $deleteIds);
+        }
+
+        $urlIos = $type === 'website' ? null : ($request->filled('url_ios') ? $request->url_ios : null);
+        $urlAndroid = $type === 'website' ? null : ($request->filled('url_android') ? $request->url_android : null);
 
         $data = [
             'title' => $request->title,
-            'url' => $request->url,
-            'type' => $request->type ?? 'website',
+            'url' => $request->filled('url') ? $request->url : '',
+            'url_ios' => $urlIos,
+            'url_android' => $urlAndroid,
+            'type' => $type,
             'icon' => $request->icon ?? 'fas fa-link',
             'description' => $request->description,
             'status' => $request->status ?? $importantLink->status,
@@ -104,8 +179,27 @@ class ImportantLinkController extends Controller
 
         $importantLink->update($data);
 
+        $this->mediaService->attachFromRequest($request, $importantLink);
+
         return redirect()->route('dashboard.important-links.index')
             ->with('success', 'تم تحديث الرابط بنجاح');
+    }
+
+    protected function assertAppHasAtLeastOneUrl(Request $request, string $type): void
+    {
+        if ($type !== 'app') {
+            return;
+        }
+
+        $has = $request->filled('url')
+            || $request->filled('url_ios')
+            || $request->filled('url_android');
+
+        if (! $has) {
+            throw ValidationException::withMessages([
+                'url' => ['أدخل رابطاً عاماً أو رابط iOS أو رابط أندرويد.'],
+            ]);
+        }
     }
 
     /**
@@ -170,7 +264,7 @@ class ImportantLinkController extends Controller
     public function toggle(ImportantLink $importantLink)
     {
         $importantLink->update([
-            'is_active' => !$importantLink->is_active
+            'is_active' => ! $importantLink->is_active,
         ]);
 
         return redirect()->route('dashboard.important-links.index')

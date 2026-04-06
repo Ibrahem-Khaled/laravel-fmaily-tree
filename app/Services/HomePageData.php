@@ -230,7 +230,7 @@ class HomePageData
             }));
 
         if (Auth::check()) {
-            $importantLinks = ImportantLink::orderBy('order')->get();
+            $importantLinks = ImportantLink::with('media')->orderBy('order')->get();
         } else {
             $importantLinks = ImportantLink::getActiveLinks();
         }

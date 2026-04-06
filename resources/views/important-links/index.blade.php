@@ -125,10 +125,21 @@
                         <input type="text" name="title" value="{{ old('title') }}" required class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500">
                         @error('title')<p class="text-red-500 text-sm mt-1">{{ $message }}</p>@enderror
                     </div>
-                    <div class="mb-4">
-                        <label class="block text-sm font-bold text-gray-700 mb-1">الرابط (تحميل أو زيارة) <span class="text-red-500">*</span></label>
-                        <input type="url" name="url" value="{{ old('url') }}" required placeholder="https://..." class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                    <p class="text-sm text-gray-600 mb-3">أدخل <span class="font-bold">رابطاً واحداً على الأقل</span>: رابط عام، أو iOS، أو أندرويد.</p>
+                    <div class="mb-3">
+                        <label class="block text-sm font-bold text-gray-700 mb-1">رابط عام (اختياري)</label>
+                        <input type="url" name="url" value="{{ old('url') }}" placeholder="https://..." class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500">
                         @error('url')<p class="text-red-500 text-sm mt-1">{{ $message }}</p>@enderror
+                    </div>
+                    <div class="mb-3">
+                        <label class="block text-sm font-bold text-gray-700 mb-1">رابط iOS — App Store (اختياري)</label>
+                        <input type="url" name="url_ios" value="{{ old('url_ios') }}" placeholder="https://apps.apple.com/..." class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                        @error('url_ios')<p class="text-red-500 text-sm mt-1">{{ $message }}</p>@enderror
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold text-gray-700 mb-1">رابط أندرويد — Google Play (اختياري)</label>
+                        <input type="url" name="url_android" value="{{ old('url_android') }}" placeholder="https://play.google.com/..." class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                        @error('url_android')<p class="text-red-500 text-sm mt-1">{{ $message }}</p>@enderror
                     </div>
                     <input type="hidden" name="type" value="app">
                     <div class="mb-4">
@@ -136,8 +147,17 @@
                         <textarea name="description" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500">{{ old('description') }}</textarea>
                         @error('description')<p class="text-red-500 text-sm mt-1">{{ $message }}</p>@enderror
                     </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold text-gray-700 mb-1">صور وفيديوهات (اختياري)</label>
+                        <p class="text-xs text-gray-500 mb-2">لكل ملف يمكن إضافة عنوان ووصف اختياريين.</p>
+                        <div id="suggest_media_container" class="space-y-3"></div>
+                        <button type="button" id="suggestAddMediaBtn" class="mt-2 text-sm font-bold text-green-600 hover:text-green-800">
+                            <i class="fas fa-plus-circle ml-1"></i> إضافة ملف
+                        </button>
+                        @error('media_files.*')<p class="text-red-500 text-sm mt-1">{{ $message }}</p>@enderror
+                    </div>
                     <div class="mb-6">
-                        <label class="block text-sm font-bold text-gray-700 mb-1">صورة (اختياري)</label>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">صورة غلاف إضافية (اختياري)</label>
                         <input type="file" name="image" accept="image/*" class="w-full px-4 py-2 border border-gray-300 rounded-xl">
                         @error('image')<p class="text-red-500 text-sm mt-1">{{ $message }}</p>@enderror
                     </div>
@@ -149,28 +169,94 @@
         </div>
     </div>
 
+    <template id="suggestMediaRowTpl">
+        <div class="suggest-media-row border border-gray-200 rounded-xl p-3 bg-white/80">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-xs font-bold text-gray-500">ملف</span>
+                <button type="button" class="text-red-500 text-sm suggest-remove-row" tabindex="-1"><i class="fas fa-times"></i></button>
+            </div>
+            <input type="file" name="media_files[]" class="w-full text-sm mb-2">
+            <label class="block text-xs font-bold text-gray-600 mb-1">النوع</label>
+            <select name="media_kinds[]" class="w-full px-3 py-2 border border-gray-300 rounded-lg mb-2 text-sm">
+                <option value="image">صورة</option>
+                <option value="video">فيديو</option>
+            </select>
+            <label class="block text-xs font-bold text-gray-600 mb-1">عنوان (اختياري)</label>
+            <input type="text" name="media_titles[]" maxlength="255" class="w-full px-3 py-2 border border-gray-300 rounded-lg mb-2 text-sm" placeholder="عنوان">
+            <label class="block text-xs font-bold text-gray-600 mb-1">وصف (اختياري)</label>
+            <textarea name="media_descriptions[]" rows="2" maxlength="2000" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="وصف"></textarea>
+        </div>
+    </template>
+
     <script>
         const linksData = @json($links->keyBy('id'));
+
+        function escapeDetailHtml(s) {
+            if (s == null || s === '') return '';
+            return String(s)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
 
         function openDetailModal(id) {
             const link = linksData[id];
             if (!link) return;
             const isApp = link.type === 'app';
-            const submitterHtml = link.submitter ? `<p class="text-sm text-gray-600 mt-2"><span class="font-bold">من أضافه:</span> ${link.submitter.name}</p>` : '';
-            document.getElementById('detailBody').innerHTML = `
-                <div class="mb-4 rounded-2xl overflow-hidden bg-gray-100" style="aspect-ratio:1/1;max-height:280px;">
-                    <img src="${link.image_url}" alt="${link.title}" class="w-full h-full object-contain object-center" style="display:block;" onerror="this.style.display='none'">
-                </div>
-                <h2 class="text-2xl font-bold text-gray-800 mb-2">${link.title}</h2>
-                <span class="inline-block px-3 py-1 rounded-full text-sm ${isApp ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}">${isApp ? 'تطبيق' : 'موقع'}</span>
-                ${link.description ? `<p class="text-gray-600 mt-4">${link.description}</p>` : ''}
-                ${submitterHtml}
-                <div class="mt-6 flex gap-3">
-                    <a href="${link.url}" ${link.open_in_new_tab ? 'target="_blank" rel="noopener noreferrer"' : ''} class="flex-1 py-3 rounded-xl font-bold text-center text-white shadow-lg transition-all ${isApp ? 'bg-green-500 hover:bg-green-600' : 'bg-blue-500 hover:bg-blue-600'}">
-                        ${isApp ? '<i class="fas fa-download ml-2"></i> تحميل' : '<i class="fas fa-external-link-alt ml-2"></i> زيارة الموقع'}
-                    </a>
-                </div>
-            `;
+            const submitterHtml = link.submitter
+                ? '<p class="text-sm text-gray-600 mt-2"><span class="font-bold">من أضافه:</span> ' + escapeDetailHtml(link.submitter.name) + '</p>'
+                : '';
+
+            const media = Array.isArray(link.media) ? link.media : [];
+            let mediaHtml = '';
+            if (media.length > 0) {
+                media.forEach(function(m) {
+                    const t = m.title ? '<p class="text-sm font-bold text-gray-800 mt-2">' + escapeDetailHtml(m.title) + '</p>' : '';
+                    const d = m.description ? '<p class="text-sm text-gray-600">' + escapeDetailHtml(m.description) + '</p>' : '';
+                    if (m.kind === 'video') {
+                        const src = m.file_url || '';
+                        mediaHtml += '<div class="mb-4 rounded-2xl overflow-hidden bg-black">' +
+                            '<video controls playsinline class="w-full max-h-72" src="' + escapeDetailHtml(src) + '"></video></div>' + t + d;
+                    } else {
+                        const src = m.file_url || '';
+                        mediaHtml += '<div class="mb-4 rounded-2xl overflow-hidden bg-gray-100">' +
+                            '<img src="' + escapeDetailHtml(src) + '" alt="" class="w-full object-contain max-h-72" loading="lazy"></div>' + t + d;
+                    }
+                });
+            } else {
+                mediaHtml = '<div class="mb-4 rounded-2xl overflow-hidden bg-gray-100" style="aspect-ratio:1/1;max-height:280px;">' +
+                    '<img src="' + escapeDetailHtml(link.image_url) + '" alt="" class="w-full h-full object-contain object-center" style="display:block;" onerror="this.style.display=\'none\'"></div>';
+            }
+
+            const newTab = link.open_in_new_tab ? ' target="_blank" rel="noopener noreferrer"' : '';
+            let actionsHtml = '';
+            if (isApp) {
+                const parts = [];
+                if (link.url_ios) {
+                    parts.push('<a href="' + escapeDetailHtml(link.url_ios) + '"' + newTab + ' class="flex-1 min-w-[140px] py-3 rounded-xl font-bold text-center text-white shadow-lg bg-gray-800 hover:bg-gray-900 transition-all"><i class="fab fa-apple ml-2"></i> App Store</a>');
+                }
+                if (link.url_android) {
+                    parts.push('<a href="' + escapeDetailHtml(link.url_android) + '"' + newTab + ' class="flex-1 min-w-[140px] py-3 rounded-xl font-bold text-center text-white shadow-lg bg-green-600 hover:bg-green-700 transition-all"><i class="fab fa-google-play ml-2"></i> Google Play</a>');
+                }
+                if (link.url) {
+                    parts.push('<a href="' + escapeDetailHtml(link.url) + '"' + newTab + ' class="flex-1 min-w-[140px] py-3 rounded-xl font-bold text-center text-white shadow-lg bg-emerald-500 hover:bg-emerald-600 transition-all"><i class="fas fa-link ml-2"></i> رابط عام</a>');
+                }
+                actionsHtml = parts.length
+                    ? '<div class="mt-6 flex flex-wrap gap-3 justify-center">' + parts.join('') + '</div>'
+                    : '';
+            } else if (link.url) {
+                actionsHtml = '<div class="mt-6 flex gap-3"><a href="' + escapeDetailHtml(link.url) + '"' + newTab + ' class="flex-1 py-3 rounded-xl font-bold text-center text-white shadow-lg bg-blue-500 hover:bg-blue-600 transition-all"><i class="fas fa-external-link-alt ml-2"></i> زيارة الموقع</a></div>';
+            }
+
+            document.getElementById('detailBody').innerHTML =
+                mediaHtml +
+                '<h2 class="text-2xl font-bold text-gray-800 mb-2 mt-2">' + escapeDetailHtml(link.title) + '</h2>' +
+                '<span class="inline-block px-3 py-1 rounded-full text-sm ' + (isApp ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800') + '">' + (isApp ? 'تطبيق' : 'موقع') + '</span>' +
+                (link.description ? '<p class="text-gray-600 mt-4">' + escapeDetailHtml(link.description) + '</p>' : '') +
+                submitterHtml +
+                actionsHtml;
+
             document.getElementById('detailModal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
         }
@@ -189,6 +275,20 @@
             document.getElementById('suggestModal').classList.add('hidden');
             document.body.style.overflow = '';
         }
+
+        function suggestAppendMediaRow() {
+            const tpl = document.getElementById('suggestMediaRowTpl');
+            const container = document.getElementById('suggest_media_container');
+            if (!tpl || !container) return;
+            const node = tpl.content.cloneNode(true);
+            container.appendChild(node);
+            const row = container.lastElementChild;
+            row.querySelector('.suggest-remove-row').addEventListener('click', function() {
+                row.remove();
+            });
+        }
+
+        document.getElementById('suggestAddMediaBtn')?.addEventListener('click', suggestAppendMediaRow);
 
         document.addEventListener('DOMContentLoaded', function() {
             const cards = document.querySelectorAll('.link-card');
