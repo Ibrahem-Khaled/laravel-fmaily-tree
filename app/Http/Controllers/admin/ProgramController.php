@@ -4,8 +4,9 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Image;
-use App\Models\ProgramLink;
+use App\Models\ProgramCategory;
 use App\Models\ProgramGallery;
+use App\Models\ProgramLink;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -19,19 +20,23 @@ class ProgramController extends Controller
     public function index()
     {
         $programs = Image::where('is_program', true)
+            ->whereNull('program_id')
             ->orderBy('program_order')
             ->get();
 
-        // إحصائيات البرامج
+        $programCategories = ProgramCategory::query()->orderBy('sort_order')->orderBy('name')->get();
+
+        // إحصائيات البرامج الرئيسية (غير الفرعية)
+        $mainProgramQuery = fn () => Image::where('is_program', true)->whereNull('program_id');
         $stats = [
-            'total' => Image::where('is_program', true)->count(),
-            'active' => Image::where('is_program', true)->where('program_is_active', true)->count(),
-            'inactive' => Image::where('is_program', true)->where('program_is_active', false)->count(),
-            'with_description' => Image::where('is_program', true)->whereNotNull('program_description')->count(),
-            'recent' => Image::where('is_program', true)->where('created_at', '>=', now()->subDays(30))->count(),
+            'total' => $mainProgramQuery()->count(),
+            'active' => $mainProgramQuery()->where('program_is_active', true)->count(),
+            'inactive' => $mainProgramQuery()->where('program_is_active', false)->count(),
+            'with_description' => $mainProgramQuery()->whereNotNull('program_description')->count(),
+            'recent' => $mainProgramQuery()->where('created_at', '>=', now()->subDays(30))->count(),
         ];
 
-        return view('dashboard.programs.index', compact('programs', 'stats'));
+        return view('dashboard.programs.index', compact('programs', 'stats', 'programCategories'));
     }
 
     /**
@@ -44,7 +49,7 @@ class ProgramController extends Controller
             'program_title' => 'required|string|max:255',
             'program_description' => 'nullable|string',
             'name' => 'nullable|string|max:255',
-            'category_id' => 'nullable|exists:categories,id',
+            'program_category_id' => 'nullable|exists:program_categories,id',
         ]);
 
         $imagePath = $request->file('image')->store('programs', 'public');
@@ -60,7 +65,7 @@ class ProgramController extends Controller
             'program_is_active' => true, // البرامج الجديدة مفعلة افتراضياً
             'is_program' => true,
             'media_type' => 'image',
-            'category_id' => $request->category_id,
+            'program_category_id' => $request->program_category_id,
         ]);
 
         return redirect()->route('dashboard.programs.index')
@@ -74,14 +79,17 @@ class ProgramController extends Controller
     {
         abort_unless($program->is_program, 404);
 
-        $request->validate([
+        $rules = [
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'program_title' => 'required|string|max:255',
             'program_description' => 'nullable|string',
             'name' => 'nullable|string|max:255',
-            'category_id' => 'nullable|exists:categories,id',
-        ]);
+        ];
+        if ($program->program_id === null) {
+            $rules['program_category_id'] = 'nullable|exists:program_categories,id';
+        }
+        $request->validate($rules);
 
         if ($request->hasFile('image')) {
             // حذف الصورة القديمة
@@ -103,12 +111,15 @@ class ProgramController extends Controller
             $program->cover_image_path = $coverImagePath;
         }
 
-        $program->update([
+        $payload = [
             'name' => $request->name ?? $request->program_title,
             'program_title' => $request->program_title,
             'program_description' => $request->program_description,
-            'category_id' => $request->category_id,
-        ]);
+        ];
+        if ($program->program_id === null) {
+            $payload['program_category_id'] = $request->program_category_id;
+        }
+        $program->update($payload);
 
         return redirect()->route('dashboard.programs.manage', $program)
             ->with('success', 'تم تحديث البرنامج بنجاح');
@@ -125,8 +136,8 @@ class ProgramController extends Controller
             'program_title' => $program->program_title,
             'program_description' => $program->program_description,
             'name' => $program->name,
-            'image_url' => $program->path ? asset('storage/' . $program->path) : null,
-            'category_id' => $program->category_id,
+            'image_url' => $program->path ? asset('storage/'.$program->path) : null,
+            'program_category_id' => $program->program_category_id,
         ]);
     }
 
@@ -197,7 +208,7 @@ class ProgramController extends Controller
         abort_unless($program->is_program, 404);
 
         $program->update([
-            'program_is_active' => !$program->program_is_active
+            'program_is_active' => ! $program->program_is_active,
         ]);
 
         $status = $program->program_is_active ? 'تم تفعيل البرنامج بنجاح' : 'تم إلغاء تفعيل البرنامج بنجاح';
@@ -218,12 +229,14 @@ class ProgramController extends Controller
         $galleryMedia = $program->mediaItems->filter(function (Image $media) {
             return ($media->media_type === 'image' || is_null($media->media_type))
                 && is_null($media->gallery_id)
-                && !$media->is_program; // استبعاد البرامج الفرعية
+                && ! $media->is_program; // استبعاد البرامج الفرعية
         });
 
         $videoMedia = $program->mediaItems->filter(function (Image $media) {
             return $media->media_type === 'youtube';
         });
+
+        $programCategories = ProgramCategory::query()->orderBy('sort_order')->orderBy('name')->get();
 
         return view('dashboard.programs.manage', [
             'program' => $program,
@@ -232,6 +245,7 @@ class ProgramController extends Controller
             'programLinks' => $program->programLinks,
             'programGalleries' => $program->programGalleries,
             'subPrograms' => $program->subPrograms,
+            'programCategories' => $programCategories,
         ]);
     }
 
@@ -244,7 +258,7 @@ class ProgramController extends Controller
 
         // التحقق من وجود صور عند اختيار نوع الوسيط صورة
         if ($request->media_type === 'image') {
-            if (!$request->hasFile('images') && !$request->hasFile('image')) {
+            if (! $request->hasFile('images') && ! $request->hasFile('image')) {
                 return redirect()
                     ->route('dashboard.programs.manage', $program)
                     ->withErrors(['images' => 'يرجى اختيار صورة واحدة على الأقل']);
@@ -304,7 +318,7 @@ class ProgramController extends Controller
 
             $message = $uploadedCount > 1
                 ? "تم رفع {$uploadedCount} صور بنجاح"
-                : "تم إضافة الصورة بنجاح";
+                : 'تم إضافة الصورة بنجاح';
         } else {
             $program->mediaItems()->create([
                 'name' => $request->title,
@@ -531,7 +545,7 @@ class ProgramController extends Controller
         // abort_unless($program->is_program, 404);
         // abort_unless($gallery->program_id === $program->id, 404);
 
-        if (!$request->hasFile('images') && !$request->hasFile('image')) {
+        if (! $request->hasFile('images') && ! $request->hasFile('image')) {
             return redirect()
                 ->route('dashboard.programs.manage', $program)
                 ->withErrors(['images' => 'يرجى اختيار صورة واحدة على الأقل']);
@@ -584,7 +598,7 @@ class ProgramController extends Controller
 
         $message = $uploadedCount > 1
             ? "تم رفع {$uploadedCount} صور للمعرض بنجاح"
-            : "تم إضافة الصورة للمعرض بنجاح";
+            : 'تم إضافة الصورة للمعرض بنجاح';
 
         return redirect()
             ->route('dashboard.programs.manage', $program)

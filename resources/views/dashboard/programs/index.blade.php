@@ -5,16 +5,23 @@
 @section('content')
 <div class="container-fluid">
     <!-- Page Header -->
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4 flex-wrap">
         <div>
             <h1 class="h3 mb-2 text-gray-800">
                 <i class="fas fa-tv text-primary mr-2"></i>إدارة برامج السريع
             </h1>
-            <p class="text-muted mb-0">قم بإدارة البرامج المعروضة في الصفحة الرئيسية</p>
+            <p class="text-muted mb-0">قم بإدارة البرامج والفئات المعروضة في الصفحة الرئيسية</p>
         </div>
-        <button type="button" class="btn btn-primary shadow-sm" data-toggle="modal" data-target="#addModal">
-            <i class="fas fa-plus-circle mr-2"></i>إضافة برنامج جديد
-        </button>
+        <div class="d-flex flex-wrap align-items-center">
+            @can('programs.view')
+                <a href="{{ route('dashboard.program-categories.index') }}" class="btn btn-outline-secondary shadow-sm mr-2 mb-2 mb-sm-0">
+                    <i class="fas fa-folder-open mr-1"></i>فئات البرامج
+                </a>
+            @endcan
+            <button type="button" class="btn btn-primary shadow-sm mb-2 mb-sm-0" data-toggle="modal" data-target="#addModal">
+                <i class="fas fa-plus-circle mr-2"></i>إضافة برنامج جديد
+            </button>
+        </div>
     </div>
 
     @if(session('success'))
@@ -339,6 +346,24 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
+
+                    @isset($programCategories)
+                    <div class="form-group">
+                        <label for="program_category_id" class="font-weight-bold">فئة العرض (اختياري)</label>
+                        <select name="program_category_id" id="program_category_id"
+                                class="form-control @error('program_category_id') is-invalid @enderror">
+                            <option value="">— بدون تصنيف —</option>
+                            @foreach($programCategories as $pc)
+                                <option value="{{ $pc->id }}" {{ (string) old('program_category_id') === (string) $pc->id ? 'selected' : '' }}>
+                                    {{ $pc->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('program_category_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    @endisset
                 </div>
                 <div class="modal-footer bg-light border-0">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">

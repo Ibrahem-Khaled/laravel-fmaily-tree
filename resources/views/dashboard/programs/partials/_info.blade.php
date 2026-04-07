@@ -39,6 +39,27 @@
                             @enderror
                         </div>
 
+                        @isset($programCategories)
+                            @if($program->program_id === null)
+                        <div class="form-group">
+                            <label for="program_category_id" class="font-weight-bold">فئة العرض في الصفحة الرئيسية</label>
+                            <select name="program_category_id" id="program_category_id"
+                                    class="form-control @error('program_category_id') is-invalid @enderror">
+                                <option value="">— بدون تصنيف —</option>
+                                @foreach($programCategories as $pc)
+                                    <option value="{{ $pc->id }}" {{ (string) old('program_category_id', $program->program_category_id) === (string) $pc->id ? 'selected' : '' }}>
+                                        {{ $pc->name }}{{ $pc->is_active ? '' : ' (معطّلة)' }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <small class="form-text text-muted">يحدد القسم الذي يظهر تحته البرنامج في الصفحة الرئيسية.</small>
+                            @error('program_category_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                            @endif
+                        @endisset
+
                         <div class="form-group">
                             <label for="name" class="font-weight-bold">
                                 اسم مختصر (اختياري)

@@ -38,6 +38,7 @@ class HomePageApiResource extends JsonResource
             'whatsNew' => $d['whatsNew'] ?? '',
             'courses' => $this->serializeCourses($d['courses'] ?? collect()),
             'programs' => $this->serializeProgramImages($d['programs'] ?? collect()),
+            'program_categories' => $this->serializeProgramCategoryGroups($d['programCategories'] ?? collect()),
             'proudOf' => $this->serializeProudOfImages($d['proudOf'] ?? collect()),
             'councils' => $this->serializeCouncils($d['councils'] ?? collect()),
             'events' => $this->serializeEvents($d['events'] ?? collect()),
@@ -150,6 +151,19 @@ class HomePageApiResource extends JsonResource
     private function serializeProgramImages($collection): array
     {
         return collect($collection)->map(fn (Image $img) => $this->serializeContentImage($img))->all();
+    }
+
+    /**
+     * @param  \Illuminate\Support\Collection<int, array{title: string, programs: \Illuminate\Support\Collection}>  $collection
+     */
+    private function serializeProgramCategoryGroups($collection): array
+    {
+        return collect($collection)->map(function (array $group) {
+            return [
+                'title' => $group['title'],
+                'programs' => $this->serializeProgramImages($group['programs'] ?? collect()),
+            ];
+        })->values()->all();
     }
 
     private function serializeProudOfImages($collection): array

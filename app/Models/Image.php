@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Storage;
 class Image extends BaseModel
 {
     use HasFactory;
+
     protected $fillable = [
         'name',
         'description',
@@ -23,6 +24,7 @@ class Image extends BaseModel
         'file_extension',
         'article_id',
         'category_id',
+        'program_category_id',
         'is_program',
         'program_title',
         'program_description',
@@ -35,7 +37,7 @@ class Image extends BaseModel
         'proud_of_title',
         'proud_of_description',
         'proud_of_order',
-        'proud_of_is_active'
+        'proud_of_is_active',
     ];
 
     public function article(): BelongsTo
@@ -46,6 +48,11 @@ class Image extends BaseModel
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function programCategory(): BelongsTo
+    {
+        return $this->belongsTo(ProgramCategory::class, 'program_category_id');
     }
 
     public function mentionedPersons(): BelongsToMany
@@ -131,7 +138,7 @@ class Image extends BaseModel
      */
     public function isYouTube(): bool
     {
-        return $this->media_type === 'youtube' && !empty($this->youtube_url);
+        return $this->media_type === 'youtube' && ! empty($this->youtube_url);
     }
 
     /**
@@ -139,13 +146,13 @@ class Image extends BaseModel
      */
     public function getYouTubeId(): ?string
     {
-        if (!$this->isYouTube()) {
+        if (! $this->isYouTube()) {
             return null;
         }
 
         $patterns = [
             '/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/',
-            '/youtube\.com\/watch\?.*v=([a-zA-Z0-9_-]{11})/'
+            '/youtube\.com\/watch\?.*v=([a-zA-Z0-9_-]{11})/',
         ];
 
         foreach ($patterns as $pattern) {
@@ -162,7 +169,7 @@ class Image extends BaseModel
      */
     public function isPdf(): bool
     {
-        return $this->media_type === 'pdf' && !empty($this->path);
+        return $this->media_type === 'pdf' && ! empty($this->path);
     }
 
     /**
@@ -170,7 +177,7 @@ class Image extends BaseModel
      */
     public function getFormattedFileSize(): string
     {
-        if (!$this->file_size) {
+        if (! $this->file_size) {
             return 'غير محدد';
         }
 
@@ -181,7 +188,7 @@ class Image extends BaseModel
             $bytes /= 1024;
         }
 
-        return round($bytes, 2) . ' ' . $units[$i];
+        return round($bytes, 2).' '.$units[$i];
     }
 
     /**
@@ -198,7 +205,7 @@ class Image extends BaseModel
     public function getYouTubeThumbnail(): ?string
     {
         $videoId = $this->getYouTubeId();
-        if (!$videoId) {
+        if (! $videoId) {
             return null;
         }
 
@@ -211,7 +218,7 @@ class Image extends BaseModel
     public function getYouTubeEmbedUrl(): ?string
     {
         $videoId = $this->getYouTubeId();
-        if (!$videoId) {
+        if (! $videoId) {
             return null;
         }
 
@@ -225,7 +232,7 @@ class Image extends BaseModel
     {
         // إذا كانت هناك صورة مصغرة مخصصة، استخدمها
         if ($this->thumbnail_path) {
-            return asset('storage/' . $this->thumbnail_path);
+            return asset('storage/'.$this->thumbnail_path);
         }
 
         // إذا كان فيديو يوتيوب، استخدم الصورة المصغرة الافتراضية
@@ -240,7 +247,7 @@ class Image extends BaseModel
 
         // إذا كانت صورة عادية، استخدم الصورة نفسها
         if ($this->path) {
-            return asset('storage/' . $this->path);
+            return asset('storage/'.$this->path);
         }
 
         // صورة افتراضية في حالة عدم وجود أي شيء
@@ -252,9 +259,9 @@ class Image extends BaseModel
      */
     public function hasCustomThumbnail(): bool
     {
-        return !empty($this->thumbnail_path);
+        return ! empty($this->thumbnail_path);
     }
-    
+
     /**
      * جلب البرامج النشطة مرتبة
      */
@@ -264,12 +271,12 @@ class Image extends BaseModel
             ->whereNull('program_id') // استبعاد البرامج الفرعية
             ->where('program_is_active', true)
             ->whereNotNull('path')
-            ->where(function($query) {
+            ->where(function ($query) {
                 $query->whereNull('youtube_url')
-                      ->where(function($q) {
-                          $q->where('media_type', 'image')
+                    ->where(function ($q) {
+                        $q->where('media_type', 'image')
                             ->orWhereNull('media_type');
-                      });
+                    });
             })
             ->orderBy('program_order')
             ->get();
@@ -283,12 +290,12 @@ class Image extends BaseModel
         return self::where('is_proud_of', true)
             ->where('proud_of_is_active', true)
             ->whereNotNull('path')
-            ->where(function($query) {
+            ->where(function ($query) {
                 $query->whereNull('youtube_url')
-                      ->where(function($q) {
-                          $q->where('media_type', 'image')
+                    ->where(function ($q) {
+                        $q->where('media_type', 'image')
                             ->orWhereNull('media_type');
-                      });
+                    });
             })
             ->orderBy('proud_of_order')
             ->get();

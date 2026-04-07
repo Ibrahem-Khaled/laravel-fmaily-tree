@@ -1164,37 +1164,44 @@
 
             <div class="text-right mb-3 md:mb-5">
                 <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-2">برامج العائلة</h2>
-                <p class="text-gray-600 text-xs md:text-sm mt-1">فعاليات وأنشطة متنوعة</p>
+                <p class="text-gray-600 text-xs md:text-sm mt-1">فعاليات وأنشطة متنوعة حسب الفئات</p>
             </div>
 
-            @if ($programs && $programs->count() > 0)
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1.5 md:gap-2.5">
-                    @foreach ($programs as $program)
-                        <a href="{{ route('programs.show', $program) }}"
-                            class="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 bg-white card-hover
-                                                                  {{ !$program->program_is_active && Auth::check() ? 'opacity-60 grayscale' : '' }}">
-                            <div class="aspect-square p-1.5 md:p-2">
-                                <img src="{{ asset('storage/' . $program->path) }}"
-                                    alt="{{ $program->program_title ?? ($program->name ?? 'برنامج') }}"
-                                    class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
-                            </div>
-                            @if (!$program->program_is_active && Auth::check())
-                                <div class="absolute top-2 right-2 z-10">
-                                    <span
-                                        class="bg-yellow-500 text-white text-[8px] px-1.5 py-0.5 rounded-full font-bold">معطل</span>
-                                </div>
-                            @endif
-                            <div
-                                class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                <div class="absolute bottom-2 right-2 left-2 text-center">
-                                    <p class="text-white text-xs md:text-sm font-bold line-clamp-2 drop-shadow-lg">
-                                        {{ $program->program_title ?? ($program->name ?? 'برنامج') }}
-                                    </p>
-                                </div>
-                            </div>
-                        </a>
-                    @endforeach
-                </div>
+            @if (isset($programCategories) && $programCategories->count() > 0)
+                @foreach ($programCategories as $group)
+                    <div class="mb-6 md:mb-8 last:mb-0">
+                        <h3 class="text-base sm:text-lg md:text-xl font-bold text-gray-800 mb-2 md:mb-3 text-right border-r-4 border-emerald-500 pr-3">
+                            {{ $group['title'] }}
+                        </h3>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1.5 md:gap-2.5">
+                            @foreach ($group['programs'] as $program)
+                                <a href="{{ route('programs.show', $program) }}"
+                                    class="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 bg-white card-hover
+                                                                          {{ !$program->program_is_active && Auth::check() ? 'opacity-60 grayscale' : '' }}">
+                                    <div class="aspect-square p-1.5 md:p-2">
+                                        <img src="{{ asset('storage/' . $program->path) }}"
+                                            alt="{{ $program->program_title ?? ($program->name ?? 'برنامج') }}"
+                                            class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
+                                    </div>
+                                    @if (!$program->program_is_active && Auth::check())
+                                        <div class="absolute top-2 right-2 z-10">
+                                            <span
+                                                class="bg-yellow-500 text-white text-[8px] px-1.5 py-0.5 rounded-full font-bold">معطل</span>
+                                        </div>
+                                    @endif
+                                    <div
+                                        class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        <div class="absolute bottom-2 right-2 left-2 text-center">
+                                            <p class="text-white text-xs md:text-sm font-bold line-clamp-2 drop-shadow-lg">
+                                                {{ $program->program_title ?? ($program->name ?? 'برنامج') }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+                @endforeach
             @else
                 <div class="text-center py-8">
                     <i class="fas fa-calendar-alt text-gray-300 text-4xl mb-3"></i>

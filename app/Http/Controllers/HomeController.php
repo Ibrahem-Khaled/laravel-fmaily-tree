@@ -20,6 +20,7 @@ class HomeController extends Controller
             'whatsNew' => $d['whatsNew'],
             'courses' => $d['courses'],
             'programs' => $d['programs'],
+            'programCategories' => $d['programCategories'],
             'proudOf' => $d['proudOf'],
             'councils' => $d['councils'],
             'events' => $d['events'],

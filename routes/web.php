@@ -439,6 +439,13 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::delete('courses/{course}', [\App\Http\Controllers\admin\CourseController::class, 'destroy'])->name('dashboard.courses.destroy')->middleware(['permission:courses.delete']);
     Route::post('courses/{course}/toggle', [\App\Http\Controllers\admin\CourseController::class, 'toggle'])->name('dashboard.courses.toggle')->middleware(['permission:courses.update']);
 
+    // Program categories (before programs/{program})
+    Route::get('program-categories', [\App\Http\Controllers\admin\ProgramCategoryController::class, 'index'])->name('dashboard.program-categories.index')->middleware(['permission:programs.view']);
+    Route::post('program-categories', [\App\Http\Controllers\admin\ProgramCategoryController::class, 'store'])->name('dashboard.program-categories.store')->middleware(['permission:programs.create']);
+    Route::post('program-categories/{programCategory}/update', [\App\Http\Controllers\admin\ProgramCategoryController::class, 'update'])->name('dashboard.program-categories.update')->middleware(['permission:programs.update']);
+    Route::delete('program-categories/{programCategory}', [\App\Http\Controllers\admin\ProgramCategoryController::class, 'destroy'])->name('dashboard.program-categories.destroy')->middleware(['permission:programs.delete']);
+    Route::post('program-categories/{programCategory}/toggle', [\App\Http\Controllers\admin\ProgramCategoryController::class, 'toggle'])->name('dashboard.program-categories.toggle')->middleware(['permission:programs.update']);
+
     // Programs routes
     Route::get('programs', [\App\Http\Controllers\admin\ProgramController::class, 'index'])->name('dashboard.programs.index')->middleware(['permission:programs.view']);
     Route::post('programs', [\App\Http\Controllers\admin\ProgramController::class, 'store'])->name('dashboard.programs.store')->middleware(['permission:programs.create']);

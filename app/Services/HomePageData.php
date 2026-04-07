@@ -13,6 +13,7 @@ use App\Models\HomeSection;
 use App\Models\Image;
 use App\Models\ImportantLink;
 use App\Models\Person;
+use App\Models\ProgramCategory;
 use App\Models\QuizCompetition;
 use App\Models\SiteContent;
 use App\Models\SlideshowImage;
@@ -71,8 +72,8 @@ class HomePageData
             $courses = Course::getActiveCourses();
         }
 
-        if (Auth::check()) {
-            $programs = Image::where('is_program', true)
+        $mainProgramsBase = function () {
+            $q = Image::where('is_program', true)
                 ->whereNull('program_id')
                 ->whereNotNull('path')
                 ->where(function ($query) {
@@ -82,11 +83,36 @@ class HomePageData
                                 ->orWhereNull('media_type');
                         });
                 })
-                ->orderBy('program_order')
-                ->get();
-        } else {
-            $programs = Image::getActivePrograms();
+                ->orderBy('program_order');
+            if (! Auth::check()) {
+                $q->where('program_is_active', true);
+            }
+
+            return $q;
+        };
+
+        $categoriesQuery = ProgramCategory::query()->ordered();
+        if (! Auth::check()) {
+            $categoriesQuery->where('is_active', true);
         }
+        $programCategoriesForHome = collect();
+        foreach ($categoriesQuery->get() as $cat) {
+            $progs = $mainProgramsBase()->where('program_category_id', $cat->id)->get();
+            if ($progs->isNotEmpty()) {
+                $programCategoriesForHome->push([
+                    'title' => $cat->name,
+                    'programs' => $progs,
+                ]);
+            }
+        }
+        $uncategorizedPrograms = $mainProgramsBase()->whereNull('program_category_id')->get();
+        if ($uncategorizedPrograms->isNotEmpty()) {
+            $programCategoriesForHome->push([
+                'title' => 'بدون تصنيف',
+                'programs' => $uncategorizedPrograms,
+            ]);
+        }
+        $programs = $programCategoriesForHome->flatMap(fn (array $g) => $g['programs']);
 
         if (Auth::check()) {
             $proudOf = Image::where('is_proud_of', true)
@@ -264,6 +290,7 @@ class HomePageData
             'whatsNew' => $whatsNew,
             'courses' => $courses,
             'programs' => $programs,
+            'programCategories' => $programCategoriesForHome,
             'proudOf' => $proudOf,
             'councils' => $councils,
             'events' => $events,

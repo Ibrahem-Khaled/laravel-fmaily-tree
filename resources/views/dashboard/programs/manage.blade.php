@@ -108,9 +108,12 @@
 <div class="container-fluid py-4">
     {{-- Header --}}
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <a href="{{ route('dashboard.programs.index') }}" class="btn btn-light border shadow-sm">
+        <div class="d-flex flex-wrap align-items-center">
+            <a href="{{ route('dashboard.programs.index') }}" class="btn btn-light border shadow-sm mr-2 mb-2 mb-md-0">
                 <i class="fas fa-arrow-right mr-2"></i>عودة للبرامج
+            </a>
+            <a href="{{ route('dashboard.program-categories.index') }}" class="btn btn-outline-secondary border shadow-sm mb-2 mb-md-0">
+                <i class="fas fa-folder-open mr-1"></i>فئات البرامج
             </a>
         </div>
         <div>
