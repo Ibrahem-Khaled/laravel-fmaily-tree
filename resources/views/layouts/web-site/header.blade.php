@@ -778,13 +778,6 @@
                 </li>
 
                 <li>
-                    <a class="nav-link {{ request()->routeIs('important-links.*') ? 'active' : '' }}"
-                        href="{{ route('important-links.index') }}">
-                         تطبيقات تهمك
-                    </a>
-                </li>
-
-                <li>
                     <a class="nav-link {{ request()->routeIs('invitations.*') ? 'active' : '' }}"
                         href="{{ route('invitations.index') }}">
                         <i class="fab fa-whatsapp mr-1"></i>الدعوات

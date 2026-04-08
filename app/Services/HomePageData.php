@@ -256,9 +256,9 @@ class HomePageData
             }));
 
         if (Auth::check()) {
-            $importantLinks = ImportantLink::with('media')->orderBy('order')->get();
+            $importantLinks = ImportantLink::with(['media', 'submitter'])->orderBy('order')->get();
         } else {
-            $importantLinks = ImportantLink::getActiveLinks();
+            $importantLinks = ImportantLink::getApprovedActiveLinks();
         }
 
         if (Auth::check()) {

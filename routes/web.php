@@ -63,9 +63,8 @@ Route::get('/article/{id}', [GalleryController::class, 'show'])->name('article.s
 Route::get('/gallery/articles', [GalleryController::class, 'articles'])->name('gallery.articles');
 Route::get('/person-gallery/{person}', [GalleryController::class, 'personGallery'])->name('person.gallery');
 
-// الروابط المهمة (تطبيقات ومواقع) - صفحة عامة
-Route::get('/important-links', [\App\Http\Controllers\ImportantLinksPublicController::class, 'index'])->name('important-links.index');
-Route::post('/important-links/suggest', [\App\Http\Controllers\ImportantLinksPublicController::class, 'suggest'])->name('important-links.suggest');
+// اقتراح تطبيق/رابط من الصفحة الرئيسية
+Route::post('/important-links/suggest', [HomeController::class, 'suggestLink'])->name('important-links.suggest');
 
 // Invitations (الدعوات) - Public
 Route::prefix('invitations')->name('invitations.')->group(function () {
