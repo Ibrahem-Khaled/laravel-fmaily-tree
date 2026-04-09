@@ -1244,7 +1244,7 @@
         .il-scrollbar-home::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 3px; }
         .il-scrollbar-home::-webkit-scrollbar-thumb { background: linear-gradient(180deg,#22c55e,#15803d); border-radius: 3px; }
     </style>
-    <section class="py-3 md:py-6 lg:py-8 bg-white relative overflow-hidden" id="important-links-section">
+    <section class="py-3 md:py-6 lg:py-8 bg-gradient-to-br from-green-50 to-emerald-50 relative overflow-hidden" id="important-links-section">
         <div class="absolute top-0 left-0 w-56 h-56 bg-emerald-50 rounded-full blur-3xl opacity-40"></div>
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
 
@@ -1255,7 +1255,7 @@
                         <h2 class="text-xl sm:text-2xl md:text-3xl font-bold text-gradient section-title mb-1">تطبيقات تهمك</h2>
                     </div>
                     <button type="button" onclick="openIlSuggestModal()"
-                        class="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-green-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+                        class="hidden inline-flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-green-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
                         <i class="fas fa-plus-circle"></i>
                         اقترح تطبيقاً
                     </button>
@@ -1281,9 +1281,7 @@
                                  alt="{{ $ilLink->title }}"
                                  class="max-w-full max-h-full object-contain drop-shadow-md group-hover:scale-105 transition-transform duration-500"
                                  onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%234ade80%22%3E%3Cpath d=%22M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm3.9-2.53c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z%22/%3E%3C/svg%3E'; this.onerror=null;">
-                            <span class="absolute top-2 right-2 px-1.5 py-0.5 rounded-md text-[9px] font-bold backdrop-blur-md {{ $ilLink->type === 'app' ? 'bg-emerald-600/80 text-white' : 'bg-sky-600/80 text-white' }}">
-                                {{ $ilLink->type === 'app' ? 'تطبيق' : 'موقع' }}
-                            </span>
+
                         </div>
                         <div class="px-2.5 py-2.5 border-t border-gray-100">
                             <h3 class="font-bold text-gray-900 text-xs md:text-sm leading-snug line-clamp-2 group-hover:text-emerald-700 transition-colors">{{ $ilLink->title }}</h3>
@@ -1410,14 +1408,12 @@
                 actionsHtml = '<div class="mt-5"><a href="' + escIl(link.url) + '"' + newTab + ' class="' + btnBase + ' bg-gradient-to-br from-sky-600 to-blue-800"><i class="fas fa-external-link-alt"></i> زيارة الموقع</a></div>';
             }
 
-            const badgeClass = isApp ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : 'bg-sky-100 text-sky-800 border-sky-200';
             const submitterHtml = link.submitter ? '<p class="text-xs text-gray-600 mt-3 pt-3 border-t border-gray-100"><span class="text-emerald-700 font-bold">من أضافه:</span> ' + escIl(link.submitter.name) + '</p>' : '';
 
             document.getElementById('ilDetailBody').innerHTML =
                 '<div class="lg:grid lg:grid-cols-5 lg:gap-8 items-start">' +
                 '<div class="lg:col-span-3 order-2 lg:order-1 mt-4 lg:mt-0">' + mediaHtml + '</div>' +
                 '<div class="lg:col-span-2 order-1 lg:order-2">' +
-                    '<span class="inline-block px-3 py-1 rounded-full text-xs font-bold border ' + badgeClass + '">' + (isApp ? 'تطبيق' : 'موقع') + '</span>' +
                     '<h2 class="text-xl lg:text-2xl font-bold text-gray-900 mt-3 leading-tight text-right">' + escIl(link.title) + '</h2>' +
                     (link.description ? '<p class="text-gray-600 text-sm mt-3 leading-relaxed text-right">' + escIl(link.description) + '</p>' : '') +
                     submitterHtml +
