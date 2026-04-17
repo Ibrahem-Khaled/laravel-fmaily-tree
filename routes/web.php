@@ -51,7 +51,7 @@ Route::get('/programs/{program}', [ProgramPageController::class, 'show'])->name(
 Route::get('/councils', [\App\Http\Controllers\FamilyCouncilPublicController::class, 'index'])->name('councils.index');
 Route::get('/councils/{council}', [\App\Http\Controllers\FamilyCouncilPublicController::class, 'show'])->name('councils.show');
 Route::get('/sila', [FamilyTreeController::class, 'index'])->name('sila'); // صفحة صلة - شجرة العائلة
-Route::get('/family-tree', [FamilyTreeController::class, 'newIndex'])->name('family-tree');
+Route::get('/family-tree', [FamilyTreeController::class, 'index'])->name('family-tree');
 Route::get('/add-self', [FamilyTreeController::class, 'addSelf'])->name('add.self');
 
 // User Registration Routes

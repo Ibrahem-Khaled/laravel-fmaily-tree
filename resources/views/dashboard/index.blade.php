@@ -1,765 +1,404 @@
 @extends('layouts.app')
 
+@section('title', 'لوحة التحكم')
+
 @section('content')
-<div class="container-fluid">
-    <!-- Page Header -->
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <div>
-            <h1 class="h3 mb-0 text-gray-800">
-                <i class="fas fa-tachometer-alt text-primary mr-2"></i>لوحة التحكم
-            </h1>
-            <p class="text-muted mt-2">نظرة شاملة على عائلة السريع - أعضاء العائلة فقط</p>
-        </div>
-        <div class="d-flex align-items-center">
-            <span class="badge badge-success mr-2">
-                <i class="fas fa-check-circle mr-1"></i>عائلة السريع
-            </span>
-            <span class="text-muted">
-                <i class="fas fa-calendar-alt mr-1"></i>{{ \Carbon\Carbon::now()->format('Y/m/d') }}
-            </span>
-        </div>
-    </div>
-
-    <!-- Main Statistics Cards -->
-    <div class="row mb-4">
-        <!-- إجمالي الأشخاص -->
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2 hover-lift">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                <i class="fas fa-users mr-1"></i>إجمالي الأشخاص
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ number_format($stats['totalPeople']) }}</div>
-                            <div class="mt-2">
-                                <small class="text-success font-weight-bold">
-                                    <i class="fas fa-heartbeat mr-1"></i>{{ $stats['alivePeople'] }} أحياء
-                                </small>
-                                <span class="text-muted mx-1">•</span>
-                                <small class="text-muted">
-                                    <i class="fas fa-headstone mr-1"></i>{{ $stats['deceasedPeople'] }} متوفين
-                                </small>
-                            </div>
-                        </div>
-                        <div class="col-auto">
-                            <div class="icon-circle-lg bg-primary">
-                                <i class="fas fa-users text-white"></i>
-                            </div>
-                        </div>
-                    </div>
+    <div class="container-fluid">
+        {{-- 1. Premium Hero Section --}}
+        <x-dashboard.glass-hero title="مرحباً بك في لوحة تحكم عائلة السريع"
+            subtitle="نظرة شاملة وذكية على إدارة شؤون العائلة والمحتوى والمناسبات.">
+            <x-slot name="actions">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge badge-pill bg-white bg-opacity-10 text-white px-3 py-2" style="backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.1);">
+                        <i class="fe fe-calendar mr-1"></i> {{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}
+                    </span>
+                    <a href="{{ safe_route('sila') }}" class="btn btn-primary shadow-sm px-4">
+                        <i class="fe fe-share-2 mr-1"></i> شجرة العائلة
+                    </a>
                 </div>
-            </div>
-        </div>
+            </x-slot>
 
-        <!-- الذكور والإناث -->
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-info shadow h-100 py-2 hover-lift">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                <i class="fas fa-venus-mars mr-1"></i>التوزيع حسب الجنس
-                            </div>
-                            <div class="row mt-2">
-                                <div class="col-6 text-center">
-                                    <div class="h4 mb-0 font-weight-bold text-primary">{{ number_format($stats['maleCount']) }}</div>
-                                    <small class="text-muted">ذكور</small>
-                                </div>
-                                <div class="col-6 text-center">
-                                    <div class="h4 mb-0 font-weight-bold text-danger">{{ number_format($stats['femaleCount']) }}</div>
-                                    <small class="text-muted">إناث</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-auto">
-                            <div class="icon-circle-lg bg-info">
-                                <i class="fas fa-venus-mars text-white"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- الزيجات -->
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-success shadow h-100 py-2 hover-lift">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                <i class="fas fa-ring mr-1"></i>إجمالي الزيجات
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ number_format($stats['totalMarriages']) }}</div>
-                            <div class="mt-2">
-                                <small class="text-muted">
-                                    <i class="fas fa-calendar-check mr-1"></i>{{ $stats['marriagesThisMonth'] }} هذا الشهر
-                                </small>
-                            </div>
-                        </div>
-                        <div class="col-auto">
-                            <div class="icon-circle-lg bg-success">
-                                <i class="fas fa-ring text-white"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- الأجيال -->
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-warning shadow h-100 py-2 hover-lift">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                <i class="fas fa-sitemap mr-1"></i>عدد الأجيال
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ number_format($stats['totalGenerations']) }}</div>
-                            <div class="mt-2">
-                                <small class="text-muted">
-                                    <i class="fas fa-layer-group mr-1"></i>أجيال متتالية
-                                </small>
-                            </div>
-                        </div>
-                        <div class="col-auto">
-                            <div class="icon-circle-lg bg-warning">
-                                <i class="fas fa-sitemap text-white"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Additional Statistics Row -->
-    <div class="row mb-4">
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card shadow h-100 hover-lift">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
+            <div class="row mt-4">
+                <div class="col-md-3">
+                    <div class="d-flex align-items-center text-white mb-2">
+                        <div class="mr-3 p-2 bg-white bg-opacity-10 rounded-circle text-white shadow-sm" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;"><i class="fe fe-users"></i></div>
                         <div>
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                <i class="fas fa-heartbeat mr-1"></i>الأحياء
-                            </div>
-                            <div class="h4 mb-0 font-weight-bold text-success">{{ number_format($stats['alivePeople']) }}</div>
-                        </div>
-                        <div class="icon-circle-md bg-success">
-                            <i class="fas fa-heartbeat text-white"></i>
+                            <div class="h5 mb-0 font-weight-bold text-white">{{ number_format($stats['totalPeople']) }}</div>
+                            <div class="small opacity-75 text-white">إجمالي الأشخاص</div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card shadow h-100 hover-lift">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
+                <div class="col-md-3">
+                    <div class="d-flex align-items-center text-white mb-2">
+                        <div class="mr-3 p-2 bg-white bg-opacity-10 rounded-circle text-white shadow-sm" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;"><i class="fe fe-heart"></i></div>
                         <div>
-                            <div class="text-xs font-weight-bold text-muted text-uppercase mb-1">
-                                <i class="fas fa-headstone mr-1"></i>المتوفين
-                            </div>
-                            <div class="h4 mb-0 font-weight-bold text-gray-600">{{ number_format($stats['deceasedPeople']) }}</div>
-                        </div>
-                        <div class="icon-circle-md bg-gray-400">
-                            <i class="fas fa-headstone text-white"></i>
+                            <div class="h5 mb-0 font-weight-bold text-white">{{ number_format($stats['totalMarriages']) }}</div>
+                            <div class="small opacity-75 text-white">إجمالي الزيجات</div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card shadow h-100 hover-lift">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
+                <div class="col-md-3">
+                    <div class="d-flex align-items-center text-white mb-2">
+                        <div class="mr-3 p-2 bg-white bg-opacity-10 rounded-circle text-white shadow-sm" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;"><i class="fe fe-image"></i></div>
                         <div>
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                <i class="fas fa-user-plus mr-1"></i>إضافات هذا الشهر
-                            </div>
-                            <div class="h4 mb-0 font-weight-bold text-primary">{{ number_format($stats['peopleAddedThisMonth']) }}</div>
-                        </div>
-                        <div class="icon-circle-md bg-primary">
-                            <i class="fas fa-user-plus text-white"></i>
+                            <div class="h5 mb-0 font-weight-bold text-white">{{ number_format($stats['totalImages']) }}</div>
+                            <div class="small opacity-75 text-white">الوسائط والصور</div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card shadow h-100 hover-lift">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
+                <div class="col-md-3">
+                    <div class="d-flex align-items-center text-white mb-2">
+                        <div class="mr-3 p-2 bg-white bg-opacity-10 rounded-circle text-white shadow-sm" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;"><i class="fe fe-award"></i></div>
                         <div>
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                <i class="fas fa-award mr-1"></i>أشخاص بأوسمة
-                            </div>
-                            <div class="h4 mb-0 font-weight-bold text-info">{{ number_format($stats['peopleWithBadges']) }}</div>
+                            <div class="h5 mb-0 font-weight-bold text-white">{{ number_format($stats['totalBadges']) }}</div>
+                            <div class="small opacity-75 text-white">الأوسمة الممنوحة</div>
                         </div>
-                        <div class="icon-circle-md bg-info">
-                            <i class="fas fa-award text-white"></i>
+                    </div>
+                </div>
+            </div>
+        </x-dashboard.glass-hero>
+
+        {{-- 2. Primary Statistics Grid --}}
+        <div class="row mt-n2">
+            <x-dashboard.stat-card title="الأحياء" value="{{ number_format($stats['alivePeople']) }}" icon="fe-heartbeat"
+                gradient="success" description="نفوس حية تنبض بالحب" badge="نشط" />
+
+            <x-dashboard.stat-card title="ذكور وإناث" value="{{ $stats['maleCount'] . ' / ' . $stats['femaleCount'] }}"
+                icon="fe-users" gradient="info" description="توازن جميل في العائلة" />
+
+            <x-dashboard.stat-card title="الأجيال" value="{{ $stats['totalGenerations'] }}" icon="fe-layers"
+                gradient="warning" description="تاريخ عريق يمتد" />
+
+            <x-dashboard.stat-card title="أضيفوا مؤخراً" value="{{ $stats['peopleAddedThisMonth'] }}" icon="fe-user-plus"
+                gradient="primary" description="أعضاء جدد هذا الشهر" badge="+{{ $stats['peopleAddedThisMonth'] }}" />
+        </div>
+
+        {{-- 3. Secondary Metrics Box --}}
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm border-0 rounded-xl overflow-hidden">
+                    <div class="card-header bg-transparent border-0 py-3 d-flex align-items-center">
+                        <div class="avatar-sm mr-3" style="background: rgba(78, 115, 223, 0.12); border-radius: 8px;"><i class="fe fe-grid text-primary"></i></div>
+                        <h6 class="mb-0 font-weight-bold">إحصائيات إضافية</h6>
+                    </div>
+                    <div class="card-body py-2">
+                        <div class="row">
+                            <x-dashboard.glance-card title="مقال" value="{{ $stats['totalArticles'] }}" icon="fe-file-text" color="info" />
+                            <x-dashboard.glance-card title="برنامج نشط" value="{{ $stats['activePrograms'] }}" icon="fe-play-circle" color="success" />
+                            <x-dashboard.glance-card title="مناسبة" value="{{ $stats['activeEvents'] }}" icon="fe-calendar" color="warning" />
+                            <x-dashboard.glance-card title="مجلس" value="{{ $stats['totalCouncils'] }}" icon="fe-home" color="danger" />
+                            <x-dashboard.glance-card title="متوفين" value="{{ $stats['deceasedPeople'] }}" icon="fe-cloud-off" color="secondary" />
+                            <x-dashboard.glance-card title="زيارات" value="{{ number_format($stats['totalVisits'] ?? 0) }}" icon="fe-eye" color="primary" />
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Content & Media Statistics -->
-    <div class="row mb-4">
-        <div class="col-xl-12">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-chart-bar mr-2"></i>إحصائيات المحتوى والأنشطة
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
-                            <div class="stat-box text-center p-3 border rounded hover-lift">
-                                <div class="icon-circle-md bg-primary mx-auto mb-2">
-                                    <i class="fas fa-images text-white"></i>
-                                </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ number_format($stats['totalImages']) }}</div>
-                                <small class="text-muted">صورة</small>
-                            </div>
-                        </div>
-                        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
-                            <div class="stat-box text-center p-3 border rounded hover-lift">
-                                <div class="icon-circle-md bg-info mx-auto mb-2">
-                                    <i class="fas fa-file-alt text-white"></i>
-                                </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ number_format($stats['totalArticles']) }}</div>
-                                <small class="text-muted">مقال</small>
-                            </div>
-                        </div>
-                        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
-                            <div class="stat-box text-center p-3 border rounded hover-lift">
-                                <div class="icon-circle-md bg-success mx-auto mb-2">
-                                    <i class="fas fa-tv text-white"></i>
-                                </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ number_format($stats['activePrograms']) }}</div>
-                                <small class="text-muted">برنامج نشط</small>
-                            </div>
-                        </div>
-                        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
-                            <div class="stat-box text-center p-3 border rounded hover-lift">
-                                <div class="icon-circle-md bg-warning mx-auto mb-2">
-                                    <i class="fas fa-calendar-alt text-white"></i>
-                                </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ number_format($stats['activeEvents']) }}</div>
-                                <small class="text-muted">مناسبة نشطة</small>
-                            </div>
-                        </div>
-                        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
-                            <div class="stat-box text-center p-3 border rounded hover-lift">
-                                <div class="icon-circle-md bg-danger mx-auto mb-2">
-                                    <i class="fas fa-building text-white"></i>
-                                </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ number_format($stats['totalCouncils']) }}</div>
-                                <small class="text-muted">مجلس</small>
-                            </div>
-                        </div>
-                        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
-                            <div class="stat-box text-center p-3 border rounded hover-lift">
-                                <div class="icon-circle-md bg-secondary mx-auto mb-2">
-                                    <i class="fas fa-award text-white"></i>
-                                </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ number_format($stats['totalBadges']) }}</div>
-                                <small class="text-muted">وسام</small>
-                            </div>
+        <div class="row">
+            {{-- 4. Main Feed (Events & Birthdays) --}}
+            <div class="col-lg-8">
+                {{-- حدث اليوم --}}
+                <div class="card shadow-sm border-0 rounded-xl mb-4 overflow-hidden">
+                    <div class="card-header bg-primary text-white border-0 py-3">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <h6 class="mb-0 font-weight-bold"><i class="fe fe-zap mr-2"></i>حدث في مثل هذا اليوم</h6>
+                            <span class="badge badge-pill bg-white bg-opacity-20">{{ \Carbon\Carbon::now()->translatedFormat('d F') }}</span>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Main Content Row -->
-    <div class="row">
-        <!-- Left Column -->
-        <div class="col-lg-8">
-            <!-- Events Today Card -->
-            <div class="card shadow mb-4 hover-lift">
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between bg-gradient-primary text-white">
-                    <h6 class="m-0 font-weight-bold">
-                        <i class="fas fa-calendar-day mr-2"></i>حدث في مثل هذا اليوم...
-                    </h6>
-                    <span class="badge badge-light">{{ \Carbon\Carbon::now()->format('d M') }}</span>
-                </div>
-                <div class="card-body">
-                    @if($events['birthsToday']->isEmpty() && $events['marriagesToday']->isEmpty())
-                        <div class="text-center py-5">
-                            <i class="fas fa-calendar-times fa-3x text-gray-300 mb-3"></i>
-                            <p class="text-muted">لا توجد أحداث مسجلة في مثل هذا اليوم</p>
-                        </div>
-                    @else
-                        <div class="list-group list-group-flush">
-                            @foreach($events['birthsToday'] as $person)
-                                <div class="list-group-item d-flex align-items-center border-0 px-0 py-3">
-                                    <div class="mr-3">
-                                        <div class="icon-circle bg-warning shadow-sm">
-                                            <i class="fas fa-birthday-cake text-white"></i>
-                                        </div>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <div class="font-weight-bold text-gray-800">
-                                            <i class="fas fa-gift text-warning mr-1"></i>ميلاد {{ $person->full_name }}
-                                        </div>
-                                        <div class="text-muted small">
-                                            <i class="fas fa-calendar mr-1"></i>عام {{ $person->birth_date->year }}
-                                            <span class="mx-1">•</span>
-                                            <i class="fas fa-birthday-cake mr-1"></i>{{ $person->birth_date->age }} سنة
-                                        </div>
-                                    </div>
-                                    <a href="{{ route('people.show', $person) }}" class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                </div>
+                    <div class="card-body p-2">
+                        @if ($events['birthsToday']->isEmpty() && $events['marriagesToday']->isEmpty())
+                            <div class="text-center py-5">
+                                <img src="{{ asset('admin-assets/assets/images/no-data.svg') }}" alt="No data" style="width: 120px; opacity: 0.5;">
+                                <p class="text-muted mt-3">لا توجد أحداث مسجلة لهذا اليوم</p>
+                            </div>
+                        @else
+                            @foreach ($events['birthsToday'] as $person)
+                                <x-dashboard.activity-item title="ذكرى ميلاد: {{ $person->full_name }}" 
+                                    subtitle="وُلد في عام {{ $person->birth_date->year }} (قبل {{ $person->birth_date->age }} سنة)"
+                                    icon="fe-gift" iconBg="warning" 
+                                    href="{{ route('people.show', $person) }}"
+                                    badge="ميلاد" />
                             @endforeach
 
-                            @foreach($events['marriagesToday'] as $marriage)
-                                <div class="list-group-item d-flex align-items-center border-0 px-0 py-3">
-                                    <div class="mr-3">
-                                        <div class="icon-circle bg-info shadow-sm">
-                                            <i class="fas fa-handshake text-white"></i>
-                                        </div>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <div class="font-weight-bold text-gray-800">
-                                            <i class="fas fa-ring text-info mr-1"></i>زواج {{ $marriage->husband->full_name }} و {{ $marriage->wife->full_name }}
-                                        </div>
-                                        <div class="text-muted small">
-                                            <i class="fas fa-calendar mr-1"></i>عام {{ $marriage->married_at->year }}
-                                            <span class="mx-1">•</span>
-                                            <i class="fas fa-clock mr-1"></i>{{ $marriage->married_at->diffInYears(\Carbon\Carbon::now()) }} سنة مضت
-                                        </div>
-                                    </div>
-                                </div>
+                            @foreach ($events['marriagesToday'] as $marriage)
+                                <x-dashboard.activity-item title="ذكرى زواج: {{ $marriage->husband->full_name }} و {{ $marriage->wife->full_name }}" 
+                                    subtitle="عُقد الزفاف في عام {{ $marriage->married_at->year }} (قبل {{ $marriage->married_at->diffInYears(\Carbon\Carbon::now()) }} سنة)"
+                                    icon="fe-heart" iconBg="danger" 
+                                    badge="زواج" />
                             @endforeach
+                        @endif
+                    </div>
+                </div>
+
+                {{-- Launchpad (Quick Actions) --}}
+                <div class="card shadow-sm border-0 rounded-xl mb-4">
+                    <div class="card-header bg-transparent border-0 py-3">
+                        <h6 class="mb-0 font-weight-bold"><i class="fe fe-cpu mr-2"></i>منصة الإطلاق (إجراءات سريعة)</h6>
+                    </div>
+                    <div class="card-body pt-0">
+                        <div class="row g-3">
+                            <div class="col-md-4 col-6 mb-3">
+                                <a href="{{ route('people.create') }}" class="launch-btn bg-soft-primary">
+                                    <i class="fe fe-user-plus text-primary"></i>
+                                    <span>إضافة شخص</span>
+                                </a>
+                            </div>
+                            <div class="col-md-4 col-6 mb-3">
+                                <a href="{{ route('dashboard.family-news.create') }}" class="launch-btn bg-soft-success">
+                                    <i class="fe fe-plus-circle text-success"></i>
+                                    <span>إضافة خبر</span>
+                                </a>
+                            </div>
+                            <div class="col-md-4 col-6 mb-3">
+                                <a href="{{ route('gallery.index') }}" class="launch-btn bg-soft-info">
+                                    <i class="fe fe-camera text-info"></i>
+                                    <span>المعرض</span>
+                                </a>
+                            </div>
+                            <div class="col-md-4 col-6 mb-3">
+                                <a href="{{ route('dashboard.notifications.index') }}" class="launch-btn bg-soft-warning">
+                                    <i class="fe fe-bell text-warning"></i>
+                                    <span>الإشعارات</span>
+                                </a>
+                            </div>
+                            <div class="col-md-4 col-6 mb-3">
+                                <a href="{{ route('dashboard.visit-logs.index') }}" class="launch-btn bg-soft-danger">
+                                    <i class="fe fe-activity text-danger"></i>
+                                    <span>سجل الزيارات</span>
+                                </a>
+                            </div>
+                            <div class="col-md-4 col-6 mb-3">
+                                <a href="{{ route('dashboard.clear-cache') }}" onclick="event.preventDefault(); clearSystemCache('all', this);" class="launch-btn bg-soft-secondary">
+                                    <i class="fe fe-refresh-cw text-secondary"></i>
+                                    <span>تحديث الكاش</span>
+                                </a>
+                            </div>
                         </div>
+                    </div>
+                </div>
+                
+                {{-- Fun Facts --}}
+                <div class="row">
+                    <div class="col-12">
+                        <h6 class="mb-3 font-weight-bold ml-1">هل تعلم؟ (ارقام قياسية)</h6>
+                    </div>
+                    @if($funFact['oldestPerson'])
+                    <div class="col-md-4 mb-4">
+                        <div class="bento-card bg-primary text-white shadow">
+                            <div class="d-flex flex-column h-100 justify-content-between">
+                                <i class="fe fe-award h3 mb-4 opacity-50"></i>
+                                <div>
+                                    <div class="small opacity-80">أكبر شخص سناً</div>
+                                    <div class="h5 font-weight-bold mb-0">{{ $funFact['oldestPerson']->full_name }}</div>
+                                    <div class="badge badge-pill bg-white bg-opacity-20 mt-2">{{ $funFact['oldestPerson']->birth_date->age }} عاماً</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+                    
+                    @if($funFact['personWithMostChildren'])
+                    <div class="col-md-4 mb-4">
+                        <div class="bento-card border shadow-sm">
+                            <div class="d-flex flex-column h-100 justify-content-between">
+                                <i class="fe fe-users h3 mb-4 text-info opacity-50"></i>
+                                <div>
+                                    <div class="small text-muted">الأكثر ذريّة</div>
+                                    <div class="h5 font-weight-bold mb-0 dark-text-light">{{ $funFact['personWithMostChildren']->full_name }}</div>
+                                    <div class="badge badge-pill bg-info text-white mt-2">{{ $funFact['personWithMostChildren']->children_count }} ابن وابنة</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
+                    @if($funFact['latestMarriage'])
+                    <div class="col-md-4 mb-4">
+                        <div class="bento-card border shadow-sm">
+                            <div class="d-flex flex-column h-100 justify-content-between">
+                                <i class="fe fe-heart h3 mb-4 text-danger opacity-50"></i>
+                                <div>
+                                    <div class="small text-muted">أحدث زفاف</div>
+                                    <div class="h6 font-weight-bold mb-0 dark-text-light">{{ $funFact['latestMarriage']->husband->full_name }}</div>
+                                    <div class="badge badge-pill bg-danger text-white mt-1">{{ $funFact['latestMarriage']->married_at->diffForHumans() }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     @endif
                 </div>
             </div>
 
-            <!-- Quick Actions Card -->
-            <div class="card shadow mb-4 hover-lift">
-                <div class="card-header py-3 bg-gradient-primary text-white">
-                    <h6 class="m-0 font-weight-bold">
-                        <i class="fas fa-bolt mr-2"></i>إجراءات سريعة
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <a href="{{ route('sila') }}" class="btn btn-primary btn-block btn-icon-split shadow-sm hover-lift">
-                                <span class="icon text-white-50">
-                                    <i class="fas fa-sitemap"></i>
-                                </span>
-                                <span class="text">عرض شجرة العائلة</span>
-                            </a>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <a href="{{ route('dashboard.visit-logs.index') }}" class="btn btn-success btn-block btn-icon-split shadow-sm hover-lift">
-                                <span class="icon text-white-50">
-                                    <i class="fas fa-eye"></i>
-                                </span>
-                                <span class="text">سجل الزيارات</span>
-                            </a>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <a href="{{ route('gallery.index') }}" class="btn btn-info btn-block btn-icon-split shadow-sm hover-lift">
-                                <span class="icon text-white-50">
-                                    <i class="fas fa-images"></i>
-                                </span>
-                                <span class="text">معرض الصور</span>
-                            </a>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <a href="{{ route('people.index') }}" class="btn btn-warning btn-block btn-icon-split shadow-sm hover-lift">
-                                <span class="icon text-white-50">
-                                    <i class="fas fa-users"></i>
-                                </span>
-                                <span class="text">إدارة الأشخاص</span>
-                            </a>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <a href="{{ route('dashboard.programs.index') }}" class="btn btn-secondary btn-block btn-icon-split shadow-sm hover-lift">
-                                <span class="icon text-white-50">
-                                    <i class="fas fa-tv"></i>
-                                </span>
-                                <span class="text">إدارة البرامج</span>
-                            </a>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <a href="{{ route('dashboard.events.index') }}" class="btn btn-danger btn-block btn-icon-split shadow-sm hover-lift">
-                                <span class="icon text-white-50">
-                                    <i class="fas fa-calendar-alt"></i>
-                                </span>
-                                <span class="text">إدارة المناسبات</span>
-                            </a>
-                        </div>
-                        @can('walking-program.view')
-                        <div class="col-md-6 mb-3">
-                            <a href="{{ route('dashboard.walking.index') }}" class="btn btn-primary btn-block btn-icon-split shadow-sm hover-lift">
-                                <span class="icon text-white-50">
-                                    <i class="fas fa-walking"></i>
-                                </span>
-                                <span class="text">برنامج المشي</span>
-                            </a>
-                        </div>
-                        @endcan
+            {{-- 5. Right Column (Recent Activity & Birthdays) --}}
+            <div class="col-lg-4">
+                {{-- أضيفوا مؤخراً --}}
+                <div class="card shadow-sm border-0 rounded-xl mb-4 overflow-hidden">
+                    <div class="card-header bg-transparent border-0 py-3 d-flex align-items-center justify-content-between">
+                        <h6 class="mb-0 font-weight-bold">أضيفوا مؤخراً</h6>
+                        <a href="{{ route('people.index') }}" class="small text-primary">الكل</a>
                     </div>
-                </div>
-            </div>
-
-            <!-- Fun Facts Card -->
-            <div class="card shadow mb-4 border-left-info hover-lift">
-                <div class="card-header py-3 bg-gradient-info text-white">
-                    <h6 class="m-0 font-weight-bold">
-                        <i class="fas fa-lightbulb mr-2"></i>حقائق شيقة عن العائلة
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        @if($funFact['personWithMostChildren'])
-                            <div class="col-md-4 mb-3">
-                                <div class="card border-left-warning h-100 shadow-sm hover-lift">
-                                    <div class="card-body">
-                                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-2">
-                                            <i class="fas fa-trophy mr-1"></i>أكثر شخص لديه أبناء
-                                        </div>
-                                        <div class="h6 mb-1 font-weight-bold text-gray-800">{{ $funFact['personWithMostChildren']->full_name }}</div>
-                                        <div class="d-flex align-items-center">
-                                            <span class="badge badge-warning">
-                                                <i class="fas fa-child mr-1"></i>{{ $funFact['personWithMostChildren']->children_count ?? 0 }} طفل
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        @endif
-
-                        @if($funFact['oldestPerson'])
-                            <div class="col-md-4 mb-3">
-                                <div class="card border-left-success h-100 shadow-sm hover-lift">
-                                    <div class="card-body">
-                                        <div class="text-xs font-weight-bold text-success text-uppercase mb-2">
-                                            <i class="fas fa-crown mr-1"></i>أكبر شخص سناً
-                                        </div>
-                                        <div class="h6 mb-1 font-weight-bold text-gray-800">{{ $funFact['oldestPerson']->full_name }}</div>
-                                        <div class="d-flex align-items-center">
-                                            <span class="badge badge-success">
-                                                <i class="fas fa-birthday-cake mr-1"></i>{{ $funFact['oldestPerson']->birth_date->age }} سنة
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        @endif
-
-                        @if($funFact['latestMarriage'])
-                            <div class="col-md-4 mb-3">
-                                <div class="card border-left-danger h-100 shadow-sm hover-lift">
-                                    <div class="card-body">
-                                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-2">
-                                            <i class="fas fa-heart mr-1"></i>أحدث زواج
-                                        </div>
-                                        <div class="h6 mb-1 font-weight-bold text-gray-800">
-                                            {{ $funFact['latestMarriage']->husband->full_name }} و {{ $funFact['latestMarriage']->wife->full_name }}
-                                        </div>
-                                        <div class="d-flex align-items-center">
-                                            <span class="badge badge-danger">
-                                                <i class="fas fa-clock mr-1"></i>{{ $funFact['latestMarriage']->married_at->diffForHumans() }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        @endif
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- Right Column -->
-        <div class="col-lg-4">
-            <!-- Recently Added Card -->
-            <div class="card shadow mb-4 hover-lift">
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between bg-gradient-primary text-white">
-                    <h6 class="m-0 font-weight-bold">
-                        <i class="fas fa-user-clock mr-2"></i>أضيفوا مؤخراً
-                    </h6>
-                    <span class="badge badge-light">{{ $recentlyAdded->count() }}</span>
-                </div>
-                <div class="card-body">
-                    <ul class="list-group list-group-flush">
-                        @forelse($recentlyAdded as $person)
-                            <li class="list-group-item d-flex justify-content-between align-items-center px-0 border-0 py-2">
-                                <div class="d-flex align-items-center">
-                                    <div class="mr-3">
-                                        <div class="icon-circle bg-primary shadow-sm">
-                                            <span class="text-white font-weight-bold">{{ mb_substr($person->first_name, 0, 1) }}</span>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="font-weight-bold text-gray-800">{{ $person->full_name }}</div>
-                                        <small class="text-muted">
-                                            <i class="fas fa-clock mr-1"></i>{{ $person->created_at->diffForHumans() }}
-                                        </small>
-                                    </div>
-                                </div>
-                                <a href="{{ route('people.show', $person) }}" class="btn btn-sm btn-outline-primary">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                            </li>
+                    <div class="card-body p-2 pt-0">
+                        @forelse ($recentlyAdded as $person)
+                            <x-dashboard.activity-item title="{{ $person->full_name }}" 
+                                subtitle="أضيف بواسطة النظام"
+                                time="{{ $person->created_at->diffForHumans() }}"
+                                icon="fe-user" iconBg="info" 
+                                href="{{ route('people.show', $person) }}" />
                         @empty
-                            <li class="list-group-item text-center text-muted border-0 py-4">
-                                <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
-                                لم يتم إضافة أشخاص بعد
-                            </li>
+                            <div class="text-center py-4">لم تُضف بيانات مؤخراً</div>
                         @endforelse
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Upcoming Birthdays Card -->
-            <div class="card shadow mb-4 hover-lift">
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between bg-gradient-warning text-white">
-                    <h6 class="m-0 font-weight-bold">
-                        <i class="fas fa-gift mr-2"></i>ايام ميلاد قادمة
-                    </h6>
-                    <span class="badge badge-light">هذا الشهر</span>
-                </div>
-                <div class="card-body">
-                    <ul class="list-group list-group-flush">
-                        @forelse($upcomingBirthdays as $person)
-                            <li class="list-group-item px-0 border-0 py-2">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="d-flex align-items-center">
-                                        <div class="mr-3">
-                                            <div class="icon-circle bg-warning shadow-sm">
-                                                <i class="fas fa-birthday-cake text-white"></i>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <div class="font-weight-bold text-gray-800">{{ $person->full_name }}</div>
-                                            <div class="d-flex align-items-center gap-2 mt-1">
-                                                <small class="text-muted">
-                                                    <i class="fas fa-calendar mr-1"></i>{{ $person->birth_date->format('d M') }}
-                                                </small>
-                                                @if($person->birth_date->isToday())
-                                                    <span class="badge badge-warning">اليوم!</span>
-                                                @elseif($person->birth_date->isTomorrow())
-                                                    <span class="badge badge-info">غداً</span>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="text-right">
-                                        <div class="h6 mb-0 font-weight-bold text-primary">{{ $person->birth_date->age }}</div>
-                                        <small class="text-muted">سنة</small>
-                                    </div>
-                                </div>
-                            </li>
-                        @empty
-                            <li class="list-group-item text-center text-muted border-0 py-4">
-                                <i class="fas fa-calendar-times fa-2x mb-2 d-block"></i>
-                                لا توجد ايام ميلاد قادمة
-                            </li>
-                        @endforelse
-                    </ul>
-                </div>
-            </div>
-
-            <!-- System Management Card -->
-            @can('dashboard.view')
-            <div class="card shadow mb-4 hover-lift border-left-danger">
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between bg-gradient-danger text-white">
-                    <h6 class="m-0 font-weight-bold">
-                        <i class="fas fa-cogs mr-2"></i>إدارة النظام 
-                    </h6>
-                    <span class="badge badge-light">التخزين المؤقت</span>
-                </div>
-                <div class="card-body">
-                    <p class="text-xs text-muted mb-3 text-center">قم بمسح التخزين المؤقت عند مواجهة مشاكل في عرض التحديثات الجديدة.</p>
-                    <div class="row px-2">
-                        <div class="col-12 mb-3">
-                            <button onclick="clearSystemCache('all', this)" class="btn btn-danger btn-block btn-icon-split shadow-sm hover-lift font-weight-bold">
-                                <span class="icon text-white-50">
-                                    <i class="fas fa-trash-alt"></i>
-                                </span>
-                                <span class="text">مسح جميع أنواع التخزين المؤقت</span>
-                            </button>
-                        </div>
-                        <div class="col-6 mb-2 pr-1">
-                            <button onclick="clearSystemCache('view', this)" class="btn btn-outline-secondary btn-block btn-sm py-2">
-                                <i class="fas fa-desktop text-primary mr-1"></i> الواجهات
-                            </button>
-                        </div>
-                        <div class="col-6 mb-2 pl-1">
-                            <button onclick="clearSystemCache('config', this)" class="btn btn-outline-secondary btn-block btn-sm py-2">
-                                <i class="fas fa-cog text-info mr-1"></i> الإعدادات
-                            </button>
-                        </div>
-                        <div class="col-6 mb-2 pr-1">
-                            <button onclick="clearSystemCache('route', this)" class="btn btn-outline-secondary btn-block btn-sm py-2">
-                                <i class="fas fa-route text-success mr-1"></i> المسارات
-                            </button>
-                        </div>
-                        <div class="col-6 mb-2 pl-1">
-                            <button onclick="clearSystemCache('cache', this)" class="btn btn-outline-secondary btn-block btn-sm py-2">
-                                <i class="fas fa-database text-warning mr-1"></i> البيانات
-                            </button>
-                        </div>
                     </div>
                 </div>
-            </div>
-            @endcan
 
+                {{-- أيام ميلاد قادمة --}}
+                <div class="card shadow-sm border-0 rounded-xl mb-4 overflow-hidden border-top-warning">
+                    <div class="card-header bg-transparent border-0 py-3 d-flex align-items-center justify-content-between">
+                        <h6 class="mb-0 font-weight-bold text-warning">أيام ميلاد قادمة</h6>
+                    </div>
+                    <div class="card-body p-2 pt-0">
+                        @forelse ($upcomingBirthdays as $person)
+                            <x-dashboard.activity-item title="{{ $person->full_name }}" 
+                                subtitle="{{ $person->birth_date->format('d M') }} (عمره الآن: {{ $person->birth_date->age }})"
+                                icon="fe-gift" iconBg="warning" 
+                                href="{{ route('people.show', $person) }}" 
+                                badge="{{ $person->birth_date->isToday() ? 'اليوم' : ($person->birth_date->isTomorrow() ? 'غداً' : '') }}" />
+                        @empty
+                            <div class="text-center py-4">لا توجد أعياد ميلاد قادمة</div>
+                        @endforelse
+                    </div>
+                </div>
+
+                {{-- System Stats --}}
+                <div class="card shadow-sm border-0 rounded-xl mb-4 p-4 status-card">
+                        <h6 class="mb-3 font-weight-bold">حالة النظام</h6>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between small mb-1">
+                                <span>صحة البيانات</span>
+                                <span>98%</span>
+                            </div>
+                            <div class="progress progress-sm" style="height: 5px; background-color: rgba(0,0,0,0.05);">
+                                <div class="progress-bar bg-success" role="progressbar" style="width: 98%" aria-valuenow="98" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="d-flex justify-content-between small mb-1">
+                                <span>تكامل الأعضاء</span>
+                                <span>85%</span>
+                            </div>
+                            <div class="progress progress-sm" style="height: 5px; background-color: rgba(0,0,0,0.05);">
+                                <div class="progress-bar bg-primary" role="progressbar" style="width: 85%" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </div>
+                </div>
+            </div>
         </div>
     </div>
-</div>
 
-<style>
-.icon-circle {
-    height: 2.5rem;
-    width: 2.5rem;
-    border-radius: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+    <style>
+        .rounded-xl { border-radius: 20px !important; }
 
-.icon-circle-md {
-    height: 3rem;
-    width: 3rem;
-    border-radius: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.icon-circle-lg {
-    height: 4rem;
-    width: 4rem;
-    border-radius: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.hover-lift {
-    transition: all 0.3s ease;
-}
-
-.hover-lift:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
-}
-
-.bg-gradient-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-.bg-gradient-info {
-    background: linear-gradient(135deg, #36b9cc 0%, #1cc88a 100%);
-}
-
-.bg-gradient-warning {
-    background: linear-gradient(135deg, #f6c23e 0%, #e74a3b 100%);
-}
-
-.stat-box {
-    transition: all 0.3s ease;
-}
-
-.stat-box:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
-}
-
-.border-left-primary {
-    border-left: 0.25rem solid #4e73df !important;
-}
-
-.border-left-info {
-    border-left: 0.25rem solid #36b9cc !important;
-}
-
-.border-left-success {
-    border-left: 0.25rem solid #1cc88a !important;
-}
-
-.border-left-warning {
-    border-left: 0.25rem solid #f6c23e !important;
-}
-
-.border-left-danger {
-    border-left: 0.25rem solid #e74a3b !important;
-}
-</style>
-
-<script>
-function clearSystemCache(type, btn) {
-    if (!confirm('هل أنت متأكد من مسح التخزين المؤقت؟ قد يؤدي هذا إلى إبطاء الموقع مؤقتاً في التحميل القادم.')) {
-        return;
-    }
-
-    const originalHtml = btn.innerHTML;
-    const isIconSplit = btn.classList.contains('btn-icon-split');
-    
-    if (isIconSplit) {
-        btn.innerHTML = '<span class="icon text-white-50"><i class="fas fa-spinner fa-spin"></i></span><span class="text">جاري المسح...</span>';
-    } else {
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> لحظات...';
-    }
-    
-    btn.disabled = true;
-
-    fetch('{{ route("dashboard.clear-cache") }}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-            'Accept': 'application/json'
-        },
-        body: JSON.stringify({ type: type })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // استخدام SweetAlert لو كان متاح، او alert العادي
-            if (typeof Swal !== 'undefined') {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'تم بنجاح!',
-                    text: data.message,
-                    timer: 3000,
-                    showConfirmButton: false
-                });
-            } else {
-                alert(data.message);
-            }
-        } else {
-            alert(data.message || 'حدث خطأ أثناء مسح التخزين المؤقت');
+        /* ===== Status Card (Theme-aware) ===== */
+        .status-card {
+            background: #ffffff;
+            color: #1a1a2e;
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('حدث خطأ في الاتصال بالخادم');
-    })
-    .finally(() => {
-        btn.innerHTML = originalHtml;
-        btn.disabled = false;
-    });
-}
-</script>
+        .dark .status-card {
+            background: #1a1a2e;
+            color: #ffffff;
+        }
+        .dark .status-card .progress {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        /* ===== Avatar Icon Shape ===== */
+        .avatar-sm {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ===== Launchpad Buttons ===== */
+        .launch-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem 1rem;
+            border-radius: 18px;
+            text-decoration: none !important;
+            transition: all 0.3s ease;
+            text-align: center;
+            height: 100%;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        .launch-btn i { font-size: 1.5rem; margin-bottom: 0.75rem; }
+        .launch-btn span { font-size: 0.85rem; font-weight: 600; color: #374151; }
+        .launch-btn:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.08); }
+        .dark .launch-btn span { color: #d1d5db; }
+        .dark .launch-btn { border-color: rgba(255,255,255,0.06); }
+
+        /* ===== Soft Background Colors (Used by launch-btn & activity icons) ===== */
+        .bg-soft-primary   { background-color: rgba(78,  115, 223, 0.12) !important; }
+        .bg-soft-success   { background-color: rgba(28,  200, 138, 0.12) !important; }
+        .bg-soft-info      { background-color: rgba(54,  185, 204, 0.12) !important; }
+        .bg-soft-warning   { background-color: rgba(246, 194, 62,  0.14) !important; }
+        .bg-soft-danger    { background-color: rgba(231, 74,  59,  0.12) !important; }
+        .bg-soft-secondary { background-color: rgba(108, 117, 125, 0.12) !important; }
+
+        /* ===== Bento Cards ===== */
+        .bento-card {
+            padding: 1.5rem;
+            border-radius: 24px;
+            height: 100%;
+            transition: all 0.3s ease;
+        }
+        .bento-card:hover { transform: scale(1.02); }
+
+        /* ===== Misc ===== */
+        .border-top-warning { border-top: 4px solid #f6c23e !important; }
+
+        @media (max-width: 768px) {
+            .mt-n2 { margin-top: 0 !important; }
+        }
+    </style>
+
+    <script>
+    function clearSystemCache(type, btn) {
+        if (!confirm('هل أنت متأكد من مسح التخزين المؤقت؟')) return;
+
+        const originalBtnContent = btn.innerHTML;
+        btn.innerHTML = '<i class="fe fe-loader fe-spin"></i>';
+        btn.style.pointerEvents = 'none';
+
+        fetch('{{ route("dashboard.clear-cache") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ type: type })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+            } else {
+                alert(data.message || 'حدث خطأ ما');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('حدث خطأ في الاتصال بالخادم');
+        })
+        .finally(() => {
+            btn.innerHTML = originalBtnContent;
+            btn.style.pointerEvents = 'auto';
+        });
+    }
+    </script>
 @endsection

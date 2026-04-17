@@ -22,3 +22,22 @@ if (!function_exists('strip_contenteditable_from_html')) {
         return $html;
     }
 }
+
+if (!function_exists('safe_route')) {
+    /**
+     * Safely generate a route, checking for existence first.
+     * Supports both direct and dashboard-prefixed routes.
+     */
+    function safe_route($name, $params = [])
+    {
+        if (\Illuminate\Support\Facades\Route::has($name)) {
+            return route($name, $params);
+        }
+        
+        if (\Illuminate\Support\Facades\Route::has('dashboard.' . $name)) {
+            return route('dashboard.' . $name, $params);
+        }
+        
+        return '#';
+    }
+}
