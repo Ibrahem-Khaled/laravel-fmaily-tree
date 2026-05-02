@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\SitePasswordApiController;
 use App\Http\Controllers\FamilyTreeController;
+use App\Http\Controllers\GalleryApiController;
 use App\Http\Controllers\HomeApiController;
 use App\Http\Controllers\PersonsBadgesApiController;
 use App\Http\Controllers\ProgramShowApiController;
@@ -43,6 +44,8 @@ Route::middleware('web')->group(function () {
     Route::get('/reports/name/{name}/persons', [ReportsController::class, 'getPersonsByName'])->name('reports.name.persons');
 
     Route::get('/home', HomeApiController::class);
+    Route::get('/gallery/categories', [GalleryApiController::class, 'categories']);
+    Route::get('/gallery/images', [GalleryApiController::class, 'images']);
     Route::get('/persons/badges', PersonsBadgesApiController::class);
     Route::get('/programs/{program}', [ProgramShowApiController::class, 'show']);
     Route::get('/family-tree', [FamilyTreeController::class, 'getFamilyTree']);
