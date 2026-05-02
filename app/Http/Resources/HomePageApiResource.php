@@ -42,7 +42,6 @@ class HomePageApiResource extends JsonResource
             'familyBrief' => $d['familyBrief'] ?? null,
             'whatsNew' => $d['whatsNew'] ?? '',
             'courses' => $this->serializeCourses($d['courses'] ?? collect()),
-            'programs' => $this->serializeProgramImages($d['programs'] ?? collect()),
             'program_categories' => $this->serializeProgramCategoryGroups($d['programCategories'] ?? collect()),
             'proudOf' => $this->serializeProudOfImages($d['proudOf'] ?? collect()),
             'councils' => $this->serializeCouncils($d['councils'] ?? collect()),

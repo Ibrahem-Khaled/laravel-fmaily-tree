@@ -25,6 +25,7 @@ use App\Http\Controllers\HomeApiController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\HomePersonController;
 use App\Http\Controllers\LogsController;
+use App\Http\Controllers\PersonsBadgesApiController;
 use App\Http\Controllers\ProgramPageController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\SitePasswordController;
@@ -102,6 +103,7 @@ Route::get('/api/reports/name/{name}/persons', [ReportsController::class, 'getPe
 
 Route::prefix('api')->group(function () {
     Route::get('/home', HomeApiController::class);
+    Route::get('/persons/badges', PersonsBadgesApiController::class);
     Route::get('/family-tree', [FamilyTreeController::class, 'getFamilyTree']);
     Route::get('/person/{id}', [FamilyTreeController::class, 'getPersonDetails']);
     Route::get('/person/{id}/children', [FamilyTreeController::class, 'getChildren']);
