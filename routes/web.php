@@ -21,11 +21,9 @@ use App\Http\Controllers\BreastfeedingPublicController;
 use App\Http\Controllers\FamilyNewsController;
 use App\Http\Controllers\FamilyTreeController;
 use App\Http\Controllers\GalleryController;
-use App\Http\Controllers\HomeApiController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\HomePersonController;
 use App\Http\Controllers\LogsController;
-use App\Http\Controllers\PersonsBadgesApiController;
 use App\Http\Controllers\ProgramPageController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\SitePasswordController;
@@ -97,30 +95,6 @@ Route::prefix('invitations')->name('invitations.')->group(function () {
 });
 
 Route::get('/reports', [ReportsController::class, 'index'])->name('reports.index');
-Route::get('/api/reports/person/{personId}/statistics', [ReportsController::class, 'getPersonStatistics'])->name('reports.person.statistics');
-Route::get('/api/reports/location/{locationId}/persons', [ReportsController::class, 'getLocationPersons'])->name('reports.location.persons');
-Route::get('/api/reports/name/{name}/persons', [ReportsController::class, 'getPersonsByName'])->name('reports.name.persons');
-
-Route::prefix('api')->group(function () {
-    Route::get('/home', HomeApiController::class);
-    Route::get('/persons/badges', PersonsBadgesApiController::class);
-    Route::get('/family-tree', [FamilyTreeController::class, 'getFamilyTree']);
-    Route::get('/person/{id}', [FamilyTreeController::class, 'getPersonDetails']);
-    Route::get('/person/{id}/children', [FamilyTreeController::class, 'getChildren']);
-    Route::get('/person/{id}/children-details', [FamilyTreeController::class, 'getChildrenForDetails']);
-    Route::get('/person/{father}/wives', [FamilyTreeController::class, 'getWives']);
-    Route::get('/person/{id}/stories/count', [StoriesPublicController::class, 'countForPerson']);
-    Route::get('/person/{id}/friendships/count', [FamilyTreeController::class, 'getFriendshipsCount']);
-
-    // WhatsApp Group Message Routes
-    Route::get('/generations', [FamilyTreeController::class, 'getGenerations']);
-    Route::get('/generation/{level}/whatsapp', [FamilyTreeController::class, 'getGenerationWithWhatsApp']);
-    Route::get('/persons/search', [FamilyTreeController::class, 'searchPersons']);
-    Route::get('/persons/search/whatsapp', [FamilyTreeController::class, 'searchPersonsWithWhatsApp']);
-    Route::get('/person/{id}/whatsapp', [FamilyTreeController::class, 'getPersonWithWhatsApp']);
-    Route::get('/person/{id}/children/whatsapp', [FamilyTreeController::class, 'getChildrenWithWhatsApp']);
-    Route::get('/person/{id}/descendants/whatsapp', [FamilyTreeController::class, 'getDescendantsWithWhatsApp']);
-});
 
 // Routes for friendships
 Route::get('/person/{person}/friends', [\App\Http\Controllers\FriendshipController::class, 'index'])->name('person.friends');
