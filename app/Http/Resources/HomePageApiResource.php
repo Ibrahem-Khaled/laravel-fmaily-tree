@@ -17,6 +17,11 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Carbon;
 
+/**
+ * JSON للصفحة الرئيسية؛ يطابق بيانات {@see \App\Services\HomePageData::build()}
+ * مع أسماء Blade: slides ≈ $latestImages، gallery ≈ $latestGalleryImages،
+ * quiz.* ≈ $quizCompetitions / $nextQuizEvent / $activeQuizCompetitions.
+ */
 class HomePageApiResource extends JsonResource
 {
     public static $wrap = null;
@@ -44,6 +49,16 @@ class HomePageApiResource extends JsonResource
             'events' => $this->serializeEvents($d['events'] ?? collect()),
             'birthdayPersons' => $this->serializeBirthdayPersons($d['birthdayPersons'] ?? collect()),
             'latestGraduates' => $this->serializeGraduates($d['latestGraduates'] ?? collect()),
+            'degree_category_ids' => $d['degree_category_ids'] ?? [
+                'bachelor' => null,
+                'master' => null,
+                'phd' => null,
+            ],
+            'degree_categories' => $d['degree_categories'] ?? [
+                'bachelor' => null,
+                'master' => null,
+                'phd' => null,
+            ],
             'bachelorTotalCount' => (int) ($d['bachelorTotalCount'] ?? 0),
             'masterTotalCount' => (int) ($d['masterTotalCount'] ?? 0),
             'phdTotalCount' => (int) ($d['phdTotalCount'] ?? 0),
@@ -265,6 +280,7 @@ class HomePageApiResource extends JsonResource
             return [
                 'id' => $article->id,
                 'degree_type' => $article->degree_type ?? null,
+                'category_id' => $article->category_id,
                 'category' => $article->relationLoaded('category') && $article->category
                     ? ['id' => $article->category->id, 'name' => $article->category->name]
                     : null,
@@ -287,13 +303,28 @@ class HomePageApiResource extends JsonResource
                 'id' => $link->id,
                 'title' => $link->title,
                 'url' => $link->url ? $this->absoluteUrl($link->url) : null,
+                'url_ios' => $link->url_ios ? $this->absoluteUrl($link->url_ios) : null,
+                'url_android' => $link->url_android ? $this->absoluteUrl($link->url_android) : null,
                 'type' => $link->type,
                 'icon' => $link->icon,
                 'description' => $link->description,
                 'order' => $link->order,
                 'is_active' => (bool) $link->is_active,
                 'open_in_new_tab' => (bool) $link->open_in_new_tab,
+                'status' => $link->status ?? null,
                 'image_url' => $link->image_url,
+                'media' => $link->relationLoaded('media')
+                    ? $link->media->map(function ($m) {
+                        return [
+                            'id' => $m->id,
+                            'kind' => $m->kind,
+                            'title' => $m->title,
+                            'description' => $m->description,
+                            'sort_order' => $m->sort_order,
+                            'file_url' => $m->file_url,
+                        ];
+                    })->values()->all()
+                    : [],
             ];
         })->values()->all();
     }
@@ -303,6 +334,7 @@ class HomePageApiResource extends JsonResource
         return collect($collection)->map(function ($news) {
             return [
                 'id' => $news->id,
+                'url' => url()->route('family-news.show', $news->id),
                 'title' => $news->title,
                 'summary' => $news->summary,
                 'content' => $news->content,

@@ -255,6 +255,22 @@ class HomePageData
                 return $article;
             }));
 
+        $firstBachelor = $latestGraduates->where('degree_type', 'bachelor')->first();
+        $firstMaster = $latestGraduates->where('degree_type', 'master')->first();
+        $firstPhd = $latestGraduates->where('degree_type', 'phd')->first();
+
+        $degreeCategoryIds = [
+            'bachelor' => $firstBachelor?->category_id,
+            'master' => $firstMaster?->category_id,
+            'phd' => $firstPhd?->category_id,
+        ];
+
+        $degreeCategories = [
+            'bachelor' => $this->degreeCategoryFromArticle($firstBachelor),
+            'master' => $this->degreeCategoryFromArticle($firstMaster),
+            'phd' => $this->degreeCategoryFromArticle($firstPhd),
+        ];
+
         if (Auth::check()) {
             $importantLinks = ImportantLink::with(['media', 'submitter'])->orderBy('order')->get();
         } else {
@@ -296,6 +312,8 @@ class HomePageData
             'events' => $events,
             'birthdayPersons' => $birthdayPersons,
             'latestGraduates' => $latestGraduates,
+            'degree_category_ids' => $degreeCategoryIds,
+            'degree_categories' => $degreeCategories,
             'bachelorTotalCount' => $bachelorTotalCount,
             'masterTotalCount' => $masterTotalCount,
             'phdTotalCount' => $phdTotalCount,
@@ -307,6 +325,27 @@ class HomePageData
                 'nextQuizEvent' => $nextQuizEvent,
                 'activeQuizCompetitions' => $activeQuizCompetitions,
             ],
+        ];
+    }
+
+    /**
+     * قسم المقال (بكالوريوس/ماجستير/دكتوراه) المرتبط بأول خريج لذلك النوع — لربط واجهة API بعنوان القسم.
+     *
+     * @return array{id: int, name: string|null}|null
+     */
+    private function degreeCategoryFromArticle(?Article $article): ?array
+    {
+        if ($article === null || $article->category_id === null) {
+            return null;
+        }
+
+        $name = $article->relationLoaded('category') && $article->category
+            ? $article->category->name
+            : null;
+
+        return [
+            'id' => (int) $article->category_id,
+            'name' => $name,
         ];
     }
 }
