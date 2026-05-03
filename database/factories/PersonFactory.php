@@ -34,7 +34,7 @@ class PersonFactory extends Factory
             'photo_url' => null, // We'll handle this separately if needed
             'biography' => $this->faker->paragraphs(3, true),
             'occupation' => $this->faker->jobTitle(),
-            'location' => $this->faker->city() . ', ' . $this->faker->country(),
+            'location_id' => null,
         ];
     }
 }
