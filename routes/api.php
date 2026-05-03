@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\BreastfeedingPublicApiController;
+use App\Http\Controllers\Api\ReportsPublicApiController;
 use App\Http\Controllers\Api\SitePasswordApiController;
 use App\Http\Controllers\FamilyTreeController;
 use App\Http\Controllers\GalleryApiController;
@@ -40,6 +41,7 @@ Route::prefix('site-password')->name('api.site-password.')->group(function () {
 });
 
 Route::middleware('web')->group(function () {
+    Route::get('/reports', [ReportsPublicApiController::class, 'index']);
     Route::get('/reports/person/{personId}/statistics', [ReportsController::class, 'getPersonStatistics'])->name('reports.person.statistics');
     Route::get('/reports/location/{locationId}/persons', [ReportsController::class, 'getLocationPersons'])->name('reports.location.persons');
     Route::get('/reports/name/{name}/persons', [ReportsController::class, 'getPersonsByName'])->name('reports.name.persons');
