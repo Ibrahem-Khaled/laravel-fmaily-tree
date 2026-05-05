@@ -1065,17 +1065,28 @@
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     @foreach ($events as $event)
-                                        <tr class="hover:bg-gray-50 transition-colors cursor-pointer {{ !$event->is_active && Auth::check() ? 'opacity-60' : '' }}"
-                                            onclick="toggleEventDescription({{ $event->id }})">
+                                        <tr
+                                            class="hover:bg-gray-50 transition-colors {{ filled($event->description) ? 'cursor-pointer' : '' }} {{ !$event->is_active && Auth::check() ? 'opacity-60' : '' }}"
+                                            @if (filled($event->description))
+                                                role="button"
+                                                tabindex="0"
+                                                aria-expanded="false"
+                                                aria-controls="event-desc-panel-{{ $event->id }}"
+                                                aria-label="عرض أو إخفاء وصف المناسبة"
+                                                data-event-desc-trigger="{{ $event->id }}"
+                                                onclick="toggleEventDescription({{ $event->id }})"
+                                                onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleEventDescription({{ $event->id }});}"
+                                            @endif>
                                             <td class="px-2 py-1.5 md:px-3 md:py-2 text-right" dir="ltr">
                                                 <div class="flex items-start justify-end gap-1.5">
                                                     <span
                                                         class="text-xs font-semibold text-gray-900 break-words flex-1 text-right">{{ $event->title }}</span>
                                                     <div class="flex items-center gap-1 flex-shrink-0">
                                                         <i class="fas fa-calendar-alt text-green-600 text-xs"></i>
-                                                        @if ($event->description)
+                                                        @if (filled($event->description))
                                                             <i
-                                                                class="fas fa-chevron-down text-green-500 text-xs transition-transform duration-300 event-chevron-{{ $event->id }}"></i>
+                                                                class="fas fa-chevron-down text-green-500 text-xs transition-transform duration-300 event-chevron-{{ $event->id }}"
+                                                                aria-hidden="true"></i>
                                                         @endif
                                                         @if (!$event->is_active && Auth::check())
                                                             <span
@@ -1118,12 +1129,14 @@
                                                 @endif
                                             </td>
                                         </tr>
-                                        @if ($event->description)
-                                            <tr
-                                                class="event-description-row event-description-{{ $event->id }} hidden">
+                                        @if (filled($event->description))
+                                            <tr id="event-desc-panel-{{ $event->id }}"
+                                                class="event-description-row hidden"
+                                                data-event-desc-panel="{{ $event->id }}">
                                                 <td colspan="4" class="px-2 py-0 md:px-3">
                                                     <div
-                                                        class="event-description-content max-h-0 overflow-hidden transition-all duration-500 ease-in-out">
+                                                        class="event-description-content overflow-hidden transition-all duration-500 ease-in-out"
+                                                        style="max-height: 0;">
                                                         <div
                                                             class="bg-gradient-to-r from-green-50 to-emerald-50 border-r-4 border-green-500 rounded-lg p-3 md:p-4 my-1.5 shadow-md">
                                                             <div class="flex items-start gap-2">
@@ -1905,7 +1918,40 @@
         }
 
         function toggleEventDescription(id) {
-            toggleAccordion('event', id);
+            var panel = document.querySelector('[data-event-desc-panel="' + id + '"]');
+            var trigger = document.querySelector('[data-event-desc-trigger="' + id + '"]');
+            var content = panel && panel.querySelector('.event-description-content');
+            var chevron = document.querySelector('.event-chevron-' + id);
+            if (!panel || !content) {
+                return;
+            }
+
+            var isHidden = panel.classList.contains('hidden');
+            if (isHidden) {
+                panel.classList.remove('hidden');
+                content.style.maxHeight = '0px';
+                void panel.offsetHeight;
+                requestAnimationFrame(function() {
+                    content.style.maxHeight = content.scrollHeight + 24 + 'px';
+                });
+                if (chevron) {
+                    chevron.style.transform = 'rotate(180deg)';
+                }
+                if (trigger) {
+                    trigger.setAttribute('aria-expanded', 'true');
+                }
+            } else {
+                content.style.maxHeight = '0px';
+                if (chevron) {
+                    chevron.style.transform = 'rotate(0deg)';
+                }
+                if (trigger) {
+                    trigger.setAttribute('aria-expanded', 'false');
+                }
+                setTimeout(function() {
+                    panel.classList.add('hidden');
+                }, 500);
+            }
         }
 
         /* ================================================================
