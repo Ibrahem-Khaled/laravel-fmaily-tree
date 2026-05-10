@@ -119,7 +119,7 @@
                     'dashboard.site-content.*', 'dashboard.slideshow.*', 'dashboard.home-gallery.*',
                     'dashboard.home-sections.*', 'dashboard.courses.*', 'dashboard.program-categories.*',
                     'dashboard.programs.*', 'dashboard.proud-of.*', 'dashboard.councils.*',
-                    'dashboard.events.*', 'dashboard.family-news.*'
+                    'dashboard.events.*', 'dashboard.family-news.*',
                 ]);
             @endphp
 
@@ -500,7 +500,10 @@
                 auth()->user()->can('site-content.view'))
 
             @php
-                $systemActive = request()->routeIs(['padges.*', 'roles.*', 'users.*', 'dashboard.site-password-settings.*']);
+                $systemActive = request()->routeIs([
+                    'padges.*', 'roles.*', 'users.*',
+                    'dashboard.site-password-settings.*', 'dashboard.support.*',
+                ]);
             @endphp
 
 
@@ -546,6 +549,12 @@
                             </li>
                             @endcan
                             @can('site-content.view')
+                            <li class="nav-item w-100 {{ request()->routeIs('dashboard.support.*') ? 'active' : '' }}">
+                                <a class="nav-link pl-5" href="{{ route('dashboard.support.index') }}">
+                                    <i class="fe fe-help-circle fe-14"></i>
+                                    <span class="ml-2 item-text">الدعم الفني</span>
+                                </a>
+                            </li>
                             <li class="nav-item w-100 {{ request()->routeIs('dashboard.site-password-settings.*') ? 'active' : '' }}">
                                 <a class="nav-link pl-5" href="{{ route('dashboard.site-password-settings.index') }}">
                                     <i class="fe fe-lock fe-14"></i>

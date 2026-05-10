@@ -783,6 +783,12 @@
                         <i class="fab fa-whatsapp mr-1"></i>الدعوات
                     </a>
                 </li>
+                <li>
+                    <a class="nav-link {{ request()->routeIs('support.index') ? 'active' : '' }}"
+                        href="{{ route('support.index') }}">
+                        <i class="fas fa-life-ring mr-1"></i>الدعم الفني
+                    </a>
+                </li>
 
                 <li class="dropdown">
                     <a class="nav-link dropdown-toggle {{ request()->routeIs('quran-competitions.*') || request()->routeIs('quran-categories.*') ? 'active' : '' }}"

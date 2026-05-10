@@ -32,6 +32,11 @@ class SitePasswordProtection
             return $next($request);
         }
 
+        // صفحة الدعم الفني عامة حتى يمكن الوصول للمساعدة دون كلمة مرور الموقع
+        if ($request->routeIs('support.index')) {
+            return $next($request);
+        }
+
         // تطبيقات الجوال: رمز من POST /api/site-password/verify (مجموعة Laravel api، بدون جلسة متصفح)
         $mobileToken = SiteMobileAccessToken::extractFromRequest($request);
         if (SiteMobileAccessToken::valid($mobileToken)) {

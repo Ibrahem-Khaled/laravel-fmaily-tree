@@ -28,6 +28,7 @@ use App\Http\Controllers\ProgramPageController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\SitePasswordController;
 use App\Http\Controllers\StoriesPublicController;
+use App\Http\Controllers\SupportPageController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -44,6 +45,8 @@ use Illuminate\Support\Facades\Route;
 // Routes for site password protection (must be before other routes)
 Route::get('/site-password', [SitePasswordController::class, 'show'])->name('site.password.show');
 Route::post('/site-password', [SitePasswordController::class, 'verify'])->name('site.password.verify');
+
+Route::get('/support', [SupportPageController::class, 'index'])->name('support.index');
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/programs/{program}', [ProgramPageController::class, 'show'])->name('programs.show');
@@ -341,6 +344,26 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::get('site-content', [\App\Http\Controllers\admin\SiteContentController::class, 'index'])->name('dashboard.site-content.index')->middleware(['permission:site-content.view']);
     Route::post('site-content/family-brief', [\App\Http\Controllers\admin\SiteContentController::class, 'updateFamilyBrief'])->name('dashboard.site-content.update-family-brief')->middleware(['permission:site-content.update']);
     Route::post('site-content/whats-new', [\App\Http\Controllers\admin\SiteContentController::class, 'updateWhatsNew'])->name('dashboard.site-content.update-whats-new')->middleware(['permission:site-content.update']);
+
+    // صفحة الدعم الفني (إعدادات عامة + قنوات + أسئلة شائعة)
+    Route::prefix('support-page')->name('dashboard.support.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\admin\SupportPageAdminController::class, 'index'])->name('index')->middleware(['permission:site-content.view']);
+        Route::post('/settings', [\App\Http\Controllers\admin\SupportPageAdminController::class, 'updateSettings'])->name('settings.update')->middleware(['permission:site-content.update']);
+
+        Route::get('/channels/create', [\App\Http\Controllers\admin\SupportPageAdminController::class, 'createChannel'])->name('channels.create')->middleware(['permission:site-content.update']);
+        Route::post('/channels', [\App\Http\Controllers\admin\SupportPageAdminController::class, 'storeChannel'])->name('channels.store')->middleware(['permission:site-content.update']);
+        Route::get('/channels/{supportChannel}/edit', [\App\Http\Controllers\admin\SupportPageAdminController::class, 'editChannel'])->name('channels.edit')->middleware(['permission:site-content.view']);
+        Route::put('/channels/{supportChannel}', [\App\Http\Controllers\admin\SupportPageAdminController::class, 'updateChannel'])->name('channels.update')->middleware(['permission:site-content.update']);
+        Route::delete('/channels/{supportChannel}', [\App\Http\Controllers\admin\SupportPageAdminController::class, 'destroyChannel'])->name('channels.destroy')->middleware(['permission:site-content.update']);
+        Route::post('/channels/{supportChannel}/toggle', [\App\Http\Controllers\admin\SupportPageAdminController::class, 'toggleChannel'])->name('channels.toggle')->middleware(['permission:site-content.update']);
+
+        Route::get('/faqs/create', [\App\Http\Controllers\admin\SupportPageAdminController::class, 'createFaq'])->name('faqs.create')->middleware(['permission:site-content.update']);
+        Route::post('/faqs', [\App\Http\Controllers\admin\SupportPageAdminController::class, 'storeFaq'])->name('faqs.store')->middleware(['permission:site-content.update']);
+        Route::get('/faqs/{supportFaq}/edit', [\App\Http\Controllers\admin\SupportPageAdminController::class, 'editFaq'])->name('faqs.edit')->middleware(['permission:site-content.view']);
+        Route::put('/faqs/{supportFaq}', [\App\Http\Controllers\admin\SupportPageAdminController::class, 'updateFaq'])->name('faqs.update')->middleware(['permission:site-content.update']);
+        Route::delete('/faqs/{supportFaq}', [\App\Http\Controllers\admin\SupportPageAdminController::class, 'destroyFaq'])->name('faqs.destroy')->middleware(['permission:site-content.update']);
+        Route::post('/faqs/{supportFaq}/toggle', [\App\Http\Controllers\admin\SupportPageAdminController::class, 'toggleFaq'])->name('faqs.toggle')->middleware(['permission:site-content.update']);
+    });
 
     // Important Links routes
     Route::get('important-links', [\App\Http\Controllers\admin\ImportantLinkController::class, 'index'])->name('dashboard.important-links.index')->middleware(['permission:site-content.view']);
