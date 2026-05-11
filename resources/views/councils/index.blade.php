@@ -66,7 +66,7 @@
                             
                             @if($council->description)
                                 <p class="text-gray-600 mb-3 line-clamp-3">
-                                    {{ Str::limit($council->description, 120) }}
+                                    {{ Str::limit(strip_tags($council->description), 120) }}
                                 </p>
                             @endif
 

@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasRichTextDescription;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class FamilyCouncil extends BaseModel
 {
     use HasFactory;
+    use HasRichTextDescription;
 
     protected $fillable = [
         'name',

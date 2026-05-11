@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasRichTextDescription;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class FamilyEvent extends BaseModel
 {
     use HasFactory;
+    use HasRichTextDescription;
 
     protected $fillable = [
         'title',

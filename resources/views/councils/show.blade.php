@@ -130,6 +130,7 @@
             color: #059669;
         }
     </style>
+    @include('partials.rich-content-styles')
 </head>
 
 <body class="text-gray-800 overflow-x-hidden relative">
@@ -178,8 +179,8 @@
                                     <i class="fas fa-building text-emerald-600 mr-3"></i>{{ $council->name }}
                                 </h1>
                                 @if ($council->description)
-                                    <div class="text-gray-600 leading-relaxed text-lg council-description">
-                                        {!! nl2br(e($council->description)) !!}
+                                    <div class="text-gray-600 leading-relaxed text-lg council-description rich-content">
+                                        {!! $council->description !!}
                                     </div>
                                 @endif
                             </div>

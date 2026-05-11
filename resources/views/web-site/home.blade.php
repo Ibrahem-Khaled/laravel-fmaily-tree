@@ -203,87 +203,9 @@
             }
         }
 
-        /* ============================================================
-                       Quiz – Rich-text content (description & question)
-                       ============================================================ */
-        .quiz-description,
-        .question-text {
-            direction: rtl;
-            text-align: right;
-        }
-
-        .quiz-description p,
-        .question-text p {
-            margin-bottom: 0.75rem;
-        }
-
-        .quiz-description p:last-child,
-        .question-text p:last-child {
-            margin-bottom: 0;
-        }
-
-        .quiz-description strong,
-        .quiz-description b {
-            font-weight: 700;
-            color: #16a34a;
-        }
-
-        .question-text strong,
-        .question-text b {
-            font-weight: 700;
-        }
-
-        .quiz-description em,
-        .quiz-description i,
-        .question-text em,
-        .question-text i {
-            font-style: italic;
-        }
-
-        .quiz-description ul,
-        .quiz-description ol,
-        .question-text ul,
-        .question-text ol {
-            margin-right: 1.5rem;
-            margin-bottom: 0.75rem;
-        }
-
-        .quiz-description li,
-        .question-text li {
-            margin-bottom: 0.5rem;
-        }
-
-        .quiz-description a,
-        .question-text a {
-            color: #22c55e;
-            text-decoration: underline;
-            transition: color 0.2s;
-        }
-
-        .quiz-description a:hover,
-        .question-text a:hover {
-            color: #16a34a;
-        }
-
-        .quiz-description img,
-        .question-text img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 0.5rem;
-            margin: 0.5rem 0;
-        }
-
-        .quiz-description table {
-            width: 100%;
-            margin-bottom: 0.75rem;
-            border-collapse: collapse;
-        }
-
-        .quiz-description table td,
-        .quiz-description table th {
-            padding: 0.5rem;
-            border: 1px solid #e5e7eb;
-        }
+        /* Rich-text styles (.quiz-description, .question-text, .rich-content)
+           live in resources/views/partials/rich-content-styles.blade.php and
+           are included once at the bottom of this view. */
 
         /* ============================================================
                        Responsive overrides
@@ -337,6 +259,8 @@
 @endpush
 
 @section('content')
+
+    @include('partials.rich-content-styles')
 
     {{-- ================================================================
     HERO – Slideshow
@@ -1002,10 +926,10 @@
                                                                     <h4
                                                                         class="text-xs md:text-sm font-semibold text-gray-800 mb-1.5">
                                                                         نبذة عن {{ $council->name }}</h4>
-                                                                    <p
-                                                                        class="text-xs text-gray-700 leading-relaxed whitespace-pre-line">
-                                                                        {{ $council->description }}
-                                                                    </p>
+                                                                    <div
+                                                                        class="rich-content text-xs text-gray-700 leading-relaxed">
+                                                                        {!! $council->description !!}
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -1146,10 +1070,10 @@
                                                                     <h4
                                                                         class="text-xs md:text-sm font-semibold text-gray-800 mb-1.5">
                                                                         نبذة عن {{ $event->title }}</h4>
-                                                                    <p
-                                                                        class="text-xs text-gray-700 leading-relaxed whitespace-pre-line">
-                                                                        {{ $event->description }}
-                                                                    </p>
+                                                                    <div
+                                                                        class="rich-content text-xs text-gray-700 leading-relaxed">
+                                                                        {!! $event->description !!}
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>

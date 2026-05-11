@@ -65,18 +65,14 @@
                             @enderror
                         </div>
 
-                        <div class="form-group">
-                            <label for="description" class="font-weight-bold">وصف المكان</label>
-                            <textarea name="description"
-                                      id="description"
-                                      rows="4"
-                                      class="form-control @error('description') is-invalid @enderror"
-                                      maxlength="10000"
-                                      placeholder="اكتب وصفاً للمكان...">{{ old('description', $council->description) }}</textarea>
-                            @error('description')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
+                        <x-rich-text-editor
+                            name="description"
+                            id="description"
+                            label="وصف المكان"
+                            placeholder="اكتب وصفاً للمكان..."
+                            :value="old('description', $council->description)"
+                        />
+
 
                         <div class="form-group">
                             <label for="address" class="font-weight-bold">عنوان المكان</label>

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Events\StoreFamilyEventRequest;
+use App\Http\Requests\Admin\Events\UpdateFamilyEventRequest;
 use App\Models\FamilyEvent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -16,7 +18,6 @@ class FamilyEventController extends Controller
     {
         $events = FamilyEvent::orderBy('display_order')->orderBy('event_date')->get();
 
-        // إحصائيات المناسبات
         $stats = [
             'total' => FamilyEvent::count(),
             'active' => FamilyEvent::where('is_active', true)->count(),
@@ -31,32 +32,30 @@ class FamilyEventController extends Controller
     }
 
     /**
+     * عرض صفحة إضافة مناسبة جديدة
+     */
+    public function create()
+    {
+        return view('dashboard.events.create');
+    }
+
+    /**
+     * عرض صفحة تعديل مناسبة
+     */
+    public function edit(FamilyEvent $event)
+    {
+        return view('dashboard.events.edit', compact('event'));
+    }
+
+    /**
      * إضافة مناسبة جديدة
      */
-    public function store(Request $request)
+    public function store(StoreFamilyEventRequest $request)
     {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string|max:10000',
-            'city' => 'nullable|string|max:255',
-            'location' => 'nullable|url|max:500',
-            'location_name' => 'nullable|string|max:255',
-            'event_date' => 'required|date',
-        ]);
+        $data = $request->validated();
+        $data['display_order'] = (int) (FamilyEvent::max('display_order') ?? 0) + 1;
 
-        $lastOrder = FamilyEvent::max('display_order') ?? 0;
-
-        FamilyEvent::create([
-            'title' => $request->title,
-            'description' => $request->description,
-            'city' => $request->city,
-            'location' => $request->location,
-            'location_name' => $request->location_name,
-            'event_date' => $request->event_date,
-            'show_countdown' => $request->has('show_countdown') ? true : false,
-            'display_order' => $lastOrder + 1,
-            'is_active' => $request->has('is_active') ? true : false,
-        ]);
+        FamilyEvent::create($data);
 
         return redirect()->route('dashboard.events.index')
             ->with('success', 'تم إضافة المناسبة بنجاح');
@@ -65,27 +64,9 @@ class FamilyEventController extends Controller
     /**
      * تحديث مناسبة
      */
-    public function update(Request $request, FamilyEvent $event)
+    public function update(UpdateFamilyEventRequest $request, FamilyEvent $event)
     {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string|max:10000',
-            'city' => 'nullable|string|max:255',
-            'location' => 'nullable|url|max:500',
-            'location_name' => 'nullable|string|max:255',
-            'event_date' => 'required|date',
-        ]);
-
-        $event->update([
-            'title' => $request->title,
-            'description' => $request->description,
-            'city' => $request->city,
-            'location' => $request->location,
-            'location_name' => $request->location_name,
-            'event_date' => $request->event_date,
-            'show_countdown' => $request->has('show_countdown') ? true : false,
-            'is_active' => $request->has('is_active') ? true : false,
-        ]);
+        $event->update($request->validated());
 
         return redirect()->route('dashboard.events.index')
             ->with('success', 'تم تحديث المناسبة بنجاح');
@@ -139,4 +120,3 @@ class FamilyEventController extends Controller
         return response()->json(['success' => true, 'message' => 'تم إعادة الترتيب بنجاح']);
     }
 }
-

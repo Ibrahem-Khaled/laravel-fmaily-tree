@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\FamilyCouncil;
+use App\Http\Requests\Admin\Councils\StoreFamilyCouncilRequest;
+use App\Http\Requests\Admin\Councils\UpdateFamilyCouncilRequest;
 use App\Models\CouncilImage;
+use App\Models\FamilyCouncil;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -31,31 +33,30 @@ class FamilyCouncilController extends Controller
     }
 
     /**
+     * عرض صفحة إضافة مجلس جديد
+     */
+    public function create()
+    {
+        return view('dashboard.councils.create');
+    }
+
+    /**
+     * عرض صفحة تعديل مجلس
+     */
+    public function edit(FamilyCouncil $council)
+    {
+        return view('dashboard.councils.edit', compact('council'));
+    }
+
+    /**
      * إضافة مجلس جديد
      */
-    public function store(Request $request)
+    public function store(StoreFamilyCouncilRequest $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string|max:10000',
-            'address' => 'nullable|string|max:500',
-            'google_map_url' => 'nullable|url|max:1000',
-            'working_days_from' => 'nullable|string|max:50',
-            'working_days_to' => 'nullable|string|max:50',
-        ]);
+        $data = $request->validated();
+        $data['display_order'] = (int) (FamilyCouncil::max('display_order') ?? 0) + 1;
 
-        $lastOrder = FamilyCouncil::max('display_order') ?? 0;
-
-        FamilyCouncil::create([
-            'name' => $request->name,
-            'description' => $request->description,
-            'address' => $request->address,
-            'google_map_url' => $request->google_map_url,
-            'working_days_from' => $request->working_days_from,
-            'working_days_to' => $request->working_days_to,
-            'display_order' => $lastOrder + 1,
-            'is_active' => $request->has('is_active'),
-        ]);
+        FamilyCouncil::create($data);
 
         return redirect()->route('dashboard.councils.index')
             ->with('success', 'تم إضافة المجلس بنجاح');
@@ -64,26 +65,9 @@ class FamilyCouncilController extends Controller
     /**
      * تحديث مجلس
      */
-    public function update(Request $request, FamilyCouncil $council)
+    public function update(UpdateFamilyCouncilRequest $request, FamilyCouncil $council)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string|max:10000',
-            'address' => 'nullable|string|max:500',
-            'google_map_url' => 'nullable|url|max:1000',
-            'working_days_from' => 'nullable|string|max:50',
-            'working_days_to' => 'nullable|string|max:50',
-        ]);
-
-        $council->update([
-            'name' => $request->name,
-            'description' => $request->description,
-            'address' => $request->address,
-            'google_map_url' => $request->google_map_url,
-            'working_days_from' => $request->working_days_from,
-            'working_days_to' => $request->working_days_to,
-            'is_active' => $request->has('is_active'),
-        ]);
+        $council->update($request->validated());
 
         return redirect()->route('dashboard.councils.index')
             ->with('success', 'تم تحديث المجلس بنجاح');
