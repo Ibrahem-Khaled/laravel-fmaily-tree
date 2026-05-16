@@ -9,6 +9,7 @@ use App\Http\Controllers\HomeApiController;
 use App\Http\Controllers\PersonsBadgesApiController;
 use App\Http\Controllers\ProgramShowApiController;
 use App\Http\Controllers\ReportsController;
+use App\Http\Controllers\StoreApiController;
 use App\Http\Controllers\StoriesPublicController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -50,6 +51,14 @@ Route::middleware('web')->group(function () {
     Route::get('/breastfeeding', [BreastfeedingPublicApiController::class, 'index']);
     Route::get('/gallery/categories', [GalleryApiController::class, 'categories']);
     Route::get('/gallery/images', [GalleryApiController::class, 'images']);
+
+    Route::prefix('store')->group(function () {
+        Route::get('/', [StoreApiController::class, 'index']);
+        Route::get('/categories/{category}', [StoreApiController::class, 'category']);
+        Route::get('/subcategories/{subcategory}', [StoreApiController::class, 'subcategory']);
+        Route::get('/products', [StoreApiController::class, 'products']);
+        Route::get('/products/{product}', [StoreApiController::class, 'show']);
+    });
     Route::get('/persons/badges', PersonsBadgesApiController::class);
     Route::get('/programs/{program}', [ProgramShowApiController::class, 'show']);
     Route::get('/family-tree', [FamilyTreeController::class, 'getFamilyTree']);
