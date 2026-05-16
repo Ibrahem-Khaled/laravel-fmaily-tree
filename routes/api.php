@@ -8,6 +8,7 @@ use App\Http\Controllers\GalleryApiController;
 use App\Http\Controllers\HomeApiController;
 use App\Http\Controllers\PersonsBadgesApiController;
 use App\Http\Controllers\ProgramShowApiController;
+use App\Http\Controllers\QuranCompetitionApiController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\StoreApiController;
 use App\Http\Controllers\StoriesPublicController;
@@ -58,6 +59,13 @@ Route::middleware('web')->group(function () {
         Route::get('/subcategories/{subcategory}', [StoreApiController::class, 'subcategory']);
         Route::get('/products', [StoreApiController::class, 'products']);
         Route::get('/products/{product}', [StoreApiController::class, 'show']);
+    });
+
+    Route::prefix('quran-competitions')->group(function () {
+        Route::get('/navigation', [QuranCompetitionApiController::class, 'navigation']);
+        Route::get('/', [QuranCompetitionApiController::class, 'index']);
+        Route::get('/categories/{category}', [QuranCompetitionApiController::class, 'category']);
+        Route::get('/{competition}', [QuranCompetitionApiController::class, 'show']);
     });
     Route::get('/persons/badges', PersonsBadgesApiController::class);
     Route::get('/programs/{program}', [ProgramShowApiController::class, 'show']);
