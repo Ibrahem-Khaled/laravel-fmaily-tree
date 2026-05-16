@@ -20,7 +20,7 @@ class SitePasswordApiController extends Controller
         return response()->json([
             'success' => true,
             'protection_enabled' => $enabled,
-            'password_length' => $enabled ? (int) config('site.password_length', 6) : null,
+            'password_length' => $enabled ? $this->resolvePasswordLength() : null,
             'requires_password' => $enabled,
             'session_timeout_minutes' => (int) config('site.password_session_timeout', 60),
         ]);
@@ -41,8 +41,8 @@ class SitePasswordApiController extends Controller
             ]);
         }
 
-        $passwordLength = max(1, min(32, (int) config('site.password_length', 6)));
-        $storedPassword = config('site.password');
+        $storedPassword = (string) config('site.password', '');
+        $passwordLength = $this->resolvePasswordLength();
 
         if (empty($storedPassword)) {
             return response()->json([
@@ -121,5 +121,15 @@ class SitePasswordApiController extends Controller
             'success' => true,
             'message' => 'تم إلغاء الرمز.',
         ]);
+    }
+
+    private function resolvePasswordLength(): int
+    {
+        $storedPassword = (string) config('site.password', '');
+        if ($storedPassword !== '') {
+            return strlen($storedPassword);
+        }
+
+        return max(1, (int) config('site.password_length', 6));
     }
 }

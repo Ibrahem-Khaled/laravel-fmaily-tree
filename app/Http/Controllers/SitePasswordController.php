@@ -22,7 +22,8 @@ class SitePasswordController extends Controller
             }
         }
 
-        $passwordLength = config('site.password_length', 6);
+        $passwordLength = $this->resolvePasswordLength();
+
         return view('web-site.site-password', compact('passwordLength'));
     }
 
@@ -31,8 +32,8 @@ class SitePasswordController extends Controller
      */
     public function verify(Request $request)
     {
-        $passwordLength = config('site.password_length', 6);
         $storedPassword = config('site.password');
+        $passwordLength = $this->resolvePasswordLength();
 
         // التحقق من وجود كلمة المرور في الإعدادات
         if (empty($storedPassword)) {
@@ -44,12 +45,12 @@ class SitePasswordController extends Controller
             'password' => [
                 'required',
                 'string',
-                'size:' . $passwordLength,
-                'regex:/^[0-9]+$/'
+                'size:'.$passwordLength,
+                'regex:/^[0-9]+$/',
             ],
         ], [
             'password.required' => 'يرجى إدخال كلمة المرور.',
-            'password.size' => 'يجب أن تتكون كلمة المرور من ' . $passwordLength . ' أرقام.',
+            'password.size' => 'يجب أن تتكون كلمة المرور من '.$passwordLength.' أرقام.',
             'password.regex' => 'يجب أن تتكون كلمة المرور من أرقام فقط.',
         ]);
 
@@ -69,6 +70,19 @@ class SitePasswordController extends Controller
         ]);
 
         return redirect()->intended('/')->with('success', 'تم التحقق بنجاح.');
+    }
+
+    /**
+     * طول كلمة المرور المعروضة في واجهة الدخول (من الإعدادات أو من كلمة المرور المحفوظة).
+     */
+    private function resolvePasswordLength(): int
+    {
+        $storedPassword = (string) config('site.password', '');
+        if ($storedPassword !== '') {
+            return strlen($storedPassword);
+        }
+
+        return max(1, (int) config('site.password_length', 6));
     }
 }
 

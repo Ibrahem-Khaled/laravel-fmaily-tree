@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'إعدادات حماية الموقع')
 
@@ -53,14 +53,14 @@
                 <div class="card-body">
                     <form action="{{ route('dashboard.site-password-settings.update') }}" method="POST" id="settingsForm">
                         @csrf
-                        
+
                         {{-- تفعيل/تعطيل الحماية --}}
                         <div class="form-group">
                             <div class="form-check form-switch">
-                                <input type="checkbox" 
-                                       name="enabled" 
-                                       id="enabled" 
-                                       class="form-check-input" 
+                                <input type="checkbox"
+                                       name="enabled"
+                                       id="enabled"
+                                       class="form-check-input"
                                        value="1"
                                        {{ $settings['enabled'] ? 'checked' : '' }}
                                        onchange="togglePasswordFields()">
@@ -80,42 +80,20 @@
                             <label for="password">
                                 كلمة المرور <span class="text-danger" id="passwordRequired">*</span>
                             </label>
-                            <input type="text" 
-                                   name="password" 
-                                   id="password" 
-                                   class="form-control @error('password') is-invalid @enderror" 
+                            <input type="text"
+                                   name="password"
+                                   id="password"
+                                   class="form-control @error('password') is-invalid @enderror"
                                    value="{{ old('password', $settings['password']) }}"
                                    placeholder="أدخل كلمة المرور (أرقام فقط)"
-                                   maxlength="{{ $settings['password_length'] }}"
+                                   maxlength="{{ $settings['password_max_length'] }}"
                                    pattern="[0-9]*"
                                    inputmode="numeric">
                             @error('password')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                             <small class="form-text text-muted">
-                                يجب أن تكون كلمة المرور أرقام فقط
-                            </small>
-                        </div>
-
-                        {{-- طول كلمة المرور --}}
-                        <div class="form-group" id="passwordLengthGroup">
-                            <label for="password_length">
-                                طول كلمة المرور (عدد الأرقام) <span class="text-danger">*</span>
-                            </label>
-                            <input type="number" 
-                                   name="password_length" 
-                                   id="password_length" 
-                                   class="form-control @error('password_length') is-invalid @enderror" 
-                                   value="{{ old('password_length', $settings['password_length']) }}"
-                                   min="4" 
-                                   max="10" 
-                                   required
-                                   onchange="updatePasswordMaxLength()">
-                            @error('password_length')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                            <small class="form-text text-muted">
-                                يجب أن يكون الطول بين 4 و 10 أرقام
+                                أرقام فقط — من {{ $settings['password_min_length'] }} إلى {{ $settings['password_max_length'] }} رقماً (مثال: 4 أو 5 أو 6 أرقام)
                             </small>
                         </div>
 
@@ -124,13 +102,13 @@
                             <label for="session_timeout">
                                 مدة صلاحية الجلسة (بالدقائق) <span class="text-danger">*</span>
                             </label>
-                            <input type="number" 
-                                   name="session_timeout" 
-                                   id="session_timeout" 
-                                   class="form-control @error('session_timeout') is-invalid @enderror" 
+                            <input type="number"
+                                   name="session_timeout"
+                                   id="session_timeout"
+                                   class="form-control @error('session_timeout') is-invalid @enderror"
                                    value="{{ old('session_timeout', $settings['session_timeout']) }}"
-                                   min="5" 
-                                   max="1440" 
+                                   min="5"
+                                   max="1440"
                                    required>
                             @error('session_timeout')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -170,7 +148,7 @@
                         </li>
                         <li class="mb-2">
                             <i class="fas fa-check text-success mr-2"></i>
-                            يمكن تحديد طول كلمة المرور من 4 إلى 10 أرقام
+                            يمكن استخدام كلمة مرور من {{ $settings['password_min_length'] }} إلى {{ $settings['password_max_length'] }} رقماً
                         </li>
                         <li class="mb-2">
                             <i class="fas fa-check text-success mr-2"></i>
@@ -192,7 +170,7 @@
                 </div>
                 <div class="card-body">
                     <p class="mb-0">
-                        <strong>تنبيه:</strong> عند تفعيل الحماية، تأكد من حفظ كلمة المرور في مكان آمن. 
+                        <strong>تنبيه:</strong> عند تفعيل الحماية، تأكد من حفظ كلمة المرور في مكان آمن.
                         إذا نسيت كلمة المرور، يمكنك تعطيل الحماية من ملف .env مباشرة.
                     </p>
                 </div>
@@ -206,7 +184,7 @@
         const enabled = document.getElementById('enabled').checked;
         const passwordInput = document.getElementById('password');
         const passwordRequired = document.getElementById('passwordRequired');
-        
+
         if (enabled) {
             passwordInput.required = true;
             passwordRequired.style.display = 'inline';
@@ -216,17 +194,9 @@
         }
     }
 
-    function updatePasswordMaxLength() {
-        const length = document.getElementById('password_length').value;
-        const passwordInput = document.getElementById('password');
-        passwordInput.maxLength = length;
-        passwordInput.placeholder = `أدخل كلمة المرور (${length} أرقام)`;
-    }
-
     // تهيئة الحقول عند تحميل الصفحة
     document.addEventListener('DOMContentLoaded', function() {
         togglePasswordFields();
-        updatePasswordMaxLength();
     });
 
     // منع إدخال أي شيء غير الأرقام في حقل كلمة المرور
