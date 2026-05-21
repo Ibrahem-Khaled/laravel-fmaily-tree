@@ -41,3 +41,70 @@ if (!function_exists('safe_route')) {
         return '#';
     }
 }
+
+if (!function_exists('format_gregorian_in_arabic')) {
+    /**
+     * Format a Gregorian date in Arabic (e.g., 21 مايو 2026).
+     */
+    function format_gregorian_in_arabic($date)
+    {
+        if (!$date) {
+            return '';
+        }
+        try {
+            if ($date instanceof \Carbon\Carbon) {
+                $dateTime = $date;
+            } elseif (is_string($date)) {
+                $dateTime = \Carbon\Carbon::parse($date);
+            } else {
+                $dateTime = new \DateTime($date);
+            }
+            
+            $formatter = new \IntlDateFormatter(
+                'ar_SA',
+                \IntlDateFormatter::FULL,
+                \IntlDateFormatter::FULL,
+                'UTC',
+                \IntlDateFormatter::GREGORIAN,
+                'd MMMM yyyy'
+            );
+            return $formatter->format($dateTime);
+        } catch (\Exception $e) {
+            return is_string($date) ? $date : $date->format('Y-m-d');
+        }
+    }
+}
+
+if (!function_exists('gregorian_to_hijri')) {
+    /**
+     * Convert Gregorian date to Hijri string (e.g., 4 ذو الحجة 1447 هـ).
+     */
+    function gregorian_to_hijri($date)
+    {
+        if (!$date) {
+            return '';
+        }
+        try {
+            if ($date instanceof \Carbon\Carbon) {
+                $dateTime = $date;
+            } elseif (is_string($date)) {
+                $dateTime = \Carbon\Carbon::parse($date);
+            } else {
+                $dateTime = new \DateTime($date);
+            }
+            
+            $formatter = new \IntlDateFormatter(
+                'ar_SA@calendar=islamic-umalqura',
+                \IntlDateFormatter::FULL,
+                \IntlDateFormatter::FULL,
+                'UTC',
+                \IntlDateFormatter::TRADITIONAL,
+                'd MMMM yyyy'
+            );
+            return $formatter->format($dateTime) . ' هـ';
+        } catch (\Exception $e) {
+            return '';
+        }
+    }
+}
+

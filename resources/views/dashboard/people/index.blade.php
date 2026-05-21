@@ -2,226 +2,204 @@
 
 @section('content')
     <div class="container-fluid">
-        {{-- عنوان الصفحة ومسار التنقل --}}
-        <div class="row">
-            <div class="col-12">
-                <h1 class="h3 mb-0 text-gray-800">إدارة الأشخاص</h1>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item">
-                            <a href="{{ route('dashboard') }}">لوحة التحكم</a>
-                        </li>
-                        <li class="breadcrumb-item active" aria-current="page">الأشخاص</li>
-                    </ol>
-                </nav>
-            </div>
-        </div>
+        {{-- عنوان الصفحة ومسار التنقل باستخدام المكون المشترك --}}
+        <x-dashboard-page-header title="إدارة الأشخاص" description="عرض وتصفية وتعديل شجرة العائلة وسجل الأقارب">
+            <x-slot name="actions">
+                <a href="{{ route('family-tree') }}" class="btn btn-dark shadow-sm">
+                    <i class="fas fa-tree mr-1"></i> عرض شجرة العائلة
+                </a>
+                <a href="{{ route('people.export.excel', request()->query()) }}" class="btn btn-success shadow-sm">
+                    <i class="fas fa-file-excel mr-1"></i> تصدير Excel
+                </a>
+                <a href="{{ route('people.create') }}" class="btn btn-primary shadow-sm">
+                    <i class="fas fa-plus mr-1"></i> إضافة شخص
+                </a>
+            </x-slot>
+        </x-dashboard-page-header>
 
         @include('components.alerts')
 
         {{-- إحصائيات الأشخاص --}}
         <div class="row mb-4">
-            {{-- البطاقات الإحصائية --}}
-
             <x-stats-card icon="fas fa-users" title="إجمالي الأشخاص" :value="$stats['total']" color="primary" />
-
             <x-stats-card icon="fas fa-male" title="عدد الذكور" :value="$stats['male']" color="info" />
-
             <x-stats-card icon="fas fa-female" title="عدد الإناث" :value="$stats['female']" color="pink" />
-
             <x-stats-card icon="fas fa-heart" title="عدد الأحياء" :value="$stats['living']" color="success" />
-
             <x-stats-card icon="fas fa-camera" title="أشخاص لديهم صور" :value="$stats['with_photos']" color="warning" />
-
-            <a href="{{ route('family-tree') }}" class="btn btn-dark btn-block h-100 py-3">
-                <i class="fas fa-tree"></i> عرض تواصل العائلة
-            </a>
         </div>
 
-        {{-- بطاقة قائمة الأشخاص --}}
-        <div class="card shadow mb-4">
-            <div class="card-header py-3 d-flex justify-content-between">
-                <h6 class="m-0 font-weight-bold text-primary">قائمة الأشخاص</h6>
-                <div>
-                    <a href="{{ route('people.export.excel', request()->query()) }}" class="btn btn-success mr-2">
-                        <i class="fas fa-file-excel"></i> تصدير Excel
-                    </a>
-                    <a href="{{ route('people.create') }}" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> إضافة شخص
-                    </a>
+        {{-- بطاقة قائمة الأشخاص الفخمة --}}
+        <x-dashboard-card title="قائمة الأشخاص" icon="fe-users">
+            {{-- تبويبات الجنس المنسقة --}}
+            <ul class="nav nav-pills mb-4 bg-light p-1 rounded-lg d-inline-flex" style="background: rgba(255,255,255,0.03) !important;">
+                <li class="nav-item">
+                    <a class="nav-link rounded-lg px-4 py-2 {{ !request('gender') ? 'active bg-primary text-white font-weight-bold shadow-sm' : 'text-muted' }}"
+                        href="{{ route('people.index', ['search' => request('search')]) }}">الكل</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link rounded-lg px-4 py-2 {{ request('gender') === 'male' ? 'active bg-primary text-white font-weight-bold shadow-sm' : 'text-muted' }}"
+                        href="{{ route('people.index', ['gender' => 'male', 'search' => request('search')]) }}">الذكور</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link rounded-lg px-4 py-2 {{ request('gender') === 'female' ? 'active bg-primary text-white font-weight-bold shadow-sm' : 'text-muted' }}"
+                        href="{{ route('people.index', ['gender' => 'female', 'search' => request('search')]) }}">الإناث</a>
+                </li>
+            </ul>
+
+            {{-- نموذج البحث الأنيق --}}
+            <form action="{{ route('people.index') }}" method="GET" class="mb-4">
+                @if (request('gender'))
+                    <input type="hidden" name="gender" value="{{ request('gender') }}">
+                @endif
+                @if (request('family_status'))
+                    <input type="hidden" name="family_status" value="{{ request('family_status') }}">
+                @endif
+                <div class="input-group shadow-sm" style="border-radius: 12px; overflow: hidden;">
+                    <input type="text" name="search" class="form-control border-0 p-4"
+                        style="height: 50px; background: rgba(255,255,255,0.04) !important; color: #fff;"
+                        placeholder="ابحث بالاسم الأول أو الأخير أو اللقب..." value="{{ request('search') }}">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary px-4" type="submit">
+                            <i class="fas fa-search"></i> بحث
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            {{-- ويدجت تصفية داخل/خارج العائلة --}}
+            <div class="mb-4 p-4 rounded-lg shadow-sm" style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.04); border-radius: 16px;">
+                <h6 class="text-primary mb-3 font-weight-bold">
+                    <i class="fas fa-users-cog mr-1"></i> تصنيف الأشخاص حسب العائلة
+                </h6>
+                <div class="row align-items-center">
+                    <div class="col-md-8 mb-2 mb-md-0">
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" name="family_status" id="all"
+                                   value="" {{ !request('family_status') ? 'checked' : '' }}>
+                            <label class="btn btn-outline-secondary py-2" for="all">
+                                <i class="fas fa-list"></i> الكل
+                            </label>
+
+                            <input type="radio" class="btn-check" name="family_status" id="family"
+                                   value="1" {{ request('family_status') === '1' ? 'checked' : '' }}>
+                            <label class="btn btn-outline-success py-2" for="family">
+                                <i class="fas fa-home"></i> داخل العائلة
+                            </label>
+
+                            <input type="radio" class="btn-check" name="family_status" id="outside"
+                                   value="0" {{ request('family_status') === '0' ? 'checked' : '' }}>
+                            <label class="btn btn-outline-warning py-2" for="outside">
+                                <i class="fas fa-external-link-alt"></i> خارج العائلة
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-right">
+                        <button type="button" class="btn btn-info px-4 shadow-sm" onclick="filterByFamilyStatus()">
+                            <i class="fas fa-filter"></i> تطبيق التصفية
+                        </button>
+                        <button type="button" class="btn btn-secondary px-3 ml-1 shadow-sm" onclick="clearFamilyStatus()">
+                            <i class="fas fa-times"></i> مسح
+                        </button>
+                    </div>
                 </div>
             </div>
-            <div class="card-body">
-                {{-- ✅ تعديل تبويبات الجنس: إضافة قيمة البحث الحالية إلى الروابط --}}
-                <ul class="nav nav-tabs mb-4">
-                    <li class="nav-item">
-                        <a class="nav-link {{ !request('gender') ? 'active' : '' }}"
-                            href="{{ route('people.index', ['search' => request('search')]) }}">الكل</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ request('gender') === 'male' ? 'active' : '' }}"
-                            href="{{ route('people.index', ['gender' => 'male', 'search' => request('search')]) }}">الذكور</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ request('gender') === 'female' ? 'active' : '' }}"
-                            href="{{ route('people.index', ['gender' => 'female', 'search' => request('search')]) }}">الإناث</a>
-                    </li>
-                </ul>
 
-                {{-- ✅ تعديل نموذج البحث: إضافة حقل خفي للجنس والحالة العائلية للحفاظ على الفلتر --}}
-                <form action="{{ route('people.index') }}" method="GET" class="mb-4">
-                    @if (request('gender'))
-                        <input type="hidden" name="gender" value="{{ request('gender') }}">
-                    @endif
-                    @if (request('family_status'))
-                        <input type="hidden" name="family_status" value="{{ request('family_status') }}">
-                    @endif
-                    <div class="input-group">
-                        <input type="text" name="search" class="form-control"
-                            placeholder="ابحث بالاسم الأول أو الأخير..." value="{{ request('search') }}">
-                        <div class="input-group-append">
-                            <button class="btn btn-primary" type="submit">
-                                <i class="fas fa-search"></i> بحث
-                            </button>
-                        </div>
-                    </div>
-                </form>
-
-                {{-- توجال داخل/خارج العائلة --}}
-                <div class="row mb-4">
-                    <div class="col-md-12">
-                        <div class="card border-primary">
-                            <div class="card-body">
-                                <h6 class="card-title text-primary mb-3">
-                                    <i class="fas fa-users-cog"></i> تصنيف الأشخاص حسب العائلة
-                                </h6>
-                                <div class="row align-items-center">
-                                    <div class="col-md-8">
-                                        <div class="btn-group w-100" role="group">
-                                            <input type="radio" class="btn-check" name="family_status" id="all"
-                                                   value="" {{ !request('family_status') ? 'checked' : '' }}>
-                                            <label class="btn btn-outline-secondary" for="all">
-                                                <i class="fas fa-list"></i> الكل
-                                            </label>
-
-                                            <input type="radio" class="btn-check" name="family_status" id="family"
-                                                   value="1" {{ request('family_status') === '1' ? 'checked' : '' }}>
-                                            <label class="btn btn-outline-success" for="family">
-                                                <i class="fas fa-home"></i> داخل العائلة
-                                            </label>
-
-                                            <input type="radio" class="btn-check" name="family_status" id="outside"
-                                                   value="0" {{ request('family_status') === '0' ? 'checked' : '' }}>
-                                            <label class="btn btn-outline-warning" for="outside">
-                                                <i class="fas fa-external-link-alt"></i> خارج العائلة
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4 text-right">
-                                        <button type="button" class="btn btn-info" onclick="filterByFamilyStatus()">
-                                            <i class="fas fa-filter"></i> تطبيق التصفية
-                                        </button>
-                                        <button type="button" class="btn btn-secondary ml-1" onclick="clearFamilyStatus()">
-                                            <i class="fas fa-times"></i> مسح
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- جدول الأشخاص --}}
-                <div class="table-responsive">
-                    <table class="table table-bordered table-hover">
-                        <thead class="thead-light">
-                            <tr>
-                                {{-- ✅ الخطوة 3: إضافة عمود للترتيب --}}
-                                <th style="width: 50px;">ترتيب</th>
-                                <th>الاسم</th>
-                                <th>الام</th>
-                                <th>الجنس</th>
-                                <th>الحالة العائلية</th>
-                                <th>العمر</th>
-                                <th>فترة الحياة</th>
-                                <th>المهنة</th>
-                                <th>مكان الميلاد</th>
-                                <th>مكان الإقامة</th>
-                                <th>الإجراءات</th>
-                            </tr>
-                        </thead>
-                        {{-- ✅ الخطوة 2: إضافة `id` و `data-url` لجسم الجدول --}}
-                        <tbody id="people-sortable" data-url="{{ route('people.reorder') }}">
-                            @forelse($people as $person)
-                                {{-- ✅ إضافة `data-id` لكل صف --}}
-                                <tr data-id="{{ $person->id }}">
-                                    {{-- ✅ إضافة أيقونة السحب --}}
-                                    <td class="text-center" style="cursor: move;">
-                                        <i class="fas fa-arrows-alt"></i>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <img src="{{ $person->avatar }}" alt="{{ $person->full_name }}"
-                                                class="rounded-circle mr-2" width="40" height="40">
-                                            <a href="{{ route('people.show', $person->id) }}">
+            {{-- جدول الأشخاص الفخم --}}
+            <div class="table-responsive" style="border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);">
+                <table class="table table-hover align-middle mb-0" style="background: rgba(255,255,255,0.01);">
+                    <thead style="background: rgba(255,255,255,0.03);">
+                        <tr>
+                            <th class="text-white border-0 py-3" style="width: 60px;">ترتيب</th>
+                            <th class="text-white border-0 py-3">الاسم</th>
+                            <th class="text-white border-0 py-3">الأم</th>
+                            <th class="text-white border-0 py-3">الجنس</th>
+                            <th class="text-white border-0 py-3">الحالة العائلية</th>
+                            <th class="text-white border-0 py-3">العمر</th>
+                            <th class="text-white border-0 py-3">فترة الحياة</th>
+                            <th class="text-white border-0 py-3">المهنة</th>
+                            <th class="text-white border-0 py-3">مكان الميلاد</th>
+                            <th class="text-white border-0 py-3">مكان الإقامة</th>
+                            <th class="text-white border-0 py-3 text-center" style="width: 120px;">الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="people-sortable" data-url="{{ route('people.reorder') }}">
+                        @forelse($people as $person)
+                            <tr data-id="{{ $person->id }}" class="align-middle" style="transition: background-color 0.2s ease;">
+                                <td class="text-center border-bottom-0 py-3" style="cursor: move; color: rgba(255,255,255,0.3); background: rgba(0,0,0,0.05);">
+                                    <i class="fas fa-arrows-alt"></i>
+                                </td>
+                                <td class="border-bottom-0 py-3">
+                                    <div class="d-flex align-items-center">
+                                        <img src="{{ $person->avatar }}" alt="{{ $person->full_name }}"
+                                            class="rounded-circle mr-3 shadow-sm border border-light" width="42" height="42" style="object-fit: cover;">
+                                        <div>
+                                            <a href="{{ route('people.show', $person->id) }}" class="font-weight-bold text-white text-decoration-none hover-primary">
                                                 {{ $person->full_name }}
                                             </a>
                                         </div>
-                                    </td>
-                                    <td>
-                                        <a href="#">
-                                            {{ $person->mother ? $person->mother->full_name : 'غير معروف' }}
+                                    </div>
+                                </td>
+                                <td class="border-bottom-0 py-3 text-muted">
+                                    @if($person->mother)
+                                        <a href="{{ route('people.show', $person->mother_id) }}" class="text-muted hover-underline">
+                                            {{ $person->mother->full_name }}
                                         </a>
-                                    </td>
-                                    <td>
-                                        <span class="badge badge-{{ $person->gender == 'male' ? 'primary' : 'pink' }}">
-                                            {{ $person->gender == 'male' ? 'ذكر' : 'أنثى' }}
+                                    @else
+                                        غير معروف
+                                    @endif
+                                </td>
+                                <td class="border-bottom-0 py-3">
+                                    <span class="badge badge-pill badge-{{ $person->gender == 'male' ? 'primary' : 'pink' }} px-3 py-2">
+                                        {{ $person->gender == 'male' ? 'ذكر' : 'أنثى' }}
+                                    </span>
+                                </td>
+                                <td class="border-bottom-0 py-3">
+                                    @if(!$person->from_outside_the_family)
+                                        <span class="badge badge-pill px-3 py-2" style="background: rgba(40,167,69,0.15); color: #28a745;">
+                                            <i class="fas fa-home mr-1"></i> داخل العائلة
                                         </span>
-                                    </td>
-                                    <td>
-                                        @if(!$person->from_outside_the_family)
-                                            <span class="badge badge-success">
-                                                <i class="fas fa-home"></i> داخل العائلة
-                                            </span>
-                                        @else
-                                            <span class="badge badge-warning">
-                                                <i class="fas fa-external-link-alt"></i> خارج العائلة
-                                            </span>
-                                        @endif
-                                    </td>
-                                    <td>{{ $person->age ?? 'غير معروف' }}</td>
-                                    <td>{{ $person->life_span ?? 'غير معروف' }}</td>
-                                    <td>{{ $person->occupation ?? '-' }}</td>
-                                    <td>{{ $person->birth_place ?? '-' }}</td>
-                                    <td>{{ $person->location_display ?? '-' }}</td>
-                                    <td>
-                                        <a href="{{ route('people.edit', $person->id) }}" class="btn btn-sm btn-circle btn-primary"
+                                    @else
+                                        <span class="badge badge-pill px-3 py-2" style="background: rgba(255,193,7,0.15); color: #ffc107;">
+                                            <i class="fas fa-external-link-alt mr-1"></i> خارج العائلة
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="border-bottom-0 py-3 text-white font-weight-bold">{{ $person->age ?? 'غير معروف' }}</td>
+                                <td class="border-bottom-0 py-3 text-muted">{{ $person->life_span ?? 'غير معروف' }}</td>
+                                <td class="border-bottom-0 py-3 text-muted">{{ $person->occupation ?? '-' }}</td>
+                                <td class="border-bottom-0 py-3 text-muted">{{ $person->birth_place ?? '-' }}</td>
+                                <td class="border-bottom-0 py-3 text-muted">{{ $person->location_display ?? '-' }}</td>
+                                <td class="border-bottom-0 py-3 text-center">
+                                    <div class="d-flex justify-content-center gap-1">
+                                        <a href="{{ route('people.edit', $person->id) }}" class="btn btn-sm btn-circle btn-primary shadow-sm"
                                             title="تعديل">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <button type="button" class="btn btn-sm btn-circle btn-danger" data-toggle="modal"
+                                        <button type="button" class="btn btn-sm btn-circle btn-danger shadow-sm" data-toggle="modal"
                                             data-target="#deletePersonModal{{ $person->id }}" title="حذف">
                                             <i class="fas fa-trash"></i>
                                         </button>
-                                        @include('dashboard.people.modals.delete', ['person' => $person])
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="10" class="text-center">لا يوجد أشخاص مطابقين لنتيجة البحث</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-
-                {{-- الترقيم --}}
-                <div class="d-flex justify-content-center">
-                    {{-- لم نعد بحاجة إلى appends() هنا لأننا استخدمنا withQueryString() في المتحكم --}}
-                    {{ $people->links() }}
-                </div>
+                                    </div>
+                                    @include('dashboard.people.modals.delete', ['person' => $person])
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="11" class="text-center py-5 text-muted">
+                                    <i class="fas fa-search fa-3x mb-3" style="opacity: 0.2;"></i>
+                                    <p class="mb-0 font-weight-bold">لا يوجد أشخاص مطابقين لنتيجة البحث</p>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
-        </div>
+
+            {{-- الترقيم المنسق --}}
+            <div class="d-flex justify-content-center mt-4">
+                {{ $people->links() }}
+            </div>
+        </x-dashboard-card>
     </div>
 @endsection
 

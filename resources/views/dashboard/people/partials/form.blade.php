@@ -10,14 +10,7 @@
     $wives = $father ? ($father->wives ?? collect()) : collect();
 @endphp
 
-<div class="card shadow mb-4">
-    <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">
-            <i class="fas fa-user"></i>
-            {{ $isEdit ? 'تعديل بيانات الشخص' : 'إضافة شخص جديد' }}
-        </h6>
-    </div>
-    <div class="card-body">
+<x-dashboard-card :title="$isEdit ? 'تعديل بيانات الشخص' : 'إضافة شخص جديد'" icon="fe-user">
         {{-- Name Fields --}}
         <div class="row">
             <div class="col-md-6">
@@ -43,6 +36,11 @@
                     <label for="birth_date">تاريخ الميلاد</label>
                     <input type="date" class="form-control" id="birth_date" name="birth_date"
                         value="{{ old('birth_date', $isEdit && $person->birth_date ? $person->birth_date->format('Y-m-d') : '') }}">
+                    <div id="birth_date_hijri_container" class="mt-2" style="display: none;">
+                        <span class="badge badge-pill badge-info py-2 px-3" style="font-size: 0.85rem; border-radius: 50px;">
+                            <i class="fas fa-calendar-alt mr-1"></i> التاريخ الهجري: <span id="birth_date_hijri_val"></span>
+                        </span>
+                    </div>
                 </div>
             </div>
             <div class="col-md-6">
@@ -50,6 +48,11 @@
                     <label for="death_date">تاريخ الوفاة (إن وجد)</label>
                     <input type="date" class="form-control" id="death_date" name="death_date"
                         value="{{ old('death_date', $isEdit && $person->death_date ? $person->death_date->format('Y-m-d') : '') }}">
+                    <div id="death_date_hijri_container" class="mt-2" style="display: none;">
+                        <span class="badge badge-pill badge-info py-2 px-3" style="font-size: 0.85rem; border-radius: 50px;">
+                            <i class="fas fa-calendar-alt mr-1"></i> التاريخ الهجري: <span id="death_date_hijri_val"></span>
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -192,6 +195,63 @@
                 <label class="custom-file-label" for="photo">اختر ملف</label>
             </div>
         </div>
-    </div>
-</div>
+</x-dashboard-card>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const gregorianToHijri = (gregorianDate) => {
+        if (!gregorianDate) return '';
+        try {
+            let trimmed = String(gregorianDate).trim().replace(/\//g, '-');
+            if (!trimmed || trimmed.startsWith('0000')) return '';
+            const normalized = trimmed.includes('T') ? trimmed : trimmed + 'T12:00:00Z';
+            const date = new Date(normalized);
+            if (isNaN(date.getTime())) return '';
+            const formatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
+                timeZone: 'UTC',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+            const parts = formatter.formatToParts(date);
+            const day   = parts.find(p => p.type === 'day').value;
+            const month = parts.find(p => p.type === 'month').value;
+            const year  = parts.find(p => p.type === 'year').value;
+            return `${day} ${month} ${year} هـ`;
+        } catch (e) {
+            console.error('Error converting date:', e);
+            return '';
+        }
+    };
+
+    function updateHijriPreview(inputEl, containerEl, valEl) {
+        const val = inputEl.value;
+        const hijri = gregorianToHijri(val);
+        if (hijri) {
+            valEl.textContent = hijri;
+            containerEl.style.display = 'inline-block';
+        } else {
+            containerEl.style.display = 'none';
+        }
+    }
+
+    const birthInput = document.getElementById('birth_date');
+    const birthContainer = document.getElementById('birth_date_hijri_container');
+    const birthVal = document.getElementById('birth_date_hijri_val');
+
+    const deathInput = document.getElementById('death_date');
+    const deathContainer = document.getElementById('death_date_hijri_container');
+    const deathVal = document.getElementById('death_date_hijri_val');
+
+    if (birthInput && birthContainer && birthVal) {
+        birthInput.addEventListener('input', () => updateHijriPreview(birthInput, birthContainer, birthVal));
+        updateHijriPreview(birthInput, birthContainer, birthVal); // Initial check
+    }
+
+    if (deathInput && deathContainer && deathVal) {
+        deathInput.addEventListener('input', () => updateHijriPreview(deathInput, deathContainer, deathVal));
+        updateHijriPreview(deathInput, deathContainer, deathVal); // Initial check
+    }
+});
+</script>
 
