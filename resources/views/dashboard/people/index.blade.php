@@ -46,63 +46,71 @@
                 </li>
             </ul>
 
-            {{-- نموذج البحث الأنيق --}}
-            <form action="{{ route('people.index') }}" method="GET" class="mb-4">
+            {{-- لوحة التصفية والبحث المتقدمة الفخمة --}}
+            <form action="{{ route('people.index') }}" method="GET" class="mb-4" id="searchFilterForm">
                 @if (request('gender'))
                     <input type="hidden" name="gender" value="{{ request('gender') }}">
                 @endif
-                @if (request('family_status'))
-                    <input type="hidden" name="family_status" value="{{ request('family_status') }}">
-                @endif
-                <div class="input-group shadow-sm" style="border-radius: 12px; overflow: hidden;">
-                    <input type="text" name="search" class="form-control border-0 p-4"
-                        style="height: 50px; background: rgba(255,255,255,0.04) !important; color: #fff;"
-                        placeholder="ابحث بالاسم الأول أو الأخير أو اللقب..." value="{{ request('search') }}">
-                    <div class="input-group-append">
-                        <button class="btn btn-primary px-4" type="submit">
-                            <i class="fas fa-search"></i> بحث
-                        </button>
+                
+                <div class="glass-filter-card shadow-lg">
+                    <div class="row align-items-center">
+                        {{-- تصنيف الأشخاص حسب العائلة (اليمين) --}}
+                        <div class="col-lg-6 mb-4 mb-lg-0">
+                            <label class="d-block text-muted mb-2 font-weight-bold" style="font-size: 0.85rem; letter-spacing: 0.5px;">
+                                <i class="fas fa-filter text-primary mr-1"></i> تصنيف الأشخاص حسب العائلة
+                            </label>
+                            <div class="family-status-segmented-control shadow-sm">
+                                <!-- الكل -->
+                                <div class="family-status-tab">
+                                    <input type="radio" name="family_status" id="fs_all" value="" class="family-status-radio" 
+                                           {{ !request('family_status') ? 'checked' : '' }} onchange="this.form.submit()">
+                                    <label for="fs_all" class="family-status-label all-tab">
+                                        <i class="fas fa-globe-americas"></i>
+                                        <span>الكل</span>
+                                    </label>
+                                </div>
+                                
+                                <!-- داخل العائلة -->
+                                <div class="family-status-tab">
+                                    <input type="radio" name="family_status" id="fs_inside" value="1" class="family-status-radio" 
+                                           {{ request('family_status') === '1' ? 'checked' : '' }} onchange="this.form.submit()">
+                                    <label for="fs_inside" class="family-status-label inside-tab">
+                                        <i class="fas fa-home"></i>
+                                        <span>داخل العائلة</span>
+                                    </label>
+                                </div>
+                                
+                                <!-- خارج العائلة -->
+                                <div class="family-status-tab">
+                                    <input type="radio" name="family_status" id="fs_outside" value="0" class="family-status-radio" 
+                                           {{ request('family_status') === '0' ? 'checked' : '' }} onchange="this.form.submit()">
+                                    <label for="fs_outside" class="family-status-label outside-tab">
+                                        <i class="fas fa-user-friends"></i>
+                                        <span>خارج العائلة</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {{-- البحث الذكي في السجلات (اليسار) --}}
+                        <div class="col-lg-6">
+                            <label class="d-block text-muted mb-2 font-weight-bold" style="font-size: 0.85rem; letter-spacing: 0.5px;">
+                                <i class="fas fa-search text-primary mr-1"></i> البحث الذكي في السجلات
+                            </label>
+                            <div class="premium-search-wrapper shadow-sm">
+                                <i class="fas fa-search search-icon-inside"></i>
+                                <input type="text" name="search" class="form-control premium-search-input" 
+                                       placeholder="ابحث بالاسم، اللقب، أو اللقب العائلي..." 
+                                       value="{{ request('search') }}">
+                                <button type="submit" class="btn btn-primary premium-search-btn">
+                                    <span>بحث</span>
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </form>
-
-            {{-- ويدجت تصفية داخل/خارج العائلة --}}
-            <div class="mb-4 p-4 rounded-lg shadow-sm" style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.04); border-radius: 16px;">
-                <h6 class="text-primary mb-3 font-weight-bold">
-                    <i class="fas fa-users-cog mr-1"></i> تصنيف الأشخاص حسب العائلة
-                </h6>
-                <div class="row align-items-center">
-                    <div class="col-md-8 mb-2 mb-md-0">
-                        <div class="btn-group w-100" role="group">
-                            <input type="radio" class="btn-check" name="family_status" id="all"
-                                   value="" {{ !request('family_status') ? 'checked' : '' }}>
-                            <label class="btn btn-outline-secondary py-2" for="all">
-                                <i class="fas fa-list"></i> الكل
-                            </label>
-
-                            <input type="radio" class="btn-check" name="family_status" id="family"
-                                   value="1" {{ request('family_status') === '1' ? 'checked' : '' }}>
-                            <label class="btn btn-outline-success py-2" for="family">
-                                <i class="fas fa-home"></i> داخل العائلة
-                            </label>
-
-                            <input type="radio" class="btn-check" name="family_status" id="outside"
-                                   value="0" {{ request('family_status') === '0' ? 'checked' : '' }}>
-                            <label class="btn btn-outline-warning py-2" for="outside">
-                                <i class="fas fa-external-link-alt"></i> خارج العائلة
-                            </label>
-                        </div>
-                    </div>
-                    <div class="col-md-4 text-right">
-                        <button type="button" class="btn btn-info px-4 shadow-sm" onclick="filterByFamilyStatus()">
-                            <i class="fas fa-filter"></i> تطبيق التصفية
-                        </button>
-                        <button type="button" class="btn btn-secondary px-3 ml-1 shadow-sm" onclick="clearFamilyStatus()">
-                            <i class="fas fa-times"></i> مسح
-                        </button>
-                    </div>
-                </div>
-            </div>
 
             {{-- جدول الأشخاص الفخم --}}
             <div class="table-responsive" style="border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);">
@@ -255,75 +263,162 @@
                 });
         }
 
-        // دوال التعامل مع تصنيف العائلة
-        function filterByFamilyStatus() {
-            const selectedStatus = document.querySelector('input[name="family_status"]:checked');
-            const url = new URL(window.location);
-
-            if (selectedStatus && selectedStatus.value) {
-                url.searchParams.set('family_status', selectedStatus.value);
-            } else {
-                url.searchParams.delete('family_status');
-            }
-
-            // الحفاظ على المعاملات الأخرى
-            if ('{{ request("gender") }}') {
-                url.searchParams.set('gender', '{{ request("gender") }}');
-            }
-            if ('{{ request("search") }}') {
-                url.searchParams.set('search', '{{ request("search") }}');
-            }
-
-            window.location.href = url.toString();
-        }
-
-        function clearFamilyStatus() {
-            const url = new URL(window.location);
-            url.searchParams.delete('family_status');
-
-            // الحفاظ على المعاملات الأخرى
-            if ('{{ request("gender") }}') {
-                url.searchParams.set('gender', '{{ request("gender") }}');
-            }
-            if ('{{ request("search") }}') {
-                url.searchParams.set('search', '{{ request("search") }}');
-            }
-
-            window.location.href = url.toString();
-        }
     </script>
 
     {{-- إضافة أنماط إضافية للتوجال --}}
     <style>
-        .btn-check:checked + .btn-outline-secondary {
-            background-color: #6c757d;
-            border-color: #6c757d;
-            color: white;
+        /* Glass Filter Card */
+        .glass-filter-card {
+            background: rgba(255, 255, 255, 0.02) !important;
+            border: 1px solid rgba(255, 255, 255, 0.05) !important;
+            border-radius: 20px !important;
+            padding: 24px !important;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25) !important;
+            backdrop-filter: blur(15px);
+            position: relative;
+            overflow: hidden;
         }
 
-        .btn-check:checked + .btn-outline-success {
-            background-color: #28a745;
-            border-color: #28a745;
-            color: white;
+        .glass-filter-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(130deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0) 100%);
+            pointer-events: none;
         }
 
-        .btn-check:checked + .btn-outline-warning {
-            background-color: #ffc107;
-            border-color: #ffc107;
-            color: #212529;
+        /* Segmented Control */
+        .family-status-segmented-control {
+            display: flex;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            padding: 4px;
+            border-radius: 14px;
+            width: 100%;
+        }
+
+        .family-status-tab {
+            flex: 1;
+            position: relative;
+        }
+
+        .family-status-radio {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+            pointer-events: none;
+        }
+
+        .family-status-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-radius: 10px;
+            color: rgba(255, 255, 255, 0.5) !important;
+            font-weight: 500;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            margin: 0;
+            user-select: none;
+        }
+
+        .family-status-label:hover {
+            color: #ffffff !important;
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        /* Radio Checked States */
+        .family-status-radio:checked + .all-tab {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04)) !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        }
+
+        .family-status-radio:checked + .inside-tab {
+            background: linear-gradient(135deg, #10b981, #059669) !important;
+            color: #ffffff !important;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3) !important;
+        }
+
+        .family-status-radio:checked + .outside-tab {
+            background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+            color: #ffffff !important;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3) !important;
+        }
+
+        /* Premium Search Wrapper */
+        .premium-search-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        .premium-search-input {
+            height: 50px !important;
+            background: rgba(0, 0, 0, 0.2) !important;
+            border: 1px solid rgba(255, 255, 255, 0.04) !important;
+            border-radius: 14px !important;
+            color: #ffffff !important;
+            padding-left: 100px !important; /* Space for the button on the left */
+            padding-right: 45px !important; /* Space for the search icon on the right */
+            font-size: 0.95rem !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .premium-search-input:focus {
+            background: rgba(0, 0, 0, 0.3) !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.03) !important;
+        }
+
+        .search-icon-inside {
+            position: absolute;
+            right: 18px;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 1.1rem;
+            pointer-events: none;
+            transition: color 0.3s ease;
+        }
+
+        .premium-search-input:focus ~ .search-icon-inside {
+            color: #3b82f6; /* Modern blue highlight on focus */
+            text-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
+
+        .premium-search-btn {
+            position: absolute;
+            left: 4px;
+            height: 42px;
+            border-radius: 10px !important;
+            padding: 0 20px !important;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8) !important;
+            border: none !important;
+            color: #ffffff !important;
+            font-weight: 500 !important;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+
+        .premium-search-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4) !important;
         }
 
         .card.border-primary {
             border-width: 2px !important;
-        }
-
-        .btn-check + .btn {
-            transition: all 0.3s ease;
-        }
-
-        .btn-check + .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
         }
     </style>
 @endpush
