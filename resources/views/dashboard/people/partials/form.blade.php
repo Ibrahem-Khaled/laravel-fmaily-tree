@@ -10,7 +10,7 @@
     $wives = $father ? ($father->wives ?? collect()) : collect();
 @endphp
 
-<x-dashboard-card :title="$isEdit ? 'تعديل بيانات الشخص' : 'إضافة شخص جديد'" icon="fe-user">
+<x-dashboard.card :title="$isEdit ? 'تعديل بيانات الشخص' : 'إضافة شخص جديد'" icon="fe-user">
         {{-- Name Fields --}}
         <div class="row">
             <div class="col-md-6">
@@ -195,7 +195,7 @@
                 <label class="custom-file-label" for="photo">اختر ملف</label>
             </div>
         </div>
-</x-dashboard-card>
+</x-dashboard.card>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {

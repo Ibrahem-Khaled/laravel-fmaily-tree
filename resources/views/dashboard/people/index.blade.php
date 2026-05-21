@@ -3,7 +3,7 @@
 @section('content')
     <div class="container-fluid">
         {{-- عنوان الصفحة ومسار التنقل باستخدام المكون المشترك --}}
-        <x-dashboard-page-header title="إدارة الأشخاص" description="عرض وتصفية وتعديل شجرة العائلة وسجل الأقارب">
+        <x-dashboard.page-header title="إدارة الأشخاص" description="عرض وتصفية وتعديل شجرة العائلة وسجل الأقارب">
             <x-slot name="actions">
                 <a href="{{ route('family-tree') }}" class="btn btn-dark shadow-sm">
                     <i class="fas fa-tree mr-1"></i> عرض شجرة العائلة
@@ -15,7 +15,7 @@
                     <i class="fas fa-plus mr-1"></i> إضافة شخص
                 </a>
             </x-slot>
-        </x-dashboard-page-header>
+        </x-dashboard.page-header>
 
         @include('components.alerts')
 
@@ -29,7 +29,7 @@
         </div>
 
         {{-- بطاقة قائمة الأشخاص الفخمة --}}
-        <x-dashboard-card title="قائمة الأشخاص" icon="fe-users">
+        <x-dashboard.card title="قائمة الأشخاص" icon="fe-users">
             {{-- تبويبات الجنس المنسقة --}}
             <ul class="nav nav-pills mb-4 bg-light p-1 rounded-lg d-inline-flex" style="background: rgba(255,255,255,0.03) !important;">
                 <li class="nav-item">
@@ -199,7 +199,7 @@
             <div class="d-flex justify-content-center mt-4">
                 {{ $people->links() }}
             </div>
-        </x-dashboard-card>
+        </x-dashboard.card>
     </div>
 @endsection
 

@@ -3,14 +3,14 @@
 @section('content')
     <div class="container-fluid">
         {{-- عنوان الصفحة ومسار التنقل باستخدام المكون المشترك --}}
-        <x-dashboard-page-header title="ملف {{ $person->full_name }}" description="عرض وتحديث بيانات الشخص وعلاقاته العائلية">
+        <x-dashboard.page-header title="ملف {{ $person->full_name }}" description="عرض وتحديث بيانات الشخص وعلاقاته العائلية">
             <x-slot name="actions">
                 <button type="button" class="btn btn-warning btn-sm shadow-sm" data-toggle="modal"
                     data-target="#addPersonsOutsideTheFamilyTreeModal">
                     <i class="fas fa-user-plus mr-1"></i> إضافة شخص من خارج العائلة
                 </button>
             </x-slot>
-        </x-dashboard-page-header>
+        </x-dashboard.page-header>
 
         {{-- ✅ تضمين المودال الجديد الذي أنشأناه --}}
         @include('dashboard.people.modals.add-outside-the-family')
@@ -49,7 +49,7 @@
         @endforeach
 
         {{-- بطاقة المعلومات الأساسية للشخص --}}
-        <x-dashboard-card title="المعلومات الأساسية" icon="fe-user">
+        <x-dashboard.card title="المعلومات الأساسية" icon="fe-user">
             <x-slot name="headerAction">
                 <a href="{{ route('people.edit', $person->id) }}" class="btn btn-sm btn-primary shadow-sm" title="تعديل">
                     <i class="fas fa-edit mr-1"></i> تعديل
@@ -177,10 +177,10 @@
                     </div>
                 </div>
             </div>
-        </x-dashboard-card>
+        </x-dashboard.card>
 
         {{-- بطاقة الزوجات/الزوج --}}
-        <x-dashboard-card title="{{ $person->gender == 'male' ? 'الزوجات' : 'الزوج' }}" icon="fe-heart">
+        <x-dashboard.card title="{{ $person->gender == 'male' ? 'الزوجات' : 'الزوج' }}" icon="fe-heart">
             <x-slot name="headerAction">
                 <button class="btn btn-info btn-sm shadow-sm" data-toggle="modal" data-target="#addMarriageModal">
                     <i class="fas fa-plus mr-1"></i> إضافة زواج
@@ -301,10 +301,10 @@
                     <p class="mb-0 text-muted">لا يوجد سجلات زواج حالياً. يمكنك إضافة سجل باستخدام الزر أعلاه.</p>
                 </div>
             @endif
-        </x-dashboard-card>
+        </x-dashboard.card>
 
         {{-- بطاقة الأبناء (مع تطبيق إعادة الترتيب) --}}
-        <x-dashboard-card title="الأبناء ({{ $children->count() }})" icon="fe-users">
+        <x-dashboard.card title="الأبناء ({{ $children->count() }})" icon="fe-users">
             <x-slot name="headerAction">
                 <button class="btn btn-success btn-sm shadow-sm" data-toggle="modal" data-target="#addChildModal">
                     <i class="fas fa-plus mr-1"></i> إضافة ابن/ابنة
@@ -450,10 +450,10 @@
                     <p class="mb-0 text-muted">لا يوجد أبناء حالياً. يمكنك إضافة ابن/ابنة باستخدام الزر أعلاه.</p>
                 </div>
             @endif
-        </x-dashboard-card>
+        </x-dashboard.card>
 
         {{-- بطاقة حسابات التواصل --}}
-        <x-dashboard-card title="حسابات التواصل" icon="fe-message-square">
+        <x-dashboard.card title="حسابات التواصل" icon="fe-message-square">
             <x-slot name="headerAction">
                 <button class="btn btn-success btn-sm shadow-sm" data-toggle="modal"
                     data-target="#addContactAccountModal{{ $person->id }}">
@@ -518,10 +518,10 @@
                     <p class="mb-0 text-muted">لا توجد حسابات تواصل حالياً. يمكنك إضافة حساب باستخدام الزر أعلاه.</p>
                 </div>
             @endif
-        </x-dashboard-card>
+        </x-dashboard.card>
 
         {{-- بطاقة المواقع المتعددة --}}
-        <x-dashboard-card title="المواقع" icon="fe-map-pin">
+        <x-dashboard.card title="المواقع" icon="fe-map-pin">
             <x-slot name="headerAction">
                 <button class="btn btn-success btn-sm shadow-sm" data-toggle="modal"
                     data-target="#addPersonLocationModal{{ $person->id }}">
@@ -610,10 +610,10 @@
                     <p class="mb-0 text-muted">لا توجد مواقع حالياً. يمكنك إضافة موقع باستخدام الزر أعلاه.</p>
                 </div>
             @endif
-        </x-dashboard-card>
+        </x-dashboard.card>
 
         {{-- بطاقة الرضاعة --}}
-        <x-dashboard-card title="علاقات الرضاعة" icon="fe-activity">
+        <x-dashboard.card title="علاقات الرضاعة" icon="fe-activity">
             <x-slot name="headerAction">
                 <a href="{{ route('breastfeeding.index') }}" class="btn btn-info btn-sm shadow-sm">
                     <i class="fas fa-cog mr-1"></i> إدارة الرضاعة
@@ -740,7 +740,7 @@
                     </a>
                 </div>
             @endif
-        </x-dashboard-card>
+        </x-dashboard.card>
     </div>
 
     {{-- مودال إضافة ابن/ابنة جديد --}}
