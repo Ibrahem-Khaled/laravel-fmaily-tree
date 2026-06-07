@@ -98,7 +98,7 @@ IMPORTANT LINKS – تطبيقات تهمك (مصنفة ومحدثة)
                     @endphp
 
                     @if($categoryLinks->isNotEmpty())
-                        <div class="bg-white/60 backdrop-blur-md p-4 sm:p-6 rounded-3xl border border-slate-100 shadow-sm">
+                        <div class="p-4 sm:p-6">
                             <h3 class="text-base md:text-lg font-bold text-slate-900 mb-4 flex items-center gap-3 border-b border-slate-100 pb-3"
                                 dir="rtl">
                                 <span
@@ -137,7 +137,7 @@ IMPORTANT LINKS – تطبيقات تهمك (مصنفة ومحدثة)
 
                 {{-- Uncategorized Links --}}
                 @if($uncategorizedLinks->isNotEmpty())
-                    <div class="bg-white/60 backdrop-blur-md p-4 sm:p-6 rounded-3xl border border-slate-100 shadow-sm">
+                    <div class="p-4 sm:p-6">
                         <h3 class="text-base md:text-lg font-bold text-slate-900 mb-4 flex items-center gap-3 border-b border-slate-100 pb-3"
                             dir="rtl">
                             <span
