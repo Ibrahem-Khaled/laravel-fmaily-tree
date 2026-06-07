@@ -24,12 +24,14 @@ class ImportantLink extends BaseModel
         'order',
         'is_active',
         'open_in_new_tab',
+        'category_id',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
         'open_in_new_tab' => 'boolean',
         'order' => 'integer',
+        'category_id' => 'integer',
     ];
 
     protected $appends = ['image_url'];
@@ -44,6 +46,14 @@ class ImportantLink extends BaseModel
                 Storage::disk('public')->delete($link->image);
             }
         });
+    }
+
+    /**
+     * الفئة التابعة لها الرابط
+     */
+    public function category()
+    {
+        return $this->belongsTo(ImportantLinkCategory::class, 'category_id');
     }
 
     /**

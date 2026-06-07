@@ -9,6 +9,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::getConnection()->getDriverName() === 'sqlite') {
+            return;
+        }
+
         if (!Schema::hasTable('home_sections') || !Schema::hasColumn('home_sections', 'css_classes')) {
             return;
         }
@@ -29,6 +33,10 @@ return new class extends Migration
 
     public function down(): void
     {
+        if (Schema::getConnection()->getDriverName() === 'sqlite') {
+            return;
+        }
+
         if (!Schema::hasTable('home_sections') || !Schema::hasColumn('home_sections', 'css_classes')) {
             return;
         }

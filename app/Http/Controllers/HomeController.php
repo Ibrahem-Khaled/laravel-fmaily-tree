@@ -40,6 +40,7 @@ class HomeController extends Controller
             'masterTotalCount' => $d['masterTotalCount'],
             'phdTotalCount' => $d['phdTotalCount'],
             'importantLinks' => $d['importantLinks'],
+            'importantLinkCategories' => $d['importantLinkCategories'],
             'familyNews' => $d['familyNews'],
             'dynamicSections' => $d['dynamicSections'],
             'quizCompetitions' => $d['quiz']['quizCompetitions'],
@@ -71,6 +72,7 @@ class HomeController extends Controller
             'media_titles.*'      => 'nullable|string|max:255',
             'media_descriptions'  => 'nullable|array',
             'media_descriptions.*'=> 'nullable|string|max:2000',
+            'category_id'         => 'nullable|integer|exists:important_link_categories,id',
         ];
 
         if (! auth()->check()) {
@@ -115,6 +117,7 @@ class HomeController extends Controller
             'order'               => $lastOrder + 1,
             'is_active'           => false,
             'open_in_new_tab'     => true,
+            'category_id'         => $validated['category_id'] ?? null,
         ]);
 
         $this->mediaService->attachFromRequest($request, $link);

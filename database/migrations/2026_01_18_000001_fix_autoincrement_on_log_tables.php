@@ -8,6 +8,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::getConnection()->getDriverName() === 'sqlite') {
+            return;
+        }
+
         // Fix Spatie activity_log table id (some DBs were created without AUTO_INCREMENT)
         $activityConn = config('activitylog.database_connection') ?: config('database.default');
         $activityTable = config('activitylog.table_name') ?: 'activity_log';

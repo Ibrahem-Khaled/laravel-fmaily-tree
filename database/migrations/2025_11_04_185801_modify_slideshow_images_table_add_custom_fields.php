@@ -17,10 +17,13 @@ return new class extends Migration
             $table->string('title')->nullable()->after('image_path')->comment('عنوان السلايدشو');
             $table->text('description')->nullable()->after('title')->comment('وصف السلايدشو');
             $table->string('link')->nullable()->after('description')->comment('رابط اختياري');
-            
-            // جعل image_id nullable (لأننا سنستخدم image_path بدلاً منه)
-            $table->foreignId('image_id')->nullable()->change();
         });
+
+        if (Schema::getConnection()->getDriverName() !== 'sqlite') {
+            Schema::table('slideshow_images', function (Blueprint $table) {
+                $table->foreignId('image_id')->nullable()->change();
+            });
+        }
     }
 
     /**
@@ -30,7 +33,12 @@ return new class extends Migration
     {
         Schema::table('slideshow_images', function (Blueprint $table) {
             $table->dropColumn(['image_path', 'title', 'description', 'link']);
-            $table->foreignId('image_id')->nullable(false)->change();
         });
+
+        if (Schema::getConnection()->getDriverName() !== 'sqlite') {
+            Schema::table('slideshow_images', function (Blueprint $table) {
+                $table->foreignId('image_id')->nullable(false)->change();
+            });
+        }
     }
 };

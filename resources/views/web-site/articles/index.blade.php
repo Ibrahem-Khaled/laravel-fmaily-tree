@@ -1,29 +1,14 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
+@extends('layouts.web-site.web')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>المقالات - معرض صور العائلة</title>
+@section('title', 'المقالات - معرض صور العائلة')
 
-    {{-- قم بتضمين ملف Tailwind CSS الخاص بمشروعك --}}
-    <script src="https://cdn.tailwindcss.com"></script>
-
+@push('styles')
     {{-- استيراد خطوط جميلة من Google Fonts --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Amiri:wght@400;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
 
     <style>
-        /* تطبيق الخط على كامل الصفحة */
-        body {
-            font-family: 'Tajawal', sans-serif;
-            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);
-            min-height: 100vh;
-        }
-
         h1,
         h2,
         h3 {
@@ -131,7 +116,6 @@
             opacity: 0;
             transform: translateY(20px);
             display: flex;
-            /* تمت الإضافة لضمان امتداد الرابط الداخلي */
         }
 
         .article-card.visible {
@@ -202,38 +186,30 @@
             transform: scale(1.05);
         }
 
-        /* ================== تعديلات عرض الهاتف المطلوبة ================== */
+        /* تعديلات عرض الهاتف المطلوبة */
         @media (max-width: 768px) {
             .bg-pattern {
                 display: none;
             }
 
             .grid-view {
-                /* هذا هو الجزء المسؤول عن عرض مقالين جنبًا إلى جنب على الهاتف */
                 grid-template-columns: repeat(2, 1fr);
                 gap: 1rem;
-                /* تقليل المسافة بين المقالات */
             }
 
-            /* تصغير حجم الخطوط في البطاقات على الشاشات الصغيرة لتحسين العرض */
             .article-card h2 {
                 font-size: 1rem;
-                /* حجم خط العنوان */
                 line-height: 1.4;
             }
 
             .article-card p {
                 font-size: 0.8rem;
-                /* حجم خط المحتوى المختصر */
             }
 
             .article-card .text-xs {
                 font-size: 0.7rem;
-                /* حجم خط معلومات الكاتب والتاريخ */
             }
         }
-
-        /* ================== نهاية التعديلات ================== */
 
         /* شريحة الفلترة المنزلقة */
         .slide-panel {
@@ -289,11 +265,10 @@
             }
         }
     </style>
-</head>
+@endpush
 
-<body class="text-gray-800 relative overflow-x-hidden">
-    @include('partials.main-header')
-
+@section('content')
+<div class="relative overflow-x-hidden text-gray-800" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%); min-height: 100vh;">
     <div class="bg-pattern top-10 left-10 w-96 h-96 float-animation hidden lg:block">
         <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
             <path fill="#22c55e"
@@ -311,25 +286,9 @@
     </div>
 
     <div class="container mx-auto px-4 py-4 lg:py-8 relative z-10">
-
         <div class="mb-8">
             <div class="glass-effect p-4 lg:p-6 rounded-3xl green-glow">
                 <div class="flex flex-col lg:flex-row gap-4">
-                    {{-- <div class="flex-1">
-                        <div class="search-bar relative">
-                            <input type="text" id="searchInput" placeholder="ابحث عن مقال..."
-                                class="w-full px-4 lg:px-6 py-3 lg:py-4 pr-12 lg:pr-14 bg-white/70 border-2 border-green-200 rounded-2xl
-                                       text-sm lg:text-base focus:ring-4 focus:ring-green-300 focus:border-green-500
-                                       transition-all duration-300 hover:border-green-400"
-                                       value="{{ request('search') }}">
-                            <svg class="absolute right-3 lg:right-4 top-1/2 transform -translate-y-1/2 w-5 lg:w-6 h-5 lg:h-6 text-green-500"
-                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                            </svg>
-                        </div>
-                    </div> --}}
-
                     {{-- Dropdown للسنوات وأزرار العرض جنب بعض --}}
                     <div class="flex flex-row gap-2 lg:gap-4 items-center">
                         @if(isset($availableYears) && count($availableYears) > 0)
@@ -368,18 +327,6 @@
                             </div>
                         </div>
                     </div>
-
-                        {{-- <button onclick="toggleFilter()"
-                            class="lg:hidden px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white
-                                   font-bold rounded-xl shadow-lg flex items-center gap-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4">
-                                </path>
-                            </svg>
-                            <span>فلتر</span>
-                        </button> --}}
-                    </div>
                 </div>
 
                 <div class="mt-4 flex flex-wrap gap-2">
@@ -409,7 +356,6 @@
         </div>
 
         <div class="flex flex-col lg:flex-row gap-8">
-
             <aside class="w-full lg:w-1/4">
                 <div id="filterPanel" class="fixed inset-0 z-50 lg:relative lg:inset-auto hidden lg:block">
                     <div class="absolute inset-0 bg-black/50 lg:hidden" onclick="toggleFilter()"></div>
@@ -539,15 +485,10 @@
                                                 class="text-lg lg:text-xl font-bold text-gray-800 mb-2 hover:text-green-600 transition-colors duration-300">
                                                 {{ $article->title }}
                                             </h2>
-                                            {{-- <p class="text-sm text-gray-600 leading-relaxed max-h-24 overflow-hidden">
-                                                {{ Str::limit(strip_tags($article->content), 90) }}
-                                            </p> --}}
                                         </div>
                                         <div class="text-xs text-gray-500 mt-2">
                                            <span
                                                 class="font-bold text-gray-700">{{ $article->person->full_name ?? 'غير معروف' }}</span>
-                                            {{-- في
-                                            {{ $article?->created_at?->format('d M Y') }} --}}
                                         </div>
                                         <div class="mt-4 text-right">
                                             <span
@@ -654,13 +595,15 @@
             </main>
         </div>
     </div>
+</div>
+@endsection
 
+@push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const articlesContainer = document.getElementById('articlesContainer');
             const gridViewBtn = document.getElementById('gridViewBtn');
             const listViewBtn = document.getElementById('listViewBtn');
-            // const searchInput = document.getElementById('searchInput');
             const filterPanel = document.getElementById('filterPanel');
             const slidePanel = filterPanel.querySelector('.slide-panel');
             const filterChips = document.querySelectorAll('.filter-chip');
@@ -690,29 +633,7 @@
                 }, 10);
             };
 
-            // 3. البحث (بناء رابط وإعادة توجيه)
-            // searchInput.addEventListener('keypress', function(e) {
-            //     if (e.key === 'Enter') {
-            //         const searchVal = e.target.value.trim();
-            //         const url = new URL(window.location.href);
-            //         if (searchVal) {
-            //             url.searchParams.set('search', searchVal);
-            //         } else {
-            //             url.searchParams.delete('search');
-            //         }
-            //         // الحفاظ على السنة والفئة الحالية
-            //         const currentUrlParams = new URLSearchParams(window.location.search);
-            //         if (currentUrlParams.has('year')) {
-            //             url.searchParams.set('year', currentUrlParams.get('year'));
-            //         }
-            //         if (currentUrlParams.has('category')) {
-            //             url.searchParams.set('category', currentUrlParams.get('category'));
-            //         }
-            //         window.location.href = url.toString();
-            //     }
-            // });
-
-            // 4. الفلاتر السريِّع ة (بناء رابط وإعادة توجيه)
+            // 3. الفلاتر السريعة (بناء رابط وإعادة توجيه)
             window.filterByCategory = function(categoryId) {
                 const url = new URL(window.location.origin + '/gallery/articles');
                 if (categoryId !== 'all') {
@@ -728,7 +649,7 @@
                 window.location.href = url.toString();
             };
 
-            // 5. فلترة حسب السنة
+            // 4. فلترة حسب السنة
             window.filterByYear = function(year) {
                 const url = new URL(window.location.origin + '/gallery/articles');
                 const currentUrlParams = new URLSearchParams(window.location.search);
@@ -751,7 +672,7 @@
                 window.location.href = url.toString();
             };
 
-            // 6. تحديث حالة الفلتر السريِّع  النشط
+            // 5. تحديث حالة الفلتر السريع النشط
             const currentCategory = new URLSearchParams(window.location.search).get('category');
             filterChips.forEach(chip => {
                 chip.classList.remove('active-filter');
@@ -761,7 +682,7 @@
                 }
             });
 
-            // 7. تأثير ظهور البطاقات عند التمرير
+            // 6. تأثير ظهور البطاقات عند التمرير
             const articleCards = document.querySelectorAll('.article-card');
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach((entry, index) => {
@@ -781,7 +702,4 @@
             });
         });
     </script>
-
-</body>
-
-</html>
+@endpush

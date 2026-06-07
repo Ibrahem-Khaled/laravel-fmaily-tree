@@ -377,6 +377,14 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'dashboard'], function () {
     Route::post('important-links/{importantLink}/approve', [\App\Http\Controllers\admin\ImportantLinkController::class, 'approve'])->name('dashboard.important-links.approve')->middleware(['permission:site-content.update']);
     Route::post('important-links/{importantLink}/reject', [\App\Http\Controllers\admin\ImportantLinkController::class, 'reject'])->name('dashboard.important-links.reject')->middleware(['permission:site-content.update']);
 
+    // Important Links Categories routes
+    Route::get('important-links-categories', [\App\Http\Controllers\admin\ImportantLinkCategoryController::class, 'index'])->name('dashboard.important-links.categories.index')->middleware(['permission:site-content.view']);
+    Route::post('important-links-categories', [\App\Http\Controllers\admin\ImportantLinkCategoryController::class, 'store'])->name('dashboard.important-links.categories.store')->middleware(['permission:site-content.update']);
+    Route::put('important-links-categories/{category}', [\App\Http\Controllers\admin\ImportantLinkCategoryController::class, 'update'])->name('dashboard.important-links.categories.update')->middleware(['permission:site-content.update']);
+    Route::delete('important-links-categories/{category}', [\App\Http\Controllers\admin\ImportantLinkCategoryController::class, 'destroy'])->name('dashboard.important-links.categories.destroy')->middleware(['permission:site-content.update']);
+    Route::post('important-links-categories/reorder', [\App\Http\Controllers\admin\ImportantLinkCategoryController::class, 'reorder'])->name('dashboard.important-links.categories.reorder')->middleware(['permission:site-content.update']);
+    Route::post('important-links-categories/{category}/toggle', [\App\Http\Controllers\admin\ImportantLinkCategoryController::class, 'toggle'])->name('dashboard.important-links.categories.toggle')->middleware(['permission:site-content.update']);
+
     // Site Password Settings routes
     Route::get('site-password-settings', [\App\Http\Controllers\admin\SitePasswordSettingsController::class, 'index'])->name('dashboard.site-password-settings.index')->middleware(['permission:site-content.view']);
     Route::post('site-password-settings', [\App\Http\Controllers\admin\SitePasswordSettingsController::class, 'update'])->name('dashboard.site-password-settings.update')->middleware(['permission:site-content.update']);

@@ -40,6 +40,19 @@
 
     document.addEventListener('DOMContentLoaded', function() {
         syncImportantLinkFormType();
+        
+        // Show filename on custom dropzone file select
+        document.getElementById('image')?.addEventListener('change', function() {
+            const file = this.files[0];
+            const label = document.getElementById('image_selected_filename');
+            if (file && label) {
+                label.innerHTML = '<i class="fas fa-check-circle ml-1"></i>تم اختيار الملف: <span class="font-weight-bold text-dark">' + file.name + '</span>';
+                label.style.display = 'block';
+            } else if (label) {
+                label.style.display = 'none';
+            }
+        });
+
         const d = document.getElementById('description');
         const cc = document.getElementById('charCount');
         if (d && cc) {

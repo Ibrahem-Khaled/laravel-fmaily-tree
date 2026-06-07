@@ -1,13 +1,8 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
+@extends('layouts.web-site.web')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>علاقات الرضاعة - {{ $person->full_name }} - معرض صور العائلة</title>
+@section('title', 'علاقات الرضاعة - ' . $person->full_name . ' - معرض صور العائلة')
 
-    {{-- قم بتضمين ملف Tailwind CSS الخاص بمشروعك --}}
-    <script src="https://cdn.tailwindcss.com"></script>
+@push('styles')
     {{-- إضافة إعدادات Tailwind المخصصة (مهم جدًا) --}}
     <script>
         tailwind.config = {
@@ -88,19 +83,9 @@
     {{-- استيراد خطوط جميلة من Google Fonts --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Amiri:wght@400;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
 
     <style>
-        /*
-            أكواد CSS المتبقية هي التي يصعب تحقيقها بـ Tailwind مباشرة
-            أو تحتاج plugins، مثل شريط التمرير (scrollbar).
-        */
-        body {
-            font-family: 'Tajawal', sans-serif;
-        }
-
         h1,
         h2,
         h3,
@@ -149,11 +134,10 @@
             box-shadow: 0 0 40px rgba(147, 51, 234, 0.3);
         }
     </style>
-</head>
+@endpush
 
-<body class="bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50 text-gray-800 relative overflow-x-hidden">
-    @include('partials.main-header')
-
+@section('content')
+<div class="relative overflow-x-hidden text-gray-800" style="background: linear-gradient(to bottom right, #fdf2f8, #faf5ff, #eef2ff); min-height: 100vh;">
     <div id="readingProgress"
         class="fixed top-0 right-0 h-1 bg-gradient-to-r from-pink-500 to-purple-400 z-50 transition-all duration-300">
     </div>
@@ -176,11 +160,10 @@
     </div>
 
     <main class="container mx-auto px-4 py-8 lg:py-12 relative z-10 max-w-6xl">
-
         <!-- زر العودة -->
         <div class="mb-8">
             <a href="{{ route('breastfeeding.public.index') }}"
-                class="inline-flex items-center gap-3 px-6 py-3 glass-effect rounded-2xl border border-pink-200/50 hover:bg-pink-50/50 transition-all duration-300 group">
+                class="inline-flex items-center gap-3 px-6 py-3 glass-effect rounded-2xl border border-pink-200/50 hover:bg-pink-50/50 transition-all duration-300 group shadow-sm">
                 <svg class="w-5 h-5 text-pink-600 transition-transform group-hover:-translate-x-1" fill="none"
                     stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -191,10 +174,10 @@
         </div>
 
         <!-- رأس الصفحة - معلومات الشخص -->
-        <div class="glass-effect rounded-3xl overflow-hidden shadow-pink-glow mb-12">
+        <div class="glass-effect rounded-3xl overflow-hidden shadow-pink-glow mb-12 border border-pink-100">
             <div class="bg-gradient-to-br from-pink-100/50 to-purple-100/50 p-8 lg:p-12">
                 <div class="flex flex-col lg:flex-row items-center gap-8">
-                    <div class="relative">
+                    <div class="relative flex-shrink-0">
                         <a href="{{ route('people.profile.show', $person) }}">
                             <img src="{{ $person->avatar }}" alt="{{ $person->first_name }}"
                                 class="w-40 h-40 rounded-full object-cover border-6 border-white shadow-xl hover:border-pink-400 transition-all duration-300">
@@ -251,13 +234,13 @@
 
                 <div class="space-y-6">
                     @foreach($nursingRelationships as $index => $relationship)
-                        <div class="glass-effect rounded-3xl overflow-hidden pink-glow-hover transition-all duration-500 transform hover:-translate-y-2 animate-slide-in"
+                        <div class="glass-effect rounded-3xl overflow-hidden pink-glow-hover transition-all duration-500 transform hover:-translate-y-2 animate-slide-in border border-pink-100"
                              style="animation-delay: {{ $index * 0.1 }}s">
 
                             <!-- رأس بطاقة العلاقة -->
                             <div class="bg-gradient-to-br from-pink-50/50 to-warm-pink/30 p-6 lg:p-8">
                                 <div class="flex flex-col lg:flex-row items-center gap-6">
-                                    <a href="{{ route('people.profile.show', $relationship->breastfedChild) }}">
+                                    <a href="{{ route('people.profile.show', $relationship->breastfedChild) }}" class="flex-shrink-0">
                                         <img src="{{ $relationship->breastfedChild->avatar }}"
                                              alt="{{ $relationship->breastfedChild->first_name }}"
                                              class="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg hover:border-pink-400 transition-all duration-300">
@@ -347,13 +330,13 @@
 
                 <div class="space-y-6">
                     @foreach($breastfedRelationships as $index => $relationship)
-                        <div class="glass-effect rounded-3xl overflow-hidden purple-glow-hover transition-all duration-500 transform hover:-translate-y-2 animate-slide-in"
+                        <div class="glass-effect rounded-3xl overflow-hidden purple-glow-hover transition-all duration-500 transform hover:-translate-y-2 animate-slide-in border border-purple-100"
                              style="animation-delay: {{ $index * 0.1 }}s">
 
                             <!-- رأس بطاقة العلاقة -->
                             <div class="bg-gradient-to-br from-purple-50/50 to-indigo-50/30 p-6 lg:p-8">
                                 <div class="flex flex-col lg:flex-row items-center gap-6">
-                                    <a href="{{ route('people.profile.show', $relationship->nursingMother) }}">
+                                    <a href="{{ route('people.profile.show', $relationship->nursingMother) }}" class="flex-shrink-0">
                                         <img src="{{ $relationship->nursingMother->avatar }}"
                                              alt="{{ $relationship->nursingMother->first_name }}"
                                              class="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg hover:border-purple-400 transition-all duration-300">
@@ -435,7 +418,7 @@
 
         <!-- حالة فارغة -->
         @if($nursingRelationships->isEmpty() && $breastfedRelationships->isEmpty())
-            <div class="text-center glass-effect p-16 rounded-3xl shadow-pink-glow max-w-2xl mx-auto">
+            <div class="text-center glass-effect p-16 rounded-3xl shadow-pink-glow max-w-2xl mx-auto border border-pink-100">
                 <div class="text-6xl text-pink-400 mb-6">
                     <i class="fas fa-baby animate-heartbeat"></i>
                 </div>
@@ -454,7 +437,10 @@
             </div>
         @endif
     </main>
+</div>
+@endsection
 
+@push('scripts')
     <script>
         // شريط التقدم للقراءة
         const progress = document.getElementById('readingProgress');
@@ -488,6 +474,4 @@
             observer.observe(card);
         });
     </script>
-</body>
-
-</html>
+@endpush

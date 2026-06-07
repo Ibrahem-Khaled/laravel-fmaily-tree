@@ -159,8 +159,8 @@ class HomePageData
         $today = now();
         $birthdayPersons = Person::whereNotNull('birth_date')
             ->where('from_outside_the_family', false)
-            ->whereRaw('DAY(birth_date) = ?', [$today->day])
-            ->whereRaw('MONTH(birth_date) = ?', [$today->month])
+            ->whereDay('birth_date', $today->day)
+            ->whereMonth('birth_date', $today->month)
             ->with(['parent:id,first_name,gender,parent_id', 'parent.parent:id,first_name,gender,parent_id'])
             ->orderBy('birth_date')
             ->take(12)
@@ -271,10 +271,18 @@ class HomePageData
             'phd' => $this->degreeCategoryFromArticle($firstPhd),
         ];
 
+        $importantLinkCategories = \App\Models\ImportantLinkCategory::where('is_active', true)
+            ->orderBy('sort_order')
+            ->get();
+
         if (Auth::check()) {
-            $importantLinks = ImportantLink::with(['media', 'submitter'])->orderBy('order')->get();
+            $importantLinks = ImportantLink::with(['media', 'submitter', 'category'])->orderBy('order')->get();
         } else {
-            $importantLinks = ImportantLink::getApprovedActiveLinks();
+            $importantLinks = ImportantLink::with(['media', 'submitter', 'category'])
+                ->where('is_active', true)
+                ->where('status', 'approved')
+                ->orderBy('order')
+                ->get();
         }
 
         if (Auth::check()) {
@@ -318,6 +326,7 @@ class HomePageData
             'masterTotalCount' => $masterTotalCount,
             'phdTotalCount' => $phdTotalCount,
             'importantLinks' => $importantLinks,
+            'importantLinkCategories' => $importantLinkCategories,
             'familyNews' => $familyNews,
             'dynamicSections' => $dynamicSections,
             'quiz' => [

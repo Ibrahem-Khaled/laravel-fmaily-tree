@@ -3,52 +3,64 @@
 @section('title', 'إدارة الروابط المهمة')
 
 @section('content')
-<div class="container-fluid">
+@include('dashboard.important-links._styles')
+
+
+<div class="container-fluid dashboard-container">
     <!-- Page Header -->
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <div>
-            <h1 class="h3 mb-2 text-gray-800">
-                <i class="fas fa-link text-primary mr-2"></i>إدارة الروابط المهمة
+    <div class="d-sm-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+        <div class="text-right">
+            <h1 class="page-title mb-1">
+                <i class="fas fa-link text-emerald-500 ml-2"></i>إدارة الروابط المهمة
             </h1>
-            <p class="text-muted mb-0">قم بإدارة الروابط المهمة التي تظهر في الصفحة الرئيسية</p>
+            <p class="text-muted mb-0">قم بإدارة الروابط المهمة وتطبيقات الصفحة الرئيسية وتصنيفاتها</p>
         </div>
-        <a href="{{ route('dashboard.important-links.create') }}" class="btn btn-primary shadow-sm">
-            <i class="fas fa-plus-circle mr-2"></i>إضافة رابط جديد
-        </a>
+        <div class="d-flex gap-2">
+            <a href="{{ route('dashboard.important-links.categories.index') }}" class="btn btn-premium-secondary d-flex align-items-center gap-2">
+                <i class="fas fa-folder ml-1 text-emerald-500"></i> إدارة الفئات
+            </a>
+            <a href="{{ route('dashboard.important-links.create') }}" class="btn btn-premium-primary d-flex align-items-center gap-2 mr-2">
+                <i class="fas fa-plus-circle ml-1"></i> إضافة رابط جديد
+            </a>
+        </div>
     </div>
 
     @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
-            <i class="fas fa-check-circle mr-2"></i>{{ session('success') }}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <div class="alert alert-success alert-dismissible fade show shadow-sm border-0 rounded-xl mb-4" role="alert" style="background-color: #ecfdf5; color: #065f46;" dir="rtl">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-check-circle fa-lg ml-3"></i>
+                <span class="font-weight-bold">{{ session('success') }}</span>
+            </div>
+            <button type="button" class="close text-success" data-dismiss="alert" style="opacity: 0.8;">
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
     @endif
 
     @if(session('error'))
-        <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
-            <i class="fas fa-exclamation-circle mr-2"></i>{{ session('error') }}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm border-0 rounded-xl mb-4" role="alert" style="background-color: #fef2f2; color: #991b1b;" dir="rtl">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-exclamation-circle fa-lg ml-3"></i>
+                <span class="font-weight-bold">{{ session('error') }}</span>
+            </div>
+            <button type="button" class="close text-danger" data-dismiss="alert" style="opacity: 0.8;">
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
     @endif
 
     <!-- Statistics Cards -->
-    <div class="row mb-4">
+    <div class="row mb-4 text-right" dir="rtl">
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2" style="border-left: 0.25rem solid #4e73df !important;">
+            <div class="card stat-card-premium bg-white border-right-primary py-2" style="border-right: 0.35rem solid #10b981 !important;">
                 <div class="card-body">
-                    <div class="row no-gutters align-items-center">
+                    <div class="row align-items-center no-gutters">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                إجمالي الروابط
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['total'] ?? 0 }}</div>
+                            <div class="text-xs font-weight-bold text-emerald-600 text-uppercase mb-1">إجمالي الروابط</div>
+                            <div class="h5 mb-0 font-weight-bold text-slate-800">{{ $stats['total'] ?? 0 }}</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-link fa-2x text-gray-300"></i>
+                            <div class="bg-emerald-50 text-emerald-500 rounded-circle p-3"><i class="fas fa-link fa-xl"></i></div>
                         </div>
                     </div>
                 </div>
@@ -56,17 +68,15 @@
         </div>
 
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-success shadow h-100 py-2" style="border-left: 0.25rem solid #1cc88a !important;">
+            <div class="card stat-card-premium bg-white border-right-success py-2" style="border-right: 0.35rem solid #34d399 !important;">
                 <div class="card-body">
-                    <div class="row no-gutters align-items-center">
+                    <div class="row align-items-center no-gutters">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                روابط نشطة
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['active'] ?? 0 }}</div>
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">روابط نشطة</div>
+                            <div class="h5 mb-0 font-weight-bold text-slate-800">{{ $stats['active'] ?? 0 }}</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                            <div class="bg-emerald-50 text-emerald-400 rounded-circle p-3"><i class="fas fa-check-circle fa-xl"></i></div>
                         </div>
                     </div>
                 </div>
@@ -74,34 +84,31 @@
         </div>
 
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-warning shadow h-100 py-2" style="border-left: 0.25rem solid #f6c23e !important;">
+            <div class="card stat-card-premium bg-white border-right-warning py-2" style="border-right: 0.35rem solid #f59e0b !important;">
                 <div class="card-body">
-                    <div class="row no-gutters align-items-center">
+                    <div class="row align-items-center no-gutters">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                روابط معطلة
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['inactive'] ?? 0 }}</div>
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">روابط معطلة</div>
+                            <div class="h5 mb-0 font-weight-bold text-slate-800">{{ $stats['inactive'] ?? 0 }}</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-times-circle fa-2x text-gray-300"></i>
+                            <div class="bg-amber-50 text-amber-500 rounded-circle p-3"><i class="fas fa-times-circle fa-xl"></i></div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-info shadow h-100 py-2" style="border-left: 0.25rem solid #36b9cc !important;">
+            <div class="card stat-card-premium bg-white border-right-info py-2" style="border-right: 0.35rem solid #0ea5e9 !important;">
                 <div class="card-body">
-                    <div class="row no-gutters align-items-center">
+                    <div class="row align-items-center no-gutters">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                بانتظار الموافقة
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['pending'] ?? 0 }}</div>
+                            <div class="text-xs font-weight-bold text-sky-600 text-uppercase mb-1">الفئات الفعالة</div>
+                            <div class="h5 mb-0 font-weight-bold text-slate-800">{{ $stats['categories'] ?? 0 }}</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                            <div class="bg-sky-50 text-sky-500 rounded-circle p-3"><i class="fas fa-folder fa-xl"></i></div>
                         </div>
                     </div>
                 </div>
@@ -109,47 +116,53 @@
         </div>
     </div>
 
+    {{-- Pending Suggestions --}}
     @if(isset($pendingLinks) && $pendingLinks->count() > 0)
-        <div class="card shadow-sm border-0 mb-4 border-right-info" style="border-right: 4px solid #36b9cc !important;">
-            <div class="card-header bg-light">
-                <h6 class="mb-0 font-weight-bold text-info">
-                    <i class="fas fa-clock mr-2"></i>اقتراحات بانتظار الموافقة ({{ $pendingLinks->count() }})
+        <div class="card card-premium mb-4 border-right-info" style="border-right: 4px solid #0ea5e9 !important;">
+            <div class="card-header bg-light py-3">
+                <h6 class="mb-0 font-weight-bold text-sky-600 text-right w-100">
+                    <i class="fas fa-clock ml-2"></i>اقتراحات بانتظار الموافقة ({{ $pendingLinks->count() }})
                 </h6>
             </div>
-            <div class="card-body p-4">
+            <div class="card-body p-4 text-right">
                 <div class="list-group">
                     @foreach($pendingLinks as $link)
-                        <div class="list-group-item mb-2 border rounded">
-                            <div class="d-flex justify-content-between align-items-start flex-wrap">
+                        <div class="list-group-item mb-2 border rounded-xl bg-white shadow-sm p-3">
+                            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
                                 <div class="mb-2 mb-md-0 flex-grow-1">
-                                    <h6 class="font-weight-bold mb-1">{{ $link->title }}</h6>
-                                    <p class="text-muted small mb-1">
+                                    <h6 class="font-weight-bold mb-2 text-slate-800" style="font-size: 1.05rem;">{{ $link->title }}</h6>
+                                    <p class="text-muted small mb-2 text-left text-md-right" dir="ltr">
                                         @if($link->type === 'app')
-                                            @if($link->url)<span class="d-block">عام: {{ \Illuminate\Support\Str::limit($link->url, 60) }}</span>@endif
-                                            @if($link->url_ios)<span class="d-block">iOS: {{ \Illuminate\Support\Str::limit($link->url_ios, 60) }}</span>@endif
-                                            @if($link->url_android)<span class="d-block">أندرويد: {{ \Illuminate\Support\Str::limit($link->url_android, 60) }}</span>@endif
+                                            @if($link->url)<span class="d-block text-right">عام: {{ $link->url }}</span>@endif
+                                            @if($link->url_ios)<span class="d-block text-right">iOS: {{ $link->url_ios }}</span>@endif
+                                            @if($link->url_android)<span class="d-block text-right">أندرويد: {{ $link->url_android }}</span>@endif
                                         @else
-                                            {{ $link->url }}
+                                            <span class="text-right d-block">{{ $link->url }}</span>
                                         @endif
                                     </p>
-                                    @if($link->submitter)
-                                        <p class="mb-0 text-muted small"><span class="font-weight-bold">من أضافه:</span> {{ $link->submitter->name }} — {{ $link->submitter->phone ?? '-' }}</p>
-                                    @endif
+                                    <div class="d-flex flex-wrap gap-3 mt-2 text-slate-500 small">
+                                        @if($link->submitter)
+                                            <span><i class="fas fa-user ml-1 text-slate-400"></i><span class="font-weight-bold text-slate-600">من أضافه:</span> {{ $link->submitter->name }} — {{ $link->submitter->phone ?? '-' }}</span>
+                                        @endif
+                                        @if($link->category)
+                                            <span><i class="fas fa-folder ml-1 text-slate-400"></i><span class="font-weight-bold text-slate-600">الفئة المقترحة:</span> <span class="badge badge-secondary px-2.5 py-1">{{ $link->category->name }}</span></span>
+                                        @endif
+                                    </div>
                                     @if($link->media->isNotEmpty())
-                                        <p class="mb-0 small text-info mt-1"><i class="fas fa-photo-video mr-1"></i>{{ $link->media->count() }} وسائط — افتح المراجعة لمعاينتها</p>
+                                        <p class="mb-0 small text-sky-600 font-weight-bold mt-2"><i class="fas fa-photo-video ml-1"></i>{{ $link->media->count() }} وسائط مرفقة — افتح المراجعة لمعاينتها</p>
                                     @endif
                                 </div>
-                                <div class="d-flex flex-wrap align-items-center gap-1">
-                                    <a href="{{ route('dashboard.important-links.edit', $link) }}" class="btn btn-info btn-sm mb-1">
-                                        <i class="fas fa-eye mr-1"></i>مراجعة ومعاينة
+                                <div class="d-flex flex-wrap align-items-center gap-2">
+                                    <a href="{{ route('dashboard.important-links.edit', $link) }}" class="btn btn-premium-info btn-sm">
+                                        <i class="fas fa-eye ml-1"></i>مراجعة ومعاينة
                                     </a>
-                                    <form action="{{ route('dashboard.important-links.approve', $link) }}" method="POST" class="d-inline mb-1">
+                                    <form action="{{ route('dashboard.important-links.approve', $link) }}" method="POST" class="d-inline">
                                         @csrf
-                                        <button type="submit" class="btn btn-success btn-sm"><i class="fas fa-check mr-1"></i>اعتماد</button>
+                                        <button type="submit" class="btn btn-premium-success btn-sm"><i class="fas fa-check ml-1"></i>اعتماد</button>
                                     </form>
-                                    <form action="{{ route('dashboard.important-links.reject', $link) }}" method="POST" class="d-inline mb-1" onsubmit="return confirm('هل أنت متأكد من رفض هذا الاقتراح؟');">
+                                    <form action="{{ route('dashboard.important-links.reject', $link) }}" method="POST" class="d-inline" onsubmit="return confirm('هل أنت متأكد من رفض هذا الاقتراح؟');">
                                         @csrf
-                                        <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-times mr-1"></i>رفض</button>
+                                        <button type="submit" class="btn btn-premium-danger btn-sm"><i class="fas fa-times ml-1"></i>رفض وحذف</button>
                                     </form>
                                 </div>
                             </div>
@@ -160,101 +173,101 @@
         </div>
     @endif
 
-    <!-- Links List -->
+    <!-- Links List Grouped by Category -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2 text-right" dir="rtl">
+        <div>
+            <h5 class="font-weight-bold text-slate-800 mb-0">قائمة الروابط المصنفة</h5>
+            <p class="text-muted small mb-0">اسحب عناصر الروابط داخل أي فئة لإعادة ترتيب ظهورها في الصفحة الرئيسية</p>
+        </div>
+        <button type="button" class="btn btn-premium-success d-flex align-items-center gap-2" onclick="saveOrder()" id="saveOrderBtn" style="display: none;">
+            <i class="fas fa-save ml-1"></i> حفظ ترتيب الروابط المحدث
+        </button>
+    </div>
+
+    @php
+        $uncategorizedLinks = $links->whereNull('category_id');
+    @endphp
+
     @if($links->count() > 0)
-        <div class="mb-4">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-white border-bottom">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h6 class="mb-0 font-weight-bold text-primary">
-                            <i class="fas fa-list mr-2"></i>الروابط ({{ $links->count() }})
+        <!-- Accordion for Categories -->
+        <div class="accordion accordion-premium text-right" id="categoriesAccordion" dir="rtl">
+            @foreach($categories as $category)
+                @php
+                    $categoryLinks = $links->where('category_id', $category->id);
+                @endphp
+                <div class="card card-premium shadow-sm mb-3">
+                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center" id="heading-{{ $category->id }}">
+                        <h6 class="mb-0 font-weight-bold text-slate-800 flex-grow-1" style="cursor: pointer;" data-toggle="collapse" data-target="#collapse-{{ $category->id }}" aria-expanded="true" aria-controls="collapse-{{ $category->id }}">
+                            <div class="d-inline-flex align-items-center justify-content-center bg-emerald-50 text-emerald-600 rounded-lg p-2 ml-3 border border-emerald-100" style="width: 34px; height: 34px;">
+                                <i class="{{ $category->icon ?: 'fas fa-folder' }}"></i>
+                            </div>
+                            <span style="font-size: 1.05rem;">{{ $category->name }}</span>
+                            <span class="badge badge-pill badge-light border ml-3 px-2.5 py-1 text-slate-600" style="font-size: 0.8rem;">{{ $categoryLinks->count() }} روابط</span>
+                            @if(!$category->is_active)
+                                <span class="badge badge-pill badge-warning ml-1 px-2.5 py-1" style="font-size: 0.8rem;">معطلة ومخفية</span>
+                            @endif
                         </h6>
-                        <button type="button" class="btn btn-sm btn-success" onclick="saveOrder()" id="saveOrderBtn" style="display: none;">
-                            <i class="fas fa-save mr-1"></i>حفظ الترتيب
-                        </button>
+                        <a href="#collapse-{{ $category->id }}" class="text-muted ml-2" data-toggle="collapse"><i class="fas fa-chevron-down"></i></a>
+                    </div>
+
+                    <div id="collapse-{{ $category->id }}" class="collapse show" aria-labelledby="heading-{{ $category->id }}">
+                        <div class="card-body p-3 bg-light/30 border-top">
+                            <div id="links-list-{{ $category->id }}" class="list-group links-list-sortable">
+                                @forelse($categoryLinks as $link)
+                                    @include('dashboard.important-links._link_row', ['link' => $link])
+                                @empty
+                                    <div class="text-center py-5 text-muted bg-white border border-dashed rounded-xl">
+                                        <i class="fas fa-info-circle fa-2x mb-3 text-slate-300"></i> 
+                                        <p class="font-weight-bold mb-1">لا توجد روابط في هذه الفئة</p>
+                                        <p class="small text-muted mb-0">يمكنك تعديل أي رابط وإسناده لهذه الفئة</p>
+                                    </div>
+                                @endforelse
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="card-body p-4">
-                    <div id="links-list" class="list-group">
-                        @foreach($links as $link)
-                            <div class="list-group-item list-group-item-action mb-2 border rounded shadow-sm link-item {{ !$link->is_active ? 'opacity-50' : '' }}"
-                                 data-id="{{ $link->id }}"
-                                 style="cursor: move; transition: all 0.3s ease;">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="d-flex align-items-center flex-grow-1">
-                                        <i class="fas fa-grip-vertical text-muted mr-3" style="cursor: move;" title="اسحب لإعادة الترتيب"></i>
-                                        <div class="mr-3">
-                                            @if($link->icon)
-                                                <i class="{{ $link->icon }} text-primary" style="font-size: 1.5rem;"></i>
-                                            @else
-                                                <i class="fas fa-link text-primary" style="font-size: 1.5rem;"></i>
-                                            @endif
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-1 font-weight-bold">
-                                                {{ $link->title }}
-                                                <span class="badge badge-{{ $link->is_active ? 'success' : 'secondary' }} ml-2">
-                                                    {{ $link->is_active ? 'نشط' : 'معطل' }}
-                                                </span>
-                                                <span class="badge badge-{{ ($link->status ?? 'approved') === 'pending' ? 'warning' : 'dark' }} ml-1">
-                                                    {{ ($link->type ?? 'website') === 'app' ? 'تطبيق' : 'موقع' }}
-                                                </span>
-                                                <span class="badge badge-dark ml-1">#{{ $link->order }}</span>
-                                            </h6>
-                                            <p class="mb-1 text-muted small">{{ \Illuminate\Support\Str::limit($link->url, 80) }}</p>
-                                            @if($link->submitter)
-                                                <p class="mb-1 text-muted small"><span class="font-weight-bold">من أضافه:</span> {{ $link->submitter->name }}</p>
-                                            @endif
-                                            @if($link->description)
-                                                <p class="mb-0 text-muted" style="font-size: 0.85rem;">{{ $link->description }}</p>
-                                            @endif
-                                        </div>
-                                    </div>
-                                    <div class="btn-group btn-group-sm shadow-sm ml-3">
-                                        <a href="{{ route('dashboard.important-links.edit', $link) }}"
-                                           class="btn btn-outline-info border-0"
-                                           title="تعديل"
-                                           style="border-radius: 6px 0 0 6px;">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <form action="{{ route('dashboard.important-links.toggle', $link) }}"
-                                              method="POST" class="d-inline">
-                                            @csrf
-                                            <button type="submit"
-                                                    class="btn btn-outline-{{ $link->is_active ? 'warning' : 'success' }} border-0"
-                                                    title="{{ $link->is_active ? 'تعطيل' : 'تفعيل' }}">
-                                                <i class="fas fa-{{ $link->is_active ? 'eye-slash' : 'eye' }}"></i>
-                                            </button>
-                                        </form>
-                                        <form action="{{ route('dashboard.important-links.destroy', $link) }}"
-                                              method="POST"
-                                              class="d-inline"
-                                              onsubmit="return confirm('هل أنت متأكد من حذف هذا الرابط؟')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit"
-                                                    class="btn btn-outline-danger border-0"
-                                                    title="حذف"
-                                                    style="border-radius: 0 6px 6px 0;">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </form>
-                                    </div>
+            @endforeach
+
+            <!-- Uncategorized Links -->
+            <div class="card card-premium shadow-sm mb-3">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center" id="heading-uncategorized">
+                    <h6 class="mb-0 font-weight-bold text-slate-800 flex-grow-1" style="cursor: pointer;" data-toggle="collapse" data-target="#collapse-uncategorized" aria-expanded="true" aria-controls="collapse-uncategorized">
+                        <div class="d-inline-flex align-items-center justify-content-center bg-slate-50 text-slate-500 rounded-lg p-2 ml-3 border border-slate-200" style="width: 34px; height: 34px;">
+                            <i class="fas fa-link"></i>
+                        </div>
+                        <span style="font-size: 1.05rem;">روابط عامة (غير مصنفة)</span>
+                        <span class="badge badge-pill badge-light border ml-3 px-2.5 py-1 text-slate-600" style="font-size: 0.8rem;">{{ $uncategorizedLinks->count() }} روابط</span>
+                    </h6>
+                    <a href="#collapse-uncategorized" class="text-muted ml-2" data-toggle="collapse"><i class="fas fa-chevron-down"></i></a>
+                </div>
+
+                <div id="collapse-uncategorized" class="collapse show" aria-labelledby="heading-uncategorized">
+                    <div class="card-body p-3 bg-light/30 border-top">
+                        <div id="links-list-uncategorized" class="list-group links-list-sortable">
+                            @forelse($uncategorizedLinks as $link)
+                                @include('dashboard.important-links._link_row', ['link' => $link])
+                            @empty
+                                <div class="text-center py-5 text-muted bg-white border border-dashed rounded-xl">
+                                    <i class="fas fa-info-circle fa-2x mb-3 text-slate-300"></i>
+                                    <p class="font-weight-bold mb-1">لا توجد روابط غير مصنفة</p>
+                                    <p class="small text-muted mb-0">جميع الروابط الحالية تم إسنادها إلى فئات</p>
                                 </div>
-                            </div>
-                        @endforeach
+                            @endforelse
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     @else
-        <div class="card shadow-sm border-0">
+        <div class="card card-premium shadow-sm border-0">
             <div class="card-body text-center py-5">
-                <i class="fas fa-link text-muted" style="font-size: 4rem;"></i>
-                <h5 class="mt-3 text-muted">لا توجد روابط حالياً</h5>
-                <p class="text-muted mb-4">ابدأ بإضافة روابط جديدة</p>
-                <a href="{{ route('dashboard.important-links.create') }}" class="btn btn-primary">
-                    <i class="fas fa-plus-circle mr-2"></i>إضافة رابط جديد
+                <div class="bg-emerald-50 text-emerald-500 rounded-full d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                    <i class="fas fa-link fa-3x"></i>
+                </div>
+                <h5 class="font-weight-bold text-slate-700 mb-2">لا توجد روابط حالياً</h5>
+                <p class="text-muted mb-4">ابدأ بإضافة روابط جديدة لعرضها في الصفحة الرئيسية</p>
+                <a href="{{ route('dashboard.important-links.create') }}" class="btn btn-premium-primary">
+                    <i class="fas fa-plus-circle ml-1"></i>إضافة رابط جديد
                 </a>
             </div>
         </div>
@@ -264,16 +277,17 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 <script>
-    let sortable = null;
-    @if($links->count() > 0)
-        sortable = Sortable.create(document.getElementById('links-list'), {
+    // تفعيل السحب والإفلات لترتيب الروابط داخل كل فئة
+    document.querySelectorAll('.links-list-sortable').forEach(function(el) {
+        Sortable.create(el, {
             handle: '.fa-grip-vertical',
             animation: 150,
+            ghostClass: 'sortable-ghost',
             onEnd: function() {
                 document.getElementById('saveOrderBtn').style.display = 'block';
             }
         });
-    @endif
+    });
 
     function saveOrder() {
         const items = document.querySelectorAll('.link-item');

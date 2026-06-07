@@ -4,6 +4,7 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ImportantLink;
+use App\Models\ImportantLinkCategory;
 use App\Services\ImportantLinkMediaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -22,17 +23,19 @@ class ImportantLinkController extends Controller
      */
     public function index()
     {
-        $links = ImportantLink::with(['submitter', 'media'])->where('status', 'approved')->orderBy('order')->get();
-        $pendingLinks = ImportantLink::with(['submitter', 'media'])->where('status', 'pending')->orderBy('created_at', 'desc')->get();
+        $categories = ImportantLinkCategory::orderBy('sort_order')->get();
+        $links = ImportantLink::with(['submitter', 'media', 'category'])->where('status', 'approved')->orderBy('order')->get();
+        $pendingLinks = ImportantLink::with(['submitter', 'media', 'category'])->where('status', 'pending')->orderBy('created_at', 'desc')->get();
 
         $stats = [
             'total' => ImportantLink::count(),
             'active' => ImportantLink::where('is_active', true)->count(),
             'inactive' => ImportantLink::where('is_active', false)->count(),
             'pending' => ImportantLink::where('status', 'pending')->count(),
+            'categories' => $categories->count(),
         ];
 
-        return view('dashboard.important-links.index', compact('links', 'pendingLinks', 'stats'));
+        return view('dashboard.important-links.index', compact('links', 'pendingLinks', 'stats', 'categories'));
     }
 
     /**
@@ -40,7 +43,8 @@ class ImportantLinkController extends Controller
      */
     public function create()
     {
-        return view('dashboard.important-links.create');
+        $categories = ImportantLinkCategory::orderBy('sort_order')->get();
+        return view('dashboard.important-links.create', compact('categories'));
     }
 
     /**
@@ -49,8 +53,9 @@ class ImportantLinkController extends Controller
     public function edit(ImportantLink $importantLink)
     {
         $importantLink->load(['media', 'submitter']);
+        $categories = ImportantLinkCategory::orderBy('sort_order')->get();
 
-        return view('dashboard.important-links.edit', compact('importantLink'));
+        return view('dashboard.important-links.edit', compact('importantLink', 'categories'));
     }
 
     /**
@@ -70,6 +75,7 @@ class ImportantLinkController extends Controller
             'description' => 'nullable|string|max:1000',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'open_in_new_tab' => 'nullable|boolean',
+            'category_id' => 'nullable|integer|exists:important_link_categories,id',
             'media_files' => 'nullable|array',
             'media_files.*' => 'nullable|file|max:51200',
             'media_kinds' => 'nullable|array',
@@ -105,6 +111,7 @@ class ImportantLinkController extends Controller
             'order' => $lastOrder + 1,
             'is_active' => $request->has('is_active'),
             'open_in_new_tab' => $request->has('open_in_new_tab'),
+            'category_id' => $request->category_id,
         ]);
 
         $this->mediaService->attachFromRequest($request, $link);
@@ -133,6 +140,7 @@ class ImportantLinkController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'status' => ['nullable', Rule::in(['pending', 'approved'])],
             'open_in_new_tab' => 'nullable|boolean',
+            'category_id' => 'nullable|integer|exists:important_link_categories,id',
             'delete_media_ids' => 'nullable|array',
             'delete_media_ids.*' => 'integer|exists:important_link_media,id',
             'media_files' => 'nullable|array',
@@ -168,6 +176,7 @@ class ImportantLinkController extends Controller
             'status' => $request->status ?? $importantLink->status,
             'is_active' => $request->has('is_active'),
             'open_in_new_tab' => $request->has('open_in_new_tab'),
+            'category_id' => $request->category_id,
         ];
 
         if ($request->hasFile('image')) {

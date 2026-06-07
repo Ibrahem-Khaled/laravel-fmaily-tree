@@ -62,6 +62,7 @@ class HomePageApiResource extends JsonResource
             'masterTotalCount' => (int) ($d['masterTotalCount'] ?? 0),
             'phdTotalCount' => (int) ($d['phdTotalCount'] ?? 0),
             'importantLinks' => $this->serializeImportantLinks($d['importantLinks'] ?? collect()),
+            'importantLinkCategories' => $this->serializeImportantLinkCategories($d['importantLinkCategories'] ?? collect(), $d['importantLinks'] ?? collect()),
             'familyNews' => $this->serializeFamilyNews($d['familyNews'] ?? collect()),
             'dynamicSections' => $this->serializeDynamicSections($d['dynamicSections'] ?? collect()),
             'quiz' => $this->serializeQuizBlock($d['quiz'] ?? []),
@@ -563,5 +564,38 @@ class HomePageApiResource extends JsonResource
         }
 
         return $this->storageUrl($value);
+    }
+
+    private function serializeImportantLinkCategories($categories, $flatLinks): array
+    {
+        $serialized = collect($categories)->map(function ($category) use ($flatLinks) {
+            $categoryLinks = collect($flatLinks)->where('category_id', $category->id);
+
+            return [
+                'id' => $category->id,
+                'name' => $category->name,
+                'description' => $category->description,
+                'icon' => $category->icon,
+                'sort_order' => $category->sort_order,
+                'is_active' => (bool) $category->is_active,
+                'links' => $this->serializeImportantLinks($categoryLinks),
+            ];
+        });
+
+        // Check if there are uncategorized links
+        $uncategorizedLinks = collect($flatLinks)->whereNull('category_id');
+        if ($uncategorizedLinks->isNotEmpty()) {
+            $serialized->push([
+                'id' => null,
+                'name' => 'روابط عامة',
+                'description' => 'روابط وتطبيقات عامة غير مصنفة',
+                'icon' => 'fas fa-link',
+                'sort_order' => 999,
+                'is_active' => true,
+                'links' => $this->serializeImportantLinks($uncategorizedLinks),
+            ]);
+        }
+
+        return $serialized->values()->all();
     }
 }

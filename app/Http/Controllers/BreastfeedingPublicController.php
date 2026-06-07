@@ -27,14 +27,22 @@ class BreastfeedingPublicController extends Controller
         $childrenData = $page['children'];
         $stats = $page['stats'];
 
-        return view('breastfeeding.public.index', compact('mothersData', 'childrenData', 'stats', 'search', 'viewMode'));
+        return view('web-site.breastfeeding.index', compact('mothersData', 'childrenData', 'stats', 'search', 'viewMode'));
     }
 
     /**
-     * Display breastfeeding details for a specific person - Coming Soon
+     * Display breastfeeding details for a specific person
      */
     public function show(Person $person): View
     {
-        return view('breastfeeding.public.coming-soon');
+        $nursingRelationships = $person->nursingRelationships()
+            ->with(['breastfedChild'])
+            ->get();
+
+        $breastfedRelationships = $person->breastfedRelationships()
+            ->with(['nursingMother'])
+            ->get();
+
+        return view('web-site.breastfeeding.show', compact('person', 'nursingRelationships', 'breastfedRelationships'));
     }
 }

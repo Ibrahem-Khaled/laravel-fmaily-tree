@@ -1,13 +1,8 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
+@extends('layouts.web-site.web')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $article->title }} - معرض صور العائلة</title>
+@section('title', $article->title . ' - معرض صور العائلة')
 
-    {{-- قم بتضمين ملف Tailwind CSS الخاص بمشروعك --}}
-    <script src="https://cdn.tailwindcss.com"></script>
+@push('styles')
     {{-- إضافة إعدادات Tailwind المخصصة (مهم جدًا) --}}
     <script>
         tailwind.config = {
@@ -61,19 +56,9 @@
     {{-- استيراد خطوط جميلة من Google Fonts --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Amiri:wght@400;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
 
     <style>
-        /*
-            أكواد CSS المتبقية هي التي يصعب تحقيقها بـ Tailwind مباشرة
-            أو تحتاج plugins، مثل شريط التمرير (scrollbar).
-        */
-        body {
-            font-family: 'Tajawal', sans-serif;
-        }
-
         h1,
         h2,
         h3,
@@ -108,11 +93,10 @@
             display: flex;
         }
     </style>
-</head>
+@endpush
 
-<body class="bg-gradient-to-br from-green-50 to-emerald-50 text-gray-800 relative overflow-x-hidden">
-    @include('partials.main-header')
-
+@section('content')
+<div class="relative overflow-x-hidden text-gray-800">
     <div id="readingProgress"
         class="fixed top-0 right-0 h-1 bg-gradient-to-r from-green-500 to-emerald-400 z-50 transition-all duration-300">
     </div>
@@ -401,7 +385,10 @@
             </div>
         </div>
     </div>
+</div>
+@endsection
 
+@push('scripts')
     <script>
         // شريط التقدم للقراءة
         const progress = document.getElementById('readingProgress');
@@ -453,6 +440,4 @@
             imageCounter.textContent = `${currentIndex + 1} / ${images.length}`;
         }
     </script>
-</body>
-
-</html>
+@endpush

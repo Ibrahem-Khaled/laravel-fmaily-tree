@@ -11,7 +11,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
 
     <style>
         :root {
@@ -101,6 +102,7 @@
             background: var(--gradient-primary);
             border-radius: 2px;
         }
+
         /* ===== حاوية الشجرة ===== */
         .tree-container {
             padding: 1rem;
@@ -346,7 +348,7 @@
             z-index: 1;
         }
 
-        .tree-item.expanded > .person-card .connection-line {
+        .tree-item.expanded>.person-card .connection-line {
             transform: translateY(-50%) scaleX(1);
         }
 
@@ -385,7 +387,9 @@
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         .loading-text {
@@ -418,17 +422,32 @@
                 opacity: 0;
                 transform: translateX(-20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateX(0);
             }
         }
 
-        .stagger-1 { animation-delay: 0ms; }
-        .stagger-2 { animation-delay: 60ms; }
-        .stagger-3 { animation-delay: 120ms; }
-        .stagger-4 { animation-delay: 180ms; }
-        .stagger-5 { animation-delay: 240ms; }
+        .stagger-1 {
+            animation-delay: 0ms;
+        }
+
+        .stagger-2 {
+            animation-delay: 60ms;
+        }
+
+        .stagger-3 {
+            animation-delay: 120ms;
+        }
+
+        .stagger-4 {
+            animation-delay: 180ms;
+        }
+
+        .stagger-5 {
+            animation-delay: 240ms;
+        }
 
         /* ===== المودال ===== */
         .modal-content {
@@ -795,29 +814,67 @@
             font-size: 1.25rem;
         }
 
-        .contact-item.whatsapp { border-color: #25D366; }
-        .contact-item.whatsapp i { color: #25D366; }
-        .contact-item.whatsapp span { color: #128C7E; }
+        .contact-item.whatsapp {
+            border-color: #25D366;
+        }
 
-        .contact-item.facebook { border-color: #1877F2; }
-        .contact-item.facebook i, .contact-item.facebook span { color: #1877F2; }
+        .contact-item.whatsapp i {
+            color: #25D366;
+        }
 
-        .contact-item.instagram { border-color: #E4405F; }
+        .contact-item.whatsapp span {
+            color: #128C7E;
+        }
+
+        .contact-item.facebook {
+            border-color: #1877F2;
+        }
+
+        .contact-item.facebook i,
+        .contact-item.facebook span {
+            color: #1877F2;
+        }
+
+        .contact-item.instagram {
+            border-color: #E4405F;
+        }
+
         .contact-item.instagram i {
             background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        .contact-item.instagram span { color: #E4405F; }
 
-        .contact-item.twitter { border-color: #1DA1F2; }
-        .contact-item.twitter i, .contact-item.twitter span { color: #1DA1F2; }
+        .contact-item.instagram span {
+            color: #E4405F;
+        }
 
-        .contact-item.telegram { border-color: #0088cc; }
-        .contact-item.telegram i, .contact-item.telegram span { color: #0088cc; }
+        .contact-item.twitter {
+            border-color: #1DA1F2;
+        }
 
-        .contact-item.linkedin { border-color: #0077B5; }
-        .contact-item.linkedin i, .contact-item.linkedin span { color: #0077B5; }
+        .contact-item.twitter i,
+        .contact-item.twitter span {
+            color: #1DA1F2;
+        }
+
+        .contact-item.telegram {
+            border-color: #0088cc;
+        }
+
+        .contact-item.telegram i,
+        .contact-item.telegram span {
+            color: #0088cc;
+        }
+
+        .contact-item.linkedin {
+            border-color: #0077B5;
+        }
+
+        .contact-item.linkedin i,
+        .contact-item.linkedin span {
+            color: #0077B5;
+        }
 
         /* ===== المواقع (Google Maps) ===== */
         .location-item {
@@ -890,6 +947,7 @@
             .hero-title {
                 font-size: 1.5rem;
             }
+
             .tree-container {
                 padding: 0.5rem;
             }
@@ -1055,6 +1113,7 @@
 
         /* ===== دعم تقليل الحركة ===== */
         @media (prefers-reduced-motion: reduce) {
+
             *,
             *::before,
             *::after {
@@ -1101,9 +1160,8 @@
                         <div class="search-input-group">
                             <i class="fas fa-search"></i>
                             <input type="text" id="familySearchInput" class="search-input"
-                                   placeholder="ابحث عن عضو بالاسم..."
-                                   autocomplete="off"
-                                   aria-label="بحث عن عضو في شجرة العائلة">
+                                placeholder="ابحث عن عضو بالاسم..." autocomplete="off"
+                                aria-label="بحث عن عضو في شجرة العائلة">
                             <button class="search-clear-btn" id="searchClearBtn" title="مسح البحث">
                                 <i class="fas fa-times"></i>
                             </button>
@@ -1148,7 +1206,8 @@
             <div class="modal-content">
                 <div class="modal-header" style="background: linear-gradient(135deg, #ec4899, #be185d); color: #fff;">
                     <h5 class="modal-title"><i class="fas fa-baby me-2"></i>ملاحظات الرضاعة</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="breastfeedingNotesContent">
                     <!-- سيتم ملؤها بواسطة JavaScript -->
@@ -1266,7 +1325,7 @@
                 });
 
                 document.querySelectorAll('.card-header-section').forEach(header => {
-                    header.addEventListener('click', async function(e) {
+                    header.addEventListener('click', async function (e) {
                         // إذا كان ابن رضاعة، اعرض ملاحظات الرضاعة بدلاً من فتح الأبناء
                         const isBreastfeeding = this.dataset.isBreastfeeding === 'true';
                         if (isBreastfeeding) {
@@ -1403,9 +1462,9 @@
                             year: 'numeric'
                         });
                         const parts = formatter.formatToParts(date);
-                        const day   = parts.find(p => p.type === 'day').value;
+                        const day = parts.find(p => p.type === 'day').value;
                         const month = parts.find(p => p.type === 'month').value;
-                        const year  = parts.find(p => p.type === 'year').value;
+                        const year = parts.find(p => p.type === 'year').value;
                         return `${day} ${month} ${year}هـ`;
                     } catch (e) {
                         console.error('Error converting date:', e);
@@ -1423,7 +1482,7 @@
                         if (isNaN(date.getTime())) return dateString;
 
                         const arabicMonths = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
-                                            'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                            'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
 
                         const year = date.getUTCFullYear();
                         const month = date.getUTCMonth();
@@ -1523,7 +1582,7 @@
                         setTimeout(() => {
                             document.querySelectorAll('.relation-card[data-breastfeeding-notes]').forEach(card => {
                                 if (!card.dataset.personId) return;
-                                card.addEventListener('click', function() {
+                                card.addEventListener('click', function () {
                                     const notes = this.dataset.breastfeedingNotes || '';
                                     const startDate = this.dataset.breastfeedingStart || '';
                                     const endDate = this.dataset.breastfeedingEnd || '';
@@ -1566,7 +1625,7 @@
                                 const existingListener = card.getAttribute('data-listener-added');
                                 if (!existingListener) {
                                     card.setAttribute('data-listener-added', 'true');
-                                    card.addEventListener('click', function() {
+                                    card.addEventListener('click', function () {
                                         const notes = this.dataset.breastfeedingNotes || '';
                                         const startDate = this.dataset.breastfeedingStart || '';
                                         const endDate = this.dataset.breastfeedingEnd || '';
@@ -1766,7 +1825,7 @@
 
                     // إضافة event listeners للأبناء في الـ modal
                     container.querySelectorAll('.relation-card').forEach(card => {
-                        card.addEventListener('click', function() {
+                        card.addEventListener('click', function () {
                             const isBreastfeeding = this.dataset.isBreastfeeding === 'true';
                             if (isBreastfeeding) {
                                 const notes = this.dataset.breastfeedingNotes || '';
@@ -1785,7 +1844,7 @@
 
             async function insertStoriesButton(personId) {
                 try {
-                    const res = await fetch(`/api/person/${personId}/stories/count`, { headers: { 'Accept': 'application/json' }});
+                    const res = await fetch(`/api/person/${personId}/stories/count`, { headers: { 'Accept': 'application/json' } });
                     if (!res.ok) return;
                     const data = await res.json();
                     if (data && data.count > 0) {
@@ -1802,7 +1861,7 @@
 
             async function insertFriendshipsButton(personId) {
                 try {
-                    const res = await fetch(`/api/person/${personId}/friendships/count`, { headers: { 'Accept': 'application/json' }});
+                    const res = await fetch(`/api/person/${personId}/friendships/count`, { headers: { 'Accept': 'application/json' } });
                     if (!res.ok) return;
                     const data = await res.json();
                     if (data && data.count > 0) {
@@ -1904,7 +1963,7 @@
                     const res = await fetch('/api/persons/search');
                     const data = await res.json();
                     if (data.success) allPersons = data.persons;
-                } catch(e) {
+                } catch (e) {
                     console.error('Search load error', e);
                 }
             }

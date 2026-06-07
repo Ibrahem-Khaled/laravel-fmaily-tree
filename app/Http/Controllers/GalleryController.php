@@ -256,7 +256,7 @@ class GalleryController extends Controller
             ->limit(3)
             ->get();
 
-        return view('article', compact('article', 'relatedArticles'));
+        return view('web-site.articles.show', compact('article', 'relatedArticles'));
     }
 
     public function articles(Request $request)
@@ -405,7 +405,7 @@ class GalleryController extends Controller
 
         $totalImages = Image::count(); // عدد الصور يبقى كما هو
 
-        return view('articles', compact(
+        return view('web-site.articles.index', compact(
             'articles',
             'categories',
             'topAuthors',
