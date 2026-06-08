@@ -85,7 +85,7 @@ class QuizCompetition extends BaseModel
             return null;
         }
 
-        $sectionTitle = 'المسابقة الرمضانية';
+        $sectionTitle = 'استطلاع الرأي';
         $answerTypes = $nextCompetition->questions()
             ->pluck('answer_type')
             ->unique();

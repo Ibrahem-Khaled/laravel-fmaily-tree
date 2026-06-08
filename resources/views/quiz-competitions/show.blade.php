@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ strip_tags($quizCompetition->title) }} - مسابقات الأسئلة</title>
+    <title>{{ strip_tags($quizCompetition->title) }} - استطلاعات الرأي</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -185,7 +185,7 @@
         {{-- التنقل --}}
         <div class="mb-6 flex flex-wrap items-center gap-2 text-sm">
             <a href="{{ route('home') }}#activeQuizSection" class="text-green-600 hover:text-green-700 transition-colors font-medium">
-                <i class="fas fa-arrow-right ml-1"></i> الرئيسية - المسابقات
+                <i class="fas fa-arrow-right ml-1"></i> الرئيسية - استطلاعات الرأي
             </a>
             <span class="text-gray-300">/</span>
             <span class="text-gray-600">{{ Str::limit($quizCompetition->title, 40) }}</span>

@@ -316,8 +316,8 @@
                             </li>
                             <li class="nav-item w-100 {{ request()->routeIs('dashboard.quiz-competitions.*') ? 'active' : '' }}">
                                 <a class="nav-link pl-5" href="{{ route('dashboard.quiz-competitions.index') }}">
-                                    <i class="fe fe-help-circle fe-14"></i>
-                                    <span class="ml-2 item-text">مسابقات الأسئلة</span>
+                                    <i class="fe fe-bar-chart-2 fe-14"></i>
+                                    <span class="ml-2 item-text">استطلاعات الرأي</span>
                                 </a>
                             </li>
                             <li class="nav-item w-100 {{ request()->routeIs('dashboard.sponsors.*') ? 'active' : '' }}">

@@ -6,7 +6,7 @@
 @include('dashboard.important-links._styles')
 
 
-<div class="container-fluid dashboard-container">
+<div class="container-fluid dashboard-container" dir="rtl">
     <!-- Page Header -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
         <div class="text-right">
@@ -127,44 +127,43 @@
             <div class="card-body p-4 text-right">
                 <div class="list-group">
                     @foreach($pendingLinks as $link)
-                        <div class="list-group-item mb-2 border rounded-xl bg-white shadow-sm p-3">
-                            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-                                <div class="mb-2 mb-md-0 flex-grow-1">
-                                    <h6 class="font-weight-bold mb-2 text-slate-800" style="font-size: 1.05rem;">{{ $link->title }}</h6>
-                                    <p class="text-muted small mb-2 text-left text-md-right" dir="ltr">
-                                        @if($link->type === 'app')
-                                            @if($link->url)<span class="d-block text-right">عام: {{ $link->url }}</span>@endif
-                                            @if($link->url_ios)<span class="d-block text-right">iOS: {{ $link->url_ios }}</span>@endif
-                                            @if($link->url_android)<span class="d-block text-right">أندرويد: {{ $link->url_android }}</span>@endif
-                                        @else
-                                            <span class="text-right d-block">{{ $link->url }}</span>
-                                        @endif
-                                    </p>
-                                    <div class="d-flex flex-wrap gap-3 mt-2 text-slate-500 small">
-                                        @if($link->submitter)
-                                            <span><i class="fas fa-user ml-1 text-slate-400"></i><span class="font-weight-bold text-slate-600">من أضافه:</span> {{ $link->submitter->name }} — {{ $link->submitter->phone ?? '-' }}</span>
-                                        @endif
+                        <div class="link-item-row" style="cursor: default;">
+                            <div class="link-item-content">
+                                <div class="d-flex align-items-center justify-content-center bg-slate-50 text-slate-700 rounded-xl border border-slate-100/50" style="width: 48px; height: 48px; min-width: 48px;">
+                                    <i class="fas fa-clock text-sky-500" style="font-size: 1.25rem;"></i>
+                                </div>
+                                <div class="link-item-details">
+                                    <h6 class="link-item-title">
+                                        {{ $link->title }}
                                         @if($link->category)
-                                            <span><i class="fas fa-folder ml-1 text-slate-400"></i><span class="font-weight-bold text-slate-600">الفئة المقترحة:</span> <span class="badge badge-secondary px-2.5 py-1">{{ $link->category->name }}</span></span>
+                                            <span class="badge badge-pill badge-secondary px-2.5 py-1 text-nowrap" style="background-color: #f1f5f9; color: #475569; border: 1px solid #e2e8f0;">
+                                                الفئة المقترحة: {{ $link->category->name }}
+                                            </span>
+                                        @endif
+                                    </h6>
+                                    <p class="link-item-url">{{ $link->url }}</p>
+                                    <div class="link-item-meta text-muted small">
+                                        @if($link->submitter)
+                                            <span><i class="fas fa-user ml-1 text-slate-400"></i><span class="font-weight-bold text-slate-600">المقترِح:</span> {{ $link->submitter->name }} — {{ $link->submitter->phone ?? '-' }}</span>
+                                        @endif
+                                        @if($link->media->isNotEmpty())
+                                            <span class="text-sky-600 font-weight-bold"><i class="fas fa-photo-video ml-1"></i>{{ $link->media->count() }} وسائط مرفقة</span>
                                         @endif
                                     </div>
-                                    @if($link->media->isNotEmpty())
-                                        <p class="mb-0 small text-sky-600 font-weight-bold mt-2"><i class="fas fa-photo-video ml-1"></i>{{ $link->media->count() }} وسائط مرفقة — افتح المراجعة لمعاينتها</p>
-                                    @endif
                                 </div>
-                                <div class="d-flex flex-wrap align-items-center gap-2">
-                                    <a href="{{ route('dashboard.important-links.edit', $link) }}" class="btn btn-premium-info btn-sm">
-                                        <i class="fas fa-eye ml-1"></i>مراجعة ومعاينة
-                                    </a>
-                                    <form action="{{ route('dashboard.important-links.approve', $link) }}" method="POST" class="d-inline">
-                                        @csrf
-                                        <button type="submit" class="btn btn-premium-success btn-sm"><i class="fas fa-check ml-1"></i>اعتماد</button>
-                                    </form>
-                                    <form action="{{ route('dashboard.important-links.reject', $link) }}" method="POST" class="d-inline" onsubmit="return confirm('هل أنت متأكد من رفض هذا الاقتراح؟');">
-                                        @csrf
-                                        <button type="submit" class="btn btn-premium-danger btn-sm"><i class="fas fa-times ml-1"></i>رفض وحذف</button>
-                                    </form>
-                                </div>
+                            </div>
+                            <div class="link-item-actions">
+                                <a href="{{ route('dashboard.important-links.edit', $link) }}" class="btn btn-premium-info btn-sm text-nowrap">
+                                    <i class="fas fa-eye ml-1"></i>مراجعة
+                                </a>
+                                <form action="{{ route('dashboard.important-links.approve', $link) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="btn btn-premium-success btn-sm text-nowrap"><i class="fas fa-check ml-1"></i>اعتماد</button>
+                                </form>
+                                <form action="{{ route('dashboard.important-links.reject', $link) }}" method="POST" class="d-inline" onsubmit="return confirm('هل أنت متأكد من رفض هذا الاقتراح؟');">
+                                    @csrf
+                                    <button type="submit" class="btn btn-premium-danger btn-sm text-nowrap"><i class="fas fa-times ml-1"></i>رفض</button>
+                                </form>
                             </div>
                         </div>
                     @endforeach

@@ -6,7 +6,7 @@
 @include('dashboard.important-links._styles')
 
 
-<div class="container-fluid dashboard-container">
+<div class="container-fluid dashboard-container" dir="rtl">
     <div class="mb-3 text-right">
         <a href="{{ route('dashboard.important-links.index') }}" class="btn btn-premium-secondary btn-sm py-2 px-3">
             <i class="fas fa-arrow-right ml-1"></i> العودة للقائمة

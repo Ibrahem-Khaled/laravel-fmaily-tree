@@ -6,7 +6,7 @@
 @include('dashboard.important-links._styles')
 
 
-<div class="container-fluid dashboard-container">
+<div class="container-fluid dashboard-container" dir="rtl">
     <!-- Page Header -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
         <div class="text-right">

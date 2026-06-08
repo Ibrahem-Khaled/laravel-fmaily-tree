@@ -84,4 +84,13 @@ Route::middleware('web')->group(function () {
     Route::get('/person/{id}/whatsapp', [FamilyTreeController::class, 'getPersonWithWhatsApp']);
     Route::get('/person/{id}/children/whatsapp', [FamilyTreeController::class, 'getChildrenWithWhatsApp']);
     Route::get('/person/{id}/descendants/whatsapp', [FamilyTreeController::class, 'getDescendantsWithWhatsApp']);
+
+    // Quiz Competition API Routes for Mobile
+    Route::prefix('v1/quiz-competitions')->group(function () {
+        Route::get('/active', [\App\Http\Controllers\Api\QuizCompetitionApiController::class, 'getActiveCompetition']);
+        Route::post('/{quizCompetition}/questions/{quizQuestion}/answer', [\App\Http\Controllers\Api\QuizCompetitionApiController::class, 'storeAnswer'])
+            ->middleware('throttle:5,1');
+        Route::get('/{quizCompetition}/questions/{quizQuestion}/vote-results', [\App\Http\Controllers\Api\QuizCompetitionApiController::class, 'getVoteResults']);
+    });
 });
+
