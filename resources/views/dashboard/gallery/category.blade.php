@@ -2,31 +2,26 @@
 
 @section('content')
     <div class="container-fluid">
-        {{-- العنوان والمسار --}}
-        <div class="row">
-            <div class="col-12">
-                <h1 class="h3 mb-0 text-gray-800">
-                    @if($parentCategory)
-                        {{ $parentCategory->name }} → {{ $category->name }}
-                    @else
-                        {{ $category->name }}
-                    @endif
-                </h1>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">لوحة التحكم</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('dashboard.images.index') }}">معرض الملفات</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">
-                            @if($parentCategory)
-                                {{ $parentCategory->name }} → {{ $category->name }}
-                            @else
-                                {{ $category->name }}
-                            @endif
-                        </li>
-                    </ol>
-                </nav>
-            </div>
-        </div>
+        
+        {{-- مكون الترويسة الجاهز --}}
+        <x-dashboard.page-header 
+            :title="$parentCategory ? ($parentCategory->name . ' ➔ ' . $category->name) : $category->name"
+            :description="'عرض وإدارة جميع الصور والمستندات ومقاطع اليوتيوب الخاصة بفئة: ' . $category->name">
+            <x-slot:actions>
+                <a href="{{ route('dashboard.images.index') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-right"></i> العودة للمعرض
+                </a>
+                <button class="btn btn-outline-warning" id="bulkMoveBtn">
+                    <i class="fas fa-exchange-alt"></i> نقل المحدد
+                </button>
+                <button class="btn btn-outline-danger" id="bulkDeleteBtn">
+                    <i class="fas fa-trash"></i> حذف المحدد
+                </button>
+                <button class="btn btn-primary" data-toggle="modal" data-target="#uploadImagesModal">
+                    <i class="fas fa-upload"></i> رفع ملفات
+                </button>
+            </x-slot:actions>
+        </x-dashboard.page-header>
 
         @include('components.alerts')
 
@@ -41,180 +36,72 @@
             @endif
         </div>
 
-        {{-- بطاقة المعرض --}}
-        <div class="card shadow mb-4">
-            <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                <h6 class="m-0 font-weight-bold text-primary">
-                    <i class="fas fa-folder-open"></i>
-                    @if($parentCategory)
-                        {{ $parentCategory->name }} → {{ $category->name }}
-                    @else
-                        {{ $category->name }}
-                    @endif
-                    <span class="badge badge-secondary ml-2">{{ $categoryImagesCount }} صورة</span>
-                </h6>
-                <div>
-                    <a href="{{ route('dashboard.images.index') }}" class="btn btn-outline-secondary mr-2">
-                        <i class="fas fa-arrow-right"></i> العودة للمعرض
-                    </a>
-                    <button class="btn btn-outline-warning mr-2" id="bulkMoveBtn">
-                        <i class="fas fa-exchange-alt"></i> نقل المحدد
-                    </button>
-                    <button class="btn btn-outline-danger mr-2" id="bulkDeleteBtn">
-                        <i class="fas fa-trash"></i> حذف المحدد
-                    </button>
-                    <button class="btn btn-primary" data-toggle="modal" data-target="#uploadImagesModal">
-                        <i class="fas fa-upload"></i> رفع ملفات
-                    </button>
-                </div>
+        {{-- بطاقة المعرض باستخدام مكون الكارد الجاهز --}}
+        <x-dashboard.card :title="$category->name" icon="fe-folder">
+            <x-slot:headerAction>
+                <span class="badge badge-secondary p-2">{{ $categoryImagesCount }} صورة</span>
+            </x-slot:headerAction>
+
+            {{-- شريط اختيار الكل --}}
+            <div class="mb-4 p-3 rounded d-flex align-items-center justify-content-between select-all-bar">
+                <label class="mb-0 d-flex align-items-center cursor-pointer">
+                    <input type="checkbox" id="checkAll" class="mr-2 custom-check-all">
+                    <strong class="text-muted pr-2">تحديد جميع عناصر الصفحة</strong>
+                </label>
             </div>
 
-            <div class="card-body">
-                {{-- شريط اختيار الكل --}}
-                <div class="mb-4 p-3 rounded d-flex align-items-center justify-content-between select-all-bar">
-                    <label class="mb-0 d-flex align-items-center cursor-pointer">
-                        <input type="checkbox" id="checkAll" class="mr-2 custom-check-all">
-                        <strong class="text-muted pr-2">تحديد جميع عناصر الصفحة</strong>
-                    </label>
-                </div>
+            {{-- فلاتر + بحث --}}
+            <form action="{{ route('dashboard.gallery.category', $category->id) }}" method="GET" class="mb-4 search-filter-form">
+                <div class="form-row align-items-end">
+                    <div class="form-group col-md-4">
+                        <label class="font-weight-bold">بحث بالاسم</label>
+                        <input type="text" name="search" value="{{ $search }}" class="form-control"
+                            placeholder="ابحث باسم الملف...">
+                    </div>
 
-                {{-- فلاتر + بحث --}}
-                <form action="{{ route('dashboard.gallery.category', $category->id) }}" method="GET" class="mb-4 search-filter-form">
-                    <div class="form-row align-items-end">
-                        <div class="form-group col-md-4">
-                            <label class="font-weight-bold">بحث بالاسم</label>
-                            <input type="text" name="search" value="{{ $search }}" class="form-control"
-                                placeholder="ابحث باسم الملف...">
-                        </div>
+                    <div class="form-group col-md-4">
+                        <label class="font-weight-bold">بحث عن شخص مذكور</label>
+                        <select name="person_search" id="personSearchSelect" class="form-control">
+                            <option value="">— اختر شخص —</option>
+                        </select>
+                    </div>
 
-                        <div class="form-group col-md-4">
-                            <label class="font-weight-bold">بحث عن شخص مذكور</label>
-                            <select name="person_search" id="personSearchSelect" class="form-control">
-                                <option value="">— اختر شخص —</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group col-md-4">
-                            <label>&nbsp;</label>
-                            <div>
-                                <button class="btn btn-primary px-4" type="submit"><i class="fas fa-search"></i> تطبيق الفلاتر</button>
-                                @if($search || $personSearch)
-                                    <a href="{{ route('dashboard.gallery.category', $category->id) }}" class="btn btn-secondary px-4">
-                                        <i class="fas fa-times"></i> إلغاء الفلاتر
-                                    </a>
-                                @endif
-                            </div>
+                    <div class="form-group col-md-4">
+                        <label>&nbsp;</label>
+                        <div>
+                            <button class="btn btn-primary px-4" type="submit"><i class="fas fa-search"></i> تطبيق الفلاتر</button>
+                            @if($search || $personSearch)
+                                <a href="{{ route('dashboard.gallery.category', $category->id) }}" class="btn btn-secondary px-4">
+                                    <i class="fas fa-times"></i> إلغاء الفلاتر
+                                </a>
+                            @endif
                         </div>
                     </div>
-                </form>
+                </div>
+            </form>
 
-                {{-- عرض شبكة الصور --}}
-                <form action="{{ route('images.bulk-destroy') }}" method="POST" id="bulkDeleteForm">
-                    @csrf @method('DELETE')
+            {{-- عرض شبكة الصور --}}
+            <form action="{{ route('images.bulk-destroy') }}" method="POST" id="bulkDeleteForm">
+                @csrf @method('DELETE')
 
-                    @if($images->count() > 0)
-                        <div class="row" id="mediaGrid">
-                            @foreach($images as $img)
-                                <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-4" id="media-card-{{ $img->id }}">
-                                    <div class="media-card">
-                                        <div class="media-card-preview">
-                                            <!-- Checkbox overlay -->
-                                            <div class="media-checkbox-wrapper">
-                                                <input type="checkbox" name="ids[]" value="{{ $img->id }}" class="media-checkbox image-checkbox" id="cb-{{ $img->id }}">
-                                            </div>
+                @if($images->count() > 0)
+                    <div class="row" id="mediaGrid">
+                        @foreach($images as $img)
+                            <x-dashboard.media-card :img="$img" />
+                        @endforeach
+                    </div>
 
-                                            <!-- Type badge -->
-                                            @if($img->media_type === 'youtube')
-                                                <div class="media-badge youtube">
-                                                    <i class="fab fa-youtube text-danger"></i> يوتيوب
-                                                </div>
-                                            @elseif($img->media_type === 'pdf')
-                                                <div class="media-badge pdf">
-                                                    <i class="fas fa-file-pdf text-warning"></i> PDF
-                                                </div>
-                                            @else
-                                                <div class="media-badge image">
-                                                    <i class="fas fa-image text-primary"></i> صورة
-                                                </div>
-                                            @endif
-
-                                            <!-- Preview Content -->
-                                            <div class="preview-clickable" onclick="triggerMediaView({{ $img->id }}, '{{ $img->media_type }}', '{{ $img->youtube_url }}', '{{ $img->path ? asset('storage/' . $img->path) : asset('img/no-image.png') }}', '{{ addslashes($img->name ?? 'ملف') }}')">
-                                                @if($img->media_type === 'youtube' && $img->youtube_url)
-                                                    <img src="{{ $img->getYouTubeThumbnail() }}" alt="{{ $img->name }}" loading="lazy">
-                                                    <div class="play-overlay">
-                                                        <i class="fab fa-youtube"></i>
-                                                    </div>
-                                                @elseif($img->media_type === 'pdf' && $img->path)
-                                                    <div class="pdf-preview-container d-flex flex-column align-items-center justify-content-center h-100 text-white" style="position:absolute; width:100%; height:100%; background:#2b3035;">
-                                                        <i class="fas fa-file-pdf fa-3x text-danger mb-2"></i>
-                                                        <span class="badge badge-secondary">{{ $img->getFormattedFileSize() }}</span>
-                                                    </div>
-                                                @else
-                                                    <img src="{{ $img->path ? asset('storage/' . $img->path) : asset('img/no-image.png') }}" alt="{{ $img->name }}" loading="lazy">
-                                                @endif
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="media-card-body">
-                                            <div>
-                                                <h5 class="media-card-title" title="{{ $img->name ?? '-' }}">{{ $img->name ?? '-' }}</h5>
-                                                
-                                                <!-- Mentioned Persons -->
-                                                <div class="media-card-mentions">
-                                                    <div class="mentioned-persons-container" data-image-id="{{ $img->id }}">
-                                                        <div class="sortable-list d-flex flex-wrap" id="sortable-{{ $img->id }}">
-                                                            @foreach($img->mentionedPersons as $person)
-                                                                <div class="badge badge-info mentioned-person-item m-1 py-1 px-2 d-flex align-items-center" data-person-id="{{ $person->id }}">
-                                                                    <i class="fas fa-grip-vertical drag-handle mr-1 text-light" style="display: none; cursor: grab;"></i>
-                                                                    <span>{{ $person->full_name }}</span>
-                                                                    <button type="button" class="btn-remove-mention ml-1" onclick="removePersonFromImage({{ $img->id }}, {{ $person->id }})">
-                                                                        <i class="fas fa-times"></i>
-                                                                    </button>
-                                                                </div>
-                                                            @endforeach
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <!-- Actions and Reorder trigger -->
-                                            <div class="media-card-actions mt-3">
-                                                <div class="btn-group w-100" role="group">
-                                                    @if($img->mentionedPersons->count() > 1)
-                                                        <button type="button" class="btn btn-sm btn-outline-info btn-reorder-toggle" onclick="toggleReorderMode({{ $img->id }})">
-                                                            <i class="fas fa-sort"></i> ترتيب
-                                                        </button>
-                                                    @endif
-                                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="editImage({{ $img->id }})">
-                                                        <i class="fas fa-edit"></i>
-                                                    </button>
-                                                    <button type="button" class="btn btn-sm btn-outline-success" onclick="downloadImage({{ $img->id }}, '{{ $img->name ?? 'صورة' }}')">
-                                                        <i class="fas fa-download"></i>
-                                                    </button>
-                                                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteSingleImage({{ $img->id }})">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-
-                        {{-- Pagination --}}
-                        <div class="mt-4">
-                            {{ $images->appends(request()->query())->links() }}
-                        </div>
-                    @else
-                        <div class="alert alert-info text-center p-5">
-                            <i class="fas fa-info-circle fa-2x mb-3 d-block"></i> لا توجد صور لعرضها في هذه الفئة
-                        </div>
-                    @endif
-                </form>
-            </div>
-        </div>
+                    {{-- Pagination --}}
+                    <div class="mt-4">
+                        {{ $images->appends(request()->query())->links() }}
+                    </div>
+                @else
+                    <div class="alert alert-info text-center p-5">
+                        <i class="fas fa-info-circle fa-2x mb-3 d-block"></i> لا توجد صور لعرضها في هذه الفئة
+                    </div>
+                @endif
+            </form>
+        </x-dashboard.card>
     </div>
 
     {{-- شريط الإجراءات الجماعية العائم --}}
