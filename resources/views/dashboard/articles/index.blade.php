@@ -253,6 +253,11 @@
             text-align: right;
             padding-right: 1rem;
         }
+        
+        /* Prevent body shift/shake when opening modals */
+        body.modal-open {
+            padding-right: 0 !important;
+        }
     </style>
 @endpush
 
@@ -455,24 +460,6 @@
                                             <i class="fe fe-trash text-danger"></i>
                                         </button>
                                     </div>
-
-                                    {{-- المودالات الخاصة بكل مقال --}}
-                                    @include('dashboard.articles.modals.show', ['article' => $article])
-
-                                    @include('dashboard.articles.modals.edit', [
-                                        'article' => $article,
-                                        'categories' => $categories,
-                                        'people' => $people ?? null,
-                                    ])
-
-                                    @include('dashboard.articles.modals.delete', [
-                                        'article' => $article,
-                                    ])
-
-                                    {{-- إدارة الصور (مودال منفصل) --}}
-                                    @include('dashboard.articles.modals.images', [
-                                        'article' => $article,
-                                    ])
                                 </td>
                             </tr>
                         @empty
@@ -492,6 +479,25 @@
             </div>
         </x-dashboard.card>
     </div>
+
+    {{-- مودالات عرض وتعديل وحذف وإدارة صور المقالات خارج الجدول لمنع الرعشة والتداخل --}}
+    @foreach ($articles as $article)
+        @include('dashboard.articles.modals.show', ['article' => $article])
+
+        @include('dashboard.articles.modals.edit', [
+            'article' => $article,
+            'categories' => $categories,
+            'people' => $people ?? null,
+        ])
+
+        @include('dashboard.articles.modals.delete', [
+            'article' => $article,
+        ])
+
+        @include('dashboard.articles.modals.images', [
+            'article' => $article,
+        ])
+    @endforeach
 
     {{-- مودال إنشاء مقال --}}
     @include('dashboard.articles.modals.create', [
