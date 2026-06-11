@@ -36,12 +36,7 @@
                 <div class="form-group">
                     <label>الأشخاص المذكورين في الصور (اختياري)</label>
                     <div class="mentioned-persons-upload-container">
-                        <select name="mentioned_persons[]" id="mentionedPersonsSelect" class="form-control" multiple>
-                            @foreach ($people as $person)
-                                <option value="{{ $person->id }}">
-                                    {{ $person->full_name }}
-                                </option>
-                            @endforeach
+                        <select name="mentioned_persons[]" id="mentionedPersonsSelect" class="form-control select2-ajax-people" multiple>
                         </select>
                         <div class="mt-2">
                             <small class="text-muted">يمكن اختيار أكثر من شخص للصورة الواحدة. الترتيب مهم - سيتم عرض الأشخاص بالترتيب الذي تختاره.</small>
@@ -161,11 +156,47 @@ document.addEventListener('DOMContentLoaded', function() {
         if (contentTypeImages.checked) {
             imagesSection.style.display = 'block';
             imagesInput.required = true;
+            
+            // تفريغ قيم الـ PDFs واليوتيوب لعدم إرسالها بالخطأ
+            pdfsInput.value = '';
+            $(pdfsInput).next('.custom-file-label').text('اختر ملفات PDF...');
+            const pdfThumb = document.getElementById('uploadThumbnailsInput');
+            if (pdfThumb) {
+                pdfThumb.value = '';
+                $(pdfThumb).next('.custom-file-label').text('اختر صور مصغرة...');
+            }
+            document.querySelectorAll('input[name="youtube_urls[]"]').forEach(input => input.value = '');
+            document.querySelectorAll('input[name="youtube_names[]"]').forEach(input => input.value = '');
+            document.querySelectorAll('input.youtube-thumbnail-input').forEach(input => {
+                input.value = '';
+                $(input).next('.custom-file-label').text('صورة مصغرة مخصصة (اختياري)');
+            });
         } else if (contentTypePdfs.checked) {
             pdfsSection.style.display = 'block';
             pdfsInput.required = true;
+            
+            // تفريغ قيم الصور واليوتيوب لعدم إرسالها بالخطأ
+            imagesInput.value = '';
+            $(imagesInput).next('.custom-file-label').text('اختر ملفات...');
+            document.querySelectorAll('input[name="youtube_urls[]"]').forEach(input => input.value = '');
+            document.querySelectorAll('input[name="youtube_names[]"]').forEach(input => input.value = '');
+            document.querySelectorAll('input.youtube-thumbnail-input').forEach(input => {
+                input.value = '';
+                $(input).next('.custom-file-label').text('صورة مصغرة مخصصة (اختياري)');
+            });
         } else if (contentTypeYoutube.checked) {
             youtubeSection.style.display = 'block';
+            
+            // تفريغ قيم الصور والـ PDFs لعدم إرسالها بالخطأ
+            imagesInput.value = '';
+            $(imagesInput).next('.custom-file-label').text('اختر ملفات...');
+            pdfsInput.value = '';
+            $(pdfsInput).next('.custom-file-label').text('اختر ملفات PDF...');
+            const pdfThumb = document.getElementById('uploadThumbnailsInput');
+            if (pdfThumb) {
+                pdfThumb.value = '';
+                $(pdfThumb).next('.custom-file-label').text('اختر صور مصغرة...');
+            }
         }
     }
 

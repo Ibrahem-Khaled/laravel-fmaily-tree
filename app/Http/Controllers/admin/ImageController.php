@@ -110,6 +110,15 @@ class ImageController extends Controller
             'mentioned_persons.*' => ['exists:persons,id'],
             'thumbnails.*' => ['nullable', 'image', 'max:10000'], // 10MB limit for thumbnails
             'youtube_thumbnails.*' => ['nullable', 'image', 'max:10000'], // 10MB limit for YouTube thumbnails
+        ], [
+            'images.*.image' => 'الملف رقم :position المرفوع في خانة الصور يجب أن يكون صورة صالحة (jpg, jpeg, png, gif, webp).',
+            'images.*.max' => 'الملف رقم :position المرفوع في خانة الصور يتجاوز الحجم المسموح (150 ميجابايت).',
+            'pdfs.*.mimes' => 'الملف رقم :position في خانة الـ PDF يجب أن يكون مستند PDF فقط.',
+            'pdfs.*.max' => 'الملف رقم :position في خانة الـ PDF يتجاوز الحجم المسموح (50 ميجابايت).',
+            'youtube_urls.*.url' => 'أحد الروابط المرفوعة ليس رابط يوتيوب صالح.',
+            'youtube_urls.*.regex' => 'أحد الروابط المرفوعة ليس رابط يوتيوب صالح.',
+            'thumbnails.*.image' => 'الصورة المصغرة رقم :position المرفوعة لملفات الـ PDF يجب أن تكون صورة صالحة.',
+            'thumbnails.*.max' => 'الصورة المصغرة رقم :position المرفوعة لملفات الـ PDF تتجاوز الحجم المسموح (10 ميجابايت).',
         ]);
 
         DB::transaction(function () use ($request) {
@@ -299,7 +308,13 @@ class ImageController extends Controller
                 'program_title' => $image->program_title,
                 'program_description' => $image->program_description,
                 'program_order' => $image->program_order,
-                'mentioned_persons' => $image->mentionedPersons->pluck('id')->toArray(),
+                'mentioned_persons_ids' => $image->mentionedPersons->pluck('id')->toArray(),
+                'mentioned_persons' => $image->mentionedPersons->map(function($p) {
+                    return [
+                        'id' => $p->id,
+                        'full_name' => $p->full_name
+                    ];
+                })->toArray(),
             ]
         ]);
     }
@@ -322,6 +337,17 @@ class ImageController extends Controller
             'program_title' => ['nullable', 'string', 'max:255'],
             'program_description' => ['nullable', 'string'],
             'program_order' => ['nullable', 'integer'],
+        ], [
+            'image.image' => 'الملف المرفوع يجب أن يكون صورة صالحة (jpg, jpeg, png, gif, webp).',
+            'image.max' => 'الملف المرفوع يتجاوز الحجم المسموح (150 ميجابايت).',
+            'pdf.mimes' => 'الملف المرفوع يجب أن يكون مستند PDF فقط.',
+            'pdf.max' => 'الملف المرفوع يتجاوز الحجم المسموح (50 ميجابايت).',
+            'youtube_url.url' => 'الرابط المرفوع ليس رابط يوتيوب صالح.',
+            'youtube_url.regex' => 'الرابط المرفوع ليس رابط يوتيوب صالح.',
+            'pdf_thumbnail.image' => 'الصورة المصغرة يجب أن تكون صورة صالحة.',
+            'pdf_thumbnail.max' => 'الصورة المصغرة تتجاوز الحجم المسموح (10 ميجابايت).',
+            'youtube_thumbnail.image' => 'الصورة المصغرة المرفوعة للفيديو يجب أن تكون صورة صالحة.',
+            'youtube_thumbnail.max' => 'الصورة المصغرة المرفوعة للفيديو تتجاوز الحجم المسموح (10 ميجابايت).',
         ]);
 
         DB::transaction(function () use ($request, $image) {
@@ -545,8 +571,8 @@ class ImageController extends Controller
             ->orderBy('name')
             ->get();
 
-        // جلب الأشخاص للمنشن
-        $people = Person::get();
+        // جلب الأشخاص للمنشن - تم التغيير إلى مجموعة فارغة لتحسين الأداء واستخدام Select2 AJAX
+        $people = collect();
 
         // حساب إحصائيات الفئة
         $categoryImagesCount = Image::where('category_id', $category->id)->count();

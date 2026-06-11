@@ -70,25 +70,25 @@
             </div>
 
             <div class="card-body">
-                {{-- اختيار الكل --}}
-                <div class="mb-3 p-2 bg-light rounded">
-                    <label class="mb-0">
-                        <input type="checkbox" id="checkAll" class="mr-2">
-                        <strong>اختيار الكل</strong>
+                {{-- شريط اختيار الكل --}}
+                <div class="mb-4 p-3 rounded d-flex align-items-center justify-content-between select-all-bar">
+                    <label class="mb-0 d-flex align-items-center cursor-pointer">
+                        <input type="checkbox" id="checkAll" class="mr-2 custom-check-all">
+                        <strong class="text-muted pr-2">تحديد جميع عناصر الصفحة</strong>
                     </label>
                 </div>
 
                 {{-- فلاتر + بحث --}}
-                <form action="{{ route('dashboard.gallery.category', $category->id) }}" method="GET" class="mb-4">
+                <form action="{{ route('dashboard.gallery.category', $category->id) }}" method="GET" class="mb-4 search-filter-form">
                     <div class="form-row align-items-end">
                         <div class="form-group col-md-4">
-                            <label>بحث بالاسم</label>
+                            <label class="font-weight-bold">بحث بالاسم</label>
                             <input type="text" name="search" value="{{ $search }}" class="form-control"
                                 placeholder="ابحث باسم الملف...">
                         </div>
 
                         <div class="form-group col-md-4">
-                            <label>بحث عن شخص مذكور</label>
+                            <label class="font-weight-bold">بحث عن شخص مذكور</label>
                             <select name="person_search" id="personSearchSelect" class="form-control">
                                 <option value="">— اختر شخص —</option>
                             </select>
@@ -97,9 +97,9 @@
                         <div class="form-group col-md-4">
                             <label>&nbsp;</label>
                             <div>
-                                <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i> تطبيق الفلاتر</button>
+                                <button class="btn btn-primary px-4" type="submit"><i class="fas fa-search"></i> تطبيق الفلاتر</button>
                                 @if($search || $personSearch)
-                                    <a href="{{ route('dashboard.gallery.category', $category->id) }}" class="btn btn-secondary">
+                                    <a href="{{ route('dashboard.gallery.category', $category->id) }}" class="btn btn-secondary px-4">
                                         <i class="fas fa-times"></i> إلغاء الفلاتر
                                     </a>
                                 @endif
@@ -108,28 +108,99 @@
                     </div>
                 </form>
 
-                {{-- عرض الصور --}}
+                {{-- عرض شبكة الصور --}}
                 <form action="{{ route('images.bulk-destroy') }}" method="POST" id="bulkDeleteForm">
                     @csrf @method('DELETE')
 
                     @if($images->count() > 0)
-                        <div class="table-responsive">
-                            <table class="table table-sm table-hover">
-                                <thead class="thead-light">
-                                    <tr>
-                                        <th style="width:40px;"><input type="checkbox" id="checkAllTable" class="category-checkbox"></th>
-                                        <th>المعاينة</th>
-                                        <th>الاسم</th>
-                                        <th>الأشخاص المذكورين</th>
-                                        <th style="width:160px;">الإجراءات</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($images as $img)
-                                        @include('dashboard.gallery.partials.image-row', ['img' => $img])
-                                    @endforeach
-                                </tbody>
-                            </table>
+                        <div class="row" id="mediaGrid">
+                            @foreach($images as $img)
+                                <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3 mb-4" id="media-card-{{ $img->id }}">
+                                    <div class="media-card">
+                                        <div class="media-card-preview">
+                                            <!-- Checkbox overlay -->
+                                            <div class="media-checkbox-wrapper">
+                                                <input type="checkbox" name="ids[]" value="{{ $img->id }}" class="media-checkbox image-checkbox" id="cb-{{ $img->id }}">
+                                            </div>
+
+                                            <!-- Type badge -->
+                                            @if($img->media_type === 'youtube')
+                                                <div class="media-badge youtube">
+                                                    <i class="fab fa-youtube text-danger"></i> يوتيوب
+                                                </div>
+                                            @elseif($img->media_type === 'pdf')
+                                                <div class="media-badge pdf">
+                                                    <i class="fas fa-file-pdf text-warning"></i> PDF
+                                                </div>
+                                            @else
+                                                <div class="media-badge image">
+                                                    <i class="fas fa-image text-primary"></i> صورة
+                                                </div>
+                                            @endif
+
+                                            <!-- Preview Content -->
+                                            <div class="preview-clickable" onclick="triggerMediaView({{ $img->id }}, '{{ $img->media_type }}', '{{ $img->youtube_url }}', '{{ $img->path ? asset('storage/' . $img->path) : asset('img/no-image.png') }}', '{{ addslashes($img->name ?? 'ملف') }}')">
+                                                @if($img->media_type === 'youtube' && $img->youtube_url)
+                                                    <img src="{{ $img->getYouTubeThumbnail() }}" alt="{{ $img->name }}" loading="lazy">
+                                                    <div class="play-overlay">
+                                                        <i class="fab fa-youtube"></i>
+                                                    </div>
+                                                @elseif($img->media_type === 'pdf' && $img->path)
+                                                    <div class="pdf-preview-container d-flex flex-column align-items-center justify-content-center h-100 text-white" style="position:absolute; width:100%; height:100%; background:#2b3035;">
+                                                        <i class="fas fa-file-pdf fa-3x text-danger mb-2"></i>
+                                                        <span class="badge badge-secondary">{{ $img->getFormattedFileSize() }}</span>
+                                                    </div>
+                                                @else
+                                                    <img src="{{ $img->path ? asset('storage/' . $img->path) : asset('img/no-image.png') }}" alt="{{ $img->name }}" loading="lazy">
+                                                @endif
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="media-card-body">
+                                            <div>
+                                                <h5 class="media-card-title" title="{{ $img->name ?? '-' }}">{{ $img->name ?? '-' }}</h5>
+                                                
+                                                <!-- Mentioned Persons -->
+                                                <div class="media-card-mentions">
+                                                    <div class="mentioned-persons-container" data-image-id="{{ $img->id }}">
+                                                        <div class="sortable-list d-flex flex-wrap" id="sortable-{{ $img->id }}">
+                                                            @foreach($img->mentionedPersons as $person)
+                                                                <div class="badge badge-info mentioned-person-item m-1 py-1 px-2 d-flex align-items-center" data-person-id="{{ $person->id }}">
+                                                                    <i class="fas fa-grip-vertical drag-handle mr-1 text-light" style="display: none; cursor: grab;"></i>
+                                                                    <span>{{ $person->full_name }}</span>
+                                                                    <button type="button" class="btn-remove-mention ml-1" onclick="removePersonFromImage({{ $img->id }}, {{ $person->id }})">
+                                                                        <i class="fas fa-times"></i>
+                                                                    </button>
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Actions and Reorder trigger -->
+                                            <div class="media-card-actions mt-3">
+                                                <div class="btn-group w-100" role="group">
+                                                    @if($img->mentionedPersons->count() > 1)
+                                                        <button type="button" class="btn btn-sm btn-outline-info btn-reorder-toggle" onclick="toggleReorderMode({{ $img->id }})">
+                                                            <i class="fas fa-sort"></i> ترتيب
+                                                        </button>
+                                                    @endif
+                                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="editImage({{ $img->id }})">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-outline-success" onclick="downloadImage({{ $img->id }}, '{{ $img->name ?? 'صورة' }}')">
+                                                        <i class="fas fa-download"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteSingleImage({{ $img->id }})">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
                         </div>
 
                         {{-- Pagination --}}
@@ -137,12 +208,28 @@
                             {{ $images->appends(request()->query())->links() }}
                         </div>
                     @else
-                        <div class="alert alert-info text-center">
-                            <i class="fas fa-info-circle"></i> لا توجد صور لعرضها في هذه الفئة
+                        <div class="alert alert-info text-center p-5">
+                            <i class="fas fa-info-circle fa-2x mb-3 d-block"></i> لا توجد صور لعرضها في هذه الفئة
                         </div>
                     @endif
                 </form>
             </div>
+        </div>
+    </div>
+
+    {{-- شريط الإجراءات الجماعية العائم --}}
+    <div class="bulk-actions-floating-bar" id="bulkFloatingBar">
+        <div class="d-flex align-items-center gap-3">
+            <span class="text-white font-weight-bold ml-3" id="selectedCountText">0 عنصر محدد</span>
+            <button class="btn btn-sm btn-warning mr-2" id="bulkMoveBtnFloating">
+                <i class="fas fa-exchange-alt"></i> نقل المحدد
+            </button>
+            <button class="btn btn-sm btn-danger mr-2" id="bulkDeleteBtnFloating">
+                <i class="fas fa-trash"></i> حذف المحدد
+            </button>
+            <button class="btn btn-sm btn-outline-secondary text-white mr-2" id="clearSelectionBtn">
+                إلغاء
+            </button>
         </div>
     </div>
 
@@ -257,8 +344,280 @@
 @push('styles')
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <style>
-    select[multiple] {
-        min-height: 100px;
+    /* Dark mode override for Select2 */
+    body.dark .select2-container--bootstrap4 .select2-selection {
+        background-color: #2b3035 !important;
+        border-color: #495057 !important;
+        color: #fff !important;
+    }
+    body.dark .select2-container--bootstrap4 .select2-selection--multiple .select2-selection__choice {
+        background-color: #343a40 !important;
+        border-color: #495057 !important;
+        color: #fff !important;
+    }
+    body.dark .select2-dropdown {
+        background-color: #2b3035 !important;
+        border-color: #495057 !important;
+        color: #fff !important;
+        z-index: 9999;
+    }
+    body.dark .select2-results__option {
+        color: #fff !important;
+    }
+    body.dark .select2-results__option--highlighted[aria-selected] {
+        background-color: #007bff !important;
+    }
+    body.dark .select2-search__field {
+        background-color: #343a40 !important;
+        color: #fff !important;
+        border-color: #495057 !important;
+    }
+
+    /* Premium redesign for media cards */
+    .media-card {
+        background-color: #ffffff;
+        border: 1px solid #e3e6f0;
+        border-radius: 12px;
+        overflow: hidden;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        position: relative;
+    }
+    body.dark .media-card {
+        background-color: #1f2229;
+        border-color: #2e3440;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    }
+    .media-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+    body.dark .media-card:hover {
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    }
+    
+    .media-card-preview {
+        position: relative;
+        padding-bottom: 60%;
+        background-color: #000;
+        overflow: hidden;
+        cursor: pointer;
+    }
+    .media-card-preview img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.4s ease;
+    }
+    .media-card:hover .media-card-preview img {
+        transform: scale(1.06);
+    }
+
+    .play-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 2.5rem;
+        transition: all 0.3s ease;
+    }
+    .media-card:hover .play-overlay {
+        background: rgba(0,0,0,0.1);
+        color: #ff0000;
+    }
+
+    .media-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 2;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: bold;
+        background: rgba(0, 0, 0, 0.65);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        backdrop-filter: blur(4px);
+    }
+    .media-badge.image { border-left: 3px solid #007bff; }
+    .media-badge.youtube { border-left: 3px solid #dc3545; }
+    .media-badge.pdf { border-left: 3px solid #fd7e14; }
+
+    .media-checkbox-wrapper {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 2;
+    }
+    .media-checkbox {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        border-radius: 4px;
+        border: 2px solid #fff;
+        background: rgba(0, 0, 0, 0.4);
+        appearance: none;
+        -webkit-appearance: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+    }
+    .media-checkbox:checked {
+        background-color: #28a745 !important;
+        border-color: #28a745 !important;
+    }
+    .media-checkbox:checked::after {
+        content: "\f00c";
+        font-family: "Font Awesome 5 Free";
+        font-weight: 900;
+        color: #fff;
+        font-size: 11px;
+    }
+    
+    .media-card-body {
+        padding: 15px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .media-card-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #333;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        height: 2.8em;
+    }
+    body.dark .media-card-title {
+        color: #f8f9fa;
+    }
+
+    .media-card-mentions {
+        margin-top: 10px;
+        min-height: 45px;
+    }
+    
+    .mentioned-person-item {
+        background-color: #e9ecef;
+        color: #495057;
+        font-size: 0.75rem;
+        font-weight: 500;
+        border-radius: 20px;
+        margin: 2px;
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
+    }
+    body.dark .mentioned-person-item {
+        background-color: #2b3035;
+        color: #dee2e6;
+        border: 1px solid #3d4349;
+    }
+    .btn-remove-mention {
+        border: none;
+        background: none;
+        padding: 0;
+        color: #dc3545;
+        font-size: 10px;
+        cursor: pointer;
+        line-height: 1;
+    }
+    .btn-remove-mention:hover {
+        color: #a71d2a;
+    }
+    
+    /* Floating action bar styling */
+    .bulk-actions-floating-bar {
+        position: fixed;
+        bottom: -100px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(31, 34, 41, 0.95);
+        border: 1px solid #3d4349;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        border-radius: 50px;
+        padding: 12px 24px;
+        z-index: 1050;
+        display: flex;
+        align-items: center;
+        transition: bottom 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        backdrop-filter: blur(8px);
+    }
+    body.light .bulk-actions-floating-bar {
+        background: rgba(255, 255, 255, 0.95);
+        border-color: #dee2e6;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+    .bulk-actions-floating-bar.active {
+        bottom: 30px;
+    }
+
+    /* select-all bar dark/light */
+    .select-all-bar {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+    }
+    body.dark .select-all-bar {
+        background-color: #2b3035;
+        border-color: #3d4349;
+    }
+    .custom-check-all {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+
+    /* Forms dark mode styling */
+    body.dark .card-body {
+        background-color: #1e2229;
+        color: #f8f9fa;
+    }
+    body.dark .form-control {
+        background-color: #2b3035;
+        border-color: #3d4349;
+        color: #fff;
+    }
+    body.dark .form-control:focus {
+        background-color: #343a40;
+        color: #fff;
+    }
+    .search-filter-form {
+        padding: 15px;
+        border-radius: 12px;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+    }
+    body.dark .search-filter-form {
+        background-color: #2b3035;
+        border-color: #3d4349;
+    }
+
+    /* Modal styling */
+    body.dark .modal-content {
+        background-color: #1f2229;
+        color: #fff;
+        border-color: #3d4349;
+    }
+    body.dark .modal-header, body.dark .modal-footer {
+        border-color: #3d4349;
     }
 
     .badge {
@@ -266,148 +625,37 @@
         margin: 2px;
     }
 
-    .badge .btn-outline-danger {
-        margin-left: 5px;
-        padding: 2px 6px;
-        font-size: 10px;
-        border-radius: 50%;
-        line-height: 1;
-    }
-
-    .badge .btn-outline-danger:hover {
-        background-color: #dc3545;
-        border-color: #dc3545;
-        color: white;
-    }
-
     .select2-container {
         width: 100% !important;
     }
 
-    /* مودال عرض الصورة */
+    /* Image zoom viewer */
     .image-container {
         cursor: grab;
     }
-
     .image-container:active {
         cursor: grabbing;
     }
-
     #viewerImage {
         cursor: zoom-in;
     }
 
-    .btn-group .btn {
-        margin: 0 2px;
-    }
-
-    /* إعادة ترتيب الأشخاص */
-    .mentioned-persons-container {
-        min-height: 40px;
-    }
-
-    .mentioned-person-item {
-        transition: all 0.3s ease;
-        user-select: none;
-        margin: 2px;
-        display: inline-block;
-    }
-
-    .mentioned-person-item:hover {
-        transform: scale(1.05);
-    }
-
+    /* SortableJS drag & drop */
     .sortable-ghost {
         opacity: 0.4;
-        background: #c8ebfb;
+        background: #007bff !important;
     }
-
     .sortable-chosen {
-        transform: scale(1.1);
+        transform: scale(1.05);
         box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     }
-
-    .sortable-drag {
-        transform: rotate(5deg);
-    }
-
     .reorder-mode .mentioned-person-item {
         cursor: move;
+        border: 1px dashed #007bff;
     }
-
-    .reorder-mode .mentioned-person-item .btn-outline-danger {
-        display: none;
+    .reorder-mode .btn-remove-mention {
+        display: none !important;
     }
-
-    .reorder-controls {
-        margin-top: 5px;
-    }
-
-    .sortable-list {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 5px;
-        min-height: 30px;
-        padding: 5px;
-        border: 1px dashed transparent;
-        border-radius: 4px;
-        transition: all 0.3s ease;
-    }
-
-    .reorder-mode .sortable-list {
-        border-color: #007bff;
-        background-color: rgba(0, 123, 255, 0.05);
-    }
-
-    .mentioned-person-item {
-        cursor: default;
-        position: relative;
-    }
-
-    .reorder-mode .mentioned-person-item {
-        cursor: move;
-    }
-
-    .mentioned-person-item .fa-grip-vertical {
-        opacity: 0.3;
-        transition: opacity 0.3s ease;
-    }
-
-    .reorder-mode .mentioned-person-item .fa-grip-vertical {
-        opacity: 1;
-    }
-
-    .category-checkbox,
-    .image-checkbox {
-        cursor: pointer;
-    }
-
-    #checkAll,
-    #checkAllTable {
-        cursor: pointer;
-        width: 18px;
-        height: 18px;
-    }
-
-    .bg-light {
-        background-color: #f8f9fa !important;
-    }
-
-    /* تحسين المودال */
-    #bulkMoveModal .modal-body {
-        padding: 1.5rem;
-    }
-
-    #targetCategorySelect {
-        font-size: 1rem;
-    }
-
-    #targetCategorySelect option {
-        padding: 0.5rem;
-    }
-
-    /* تحسين Pagination */
     .pagination {
         justify-content: center;
     }
@@ -418,18 +666,15 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script>
-    // تهيئة Select2 للبحث عن الأشخاص
-    $(document).ready(function() {
-        $('#personSearchSelect').select2({
-            placeholder: 'ابحث عن شخص...',
+    // helper for initializing AJAX-based Select2 for people search
+    function initAjaxSelect2(element) {
+        $(element).select2({
+            placeholder: 'ابحث عن شخص لذكر اسمه...',
             allowClear: true,
+            theme: 'bootstrap4',
             language: {
-                noResults: function() {
-                    return "لا توجد نتائج";
-                },
-                searching: function() {
-                    return "جاري البحث...";
-                }
+                noResults: function() { return "لا توجد نتائج"; },
+                searching: function() { return "جاري البحث..."; }
             },
             ajax: {
                 url: "{{ route('people.search') }}",
@@ -441,66 +686,130 @@
                         page: params.page || 1
                     };
                 },
-                processResults: function (data, params) {
+                processResults: function (data) {
                     return {
-                        results: data.results,
-                        pagination: {
-                            more: false
-                        }
+                        results: data.results
                     };
                 },
                 cache: true
             },
-            minimumInputLength: 2,
-            escapeMarkup: function (markup) {
-                return markup;
+            minimumInputLength: 2
+        });
+    }
+
+    // تهيئة Select2 للبحث عن الأشخاص
+    $(document).ready(function() {
+        // فلتر البحث بالرئيسية
+        $('#personSearchSelect').select2({
+            placeholder: 'ابحث عن شخص...',
+            allowClear: true,
+            theme: 'bootstrap4',
+            language: {
+                noResults: function() { return "لا توجد نتائج"; },
+                searching: function() { return "جاري البحث..."; }
+            },
+            ajax: {
+                url: "{{ route('people.search') }}",
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return {
+                        term: params.term,
+                        page: params.page || 1
+                    };
+                },
+                processResults: function (data) {
+                    return {
+                        results: data.results
+                    };
+                },
+                cache: true
+            },
+            minimumInputLength: 2
+        });
+
+        // تهيئة select2 للمودالات عند التحميل
+        initAjaxSelect2('.select2-ajax-people');
+    });
+
+    // تحديث حالة الأزرار العائمة وتظليل الكروت عند تحديدها
+    function updateSelectionState() {
+        const checkboxes = document.querySelectorAll('input.image-checkbox');
+        const checkedCheckboxes = document.querySelectorAll('input.image-checkbox:checked');
+        const checkedCount = checkedCheckboxes.length;
+        
+        // تحديث النص في الشريط العائم
+        document.getElementById('selectedCountText').textContent = `${checkedCount} ملف محدد`;
+        
+        // إظهار/إخفاء الشريط العائم
+        const floatingBar = document.getElementById('bulkFloatingBar');
+        if (checkedCount > 0) {
+            floatingBar.classList.add('active');
+        } else {
+            floatingBar.classList.remove('active');
+        }
+
+        // تحديث كلاسات الكروت المحددة لتظليلها
+        checkboxes.forEach(cb => {
+            const card = cb.closest('.media-card');
+            if (cb.checked) {
+                card.classList.add('border-primary');
+                card.style.boxShadow = '0 0 10px rgba(0, 123, 255, 0.25)';
+            } else {
+                card.classList.remove('border-primary');
+                card.style.boxShadow = '';
             }
         });
+        
+        // مزامنة checkbox "اختيار الكل"
+        const checkAll = document.getElementById('checkAll');
+        if (checkAll) {
+            checkAll.checked = checkboxes.length === checkedCount;
+        }
+    }
+
+    // الاستماع لتغييرات الـ checkboxes
+    document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('image-checkbox')) {
+            updateSelectionState();
+        }
     });
 
     // اختيار الكل
     document.addEventListener('change', function(e) {
-        if (e.target.id === 'checkAll' || e.target.id === 'checkAllTable' || e.target.classList.contains('category-checkbox')) {
+        if (e.target.id === 'checkAll') {
             const isChecked = e.target.checked;
-
-            if (e.target.id === 'checkAll' || e.target.id === 'checkAllTable') {
-                // اختيار/إلغاء اختيار جميع الصور
-                document.querySelectorAll('input.image-checkbox').forEach(cb => cb.checked = isChecked);
-                document.querySelectorAll('input.category-checkbox').forEach(cb => cb.checked = isChecked);
-            }
+            document.querySelectorAll('input.image-checkbox').forEach(cb => {
+                cb.checked = isChecked;
+            });
+            updateSelectionState();
         }
     });
 
-    // تحديث حالة checkbox "اختيار الكل" عند تغيير الصور الفردية
-    document.addEventListener('change', function(e) {
-        if (e.target.classList.contains('image-checkbox')) {
-            const allCheckboxes = document.querySelectorAll('input.image-checkbox');
-            const checkedCheckboxes = document.querySelectorAll('input.image-checkbox:checked');
-            const checkAll = document.getElementById('checkAll');
-            const checkAllTable = document.getElementById('checkAllTable');
-            if (checkAll) {
-                checkAll.checked = allCheckboxes.length === checkedCheckboxes.length;
-            }
-            if (checkAllTable) {
-                checkAllTable.checked = allCheckboxes.length === checkedCheckboxes.length;
-            }
-        }
+    // إلغاء تحديد الكل
+    document.getElementById('clearSelectionBtn').addEventListener('click', function() {
+        document.querySelectorAll('input.image-checkbox').forEach(cb => {
+            cb.checked = false;
+        });
+        updateSelectionState();
     });
 
     // حذف جماعي
-    document.getElementById('bulkDeleteBtn').addEventListener('click', function() {
+    function submitBulkDelete() {
         const selectedCount = document.querySelectorAll('input.image-checkbox:checked').length;
         if (selectedCount === 0) {
             alert('يرجى تحديد صور للحذف');
             return;
         }
-        if (confirm(`حذف ${selectedCount} صورة محددة؟`)) {
+        if (confirm(`هل أنت متأكد من رغبتك في حذف ${selectedCount} صورة محددة؟`)) {
             document.getElementById('bulkDeleteForm').submit();
         }
-    });
+    }
+    document.getElementById('bulkDeleteBtn').addEventListener('click', submitBulkDelete);
+    document.getElementById('bulkDeleteBtnFloating').addEventListener('click', submitBulkDelete);
 
     // نقل جماعي
-    document.getElementById('bulkMoveBtn').addEventListener('click', function() {
+    function openBulkMoveModal() {
         const selectedCheckboxes = document.querySelectorAll('input.image-checkbox:checked');
         const selectedCount = selectedCheckboxes.length;
 
@@ -514,7 +823,9 @@
 
         // فتح المودال
         $('#bulkMoveModal').modal('show');
-    });
+    }
+    document.getElementById('bulkMoveBtn').addEventListener('click', openBulkMoveModal);
+    document.getElementById('bulkMoveBtnFloating').addEventListener('click', openBulkMoveModal);
 
     // معالج نموذج النقل الجماعي
     document.getElementById('bulkMoveForm').addEventListener('submit', function(e) {
@@ -567,9 +878,23 @@
         });
     });
 
+    // حذف فردي
+    function deleteSingleImage(imageId) {
+        if (confirm('هل أنت متأكد من رغبتك في حذف هذا الملف نهائياً؟')) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/dashboard/images/${imageId}`;
+            form.innerHTML = `
+                <input type="hidden" name="_token" value="${$('meta[name="csrf-token"]').attr('content')}">
+                <input type="hidden" name="_method" value="DELETE">
+            `;
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+
     // تعديل صورة
     function editImage(imageId) {
-        // جلب بيانات الصورة عبر AJAX
         $.ajax({
             url: `/dashboard/images/${imageId}/edit`,
             method: 'GET',
@@ -586,11 +911,17 @@
                     $('#editImageDescription').val(image.description || '');
 
                     // تحديث الأشخاص المذكورين
-                    $('#editMentionedPersons').val(image.mentioned_persons || []);
+                    $('#editMentionedPersons').empty();
+                    if (image.mentioned_persons) {
+                        image.mentioned_persons.forEach(function(person) {
+                            var option = new Option(person.full_name, person.id, true, true);
+                            $('#editMentionedPersons').append(option);
+                        });
+                    }
+                    $('#editMentionedPersons').trigger('change');
 
                     // عرض المحتوى الحالي
                     if (image.media_type === 'youtube' && image.youtube_url) {
-                        // عرض فيديو يوتيوب
                         $('#currentImage').hide();
                         $('#currentYoutubePreview').show();
 
@@ -615,23 +946,19 @@
                             $('#currentYoutubeLink').attr('href', image.youtube_url);
                         }
 
-                        // تحديد نوع المحتوى
                         $('#edit_media_type_youtube').prop('checked', true);
                         $('#edit-image-section').hide();
                         $('#edit-youtube-section').show();
                         $('#edit-pdf-section').hide();
                         $('#editYoutubeUrl').val(image.youtube_url);
 
-                        // إظهار حالة الصورة المصغرة الحالية
                         if (image.thumbnail_path) {
                             $('#editYoutubeThumbnailFile').next('.custom-file-label').text('صورة مصغرة موجودة');
                         }
                     } else {
-                        // عرض صورة
                         $('#currentYoutubePreview').hide();
                         $('#currentImage').show();
 
-                        // استخدام الصورة المصغرة إذا كانت متاحة، وإلا استخدم الصورة الأصلية
                         let imageUrl;
                         if (image.thumbnail_path) {
                             imageUrl = `{{ asset('storage/') }}/${image.thumbnail_path}`;
@@ -643,14 +970,12 @@
 
                         $('#currentImage').attr('src', imageUrl);
 
-                        // تحديد نوع المحتوى
                         if (image.media_type === 'pdf') {
                             $('#edit_media_type_pdf').prop('checked', true);
                             $('#edit-image-section').hide();
                             $('#edit-pdf-section').show();
                             $('#edit-youtube-section').hide();
 
-                            // إظهار حالة الصورة المصغرة الحالية
                             if (image.thumbnail_path) {
                                 $('#editThumbnailFile').next('.custom-file-label').text('صورة مصغرة موجودة');
                             }
@@ -662,10 +987,7 @@
                         }
                     }
 
-                    // تحديث رابط النموذج
                     $('#editImageForm').attr('action', `/dashboard/images/${imageId}`);
-
-                    // فتح المودال
                     $('#editImageModal').modal('show');
                 } else {
                     alert('تعذر جلب بيانات الصورة');
@@ -768,7 +1090,6 @@
             },
             success: function(resp) {
                 if (resp.ok && resp.category) {
-                    // أضف الفئة الجديدة لقوائم الاختيار داخل المودال
                     $('#uploadCategorySelect').append(new Option(resp.category.name, resp.category.id, true, true));
                     $('#quickCategoryModal').modal('hide');
                     form.reset();
@@ -790,6 +1111,15 @@
     let currentX = 0;
     let currentY = 0;
 
+    // عرض الميديا المناسبة عند الضغط
+    function triggerMediaView(id, type, url, path, name) {
+        if (type === 'youtube' && url) {
+            viewYouTube(id, url, name);
+        } else {
+            viewImage(id, path, name);
+        }
+    }
+
     // عرض الصورة في المودال
     function viewImage(imageId, imageSrc, imageName) {
         currentImageId = imageId;
@@ -806,7 +1136,6 @@
 
     // عرض فيديو يوتيوب في المودال
     function viewYouTube(imageId, youtubeUrl, videoName) {
-        // استخراج معرف الفيديو من الرابط
         let videoId = '';
         const patterns = [
             /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
@@ -938,46 +1267,37 @@
         const sortableList = container.find('.sortable-list');
 
         if (reorderMode) {
-            // إلغاء وضع إعادة الترتيب
             container.removeClass('reorder-mode');
             container.find('.reorder-controls').remove();
+            container.find('.drag-handle').hide();
 
-            // تدمير Sortable instance
             if (sortableInstances[imageId]) {
                 sortableInstances[imageId].destroy();
                 delete sortableInstances[imageId];
             }
             reorderMode = false;
         } else {
-            // تفعيل وضع إعادة الترتيب
             container.addClass('reorder-mode');
+            container.find('.drag-handle').show();
 
-            // إضافة أزرار التحكم
             const controls = `
-                <div class="reorder-controls">
-                    <button type="button" class="btn btn-sm btn-success" onclick="saveReorder(${imageId})">
-                        <i class="fas fa-check"></i> حفظ الترتيب
+                <div class="reorder-controls mt-2 d-flex justify-content-center gap-2">
+                    <button type="button" class="btn btn-xs btn-success px-2 py-1" onclick="saveReorder(${imageId})">
+                        <i class="fas fa-check"></i> حفظ
                     </button>
-                    <button type="button" class="btn btn-sm btn-secondary" onclick="cancelReorder(${imageId})">
+                    <button type="button" class="btn btn-xs btn-secondary px-2 py-1" onclick="cancelReorder(${imageId})">
                         <i class="fas fa-times"></i> إلغاء
                     </button>
                 </div>
             `;
             container.append(controls);
 
-            // إنشاء Sortable instance
             sortableInstances[imageId] = new Sortable(sortableList[0], {
                 animation: 150,
                 ghostClass: 'sortable-ghost',
                 chosenClass: 'sortable-chosen',
                 dragClass: 'sortable-drag',
-                handle: '.mentioned-person-item',
-                onStart: function(evt) {
-                    console.log('بدء السحب:', evt.item.textContent);
-                },
-                onEnd: function(evt) {
-                    console.log('انتهاء السحب:', evt.item.textContent);
-                }
+                handle: '.drag-handle'
             });
 
             reorderMode = true;
@@ -992,12 +1312,9 @@
             personIds.push($(this).data('person-id'));
         });
 
-        console.log('ترتيب الأشخاص الجديد:', personIds);
-
-        // إظهار مؤشر التحميل
         const saveBtn = container.find('.reorder-controls .btn-success');
         const originalText = saveBtn.html();
-        saveBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> جارٍ الحفظ...');
+        saveBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> ...');
 
         $.ajax({
             url: `/dashboard/images/${imageId}/reorder-persons`,
@@ -1007,7 +1324,6 @@
                 _token: '{{ csrf_token() }}'
             },
             success: function(response) {
-                console.log('استجابة الخادم:', response);
                 if (response.success) {
                     alert('تم حفظ الترتيب بنجاح');
                     location.reload();
@@ -1017,17 +1333,10 @@
                 }
             },
             error: function(xhr) {
-                console.error('خطأ في AJAX:', xhr);
                 let errorMessage = 'خطأ في الاتصال بالخادم';
-
                 if (xhr.responseJSON && xhr.responseJSON.message) {
                     errorMessage = xhr.responseJSON.message;
-                } else if (xhr.status === 422) {
-                    errorMessage = 'البيانات المرسلة غير صحيحة';
-                } else if (xhr.status === 404) {
-                    errorMessage = 'الصورة غير موجودة';
                 }
-
                 alert(errorMessage);
                 saveBtn.prop('disabled', false).html(originalText);
             }
@@ -1038,18 +1347,18 @@
         const container = $(`.mentioned-persons-container[data-image-id="${imageId}"]`);
         container.removeClass('reorder-mode');
         container.find('.reorder-controls').remove();
+        container.find('.drag-handle').hide();
 
-        // تدمير Sortable instance
         if (sortableInstances[imageId]) {
             sortableInstances[imageId].destroy();
             delete sortableInstances[imageId];
         }
 
         reorderMode = false;
-        location.reload(); // إعادة تحميل لاستعادة الترتيب الأصلي
+        location.reload();
     }
 
-    // التحكم في نوع المحتوى في مودال التعديل
+    // التحكم في نوع المحتوى في نموذج التعديل
     $(document).ready(function() {
         $('#edit_media_type_image').on('change', function() {
             if ($(this).is(':checked')) {

@@ -136,12 +136,7 @@
                 <div class="form-group">
                     <label>الأشخاص المذكورين في الملف (اختياري)</label>
                     <div class="mentioned-persons-edit-container">
-                        <select name="mentioned_persons[]" id="editMentionedPersons" class="form-control" multiple>
-                            @foreach ($people as $person)
-                                <option value="{{ $person->id }}">
-                                    {{ $person->full_name }}
-                                </option>
-                            @endforeach
+                        <select name="mentioned_persons[]" id="editMentionedPersons" class="form-control select2-ajax-people" multiple>
                         </select>
                         <div class="mt-2">
                             <small class="text-muted">يمكن اختيار أكثر من شخص للملف الواحد. الترتيب مهم - سيتم عرض الأشخاص بالترتيب الذي تختاره.</small>
