@@ -24,40 +24,37 @@
 
                 <div class="form-row">
                     {{-- الفئة --}}
-                    <div class="form-group col-md-4">
-                        <label>الفئة (يتم إظهار الفئات التي لديها مقالات فقط)</label>
+                    <div class="form-group col-md-3">
+                        <label>الفئة</label>
                         <div class="input-group">
                             <select name="category_id" class="form-control" required>
                                 @foreach ($categories as $cat)
                                     <option value="{{ $cat->id }}"
                                         {{ old('category_id') == $cat->id ? 'selected' : '' }}>
-                                        {{ $cat->name }} ({{ $cat->articles_count }})
+                                        {{ $cat->name }}
                                     </option>
                                 @endforeach
                             </select>
                             <div class="input-group-append">
                                 <button class="btn btn-outline-secondary" type="button" data-toggle="modal"
-                                    data-target="#quickCategoryModal">
-                                    <i class="fas fa-plus"></i> فئة جديدة
+                                    data-target="#quickCategoryModal" title="إضافة فئة سريعة">
+                                    <i class="fas fa-plus"></i>
                                 </button>
                             </div>
                         </div>
-                        <small class="text-muted">الفئات هنا مُفلترة بـ <code>whereHas('articles')</code>.</small>
                     </div>
 
                     {{-- الحالة --}}
                     <div class="form-group col-md-3">
                         <label>الحالة</label>
                         <select name="status" class="form-control" required>
-                            <option value="draft" {{ old('status', 'draft') === 'draft' ? 'selected' : '' }}>مسودة
-                            </option>
-                            <option value="published" {{ old('status') === 'published' ? 'selected' : '' }}>منشورة
-                            </option>
+                            <option value="draft" {{ old('status', 'draft') === 'draft' ? 'selected' : '' }}>مسودة</option>
+                            <option value="published" {{ old('status') === 'published' ? 'selected' : '' }}>منشورة</option>
                         </select>
                     </div>
 
-                    {{-- تاريخ المقال (السنة فقط) --}}
-                    <div class="form-group col-md-5">
+                    {{-- سنة المقال --}}
+                    <div class="form-group col-md-3">
                         <label>سنة المقال</label>
                         <select name="created_at_year" class="form-control">
                             <option value="">— اختر السنة —</option>
@@ -72,7 +69,35 @@
                                 </option>
                             @endfor
                         </select>
-                        <small class="text-muted d-block">اختياري. إن تركته فارغًا سيتم استخدام السنة الحالية تلقائياً.</small>
+                    </div>
+
+                    {{-- شهر المقال --}}
+                    <div class="form-group col-md-3">
+                        <label>شهر المقال</label>
+                        @php
+                            $months = [
+                                1 => 'يناير',
+                                2 => 'فبراير',
+                                3 => 'مارس',
+                                4 => 'أبريل',
+                                5 => 'مايو',
+                                6 => 'يونيو',
+                                7 => 'يوليو',
+                                8 => 'أغسطس',
+                                9 => 'سبتمبر',
+                                10 => 'أكتوبر',
+                                11 => 'نوفمبر',
+                                12 => 'ديسمبر'
+                            ];
+                        @endphp
+                        <select name="created_at_month" class="form-control">
+                            <option value="">— اختر الشهر —</option>
+                            @foreach ($months as $num => $name)
+                                <option value="{{ $num }}" {{ old('created_at_month') == $num ? 'selected' : '' }}>
+                                    {{ $num }} - {{ $name }}
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
 

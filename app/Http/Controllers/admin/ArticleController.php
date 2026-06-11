@@ -29,7 +29,7 @@ class ArticleController extends Controller
         $personId   = $request->get('person_id');
 
         // eager loading + عدادات
-        $query = Article::with(['category', 'person', 'attachments'])
+        $query = Article::with(['category', 'person', 'attachments', 'images'])
             ->withCount(['images', 'attachments'])
             ->search($search)
             ->inCategory($categoryId)
@@ -79,14 +79,26 @@ class ArticleController extends Controller
         DB::transaction(function () use ($request) {
             $data = $request->validated();
             
-            // معالجة created_at_year وتحويلها إلى created_at
-            if (isset($data['created_at_year']) && !empty($data['created_at_year'])) {
-                $data['created_at'] = $data['created_at_year'] . '-01-01 00:00:00';
+            // معالجة created_at_year و created_at_month وتحويلها إلى created_at
+            $year = isset($data['created_at_year']) && !empty($data['created_at_year']) ? (int) $data['created_at_year'] : null;
+            $month = isset($data['created_at_month']) && !empty($data['created_at_month']) ? (int) $data['created_at_month'] : null;
+
+            if ($year || $month) {
+                $today = now();
+                $year = $year ?: (int) $today->year;
+                
+                if ($month) {
+                    $tempDate = \Carbon\Carbon::create($year, $month, 1);
+                    $day = min((int) $today->day, $tempDate->daysInMonth);
+                    $data['created_at'] = \Carbon\Carbon::create($year, $month, $day, $today->hour, $today->minute, $today->second)->toDateTimeString();
+                } else {
+                    $data['created_at'] = \Carbon\Carbon::create($year, 1, 1, $today->hour, $today->minute, $today->second)->toDateTimeString();
+                }
             } else {
-                // إزالة created_at من البيانات إذا كان فارغاً ليتم استخدام التاريخ التلقائي
                 unset($data['created_at']);
             }
-            unset($data['created_at_year']); // إزالة الحقل المؤقت
+            unset($data['created_at_year']);
+            unset($data['created_at_month']);
             
             $article = Article::create($data);
 
@@ -135,14 +147,26 @@ class ArticleController extends Controller
         DB::transaction(function () use ($request, $article) {
             $data = $request->validated();
             
-            // معالجة created_at_year وتحويلها إلى created_at
-            if (isset($data['created_at_year']) && !empty($data['created_at_year'])) {
-                $data['created_at'] = $data['created_at_year'] . '-01-01 00:00:00';
+            // معالجة created_at_year و created_at_month وتحويلها إلى created_at
+            $year = isset($data['created_at_year']) && !empty($data['created_at_year']) ? (int) $data['created_at_year'] : null;
+            $month = isset($data['created_at_month']) && !empty($data['created_at_month']) ? (int) $data['created_at_month'] : null;
+
+            if ($year || $month) {
+                $today = now();
+                $year = $year ?: (int) $today->year;
+                
+                if ($month) {
+                    $tempDate = \Carbon\Carbon::create($year, $month, 1);
+                    $day = min((int) $today->day, $tempDate->daysInMonth);
+                    $data['created_at'] = \Carbon\Carbon::create($year, $month, $day, $today->hour, $today->minute, $today->second)->toDateTimeString();
+                } else {
+                    $data['created_at'] = \Carbon\Carbon::create($year, 1, 1, $today->hour, $today->minute, $today->second)->toDateTimeString();
+                }
             } else {
-                // إزالة created_at من البيانات إذا كان فارغاً
                 unset($data['created_at']);
             }
-            unset($data['created_at_year']); // إزالة الحقل المؤقت
+            unset($data['created_at_year']);
+            unset($data['created_at_month']);
             
             $article->update($data);
 

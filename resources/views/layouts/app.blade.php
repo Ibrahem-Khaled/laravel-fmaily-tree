@@ -5,11 +5,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="description" content="{{ config('app.name') }}">
+    <meta name="description" content="عائلة السّريع">
     <meta name="keywords" content="">
-    <meta name="author" content="{{ config('app.name') }}">
+    <meta name="author" content="عائلة السّريع">
     <link rel="icon" href="{{ asset('admin-assets/favicon.ico') }}">
-    <title>@yield('title') | {{ config('app.name') }}</title>
+    <title>@yield('title') | عائلة السّريع</title>
 
     <!-- Simple bar CSS -->
     <link rel="stylesheet" href="{{ asset('admin-assets/css/simplebar.css') }}">

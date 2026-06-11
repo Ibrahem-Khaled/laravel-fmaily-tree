@@ -28,6 +28,7 @@ class StoreArticleRequest extends FormRequest
             'category_id' => ['required', 'exists:categories,id'],
             'person_id'   => ['nullable', 'exists:persons,id'],
             'created_at_year' => ['nullable', 'integer', 'min:1900', 'max:2100'],
+            'created_at_month' => ['nullable', 'integer', 'min:1', 'max:12'],
 
             // صور متعددة
             'images'      => ['sometimes', 'array', 'max:10'],

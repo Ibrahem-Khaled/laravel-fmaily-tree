@@ -46,7 +46,7 @@
                         </select>
                     </div>
 
-                    <div class="form-group col-md-6">
+                    <div class="form-group col-md-3">
                         <label class="mb-1">سنة المقال</label>
                         @php
                             $selectedYear = old('created_at_year');
@@ -65,7 +65,38 @@
                                 </option>
                             @endfor
                         </select>
-                        <small class="text-muted d-block">يمكن تعديل سنة إنشاء المقال.</small>
+                    </div>
+
+                    <div class="form-group col-md-3">
+                        <label class="mb-1">شهر المقال</label>
+                        @php
+                            $selectedMonth = old('created_at_month');
+                            if (!$selectedMonth && $article->created_at) {
+                                $selectedMonth = \Carbon\Carbon::parse($article->created_at)->format('n');
+                            }
+                            $months = [
+                                1 => 'يناير',
+                                2 => 'فبراير',
+                                3 => 'مارس',
+                                4 => 'أبريل',
+                                5 => 'مايو',
+                                6 => 'يونيو',
+                                7 => 'يوليو',
+                                8 => 'أغسطس',
+                                9 => 'سبتمبر',
+                                10 => 'أكتوبر',
+                                11 => 'نوفمبر',
+                                12 => 'ديسمبر'
+                            ];
+                        @endphp
+                        <select name="created_at_month" class="form-control">
+                            <option value="">— اختر الشهر —</option>
+                            @foreach ($months as $num => $name)
+                                <option value="{{ $num }}" {{ $selectedMonth == $num ? 'selected' : '' }}>
+                                    {{ $num }} - {{ $name }}
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
 
