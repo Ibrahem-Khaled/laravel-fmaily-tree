@@ -52,6 +52,8 @@ Route::middleware('web')->group(function () {
     Route::get('/breastfeeding', [BreastfeedingPublicApiController::class, 'index']);
     Route::get('/gallery/categories', [GalleryApiController::class, 'categories']);
     Route::get('/gallery/images', [GalleryApiController::class, 'images']);
+    Route::get('/gallery/articles', [GalleryApiController::class, 'articles']);
+    Route::get('/gallery/articles/{id}', [GalleryApiController::class, 'showArticle']);
 
     Route::prefix('store')->group(function () {
         Route::get('/', [StoreApiController::class, 'index']);
