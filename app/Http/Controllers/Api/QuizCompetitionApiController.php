@@ -38,6 +38,17 @@ class QuizCompetitionApiController extends Controller
             return $comp;
         });
 
+        // التحقق من صلاحية المسابقة النشطة حالياً (أنها بدأت ولم تنتهِ بعد)
+        if ($activeComp) {
+            $now = now();
+            $hasStarted = !$activeComp->start_at || $now->gte($activeComp->start_at);
+            $hasEnded = $activeComp->end_at && $now->gt($activeComp->end_at);
+
+            if (!$hasStarted || $hasEnded) {
+                $activeComp = null;
+            }
+        }
+
         // Resolve user identifier if provided (phone, or authenticated user)
         $phone = $request->query('phone') ?? ($request->user()?->phone);
         $answeredQuestionIds = [];
